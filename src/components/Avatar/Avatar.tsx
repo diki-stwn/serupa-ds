@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
+import { useSerupa } from "../../internal/provider";
 import { initials } from "./initials";
 import * as icons from "../../material/builtin";
 
@@ -24,7 +25,7 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLSpanElement> {
   shape?: 'circle' | 'square';
   /** A dot at the bottom end: 'online', 'busy', 'away' or 'offline'. Added to the accessible name. */
   status?: AvatarStatus;
-  /** What a screen reader hears for the status. Default: the status in English ("online"). */
+  /** What a screen reader hears for the status. Default: the avatarStatus label ("online", "daring" in idLabels). */
   statusLabel?: string;
 }
 
@@ -45,13 +46,14 @@ export const Avatar = /* @__PURE__ */ component<HTMLSpanElement, AvatarProps>("A
   const rest = omit(props, OWN);
   const size = React.useContext(AvatarGroupSize) || oneOf(SIZES, props.size, "md");
   const square = props.shape === "square";
+  const sds = useSerupa();
   const status = props.status && STATUSES.indexOf(props.status) >= 0 ? props.status : null;
   // Remember which src failed rather than resetting a flag in an effect: a fast error (WebKit) can land
   // before that effect runs, and the reset would then bring back the broken picture.
   const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
   const failed = failedSrc != null && failedSrc === props.src;
   const label = props.alt != null ? props.alt : props.name || "";
-  const full = label && status ? label + ", " + (props.statusLabel || status) : label;
+  const full = label && status ? label + ", " + (props.statusLabel || sds.labels.avatarStatus(status)) : label;
   const showImg = !!props.src && !failed;
   const text = initials(props.name);
   const body = showImg

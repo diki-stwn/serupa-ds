@@ -73,5 +73,10 @@ const haloRings = comps.flatMap((c) => {
 });
 t('focus rings are outlines (focus-ring-width, focus-ring-offset), not box-shadow rings with a painted gap', !haloRings.length, haloRings.join('; '));
 
+// npm run new-component writes TODO(new-component) wherever a new component still needs its author's words; one left
+// means it isn't finished.
+const unfinished = comps.flatMap((c) => fs.readdirSync(path.join(COMP, c)).filter((f) => fs.readFileSync(path.join(COMP, c, f), 'utf8').includes('TODO(new-component)')).map((f) => `${c}/${f}`));
+t('no TODO(new-component) is left from the component generator', !unfinished.length, unfinished.join(', '));
+
 console.log(`(${comps.length} components)`);
 done(report('Contract', R));

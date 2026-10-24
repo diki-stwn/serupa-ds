@@ -14,6 +14,7 @@ interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpanElement
     value?: DateRange;
     defaultValue?: DateRange;
     onValueChange?: (value: DateRange) => void;
+    onInvalidInput?: (text: string, reason: "unavailable" | "unreadable") => void;
     min?: Date;
     max?: Date;
     isDateDisabled?: (date: Date) => boolean;

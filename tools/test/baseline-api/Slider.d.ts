@@ -1,4 +1,8 @@
 // exports: Slider, type SliderProps, type SliderValue
+interface SliderLabels {
+    sliderMinimum: string;
+    sliderMaximum: string;
+}
 type SliderValue = [
     number,
     number

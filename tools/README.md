@@ -55,7 +55,8 @@ says which one broke, with the expected and received values and a screenshot. Sh
 colors, WCAG contrast in all six themes) are in `tools/test/vitest/helpers.ts`.
 
 Every component has its own `<Name>.test.tsx`, and a new component needs one: the contract check fails
-without it. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
+without it. `npm run new-component -- <Name>` (`tools/new-component.mjs`) writes a starting test with the
+rest of the folder; `tools/test/new-component.mjs` checks that what it writes passes the contract. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
 turns them back on with `withMotion()` (one read or one test) or `keepMotion()` (the whole file).
 
 ### Suite scripts

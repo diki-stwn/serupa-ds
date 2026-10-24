@@ -4,6 +4,8 @@ import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
 import { Link } from './Link';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const el = (id: string) => document.getElementById(id) as HTMLAnchorElement;
 const underline = (id: string) => { const s = css(el(id)); return { color: s.color, line: s.textDecorationLine, thickness: s.textDecorationThickness, offset: s.textUnderlineOffset }; };
@@ -20,6 +22,11 @@ function Para({ r }: { r?: React.Ref<HTMLAnchorElement> }) {
 }
 
 describe('Link', () => {
+  test('external says "(opens in a new tab)" in the provider\'s words: "(terbuka di tab baru)" under id-ID', async () => {
+    await render(<><Link id="ext-en" href="#" external>Docs</Link><SerupaProvider locale="id-ID" labels={idLabels}><Link id="ext-id" href="#" external>Dokumen</Link></SerupaProvider></>);
+    expect([el('ext-en').textContent, el('ext-id').textContent]).toEqual(['Docs (opens in a new tab)', 'Dokumen (terbuka di tab baru)']);
+  });
+
   test('defaults: an inline <a>; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLAnchorElement>();
     await render(<Para r={r} />);

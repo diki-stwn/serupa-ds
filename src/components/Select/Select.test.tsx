@@ -68,6 +68,22 @@ describe('Select', () => {
     expect([field('ph').value, css(field('ph')).color]).toEqual(['Two', color('var(--text)')]);
   });
 
+  test('form reset: an uncontrolled select goes back to its placeholder (or its defaultValue) and looks it, and the form sends the default', async () => {
+    await render(<form id="f">
+      <Select id="ph" name="ph" aria-label="Size" placeholder="Choose a size" options={['S', 'M']} />
+      <Select id="dv" name="dv" aria-label="Fruit" defaultValue="b" options={[{ value: 'a', label: 'Apple' }, { value: 'b', label: 'Banana' }]} />
+    </form>);
+    await userEvent.selectOptions(field('ph'), 'M');
+    await userEvent.selectOptions(field('dv'), 'a');
+    expect([box('ph').classList.contains('dk-select--empty'), field('dv').value]).toEqual([false, 'a']);
+    (document.getElementById('f') as HTMLFormElement).reset();
+    await expect.poll(() => box('ph').classList.contains('dk-select--empty')).toBe(true);
+    const data = new FormData(document.getElementById('f') as HTMLFormElement);
+    expect([field('ph').value, field('dv').value, data.get('ph'), data.get('dv')]).toEqual(['', 'b', null, 'b']);
+    await userEvent.selectOptions(field('ph'), 'S');
+    expect(box('ph').classList.contains('dk-select--empty')).toBe(false);
+  });
+
   test('groups, plain options and <option> children together; the left icon and chevron are decorative and don\'t take clicks; the text starts after the icon', async () => {
     await render(<Grid><Select id="grp" leftIcon="schedule" aria-label="Groups" options={[{ label: 'Europe', options: ['London', 'Paris'] }, 'Tokyo']}><option value="kid">Child</option></Select></Grid>);
     const i = field('grp');

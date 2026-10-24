@@ -37,6 +37,7 @@ const [owner, setOwner] = React.useState<string | null>(null);
 
 - Opening with a click, the chevron or an arrow shows every option; typing narrows them and highlights the first match.
 - Leaving the field closes the list and puts back the picked label. Leaving it empty clears the selection.
+- Text that is exactly one option's label ("brazil" for Brazil: any case, with or without accents) picks that option when focus leaves the field (Tab or a click elsewhere), as Enter would.
 - The list opens under the field in the top layer, at least as wide as the field and up to 240px tall, and flips above when there's no room. With no room above or below either, it takes the roomier side and gets shorter, scrolling inside.
 
 ## Accessibility
@@ -72,7 +73,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `loading` | `boolean` | `false` | A loading row in the list. |
 | `emptyText` | `ReactNode` | `'No results'` | |
 | `loadingText` | `string` | `'Loading…'` | |
-| `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. |
+| `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. By default they come from the `showOptions` and `clearValue` labels ("Tampilkan pilihan", "Hapus Negara" in `idLabels`). |
 | `name` | `string` | | Sends the value with a form, in a hidden input. |
 
 `className` and `style` go to the box; `ref` and every other prop go to the `<input>`.

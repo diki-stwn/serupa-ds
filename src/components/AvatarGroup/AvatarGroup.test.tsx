@@ -6,6 +6,8 @@ import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers
 import { Avatar, type AvatarSize } from '../Avatar/Avatar';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { AvatarGroup } from './AvatarGroup';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const P = ['Ada Lovelace', 'Grace Hopper', 'Alan Turing', 'Katherine Johnson', 'Linus Torvalds'];
 const av = (n: number) => P.slice(0, n).map((x) => <Avatar key={x} name={x} size="lg" />);
@@ -31,6 +33,11 @@ function forcedColors(): () => void {
 const Col = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>{children}</div>;
 
 describe('AvatarGroup', () => {
+  test('the "+N" avatar is named in the provider\'s words: "2 lainnya" under id-ID', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><AvatarGroup label="Tim" max={3}>{av(5)}</AvatarGroup></SerupaProvider>);
+    expect(document.querySelector('.dk-avatar-group__more')!.getAttribute('aria-label')).toBe('2 lainnya');
+  });
+
   test('a role="group" <div> named by label, with each avatar keeping its own name; no "+N" when all fit; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLDivElement>();
     await render(<AvatarGroup id="all" label="Assigned to" ref={r} className="extra" data-x="y">{av(3)}</AvatarGroup>);

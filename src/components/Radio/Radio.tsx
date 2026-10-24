@@ -1,7 +1,8 @@
 "use client";
 import * as React from "react";
-import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
+import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { useFormReset } from "../../internal/useFormReset";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -63,10 +64,14 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
   const onChange = props.onChange;
+  // A form reset checks the radio that was checked first; the group's choice follows it (a controlled one shows its value again).
+  const root = React.useRef<HTMLDivElement | null>(null);
+  const [, rerender] = React.useState(0);
+  useFormReset(root, function () { if (!controlled) setPicked(props.defaultValue); rerender(function (n) { return n + 1; }); });
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
     select: function (v, e) { if (!controlled) setPicked(v); if (onChange) onChange(v as string | number, e); } };
   return (
-    <div {...rest} ref={ref} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
       className={cn("dk-radio-group", "dk-radio-group--" + orientation, invalid && "dk-radio-group--invalid", props.className)} data-component="radio-group" data-orientation={orientation}>
       <RadioContext.Provider value={ctx}>{props.children}</RadioContext.Provider>
     </div>

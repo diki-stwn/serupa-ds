@@ -44,10 +44,13 @@ const utilities = buildUtilities(P);
 // Each file declares the system's cascade layers in one order (dk.tokens, dk.base, dk.components, dk.utilities),
 // so page styles outside the layers win over them whatever loads first.
 const banner = (what) => `/*! Serupa v${version} by Diki · ${what} · CHANGELOG.md */\n@layer dk.tokens, dk.base, dk.components, dk.utilities;\n`;
-fs.writeFileSync(path.join(D, 'components.css'), banner('components') + components);
-fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + utilities);
-fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + components + utilities);
-fs.copyFileSync(path.join(P, 'src', 'styles', 'base.css'), path.join(D, 'base.css'));
+// Shipped without the source comments (the explained copy is src/), which are about 40% of components.css
+// gzipped; the /*! banner lines stay. The rules keep their layout, so a stack trace or devtools still reads well.
+const bare = (css) => css.replace(/\/\*(?!!)[\s\S]*?\*\//g, '').replace(/[ \t]+$/gm, '').replace(/\n{2,}/g, '\n');
+fs.writeFileSync(path.join(D, 'components.css'), banner('components') + bare(components));
+fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + bare(utilities));
+fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + bare(components) + bare(utilities));
+fs.writeFileSync(path.join(D, 'base.css'), bare(read('src/styles/base.css')));
 
 // components.json: for each component, the names it exports, the dk-* classes its CSS uses and the components it
 // needs (the ones it imports, and the ones whose classes it writes out). serupa-purge --components reads it to

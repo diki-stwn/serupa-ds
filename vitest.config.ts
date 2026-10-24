@@ -42,6 +42,9 @@ export default defineConfig({
       test: {
         name: 'components',
         include: ['src/**/*.test.tsx'],
+        // Files and the tests in each run in a random order (Vitest prints the seed; --sequence.seed=<n> repeats
+        // one), so no test can lean on what the one before it left behind.
+        sequence: { shuffle: true },
         setupFiles: ['./tools/test/vitest/setup.ts'],
         // In Firefox the test files run side by side in frames of one page, and so share its one mouse: a hover in
         // one file landed in the middle of a drag in another. One file at a time there.

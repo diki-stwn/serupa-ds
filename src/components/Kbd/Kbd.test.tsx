@@ -3,6 +3,8 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Kbd } from './Kbd';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const caps = (id: string) => [...el(id).querySelectorAll<HTMLElement>('.dk-kbd__key')];
@@ -41,6 +43,11 @@ describe('Kbd', () => {
     expect([k.offsetHeight, k.offsetWidth >= 24]).toEqual([24, true]);
     expect(css(e).fontFamily).toMatch(/Inter/);
     expect(keys('k')).toBe('K');
+  });
+
+  test('key names are read in the provider\'s words: "Panah atas" and "Spasi" under id-ID', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Kbd id="kid" keys={['up', 'space']} /></SerupaProvider>);
+    expect(spoken('kid')).toBe('Panah atas + Spasi');
   });
 
   test('a combination: one keycap per key, with a hidden + between them', async () => {

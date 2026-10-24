@@ -7,6 +7,10 @@ import { Input } from '../Input/Input';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Textarea } from '../Textarea/Textarea';
 import { Field } from './Field';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
+
+const announcer = () => document.querySelector('[data-dk-announcer]') as HTMLElement;
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const described = (id: string) => (el(id).getAttribute('aria-describedby') || '').split(' ').filter(Boolean);
@@ -63,6 +67,43 @@ describe('Field', () => {
     expect(el('native').labels?.[0].textContent).toBe('CodeLeave blank if none');
     expect(el('native-bad').getAttribute('aria-invalid')).toBe('true');
     expect(el('native-bad').hasAttribute('invalid')).toBe(false);
+  });
+
+  test('the default "(optional)" comes from the labels: Indonesian under an id-ID provider', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Field label="Catatan" optional><input id="opt-id" /></Field></SerupaProvider>);
+    expect(el('opt-id').labels?.[0].textContent).toBe('Catatan(opsional)');
+  });
+
+  test('an error that appears or changes after mount is announced politely; one there from the start, or unchanged on a re-render, is not', async () => {
+    function Form({ error }: { error?: string }) { return <Field label="Email" error={error}><input id="ann" /></Field>; }
+    const r = await render(<Form error="Already there" />);
+    await r.rerender(<Form error="Already there" />);
+    await new Promise((ok) => setTimeout(ok, 700));
+    expect(announcer().textContent).not.toContain('Already there');
+    await r.rerender(<Form />);
+    await r.rerender(<Form error="Enter an email address like name@example.com" />);
+    await expect.poll(() => announcer().textContent).toBe('Enter an email address like name@example.com');
+    await r.rerender(<Form error="Use a work address" />);
+    await expect.poll(() => announcer().textContent).toBe('Use a work address');
+  });
+
+  test('the shared announcer is hidden without the utilities stylesheet (inline styles, not only the sr-only class)', async () => {
+    await render(<Field label="X"><input id="hid" /></Field>);
+    const a = announcer();
+    expect([a.style.position, a.style.width, a.style.clipPath, a.style.overflow]).toEqual(['absolute', '1px', 'inset(50%)', 'hidden']);
+  });
+
+  test('a label whose control id is nowhere on the page warns once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<Field label="Lost" id="nowhere-xyz">Just text</Field>);
+    await expect.poll(() => warn.mock.calls.some((c) => String(c[0]).includes('nowhere-xyz'))).toBe(true);
+    warn.mockRestore();
+  });
+
+  test('a native <select> as the direct child is the control, options and all: the label names it, the hint and error describe it, aria-invalid and aria-required', async () => {
+    await render(<Field label="Size" hint="Pick one" error="Required" required><select><option value="">Choose</option><option>S</option></select></Field>);
+    const s = document.querySelector('select')!;
+    expect([s.labels?.[0].textContent?.replaceAll('*', ''), s.getAttribute('aria-invalid'), s.getAttribute('aria-required'), (s.getAttribute('aria-describedby') || '').split(' ').length]).toEqual(['Size', 'true', 'true', 2]);
   });
 
   test('disabled disables the control and dims the label', async () => {
