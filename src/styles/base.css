@@ -1,4 +1,4 @@
-/*! Serupa v8.0.0 by Diki · base.css */
+/*! Serupa v8.1.0 by Diki · base.css */
 /* Serupa base: page defaults. Optional — load it after tokens.css and before bundle.css on pages
    built with the system; leave it out when the system is dropped into an existing app.
    Every value is a token. It sets defaults only (all selectors are :where(), so any class wins). */
