@@ -48,6 +48,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 | --- | --- | --- | --- |
 | `value` / `defaultValue` | `string \| null` | | The time as `"HH:mm"` (24-hour), controlled or not. The same format as `<input type="time">`. |
 | `onValueChange` | `(value: string \| null) => void` | | Called with `"HH:mm"`, or `null` when the field is cleared. |
+| `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a time) or `"unavailable"` (outside `min`..`max`). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
 | `min`, `max` | `string` | `"00:00"`, `"23:59"` | The earliest and latest times, typed or picked. |
 | `step` | `number` | `30` | Minutes between the times in the list, counted from `min` (or midnight), like `<input type="time">`. Under 1, it's 30. Typed times don't have to fall on a step. |
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | How times are written. |
