@@ -3,10 +3,9 @@
 // contrast, as WCAG 1.4.3 says).
 //   node tools/test/storybook.mjs
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { PROJECT, browser, report } from './lib.mjs';
+import { PROJECT, browser, report, serve } from './lib.mjs';
 
 const DIR = path.join(PROJECT, 'storybook-static');
 if (!fs.existsSync(path.join(DIR, 'index.json'))) {
@@ -14,14 +13,7 @@ if (!fs.existsSync(path.join(DIR, 'index.json'))) {
   if (process.env.CI) { console.log('FAIL  storybook-static/ is missing (npm run build-storybook)'); process.exit(1); }
   console.log('SKIP  Storybook is not built (npm run build-storybook)'); process.exit(0);
 }
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' };
-const server = http.createServer((req, res) => {
-  const f = path.join(DIR, decodeURIComponent(new URL(req.url, 'http://x').pathname));
-  if (!f.startsWith(DIR) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
-  res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' });
-  fs.createReadStream(f).pipe(res);
-}).listen(0);
-const base = `http://127.0.0.1:${server.address().port}`;
+const { base, close } = serve(DIR);
 const { entries } = JSON.parse(fs.readFileSync(path.join(DIR, 'index.json'), 'utf8'));
 const axe = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emerald-light', 'emerald-dark'];
@@ -107,6 +99,6 @@ for (const e of stories) {
   t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes`, !problems.length, problems.slice(0, 3).join('\n      '));
 }
 await b.close();
-server.close();
+close();
 console.log(`(${docs.length} docs pages, ${stories.length} stories × ${THEMES.length} themes)`);
 process.exit(report('Storybook', R) ? 0 : 1);

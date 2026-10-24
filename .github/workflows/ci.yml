@@ -77,9 +77,10 @@ jobs:
         include:
           - { group: checks }
           - { group: components }
-          - { group: visual, shard: 1/3 }
-          - { group: visual, shard: 2/3 }
-          - { group: visual, shard: 3/3 }
+          - { group: visual, shard: 1/4 }
+          - { group: visual, shard: 2/4 }
+          - { group: visual, shard: 3/4 }
+          - { group: visual, shard: 4/4 }
           - { group: storybook, shard: 1/4 }
           - { group: storybook, shard: 2/4 }
           - { group: storybook, shard: 3/4 }
@@ -126,7 +127,7 @@ jobs:
           path: |
             test-output.txt
             .test-tmp/
-            tools/test/baseline-visual/*.actual.png
+            tools/test/baseline-visual/**/*.actual.png
           if-no-files-found: ignore
 
   # One check that passes only when every group passed, under the name the single job used to have.

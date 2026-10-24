@@ -1,5 +1,6 @@
 // Shared helpers for the Serupa test suite.
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -73,6 +74,19 @@ export function report(name, results) {
   for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok || !r.detail ? '' : '\n      ' + r.detail}`);
   console.log(`\n${name}: ${results.length - failed.length}/${results.length} passed`);
   return failed.length === 0;
+}
+
+// Serves a built folder (storybook-static/) over http on a free port: Storybook's iframe loads its modules with
+// fetch, which file:// URLs refuse. Returns the base URL and close().
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' };
+export function serve(dir) {
+  const server = http.createServer((req, res) => {
+    const f = path.join(dir, decodeURIComponent(new URL(req.url, 'http://x').pathname));
+    if (!f.startsWith(dir) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
+    res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' });
+    fs.createReadStream(f).pipe(res);
+  }).listen(0);
+  return { base: `http://127.0.0.1:${/** @type {import('node:net').AddressInfo} */ (server.address()).port}`, close: () => server.close() };
 }
 
 // The end of a suite run with node: exit 0 if it passed. Under Vitest, which owns the process, a failed result is

@@ -2,7 +2,7 @@
 // component can't pass CI with something missing. No browser needed.
 //   node tools/test/contract.mjs
 // Each component needs: <Name>.tsx, <Name>.css, <name>.tokens.json, <Name>.stories.tsx, <Name>.mdx, README.md,
-// preview.html, a test next to it (<Name>.test.tsx, Vitest), and a visual baseline in every theme.
+// preview.html, a test next to it (<Name>.test.tsx, Vitest), and visual baselines of its stories in every theme.
 import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PROJECT, tokensCss, report, done } from './lib.mjs';
@@ -20,7 +20,8 @@ const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();
 const kebab = (c) => c.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 const { themes } = tokensCss();
-const baselines = new Set(fs.existsSync(path.join(HERE, 'baseline-visual')) ? fs.readdirSync(path.join(HERE, 'baseline-visual')) : []);
+// baseline-visual/<Name>/<Story>-<theme>-<state>.png (tools/test/visual.mjs).
+const baselines = (c) => { const d = path.join(HERE, 'baseline-visual', c); return fs.existsSync(d) ? fs.readdirSync(d) : []; };
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -36,7 +37,7 @@ for (const c of comps) {
     guide: has('README.md'),
     preview: has('preview.html'),
     test: has(`${c}.test.tsx`),
-    visual: themes.every((th) => baselines.has(`${c}-${th}-rest.png`)),
+    visual: themes.every((th) => baselines(c).some((f) => f.endsWith(`-${th}-rest.png`))),
   };
   const missing = [], fixed = [];
   for (const [part, ok] of Object.entries(parts)) {

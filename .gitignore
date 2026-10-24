@@ -5,7 +5,7 @@ bundle.min.css
 .DS_Store
 *.log
 test-output.txt
-tools/test/baseline-visual/*.actual.png
+tools/test/baseline-visual/**/*.actual.png
 __pycache__/
 storybook-static/
 .release-notes.md
