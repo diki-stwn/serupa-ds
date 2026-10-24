@@ -9,7 +9,7 @@ runs:
         echo "playwright=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
         echo "image=${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
     - id: cache
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/ms-playwright
         key: playwright-chromium-${{ runner.os }}-${{ steps.version.outputs.playwright }}
@@ -20,7 +20,7 @@ runs:
     # shard could spend 10 minutes downloading 25 MB. Their .deb files are cached per runner image and
     # Playwright version, so apt installs them from disk and only reads the package lists.
     - id: apt-cache
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/playwright-debs
         key: playwright-debs-${{ runner.os }}-${{ steps.version.outputs.image }}-${{ steps.version.outputs.playwright }}

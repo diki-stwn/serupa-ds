@@ -19,10 +19,10 @@ jobs:
     if: github.event.label.name == 'update-visual-baselines' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -43,11 +43,14 @@ jobs:
           git push
           # A push made with the workflow's token starts no workflows, so start CI on the branch: its checks
           # land on the new head commit, which the pull request's required checks look at.
-          gh workflow run ci.yml --repo ${{ github.repository }} --ref ${{ github.event.pull_request.head.ref }}
+          # The branch name is the PR author's text: it reaches the shell as a variable, never pasted into the script.
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF"
         env:
           GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
       - name: Remove the label
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr edit ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --remove-label update-visual-baselines
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label update-visual-baselines

@@ -1,6 +1,7 @@
 # Weekly update pull requests, grouped so they arrive as a few PRs instead of dozens.
 # Versions in package.json are exact, so each update is one reviewed bump; CI (and the visual baselines) decide
-# whether it lands. Majors come one per PR, since they can need code changes.
+# whether it lands. Majors come one per PR, since they can need code changes. A release is only offered once it is
+# 7 days old (cooldown), so a hijacked version that npm or GitHub pulls within days never reaches a pull request.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -8,6 +9,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     groups:
       storybook:
@@ -23,6 +26,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ["*"]
