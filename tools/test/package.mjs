@@ -16,6 +16,8 @@ const pkg = JSON.parse(read('package.json'));
 
 // 0. Nothing publishes to a registry until Diki picks the final name: projects install releases from GitHub.
 t('package.json is private and has no publishConfig, so npm publish refuses', pkg.private === true && !('publishConfig' in pkg), `private: ${pkg.private}, publishConfig: ${JSON.stringify(pkg.publishConfig)}`);
+// Every component is built by tools in devDependencies, so a project installs nothing else (J7).
+t('package.json has no dependencies (React is a peer dependency; everything else is bundled)', !Object.keys(pkg.dependencies || {}).length && !Object.keys(pkg.optionalDependencies || {}).length, JSON.stringify({ ...pkg.dependencies, ...pkg.optionalDependencies }));
 
 // 1. exports
 const targets = [];
@@ -117,5 +119,20 @@ const body = (f) => read(f).replace(/^\/\*![^\n]*\*\/\n@layer [^;]*;\n/, '');
 t('bundle.css = components.css + utilities.css', body('dist/bundle.css') === body('dist/components.css') + body('dist/utilities.css'));
 t('components.css holds no utility classes (only dk-* and the keyframes they use)', !/^\.(?!dk-)[a-z]/m.test(body('dist/components.css').replace(/\/\*[\s\S]*?\*\//g, '')));
 t('the old bundle.js alias is gone (removed in 8.0.0)', !fs.existsSync(path.join(PROJECT, 'dist', 'bundle.js')));
+
+// 4. The files the package ships (npm pack): the fixed list in baseline-package.txt, plus a module and its source map
+// in dist/js/ for each module in src/ (not tests or stories) and a tokens file in design-tokens/components/ for each
+// component's, so a new file can't ship (or one vanish) unreviewed, and a component pull request edits no shared list.
+const pack = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: PROJECT, encoding: 'utf8', shell: process.platform === 'win32' });
+const shipped = pack.status === 0 ? new Set(JSON.parse(pack.stdout)[0].files.map((f) => f.path)) : null;
+// Built on their own, not as modules: the browser scripts' entries, and types only.
+const ENTRIES = new Set(['browser', 'browser-icons', 'theme-types']);
+const modules = fs.readdirSync(path.join(PROJECT, 'src'), { recursive: true }).map((f) => String(f).split(path.sep).join('/'))
+  .filter((f) => /\.tsx?$/.test(f) && !/\.(test|stories)\.tsx?$|\.d\.ts$/.test(f)).map((f) => f.replace(/\.tsx?$/, '')).filter((f) => !ENTRIES.has(f));
+const tokenFiles = fs.readdirSync(path.join(PROJECT, 'src', 'components'), { recursive: true }).map(String).filter((f) => f.endsWith('.tokens.json')).map((f) => `design-tokens/components/${path.basename(f)}`);
+const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, `dist/js/${m}.js.map`]), ...tokenFiles]);
+const extra = shipped ? [...shipped].filter((f) => !expected.has(f)) : [], gone = shipped ? [...expected].filter((f) => !shipped.has(f)) : [];
+t('npm pack ships exactly the expected files (tools/test/baseline-package.txt, a module per src/ file, a tokens file per component)', shipped && !extra.length && !gone.length,
+  shipped ? `ships unexpectedly: ${extra.slice(0, 8).join(', ') || 'none'}; missing: ${gone.slice(0, 8).join(', ') || 'none'}. If intended, edit tools/test/baseline-package.txt (or package.json "files")` : pack.stderr.slice(0, 300));
 
 done(report('Package', R));

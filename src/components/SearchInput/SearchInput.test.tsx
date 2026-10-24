@@ -118,4 +118,13 @@ describe('SearchInput', () => {
     await expect.poll(() => css(clearBtn('slg')).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     await expect.poll(() => css(clearBtn('stok')).color).toBe('rgb(1, 2, 3)');
   });
+  test('form reset: the field empties (or goes back to defaultValue) and the × follows it, instead of staying on an empty field (Q1)', async () => {
+    await render(<form id="rf"><SearchInput id="r1" aria-label="Search" /><SearchInput id="r2" aria-label="Search" defaultValue="apollo" /></form>);
+    await userEvent.type(field('r1'), 'mars');
+    await userEvent.fill(field('r2'), 'gemini');
+    expect([!!clearBtn('r1'), !!clearBtn('r2')]).toEqual([true, true]);
+    (document.getElementById('rf') as HTMLFormElement).reset();
+    await expect.poll(() => !!clearBtn('r1')).toBe(false);
+    expect([field('r1').value, field('r2').value, !!clearBtn('r2')]).toEqual(['', 'apollo', true]);
+  });
 });

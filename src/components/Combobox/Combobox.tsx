@@ -37,9 +37,9 @@ export interface ComboboxProps extends Omit<InputProps, "type" | "value" | "defa
   emptyText?: React.ReactNode;
   /** Shown while loading. Default: "Loading…". */
   loadingText?: string;
-  /** The chevron button's name. Default: "Show options". */
+  /** The chevron button's name. Default: the showOptions label ("Show options"). */
   toggleLabel?: string;
-  /** The × button's name. Default: "Clear" and the field's label ("Clear Country"), or "Clear" when it has none. */
+  /** The × button's name. Default: the clearValue label, "Clear" and the field's label ("Clear Country"), or "Clear" when it has none. */
   clearLabel?: string;
 }
 
@@ -49,7 +49,8 @@ interface Opt { value: string; label: string; description?: React.ReactNode; dis
    project. Follows the ARIA combobox pattern: the field is role="combobox" (aria-expanded, aria-controls,
    aria-activedescendant) and focus stays in it while ArrowDown and ArrowUp move through a role="listbox" in the
    top layer. Enter or a click picks, Escape closes and puts back the picked label, and leaving the field does
-   the same (emptying it clears the selection). Only listed options can be picked. It uses Input's box and
+   the same (emptying it clears the selection). Text that is exactly one option's label (any case or accents)
+   picks that option on leaving the field. Only listed options can be picked. It uses Input's box and
    tokens: className and style go to the box; ref and every other prop to the <input>. */
 /** A text field with a list of options that narrows as you type; picks one listed option. */
 export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProps>("Combobox", function Combobox(props, ref) {
@@ -120,6 +121,12 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     commit(o.value); setText(o.label); setOpen(false); setActive(-1); setTyped(false);
     if (props.onInputChange && o.label !== text) props.onInputChange(o.label);
   };
+  // The one enabled option whose label is the typed text (any case and accents): leaving the field or Enter picks it.
+  const exact = () => {
+    const t = fold(text.trim());
+    const same = typed && t ? opts.filter((o) => !o.disabled && fold(o.label) === t) : [];
+    return same.length === 1 ? same[0] : null;
+  };
   const move = (by: number) => {
     if (!usable.length) return;
     const i = usable.findIndex((o) => o.i === active);
@@ -140,13 +147,15 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     if (e.defaultPrevented || locked || isComposing(e)) return;
     if (e.key === "ArrowDown") { e.preventDefault(); if (!open) show(e.altKey ? "selected" : "first"); else move(1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); if (!open) show("last"); else move(-1); }
-    else if (e.key === "Enter" && open) { e.preventDefault(); const o = opts[active]; if (o && shown.includes(o)) pick(o); else hide(); }
+    else if (e.key === "Enter" && open) { e.preventDefault(); const o = opts[active]; if (o && shown.includes(o)) pick(o); else { const x = exact(); if (x) pick(x); else hide(); } }
     else if (e.key === "Escape" && open) { e.preventDefault(); e.stopPropagation(); hide(); }
     else if ((e.key === "PageDown" || e.key === "PageUp") && open) { e.preventDefault(); if (usable.length) setActive(usable[e.key === "PageDown" ? usable.length - 1 : 0].i); }
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (rest.onBlur) rest.onBlur(e);
+    const x = exact();
     if (text.trim() === "" && value != null) { commit(null); setOpen(false); setActive(-1); setTyped(false); setText(""); }
+    else if (x) pick(x);
     else hide();
   };
   const clear = () => {
@@ -178,11 +187,11 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         onChange={onChange} onKeyDown={onKeyDown} onBlur={onBlur}
         onClick={(e) => { if (rest.onClick) rest.onClick(e); if (!open) show("selected"); }} />
       {showClear ? (
-        <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__clear" aria-label={props.clearLabel || (name ? "Clear " + name : "Clear")} onMouseDown={keep} onClick={clear}>
+        <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__clear" aria-label={props.clearLabel || sds.labels.clearValue(name || "")} onMouseDown={keep} onClick={clear}>
           <Icon icon={icons.Close} />
         </button>
       ) : null}
-      <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__toggle" aria-label={props.toggleLabel || "Show options"} aria-expanded={open} aria-controls={listId}
+      <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__toggle" aria-label={props.toggleLabel || sds.labels.showOptions} aria-expanded={open} aria-controls={listId}
         disabled={locked} onMouseDown={keep} onClick={() => { if (open) hide(); else show("selected"); if (input.current) input.current.focus(); }}>
         <Icon icon={icons.ExpandMore} />
       </button>

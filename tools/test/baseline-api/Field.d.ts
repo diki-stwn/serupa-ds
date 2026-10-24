@@ -1,4 +1,7 @@
 // exports: Field, type FieldProps
+interface FieldLabels {
+    fieldOptional: string;
+}
 interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
     label?: React.ReactNode;
     hint?: React.ReactNode;

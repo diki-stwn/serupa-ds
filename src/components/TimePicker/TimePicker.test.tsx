@@ -7,6 +7,7 @@ import { Field } from '../Field/Field';
 import { TimePicker } from './TimePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
+const announcerA = () => document.querySelector('[data-dk-announcer-assertive]') as HTMLElement | null;
 const listOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls')!) as HTMLUListElement;
 const button = (id: string) => document.querySelector(`#${id} ~ button`) as HTMLButtonElement;
 const time = (o: Element | undefined | null) => (o ? o.querySelector('.dk-time-picker__time')!.textContent : undefined);
@@ -30,6 +31,15 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
+    const calls: string[] = [];
+    await render(<TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await fill('tpi', 'lunch');
+    await fill('tpi', '22:00');
+    expect([el('tpi').value, calls]).toEqual(['09:00', ['lunch:unreadable', '22:00:unavailable']]);
+    await expect.poll(() => announcerA()?.textContent).toContain('"22:00" wasn\'t accepted');
+  });
+
   test('a role="combobox" field (aria-haspopup="listbox", collapsed) in a dk-input box, labelled by Field; a "Choose a time" clock button out of the tab order; ref and className', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Meeting tref={ref} />);

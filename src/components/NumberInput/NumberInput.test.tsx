@@ -38,6 +38,34 @@ describe('NumberInput', () => {
     expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
   });
 
+  test('a form gets the number, not the shown text: "1500000" for "Rp 1.500.000", cents with minorUnits; the visible field has no name; form= works outside the form; disabled sends nothing', async () => {
+    await render(<>
+      <form id="nf">
+        <SerupaProvider locale="id-ID"><NumberInput id="nidr" name="amount" currency="IDR" defaultValue={1500000} /></SerupaProvider>
+        <NumberInput name="price" currency="USD" minorUnits defaultValue={1999} locale="en-US" />
+        <NumberInput name="off" defaultValue={3} disabled />
+      </form>
+      <NumberInput name="outside" form="nf" defaultValue={2.5} locale="en-US" />
+    </>);
+    const data = new FormData(document.getElementById('nf') as HTMLFormElement);
+    expect([...data.entries()]).toEqual([['amount', '1500000'], ['price', '1999'], ['outside', '2.5']]);
+    expect([(document.getElementById('nidr') as HTMLInputElement).value.replace(/\s/g, ' '), document.getElementById('nidr')!.hasAttribute('name')]).toEqual(['Rp 1.500.000', false]);
+  });
+
+  test('form reset: the default comes back, in the field and in what the form sends; a controlled field shows its value again', async () => {
+    await render(<form id="nr">
+      <NumberInput id="nru" name="u" defaultValue={5} locale="en-US" />
+      <NumberInput id="nrc" value={7} onValueChange={() => {}} locale="en-US" />
+    </form>);
+    await userEvent.click(field('nru'));
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    await userEvent.fill(field('nrc'), '40');
+    expect([field('nru').value, new FormData(document.getElementById('nr') as HTMLFormElement).get('u')]).toEqual(['7', '7']);
+    (document.getElementById('nr') as HTMLFormElement).reset();
+    await expect.poll(() => field('nru').value).toBe('5');
+    expect([new FormData(document.getElementById('nr') as HTMLFormElement).get('u'), field('nrc').value]).toEqual(['5', '7']);
+  });
+
   test('keys: ArrowUp/Down ±1, PageUp +10, Shift+ArrowDown −10, End and Home go to max and min, and it stays within them; at min − is disabled and + isn\'t', async () => {
     await render(<Qty />);
     field('qty').focus();

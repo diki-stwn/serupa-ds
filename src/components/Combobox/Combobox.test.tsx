@@ -5,6 +5,8 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
 import { Combobox, type ComboboxOption } from './Combobox';
 import { Field } from '../Field/Field';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const COUNTRIES: ComboboxOption[] = ['Argentina', 'Brazil', 'Canada', { value: 'ci', label: 'Côte d’Ivoire', description: 'Africa' }, { value: 'dk', label: 'Denmark', disabled: true }, 'Egypt', 'France'];
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
@@ -34,6 +36,12 @@ describe('Combobox', () => {
     expect([list.getAttribute('role'), list.parentElement!.hidden, i.labels![0].textContent, ref.current === i]).toEqual(['listbox', true, 'Country', true]);
     expect(box.className).toMatch(/dk-input dk-combobox.*extra/);
     expect([box.dataset.component, box.offsetHeight, toggle.getAttribute('aria-label'), toggle.tabIndex]).toEqual(['combobox', 32, 'Show options', -1]);
+  });
+
+  test('the chevron and × names come from the labels: Indonesian under an id-ID provider, with the field\'s label', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Field label="Negara"><Combobox id="cb-id" options={COUNTRIES} defaultValue="Brazil" clearable /></Field></SerupaProvider>);
+    const names = [...document.querySelectorAll('.dk-combobox__button')].map((b) => b.getAttribute('aria-label'));
+    expect(names).toEqual(['Hapus Negara', 'Tampilkan pilihan']);
   });
 
   test('ArrowDown opens the list in the top layer with every option, the first highlighted, focus staying in the field', async () => {
@@ -102,6 +110,26 @@ describe('Combobox', () => {
     el('before').focus();
     await settle(50);
     expect([el('cb').value, !!popOf('cb').querySelector('[aria-selected=true]')]).toEqual(['', false]);
+  });
+
+  test('a typed full label picks that option when focus leaves ("brazil" then Tab, "cote d’ivoire" without accents then a click elsewhere); onValueChange gets it; a disabled option\'s label doesn\'t pick it', async () => {
+    const calls: Array<string | null> = [];
+    await render(<div style={{ width: '320px' }}><button id="before">Before</button>
+      <Combobox id="cb" aria-label="Country" options={COUNTRIES} onValueChange={(v) => calls.push(v)} /></div>);
+    el('cb').focus();
+    await userEvent.keyboard('brazil{Tab}');
+    await settle(50);
+    expect([el('cb').value, calls]).toEqual(['Brazil', ['Brazil']]);
+    el('cb').focus();
+    await selectAll(); await userEvent.keyboard('cote d’ivoire');
+    await userEvent.click(el('before'));
+    await settle(50);
+    expect([el('cb').value, calls]).toEqual(['Côte d’Ivoire', ['Brazil', 'ci']]);
+    el('cb').focus();
+    await selectAll(); await userEvent.keyboard('denmark');
+    el('before').focus();
+    await settle(50);
+    expect([el('cb').value, calls]).toEqual(['Côte d’Ivoire', ['Brazil', 'ci']]);
   });
 
   test('a click on the field opens it (all options); a click on an option picks it and keeps focus in the field', async () => {

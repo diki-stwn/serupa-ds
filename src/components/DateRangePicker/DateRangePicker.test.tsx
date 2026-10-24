@@ -30,6 +30,16 @@ function Ctl(props: { changes: string[]; setRef: { set?: (r: DateRange) => void 
 }
 
 describe('DateRangePicker', () => {
+  test('text typed in either field and put back is reported through onInvalidInput', async () => {
+    const calls: string[] = [];
+    await render(<DateRangePicker data-testid="drpi" locale="en-US" min={new Date(2026, 0, 1)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await userEvent.fill(fields('drpi')[0], '12/31/2025');
+    await userEvent.keyboard('{Tab}');
+    await userEvent.fill(fields('drpi')[1], 'later');
+    await userEvent.keyboard('{Enter}');
+    expect([vals('drpi'), calls]).toEqual([' – ', ['12/31/2025:unavailable', 'later:unreadable']]);
+  });
+
   test('a role="group" dk-input box with "Start date" and "End date" fields, a "Choose dates" button; Field labels the start field and describes both; ref and className; defaultValue fills both fields', async () => {
     const ref = React.createRef<HTMLSpanElement>();
     await render(<Trip tref={ref} />);
