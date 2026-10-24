@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { formatTime, parseTime, toHHmm, toMinutes, uses12h } from "../../internal/times";
+import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
@@ -18,6 +19,9 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   defaultValue?: string | null;
   /** Called with the new time as "HH:mm", or null when the field is cleared. */
   onValueChange?: (value: string | null) => void;
+  /** Called when typed text is put back on blur or Enter: "unreadable" when it isn't a time, "unavailable" when it
+      is one that can't be chosen (outside min..max). The field also says so to screen readers. */
+  onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
   /** The earliest and latest times, as "HH:mm". */
   min?: string;
   max?: string;
@@ -44,7 +48,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
 export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePickerProps>("TimePicker", function TimePicker(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const { value: _v, defaultValue: _d, onValueChange, min, max, step: _st, locale: localeProp, hour12: _h, size: _s, invalid: _i, listLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
+  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, step: _st, locale: localeProp, hour12: _h, size: _s, invalid: _i, listLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
   const locale = useLocale(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
@@ -92,7 +96,9 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   const read = () => {
     if (text.trim() === "") return commit(null);
     const n = parseTime(text, locale);
-    commit(n != null && n >= lo && n <= hi ? n : value);
+    if (n != null && n >= lo && n <= hi) return commit(n);
+    reject(text, n != null ? "unavailable" : "unreadable", onInvalidInput, sds.labels.inputNotAccepted);
+    commit(value);
   };
   const show = () => { if (disabled || readOnly || !times.length) return; const n = parseTime(text, locale); setActive(nearest(n != null ? n : value)); typed.current = false; setOpen(true); };
   // The list is at least as wide as the field.

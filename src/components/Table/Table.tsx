@@ -77,9 +77,11 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
     check();
     return () => ro.disconnect();
   }, []);
-  const cp = props.containerProps || {};
+  // A name on the frame belongs to its region role: a plain div that doesn't scroll can't carry one (axe aria-prohibited-attr).
+  const { "aria-label": frameLabel, "aria-labelledby": frameLabelledBy, ...cp } = props.containerProps || {};
   const hasCaption = props.caption != null && props.caption !== false && props.caption !== "";
-  const region = scrolls ? { tabIndex: 0, role: "region", "aria-labelledby": hasCaption ? cid : undefined, "aria-label": hasCaption ? undefined : cp["aria-label"] || sds.labels.table } : {};
+  const region = !scrolls ? {} : hasCaption ? { tabIndex: 0, role: "region", "aria-labelledby": cid }
+    : { tabIndex: 0, role: "region", "aria-labelledby": frameLabelledBy, "aria-label": frameLabelledBy ? undefined : frameLabel || sds.labels.table };
   return (
     <div {...cp} {...region} ref={frame} data-component="table" className={cn("dk-table", size === "sm" && "dk-table--sm", props.striped && "dk-table--striped", props.stickyHeader && "dk-table--sticky", cp.className)}>
       <table {...rest} ref={ref} className={cn("dk-table__table", props.className)}>

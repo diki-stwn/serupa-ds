@@ -36,6 +36,8 @@ const [cents, setCents] = React.useState<number | null>(1999);
 ## Behavior
 
 - On blur the text is parsed in the locale's marks, clamped, rounded to the step's decimals and written back in the locale's form. The locale's group mark counts as grouping only when the digits are grouped in threes, so `1.500` is 1500 in `id-ID` and `de-DE`, and `9.5` or `9,5` is 9.5 in any locale. Spaces, a currency symbol or %, a typographic minus and digits in other scripts are accepted. Text that isn't a number goes back to the last number.
+- **Forms get the number.** With `name`, the form submits the number itself from a hidden input (`1500000`, not "Rp 1.500.000"; whole cents with `minorUnits`, so `1999` for $19.99), and the visible field has no name. `form` works for a field outside its form. A disabled field sends nothing.
+- **Form reset** puts `defaultValue` back, in the field and in what the form sends. A controlled field shows its `value` again.
 - Leave `locale` unset in most products so it follows the `SerupaProvider` locale, or the visitor's browser without one.
 - A typed number outside the limits isn't reported until blur, so a half-typed number never jumps.
 - The buttons are out of the Tab order, since the arrow keys do the same, and are disabled at the limits.

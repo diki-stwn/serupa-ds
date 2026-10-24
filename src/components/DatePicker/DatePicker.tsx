@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
 import { compare, datePattern, day, formatDate, isoDate, isValid, parseDate } from "../../internal/dates";
+import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
@@ -19,6 +20,9 @@ export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   defaultValue?: Date | null;
   /** Called with the new day, or null when the field is cleared. */
   onValueChange?: (value: Date | null) => void;
+  /** Called when typed text is put back on blur or Enter: "unreadable" when it isn't a date, "unavailable" when it
+      is one that can't be chosen (outside min..max, or isDateDisabled). The field also says so to screen readers. */
+  onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
   /** The earliest and latest days that can be chosen. */
   min?: Date;
   max?: Date;
@@ -46,7 +50,7 @@ export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
 export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePickerProps>("DatePicker", function DatePicker(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const { value: _v, defaultValue: _d, onValueChange, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
+  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
   const locale = useLocale(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
@@ -84,7 +88,9 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   const read = () => {
     if (text.trim() === "") return commit(null);
     const d = parseDate(text, locale);
-    commit(d && allowed(d) ? d : value);
+    if (d && allowed(d)) return commit(d);
+    reject(text, d ? "unavailable" : "unreadable", onInvalidInput, sds.labels.inputNotAccepted);
+    commit(value);
   };
   const close = (focusField: boolean) => { setOpen(false); if (focusField && field.current) field.current.focus(); };
 

@@ -2,6 +2,8 @@
 interface ComboboxLabels {
     loadingResults: string;
     noResults: string;
+    showOptions: string;
+    clearValue: (label: string) => string;
 }
 type ComboboxOption = {
     value: string;

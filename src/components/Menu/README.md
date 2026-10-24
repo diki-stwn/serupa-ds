@@ -36,11 +36,12 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 - Start each label with a verb ("Edit", "Duplicate", "Delete") and keep it short.
 - Put the most used actions first, and destructive ones last, after a `MenuSeparator` or in their own `MenuGroup`.
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
-- `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work.
+- `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work. Write it the way the platform does ("⌘K" on a Mac, "Ctrl+K" elsewhere).
 
 ## Accessibility
 
 - `role="menu"` with `menuitem`s, `group`s and `separator`s; only the highlighted item takes focus.
+- A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Pass `aria-keyshortcuts` to set it yourself.
 - Labels, shortcuts and group headings keep 4.5:1 (also on the highlighted item) and icons 3:1, in all six themes (`Menu.test.tsx`).
 
 ### Keyboard
@@ -74,7 +75,7 @@ Hovering an item highlights it, and a press outside closes the menu.
 | --- | --- | --- | --- |
 | `onSelect` | `(event) => void` | | Runs when it's chosen (click, Enter or Space). The menu then closes and focus goes back to the button, unless you call `event.preventDefault()` |
 | `icon` | icon name \| element | | A muted 16px icon before the label |
-| `shortcut` | string | | A hint at the end, such as `⌘K` (wire the shortcut yourself) |
+| `shortcut` | string | | A hint at the end, such as `⌘K` (wire the shortcut yourself); also sets `aria-keyshortcuts` |
 | `destructive` | boolean | `false` | Danger colors |
 | `disabled` | boolean | `false` | Still reachable with the keys (so people learn it exists), but can't be chosen |
 | `href` | string | | Makes it a link (the `configure({ link })` component) |

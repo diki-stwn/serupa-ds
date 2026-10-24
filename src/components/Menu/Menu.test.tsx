@@ -5,7 +5,8 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, press, settle } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
-import { Menu, MenuGroup, MenuItem, MenuSeparator } from './Menu';
+import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator } from './Menu';
+import { page } from 'vitest/browser';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
@@ -163,6 +164,23 @@ describe('Menu', () => {
     expect([s.paddingTop, s.borderTopLeftRadius, it.offsetHeight, i.fontSize, i.borderTopLeftRadius]).toEqual(['4px', '8px', 32, '14px', '6px']);
     expect(s.boxShadow).toMatch(/10px 15px -3px/);
     expect(getComputedStyle(it.querySelector('.dk-icon')!).fontSize).toBe('16px');
+  });
+
+  test('shortcut: shown as <kbd>, left out of the item\'s name, and given as aria-keyshortcuts; your own aria-keyshortcuts wins', async () => {
+    await render(<Menu open trigger={<Button id="ks">More</Button>}>
+      <MenuItem shortcut="⌘E">Edit</MenuItem>
+      <MenuItem shortcut="Ctrl+Shift+P" aria-keyshortcuts="Control+Shift+KeyP">Palette</MenuItem>
+      <MenuItem>Plain</MenuItem>
+    </Menu>);
+    const items = [...menuOf('ks').querySelectorAll<HTMLElement>('[role=menuitem]')];
+    expect(items.map((i) => i.getAttribute('aria-keyshortcuts'))).toEqual(['Meta+E', 'Control+Shift+KeyP', null]);
+    expect([items[0]!.querySelector('kbd')!.textContent, items[0]!.querySelector('kbd')!.getAttribute('aria-hidden')]).toEqual(['⌘E', 'true']);
+    await expect.element(page.getByRole('menuitem', { name: 'Edit', exact: true })).toBeInTheDocument();
+  });
+
+  test('keyShortcuts: Mac symbols written together, words with + or spaces, named keys, single letters upper case', () => {
+    expect(['⌘K', '⌘⇧K', '⌥⌘I', 'Ctrl+Shift+P', 'ctrl + c', 'Alt F4', 'Cmd+Enter', '⇧Tab', 'Esc', '?', 'Delete'].map(keyShortcuts))
+      .toEqual(['Meta+K', 'Meta+Shift+K', 'Alt+Meta+I', 'Control+Shift+P', 'Control+C', 'Alt+F4', 'Meta+Enter', 'Shift+Tab', 'Escape', '?', 'Delete']);
   });
 
   test('contrast: labels, shortcuts and group labels 4.5:1 (also highlighted), icons 3:1, in all six themes', async () => {
