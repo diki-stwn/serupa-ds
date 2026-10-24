@@ -1,4 +1,4 @@
-/*! Serupa v8.0.0 by Diki · theme.js */
+/*! Serupa v8.1.0 by Diki · theme.js */
 /* Serupa theme: picks the theme for a page and keeps it in step with the visitor's light/dark setting.
    Optional and standalone (no React). Load it in <head>, before the stylesheets, so the first paint
    already has the right theme:
@@ -73,6 +73,6 @@
   };
   window.Serupa = window.Serupa || {};
   window.Serupa.theme = api;
-  if (!window.Serupa.version) window.Serupa.version = "8.0.0";
+  if (!window.Serupa.version) window.Serupa.version = "8.1.0";
   apply();
 })();
