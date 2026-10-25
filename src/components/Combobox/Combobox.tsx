@@ -45,13 +45,15 @@ export interface ComboboxProps extends Omit<InputProps, "type" | "showCount" | "
   clearLabel?: string;
 }
 
+const CAP = 100;   // the most option rows the list puts in the page at once
+
 interface Opt { value: string; label: string; description?: React.ReactNode; disabled?: boolean; i: number; folded: string }
 
 /* One option row. Memoised, so moving the active option re-renders the two rows that change, not the whole list. */
-const Row = React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; onMove: (i: number) => void; onPick: (i: number) => void }) {
+const Row = React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; pos: number; size: number; onMove: (i: number) => void; onPick: (i: number) => void }) {
   const o = p.o;
   return (
-    <div id={p.id} role="option" aria-selected={p.selected} aria-disabled={o.disabled || undefined}
+    <div id={p.id} role="option" aria-selected={p.selected} aria-posinset={p.pos} aria-setsize={p.size} aria-disabled={o.disabled || undefined}
       aria-description={typeof o.description === "string" && o.description ? o.description : undefined}
       className={cn("dk-combobox__option", p.active && "dk-combobox__option--active", p.selected && "dk-combobox__option--selected")}
       onMouseMove={() => { if (!o.disabled && !p.active) p.onMove(o.i); }} onClick={() => p.onPick(o.i)}>
@@ -124,7 +126,16 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     const q = fold(text.trim());
     return opts.filter((o) => o.folded.includes(q));
   }, [opts, typed, filter, text]);
-  const usable = shown.filter((o) => !o.disabled);
+  // At most CAP rows are in the page (plus the picked one, when it's further down), so typing into a list of
+  // thousands stays quick; a line under them says how many more match, and each row's aria-posinset and
+  // aria-setsize still count every match. The arrow keys move through the rows that are there.
+  const visible = React.useMemo(() => {
+    if (shown.length <= CAP) return shown;
+    const top = shown.slice(0, CAP);
+    return selected && shown.indexOf(selected) >= CAP ? top.concat(selected) : top;
+  }, [shown, selected]);
+  const more = shown.length - visible.length;
+  const usable = visible.filter((o) => !o.disabled);
 
   const commit = (v: string | null) => {
     if (!controlled) setOwnValue(v);
@@ -133,7 +144,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const show = (to?: "first" | "last" | "selected") => {
     if (locked) return;
     setOpen(true);
-    const list = opts.filter((o) => !o.disabled);
+    const list = (opts.length > CAP ? opts.slice(0, CAP) : opts).filter((o) => !o.disabled);
     const sel = selected && !selected.disabled ? selected.i : -1;
     setActive(to === "last" ? (sel >= 0 ? sel : list.length ? list[list.length - 1].i : -1) : to === "first" ? (sel >= 0 ? sel : list.length ? list[0].i : -1) : sel);
   };
@@ -202,7 +213,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   };
 
   // While typing, how many options match is said once the typing stops (a role=status row already says "No results").
-  const count = usable.length;
+  const count = more ? shown.filter((o) => !o.disabled).length : usable.length;
   React.useEffect(() => {
     if (!open || !typed || props.loading || !count) return;
     const t = setTimeout(() => announce(sds.labels.resultsCount(count)), 700);
@@ -225,7 +236,8 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   latest.current = { pick, opts };
   const onMove = React.useCallback((i: number) => setActive(i), []);
   const onPick = React.useCallback((i: number) => { const l = latest.current; const o = l.opts[i]; if (o) l.pick(o); }, []);
-  const activeShown = active >= 0 && shown.some((o) => o.i === active);
+  const activeShown = active >= 0 && visible.some((o) => o.i === active);
+  const pos = new Map(shown.map((o, n) => [o, n + 1]));
   return (
     <span ref={box} className={cn("dk-input dk-combobox", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
       style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"}>
@@ -249,8 +261,9 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         {props.loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
         <div id={listId} role="listbox" className="dk-combobox__listbox" aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
           {/* Only while open: a closed Combobox with thousands of options keeps none of them in the page. */}
-          {open ? shown.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={o.value === value} onMove={onMove} onPick={onPick} />) : null}
+          {open ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
         </div>
+        {open && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
         {!props.loading && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
       {props.name ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
