@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
@@ -149,6 +149,35 @@ describe('DatePicker', () => {
     expect([calls.join(), hid()]).toEqual(['Fri Feb 14 2025', '2025-02-14']);
     React.act(() => setRef.set!(new Date(2025, 6, 4)));
     await expect.poll(() => el('ctl').value).toBe('07/04/2025');
+  });
+
+  test('plain "yyyy-mm-dd" strings: value, min and max take them as that local day, and onValueChange also gets the day as "yyyy-mm-dd" (H10)', async () => {
+    const calls: string[] = [];
+    function Plain() {
+      const [v, setV] = React.useState<string | null>('2026-10-24');
+      return <DatePicker id="plain" aria-label="Due" locale="en-US" name="plain" value={v} min="2026-10-01" max="2026-10-31"
+        onValueChange={(d, iso) => { calls.push((d ? d.getHours() + ':' + d.getDate() : 'null') + ' ' + iso); setV(iso); }} />;
+    }
+    await render(<Plain />);
+    const hid = () => document.querySelector<HTMLInputElement>('input[type=hidden][name=plain]')!.value;
+    expect([el('plain').value, hid()]).toEqual(['10/24/2026', '2026-10-24']);
+    await type('plain', '11/2/2026');   // after max
+    await type('plain', '10/5/2026');
+    await type('plain', '');
+    expect([calls, el('plain').value, hid()]).toEqual([['0:5 2026-10-05', 'null null'], '', '']);
+    await render(<DatePicker id="bad" aria-label="Bad" locale="en-US" defaultValue="2026-02-30" />);
+    expect(el('bad').value).toBe('');
+  });
+
+  test('a Date at UTC midnight west of Greenwich (new Date("2026-10-24")) warns once to pass the string instead; a string or a local Date doesn\'t', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const offset = vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(300);
+    try {
+      await render(<><DatePicker aria-label="A" defaultValue="2026-10-24" /><DatePicker aria-label="B" defaultValue={new Date(2026, 9, 24, 9)} /></>);
+      expect(warn).not.toHaveBeenCalled();
+      await render(<DatePicker aria-label="C" defaultValue={new Date(Date.UTC(2026, 9, 24))} />);
+      expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.startsWith('DatePicker'))).toEqual([expect.stringMatching(/UTC midnight .*pass the "yyyy-mm-dd" string/)]);
+    } finally { warn.mockRestore(); offset.mockRestore(); }
   });
 
   test('disabled: the field and button are disabled and faded', async () => {

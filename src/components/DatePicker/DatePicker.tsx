@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
-import { compare, datePattern, day, formatDate, isoDate, isValid, parseDate } from "../../internal/dates";
+import { compare, datePattern, formatDate, isoDate, parseDate, toDay } from "../../internal/dates";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Calendar } from "../Calendar/Calendar";
@@ -15,18 +15,19 @@ import { isComposing } from "../../internal/ime";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'children'> {
-  /** The chosen day (controlled), or null. Use with onValueChange. */
-  value?: Date | null;
-  /** The chosen day at first (uncontrolled). */
-  defaultValue?: Date | null;
-  /** Called with the new day, or null when the field is cleared. */
-  onValueChange?: (value: Date | null) => void;
+  /** The chosen day (controlled), or null. Use with onValueChange. A "yyyy-mm-dd" string is that day, wherever the
+      browser is (a Date made from one is UTC midnight, the day before west of Greenwich). */
+  value?: Date | string | null;
+  /** The chosen day at first (uncontrolled), as a Date or "yyyy-mm-dd". */
+  defaultValue?: Date | string | null;
+  /** Called with the new day (local midnight) and the same day as "yyyy-mm-dd", or null and null when the field is cleared. */
+  onValueChange?: (value: Date | null, iso: string | null) => void;
   /** Called when typed text is put back on blur or Enter: "unreadable" when it isn't a date, "unavailable" when it
       is one that can't be chosen (outside min..max, or isDateDisabled). The field also says so to screen readers. */
   onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
-  /** The earliest and latest days that can be chosen. */
-  min?: Date;
-  max?: Date;
+  /** The earliest and latest days that can be chosen, as Dates or "yyyy-mm-dd". */
+  min?: Date | string;
+  max?: Date | string;
   /** Days that can't be chosen, such as weekends. */
   isDateDisabled?: (date: Date) => boolean;
   /** A BCP 47 locale for the typed format, names and first day of the week. Default: the nearest SerupaProvider's locale, else the browser's. */
@@ -52,13 +53,14 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   const nameRef = useNameCheck("DatePicker", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
+  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min: minIn, max: maxIn, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
   const locale = useLocale(localeProp), lang = useOwnLang(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const controlled = props.value !== undefined;
-  const [own, setOwn] = React.useState<Date | null>(isValid(props.defaultValue) ? day(props.defaultValue) : null);
-  const value = controlled ? (isValid(props.value) ? day(props.value) : null) : own;
+  const [own, setOwn] = React.useState<Date | null>(() => toDay(props.defaultValue, "DatePicker"));
+  const value = controlled ? toDay(props.value, "DatePicker") : own;
+  const min = toDay(minIn, "DatePicker") || undefined, max = toDay(maxIn, "DatePicker") || undefined;
   const [text, setText] = React.useState(value ? formatDate(value, locale) : "");
   const [open, setOpen] = React.useState(false);
   const id = domId("dk-dp", React.useId());
@@ -69,7 +71,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   const shown = React.useRef(value ? value.getTime() : null);
   useFormReset(field, () => {
     if (controlled) return;
-    const d = isValid(props.defaultValue) ? day(props.defaultValue) : null;
+    const d = toDay(props.defaultValue);
     shown.current = d ? d.getTime() : null; setOwn(d); setText(d ? formatDate(d, locale) : ""); setOpen(false);
   });
   // A new value from outside, or a new locale (the browser's, once a server-rendered page hydrates), rewrites the text.
@@ -85,7 +87,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
     setText(d ? formatDate(d, locale) : "");
     if ((d ? d.getTime() : null) === (value ? value.getTime() : null)) return;
     if (!controlled) setOwn(d);
-    if (onValueChange) onValueChange(d);
+    if (onValueChange) onValueChange(d, d ? isoDate(d) : null);
   };
   const read = () => {
     if (text.trim() === "") return commit(null);
