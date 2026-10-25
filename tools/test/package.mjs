@@ -18,6 +18,12 @@ const pkg = JSON.parse(read('package.json'));
 t('package.json is private and has no publishConfig, so npm publish refuses', pkg.private === true && !('publishConfig' in pkg), `private: ${pkg.private}, publishConfig: ${JSON.stringify(pkg.publishConfig)}`);
 // Every component is built by tools in devDependencies, so a project installs nothing else (J7).
 t('package.json has no dependencies (React is a peer dependency; everything else is bundled)', !Object.keys(pkg.dependencies || {}).length && !Object.keys(pkg.optionalDependencies || {}).length, JSON.stringify({ ...pkg.dependencies, ...pkg.optionalDependencies }));
+// A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
+// is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
+// matches "default", not "import".
+t('engines.node is ">=22" and devEngines asks for Node 26 to work on the repo', pkg.engines?.node === '>=22' && pkg.devEngines?.runtime?.version === '>=26', JSON.stringify({ engines: pkg.engines, devEngines: pkg.devEngines }));
+const noDefault = Object.entries(pkg.exports).filter(([, v]) => typeof v === 'object' && v.import && v.default !== v.import).map(([k]) => k);
+t('every export with an "import" condition has the same file as "default", so require(esm) finds it', !noDefault.length, noDefault.join(', '));
 
 // 1. exports
 const targets = [];
