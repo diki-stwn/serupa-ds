@@ -30,6 +30,7 @@ const IMPORTS = cascade(P);
 
 // Progress goes to stderr (the child processes' stdout too): npm runs this as "prepare", and npm pack --json
 // must print nothing but its JSON.
+/** @type {import('node:child_process').StdioOptions} */
 const toStderr = ['inherit', 2, 'inherit'];
 const tokens = spawnSync(process.execPath, [path.join(P, 'tools', 'tokens', 'build.mjs')], { cwd: P, stdio: toStderr });
 if (tokens.status !== 0) process.exit(tokens.status || 1);
