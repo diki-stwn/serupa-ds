@@ -9,7 +9,7 @@ import { Alert, type AlertTone } from './Alert';
 const TONES: AlertTone[] = ['info', 'success', 'warning', 'danger', 'neutral'];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const tone = (t: string) => document.querySelector(`[data-t="${t}"]`) as HTMLElement;
-const iconName = (e: Element) => (e.querySelector('.dk-alert__icon .dk-icon') as HTMLElement | null)?.dataset.icon;
+const iconName = (e: Element) => (e.querySelector<HTMLElement>('.dk-alert__icon .dk-icon'))?.dataset.icon;
 
 /** Applies the stylesheets' @media (forced-colors: active) rules, as Windows High Contrast would, until the returned function is called. */
 function forcedColors(): () => void {
@@ -66,7 +66,7 @@ describe('Alert', () => {
     const ti = css(tone('info').querySelector('.dk-alert__title'));
     expect([ti.fontWeight, ti.marginTop, css(tone('info').querySelector('.dk-alert__actions')).display]).toEqual(['600', '0px', 'flex']);
     for (const [t, bg] of [['info', 'info-subtle'], ['success', 'success-subtle'], ['warning', 'warning-subtle'], ['danger', 'danger-subtle'], ['neutral', 'surface-muted']]) {
-      expect([t, css(tone(t!)).backgroundColor]).toEqual([t, color(`var(--${bg})`)]);
+      expect([t, css(tone(t)).backgroundColor]).toEqual([t, color(`var(--${bg})`)]);
     }
   });
 

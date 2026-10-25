@@ -14,7 +14,7 @@ import { minorDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 
-export interface NumberInputProps extends Omit<InputProps, "type" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
+export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
   /** The number (controlled), or null when the field is empty. Use with onValueChange. */
   value?: number | null;
   /** The number at first (uncontrolled). */

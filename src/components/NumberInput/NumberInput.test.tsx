@@ -8,8 +8,8 @@ import { NumberInput } from './NumberInput';
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const steps = (id: string) => [...field(id).parentElement!.querySelectorAll<HTMLButtonElement>('.dk-number-input__step')];
-const minus = (id: string) => steps(id)[0]!;
-const plus = (id: string) => steps(id)[1]!;
+const minus = (id: string) => steps(id)[0];
+const plus = (id: string) => steps(id)[1];
 // Replaces the field's text, as a person selecting it all and typing would, then (optionally) leaves it.
 const fill = async (id: string, text: string) => { await userEvent.fill(field(id), text); };
 const blur = async (id: string) => { field(id).blur(); await expect.poll(() => document.activeElement !== field(id)).toBe(true); };
@@ -34,7 +34,7 @@ describe('NumberInput', () => {
       .toEqual(['text', 'spinbutton', '5', '0', '100', 'numeric', true]);
     expect(box.className).toMatch(/dk-input dk-number-input dk-input--size-md/);
     expect(box.className).toMatch(/extra/);
-    expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0]!.textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
+    expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0].textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
     expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
   });
 

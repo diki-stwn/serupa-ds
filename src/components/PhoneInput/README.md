@@ -64,7 +64,7 @@ Every calling code in the world: 244 countries and territories, one row each in 
 | `onCountryChange` | `(country) => void` | none | Called when the country changes, from the menu or a pasted number |
 | `countries` | `Array<string \| PhoneCountry>` | every country | The countries in the menu, as ISO codes or your own rows, sorted by name |
 | `countryLabel` | string | `"Country"` | The menu's name |
-| `name` | string | none | Submits the E.164 number in a hidden input |
+| `name` | string | none | Submits the E.164 number in a hidden input. With `form`, the hidden input belongs to that form too |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | 24, 32 or 44px, like Input |
 | `invalid` | boolean | `false` | A danger border and `aria-invalid` |
 

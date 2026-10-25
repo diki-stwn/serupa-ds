@@ -3,9 +3,9 @@ import * as React from "react";
 import { cn, domId, isInvalid, oneOf, omit, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { graphemeCount, limitEdit } from "../../internal/graphemes";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale } from "../../internal/provider";
+import { useTextLimit } from "../../internal/textLimit";
 
 const PLAIN = { useGrouping: false } as const;
 
@@ -45,17 +45,9 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   const auto = !!props.autoResize;
   const maxRows = (props.maxRows as number) > 0 ? Math.max(rows, Math.floor(props.maxRows as number)) : 0;
   const resize = auto || props.resize === "none" ? "none" : "vertical";
-  const controlled = rest.value != null;
   const own = React.useRef<HTMLTextAreaElement | null>(null);
-  // The count and the limit are in characters as people see them (👨‍👩‍👧 is one), not the browser's UTF-16 units.
-  const [len, setLen] = React.useState(function () { return graphemeCount(String(controlled ? rest.value : rest.defaultValue != null ? rest.defaultValue : "")); });
-  const length = controlled ? graphemeCount(String(rest.value)) : len;
-  const max = rest.maxLength != null && rest.maxLength > 0 ? rest.maxLength : null;
-  // Textarea enforces maxLength itself, in the same characters: the browser's would stop typing at "4 / 10" with emoji.
-  delete rest.maxLength;
-  const last = React.useRef(String(controlled ? rest.value : rest.defaultValue != null ? rest.defaultValue : ""));
-  const composing = React.useRef(false);
-  if (controlled && !composing.current) last.current = String(rest.value);   // the value the parent holds now
+  // The count and maxLength in characters as people see them; near the limit the count is read out (useTextLimit).
+  const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
   const countId = domId("dk-ta", React.useId());
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Calendar's
@@ -85,37 +77,6 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
     own.current = node;
     setRef(ref, node);
   }, [ref]);
-  /* Past maxLength, what was typed or pasted is cut to fit, as the browser cuts it; never in the middle of an input
-     method's composition, which is cut once it's confirmed. */
-  const limit = function (el: HTMLTextAreaElement) {
-    const cut = max != null && !composing.current ? limitEdit(last.current, el.value, max) : null;
-    if (cut) { el.value = cut.value; el.setSelectionRange(cut.caret, cut.caret); }
-    return !!cut;
-  };
-  const onChange = rest.onChange;
-  rest.onChange = function (e: React.ChangeEvent<HTMLTextAreaElement>) {
-    limit(e.target);
-    if (!composing.current) last.current = e.target.value;   // mid-composition, the edit runs from before it began
-    if (!controlled) setLen(graphemeCount(e.target.value));
-    if (onChange) onChange(e);
-  };
-  const onCompositionStart = rest.onCompositionStart, onCompositionEnd = rest.onCompositionEnd;
-  rest.onCompositionStart = function (e: React.CompositionEvent<HTMLTextAreaElement>) {
-    composing.current = true;
-    if (onCompositionStart) onCompositionStart(e);
-  };
-  rest.onCompositionEnd = function (e: React.CompositionEvent<HTMLTextAreaElement>) {
-    composing.current = false;
-    const el = e.currentTarget, before = el.value;
-    // Confirmed text past the limit: cut it and tell onChange, through the input event React listens for.
-    if (limit(el)) {
-      const cut = el.value;
-      el.value = before;
-      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(el, cut);
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-    if (onCompositionEnd) onCompositionEnd(e);
-  };
   if (props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], countId);
   return (
     <span className={cn("dk-textarea", "dk-textarea--size-" + size, invalid && "dk-textarea--invalid", rest.disabled && "dk-textarea--disabled", rest.readOnly && "dk-textarea--readonly", resize === "none" && "dk-textarea--resize-none", auto && "dk-textarea--auto", props.className)} style={props.style} data-component="textarea" data-size={size}>

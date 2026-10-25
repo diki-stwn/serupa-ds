@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, type DataAttributes, omit, oneOf, SIZES } from "../../internal/cn";
+import { cn, type DataAttributes, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
@@ -35,11 +35,20 @@ interface ButtonOwnProps {
   loading?: boolean;
   /** Announced to screen readers (polite status region) when loading starts. Default: 'Loading'. Pass '' to stay silent. */
   loadingText?: string;
+  /** Why it's disabled ("Fill in your name first"). With disabled, the button stays focusable (aria-disabled, so
+      keyboard and screen reader users can reach it and hear why) and this is its description; clicks still do
+      nothing. Wrap it in a Tooltip with the same words to show them on hover and focus too. */
+  disabledReason?: string;
+  /** Shown with a check in place of the label for 2 seconds, and announced, after an onClick that returned a
+      promise resolves ("Saved"). For actions that don't move people elsewhere. Default: none. */
+  successText?: string;
 }
 
 /** A Button without href: a native <button>. */
-export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {
   href?: undefined;
+  /** Can return a promise: the button then takes no second click until it settles, shows loading if it takes a while, and shows successText once it resolves. */
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
   /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
@@ -51,7 +60,9 @@ export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHT
 }
 
 /** A Button with href: a link (<a>, or the component set with Serupa.configure({ link })), for navigation. */
-export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> {
+export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type' | 'onClick'> {
+  /** Can return a promise, as on a button. */
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => unknown;
   /** Where the link goes. With target="_blank", rel defaults to "noopener noreferrer". */
   href: string;
   /** A link has no disabled state in HTML: a disabled link Button renders without href, with aria-disabled, and can't be focused or followed. */
@@ -60,7 +71,10 @@ export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTML
 
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1 } as const;
+const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1 } as const;
+const SUCCESS_MS = 2000;
+const BUSY_MS = 300;
+const isThenable = (v: unknown): v is PromiseLike<unknown> => v != null && typeof (v as PromiseLike<unknown>).then === "function";
 
 
 function slot(source: IconSource, side: string): React.ReactNode {
@@ -83,8 +97,41 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   if (iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
     warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
   }
-  const loading = !!props.loading;
+  // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
+  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading"), then successText if it
+  // resolved.
+  const [busy, setBusy] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const pending = React.useRef(false);
+  const alive = React.useRef(true);
+  React.useEffect(function () { alive.current = true; return () => { alive.current = false; }; }, []);
+  React.useEffect(function () {
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(false), SUCCESS_MS);
+    return () => clearTimeout(t);
+  }, [success]);
+  const successText = props.successText;
+  const own = rest.onClick;
+  if (own) rest.onClick = function (e: React.MouseEvent<HTMLElement>) {
+    if (pending.current) { block(e); return; }
+    const r: unknown = own(e);
+    if (!isThenable(r)) return;
+    pending.current = true;
+    setSuccess(false);
+    const slow = setTimeout(function () { if (alive.current && pending.current) setBusy(true); }, BUSY_MS);
+    const settle = function (ok: boolean) {
+      pending.current = false;
+      clearTimeout(slow);
+      if (!alive.current) return;
+      setBusy(false);
+      if (ok && successText) { setSuccess(true); announce(successText); }
+    };
+    r.then(function () { settle(true); }, function () { settle(false); });
+  };
+  const loading = !!props.loading || busy;
   const disabled = !!rest.disabled;
+  const reasonId = domId("dk-btn-why", React.useId());
+  const reason = disabled && props.disabledReason ? props.disabledReason : "";
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
   const wasLoading = React.useRef(false);
@@ -104,6 +151,13 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     slot(props.rightIcon, "right")
   ];
   if (loading) content = content.concat([<span className="dk-btn__loader" aria-hidden key="loader">{spin}</span>]);
+  else if (success) content = content.concat([<span className="dk-btn__loader dk-btn__success" aria-hidden key="success"><span className="dk-btn__check" /></span>]);
+  // The reason: a hidden element can still be a description (aria-describedby), and isn't part of the name.
+  // A description passed in (a Tooltip around it, with the same words) is used instead, so it isn't read twice.
+  if (reason && !rest["aria-describedby"]) {
+    content.push(<span hidden id={reasonId} key="reason">{reason}</span>);
+    rest["aria-describedby"] = reasonId;
+  }
   if (variant !== "link") content = [<span className="dk-btn__ripples" aria-hidden key="ripples" />, ...content];
 
   // Micro-interactions: ripple on press, Enter shows the press like Space (your handlers run first)
@@ -119,6 +173,13 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   if (props.destructive) rest["data-destructive"] = "";
   if (iconOnly) rest["data-icon-only"] = "";
   if (disabled) rest["data-disabled"] = "";
+  if (success && !loading) { classes = cn(classes, "dk-btn--loading-cover", "dk-btn--success"); rest["data-success"] = ""; }
+  if (reason) {
+    // Disabled, but focusable: aria-disabled instead of the disabled attribute, and clicks blocked.
+    delete rest.disabled;
+    rest["aria-disabled"] = true;
+    rest.onClick = block;
+  }
   if (loading) {
     classes = cn(classes, "dk-btn--loading", "dk-btn--loading-cover");
     rest["aria-busy"] = true;
@@ -131,6 +192,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     // A link opening a new tab can't reach back into this page (rel="noopener"); pass rel to choose otherwise.
     if (rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
     if (disabled) {
+      if (reason) rest.tabIndex = rest.tabIndex ?? 0;   // stays reachable, to hear why
       // Links have no disabled state: drop href so it's no longer a link, can't be focused or followed,
       // and isn't listed among the page's links; role="link" + aria-disabled keep what it is.
       delete rest.href; delete rest.disabled;

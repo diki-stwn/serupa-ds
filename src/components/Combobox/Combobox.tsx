@@ -16,7 +16,7 @@ import * as icons from "../../material/builtin";
 import { fold } from "../../internal/fold";
 
 export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
-export interface ComboboxProps extends Omit<InputProps, "type" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
+export interface ComboboxProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
   /** The choices: strings, or { value, label, description, disabled }. The label is what's typed to find it and shown once picked. */
   options: ComboboxOption[];
   /** The selected value (controlled), or null. Use with onValueChange. */
@@ -212,7 +212,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         </div>
         {!props.loading && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
-      {props.name ? <input type="hidden" name={props.name} value={value ?? ""} disabled={rest.disabled} /> : null}
+      {props.name ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
     </span>
   );
 });

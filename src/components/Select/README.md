@@ -44,7 +44,7 @@ const { Select, Field } = window.Serupa;
 | State | Look |
 | --- | --- |
 | Rest | `field` background, 1px `field-border`, chevron in `text-muted` |
-| Placeholder | The placeholder in the `placeholder` color until something is picked |
+| Placeholder | The placeholder in the `placeholder` color until something is picked, and again after a form reset |
 | Hover | `field-border-hover` |
 | Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all), like Input; a visible outline in forced-colors mode |
 | Invalid | `danger` border, and a `danger` focus ring |

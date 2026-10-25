@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import { component } from "../../internal/component";
+import { useSerupa } from "../../internal/provider";
 
 export interface KbdProps extends React.HTMLAttributes<HTMLElement> {
   /** A combination, one key each: ['mod', 'K'], ['shift', 'enter']. Names below show as symbols on Apple devices. Or pass one key as children. */
@@ -37,10 +38,10 @@ const NAMED: Record<string, [string, string, string, string]> = {
 };
 const isApple = () => typeof navigator !== "undefined" && [(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform, navigator.platform, navigator.userAgent].some((s) => /Mac|iPhone|iPad|iPod/.test(s || ""));
 
-function Key({ k, apple }: { k: string; apple: boolean }) {
+function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string) => string }) {
   const n = NAMED[k.toLowerCase()];
   if (!n) return <kbd className="dk-kbd__key">{k.length === 1 ? k.toUpperCase() : k}</kbd>;
-  const [shown, name] = apple ? [n[0], n[1]] : [n[2], n[3]];
+  const shown = apple ? n[0] : n[2], name = say(apple ? n[1] : n[3]);
   return <kbd className="dk-kbd__key" title={shown === name ? undefined : name}>{shown === name ? shown : <><span aria-hidden>{shown}</span><VisuallyHidden>{name}</VisuallyHidden></>}</kbd>;
 }
 
@@ -51,6 +52,7 @@ function Key({ k, apple }: { k: string; apple: boolean }) {
 /** A keyboard key or shortcut, drawn as keycaps; "mod" follows the platform (⌘ or Ctrl). */
 export const Kbd = /* @__PURE__ */ component<HTMLElement, KbdProps>("Kbd", function Kbd(props, ref) {
   const rest = omit(props, { keys: 1, size: 1, className: 1, children: 1 } as const);
+  const say = useSerupa().labels.keyName;
   const [apple, setApple] = React.useState(false);   // false on the server; the device decides after mount
   React.useEffect(() => { setApple(isApple()); }, []);
   const size = props.size === "sm" ? "sm" : "md";
@@ -62,7 +64,7 @@ export const Kbd = /* @__PURE__ */ component<HTMLElement, KbdProps>("Kbd", funct
       {keys.map((k, i) => (
         <React.Fragment key={i}>
           {i > 0 ? <span className="dk-kbd__plus" aria-hidden>+</span> : null}
-          <Key k={k} apple={apple} />
+          <Key k={k} apple={apple} say={say} />
         </React.Fragment>
       ))}
     </kbd>

@@ -2,7 +2,7 @@
    Input: a single-line text field. Sizes sm, md, lg at the control heights (24, 32, 44px, like Button), with
    text-xs, text-sm and text-base. Field colors come from the alias tokens (field, field-border, placeholder),
    so it keeps 4.5:1 text and a 3:1 border in every theme. Structure: .dk-input (the box) > .dk-input__icon--left,
-   .dk-input__field (the native <input>), .dk-input__icon--right. Every value goes through --input-* tokens.
+   .dk-input__field (the native <input>), .dk-input__count, .dk-input__icon--right. Every value goes through --input-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-input {
@@ -31,6 +31,12 @@
 .dk-input__field::placeholder { color: var(--input-placeholder, var(--placeholder)); opacity: var(--opacity-100); }
 .dk-input__icon { display: inline-flex; flex-shrink: 0; color: var(--input-icon-color, var(--text-muted)); pointer-events: none; }
 .dk-input__icon .dk-icon { font-size: var(--dk-input-icon); }
+/* The count sits at the end of the field, in text-xs with tabular digits, like Textarea's; text-colored at maxLength. */
+.dk-input__count {
+  flex-shrink: 0; color: var(--input-count, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height);
+  font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; user-select: none;
+}
+.dk-input__count--full { color: var(--input-count-full, var(--text)); }
 @media (hover: hover) { .dk-input:hover:not(.dk-input--disabled, .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-border-hover, var(--field-border-hover)); } }
 /* Focus: the border and a ring hugging it take the focus color (2px in all), and a transparent outline that
    forced-colors mode draws, since box-shadow rings disappear there. */

@@ -37,6 +37,7 @@ const { Link, Text } = window.Serupa;
 
 - Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links.
 - The primary color keeps 4.5:1 on `surface`, on hover too, and the focus ring 3:1, in all six themes (`Link.test.tsx`).
+- With `external`, screen readers hear "(opens in a new tab)" after the text, from the `opensInNewTab` label ("(terbuka di tab baru)" in `idLabels`). Link stays a Server Component: only that note is a small client component.
 - Write link text that makes sense on its own ("Read the pricing guide", not "click here"): screen reader users often move from link to link.
 - The keyboard focus ring follows the text when a link wraps onto two lines.
 - `autoFocus` focuses the link once it mounts, also through `as` (React's own `autoFocus` works only on form controls). Use it sparingly, such as for the one way on from a confirmation page.

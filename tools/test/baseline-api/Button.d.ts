@@ -18,16 +18,20 @@ interface ButtonOwnProps {
     icon?: IconSource;
     loading?: boolean;
     loadingText?: string;
+    disabledReason?: string;
+    successText?: string;
 }
-interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "type"> {
     href?: undefined;
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
     type?: "button" | "reset" | "submit";
     popoverTarget?: string;
     popoverTargetAction?: "hide" | "show" | "toggle";
     commandfor?: string;
     command?: string;
 }
-interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "type"> {
+interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "onClick" | "type"> {
+    onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => unknown;
     href: string;
     disabled?: boolean;
 }

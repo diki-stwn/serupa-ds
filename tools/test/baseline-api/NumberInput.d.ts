@@ -3,7 +3,7 @@ interface NumberInputLabels {
     decrease: string;
     increase: string;
 }
-interface NumberInputProps extends Omit<InputProps, "defaultValue" | "max" | "min" | "rightIcon" | "step" | "type" | "value"> {
+interface NumberInputProps extends Omit<InputProps, "defaultValue" | "max" | "min" | "rightIcon" | "showCount" | "step" | "type" | "value"> {
     value?: null | number;
     defaultValue?: null | number;
     onValueChange?: (value: null | number) => void;

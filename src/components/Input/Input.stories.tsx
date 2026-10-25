@@ -39,3 +39,11 @@ export const States: Story = {
     <Input aria-label="Disabled" disabled defaultValue="Disabled" />
   </Col>,
 };
+
+export const Count: Story = {
+  render: () => <Col>
+    <Input showCount maxLength={30} aria-label="Title" defaultValue="Quarterly report" />
+    <Input showCount maxLength={10} aria-label="Code" defaultValue="WELCOME-10" />
+    <Input showCount aria-label="Note" defaultValue="No limit" />
+  </Col>,
+};

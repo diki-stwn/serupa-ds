@@ -14,6 +14,9 @@ const { Input } = window.Serupa;
 // invalid: say what's wrong in text, linked to the field
 <Input id="email" invalid aria-describedby="email-error" />
 <p id="email-error">Enter an email address like name@example.com.</p>
+
+// a count at the end of the field: "12 / 30"
+<Input id="title" maxLength={30} showCount />
 ```
 
 ## When to use
@@ -33,6 +36,7 @@ const { Input } = window.Serupa;
 - Match the input's size to the buttons beside it: an `md` input with an `md` Button lines up exactly.
 - Keep labels above the field, short and specific; use the placeholder only for an example of the format.
 - Show errors after someone leaves the field or submits, not on every keystroke.
+- Show a count only when there's a limit people need to plan around, such as a short title.
 
 ## States
 
@@ -51,7 +55,10 @@ const { Input } = window.Serupa;
 - `invalid` sets `aria-invalid`, but color alone doesn't explain the problem: put the message in text and link it with `aria-describedby`.
 - Icons are decorative (`aria-hidden`) and don't take clicks, so clicking one focuses nothing; keep meaning in the label.
 - Text keeps 4.5:1 on `field`, the placeholder 4.5:1 and the border 3:1, in all six themes (`Input.test.tsx`).
-- Use the right `type` (`email`, `tel`, `url`, `search`) and `autoComplete` so phones show the right keyboard and browsers can fill it in.
+- Use the right `type` (`email`, `tel`, `url`, `search`) and `autoComplete` so phones show the right keyboard and browsers can fill it in. Email and URL fields, and ones with `autoComplete` `username`, `email`, `url` or `one-time-code`, get `autoCapitalize="off"`, `autoCorrect="off"` and `spellCheck={false}`, so a phone doesn't capitalize or "correct" an address. Any of the three you pass wins.
+- The count is linked with `aria-describedby` (after any ids you pass), so screen readers read it when the field gets focus. While typing it's read out only near the limit: once when a few characters are left (10, or a fifth of a short limit) and once when it's reached. The words are the `charactersLeft` label.
+- `maxLength` stops typing at the limit, counted in characters as people see them, like the count: an emoji such as 👨‍👩‍👧 is one. Input applies the limit itself, as Textarea does, so the `<input>` has no `maxlength` attribute. Say the limit in the label or hint too, since the count only shows it visually.
+- The count keeps 4.5:1 on `field` in all six themes, as Textarea's does.
 
 ## Props
 
@@ -61,6 +68,8 @@ const { Input } = window.Serupa;
 | `invalid` | boolean | `false` | A danger border and focus ring, and `aria-invalid` |
 | `leftIcon` | icon name or element | | A decorative icon before the text (14, 16 or 20px, in `text-muted`) |
 | `rightIcon` | icon name or element | | A decorative icon after the text |
+| `showCount` | boolean | `false` | A character count at the end of the field, in characters as people see them: "12 / 30" with `maxLength`, "12" without. It turns from `text-muted` to `text` once `maxLength` is reached, in the locale's digits |
+| `maxLength` | number | | The most characters, counted as people see them (an emoji is one), applied by Input |
 
 Everything else (`type`, `value`, `defaultValue`, `onChange`, `placeholder`, `disabled`, `readOnly`, `required`, `name`, `id`, `aria-*`) and `ref` go to the `<input>`. `className` and `style` go to the box, so `className="w-64"` sets its width (full width by default). The type defaults to `text`. The box has `data-component="input"` and `data-size`.
 
@@ -77,6 +86,8 @@ Each is an optional override: set it on the page, a container or one input. The 
 | `--input-border-hover` | `field-border-hover` | Border on hover |
 | `--input-placeholder` | `placeholder` | Placeholder text |
 | `--input-icon-color` | `text-muted` | Left and right icons |
+| `--input-count` | `text-muted` | The character count |
+| `--input-count-full` | `text` | The count once `maxLength` is reached |
 | `--input-focus-ring` | `focus-ring` | Border and ring while focused |
 | `--input-invalid` | `danger` | Border and ring when invalid |
 | `--input-height-sm` / `-md` / `-lg` | `control-height-sm` / `-md` / `-lg` | Heights (24, 32, 44px) |
