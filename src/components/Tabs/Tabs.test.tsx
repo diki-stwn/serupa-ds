@@ -260,4 +260,43 @@ describe('Tabs on the server', () => {
     await expect.poll(() => panels.map((p) => p.tabIndex)).toEqual([-1, 0, -1]);
   });
 
+  test('overflow (O4): 20 tabs in 400px with the last selected: it is scrolled into view; the start edge fades while tabs are past it, the end only while tabs are past it; nothing fades when it fits', async () => {
+    const many = Array.from({ length: 20 }, (_, i) => 'Tab ' + (i + 1));
+    function Wide() {
+      const [v, set] = React.useState('Tab 20');
+      return <div style={{ width: '400px' }}>
+        <Tabs id="ov" value={v} onValueChange={set}><TabList aria-label="Many">{many.map((t) => <Tab key={t} value={t}>{t}</Tab>)}</TabList></Tabs>
+        <Tabs id="fit"><TabList aria-label="Few"><Tab value="a">A</Tab><Tab value="b">B</Tab></TabList></Tabs>
+        <button id="first" onClick={() => set('Tab 1')}>first</button>
+      </div>;
+    }
+    await render(<Wide />);
+    const list = el('ov').querySelector<HTMLElement>('[role="tablist"]')!, box = list.getBoundingClientRect();
+    const t = selected('ov').getBoundingClientRect();
+    expect([list.scrollLeft > 0, t.right <= box.right + 0.5, t.left >= box.left]).toEqual([true, true, true]);
+    await expect.poll(() => [list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([true, false]);
+    expect(css(list).maskImage).toMatch(/linear-gradient/);
+    await userEvent.click(el('first'));
+    await expect.poll(() => [list.scrollLeft, list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([0, false, true]);
+    const fit = el('fit').querySelector<HTMLElement>('[role="tablist"]')!;
+    expect([fit.hasAttribute('data-fade-before'), fit.hasAttribute('data-fade-after'), css(fit).maskImage]).toEqual([false, false, 'none']);
+  });
+
+  test('orientation="vertical": aria-orientation vertical, the tabs in a column at the start with the line on their end side; ↓ and ↑ move and select (wrapping), ← → do nothing', async () => {
+    await render(<Tabs id="ver" orientation="vertical"><Set3 /></Tabs>);
+    const list = el('ver').querySelector<HTMLElement>('[role="tablist"]')!, tabs = [...list.querySelectorAll<HTMLElement>('[role="tab"]')];
+    expect([list.getAttribute('aria-orientation'), el('ver').dataset.orientation, Math.round(tabs[1].getBoundingClientRect().left - tabs[0].getBoundingClientRect().left), tabs[1].getBoundingClientRect().top > tabs[0].getBoundingClientRect().top]).toEqual(['vertical', 'vertical', 0, true]);
+    const panel = el('ver').querySelector<HTMLElement>('[role="tabpanel"]:not([hidden])')!;
+    expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(list.getBoundingClientRect().right);
+    expect([css(list).borderInlineEndWidth, css(list).borderBottomWidth]).toEqual(['1px', '0px']);
+    const line = getComputedStyle(tabs[0], '::after');
+    expect([line.width, line.height === '2px']).toEqual(['2px', false]);
+    tabs[0].focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(focused()).toBe('Two');
+    await userEvent.keyboard('{ArrowRight}');
+    expect(focused()).toBe('Two');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    expect([focused(), selected('ver').textContent]).toEqual(['Three', 'Three']);
+  });
 });

@@ -2,7 +2,8 @@
    Tabs: a row of tabs (.dk-tabs__list > .dk-tabs__tab) over panels (.dk-tabs__panel). line (default): a border
    under the row and a 2px primary line under the selected tab, whose label turns from text-muted to text.
    pill: no border; the selected tab is filled in primary. Tabs are 36px tall (32px with size sm), text-sm,
-   font-medium. A 2px focus ring, 50% when disabled. Every value goes through --tabs-* tokens.
+   font-medium. A 2px focus ring, 50% when disabled. When the row overflows, the edge with more tabs fades out over
+   32px. vertical: a column at the start with the line on its end side. Every value goes through --tabs-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-tabs { font-family: var(--font-sans); }
@@ -13,6 +14,16 @@
   gap: var(--tabs-gap, var(--spacing-1));
   overflow-x: auto; overscroll-behavior-x: contain;
   scrollbar-width: none;
+  /* The edge with more tabs past it fades out (TabList sets data-fade-before and -after from the scroll position). */
+  --dk-tabs-fade: var(--tabs-fade-size, var(--spacing-8));
+  --dk-tabs-fade-to: to right;
+  --dk-tabs-fade-a: var(--spacing-0); --dk-tabs-fade-b: var(--spacing-0);
+}
+.dk-tabs__list[data-fade-before] { --dk-tabs-fade-a: var(--dk-tabs-fade); }
+.dk-tabs__list[data-fade-after] { --dk-tabs-fade-b: var(--dk-tabs-fade); }
+.dk-tabs__list:is([data-fade-before], [data-fade-after]) {
+  --dk-tabs-fade-end: calc(var(--sizing-full) - var(--dk-tabs-fade-b));
+  mask-image: linear-gradient(var(--dk-tabs-fade-to), transparent, black var(--dk-tabs-fade-a), black var(--dk-tabs-fade-end), transparent);
 }
 .dk-tabs--line .dk-tabs__list { border-bottom: var(--border-width-1) solid var(--tabs-border, var(--border)); }
 .dk-tabs__tab {
@@ -56,6 +67,15 @@
 .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]:focus-visible { box-shadow: inset 0 0 0 var(--focus-ring-width) var(--tabs-focus-ring, var(--focus-ring)), inset 0 0 0 var(--spacing-1) var(--tabs-focus-gap-color, var(--surface)); }
 
 .dk-tabs__panel { padding-top: var(--tabs-panel-gap, var(--spacing-4)); }
+
+/* vertical: the tabs in a column at the start, the panels beside them */
+.dk-tabs--vertical { display: flex; align-items: flex-start; }
+.dk-tabs--vertical .dk-tabs__list { flex-direction: column; flex-shrink: 0; max-height: var(--sizing-full); overflow-x: visible; overflow-y: auto; overscroll-behavior-y: contain; --dk-tabs-fade-to: to bottom; }
+.dk-tabs--vertical .dk-tabs__tab { justify-content: flex-start; }
+.dk-tabs--vertical .dk-tabs__panel { flex: auto; min-width: var(--spacing-0); padding-top: var(--spacing-0); padding-inline-start: var(--tabs-panel-gap, var(--spacing-4)); }
+.dk-tabs--vertical.dk-tabs--line .dk-tabs__list { border-bottom: var(--spacing-0); border-inline-end: var(--border-width-1) solid var(--tabs-border, var(--border)); }
+.dk-tabs--vertical.dk-tabs--line .dk-tabs__tab { border-radius: var(--tabs-radius, var(--rounded-md)); border-start-end-radius: var(--spacing-0); border-end-end-radius: var(--spacing-0); }
+.dk-tabs--vertical.dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after { inset-inline: auto var(--spacing-0); inset-block: var(--spacing-0); width: var(--tabs-indicator-width, var(--border-width-2)); height: auto; }
 .dk-tabs__panel:focus-visible { outline: var(--focus-ring-width) solid var(--tabs-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); border-radius: var(--rounded-sm); }
 .dk-tabs__panel[hidden]:not([hidden="until-found"]) { display: none; }
 /* A kept panel of another tab is hidden="until-found": hidden, but find-in-page still searches it (Tabs.tsx). Its
