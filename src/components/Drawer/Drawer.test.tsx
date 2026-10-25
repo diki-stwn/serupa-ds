@@ -301,4 +301,35 @@ describe('Drawer: a body that scrolls', () => {
     await expect.poll(() => body.hasAttribute('tabindex')).toBe(false);
     expect(body.hasAttribute('role')).toBe(false);
   });
+  test('your onCancel, onClose, onPointerDown and onClick run too, and the drawer still asks to close', async () => {
+    const calls: string[] = [], asks: boolean[] = [];
+    const rec = (n: string) => () => { calls.push(n); };
+    await render(<Drawer id="dh" open onOpenChange={(v) => { asks.push(v); }} title="Hooks"
+      onCancel={rec('cancel')} onClose={rec('close')} onPointerDown={rec('down')} onClick={rec('click')}><p>Body</p></Drawer>);
+    const d = el('dh') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    await settled();
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(d, { position: { x: 20, y: 20 } });
+    d.close();
+    await expect.poll(() => calls.includes('close')).toBe(true);
+    expect([calls.filter((c) => c !== 'close').join(), asks.join()]).toEqual(['cancel,down,click', 'false,false,false']);
+  });
+
+  test('aria-labelledby and aria-describedby you pass win; no title, description or ×: no header, and a long body is a region named by aria-label, or with no name just a Tab stop', async () => {
+    const text = []; for (let i = 0; i < 80; i++) text.push(<p key={i}>Line {i}</p>);
+    const screen = await render(<div><h2 id="ext">Outside name</h2><p id="extd">Outside text</p>
+      <Drawer id="dn" open onOpenChange={() => {}} title="Own" description="Own text" aria-labelledby="ext" aria-describedby="extd"><p>Short</p></Drawer></div>);
+    const d = () => el('dn') as HTMLDialogElement;
+    await expect.poll(() => d().open).toBe(true);
+    expect([d().getAttribute('aria-labelledby'), d().getAttribute('aria-describedby')]).toEqual(['ext', 'extd']);
+    await screen.rerender(<div><Drawer id="dn" open onOpenChange={() => {}} closeButton={false} aria-label="Terms">{text}</Drawer></div>);
+    const body = () => d().querySelector('.dk-drawer__body') as HTMLElement;
+    expect(d().querySelector('.dk-drawer__header')).toBe(null);
+    await expect.poll(() => body().getAttribute('role')).toBe('region');
+    expect([body().getAttribute('aria-label'), body().tabIndex]).toEqual(['Terms', 0]);
+    await screen.rerender(<div><Drawer id="dn" open onOpenChange={() => {}} closeButton={false}>{text}</Drawer></div>);
+    await expect.poll(() => body().hasAttribute('role')).toBe(false);
+    expect([body().tabIndex, body().hasAttribute('aria-label')]).toEqual([0, false]);
+  });
 });

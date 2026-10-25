@@ -81,9 +81,9 @@ export default defineConfig({
       exclude: ['src/**/*.test.tsx', 'src/**/*.stories.tsx', 'src/material/**', 'src/**/*.d.ts'],
       reporter: ['text-summary', 'html', 'json-summary'],
       reportsDirectory: 'coverage',
-      // Floors a little under the full run's figures on 24 Oct 2026 (95.5 / 87.8 / 98.2 / 99.3 %), so a change
+      // Floors a little under the full run's figures on 25 Oct 2026 (96.2 / 88.6 / 98.9 / 99.6 %), so a change
       // that drops coverage fails. Raise them by hand when the figures climb; they never go down.
-      thresholds: { statements: 94, branches: 86, functions: 97, lines: 98 },
+      thresholds: { statements: 95.5, branches: 88, functions: 98.5, lines: 99.3 },
     },
   },
 });
