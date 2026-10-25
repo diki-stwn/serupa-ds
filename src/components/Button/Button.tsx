@@ -57,7 +57,7 @@ export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHT
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
-  /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
+  /** Opens, closes or toggles a [popover] element by id (native HTML). */
   popoverTarget?: string;
   popoverTargetAction?: 'show' | 'hide' | 'toggle';
   /** Invoker commands: the id of the element to act on, and the action ('show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'). */
