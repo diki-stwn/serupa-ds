@@ -4,6 +4,8 @@ How a change gets into Serupa. The tools and every check are described in [tools
 
 ## Every change
 
+Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`. On an older Node, `npm install` and every `npm run` script stop with `EBADDEVENGINES` (package.json's `devEngines`), on purpose. Projects that install the package need only Node 22 or later (`engines`).
+
 1. **A branch and a pull request.** Nothing goes to `main` directly. CI runs on the pull request and it merges only when the `test` check is green; nothing bypasses it.
 2. **Run the fast checks first:** `npm run typecheck`, `npm run lint` and `npm run test:unit` (the component tests, a few seconds). `node tools/test/run.mjs --since main` runs everything your change can affect, as CI will.
 3. **A changeset** (`npx changeset`) when a project using the package gets something different: patch, minor or major by the rules in the README's [Versioning](README.md#versioning) section, with a line starting Added, Changed, Deprecated, Removed, Fixed or Security ([.changeset/README.md](.changeset/README.md)). A change only to the tests, tools or workflows takes the `no-changeset` label instead.
