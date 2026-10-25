@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, press } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Navbar, NavbarLink } from './Navbar';
 
@@ -250,5 +250,12 @@ describe('Navbar', () => {
   test('links inside a Fragment each get their own list item', async () => {
     await render(<Navbar id="nfrag" brand="Acme"><NavbarLink href="/">Home</NavbarLink><><NavbarLink href="/a">A</NavbarLink><NavbarLink href="/b">B</NavbarLink></>{false}</Navbar>);
     expect([...el('nfrag').querySelectorAll('.dk-navbar__links > li')].map((li) => li.textContent)).toEqual(['Home', 'A', 'B']);
+  });
+
+  test('pressed: a link held down fills with pressed at once, with no fade in (ED1)', async () => {
+    await render(<Main />);
+    await press(el('lp'), () => {
+      expect([css(el('lp')).backgroundColor, css(el('lp')).transitionDuration.split(',')[0].trim()]).toEqual([color('var(--pressed)'), '0s']);
+    });
   });
 });
