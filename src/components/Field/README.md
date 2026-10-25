@@ -14,7 +14,7 @@ const { Field, Input, Textarea } = window.Serupa;
 
 // a set of choices: a fieldset with a legend
 <Field group label="Plan" hint="You can change it later." error={planError}>
-  <RadioGroup name="plan" value={plan} onChange={setPlan}>
+  <RadioGroup name="plan" value={plan} onValueChange={setPlan}>
     <Radio value="free">Free</Radio>
     <Radio value="pro">Pro</Radio>
   </RadioGroup>
