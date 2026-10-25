@@ -43,6 +43,23 @@ describe('PinInput', () => {
     expect([shown('p'), done.mock.calls]).toEqual(['123456', [['123456']]]);
   });
 
+  test('select all and type, or paste, replaces the whole code', async () => {
+    await render(<PinInput id="p" aria-label="Code" length={4} defaultValue="12" />);
+    await userEvent.fill(el('p'), '9876');
+    expect(shown('p')).toBe('9876');
+    el('p').select();
+    await userEvent.keyboard('5');
+    expect(shown('p')).toBe('5___');
+  });
+
+  test('focused from code (the caret at the start), typing still adds to the end', async () => {
+    await render(<PinInput id="p" aria-label="Code" length={4} defaultValue="12" />);
+    el('p').focus();
+    el('p').setSelectionRange(0, 0);
+    await userEvent.keyboard('3');
+    expect(shown('p')).toBe('123_');
+  });
+
   test('the caret stays at the end, and the box it\'s in gets the focus ring (the last one once full)', async () => {
     await render(<PinInput id="p" aria-label="Code" length={3} defaultValue="4" />);
     expect(root('p').querySelector('.dk-pin-input__box--active')).toBeNull();

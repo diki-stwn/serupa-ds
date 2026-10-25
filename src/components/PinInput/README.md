@@ -38,7 +38,15 @@ import { PinInput, Field } from "serupa-ds";
 ## Accessibility
 
 - **Role and name:** one `<input>` with a text role (a password field with `mask`). Name it with Field's label, `<label htmlFor>`, `aria-label` or `aria-labelledby`. Screen readers read the code, not the boxes, which are `aria-hidden`.
-- **Keyboard:** it's one Tab stop. Typing fills the next box, and Backspace empties the last one. The caret stays at the end, and the box it's in gets the focus color, border and ring, which stay visible in forced colors.
+- **Keyboard:** it's one Tab stop. The caret stays at the end, and the box it's in gets the focus color, border and ring, which stay visible in forced colors.
+
+| Key | Does |
+| --- | --- |
+| A digit (or a letter, with `type="alphanumeric"`) | Fills the next empty box. Other characters are ignored |
+| Backspace | Empties the last filled box |
+| Arrows, Home, End | Nothing: the caret stays after the last character |
+| Ctrl+V / Cmd+V | Pastes a code into every box at once |
+
 - **Contrast:** the characters read 4.5:1 on the boxes, and the borders, focus ring and danger border 3:1 on the surface, in all six themes (`PinInput.test.tsx`).
 - **Target size:** the boxes are at least 24px, and the field under them takes a press anywhere on the row (WCAG 2.5.8).
 - **What's still yours:** say how many characters the code has, and where it was sent, in the label or hint. Don't put a time limit on it that people can't extend (WCAG 2.2.1).
