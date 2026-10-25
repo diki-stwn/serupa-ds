@@ -29,4 +29,5 @@ export const Playground: Story = {};
 export const Confirmation: Story = { args: { alert: true, size: 'sm', title: 'Delete Atlas?', description: 'This removes the project and its files. It can’t be undone.' } };
 export const Small: Story = { args: { size: 'sm', title: 'Rename project', description: undefined } };
 export const Large: Story = { args: { size: 'lg', title: 'Share Atlas', description: 'Anyone you invite can view and comment.' } };
+export const FullScreen: Story = { args: { fullScreen: true, title: 'Edit profile', description: 'Changes show on your public page.' } };
 export const NoCloseButton: Story = { args: { closeButton: false, title: 'Invite people' } };

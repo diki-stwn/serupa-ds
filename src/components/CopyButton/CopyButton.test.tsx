@@ -39,6 +39,7 @@ describe('CopyButton', () => {
 
   test('the width stays the same while it shows "Copied" (both labels share one cell, the hidden one isn\'t read out)', async () => {
     await render(<CopyButton id="w" value="x">OK</CopyButton>);
+    await document.fonts.ready; // a font that finishes loading between the two reads changes the width
     const before = el('w').getBoundingClientRect().width;
     await userEvent.click(el('w'));
     await expect.poll(() => el('w').hasAttribute('data-copied')).toBe(true);

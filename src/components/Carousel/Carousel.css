@@ -32,7 +32,7 @@
   padding: var(--spacing-0) var(--spacing-1);
   border: var(--spacing-0);
   background: transparent;
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
 }
 .dk-carousel__dot::before {
   content: "";

@@ -14,7 +14,7 @@
 @media (hover: hover) { .dk-breadcrumb__link:hover, .dk-breadcrumb__more:hover { color: var(--breadcrumb-text-hover, var(--text)); text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
 .dk-breadcrumb__item:focus-visible { outline: var(--focus-ring-width) solid var(--breadcrumb-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-breadcrumb__item--current { color: var(--breadcrumb-text-current, var(--text)); font-weight: var(--breadcrumb-weight-current, var(--font-medium)); }
-.dk-breadcrumb__more { padding: var(--spacing-0) var(--spacing-0\.5); border: var(--spacing-0); background: transparent; font: inherit; cursor: pointer; }
+.dk-breadcrumb__more { padding: var(--spacing-0) var(--spacing-0\.5); border: var(--spacing-0); background: transparent; font: inherit; cursor: pointer; touch-action: manipulation; }
 .dk-breadcrumb__icon { display: inline-flex; }
 .dk-breadcrumb__icon .dk-icon { font-size: var(--breadcrumb-icon-size, var(--spacing-4)); }
 .dk-breadcrumb__separator { display: inline-flex; color: var(--breadcrumb-separator, var(--text-muted)); user-select: none; }
