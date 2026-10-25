@@ -140,8 +140,7 @@ describe('Menu', () => {
     await userEvent.keyboard('{Enter}');
     expect(!!openMenu()).toBe(true);
     await userEvent.keyboard('{Tab}');
-    await settle(50);
-    expect(!!openMenu()).toBe(false);
+    await expect.poll(() => !!openMenu()).toBe(false);
     expect(focus()).not.toBe('mb');
   });
 
@@ -170,9 +169,9 @@ describe('Menu', () => {
       <MenuItem onSelect={(e) => { e.preventDefault(); chosen.push('stay'); }}>Stay open</MenuItem><MenuItem>Two</MenuItem>
     </Menu></div>);
     await userEvent.click(el('ib'));
-    await settle(100);
+    await expect.poll(() => !!menuOf('ib') && near(rect(menuOf('ib')).right, rect(el('ib')).right)).toBe(true);
     const m = menuOf('ib');
-    expect([m.getAttribute('aria-label'), m.getAttribute('aria-labelledby'), near(rect(m).right, rect(el('ib')).right)]).toEqual(['Row actions', null, true]);
+    expect([m.getAttribute('aria-label'), m.getAttribute('aria-labelledby')]).toEqual(['Row actions', null]);
     await userEvent.keyboard('{Enter}');
     expect([!!openMenu(), chosen.join()]).toEqual([true, 'stay']);
   });
@@ -188,8 +187,7 @@ describe('Menu', () => {
     await userEvent.click(el('cb'));
     expect([!!openMenu(), opens.join()]).toEqual([false, 'true']);
     React.act(() => setOpen(true));
-    await settle(100);
-    expect(getComputedStyle(menuOf('cb')).backgroundColor).toBe('rgb(1, 2, 3)');
+    await expect.poll(() => menuOf('cb') && getComputedStyle(menuOf('cb')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 
   test('a new placement while open moves it there', async () => {
@@ -472,7 +470,7 @@ describe('ContextMenu', () => {
     const r = rect(el('area'));
     const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + 50, clientY: r.top + 60, button: 2 });
     el('area').dispatchEvent(ev);
-    await settle();
+    await expect.poll(() => focus()).toBe('Open');
     const m = openMenu()!;
     expect([ev.defaultPrevented, m.getAttribute('aria-label'), focus()]).toEqual([true, 'File actions', 'Open']);
     const mr = rect(m);
@@ -483,15 +481,12 @@ describe('ContextMenu', () => {
     await render(<Area chosen={[]} />);
     el('area').focus();
     await userEvent.keyboard('{Shift>}{F10}{/Shift}');
-    await settle();
-    expect([!!openMenu(), focus()]).toEqual([true, 'Open']);
+    await expect.poll(() => [!!openMenu(), focus()]).toEqual([true, 'Open']);
     expect(near(rect(openMenu()!).left, rect(el('area')).left)).toBe(true);
     await userEvent.keyboard('{Escape}');
-    await settle();
-    expect([openMenu(), document.activeElement!.id]).toEqual([undefined, 'area']);
+    await expect.poll(() => [openMenu(), document.activeElement!.id]).toEqual([undefined, 'area']);
     await userEvent.keyboard('{ContextMenu}');
-    await settle();
-    expect(focus()).toBe('Open');
+    await expect.poll(() => focus()).toBe('Open');
   });
 
   test('Menu\'s keys work in it; choosing an item runs onSelect, closes it and puts focus back; a click outside closes it', async () => {
@@ -499,19 +494,17 @@ describe('ContextMenu', () => {
     await render(<Area chosen={chosen} />);
     el('area').focus();
     await userEvent.keyboard('{Shift>}{F10}{/Shift}');
-    await settle();
+    await expect.poll(() => focus()).toBe('Open');
     await userEvent.keyboard('{ArrowDown}');
     expect(focus()).toBe('Rename');
     await userEvent.keyboard('d');
     expect(focus()).toBe('Delete');
     await userEvent.keyboard('{Enter}');
-    await settle();
-    expect([chosen.join(), openMenu(), document.activeElement!.id]).toEqual(['delete', undefined, 'area']);
+    await expect.poll(() => [chosen.join(), openMenu(), document.activeElement!.id]).toEqual(['delete', undefined, 'area']);
     await userEvent.keyboard('{Shift>}{F10}{/Shift}');
-    await settle();
+    await expect.poll(() => !!openMenu()).toBe(true);
     await userEvent.click(el('before'));
-    await settle();
-    expect(openMenu()).toBeUndefined();
+    await expect.poll(() => openMenu()).toBeUndefined();
   });
 
   test('ContextMenu onOpenChange says why: trigger (right-click or keys), select, escape, outside', async () => {

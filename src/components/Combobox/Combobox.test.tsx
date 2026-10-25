@@ -141,13 +141,11 @@ describe('Combobox', () => {
     await userEvent.keyboard('{ArrowUp}{ArrowUp}{Enter}');
     await selectAll(); await userEvent.keyboard('bra');
     el('before').focus();
-    await settle(50);
-    expect(el('cb').value).toBe('Egypt');
+    await expect.poll(() => el('cb').value).toBe('Egypt');
     el('cb').focus();
     await selectAll(); await userEvent.keyboard('{Backspace}');
     el('before').focus();
-    await settle(50);
-    expect([el('cb').value, !!popOf('cb').querySelector('[aria-selected=true]')]).toEqual(['', false]);
+    await expect.poll(() => [el('cb').value, !!popOf('cb').querySelector('[aria-selected=true]')]).toEqual(['', false]);
   });
 
   test('a typed full label picks that option when focus leaves ("brazil" then Tab, "cote d’ivoire" without accents then a click elsewhere); onValueChange gets it; a disabled option\'s label doesn\'t pick it', async () => {
@@ -156,13 +154,11 @@ describe('Combobox', () => {
       <Combobox id="cb" aria-label="Country" options={COUNTRIES} onValueChange={(v) => calls.push(v)} /></div>);
     el('cb').focus();
     await userEvent.keyboard('brazil{Tab}');
-    await settle(50);
-    expect([el('cb').value, calls]).toEqual(['Brazil', ['Brazil']]);
+    await expect.poll(() => [el('cb').value, calls]).toEqual(['Brazil', ['Brazil']]);
     el('cb').focus();
     await selectAll(); await userEvent.keyboard('cote d’ivoire');
     await userEvent.click(el('before'));
-    await settle(50);
-    expect([el('cb').value, calls]).toEqual(['Côte d’Ivoire', ['Brazil', 'ci']]);
+    await expect.poll(() => [el('cb').value, calls]).toEqual(['Côte d’Ivoire', ['Brazil', 'ci']]);
     el('cb').focus();
     await selectAll(); await userEvent.keyboard('denmark');
     el('before').focus();
@@ -193,7 +189,7 @@ describe('Combobox', () => {
   test('the list sits 4px under the field, aligned and at least as wide, at most 240px tall', async () => {
     await render(<Countries />);
     await userEvent.click(el('cb'));
-    await settle(50);
+    await expect.poll(() => Math.abs(popOf('cb').getBoundingClientRect().top - el('cb').parentElement!.getBoundingClientRect().bottom - 4) <= 1).toBe(true);
     const box = el('cb').parentElement!.getBoundingClientRect(), pop = popOf('cb');
     const r = pop.getBoundingClientRect();
     expect(Math.abs(r.top - box.bottom - 4)).toBeLessThanOrEqual(1);
@@ -332,7 +328,6 @@ describe('Combobox', () => {
       <Combobox id="f4" options={COUNTRIES} defaultValue="Canada" clearable />
       <Combobox id="f5" aria-label="Country" options={COUNTRIES} defaultValue="Canada" clearable clearLabel="Remove country" />
     </>);
-    await settle();
     const name = (id: string) => clearOf(id)!.getAttribute('aria-label');
     expect(['f1', 'f2', 'f3', 'f4', 'f5'].map(name)).toEqual(['Clear Country', 'Clear Region', 'Clear Ship to', 'Clear', 'Remove country']);
   });

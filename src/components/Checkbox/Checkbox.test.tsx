@@ -12,7 +12,6 @@ const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
 describe('Checkbox', () => {
   test('a native checkbox in a <label class="dk-checkbox">: md is a 16px box with a 1px field border, 4px corners and text-sm', async () => {
     await render(<Checkbox id="md">Newsletter</Checkbox>);
-    await settle(300);
     const i = input('md'), s = css(i);
     expect(i.type).toBe('checkbox');
     expect(label('md').tagName).toBe('LABEL');
@@ -114,7 +113,6 @@ describe('Checkbox', () => {
       return <Checkbox id="m" indeterminate={mixed} onChange={() => setMixed(false)}>Select all</Checkbox>;
     }
     await render(<App />);
-    await settle(300);
     const icon = () => input('m').nextElementSibling as HTMLElement;
     expect(input('m').indeterminate).toBe(true);
     expect((icon().querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).toBe('remove');
@@ -148,22 +146,18 @@ describe('Checkbox', () => {
   test('hover darkens the border to field-border-hover', async () => {
     await render(<Checkbox id="h">Hover me</Checkbox>);
     await page.getByText('Hover me').hover();
-    await settle(250);
-    expect(css(input('h')).borderTopColor).toBe(color('var(--field-border-hover)'));
+    await expect.poll(() => css(input('h')).borderTopColor).toBe(color('var(--field-border-hover)'));
   });
 
   test('keyboard focus: a 2px focus-ring outline 2px out, like Button; the gap is transparent, with no box-shadow ring', async () => {
     await render(<><button type="button">Before</button><Checkbox id="f">Focus me</Checkbox></>);
     await page.getByRole('button', { name: 'Before' }).click();
     await userEvent.tab();
-    await settle(250);
-    const s = css(input('f'));
-    expect(`${s.outlineStyle} ${s.outlineColor} ${s.outlineWidth} ${s.outlineOffset} ${s.boxShadow}`).toBe(`solid ${color('var(--focus-ring)')} 2px 2px none`);
+    await expect.poll(() => { const s = css(input('f')); return `${s.outlineStyle} ${s.outlineColor} ${s.outlineWidth} ${s.outlineOffset} ${s.boxShadow}`; }).toBe(`solid ${color('var(--focus-ring)')} 2px 2px none`);
   });
 
   test('invalid: aria-invalid and a danger border', async () => {
     await render(<Checkbox id="i" invalid>Terms</Checkbox>);
-    await settle(300);
     expect(input('i').getAttribute('aria-invalid')).toBe('true');
     expect(css(input('i')).borderTopColor).toBe(color('var(--danger)'));
     expect(label('i').className).toMatch(/dk-checkbox--invalid/);
@@ -172,7 +166,6 @@ describe('Checkbox', () => {
   test('disabled: native disabled at 50% with a not-allowed cursor and a surface-muted box; clicks do nothing', async () => {
     const onChange = vi.fn();
     await render(<Checkbox id="x" disabled onChange={onChange}>Disabled</Checkbox>);
-    await settle(300);
     const s = css(label('x'));
     expect([s.opacity, s.cursor]).toEqual(['0.5', 'not-allowed']);
     expect(css(input('x')).backgroundColor).toBe(color('var(--surface-muted)'));

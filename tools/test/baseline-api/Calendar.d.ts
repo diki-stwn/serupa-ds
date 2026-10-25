@@ -4,14 +4,14 @@ interface CalendarLabels {
     nextMonth: string;
 }
 interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
-    value?: Date | null;
-    defaultValue?: Date | null;
-    onValueChange?: (value: Date) => void;
+    value?: Date | null | string;
+    defaultValue?: Date | null | string;
+    onValueChange?: (value: Date, iso: string) => void;
     month?: Date;
     defaultMonth?: Date;
     onMonthChange?: (month: Date) => void;
-    min?: Date;
-    max?: Date;
+    min?: Date | string;
+    max?: Date | string;
     isDateDisabled?: (date: Date) => boolean;
     locale?: string;
     weekStartsOn?: number;
