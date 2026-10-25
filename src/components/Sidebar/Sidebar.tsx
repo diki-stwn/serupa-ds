@@ -114,10 +114,14 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   const rail = ctx.collapsed && ctx.depth === 0;
   // In the rail the badge is hidden on screen, like the label, and a dot on the icon says there is one.
   const dot = rail && props.badge != null && props.badge !== false;
+  // There the tooltip is the item's name (aria-labelledby replaces its text), so the badge is read as its
+  // description: "Inbox", then "4".
+  const badgeId = listId + "-badge";
+  if (dot) rest["aria-describedby"] = cn(rest["aria-describedby"], badgeId);
   const inner = (chevron: boolean) => <>
     {props.icon ? <span className="dk-sidebar__icon">{asIcon(props.icon)}{dot ? <span className="dk-sidebar__dot" aria-hidden="true" /> : null}</span> : null}
     <span className="dk-sidebar__label">{props.label}</span>
-    {props.badge != null ? <span className="dk-sidebar__badge">{props.badge}</span> : null}
+    {props.badge != null ? <span className="dk-sidebar__badge" id={dot ? badgeId : undefined}>{props.badge}</span> : null}
     {chevron && !rail ? <Icon icon={icons.ExpandMore} className="dk-sidebar__chevron" /> : null}
   </>;
   // An item with children is a button, not a link: its other attributes and handlers go to the button.

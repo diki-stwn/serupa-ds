@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
@@ -43,6 +44,7 @@ const PERCENT = { style: "percent", maximumFractionDigits: 0 } as const;
    that. Renders role="progressbar" with aria-valuenow / min / max and aria-valuetext. */
 /** How far along a task is: a bar or a ring with role="progressbar"; leave value out when you can't tell. */
 export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>("Progress", function Progress(props, ref) {
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const locale = useLocale();
   const base = domId("dk-prg", React.useId());
@@ -80,7 +82,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
 
   if (variant === "circle") {
     return (
-      <div {...rest} {...aria} {...data} ref={ref} className={cls}>
+      <div {...rest} {...aria} {...data} ref={restyle} className={cls}>
         <svg className="dk-progress__ring" viewBox="0 0 24 24" aria-hidden focusable="false">
           <circle className="dk-progress__track" cx={12} cy={12} r={10.5} />
           <circle className="dk-progress__arc" cx={12} cy={12} r={10.5} pathLength={100} strokeDasharray={known ? share * 100 + " 100" : "25 100"} />
@@ -91,7 +93,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   }
   const outer = omit(rest, { "aria-label": 1, "aria-labelledby": 1 } as const);
   return (
-    <div {...outer} {...data} ref={ref} className={cls}>
+    <div {...outer} {...data} ref={restyle} className={cls}>
       {hasLabel || showValue ? (
         <div className="dk-progress__header">
           {hasLabel ? <span className="dk-progress__label" id={base + "-label"}>{props.label}</span> : null}

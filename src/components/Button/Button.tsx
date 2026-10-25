@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useFormStatus } from "react-dom";
 import { cn, type DataAttributes, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { useSerupa } from "../../internal/provider";
@@ -31,7 +32,7 @@ interface ButtonOwnProps {
   rightIcon?: IconSource;
   /** Icon-only button: an icon name (custom or Material Symbols) or element, in a square at the size's height. Ignores children, leftIcon and rightIcon; needs an aria-label. */
   icon?: IconSource;
-  /** Shows a centered Loader (ring) and blocks clicks, keys and Enter-key form submission while an action runs, so a request can't be sent twice. Keeps size, colors and keyboard focus; sets aria-busy, aria-disabled and data-loading. Default: false. */
+  /** Shows a centered Loader (ring) and blocks clicks, keys and Enter-key form submission while an action runs, so a request can't be sent twice. Keeps size, colors and keyboard focus; sets aria-busy, aria-disabled and data-loading. Default: false, except that a type="submit" button inside a `<form action={fn}>` is loading while that form is being sent. Set it to override. */
   loading?: boolean;
   /** Announced to screen readers (polite status region) when loading starts. Default: 'Loading'. Pass '' to stay silent. */
   loadingText?: string;
@@ -128,7 +129,9 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     };
     r.then(function () { settle(true); }, function () { settle(false); });
   };
-  const loading = !!props.loading || busy;
+  // type="submit" in a <form action={fn}> that is being sent (React's form status): loading on its own, unless set.
+  const form = useFormStatus();
+  const loading = (props.loading != null ? !!props.loading : !isLink && rest.type === "submit" && form.pending) || busy;
   const disabled = !!rest.disabled;
   const reasonId = domId("dk-btn-why", React.useId());
   const reason = disabled && props.disabledReason ? props.disabledReason : "";

@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, omit } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { warnOnce } from "../../internal/warn";
 import { ICONS, hasIcon, getIcon, loadIcon, type CustomIconName } from "../../icons";
 import type { MaterialIconName } from "../../material/icons";
@@ -29,6 +30,7 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
    one of your custom icons (tools/icons/build.mjs). */
 /** An icon: Material Symbols Rounded (filled) or one of your custom SVG icons. Sized by font-size, drawn in the text color. Decorative by default (aria-hidden); pass aria-label to make it meaningful. */
 export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon", function Icon(props, ref) {
+  const restyle = useServerStyles(ref);
   const [, loadedAll] = React.useReducer((n: number) => n + 1, 0);
   const own = useSerupa().icons;   // icons given to a SerupaProvider
   const custom = !props.icon && hasIcon(props.name);
@@ -55,13 +57,13 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   if (name != null) rest["data-icon"] = name;
   if (custom) {
     return (
-      <span {...rest} ref={ref} className={cn("dk-icon dk-icon--custom", props.className)} style={style}>
+      <span {...rest} ref={restyle} className={cn("dk-icon dk-icon--custom", props.className)} style={style}>
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false" dangerouslySetInnerHTML={{ __html: ICONS[props.name as string] }} />
       </span>
     );
   }
   return (
-    <span {...rest} ref={ref} className={cn("dk-icon", props.className)} style={style}>
+    <span {...rest} ref={restyle} className={cn("dk-icon", props.className)} style={style}>
       {data && <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden focusable="false"><path d={data.d} /></svg>}
     </span>
   );

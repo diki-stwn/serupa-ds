@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, isInvalid, omit } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
@@ -56,6 +57,7 @@ const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min
    onValueChange fires as it moves, onValueCommit once when a drag or key press ends. */
 /** Picks a number, or a range with two thumbs, on a track. */
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSerupa();
   const min = isFinite(Number(props.min)) && props.min != null ? Number(props.min) : 0;
@@ -156,7 +158,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const labelledBy = props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel);
   const lo = isRange ? pct(vals[0]) : 0, hi = pct(vals[vals.length - 1]);
   return (
-    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); restyle(n); }}
       role={isRange ? "group" : rest.role} aria-label={isRange ? props["aria-label"] : undefined} aria-labelledby={isRange ? labelledBy : undefined}
       aria-describedby={isRange ? props["aria-describedby"] : undefined}
       className={cn("dk-slider", props.size === "sm" ? "dk-slider--size-sm" : "dk-slider--size-md", disabled && "dk-slider--disabled", readOnly && "dk-slider--readonly", invalid && "dk-slider--invalid", props.className)}
