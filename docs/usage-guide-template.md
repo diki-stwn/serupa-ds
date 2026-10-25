@@ -58,7 +58,7 @@ import { <Name> } from "serupa-ds";
 <!-- Required. -->
 
 - **Role and name:** <the element or role it renders, and how it gets its accessible name (Field, aria-label…).>
-- **Keyboard:**
+- **Keyboard:** <what each key does, in a table. A component that handles keys itself needs one (`tools/test/guides.mjs` checks). One that isn't focusable says so in a line instead: "none: it isn't focusable".>
 
   | Key | Does |
   | --- | --- |

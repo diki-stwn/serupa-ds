@@ -32,6 +32,7 @@ const { Heading } = window.Serupa;
 - Pick the level from the page's outline, never from the look: that's what `size` is for.
 - One `h1` per page, naming it.
 - Headings keep 4.5:1 on `surface` in all six themes (`Heading.test.tsx`).
+- **Keyboard:** none: it isn't focusable. Screen reader users move between headings with their own keys, so keep the levels in order.
 
 ## Props
 

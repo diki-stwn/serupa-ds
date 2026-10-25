@@ -179,6 +179,7 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 - It draws in the text color, so it keeps the contrast of the text it sits with. With `tone`, use it on `surface` backgrounds, where `primary` and `text-muted` meet the 3:1 non-text contrast.
 - The text variant's visible words are hidden from screen readers, which already hear the same text as its name.
 - Under reduced motion the text variant is plain text, the skeleton a still fill, the pixel patterns run at half speed (2.4s), the spokes tick at half speed (2s), the ring keeps a steady quarter arc and turns slowly (the `animate-spin-reduced` token, 3s a turn), and the dots fade without growing.
+- **Keyboard:** none: it isn't focusable.
 
 ## Props
 
