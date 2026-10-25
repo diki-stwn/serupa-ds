@@ -32,12 +32,15 @@ if (arg('--since')) {
   console.log(names ? `Testing the changed components and the ones that use them: ${[...names].sort().join(', ') || 'none'} (main runs everything)` : 'Testing everything: the change reaches beyond the component folders');
 }
 const only = onlyComponents();
+// The tests that check every story against a baseline or a rule: a change to one component can break its line in them.
+const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk'].map((f) => `src/internal/${f}.test.tsx`);
 const node = (g) => ([name, f, ...args]) => [name, 'node', [path.join(HERE, f), ...args], g];
 const vitest = (name, project, g, ...args) => [name, process.execPath, [path.join(PROJECT, 'node_modules', 'vitest', 'vitest.mjs'), 'run', '--project', project, ...args], g];
 const steps = [
   // The component tests next to each component (src/components/<Name>/<Name>.test.tsx), in a browser. Coverage
   // only on a full run: the floors in vitest.config.ts are for all of src/, which a few components can't reach.
-  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...only].map((n) => `src/components/${n}/`) : [])),
+  // With SERUPA_ONLY, the tests that go through every story (STORY_WIDE) run too, on those components' stories.
+  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...[...only].map((n) => `src/components/${n}/`), ...STORY_WIDE] : [])),
   ...(process.env.CI && !arg('--since') && !arg('--locale') ? [(() => {
     const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT, encoding: 'utf8' }).stdout.trim();
     const locale = LOCALES[parseInt(sha.slice(0, 8) || '0', 16) % LOCALES.length];

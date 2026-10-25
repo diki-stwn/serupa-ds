@@ -64,6 +64,10 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 `src/internal/ariaStories.test.tsx` draws every story in the browser and compares the page's accessibility tree (Playwright's `ariaSnapshot`: roles, names, states and nesting, as a screen reader gets them) with `tools/test/baseline-aria/<Component>.yml`. A lost name or a changed role shows as a short diff even when the picture looks the same. The shared live regions are left out, since what they hold depends on the stories before. The baselines are Chromium's in English, so Firefox, WebKit and locale runs skip it. When a change is intended, run `npm run test:aria:update` and commit the new baselines with it.
 
+`src/internal/tabWalk.test.tsx` walks every story with Tab and then Shift+Tab, from a button before it to a button after it (WCAG 2.1.2, no keyboard trap). Focus has to get through and out both ways, and must never land inside `aria-hidden` or `inert` content. When focus goes round in circles, as in an open modal, the test presses Escape, the way out a modal offers, and that has to let focus go.
+
+These four story-wide tests (hydration, server HTML, accessibility tree, keyboard walk) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
+
 ### Suite scripts
 
 Vitest runs every script in `tools/test/` as its checks project (vitest.config.ts), except the shared code, the

@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
+import { inject } from 'vitest';
 
 // Every story file, and each story as Storybook draws it, for the hydration check (F3): the browser test hydrates
 // what serverStories.ts renders in Node.
@@ -38,6 +39,12 @@ export const stories: Array<[string, Array<[string, React.ReactElement]>]> = Obj
     .filter(([exportName, story]) => exportName !== 'default' && !!story && typeof story === 'object')
     .map(([exportName, story]) => [exportName, storyElement((mod.default || {}) as Meta, story)] as [string, React.ReactElement])]);
 
+// The components a pull request's run covers (SERUPA_ONLY, set by run.mjs --since), or every one on a full run.
+export function storiesToRun(): typeof stories {
+  const only = inject('only');
+  return only === null ? stories : stories.filter(([n]) => only.split(',').includes(n));
+}
+
 // Every story's server HTML by "<Component>/<Story>", or "Error: …" when the server render throws.
 export function renderAll(): Record<string, string> {
   const out: Record<string, string> = {};
@@ -57,5 +64,5 @@ export function serverBaseline(name: string, html: Record<string, string>): stri
 
 // What serverStories.ts hands the browser tests (inject('serverStories')).
 declare module 'vitest' {
-  export interface ProvidedContext { serverStories: Record<string, string> }
+  export interface ProvidedContext { serverStories: Record<string, string>; only: string | null }
 }
