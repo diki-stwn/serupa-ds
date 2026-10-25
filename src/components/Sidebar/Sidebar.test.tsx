@@ -41,6 +41,9 @@ function App(props: { sref?: React.Ref<HTMLElement>; iref?: React.Ref<HTMLAnchor
   </div>;
 }
 
+// A section's list, found by the name its title gives it (aria-labelledby).
+const listNamed = (name: string) => [...document.querySelectorAll<HTMLElement>('ul[aria-labelledby]')].find((u) => document.getElementById(u.getAttribute('aria-labelledby')!)?.textContent === name)!;
+
 describe('Sidebar', () => {
   test('a <nav aria-label="Main">, 256px wide, the parent\'s height, a 1px inner edge; refs and props reach it', async () => {
     const sref = React.createRef<HTMLElement>(), iref = React.createRef<HTMLAnchorElement>();
@@ -84,7 +87,7 @@ describe('Sidebar', () => {
 
   test('a section title: muted text-xs, naming its list', async () => {
     await render(<App />);
-    const s = el('sb').querySelectorAll('.dk-sidebar__section')[1], ti = s.querySelector('.dk-sidebar__section-title')!, ul = s.querySelector('ul')!;
+    const ul = listNamed('Workspace'), ti = document.getElementById(ul.getAttribute('aria-labelledby')!)!;
     expect([ti.textContent, css(ti).fontSize, ul.getAttribute('aria-labelledby') === ti.id]).toEqual(['Workspace', '12px', true]);
   });
 
@@ -166,7 +169,7 @@ describe('Sidebar', () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    await userEvent.click(el('sb').querySelector('.dk-sidebar__section:nth-child(2) li:first-child button')!);
+    await userEvent.click(listNamed('Workspace').querySelector('li:first-child button')!);
     const menu = () => [...document.querySelectorAll('[role="menu"]')].find((x) => x.matches(':popover-open'));
     await expect.poll(() => !!menu()).toBe(true);
     expect([...menu()!.querySelectorAll('[role="menuitem"]')].map((i) => [i.tagName, i.getAttribute('href'), i.textContent].join(':'))).toEqual(['A:#web:Website', 'A:#app:Mobile app']);

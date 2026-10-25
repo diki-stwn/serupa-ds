@@ -118,15 +118,15 @@ describe('Calendar', () => {
   test('min: days before it are aria-disabled and the previous button stops at its month; isDateDisabled: refused days are aria-disabled, faded and can\'t be picked; max: the next button stops at its month', async () => {
     const picks: string[] = [];
     await render(<Cal picks={picks} defaultMonth={new Date(2025, 3, 1)} />);
-    await userEvent.click(cal('.dk-calendar__nav--prev'));
-    await userEvent.click(cal('.dk-calendar__nav--prev'));
+    await userEvent.click(cal('button[aria-label="Previous month"]'));
+    await userEvent.click(cal('button[aria-label="Previous month"]'));
     expect([title(), cal<HTMLButtonElement>('.dk-calendar__nav--prev').disabled]).toEqual(['February 2025', true]);
     expect([cal('[data-date="2025-02-02"]').getAttribute('aria-disabled'), cal('[data-date="2025-02-03"]').getAttribute('aria-disabled')]).toEqual(['true', null]);
-    await userEvent.click(cal('.dk-calendar__nav--next'));
+    await userEvent.click(cal('button[aria-label="Next month"]'));
     await userEvent.click(cal('[data-date="2025-03-16"]'), { force: true });
     expect([cal('[data-date="2025-03-16"]').getAttribute('aria-disabled'), picks.length]).toEqual(['true', 0]);
     await expect.poll(() => getComputedStyle(cal('[data-date="2025-03-16"]')).opacity).toBe('0.5');
-    for (let i = 0; i < 3; i++) await userEvent.click(cal('.dk-calendar__nav--next'));
+    for (let i = 0; i < 3; i++) await userEvent.click(cal('button[aria-label="Next month"]'));
     expect([title(), cal<HTMLButtonElement>('.dk-calendar__nav--next').disabled]).toEqual(['June 2025', true]);
   });
 

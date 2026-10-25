@@ -53,7 +53,7 @@ describe('Toast', () => {
     expect(toasts().map((x) => x.dataset.tone + ':' + !!x.querySelector('.dk-toast__icon'))).toEqual(['success:true', 'neutral:false']);
     React.act(() => { toast({ id, title: 'Saved again', tone: 'info', duration: 0 }); });
     expect(titles()).toEqual(['Saved again', 'Plain message']);
-    await userEvent.click(q('.dk-toast:first-child .dk-toast__close'));
+    await userEvent.click(q('.dk-toast:first-child button[aria-label="Dismiss"]'));
     expect(titles()).toEqual(['Plain message']);
   });
 
@@ -81,7 +81,7 @@ describe('Toast', () => {
     await render(<App />);
     let undos = 0;
     React.act(() => { toast({ title: 'Moved to trash', action: { label: 'Undo', onClick: () => { undos++; } }, duration: 0 }); });
-    await userEvent.click(q('.dk-toast__action'));
+    await userEvent.click(q('.dk-toast button:not([aria-label])'));
     expect([undos, titles().length]).toEqual([1, 0]);
   });
 
@@ -120,7 +120,7 @@ describe('Toast', () => {
     el('before').focus();
     await userEvent.keyboard('{F8}');
     await userEvent.keyboard('{Tab}');
-    expect(document.activeElement!.classList.contains('dk-toast__close')).toBe(true);
+    expect(document.activeElement!.getAttribute('aria-label') === 'Dismiss').toBe(true);
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => document.activeElement!.id).toBe('before');
     toasts()[0].querySelector<HTMLElement>('button[aria-label="Dismiss"]')!.focus();   // reached without F8
@@ -171,7 +171,7 @@ describe('Toast', () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Focus me', duration: 300, action: { label: 'Open', onClick: () => {} } }); });
     await settle(100);
-    q('.dk-toast__action').focus();
+    q('.dk-toast button:not([aria-label])').focus();
     await settle(500);
     expect(titles().length).toBe(1);
     (document.activeElement as HTMLElement).blur();
@@ -182,7 +182,7 @@ describe('Toast', () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Keep me', duration: 300, action: { label: 'Open', onClick: () => {} } }); });
     await settle(100);
-    q('.dk-toast__action').focus();
+    q('.dk-toast button:not([aria-label])').focus();
     await userEvent.hover(q('.dk-toast'));
     await away();
     await settle(600);
@@ -197,9 +197,9 @@ describe('Toast', () => {
     React.act(() => { toast({ title: 'Archived', action: { label: 'Undo', onClick: () => { undos++; } }, duration: 0 }); });
     (document.activeElement as HTMLElement | null)?.blur();
     let toAction = false;
-    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.classList.contains('dk-toast__action'); }
+    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.matches('.dk-toast button:not([aria-label])'); }
     await userEvent.keyboard('{Tab}');
-    expect([toAction, document.activeElement!.classList.contains('dk-toast__close')]).toEqual([true, true]);
+    expect([toAction, document.activeElement!.getAttribute('aria-label') === 'Dismiss']).toEqual([true, true]);
     await userEvent.keyboard('{Shift>}{Tab}{/Shift}{Enter}');
     await expect.poll(() => titles().length).toBe(0);
     expect(undos).toBe(1);
