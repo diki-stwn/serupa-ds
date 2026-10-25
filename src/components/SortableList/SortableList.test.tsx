@@ -33,6 +33,12 @@ describe('SortableList', () => {
       .toEqual(['button', 'false', 'Press Space to pick it up, the arrow keys to move it, Space again to drop it, or Escape to cancel.']);
   });
 
+  test('without items (a plain-JS caller) it renders an empty list instead of throwing', async () => {
+    const Loose = SortableList as unknown as React.ComponentType<Record<string, unknown>>;
+    const screen = await render(<Loose id="noitems" getKey={(s: string) => s} getLabel={(s: string) => s} renderItem={(s: string) => s} onReorder={() => {}} />);
+    expect(screen.container.querySelector('#noitems')!.querySelectorAll('li').length).toBe(0);
+  });
+
   test('keyboard: Space picks up, the arrows move (focus stays on the handle), Space drops and reports the move once; each step is announced', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
