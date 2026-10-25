@@ -2,9 +2,12 @@
    Checkbox: a native checkbox (appearance: none, drawn from tokens) and its label. The box sits centered on the
    label's first line, and a click anywhere on the label toggles it. Structure: .dk-checkbox (a <label>) >
    .dk-checkbox__control (.dk-checkbox__input, .dk-checkbox__icon), .dk-checkbox__text (.dk-checkbox__label,
-   .dk-checkbox__description). Every value goes through --checkbox-* tokens.
+   .dk-checkbox__description). CheckboxGroup (.dk-checkbox-group) stacks a set, or wraps it in a row, like RadioGroup.
+   Every value goes through --checkbox-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+.dk-checkbox-group { display: flex; flex-direction: column; align-items: flex-start; gap: var(--checkbox-group-gap, var(--spacing-2)); }
+.dk-checkbox-group--horizontal { flex-direction: row; flex-wrap: wrap; column-gap: var(--checkbox-group-gap-horizontal, var(--spacing-4)); }
 .dk-checkbox {
   --dk-checkbox-box: var(--checkbox-size-md, var(--spacing-4));
   --dk-checkbox-icon: var(--checkbox-icon-size-md, var(--spacing-3\.5));
