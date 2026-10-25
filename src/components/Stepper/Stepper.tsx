@@ -14,8 +14,9 @@ export interface StepperStep {
   description?: React.ReactNode;
   /** Shows "Optional" under the title. */
   optional?: boolean;
-  /** 'error': marks the step in danger, such as a step with a problem to fix. */
-  status?: 'error';
+  /** 'error': marks the step in danger, such as a step with a problem to fix. 'warning': amber, for a softer
+      problem that doesn't block going on, such as a field left for later. */
+  status?: 'error' | 'warning';
 }
 export interface StepperProps extends React.HTMLAttributes<HTMLElement> {
   /** The steps, in order. */
@@ -26,19 +27,23 @@ export interface StepperProps extends React.HTMLAttributes<HTMLElement> {
   orientation?: 'horizontal' | 'vertical';
   /** 'sm' (24px circles, text-xs) or 'md' (32px, text-sm, default). */
   size?: 'sm' | 'md';
-  /** Makes completed steps buttons that go back to them. */
+  /** Makes steps buttons that go to them: the completed ones, or every one but the current with clickable="all". */
   onStepClick?: (index: number) => void;
-  /** Words read out or shown: { completed: 'completed', error: 'has an error', optional: 'Optional', stepOf: (step, total) => `Step ${step} of ${total}` }. */
-  labels?: { completed?: string; error?: string; optional?: string; stepOf?: (step: number, total: number) => string };
+  /** Which steps onStepClick makes buttons. 'completed' (default): the ones before the current step. 'all': every
+      step but the current one, for a form people can fill in any order. */
+  clickable?: 'completed' | 'all';
+  /** Words read out or shown: { completed: 'completed', error: 'has an error', warning: 'needs attention', optional: 'Optional', stepOf: (step, total) => `Step ${step} of ${total}` }. */
+  labels?: { completed?: string; error?: string; warning?: string; optional?: string; stepOf?: (step: number, total: number) => string };
 }
 
-const OWN = { steps: 1, current: 1, orientation: 1, size: 1, onStepClick: 1, labels: 1, className: 1 } as const;
+const OWN = { steps: 1, current: 1, orientation: 1, size: 1, onStepClick: 1, clickable: 1, labels: 1, className: 1 } as const;
 
 /* Stepper: where people are in a task split into steps (sign-up, checkout, setup). Each step has a numbered
    circle, a title and an optional description; completed steps show a check and fill in primary, the current
-   one is filled and ringed, a step with status "error" turns danger. Horizontal (default), joined by lines, or
+   one is filled and ringed, a step with status "error" turns danger and one with "warning" amber. Horizontal (default), joined by lines, or
    vertical. A <nav> around an <ol>; the current step has aria-current="step", and completed or error steps say
-   so to screen readers. With onStepClick, completed steps are buttons that go back to them. When a horizontal
+   so to screen readers. With onStepClick, completed steps are buttons that go back to them (every step but the
+   current one with clickable="all"). When a horizontal
    Stepper is too narrow for its titles side by side (a phone, 400% zoom), it keeps the circles and shows one line
    under them, "Step 2 of 4: Profile"; the titles stay in the list for screen readers. */
 /** Where people are in a task split into steps: numbered circles joined by lines. */
@@ -50,7 +55,7 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
   const current = Math.max(0, Math.min(steps.length, Math.floor(Number(props.current)) || 0));
   const vertical = props.orientation === "vertical";
   const size = props.size === "sm" ? "sm" : "md";
-  const L = { completed: sds.labels.completed, error: sds.labels.hasError, optional: sds.labels.optional, stepOf: sds.labels.stepOf, ...(props.labels || {}) };
+  const L = { completed: sds.labels.completed, error: sds.labels.hasError, warning: sds.labels.hasWarning, optional: sds.labels.optional, stepOf: sds.labels.stepOf, ...(props.labels || {}) };
   const nav = React.useRef<HTMLElement | null>(null);
   const [compact, setCompact] = React.useState(false);
   // What the measure depends on: the steps' text when it is plain text, so an inline steps array (a new array each
@@ -81,20 +86,20 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
       data-component="stepper" data-orientation={vertical ? "vertical" : "horizontal"} data-size={size}>
       <ol className="dk-stepper__list">
         {steps.map((s, i) => {
-          const state = s.status === "error" ? "error" : i < current ? "complete" : i === current ? "current" : "upcoming";
-          const clickable = !!props.onStepClick && i < current;
+          const state = s.status === "error" || s.status === "warning" ? s.status : i < current ? "complete" : i === current ? "current" : "upcoming";
+          const clickable = !!props.onStepClick && (props.clickable === "all" ? i !== current : i < current);
           const Head: React.ElementType = clickable ? "button" : "div";
           const hasDesc = s.description != null && s.description !== "";
           return (
             <li key={i} className={cn("dk-stepper__step", "dk-stepper__step--" + state, i < current && "dk-stepper__step--done")} data-state={state} aria-current={i === current ? "step" : undefined}>
               <Head className="dk-stepper__head" {...(clickable ? { type: "button", onClick: () => props.onStepClick!(i) } : {})}>
                 <span className="dk-stepper__indicator" aria-hidden>
-                  {state === "complete" ? <Icon icon={icons.Check} /> : state === "error" ? <Icon icon={icons.PriorityHigh} /> : displayNumber(i + 1, locale)}
+                  {state === "complete" ? <Icon icon={icons.Check} /> : state === "error" ? <Icon icon={icons.PriorityHigh} /> : state === "warning" ? <Icon icon={icons.Warning} /> : displayNumber(i + 1, locale)}
                 </span>
                 <span className="dk-stepper__text">
                   <span className="dk-stepper__title">
                     {s.title}
-                    {state === "complete" ? <VisuallyHidden>{", " + L.completed}</VisuallyHidden> : state === "error" ? <VisuallyHidden>{", " + L.error}</VisuallyHidden> : null}
+                    {state === "complete" ? <VisuallyHidden>{", " + L.completed}</VisuallyHidden> : state === "error" ? <VisuallyHidden>{", " + L.error}</VisuallyHidden> : state === "warning" ? <VisuallyHidden>{", " + L.warning}</VisuallyHidden> : null}
                   </span>
                   {hasDesc ? <span className="dk-stepper__description">{s.description}</span> : null}
                   {s.optional ? <span className="dk-stepper__description dk-stepper__optional">{L.optional}</span> : null}

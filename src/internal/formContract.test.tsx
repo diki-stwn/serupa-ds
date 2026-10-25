@@ -20,6 +20,7 @@ import { Input } from '../components/Input/Input';
 import { NumberInput } from '../components/NumberInput/NumberInput';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { PhoneInput } from '../components/PhoneInput/PhoneInput';
+import { PinInput } from '../components/PinInput/PinInput';
 import { Radio, RadioGroup } from '../components/Radio/Radio';
 import { SearchInput } from '../components/SearchInput/SearchInput';
 import { SegmentedControl } from '../components/SegmentedControl/SegmentedControl';
@@ -66,6 +67,8 @@ const CONTROLS: { [K in Named]: Control | string } = {
     change: (r) => fill($(r, 'input'), 'dogs'), changed: { q: 'dogs' } },
   NumberInput: { el: (form) => <NumberInput aria-label="Seats" name="seats" form={form} defaultValue={3} />, initial: { seats: '3' },
     change: async (r) => { $(r, 'input').focus(); await userEvent.keyboard('{ArrowUp}'); $(r, 'input').blur(); }, changed: { seats: '4' } },
+  PinInput: { el: (form) => <PinInput aria-label="Code" name="code" form={form} length={4} defaultValue="12" />, initial: { code: '12' },
+    change: (r) => userEvent.fill($(r, 'input'), '9876'), changed: { code: '9876' } },
   PhoneInput: { el: (form) => <PhoneInput aria-label="Phone" name="phone" form={form} defaultCountry="US" defaultValue="+12015550123" />, initial: { phone: '+12015550123' },
     change: (r) => fill($(r, 'input[type="tel"]'), '2015550199'), changed: { phone: '+12015550199' } },
   Select: { el: (form) => <Select aria-label="Size" name="size" form={form} options={['S', 'M', 'L']} defaultValue="M" />, initial: { size: 'M' },

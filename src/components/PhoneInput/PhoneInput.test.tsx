@@ -108,6 +108,43 @@ describe('PhoneInput', () => {
     await expect.poll(() => [menu('c').value, field('c').value]).toEqual(['FR', '6 12 34 56 78']);
   });
 
+  test('controlled from outside: cleared, or a number of another country with country fixed; form reset: no default gives an empty field and the locale\'s country, a controlled field shows its value again', async () => {
+    function Ctl(p: { country?: string }) {
+      const [v, setV] = React.useState('+6281234567890');
+      return <>
+        <PhoneInput id="o" aria-label="Out" value={v} onValueChange={setV} country={p.country} />
+        {['', '+33612345678', '+6281234567890'].map((n) => <button key={n} type="button" id={'set' + n.length} onClick={() => setV(n)}>{n || 'clear'}</button>)}
+      </>;
+    }
+    const to = (n: number) => userEvent.click(document.getElementById('set' + n)!);
+    const node: ((n: HTMLInputElement | null) => void) & { got?: HTMLInputElement | null } = (n) => { node.got = n; };
+    const screen = await render(<Wrap><SerupaProvider locale="en-US"><form id="rf"><Ctl /><PhoneInput id="u" aria-label="Plain" name="u" ref={node} /></form></SerupaProvider></Wrap>);
+    expect(node.got).toBe(field('u'));
+    await to(0);
+    await expect.poll(() => field('o').value).toBe('');
+    expect(menu('o').value).toBe('ID');
+    await screen.rerender(<Wrap><SerupaProvider locale="en-US"><form id="rf"><Ctl country="ID" /><PhoneInput id="u" aria-label="Plain" name="u" ref={node} /></form></SerupaProvider></Wrap>);
+    await to(12);
+    await expect.poll(() => menu('o').value).toBe('ID');
+    await to(14);
+    await expect.poll(() => field('o').value).not.toBe('');
+    const shown = field('o').value;
+    await userEvent.fill(field('u'), '2025550123');
+    await pick(menu('u'), 'GB');
+    (document.getElementById('rf') as HTMLFormElement).reset();
+    await expect.poll(() => [field('u').value, menu('u').value]).toEqual(['', 'US']);
+    expect(field('o').value).toBe(shown);
+  });
+
+  test('invalid marks the field; readOnly locks the country menu too; picking the country it already has reports nothing', async () => {
+    const calls: string[] = [];
+    await render(<Wrap><PhoneInput id="iv" aria-label="Bad" invalid defaultCountry="ID" /><PhoneInput id="ro" aria-label="Locked" readOnly defaultValue="+6281234567890" />
+      <PhoneInput id="same" aria-label="Same" defaultCountry="ID" onValueChange={(v) => { calls.push(v); }} onCountryChange={(c) => { calls.push(c); }} /></Wrap>);
+    expect([field('iv').getAttribute('aria-invalid'), box('iv').className.includes('dk-input--invalid'), menu('ro').disabled, menu('iv').disabled]).toEqual(['true', true, true, false]);
+    menu('same').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(calls).toEqual([]);
+  });
+
   test('Field labels the number; countries limits the menu; name submits E.164; disabled covers both; Indonesian labels; size sm and lg', async () => {
     await render(<Wrap>
       <form id="f">

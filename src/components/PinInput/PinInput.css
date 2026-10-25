@@ -1,0 +1,50 @@
+/* ---------------------------------------------------------------
+   PinInput: a row of square boxes (24, 32 or 44px, 8px apart), each a field-colored box with a 1px field border
+   and 6px corners, holding one character in tabular digits. The native field lies over the whole row, its text
+   and caret transparent. The box the caret is in takes the focus color, border and ring, as Input does, and an
+   empty one shows a caret line (steady when motion is reduced). Invalid: danger borders. Read-only and disabled:
+   a muted background; disabled is faded too. Every value reads one of its own tokens (pin-input.tokens.json),
+   which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-pin-input {
+  --dk-pin-box: var(--pin-input-box-md, var(--control-height-md));
+  --dk-pin-bd: var(--pin-input-border, var(--field-border));
+  --dk-pin-ring: var(--pin-input-focus-ring, var(--focus-ring));
+  position: relative; display: inline-flex; vertical-align: middle; direction: ltr;
+  font-family: var(--font-sans); font-size: var(--text-base); line-height: var(--text-base--line-height); font-variant-numeric: tabular-nums;
+}
+.dk-pin-input--size-sm .dk-pin-input__box--caret::after { height: var(--spacing-3); }
+.dk-pin-input--size-lg .dk-pin-input__box--caret::after { height: var(--spacing-6); }
+.dk-pin-input--size-sm { --dk-pin-box: var(--pin-input-box-sm, var(--control-height-sm)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-pin-input--size-lg { --dk-pin-box: var(--pin-input-box-lg, var(--control-height-lg)); font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.dk-pin-input__boxes { display: inline-flex; gap: var(--pin-input-gap, var(--spacing-2)); }
+.dk-pin-input__box {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: var(--dk-pin-box); height: var(--dk-pin-box);
+  border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
+  background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
+  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+}
+.dk-pin-input__field {
+  position: absolute; inset: var(--spacing-0); box-sizing: border-box; width: var(--sizing-full); height: var(--sizing-full);
+  margin: var(--spacing-0); padding: var(--spacing-0); border: 0; background: transparent; outline: none;
+  color: transparent; caret-color: transparent; font: inherit; cursor: text;
+}
+.dk-pin-input__field::selection { background: transparent; color: transparent; }
+@media (hover: hover) { .dk-pin-input:hover:not(.dk-pin-input--disabled, .dk-pin-input--readonly, :focus-within) { --dk-pin-bd: var(--pin-input-border-hover, var(--field-border-hover)); } }
+/* The box the caret is in: the focus color on its border and a ring hugging it (2px in all), and a transparent
+   outline that forced-colors mode draws, since box-shadow rings disappear there. */
+.dk-pin-input__box--active { --dk-pin-bd: var(--dk-pin-ring); box-shadow: 0 0 0 var(--pin-input-border-width, var(--border-width-1)) var(--dk-pin-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
+.dk-pin-input__box--caret::after {
+  content: ""; width: var(--border-width-1); height: var(--spacing-4); background: var(--pin-input-text, var(--text));
+  animation: dk-pin-caret var(--duration-1000) var(--ease-in-out) infinite alternate;
+}
+@keyframes dk-pin-caret { to { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: reduce) { .dk-pin-input__box--caret::after { animation: none; } }
+.dk-pin-input--invalid { --dk-pin-bd: var(--pin-input-invalid, var(--danger)); --dk-pin-ring: var(--pin-input-invalid, var(--danger)); }
+.dk-pin-input--readonly .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--surface-muted)); }
+.dk-pin-input--disabled { opacity: var(--opacity-disabled); }
+.dk-pin-input--disabled .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--surface-muted)); }
+.dk-pin-input--disabled .dk-pin-input__field { cursor: not-allowed; }
+}
