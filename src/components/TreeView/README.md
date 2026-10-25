@@ -65,6 +65,7 @@ const files: TreeViewItem[] = [
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<ul role="tree">`. |
 | `items` | `TreeViewItem[]` | | `{ id, label, textValue?, icon?, children?, disabled? }`, nested. |
 | `selectionMode` | `'single'` \| `'multiple'` \| `'none'` | `'single'` | One picked item, any number, or none (items only open and close). |
 | `value` | `string[]` | | The picked ids (controlled). |

@@ -140,7 +140,7 @@ describe('TreeView', () => {
 
   test('multiple: Space and clicks toggle, Shift+arrows pick as they move, Shift+Space and Shift+click pick a range, Ctrl+A picks all in view', async () => {
     const onValueChange = vi.fn();
-    const last = () => [...onValueChange.mock.calls.at(-1)![0]].sort().join();
+    const last = () => [...(onValueChange.mock.calls.at(-1)![0] as string[])].sort().join();
     await render(<Tree selectionMode="multiple" defaultExpanded={['a']} onValueChange={onValueChange} />);
     expect([el('t').getAttribute('aria-multiselectable'), item('c').getAttribute('aria-selected')]).toEqual(['true', 'false']);
     await enter();

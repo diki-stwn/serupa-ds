@@ -6,7 +6,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-tree-view {
-  --dk-tree-turn: 90deg;
+  --dk-tree-closed: 0deg; --dk-tree-open: 90deg;   /* the chevron points to the start's far side, then down */
   --dk-bar: var(--border-width-2);
   margin: var(--spacing-0); list-style: none;
   padding: var(--tree-view-padding, var(--spacing-1));
@@ -15,7 +15,7 @@
   color: var(--tree-view-text, var(--text));
   font-family: var(--font-sans); font-size: var(--text-sm);
 }
-.dk-tree-view:dir(rtl) { --dk-tree-turn: -90deg; --dk-bar: calc(var(--border-width-2) * -1); }
+.dk-tree-view:dir(rtl) { --dk-tree-closed: 180deg; --dk-bar: calc(var(--border-width-2) * -1); }
 .dk-tree-view__group { margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-tree-view__item { outline: none; }
 .dk-tree-view__row {
@@ -35,9 +35,8 @@
 .dk-tree-view__item:focus-visible > .dk-tree-view__row { outline: var(--focus-ring-width) solid var(--tree-view-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-tree-view__item--disabled > .dk-tree-view__row { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-tree-view__toggle { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--spacing-5); height: var(--spacing-5); color: var(--tree-view-icon-color, var(--text-muted)); }
-.dk-tree-view__toggle .dk-icon { font-size: var(--spacing-4); transition: rotate var(--duration-200) var(--ease-in-out); }
-.dk-tree-view__toggle:dir(rtl) .dk-icon { scale: -1 1; }
-.dk-tree-view__item[aria-expanded="true"] > .dk-tree-view__row .dk-tree-view__toggle .dk-icon { rotate: var(--dk-tree-turn); }
+.dk-tree-view__toggle .dk-icon { font-size: var(--spacing-4); rotate: var(--dk-tree-closed); transition: rotate var(--duration-200) var(--ease-in-out); }
+.dk-tree-view__item[aria-expanded="true"] > .dk-tree-view__row .dk-tree-view__toggle .dk-icon { rotate: var(--dk-tree-open); }
 .dk-tree-view__icon { display: inline-flex; flex-shrink: 0; color: var(--tree-view-icon-color, var(--text-muted)); }
 .dk-tree-view__icon .dk-icon { font-size: var(--spacing-4); }
 .dk-tree-view__label { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
