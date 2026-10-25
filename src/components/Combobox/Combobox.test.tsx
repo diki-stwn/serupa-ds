@@ -10,7 +10,13 @@ import { SerupaProvider } from '../../internal/provider';
 
 const COUNTRIES: ComboboxOption[] = ['Argentina', 'Brazil', 'Canada', { value: 'ci', label: 'Côte d’Ivoire', description: 'Africa' }, { value: 'dk', label: 'Denmark', disabled: true }, 'Egypt', 'France'];
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
-const popOf = (id: string) => document.querySelector(`#${id} ~ .dk-combobox__popup`) as HTMLElement;
+// The parts found by role and state: the listbox's popup, the chevron (the button with aria-expanded), the × (the other
+// button), the option aria-activedescendant points at, and the popup's status line.
+const popOf = (id: string) => el(id).parentElement!.querySelector('[role=listbox]')!.parentElement as HTMLElement;
+const toggleOf = (id: string) => el(id).parentElement!.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
+const clearOf = (id: string) => el(id).parentElement!.querySelector<HTMLButtonElement>('button:not([aria-expanded])');
+const activeOf = (id: string) => document.getElementById(el(id).getAttribute('aria-activedescendant')!)!;
+const statusOf = (id: string) => popOf(id).querySelector('[role=status]')!;
 const label = (o: Element) => o.querySelector('.dk-combobox__label')!.textContent;
 const st = (id: string) => {
   const i = el(id), list = i.parentElement!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
@@ -31,7 +37,7 @@ describe('Combobox', () => {
   test('a role="combobox" field (aria-autocomplete list, collapsed) controlling a hidden role="listbox"; Input\'s 32px box; a chevron button out of the Tab order; ref and className', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Countries cref={ref} />);
-    const i = el('cb'), box = i.parentElement!, list = box.querySelector('[role=listbox]')!, toggle = box.querySelector<HTMLButtonElement>('.dk-combobox__toggle')!;
+    const i = el('cb'), box = i.parentElement!, list = box.querySelector('[role=listbox]')!, toggle = toggleOf('cb');
     expect([i.getAttribute('role'), i.getAttribute('aria-expanded'), i.getAttribute('aria-autocomplete'), i.getAttribute('aria-haspopup'), i.autocomplete]).toEqual(['combobox', 'false', 'list', 'listbox', 'off']);
     // aria-controls only while the list is open, on the field and the chevron.
     expect([i.getAttribute('aria-controls'), toggle.getAttribute('aria-controls')]).toEqual([null, null]);
@@ -42,7 +48,7 @@ describe('Combobox', () => {
 
   test('the chevron and × names come from the labels: Indonesian under an id-ID provider, with the field\'s label', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><Field label="Negara"><Combobox id="cb-id" options={COUNTRIES} defaultValue="Brazil" clearable /></Field></SerupaProvider>);
-    const names = [...document.querySelectorAll('.dk-combobox__button')].map((b) => b.getAttribute('aria-label'));
+    const names = [...el('cb-id').parentElement!.querySelectorAll('button')].map((b) => b.getAttribute('aria-label'));
     expect(names).toEqual(['Hapus Negara', 'Tampilkan pilihan']);
   });
 
@@ -102,7 +108,7 @@ describe('Combobox', () => {
     expect([s.text, s.open, s.shown, s.focus]).toEqual(['Egypt', 'false', false, true]);
     await userEvent.keyboard('{ArrowDown}');
     const sel = popOf('cb').querySelector('[aria-selected=true]')!;
-    expect([st('cb').active, label(sel), !!sel.querySelector('.dk-combobox__check')]).toEqual(['Egypt', 'Egypt', true]);
+    expect([st('cb').active, label(sel), !!sel.querySelector('[data-icon]')]).toEqual(['Egypt', 'Egypt', true]);
   });
 
   test('typing filters, ignoring case and accents, and highlights the first match; no match shows "No results"; Escape puts back the picked label', async () => {
@@ -113,7 +119,7 @@ describe('Combobox', () => {
     let s = st('cb');
     expect([s.open, s.opts, s.active]).toEqual(['true', ['Côte d’Ivoire'], 'Côte d’Ivoire']);
     await userEvent.keyboard('xyz');
-    const m = popOf('cb').querySelector('.dk-combobox__message')!;
+    const m = statusOf('cb');
     expect([st('cb').opts.length, m.textContent, m.getAttribute('role')]).toEqual([0, 'No results', 'status']);
     await userEvent.keyboard('{Escape}');
     s = st('cb');
@@ -175,7 +181,7 @@ describe('Combobox', () => {
 
   test('the chevron opens and closes the list, focusing the field; a disabled option can\'t be picked', async () => {
     await render(<Countries />);
-    const toggle = document.querySelector<HTMLElement>('#cb ~ .dk-combobox__toggle')!;
+    const toggle = toggleOf('cb');
     await userEvent.click(toggle);
     expect([st('cb').open, st('cb').focus]).toEqual(['true', true]);
     await userEvent.click(popOf('cb').querySelectorAll('[role=option]')[4], { force: true });
@@ -205,7 +211,7 @@ describe('Combobox', () => {
     }
     await render(<><button id="before">Before</button><Controlled /></>);
     const hidden = () => document.querySelector<HTMLInputElement>('#ctl ~ input[type=hidden]')!.value;
-    const clear = () => document.querySelector<HTMLElement>('#ctl ~ .dk-combobox__clear');
+    const clear = () => clearOf('ctl');
     expect([el('ctl').value, hidden(), clear()!.getAttribute('aria-label')]).toEqual(['Canada', 'Canada', 'Clear Country']);
     await userEvent.click(el('ctl'));
     await userEvent.keyboard('{ArrowDown}{Enter}');
@@ -229,7 +235,7 @@ describe('Combobox', () => {
     await userEvent.keyboard('gr');
     expect([st('async').opts, typed.slice(0, 2)]).toEqual([['Grace'], ['g', 'gr']]);
     await selectAll(); await userEvent.keyboard('zz');
-    const m = popOf('async').querySelector('.dk-combobox__message')!;
+    const m = statusOf('async');
     expect([m.textContent, m.getAttribute('role'), !!m.querySelector('[data-component=loader]')]).toEqual(['Finding people…', 'status', true]);
   });
 
@@ -239,8 +245,8 @@ describe('Combobox', () => {
       <Combobox id="tok" aria-label="Tok" options={COUNTRIES} style={{ '--combobox-chevron': 'rgb(1, 2, 3)' } as React.CSSProperties} />
     </>);
     await userEvent.click(el('dis'), { force: true });
-    expect([st('dis').open, document.querySelector<HTMLButtonElement>('#dis ~ .dk-combobox__toggle')!.disabled]).toEqual(['false', true]);
-    expect(getComputedStyle(document.querySelector('#tok ~ .dk-combobox__toggle')!).color).toBe('rgb(1, 2, 3)');
+    expect([st('dis').open, toggleOf('dis').disabled]).toEqual(['false', true]);
+    expect(getComputedStyle(toggleOf('tok')).color).toBe('rgb(1, 2, 3)');
   });
 
   test('PageDown and PageUp move by what the list shows at once (seven 32px rows in 240px), stopping at the ends (BH1)', async () => {
@@ -260,7 +266,7 @@ describe('Combobox', () => {
     await render(<div style={{ width: '200px' }}><Combobox id="cwide" aria-label="Wide" options={['Short', long, 'x'.repeat(120)]} /></div>);
     el('cwide').focus();
     await userEvent.keyboard('{ArrowDown}');
-    const pop = el('cwide').parentElement!.querySelector<HTMLElement>('.dk-combobox__popup')!;
+    const pop = popOf('cwide');
     await expect.poll(() => pop.matches(':popover-open')).toBe(true);
     const w = pop.getBoundingClientRect().width, opt = pop.querySelectorAll<HTMLElement>('[role=option]');
     expect([w <= 448.5, w >= 200, opt[1].offsetHeight > 32, opt[2].scrollWidth <= opt[2].clientWidth]).toEqual([true, true, true, true]);
@@ -269,7 +275,7 @@ describe('Combobox', () => {
   test('an option is named by its label; a text description is its aria-description (N8)', async () => {
     await render(<Countries />);
     await open();
-    const ci = [...document.querySelectorAll('#cb ~ .dk-combobox__popup [role=option]')].find((o) => label(o) === 'Côte d’Ivoire')!;
+    const ci = [...popOf('cb').querySelectorAll('[role=option]')].find((o) => label(o) === 'Côte d’Ivoire')!;
     expect([ci.getAttribute('aria-description'), ci.querySelector('.dk-combobox__description')!.getAttribute('aria-hidden')]).toEqual(['Africa', 'true']);
   });
 
@@ -296,9 +302,9 @@ describe('Combobox', () => {
     const low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const pop = popOf('cb'), act = pop.querySelector('.dk-combobox__option--active')!, c = (e: Element) => getComputedStyle(e).color;
+      const pop = popOf('cb'), act = activeOf('cb'), c = (e: Element) => getComputedStyle(e).color;
       const bg = getComputedStyle(pop).backgroundColor, abg = getComputedStyle(act).backgroundColor, field = getComputedStyle(el('cb').parentElement!).backgroundColor;
-      const pairs: Array<[string, string, string, number]> = [['label', c(pop.querySelector('.dk-combobox__label')!), bg, 4.5], ['active label', c(act), abg, 4.5], ['description on active', c(act.querySelector('.dk-combobox__description')!), abg, 4.5], ['chevron', c(document.querySelector('#cb ~ .dk-combobox__toggle')!), field, 3]];
+      const pairs: Array<[string, string, string, number]> = [['label', c(pop.querySelector('.dk-combobox__label')!), bg, 4.5], ['active label', c(act), abg, 4.5], ['description on active', c(act.querySelector('.dk-combobox__description')!), abg, 4.5], ['chevron', c(toggleOf('cb')), field, 3]];
       for (const [k, fg, on, min] of pairs) { const r = contrast(fg, on); if (r < min) low.push(`${th} ${k} ${r.toFixed(2)}`); }
     }
     still.remove();
@@ -309,7 +315,7 @@ describe('Combobox', () => {
     await render(<Countries />);
     await open();
     await userEvent.keyboard('{ArrowDown}');
-    const act = () => popOf('cb').querySelector('.dk-combobox__option--active')!;
+    const act = () => activeOf('cb');
     const probe = document.createElement('div'); probe.style.background = 'var(--highlight)'; probe.style.color = 'var(--primary)'; document.body.appendChild(probe);
     await expect.poll(() => getComputedStyle(act()).backgroundColor).toBe(getComputedStyle(probe).backgroundColor);
     expect(getComputedStyle(act()).boxShadow).toBe(`${getComputedStyle(probe).color} 2px 0px 0px 0px inset`);
@@ -327,7 +333,7 @@ describe('Combobox', () => {
       <Combobox id="f5" aria-label="Country" options={COUNTRIES} defaultValue="Canada" clearable clearLabel="Remove country" />
     </>);
     await settle();
-    const name = (id: string) => document.querySelector(`#${id} ~ .dk-combobox__clear`)!.getAttribute('aria-label');
+    const name = (id: string) => clearOf(id)!.getAttribute('aria-label');
     expect(['f1', 'f2', 'f3', 'f4', 'f5'].map(name)).toEqual(['Clear Country', 'Clear Region', 'Clear Ship to', 'Clear', 'Remove country']);
   });
 });
