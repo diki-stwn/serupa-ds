@@ -83,6 +83,11 @@ if (D) {
   let first = '', later = '';
   try { first = ago(); Date.now = () => start + 2 * 3600e3; later = ago(); } finally { Date.now = realNow; }
   t('RelativeTime on the server: a request two hours later says "2 hours ago", not the first request\'s words', first === '5 minutes ago' && later === '2 hours ago', `${first} | ${later}`);
+  // The date components format on the server too: the picked day is selected, and the field shows it in the locale's format.
+  const ssrCase = async (n) => (await import(path.join(HERE, 'ssr', `${n}.mjs`))).default({ h, D })[n];
+  const cal = renderToString(await ssrCase('Calendar')), picker = renderToString(await ssrCase('DatePicker'));
+  t('Calendar and DatePicker on the server: 18 October 2026 is selected and typed as 18/10/2026 (en-GB)',
+    /<td aria-selected="true"[^>]*><button[^>]*aria-label="Sunday, 18 October 2026"/.test(cal) && picker.includes('value="18/10/2026"'), `${(cal.match(/<td aria-selected="true".{0,120}/) || ['nothing selected'])[0]} | ${(picker.match(/value="[^"]*"/) || ['no value'])[0]}`);
   t('version matches package.json', D.version === pkg.version, D.version);
   // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
   const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
