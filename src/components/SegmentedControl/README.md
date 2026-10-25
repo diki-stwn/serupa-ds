@@ -37,6 +37,7 @@ import { SegmentedControl } from "serupa-ds";
 
 ## Accessibility
 
+- Every option takes a press over at least 24px of height (WCAG 2.5.8), also at `size="sm"`, where options are drawn 18px tall, without taking more room.
 - `role="radiogroup"` with `role="radio"` segments and `aria-checked`.
 - In a [Field](../Field/README.md), the label names the radiogroup through `aria-labelledby`, and the hint and error describe it. Its own `aria-label` or `aria-labelledby` wins.
 - The outline keeps 3:1 on the page, and labels 4.5:1, in all six themes (`SegmentedControl.test.tsx`). The selected segment changes three ways (a raised surface, an outline and a darker label), so it doesn't rely on one color. In forced colors (Windows high contrast) the selection is Highlight and its label HighlightText, exactly as set, so the browser's text backplate can't hide the label, and hovering the selected segment keeps it HighlightText.

@@ -50,4 +50,8 @@
 .dk-checkbox:has(.dk-checkbox__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-checkbox__input:disabled:not(:checked, :indeterminate) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
 @media (forced-colors: active) { .dk-checkbox__icon { color: CanvasText; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-checkbox { position: relative; isolation: isolate; }
+.dk-checkbox::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }
