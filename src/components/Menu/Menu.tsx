@@ -101,7 +101,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
     <MenuContext.Provider value={ctx}>
       {trigger}
       <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
-        aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] ? undefined : cp.id || id + "-button"}
+        aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] ? undefined : cp.id || (triggerRef.current && triggerRef.current.id) || id + "-button"}
         className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={onMenuKey}>
         {open ? props.children : null}
       </div>
