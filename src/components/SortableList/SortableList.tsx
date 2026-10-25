@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, omit, useIsoLayoutEffect } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { useAutoFocus } from "../../internal/focus";
 import { announce } from "../../internal/announce";
 import { isComposing } from "../../internal/ime";
 import { useSerupa } from "../../internal/provider";
@@ -33,7 +34,7 @@ type Drag = { key: string | number; from: number; to: number; pointer: boolean }
    reported on drop (onReorder), so a cancelled one changes nothing. A <ul> of <li>; className and props go to the <ul>. */
 /** A list people reorder by dragging a handle or with the keyboard, with every move announced. */
 export const SortableList = /* @__PURE__ */ component<HTMLUListElement, SortableListProps<unknown>>("SortableList", function SortableList(props, ref) {
-  const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, className: 1 } as const);
+  const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, className: 1, autoFocus: 1 } as const);
   const sds = useSerupa();
   const { getKey, getLabel } = props;
   const items: readonly unknown[] = props.items || [];   // missing items (a plain-JS caller): an empty list, not a TypeError
@@ -44,6 +45,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const list = React.useRef<HTMLUListElement | null>(null);
   const handles = React.useRef(new Map<string | number, HTMLButtonElement>());
   const pointer = React.useRef<{ id: number; key: string | number; startY: number; y: number; grab: number; moved: boolean } | null>(null);
+  useAutoFocus(props.autoFocus, () => list.current && list.current.querySelector<HTMLButtonElement>(".dk-sortable-list__handle"));
   const total = items.length;
   const from = drag ? items.findIndex((it) => getKey(it) === drag.key) : -1;
   // While dragging, the list shows the item at its new place; nothing is reported until it's dropped.
