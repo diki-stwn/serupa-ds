@@ -108,4 +108,36 @@ describe('PasswordInput', () => {
     expect(low).toEqual([]);
     expect(n).toBe(12);
   });
+
+  test('Caps Lock on while typing: "Caps Lock is on" shows before the eye, describes the field and is read out once; off again, or leaving the field, hides it (Q3)', async () => {
+    await render(<><PasswordInput id="cl" aria-label="Password" /><PasswordInput id="nocl" capsLockHint={false} aria-label="Other" /></>);
+    const key = (id: string, type: string, caps: boolean) => field(id).dispatchEvent(new KeyboardEvent(type, { key: 'a', bubbles: true, modifierCapsLock: caps }));
+    const hint = (id: string) => box(id).querySelector<HTMLElement>('.dk-password-input__caps');
+    field('cl').focus();
+    key('cl', 'keydown', true);
+    await expect.poll(() => hint('cl')?.textContent).toBe('Caps Lock is on');
+    expect([field('cl').getAttribute('aria-describedby'), hint('cl')!.nextElementSibling!.className === 'dk-password-input__toggle']).toEqual([hint('cl')!.id, true]);
+    await expect.poll(() => document.querySelector('[data-dk-announcer]')?.textContent).toMatch(/Caps Lock is on\.?$/);
+    key('cl', 'keyup', true);
+    key('cl', 'keydown', false);
+    await expect.poll(() => hint('cl')).toBe(null);
+    expect(field('cl').hasAttribute('aria-describedby')).toBe(false);
+    key('cl', 'keydown', true);
+    await expect.poll(() => !!hint('cl')).toBe(true);
+    field('cl').blur();
+    await expect.poll(() => hint('cl')).toBe(null);
+    field('nocl').focus();
+    key('nocl', 'keydown', true);
+    expect(hint('nocl')).toBe(null);
+  });
+
+  test('pasting works: nothing blocks it, so a password manager or a pasted password fills the field (WCAG 3.3.8)', async () => {
+    await render(<PasswordInput id="pp" aria-label="Password" />);
+    field('pp').focus();
+    const data = new DataTransfer();
+    data.setData('text/plain', 'correct horse');
+    const ev = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+    field('pp').dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(false);
+  });
 });
