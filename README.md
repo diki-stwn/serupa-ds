@@ -81,7 +81,7 @@ Set the brand and mode on `<html>` and load `theme.js` first in `<head>`, so the
 <html data-brand="blue" data-mode="auto">   <!-- brand: blue | violet | emerald; mode: auto | light | dark -->
 ```
 
-A server-rendered app can save the request by pasting the text of `dist/theme.js` into an inline `<script>` in `<head>` (give it a nonce under a strict Content Security Policy); the file is written so it works inline.
+A server-rendered app can save the request by pasting the text of `dist/theme.js` into an inline `<script>` in `<head>` (give it a nonce under a strict Content Security Policy); the file is written so it works inline. If both the inline copy and the file end up on a page, the second one does nothing, so the first keeps running the theme.
 
 Or set one theme directly on any element: `data-theme="violet-dark"`. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
 
