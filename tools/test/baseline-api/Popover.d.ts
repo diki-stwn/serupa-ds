@@ -7,7 +7,7 @@ interface PopoverProps {
     placement?: Placement;
     open?: boolean;
     defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     "aria-label"?: string;
     initialFocus?: "first" | "panel";
     className?: string;
