@@ -102,3 +102,4 @@ Each is an optional override: set it on the page, a container or one stepper. Th
 | `--stepper-gap` | `spacing-3` | Space between a circle and its text (12px). |
 | `--stepper-connector-gap` | `spacing-2` | Space around a line (8px). |
 | `--stepper-title-weight` | `font-medium` | Step titles (500). |
+| `--stepper-press-scale` | `scale-95` | Size of a step's indicator while its head is held down (95%). 1 turns it off. |
