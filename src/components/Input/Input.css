@@ -46,4 +46,7 @@
 .dk-input--readonly { background: var(--input-bg-readonly, var(--surface-muted)); }
 .dk-input--disabled { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-input--disabled .dk-input__field { cursor: not-allowed; }
+/* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's
+   own text is 16px; the box keeps its height. (maximum-scale=1 would stop the zoom but also pinch zoom: WCAG 1.4.4.) */
+@supports (-webkit-touch-callout: none) { .dk-input:not(.dk-input--size-lg) .dk-input__field { font-size: var(--text-base); } }
 }

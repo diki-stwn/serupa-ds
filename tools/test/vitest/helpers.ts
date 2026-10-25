@@ -7,6 +7,7 @@ declare module 'vitest/browser' {
     pointerDown: (selector: string, at: { x: number; y: number }) => Promise<void>;
     pointerUp: () => Promise<void>;
     forcedColors: (on: boolean) => Promise<void>;
+    printMedia: (on: boolean) => Promise<void>;
   }
 }
 
