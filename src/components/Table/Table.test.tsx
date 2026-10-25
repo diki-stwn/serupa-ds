@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
 
@@ -167,6 +168,30 @@ describe('Table', () => {
     expect(state()).toEqual(['ascending', 'Grace,Linus,Ada', 'arrow_upward']);
     await userEvent.keyboard(' ');
     expect(state()).toEqual(['descending', 'Ada,Linus,Grace', 'arrow_downward']);
+  });
+
+  test('a new order is read out ("Sorted by Calls, ascending."), not on the first render; Indonesian words (180)', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await setup();
+    await new Promise((r) => setTimeout(r, 700));
+    expect(said.filter((t) => /Sorted/.test(t))).toEqual([]);
+    q('#hsort button').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => said.at(-1)).toMatch(/Sorted by Calls, ascending\.$/);
+    await userEvent.keyboard(' ');
+    await expect.poll(() => said.at(-1)).toMatch(/Sorted by Calls, descending\.$/);
+    seen.disconnect();
+    expect(idLabels.tableSorted('Jumlah', 'ascending')).toBe('Diurutkan menurut Jumlah, naik.');
+  });
+
+  test('print: the frame shows the whole table, the header repeats on each page and rows aren\'t split (201)', () => {
+    const rules: CSSStyleRule[] = [];
+    const walk = (list: CSSRuleList, inPrint: boolean) => { for (const r of Array.from(list)) { if (r instanceof CSSMediaRule) walk(r.cssRules, inPrint || /print/.test(r.conditionText)); else if (r instanceof CSSStyleRule) { if (inPrint) rules.push(r); } else if ('cssRules' in r) walk((r as CSSGroupingRule).cssRules, inPrint); } };
+    for (const sh of Array.from(document.styleSheets)) { try { walk(sh.cssRules, false); } catch { /* another origin */ } }
+    const get = (sel: string) => rules.find((r) => r.selectorText === sel)?.style;
+    expect([get('.dk-table')?.overflow, get('.dk-table__head')?.display, get('.dk-table__row')?.breakInside, get('.dk-card')?.breakInside]).toEqual(['visible', 'table-header-group', 'avoid', 'avoid']);
   });
 
   test('the sort button fills the header, lines up with align="end", and shows a focus ring', async () => {

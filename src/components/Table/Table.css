@@ -48,4 +48,12 @@
 @media (hover: hover) { .dk-table__sort:hover .dk-table__sort-icon--idle { opacity: var(--opacity-100); } }
 @media (forced-colors: active) { .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { border-inline-start: var(--table-indicator-width, var(--border-width-2)) solid Highlight; } }
 @media (prefers-reduced-motion: reduce) { .dk-table__body .dk-table__row { transition: none; } }
+/* Print: the whole table, not its scrolled window; the header row repeats on every page, and a row isn't split
+   across two pages. */
+@media print {
+  .dk-table { overflow: visible; max-height: none; }
+  .dk-table__head { display: table-header-group; }
+  .dk-table__row { break-inside: avoid; }
+  .dk-table--sticky .dk-table__head .dk-table__cell { position: static; }
+}
 }
