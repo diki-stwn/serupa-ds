@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Combobox } from './Combobox';
+import { Combobox, type ComboboxSingleProps } from './Combobox';
 import { Field } from '../Field/Field';
 
 const COUNTRIES = ['Argentina', 'Australia', 'Brazil', 'Canada', 'Côte d’Ivoire', 'Denmark', 'Egypt', 'France', 'Germany', 'India', 'Japan', 'Kenya', 'Mexico', 'Norway', 'Peru'];
@@ -12,15 +12,23 @@ const PEOPLE = [
 ];
 const meta = {
   title: 'Components/Forms/Combobox',
-  component: Combobox,
+  component: Combobox as React.ComponentType<ComboboxSingleProps>,   // one pick; several are in Multiple
   args: { 'aria-label': 'Country', placeholder: 'Pick a country', options: COUNTRIES, size: 'md', clearable: false, disabled: false },
   argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
   decorators: [(Story) => <div style={{ maxWidth: 'var(--container-xs)', minHeight: 'var(--spacing-80)' }}><Story /></div>],
-} satisfies Meta<typeof Combobox>;
+} satisfies Meta<ComboboxSingleProps>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+export const Multiple: Story = {
+  render: function Render() {
+    const [team, setTeam] = React.useState<string[]>(['ada', 'grace']);
+    return <Field label="Reviewers" hint="Pick everyone who should review this.">
+      <Combobox multiple clearable value={team} onValueChange={setTeam} options={PEOPLE} placeholder="Add a reviewer" name="reviewers" />
+    </Field>;
+  },
+};
 export const WithDescriptions: Story = {
   render: function Render() {
     const [owner, setOwner] = React.useState<string | null>('grace');

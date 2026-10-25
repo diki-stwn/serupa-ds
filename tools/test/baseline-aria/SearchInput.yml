@@ -1,0 +1,21 @@
+# Filtering
+- searchbox "Filter projects"
+- list:
+  - listitem: Atlas
+  - listitem: Borealis
+  - listitem: Cascade
+  - listitem: Delta
+  - listitem: Ember
+
+# Loading
+- progressbar "Searching"
+- searchbox "Search projects": Atl
+- button "Clear search"
+
+# Playground
+- searchbox "Search projects"
+
+# WithText
+- searchbox "Search projects": Atlas
+- button "Clear search"
+

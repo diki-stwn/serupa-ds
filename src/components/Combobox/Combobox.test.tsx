@@ -19,7 +19,7 @@ const activeOf = (id: string) => document.getElementById(el(id).getAttribute('ar
 const statusOf = (id: string) => popOf(id).querySelector('[role=status]')!;
 const label = (o: Element) => o.querySelector('.dk-combobox__label')!.textContent;
 const st = (id: string) => {
-  const i = el(id), list = i.parentElement!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
+  const i = el(id), list = i.closest('[data-component=combobox]')!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
   return { open: i.getAttribute('aria-expanded'), shown: !pop.hidden && pop.matches(':popover-open'), opts: [...list.querySelectorAll('[role=option]')].map(label), active: ad ? label(document.getElementById(ad)!) : null, text: i.value, focus: document.activeElement === i };
 };
 const selectAll = () => userEvent.keyboard('{Control>}a{/Control}');
@@ -384,5 +384,86 @@ describe('Combobox: autocomplete', () => {
     el('ro').focus();
     await userEvent.keyboard('{ArrowDown}x');
     expect([st('ro').open, st('ro').text]).toEqual(['false', 'France']);
+  });
+});
+
+describe('Combobox multiple (DF1)', () => {
+  const box = (id: string) => el(id).closest('[data-component=combobox]') as HTMLElement;
+  // Each tag's remove button is named "Remove" and the option's label.
+  const tags = (id: string) => [...box(id).querySelectorAll('button')].map((b) => b.getAttribute('aria-label') || '').filter((l) => l.startsWith('Remove ')).map((l) => l.slice(7));
+  const options = (id: string) => [...box(id).querySelectorAll('[role=option]')];
+  const picked = (id: string) => options(id).filter((o) => o.getAttribute('aria-selected') === 'true').map(label);
+
+  test('tags before the text; picking toggles an option and keeps the list open; Backspace in the empty field removes the last tag; a hidden input per value; form reset', async () => {
+    const calls: string[][] = [];
+    await render(<form id="mf" style={{ width: '360px' }}>
+      <Combobox id="m" aria-label="Countries" name="country" multiple options={COUNTRIES} defaultValue={['Brazil']} onValueChange={(v) => calls.push(v)} />
+    </form>);
+    expect(tags('m')).toEqual(['Brazil']);
+    el('m').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const list = box('m').querySelector('[role=listbox]')!;
+    expect([list.getAttribute('aria-multiselectable'), st('m').active, picked('m')]).toEqual(['true', 'Argentina', ['Brazil']]);
+    await userEvent.keyboard('{Enter}');
+    expect([tags('m'), st('m').open, st('m').active, picked('m')]).toEqual([['Brazil', 'Argentina'], 'true', 'Argentina', ['Argentina', 'Brazil']]);
+    await userEvent.keyboard('fr');
+    expect(st('m').opts).toEqual(['France']);
+    await userEvent.keyboard('{Enter}');
+    expect([tags('m'), st('m').text, st('m').opts.length, st('m').active]).toEqual([['Brazil', 'Argentina', 'France'], '', COUNTRIES.length, 'France']);
+    await userEvent.keyboard('{Enter}');   // France again: unpicked
+    expect(tags('m')).toEqual(['Brazil', 'Argentina']);
+    await userEvent.keyboard('{Escape}{Backspace}');
+    expect([st('m').open, tags('m')]).toEqual(['false', ['Brazil']]);
+    const form = document.getElementById('mf') as HTMLFormElement;
+    expect(new FormData(form).getAll('country')).toEqual(['Brazil']);
+    await userEvent.click(box('m').querySelector('button[aria-label="Remove Brazil"]')!);
+    expect([tags('m'), new FormData(form).getAll('country'), st('m').focus]).toEqual([[], [], true]);
+    expect(calls).toEqual([['Brazil', 'Argentina'], ['Brazil', 'Argentina', 'France'], ['Brazil', 'Argentina'], ['Brazil'], []]);
+    form.reset();
+    await expect.poll(() => tags('m')).toEqual(['Brazil']);
+  });
+
+  test('controlled; each pick and removal is read out ("Argentina added", "Argentina removed"; Indonesian "ditambahkan", "dihapus"); × clears every tag; leaving the field empties the search text', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    function Team() {
+      const [v, setV] = React.useState<string[]>(['ci']);
+      return <div style={{ width: '360px' }}>
+        <Combobox id="t" aria-label="Team" multiple clearable value={v} onValueChange={setV} options={COUNTRIES} />
+        <button id="after">After</button>
+        <output id="tv">{v.join(',')}</output>
+      </div>;
+    }
+    await render(<Team />);
+    expect(tags('t')).toEqual(['Côte d’Ivoire']);
+    el('t').focus();
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await expect.poll(() => said.at(-1)).toBe('Argentina added');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => said.at(-1)).toBe('Argentina removed');
+    await userEvent.keyboard('can{Enter}');
+    expect(document.getElementById('tv')!.textContent).toBe('ci,Canada');
+    await userEvent.keyboard('xyz{Tab}');
+    expect([st('t').text, st('t').open, document.activeElement!.id, tags('t')]).toEqual(['', 'false', 'after', ['Côte d’Ivoire', 'Canada']]);
+    await userEvent.click(box('t').querySelector<HTMLButtonElement>('button[aria-label="Clear Team"]')!);
+    expect([tags('t'), document.getElementById('tv')!.textContent]).toEqual([[], '']);
+    seen.disconnect();
+    expect([idLabels.valueAdded('Kanada'), idLabels.valueRemoved('Kanada')]).toEqual(['Kanada ditambahkan', 'Kanada dihapus']);
+  });
+
+  test('the box is 32px with no tags and grows a row at a time as tags wrap, with the buttons kept inside it; disabled tags have no remove button', async () => {
+    const all = COUNTRIES.map((o) => (typeof o === 'string' ? o : o.value));
+    await render(<div style={{ width: '240px' }}>
+      <Combobox id="e" aria-label="None" multiple options={COUNTRIES} />
+      <Combobox id="g" aria-label="Many" multiple options={COUNTRIES} defaultValue={all} />
+      <Combobox id="d" aria-label="Off" multiple disabled options={COUNTRIES} defaultValue={['Egypt']} />
+    </div>);
+    expect(box('e').offsetHeight).toBe(32);
+    const b = box('g').getBoundingClientRect(), toggle = box('g').querySelector('button[aria-expanded]')!.getBoundingClientRect();
+    expect(b.height).toBeGreaterThan(60);
+    expect(toggle.right <= b.right && toggle.left >= b.left).toBe(true);
+    expect(tags('g').length).toBe(all.length);
+    expect([box('d').textContent.includes('Egypt'), tags('d')]).toEqual([true, []]);
   });
 });

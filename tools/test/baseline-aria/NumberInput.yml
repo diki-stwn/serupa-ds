@@ -1,0 +1,48 @@
+# Controlled
+- text: Guests 2 guests
+- spinbutton "Guests": "2"
+- button "Decrease"
+- button "Increase"
+
+# Currency
+- text: Price (en-US, US dollars) Stored as 1999 cents
+- spinbutton "Price (en-US, US dollars)": $19.99
+- button "Decrease"
+- button "Increase"
+- text: Preis (de-DE, euros)
+- spinbutton "Preis (de-DE, euros)": 19,99 €
+- button "Decrease"
+- button "Increase"
+- text: Harga (id-ID, rupiah)
+- spinbutton "Harga (id-ID, rupiah)": Rp 150.000
+- button "Decrease"
+- button "Increase"
+- text: Price (ja-JP, yen)
+- spinbutton "Price (ja-JP, yen)": ￥1,980
+- button "Decrease"
+- button "Increase"
+
+# Decimals
+- spinbutton "Price": "9.5"
+- button "Decrease"
+- button "Increase"
+
+# Locales
+- text: Harga (id-ID, rupiah)
+- spinbutton "Harga (id-ID, rupiah)": Rp 1.500.000
+- button "Decrease"
+- button "Increase"
+- text: Gewicht (de-DE) 9,5 or 9.5 both work
+- spinbutton "Gewicht (de-DE)": 9,5
+- button "Decrease"
+- button "Increase"
+- text: Rate (en-US, percent)
+- spinbutton "Rate (en-US, percent)": 15%
+- button "Decrease"
+- button "Increase"
+
+# Playground
+- spinbutton "Quantity": "1"
+- button "Decrease"
+- button "Increase"
+

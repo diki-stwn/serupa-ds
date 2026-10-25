@@ -1,0 +1,55 @@
+# AsLink
+- list:
+  - listitem:
+    - heading "Atlas" [level=3]:
+      - link "Atlas":
+        - /url: "#atlas"
+    - paragraph: Updated 2 hours ago
+  - listitem:
+    - heading "Beacon" [level=3]:
+      - link "Beacon":
+        - /url: "#beacon"
+    - paragraph: Updated yesterday
+
+# FooterLayouts
+- heading "Delete project?" [level=3]
+- paragraph: This removes every file in Atlas.
+- button "Cancel"
+- button "Delete"
+- text: Step 2 of 3
+- button "Back"
+- button "Skip"
+- button "Next"
+
+# LinkWithActions
+- heading "Atlas" [level=3]:
+  - link "Atlas":
+    - /url: "#atlas"
+- paragraph: Updated 2 hours ago
+- text: Six open tasks, two due this week.
+- button "Star"
+- button "Open board"
+
+# Padding
+- heading "Small" [level=3]
+- paragraph: 12px
+- heading "Medium" [level=3]
+- paragraph: 20px
+- heading "Large" [level=3]
+- paragraph: 24px
+
+# Playground
+- heading "Team plan" [level=3]
+- paragraph: Up to 10 members
+- text: Active Renews on 1 March. You're using 6 of 10 seats.
+- button "Manage seats"
+- button "Upgrade"
+
+# Variants
+- heading "Outline" [level=3]
+- paragraph: A border and a hairline shadow
+- heading "Elevated" [level=3]
+- paragraph: A raised shadow
+- heading "Filled" [level=3]
+- paragraph: Muted and flat
+

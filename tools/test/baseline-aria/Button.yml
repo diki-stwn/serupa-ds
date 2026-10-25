@@ -1,0 +1,52 @@
+# AsLink
+- link "Read the docs":
+  - /url: "#docs"
+- link "Inline link":
+  - /url: "#docs"
+- link "Disabled link" [disabled]
+
+# AsyncSuccess
+- button "Save changes"
+
+# Content
+- button "Label only"
+- button "New project"
+- button "Next"
+- button "More actions"
+- button "Add"
+
+# Destructive
+- button "Delete"
+- button "Delete"
+- button "Delete"
+- button "Remove"
+- button "Revoke"
+
+# DisabledWithReason
+- button "Save" [disabled]
+
+# Loading
+- button "Save"
+
+# Playground
+- button "Save changes"
+
+# Sizes
+- button "Small"
+- button "Medium"
+- button "Large"
+
+# States
+- button "Default"
+- button "Disabled" [disabled]
+- button "Saving" [disabled]
+- button "Export" [disabled]
+- button "Refresh" [disabled]
+
+# Variants
+- button "Primary"
+- button "Secondary"
+- button "Outline"
+- button "Ghost"
+- button "Link"
+

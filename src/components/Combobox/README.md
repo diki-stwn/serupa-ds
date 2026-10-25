@@ -11,6 +11,10 @@ const [owner, setOwner] = React.useState<string | null>(null);
 <Combobox aria-label="Owner" value={owner} onValueChange={setOwner} clearable
   options={people.map((p) => ({ value: p.id, label: p.name, description: p.email }))} />
 
+// several picks, each a tag in the field
+const [reviewers, setReviewers] = React.useState<string[]>([]);
+<Combobox aria-label="Reviewers" multiple value={reviewers} onValueChange={setReviewers} options={people} name="reviewers" />
+
 // options from a server: filter them yourself
 <Combobox aria-label="Person" options={results} filter={false} loading={fetching} onInputChange={search} />
 ```
@@ -18,13 +22,14 @@ const [owner, setOwner] = React.useState<string | null>(null);
 ## When to use
 
 - One choice from a long list people know the name of: a country, an assignee, a project.
+- Several choices from a long list, such as reviewers or tags (`multiple`).
 - Options that come from a server as people type (`filter={false}`, `onInputChange` and `loading`).
 
 ## When not to use
 
 - A short list (under about 10): use [Select](../Select/README.md).
 - An answer that may not be in the list: use [Input](../Input/README.md), since only listed options can be picked.
-- Picking more than one option: use [checkboxes](../Checkbox/README.md).
+- Picking more than one option from a short list (under about 10): use [checkboxes](../Checkbox/README.md), which show every choice at once.
 
 ## Usage
 
@@ -38,6 +43,7 @@ const [owner, setOwner] = React.useState<string | null>(null);
 
 - Opening with a click, the chevron or an arrow shows every option; typing narrows them and highlights the first match.
 - Leaving the field closes the list and puts back the picked label. Leaving it empty clears the selection.
+- With `multiple`, each picked option is a tag before the text, in the order it was picked, with a remove button. Picking an option toggles it and keeps the list open on it, and the text empties so the next search starts from every option. Backspace in the empty field removes the last tag. Leaving the field empties the text and picks nothing. The box grows a row at a time as tags wrap.
 - Text that is exactly one option's label ("brazil" for Brazil: any case, with or without accents) picks that option when focus leaves the field (Tab or a click elsewhere), as Enter would.
 - The list opens under the field in the top layer, at least as wide as the field and up to 240px tall, and flips above when there's no room. With no room above or below either, it takes the roomier side and gets shorter, scrolling inside.
 
@@ -46,6 +52,7 @@ const [owner, setOwner] = React.useState<string | null>(null);
 - The ARIA combobox pattern: `role="combobox"` with `aria-expanded`, `aria-controls` (while the list is open), `aria-autocomplete="list"` and `aria-activedescendant`, and a `role="listbox"` of `role="option"` items with `aria-selected`. Empty and loading messages are `role="status"`.
 - An option is named by its label alone. A text `description` is its `aria-description`, so it's read after a pause instead of run into the name.
 - When typing stops, the number of matching options is said ("3 results", `labels.resultsCount`).
+- With `multiple`, the listbox has `aria-multiselectable="true"` and each picked option `aria-selected="true"`. Focus stays in the field, so each pick and removal is read out ("Brazil added", "Brazil removed": the `valueAdded` and `valueRemoved` labels). Each tag's remove button is named "Remove" and the label ("Remove Brazil").
 - Labels and descriptions keep 4.5:1, even on the highlighted option, and the chevron 3:1, in all six themes (`Combobox.test.tsx`).
 
 ### Keyboard
@@ -55,8 +62,9 @@ const [owner, setOwner] = React.useState<string | null>(null);
 | ArrowDown, ArrowUp | Open the list, then move through it (skipping disabled options, wrapping) |
 | Alt+ArrowDown | Open without moving |
 | PageUp, PageDown | Up or down by what the list shows at once, stopping at the first and last option |
-| Enter | Pick the highlighted option |
+| Enter | Pick the highlighted option (with `multiple`, pick or unpick it, keeping the list open) |
 | Escape | Close and put back the picked label (and stop there, so a surrounding Dialog stays open) |
+| Backspace | With `multiple`, in the empty field: remove the last tag |
 
 Focus stays in the field the whole time.
 
@@ -68,17 +76,18 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `options` | `string[]` or `{ value, label, description?, disabled? }[]` | | The label is what's typed to find an option and shown once it's picked. |
-| `value` | `string \| null` | | Controlled. |
-| `defaultValue` | `string \| null` | | Uncontrolled. |
-| `onValueChange` | `(value: string \| null) => void` | | When an option is picked, or `null` when the field is emptied or cleared. |
+| `multiple` | `boolean` | `false` | Picks any number of options, shown as tags. `value`, `defaultValue` and `onValueChange` then use `string[]`. |
+| `value` | `string \| null` (`string[]` with `multiple`) | | Controlled. |
+| `defaultValue` | `string \| null` (`string[]` with `multiple`) | | Uncontrolled. |
+| `onValueChange` | `(value: string \| null) => void` (`(value: string[]) => void` with `multiple`) | | When an option is picked, or `null` when the field is emptied or cleared. With `multiple`, every picked value in the order picked. |
 | `onInputChange` | `(text: string) => void` | | The text as it's typed, for loading options. |
 | `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo") | `false` shows every option you pass. |
-| `clearable` | `boolean` | `false` | A × that clears the selection. |
+| `clearable` | `boolean` | `false` | A × that clears the selection (every tag, with `multiple`). |
 | `loading` | `boolean` | `false` | A loading row in the list. |
 | `emptyText` | `ReactNode` | `'No results'` | |
 | `loadingText` | `string` | `'Loading…'` | |
 | `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. By default they come from the `showOptions` and `clearValue` labels ("Tampilkan pilihan", "Hapus Negara" in `idLabels`). |
-| `name` | `string` | | Sends the value with a form, in a hidden input. With `form`, the hidden input belongs to that form too. |
+| `name` | `string` | | Sends the value with a form, in a hidden input (one per value with `multiple`, so `formData.getAll(name)` lists them). With `form`, the hidden input belongs to that form too. |
 
 `className` and `style` go to the box; `ref` and every other prop go to the `<input>`. `autoComplete` is `off` unless you pass one: for a field about the user, pass its purpose, such as `autoComplete="country-name"` for their country, so browsers can fill it (WCAG 1.3.5).
 
