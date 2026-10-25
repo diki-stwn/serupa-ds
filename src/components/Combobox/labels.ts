@@ -13,6 +13,10 @@ export interface ComboboxLabels {
   showOptions: string;
   /** Combobox × button, with the field's label when it has one ("Clear Country"). */
   clearValue: (label: string) => string;
+  /** Combobox with multiple, read out when an option is picked and its tag added ("Design added"). */
+  valueAdded: (label: string) => string;
+  /** Combobox with multiple, read out when a tag is removed ("Design removed"). */
+  valueRemoved: (label: string) => string;
 }
 export const en: ComboboxLabels = {
   loadingResults: "Loading…",
@@ -21,6 +25,8 @@ export const en: ComboboxLabels = {
   moreResults: (count) => "Keep typing to narrow " + count + " more",
   showOptions: "Show options",
   clearValue: (label) => label ? "Clear " + label : "Clear",
+  valueAdded: (label) => label + " added",
+  valueRemoved: (label) => label + " removed",
 };
 export const id: ComboboxLabels = {
   loadingResults: "Memuat…",
@@ -29,4 +35,6 @@ export const id: ComboboxLabels = {
   moreResults: (count) => "Ketik lagi untuk mempersempit " + count + " lainnya",
   showOptions: "Tampilkan pilihan",
   clearValue: (label) => label ? "Hapus " + label : "Hapus",
+  valueAdded: (label) => label + " ditambahkan",
+  valueRemoved: (label) => label + " dihapus",
 };

@@ -1,0 +1,20 @@
+# CategoryTones
+- text: red orange amber yellow lime green emerald teal cyan sky blue indigo violet purple fuchsia pink rose
+
+# Extras
+- text: Online Live Scheduled 8 120 Design
+- button "Remove Design"
+- img "New messages"
+
+# Interactive
+- 'button "Filter: Open"'
+- link "Link badge":
+  - /url: "#tag"
+- button "Saving" [disabled]
+
+# Playground
+- text: Active
+
+# Styles
+- text: neutral primary success warning danger info neutral primary success warning danger info neutral primary success warning danger info
+

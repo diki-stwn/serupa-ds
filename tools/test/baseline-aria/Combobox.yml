@@ -1,0 +1,51 @@
+# FromAServer
+- text: Country
+- combobox "Country"
+- button "Show options"
+
+# InAFieldWithAnError
+- text: Country
+- combobox "Country" [invalid]
+- button "Show options"
+- text: Pick the country on your passport.
+
+# Multiple
+- text: Reviewers Pick everyone who should review this. Ada Lovelace
+- button "Remove Ada Lovelace"
+- text: Grace Hopper
+- button "Remove Grace Hopper"
+- combobox "Reviewers"
+- button "Clear Reviewers"
+- button "Show options"
+
+# Playground
+- combobox "Country"
+- button "Show options"
+
+# Sizes
+- combobox "Small": Kenya
+- button "Show options"
+- combobox "Medium": Kenya
+- button "Show options"
+- combobox "Large": Kenya
+- button "Show options"
+
+# States
+- combobox "Empty"
+- button "Show options"
+- combobox "Chosen, clearable": Japan
+- button "Clear Chosen, clearable"
+- button "Show options"
+- combobox "With an icon": Peru
+- button "Show options"
+- combobox "Invalid" [invalid]: Norway
+- button "Show options"
+- combobox "Disabled" [disabled]: Egypt
+- button "Show options" [disabled]
+
+# WithDescriptions
+- text: Owner
+- combobox "Owner": Grace Hopper
+- button "Clear Owner"
+- button "Show options"
+

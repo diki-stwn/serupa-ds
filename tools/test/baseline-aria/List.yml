@@ -1,0 +1,48 @@
+# Files
+- list "Files":
+  - listitem: Quarterly report.pdf 2.4 MB Yesterday
+  - listitem: Logo.png 320 KB Mar 3
+  - listitem: Archive 12 files Feb 18
+
+# Links
+- list "Members":
+  - listitem:
+    - link "Ada Lovelace Ada Lovelace ada@example.com":
+      - /url: "#"
+      - img "Ada Lovelace"
+      - text: Ada Lovelace ada@example.com
+    - button "More for Ada Lovelace"
+  - listitem:
+    - link "Grace Hopper Grace Hopper grace@example.com":
+      - /url: "#"
+      - img "Grace Hopper"
+      - text: Grace Hopper grace@example.com
+    - button "More for Grace Hopper"
+  - listitem:
+    - link "Linus Torvalds Linus Torvalds linus@example.com":
+      - /url: "#"
+      - img "Linus Torvalds"
+      - text: Linus Torvalds linus@example.com
+    - button "More for Linus Torvalds"
+
+# Playground
+- list "Members":
+  - listitem:
+    - img "Ada Lovelace"
+    - text: Ada Lovelace ada@example.com Admin
+  - listitem:
+    - img "Grace Hopper"
+    - text: Grace Hopper grace@example.com Editor
+  - listitem:
+    - img "Linus Torvalds"
+    - text: Linus Torvalds linus@example.com Viewer
+
+# Settings
+- list "Settings":
+  - listitem:
+    - button "Profile Name, photo and email"
+    - text: ›
+  - listitem:
+    - button "Notifications Email and push"
+  - listitem: Security Password and two-step sign-in
+

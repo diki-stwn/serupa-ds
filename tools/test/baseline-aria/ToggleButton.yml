@@ -1,0 +1,20 @@
+# Controlled
+- button "Mute"
+
+# Ghost
+- button "Bold" [pressed]
+- button "Italic"
+- button "Bulleted list"
+
+# Playground
+- button "Show grid"
+
+# Pressed
+- button "Show grid" [pressed]
+
+# Toolbar
+- group "Text formatting":
+  - button "Bold" [pressed]
+  - button "Italic"
+  - button "Underline"
+

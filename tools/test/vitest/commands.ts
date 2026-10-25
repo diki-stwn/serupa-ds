@@ -45,3 +45,19 @@ export const forcedColors: BrowserCommand<[on: boolean]> = async (ctx, on) => {
 export const printMedia: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ media: on ? 'print' : 'screen' });
 };
+
+/** The accessibility tree under `selector` as Playwright writes it (ariaSnapshot: roles, names, states, as YAML). */
+export const ariaSnapshot: BrowserCommand<[selector: string]> = async (ctx, selector) => playwright(ctx).iframe.locator(selector).ariaSnapshot();
+
+// The accessibility-tree baselines (E3) are Chromium's, in English: other engines and locales name and nest some
+// things differently, so those runs leave them alone. SERUPA_UPDATE_ARIA=1 writes them instead of checking.
+const ARIA = 'tools/test/baseline-aria';
+/** "check", "update" (SERUPA_UPDATE_ARIA) or "off" (another engine or a locale run). */
+export const ariaMode: BrowserCommand<[]> = async () =>
+  (process.env.SERUPA_BROWSER && process.env.SERUPA_BROWSER !== 'chromium') || process.env.SERUPA_LOCALE ? 'off' : process.env.SERUPA_UPDATE_ARIA ? 'update' : 'check';
+/** Writes one component's accessibility-tree baseline, tools/test/baseline-aria/<name>.yml. */
+export const writeAriaBaseline: BrowserCommand<[name: string, text: string]> = async (_ctx, name, text) => {
+  const fs = await import('node:fs');
+  fs.mkdirSync(ARIA, { recursive: true });
+  fs.writeFileSync(`${ARIA}/${name}.yml`, text);
+};

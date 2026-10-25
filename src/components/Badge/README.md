@@ -107,7 +107,7 @@ The same as Button's, each with a component token to tune it or turn it off. Onl
 - A number alone means little to a screen reader. Name the control the count sits on ("Notifications, 5 unread") and hide the badge with `aria-hidden`, or give the badge an `aria-label`.
 - A clickable badge is a real `<button>` or link, so Tab, Enter and Space work and screen readers announce it as one. Its label is its name; make it say what happens ("Filter: Open"), not just the status.
 - While loading, the label stays in the accessibility tree (the badge keeps its name), `aria-busy` is set and `loadingText` is announced once.
-- The remove button is reachable with Tab and pressed with Enter or Space. After a badge is removed, move focus somewhere sensible, such as the next tag or the input that adds tags.
+- The remove button is reachable with Tab and pressed with Enter or Space. When `onRemove` takes the badge away and its × had focus, focus moves to the next tag's × in the same list, or the one before it after the last tag, so it isn't lost on the page. After the last tag, or to put focus somewhere else (such as the input that adds tags), move it in `onRemove`: the badge leaves focus alone then.
 - In forced-colors (high-contrast) mode every badge gets a visible border.
 
 ### Keyboard

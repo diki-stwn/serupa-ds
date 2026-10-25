@@ -1,0 +1,12 @@
+# IconLabel
+- link "Settings":
+  - /url: "#"
+
+# Playground
+- paragraph: 3 unread messages
+
+# SkipLink
+- paragraph: Press Tab to show the skip link.
+- link "Skip to content":
+  - /url: "#main"
+

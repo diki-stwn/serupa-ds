@@ -1,0 +1,24 @@
+# Dismissible
+- status:
+  - text: Changes saved.
+  - button "Dismiss"
+
+# Playground
+- status:
+  - paragraph: Heads up
+  - text: Your trial ends in 3 days.
+
+# Tones
+- status: A new version is available.
+- status: Changes saved.
+- alert: Your storage is almost full.
+- alert: We couldn't save your changes.
+- status: Comments are turned off for this file.
+
+# WithActions
+- alert:
+  - paragraph: Payment failed
+  - text: We couldn't charge the card ending 4242.
+  - button "Update card"
+  - button "Later"
+

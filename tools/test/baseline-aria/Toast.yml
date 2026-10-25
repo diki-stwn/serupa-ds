@@ -1,0 +1,65 @@
+# Burst
+- region "Notifications":
+  - list:
+    - listitem: +2 more
+    - listitem "Photo 3 uploaded":
+      - paragraph: Photo 3 uploaded
+      - button "Dismiss"
+    - listitem "Photo 4 uploaded":
+      - paragraph: Photo 4 uploaded
+      - button "Dismiss"
+    - listitem "Network error , 3 times":
+      - paragraph: Network error , 3 times
+      - button "Dismiss"
+
+# Playground
+- region "Notifications":
+  - list
+- button "Neutral"
+- button "Success"
+- button "Info"
+- button "Warning"
+- button "Danger"
+- button "With an action"
+
+# Tones
+- region "Notifications":
+  - list:
+    - listitem "Link copied":
+      - paragraph: Link copied
+      - button "Dismiss"
+    - listitem "New version available":
+      - paragraph: New version available
+      - paragraph: Reload to update.
+      - button "Dismiss"
+    - listitem "Changes saved":
+      - paragraph: Changes saved
+      - button "Dismiss"
+    - listitem "Storage almost full":
+      - paragraph: Storage almost full
+      - paragraph: You’ve used 9.6 of 10 GB.
+      - button "Dismiss"
+    - listitem "Upload failed":
+      - paragraph: Upload failed
+      - paragraph: The file is over 10 MB.
+      - button "Dismiss"
+
+# TopCenter
+- region "Notifications":
+  - list:
+    - listitem "Changes saved":
+      - paragraph: Changes saved
+      - button "Dismiss"
+    - listitem "Copied to clipboard":
+      - paragraph: Copied to clipboard
+      - button "Dismiss"
+
+# WithAction
+- region "Notifications":
+  - list:
+    - listitem "Moved to trash":
+      - paragraph: Moved to trash
+      - paragraph: Atlas and 3 files.
+      - button "Undo"
+      - button "Dismiss"
+

@@ -1,0 +1,41 @@
+# Disabled
+- paragraph: Drag files here
+- button "Choose files" [disabled]
+- paragraph: Images or PDF, up to 5 MB each
+
+# Invalid
+- paragraph: Drag files here
+- button "Choose files"
+- text: Required
+- paragraph: Add at least one image or PDF
+
+# Playground
+- paragraph: Drag files here
+- button "Choose files"
+- paragraph: Images or PDF, up to 5 MB each
+
+# ReadOnly
+- paragraph: Drag files here
+- button "Choose files" [disabled]
+- paragraph: Images or PDF, up to 5 MB each
+- list "Chosen files":
+  - listitem: site-plan.pdf 240 KB
+  - listitem: cover.jpg 1.6 MB
+
+# SingleFile
+- paragraph: Drag a file here
+- button "Choose a file"
+- paragraph: PNG or JPG, up to 5 MB
+
+# WithFiles
+- paragraph: Drag files here
+- button "Choose files"
+- paragraph: Images or PDF, up to 5 MB each
+- list "Chosen files":
+  - listitem:
+    - text: site-plan.pdf 240 KB
+    - button "Remove site-plan.pdf"
+  - listitem:
+    - text: cover.jpg 1.6 MB
+    - button "Remove cover.jpg"
+

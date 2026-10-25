@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
   SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, useCollator, useLocale, useSerupa, version,
-  type ButtonProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
+  type ButtonProps, type ComboboxMultipleProps, type ComboboxSingleProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
 import { type IconData } from 'serupa-ds/icons';
 
@@ -67,7 +67,11 @@ export const voids = [
 ];
 
 // Value callbacks get the value's own type.
-is<Equal<ParamOf<React.ComponentProps<typeof Combobox>['onValueChange']>, string | null>>();
+is<Equal<ParamOf<ComboboxSingleProps['onValueChange']>, string | null>>();
+is<Equal<ParamOf<ComboboxMultipleProps['onValueChange']>, string[]>>();
+export const tagsPicker = <Combobox multiple aria-label="Tags" options={['a']} value={['a']} onValueChange={(v) => v.length} />;
+// @ts-expect-error: with multiple, the value is a list
+export const tagsWrong = <Combobox multiple aria-label="Tags" options={['a']} value="a" />;
 is<Equal<ParamOf<React.ComponentProps<typeof DatePicker>['onValueChange']>, Date | null>>();
 is<Equal<Parameters<NonNullable<React.ComponentProps<typeof DatePicker>['onValueChange']>>[1], string | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof DateRangePicker>['onValueChange']>, DateRange>>();
