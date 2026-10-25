@@ -22,8 +22,8 @@ export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   onValueChange?: (value: string) => void;
   /** Called when editing ends without saving (Escape). */
   onCancel?: () => void;
-  /** Checks the text before it's saved: return an error message to keep the field open and show it, or nothing to save. */
-  validate?: (value: string) => React.ReactNode;
+  /** Checks the text before it's saved: return an error message to keep the field open and show it, or nothing to save. It can return a Promise for a check on the server: the field stays open, aria-busy, until it settles. Leaving the field with a failing text keeps it open with the message, which is said, and leaves focus where it went. */
+  validate?: (value: string) => React.ReactNode | Promise<React.ReactNode>;
   /** Shown (in the muted color) when the text is empty. */
   placeholder?: string;
   /** 'sm', 'md' (default) or 'lg': Input's heights and text sizes, in both modes, so nothing moves when it opens. */
@@ -43,6 +43,8 @@ export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   /** Props for the <input> while editing: maxLength, autoComplete, spellCheck, inputMode… */
   inputProps?: Omit<InputProps, 'value' | 'defaultValue' | 'size' | 'aria-label'>;
 }
+
+const isThenable = (v: unknown): v is Promise<React.ReactNode> => !!v && typeof (v as { then?: unknown }).then === "function";
 
 /* InlineEdit: text that turns into a field in place. It shows the text in a button (with a pencil); a click, Enter or
    Space opens an Input with the text selected. Enter or leaving the field saves (after validate, which can keep it
@@ -84,17 +86,30 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   useAutoFocus(props.autoFocus, () => field.current || view.current);
   React.useEffect(() => { if (!editing && refocus.current) { refocus.current = false; if (view.current) view.current.focus(); } }, [editing]);
 
-  const save = (keyboard: boolean) => {
-    const problem = props.validate ? props.validate(draft) : null;
+  // An async validate: each save, edit or cancel bumps check, so only the latest check's answer counts.
+  const check = React.useRef(0);
+  const [checking, setChecking] = React.useState(false);
+  React.useEffect(() => () => { check.current++; }, []);
+  const finish = (problem: React.ReactNode, text: string, keyboard: boolean) => {
     if (problem != null && problem !== false && problem !== "") { setError(problem); setTries((n) => n + 1); return; }
     refocus.current = keyboard; closing.current = true;
-    if (draft !== value) {
-      if (!controlled) setOwn(draft);
-      if (props.onValueChange) props.onValueChange(draft);
+    if (text !== value) {
+      if (!controlled) setOwn(text);
+      if (props.onValueChange) props.onValueChange(text);
     }
     setError(null); setEditing(false);
   };
+  const save = (keyboard: boolean) => {
+    const mine = ++check.current, text = draft;
+    const problem = props.validate ? props.validate(text) : null;
+    if (!isThenable(problem)) { setChecking(false); finish(problem, text, keyboard); return; }
+    setChecking(true);
+    // A rejected check keeps the field open without a message: return one to say what went wrong.
+    problem.then((p) => { if (mine === check.current) { setChecking(false); finish(p, text, keyboard); } },
+      () => { if (mine === check.current) setChecking(false); });
+  };
   const cancel = () => {
+    check.current++; setChecking(false);
     refocus.current = true; closing.current = true;
     setDraft(value); setError(null); setEditing(false);
     if (props.onCancel) props.onCancel();
@@ -109,7 +124,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (ip.onBlur) ip.onBlur(e);
-    if (editing && !closing.current) save(false);
+    if (editing && !closing.current && !checking) save(false);
   };
 
   const empty = value === "";
@@ -120,7 +135,8 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
       {editing ? (
         <Input {...ip} ref={field} size={size} aria-label={props.label} value={draft} invalid={error != null || ip.invalid}
           aria-describedby={cn(ip["aria-describedby"], error != null && errorId) || undefined}
-          onChange={(e) => { setDraft(e.target.value); if (error != null) setError(null); if (ip.onChange) ip.onChange(e); }} onKeyDown={onKeyDown} onBlur={onBlur} />
+          aria-busy={checking || undefined}
+          onChange={(e) => { setDraft(e.target.value); if (checking) { check.current++; setChecking(false); } if (error != null) setError(null); if (ip.onChange) ip.onChange(e); }} onKeyDown={onKeyDown} onBlur={onBlur} />
       ) : locked ? (
         <span className="dk-inline-edit__view dk-inline-edit__view--static">{text}</span>
       ) : (
