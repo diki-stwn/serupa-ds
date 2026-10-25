@@ -79,6 +79,18 @@ describe('PhoneInput', () => {
     expect([menu('ca').value, field('ca').value]).toEqual(['CA', '(416) 555-0199']);
   });
 
+  test('form reset: the default number and country come back, in the field and in what the form sends', async () => {
+    await render(<form id="pf"><PhoneInput id="pr" aria-label="Phone" name="phone" defaultValue="+6281234567890" /></form>);
+    const f = document.getElementById('pf') as HTMLFormElement, start = field('pr').value;
+    await userEvent.fill(field('pr'), '5551234');
+    const sel = f.querySelector('select')!;
+    sel.value = 'US'; sel.dispatchEvent(new Event('change', { bubbles: true }));
+    await expect.poll(() => new FormData(f).get('phone')).not.toBe('+6281234567890');
+    f.reset();
+    await expect.poll(() => new FormData(f).get('phone')).toBe('+6281234567890');
+    expect([field('pr').value, sel.value]).toEqual([start, 'ID']);
+  });
+
   test('controlled: value in E.164 is shown grouped and follows the parent; the default country comes from the locale\'s region', async () => {
     function Ctl() {
       const [v, setV] = React.useState('+819012345678');

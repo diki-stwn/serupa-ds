@@ -234,6 +234,19 @@ describe('Navbar', () => {
     expect(low).toEqual([]);
   });
 
+  test('small screen, sticky, more links than fit: the open menu ends at the bottom of the screen and scrolls, so the last link can be reached', async () => {
+    await page.viewport(375, 400);
+    await expect.poll(() => window.innerWidth).toBe(375);
+    const links = []; for (let i = 0; i < 25; i++) links.push(<NavbarLink key={i} href={'#l' + i} id={'l' + i}>Link {i}</NavbarLink>);
+    await render(<div style={{ height: '2000px' }}><Navbar id="nav" sticky brand="Docs">{links}</Navbar></div>);
+    await userEvent.click(toggle());
+    const panel = q('#nav .dk-navbar__nav');
+    await expect.poll(() => vis('#nav .dk-navbar__nav')).toBe(true);
+    expect([Math.round(panel.getBoundingClientRect().bottom) <= 400, panel.scrollHeight > panel.clientHeight, css(panel).overscrollBehaviorY]).toEqual([true, true, 'contain']);
+    el('l24').focus();
+    await expect.poll(() => el('l24').getBoundingClientRect().bottom <= 400).toBe(true);
+  });
+
   test('links inside a Fragment each get their own list item', async () => {
     await render(<Navbar id="nfrag" brand="Acme"><NavbarLink href="/">Home</NavbarLink><><NavbarLink href="/a">A</NavbarLink><NavbarLink href="/b">B</NavbarLink></>{false}</Navbar>);
     expect([...el('nfrag').querySelectorAll('.dk-navbar__links > li')].map((li) => li.textContent)).toEqual(['Home', 'A', 'B']);

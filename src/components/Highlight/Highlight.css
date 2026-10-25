@@ -1,0 +1,13 @@
+/* ---------------------------------------------------------------
+   Highlight: matched parts in <mark>, a warning-subtle tint behind the text's own color, slightly bolder, with
+   the corners just rounded; Mark and MarkText in forced-colors mode.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-highlight__mark {
+  padding: var(--spacing-0); border-radius: var(--highlight-radius, var(--rounded-xs));
+  background: var(--highlight-bg, var(--warning-subtle)); color: var(--highlight-text, var(--text));
+  font-weight: var(--highlight-weight, var(--font-semibold));
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+@media (forced-colors: active) { .dk-highlight__mark { background: Mark; color: MarkText; forced-color-adjust: none; } }
+}

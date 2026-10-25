@@ -8,6 +8,7 @@ import { useFieldControl } from "../../internal/field";
 import { useLocale, useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { warnOnce } from "../../internal/warn";
+import { useFormReset } from "../../internal/useFormReset";
 import { PHONE_COUNTRIES, formatNational, isPhoneComplete, parsePhone, phoneCountry, stripTrunk, toE164, type PhoneCountry } from "./phone";
 
 /** What onValueChange reports with the E.164 number. */
@@ -106,6 +107,18 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     input.current = node;
     if (typeof ref === "function") ref(node); else if (ref) ref.current = node;
   }, [ref]);
+  // A form reset puts the default number and country back (uncontrolled), in the field and in what the form sends; a
+  // controlled field shows its value again (the browser reset the text to its first value).
+  const [, rerender] = React.useState(0);
+  useFormReset(input, () => {
+    if (props.value === undefined) {
+      const d = parsePhone(props.defaultValue ?? "", props.defaultCountry, table);
+      setNational(d ? d.national : "");
+      if (props.country === undefined) setOwnCountry(d ? d.country.code : fallback.code);
+      reported.current = d ? toE164(d.national, d.country) : "";
+    }
+    rerender((n) => n + 1);
+  });
   const caret = React.useRef<number | null>(null);
   const text = formatNational(shown, country);
   React.useLayoutEffect(function () {
