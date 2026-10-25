@@ -101,6 +101,16 @@
             "cssVar": "--switch-invalid"
           }
         }
+      },
+      "pending": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "pending's ring on the thumb (3:1 on the thumb, on or off).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--switch-pending"
+          }
+        }
       }
     },
     "sizing": {

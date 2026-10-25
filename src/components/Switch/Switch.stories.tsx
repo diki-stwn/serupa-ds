@@ -30,3 +30,10 @@ export const States: Story = {
     <div style={{ maxWidth: 320 }}><Switch labelPosition="start" className="w-full justify-between">Label first</Switch></div>
   </Col>,
 };
+
+export const Pending: Story = {
+  render: function Render() {
+    const [on, setOn] = React.useState(false), [saving, setSaving] = React.useState(false);
+    return <Switch checked={on} pending={saving} onChange={(e) => { setOn(e.currentTarget.checked); setSaving(true); setTimeout(() => { setSaving(false); }, 1500); }}>Sync contacts</Switch>;
+  },
+};
