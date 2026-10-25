@@ -1,4 +1,4 @@
-// exports: Combobox, type ComboboxOption, type ComboboxProps
+// exports: Combobox, type ComboboxMultipleProps, type ComboboxOption, type ComboboxProps, type ComboboxSingleProps
 interface ComboboxLabels {
     loadingResults: string;
     noResults: string;
@@ -6,6 +6,8 @@ interface ComboboxLabels {
     moreResults: (count: number) => string;
     showOptions: string;
     clearValue: (label: string) => string;
+    valueAdded: (label: string) => string;
+    valueRemoved: (label: string) => string;
 }
 type ComboboxOption = {
     value: string;
@@ -13,11 +15,8 @@ type ComboboxOption = {
     description?: React.ReactNode;
     disabled?: boolean;
 } | string;
-interface ComboboxProps extends Omit<InputProps, "defaultValue" | "onChange" | "prefix" | "rightIcon" | "showCount" | "suffix" | "type" | "value"> {
+interface ComboboxBaseProps extends Omit<InputProps, "defaultValue" | "onChange" | "prefix" | "rightIcon" | "showCount" | "suffix" | "type" | "value"> {
     options: ComboboxOption[];
-    value?: null | string;
-    defaultValue?: null | string;
-    onValueChange?: (value: null | string) => void;
     onInputChange?: (text: string) => void;
     filter?: ((option: {
         value: string;
@@ -30,4 +29,17 @@ interface ComboboxProps extends Omit<InputProps, "defaultValue" | "onChange" | "
     toggleLabel?: string;
     clearLabel?: string;
 }
+interface ComboboxSingleProps extends ComboboxBaseProps {
+    multiple?: false;
+    value?: null | string;
+    defaultValue?: null | string;
+    onValueChange?: (value: null | string) => void;
+}
+interface ComboboxMultipleProps extends ComboboxBaseProps {
+    multiple: true;
+    value?: string[];
+    defaultValue?: string[];
+    onValueChange?: (value: string[]) => void;
+}
+type ComboboxProps = ComboboxMultipleProps | ComboboxSingleProps;
 declare const Combobox: React.ForwardRefExoticComponent<ComboboxProps & React.RefAttributes<HTMLInputElement>>;

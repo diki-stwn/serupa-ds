@@ -65,6 +65,8 @@ let guides = 0;
 const NAMING_GAPS = {
   'RadioGroupProps.onChange': 'CQ1 adds onValueChange and keeps onChange as a deprecated alias until the next major',
   'ComboboxProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
+  'ComboboxSingleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
+  'ComboboxMultipleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
 };
 const gaps = new Set();
 let callbacks = 0;
