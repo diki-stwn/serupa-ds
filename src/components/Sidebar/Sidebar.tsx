@@ -99,13 +99,6 @@ const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(
 /** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
 const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.props.children).some(activeWithin);
 
-/* A rail group's Menu trigger: a button that, like a rail link, shows its label as a tooltip on hover and focus.
-   Menu hands its props (ref, id, aria-expanded, onClick, …) to this, and they go on to the button inside the Tooltip. */
-function RailButton({ tip, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & { tip?: string; ref?: React.Ref<HTMLButtonElement> }) {
-  const button = <button type="button" {...rest} />;
-  return tip ? <Tooltip content={tip} placement="right" role="label">{button}</Tooltip> : button;
-}
-
 /* SidebarItem: a link (icon, label, badge), or with nested items a button with aria-expanded that shows and
    hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. The ref
    goes to the link or the group's button. */
@@ -133,7 +126,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
     return (
       <li className="dk-sidebar__li">
         <Menu placement="right-start" trigger={
-          <RailButton {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} tip={typeof props.label === "string" ? props.label : undefined}>{inner(false)}</RailButton>
+          typeof props.label === "string"
+            ? <Tooltip content={props.label} placement="right" role="label"><button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button></Tooltip>
+            : <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button>
         }>
           {/* Each item keeps its link component (as), its other link attributes and the current page. */}
           {kids.map((k, i) => <MenuItem key={k.key != null ? k.key : i} {...omit(k.props, ITEM_OWN) as object} onClick={undefined}
