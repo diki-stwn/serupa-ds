@@ -377,7 +377,9 @@ describe('Badge', () => {
 
   test('loading, interactive: a ring at the icon size (12px) centered over the hidden content (a 150ms cross-fade, the ring grows in), width kept, aria-busy and aria-disabled, announced "Loading"; clicks and Enter do nothing, focus stays; off again, it works again', async () => {
     await show();
-    const ld = el('ld'), w0 = ld.getBoundingClientRect();
+    // The layout size, which the press scale (0.97 while :active or data-pressed) doesn't change: a box measured
+    // mid-press reads 131px for 135px (as it once did in CI), and a press still settling here can depend on test order.
+    const ld = el('ld'), w0 = [ld.offsetWidth, ld.offsetHeight];
     const announcer = q('[data-dk-announcer]');
     announcer.textContent = '';
     setLoading(true);
@@ -399,7 +401,7 @@ describe('Badge', () => {
     expect(Math.abs((art.left + art.width / 2) - (r.left + r.width / 2))).toBeLessThan(1);
     expect(Math.abs((art.top + art.height / 2) - (r.top + r.height / 2))).toBeLessThan(1);
     await expect.poll(() => content().map((c) => css(c).opacity).join()).toBe('0,0');
-    expect([Math.round(r.width), Math.round(r.height)]).toEqual([Math.round(w0.width), Math.round(w0.height)]);
+    expect([ld.offsetWidth, ld.offsetHeight]).toEqual(w0);
     // Every badge that started loading at once is said, in one message.
     await expect.poll(() => announcer.textContent).toMatch(/(^|\. )Loading…$/);
     expect([css(ld).cursor, ld.textContent.endsWith('Approve request')]).toEqual(['progress', true]);
