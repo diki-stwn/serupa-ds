@@ -56,6 +56,7 @@
 .dk-dialog__description { margin: var(--spacing-0); color: var(--dialog-description-color, var(--text-muted)); }
 .dk-dialog__close { flex-shrink: 0; }
 .dk-dialog__body { min-height: var(--spacing-0); overflow-y: auto; overscroll-behavior: contain; }
+.dk-dialog__body:focus-visible { outline: var(--focus-ring-width) solid var(--dialog-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-dialog__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--spacing-2); }
 /* fullScreen: the panel fills the screen with square corners, the body takes the room between header and footer,
    and the padding clears a phone's notch and home bar. "mobile" does this only under 640px (the sm breakpoint). */
