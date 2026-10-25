@@ -7,6 +7,7 @@ export type { SerupaConfig } from "./internal/config";
 import { idLabels, DEFAULT_LABELS as enLabels } from "./internal/labels";
 export type { SerupaLabels } from "./internal/labels";
 import { SerupaProvider, useSerupa } from "./internal/provider";
+import { useCollator } from "./internal/collator";
 export type { SerupaProviderProps, SerupaSettings } from "./internal/provider";
 import { customIcons, getIcon, registerIcons } from "./icons";
 export type { CustomIconName } from "./icons";
@@ -14,7 +15,7 @@ export type { IconData } from "./material/types";
 export type { MaterialIconName } from "./material/icons";
 export type { SerupaTheme, ThemeBrand, ThemeInfo, ThemeMode } from "./theme-types";
 
-export { configure, customIcons, enLabels, getIcon, idLabels, registerIcons, SerupaProvider, useSerupa };
+export { configure, customIcons, enLabels, getIcon, idLabels, registerIcons, SerupaProvider, useCollator, useSerupa };
 // Every component folder's index.ts (generated: tools/build/registry.mjs).
 export * from "./generated/components";
 import type { ComponentGlobals } from "./generated/globals";
@@ -29,7 +30,7 @@ declare global {
     Serupa: ComponentGlobals & {
       /** The system's version, e.g. "4.8.0" (semver). */ version: string;
       configure: typeof configure; customIcons: typeof customIcons; enLabels: typeof enLabels; getIcon: typeof getIcon; idLabels: typeof idLabels;
-      registerIcons: typeof registerIcons; SerupaProvider: typeof SerupaProvider; useSerupa: typeof useSerupa;
+      registerIcons: typeof registerIcons; SerupaProvider: typeof SerupaProvider; useCollator: typeof useCollator; useSerupa: typeof useSerupa;
       /** Present when theme.js is loaded. */ theme?: ThemeApi;
     };
   }

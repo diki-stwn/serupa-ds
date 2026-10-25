@@ -42,7 +42,7 @@ const { Table, TableHead, TableBody, TableFoot, TableRow, TableHeaderCell, Table
 
 ## Usage
 
-Table only lays out what you give it: sorting, filtering and selection state stay in your code.
+Table only lays out what you give it: sorting, filtering and selection state stay in your code. Sort text columns with `useCollator().compare`, so names sort the way people in the page's locale expect ("Item 2" before "Item 10", "Äpfel" beside "Apfel" in German).
 
 - Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.

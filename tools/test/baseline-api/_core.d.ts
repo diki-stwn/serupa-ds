@@ -1,4 +1,4 @@
-// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useSerupa, version
+// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useSerupa, version
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -64,6 +64,9 @@ declare namespace SerupaProvider {
     var displayName: string;
 }
 declare function useSerupa(): SerupaSettings;
+declare function useCollator(options?: Intl.CollatorOptions & {
+    locale?: string;
+}): Intl.Collator;
 type CustomIconName = never;
 declare const customIcons: readonly CustomIconName[];
 declare function registerIcons(...icons: Array<IconData | Readonly<Record<string, IconData>>>): void;
@@ -81,6 +84,7 @@ declare global {
             idLabels: typeof idLabels;
             registerIcons: typeof registerIcons;
             SerupaProvider: typeof SerupaProvider;
+            useCollator: typeof useCollator;
             useSerupa: typeof useSerupa;
             theme?: ThemeApi;
         };
