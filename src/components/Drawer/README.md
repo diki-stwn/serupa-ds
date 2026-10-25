@@ -27,7 +27,7 @@ const [open, setOpen] = React.useState(false);
 
 ## Usage
 
-- Use `side="right"` (the default) for details and filters, and `side="left"` for navigation; use `bottom` for short sheets on small screens.
+- Use `side="right"` (the default) for details and filters, and `side="left"` for navigation; use `bottom` for short sheets on small screens. `side` is physical: `right` is the right edge in a right-to-left page too.
 - Give it a `title` that names what's inside ("Filters", "Order #1042").
 - Put the actions in `footer` so they stay in view, with the main action last.
 - Set `closeOnBackdrop={false}` when closing would lose work, such as unsaved edits.
