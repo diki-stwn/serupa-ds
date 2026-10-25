@@ -125,6 +125,7 @@ Each is an optional override: set it on the page, a container or one card. The l
 | `--card-gap` | `spacing-4` | The space between the parts |
 | `--card-header-gap` | `spacing-1` | The space between the title and the description |
 | `--card-title-weight` | `font-semibold` | The title's weight |
+| `--card-press-scale` | `scale-97` | Size of a card with `href` while it's held down (97%). 1 turns it off |
 
 ## Related
 
