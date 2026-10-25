@@ -60,7 +60,7 @@ describe('ColorPicker', () => {
 
   test('arrow keys, Home and End move and pick, wrapping; a click picks; onValueChange gets lowercase #rrggbb', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     swatch('Blue').focus();
     await userEvent.keyboard('{ArrowRight}');
     expect([document.activeElement === swatch('Yellow'), swatch('Yellow').getAttribute('aria-checked'), calls]).toEqual([true, 'true', ['#fde047']]);
@@ -72,7 +72,7 @@ describe('ColorPicker', () => {
 
   test('the hex field: six digits pick the color as people type, three on blur or Enter; a bad code goes back on blur and is marked invalid while typed', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     expect(hex().value).toBe('1d4ed8');
     await userEvent.fill(hex(), '#7C3AED');
     expect([calls, radios().every((r) => r.getAttribute('aria-checked') === 'false')]).toEqual([['#7c3aed'], true]);
@@ -89,7 +89,7 @@ describe('ColorPicker', () => {
 
   test('the browser\'s color input picks too, and is named', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     const native = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect([native.getAttribute('aria-label'), native.value]).toEqual(['Custom color', '#1d4ed8']);
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(native, '#00ff00');   // past React's value tracking
@@ -149,7 +149,7 @@ describe('ColorPicker', () => {
 
   test('contrastWith: the WCAG ratio, rounded down, in a polite live region; below minContrast it warns', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     expect([line().getAttribute('aria-live'), line().textContent, line().querySelector('[data-icon]')]).toEqual(['polite', 'Contrast 6.7:1', null]);
     await userEvent.click(swatch('Yellow'));
     expect([line().textContent, line().classList.contains('dk-color-picker__contrast--low'), !!line().querySelector('[data-icon]')])
@@ -164,7 +164,7 @@ describe('ColorPicker', () => {
   });
 
   test('contrastWith: before anything is picked, each swatch describes its ratio, and one under minContrast says so and is struck through; a bare hex swatch has its code as the tooltip', async () => {
-    await render(<ColorPicker aria-label="C" swatches={SW} contrastWith="#ffffff" />);
+    await render(<SerupaProvider locale="en-US"><ColorPicker aria-label="C" swatches={SW} contrastWith="#ffffff" /></SerupaProvider>);
     const desc = (r: HTMLElement) => document.getElementById(r.getAttribute('aria-describedby')!)?.textContent;
     expect(radios().map(desc)).toEqual(['Contrast 6.7:1', 'Contrast 1.3:1, below 4.5:1, which can be hard to read', 'Contrast 1.0:1, below 4.5:1, which can be hard to read', 'Contrast 17.7:1']);
     expect(radios().map((r) => r.hasAttribute('data-low-contrast'))).toEqual([false, true, true, false]);

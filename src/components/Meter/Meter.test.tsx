@@ -21,7 +21,8 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div></SerupaProvider>;
 
 describe('Meter', () => {
   test('a meter with valuenow 72, min 0, max 100 and valuetext "72%", named by its label; ref, className and props reach the outer box', async () => {

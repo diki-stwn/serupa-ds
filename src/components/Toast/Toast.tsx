@@ -90,8 +90,33 @@ function dismiss(id?: string): void {
   items = id == null ? [] : items.filter((x) => x.id !== id);
   emit();
 }
-/** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it. */
-export const toast = /* @__PURE__ */ Object.assign(show, { dismiss });
+type Message<A> = ToastOptions | string | ((arg: A) => ToastOptions | string);
+export interface ToastPromiseMessages<T> {
+  /** While it's pending: neutral, and it stays until the promise settles. */
+  loading: ToastOptions | string;
+  /** Once it resolves, replacing the loading toast; success tone. A function gets the value. */
+  success: Message<T>;
+  /** Once it rejects, replacing the loading toast; danger tone, said at once. A function gets the reason. */
+  error: Message<unknown>;
+}
+const asOptions = (m: ToastOptions | string): ToastOptions => (typeof m === "string" ? { title: m } : m);
+/* toast.promise: "Saving…" while the promise is pending, then "Saved" or "Couldn't save" in its place (the same id),
+   in the success or danger tone unless the message says otherwise, with the normal duration. Returns the promise
+   itself, so the caller still awaits it and handles its rejection. */
+function promise<T>(work: Promise<T> | (() => Promise<T>), messages: ToastPromiseMessages<T>): Promise<T> {
+  const p = typeof work === "function" ? work() : work;
+  // Its own id, so a second promise with the same words gets its own toast rather than a count on this one.
+  const id = "dk-toast-" + ++next;
+  show(Object.assign({ duration: 0 }, asOptions(messages.loading), { id: id }));
+  const settle = <A,>(m: Message<A>, arg: A, tone: ToastTone) => {
+    const o = asOptions(typeof m === "function" ? m(arg) : m);
+    show(Object.assign({ tone: tone }, o, { id: id }));
+  };
+  p.then((v) => settle(messages.success, v, "success"), (e: unknown) => settle(messages.error, e, "danger"));
+  return p;
+}
+/** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it, and toast.promise(p, { loading, success, error }) follows a promise. */
+export const toast = /* @__PURE__ */ Object.assign(show, { dismiss, promise });
 
 export interface ToasterProps extends React.HTMLAttributes<HTMLElement> {
   /** Where toasts appear: 'bottom-end' (default), 'bottom-start', 'bottom-center', 'top-start', 'top-center' or 'top-end'. Start and end follow the text direction. */

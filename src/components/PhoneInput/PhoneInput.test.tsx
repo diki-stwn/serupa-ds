@@ -21,7 +21,8 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>{children}</div></SerupaProvider>;
 
 describe('PhoneInput', () => {
   test('Input\'s box around a country menu and a tel field (tel-national, inputmode tel); ref to the field, className and style to the box', async () => {
