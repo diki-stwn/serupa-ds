@@ -67,6 +67,24 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
 const VARIANTS: readonly BadgeVariant[] = ["subtle", "solid", "outline"];
 const TONES: readonly BadgeTone[] = ["neutral", "primary", "success", "warning", "danger", "info", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"];
 const PLAIN = { useGrouping: false } as const;
+// Removing a tag drops focus on <body> when its × had it (179). Once the badge is gone, focus moves to the next
+// remove button among its siblings (the badges in the same list), else the one before it. A handler that moves focus
+// itself, or keeps the badge, is left alone.
+function removeAndRefocus(e: React.MouseEvent<HTMLButtonElement>, onRemove: (e: React.MouseEvent<HTMLButtonElement>) => void): void {
+  const me = e.currentTarget, badge = me.closest(".dk-badge");
+  let scope = badge && badge.parentElement;
+  if (scope && scope.childElementCount === 1 && scope.parentElement) scope = scope.parentElement;   // each badge in its own <li>
+  const all = scope ? Array.from(scope.querySelectorAll<HTMLButtonElement>(".dk-badge__remove")) : [];
+  const at = all.indexOf(me);
+  onRemove(e);
+  setTimeout(function () {
+    const active = me.ownerDocument.activeElement;
+    if (me.isConnected || (active && active !== me.ownerDocument.body)) return;
+    const next = all.slice(at + 1).concat(all.slice(0, at).reverse()).find((b) => b.isConnected && !b.disabled);
+    if (next) next.focus();
+  }, 0);
+}
+
 const OWN = { variant: 1, tone: 1, size: 1, dot: 1, ping: 1, leftIcon: 1, count: 1, max: 1, showZero: 1, onRemove: 1, removeLabel: 1, loading: 1, loadingText: 1, className: 1, children: 1 } as const;
 
 /** A short label for status, counts and categories. A <span>; a <button> with onClick, a link with href. */
@@ -137,7 +155,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     ? <span className="dk-badge__icon dk-badge__icon--dot" aria-hidden key="dot"><span className="dk-badge__dot" /></span> : null;
   const named = typeof label === "string" || typeof label === "number" ? " " + label : "";
   const remove = removable
-    ? <button type="button" className="dk-badge__remove" key="remove" onClick={props.onRemove} disabled={loading || undefined}
+    ? <button type="button" className="dk-badge__remove" key="remove" onClick={(e) => removeAndRefocus(e, props.onRemove!)} disabled={loading || undefined}
         aria-label={(props.removeLabel || sds.labels.remove) + named}><Icon icon={icons.Close} /></button>
     : null;
   // Loading: a ring centered over the hidden content, so the badge keeps its width (decorative: the badge announces loadingText)
