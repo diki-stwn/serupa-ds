@@ -63,7 +63,7 @@ export interface ComboboxMultipleProps extends ComboboxBaseProps {
 }
 export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
 type AnyProps = ComboboxBaseProps & { multiple?: boolean; value?: string | string[] | null; defaultValue?: string | string[] | null; onValueChange?: unknown };
-const list = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : []);
+const list = (v: string | string[] | null | undefined): string[] => (Array.isArray(v) ? v : []);
 
 const CAP = 100;   // the most option rows the list puts in the page at once
 
@@ -114,7 +114,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     return { ...x, folded: fold(x.label) };
   }), [props.options]);
   const controlled = props.value !== undefined;
-  const one = (v: unknown) => (multi || v == null ? null : String(v));
+  const one = (v: string | string[] | null | undefined) => (multi || typeof v !== "string" ? null : v);
   const [ownValue, setOwnValue] = React.useState<string | null>(() => one(props.defaultValue));
   const [ownValues, setOwnValues] = React.useState<string[]>(() => (multi ? list(props.defaultValue) : []));
   const value = multi ? null : controlled ? one(props.value) : ownValue;
