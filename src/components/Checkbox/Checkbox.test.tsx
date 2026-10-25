@@ -301,7 +301,7 @@ describe('CheckboxGroup', () => {
 
   test('pressed: the box shrinks to 90% while the row is held, on scale alone, and springs back; not when disabled (ED1)', async () => {
     await withMotion(async () => {
-      await render(<><Checkbox id="pc" label="Press me" /><Checkbox id="pd" label="Off" disabled /></>);
+      await render(<><Checkbox id="pc">Press me</Checkbox><Checkbox id="pd" disabled>Off</Checkbox></>);
       const el = (id: string) => document.getElementById(id) as HTMLElement;
       const box = (id: string) => el(id).parentElement as HTMLElement;   // the control around the input
       expect(css(box('pc')).transitionProperty).toBe('scale');
