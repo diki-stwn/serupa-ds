@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { formatTime, parseTime, timePattern, toHHmm, toMinutes, uses12h } from "../../internal/times";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
@@ -46,6 +47,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
    <input type="time"> uses; with name a hidden input sends it. */
 /** A time field: type a time or pick one from a list. Values are "HH:mm". */
 export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePickerProps>("TimePicker", function TimePicker(props, ref) {
+  const nameRef = useNameCheck("TimePicker", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, step: _st, locale: localeProp, hour12: _h, size: _s, invalid: _i, listLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
@@ -143,7 +145,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   const label = listLabel || sds.labels.chooseTime;
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
-      <input {...rest} ref={(n) => { field.current = n; setRef(ref, n); }}
+      <input {...rest} ref={(n) => { field.current = n; nameRef(n); setRef(ref, n); }}
         lang={rest.lang ?? lang} type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : timePattern(locale, h12)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}
         aria-expanded={open} aria-controls={id} aria-autocomplete="none" aria-haspopup="listbox" aria-activedescendant={open ? `${id}-${active}` : undefined}

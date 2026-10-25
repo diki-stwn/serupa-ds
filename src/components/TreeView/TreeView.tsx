@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import { typeahead, type Typed } from "../../internal/typeahead";
@@ -66,6 +67,7 @@ const within = (item: TreeViewItem, id: string): boolean => !!item.children && i
    in the page. */
 /** Nested items that open and close, such as folders and files, with one item or many picked. */
 export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProps>("TreeView", function TreeView(props, ref) {
+  const nameRef = useNameCheck("TreeView", NAME_HOW.label);   // warns when it has no accessible name
   const rest = omit(props, { items: 1, selectionMode: 1, value: 1, defaultValue: 1, onValueChange: 1, expanded: 1, defaultExpanded: 1, onExpandedChange: 1, className: 1, onKeyDown: 1 });
   const mode = props.selectionMode || "single";
   const multi = mode === "multiple";
@@ -190,7 +192,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   const ctx = React.useMemo(() => ({ store: st, api: api }), [st]);
 
   return (
-    <ul {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="tree"
+    <ul {...rest} ref={function (n) { root.current = n; nameRef(n); setRef(ref, n); }} role="tree"
       aria-multiselectable={multi || undefined}
       className={cn("dk-tree-view", props.className)} data-component="tree-view" onKeyDown={onKeyDown}>
       <TreeContext.Provider value={ctx}><Rows list={props.items} level={1} /></TreeContext.Provider>

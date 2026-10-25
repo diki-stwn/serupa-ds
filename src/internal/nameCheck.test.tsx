@@ -18,10 +18,20 @@ import { Select } from '../components/Select/Select';
 import { Slider } from '../components/Slider/Slider';
 import { Switch } from '../components/Switch/Switch';
 import { Tab, TabList, TabPanel, Tabs } from '../components/Tabs/Tabs';
+import { NumberInput } from '../components/NumberInput/NumberInput';
+import { PasswordInput } from '../components/PasswordInput/PasswordInput';
+import { PhoneInput } from '../components/PhoneInput/PhoneInput';
+import { PinInput } from '../components/PinInput/PinInput';
+import { Popover } from '../components/Popover/Popover';
+import { SearchInput } from '../components/SearchInput/SearchInput';
+import { Textarea } from '../components/Textarea/Textarea';
+import { TimePicker } from '../components/TimePicker/TimePicker';
+import { TreeView } from '../components/TreeView/TreeView';
 
 // Each component that needs a name says so once in the console when it has none (a screen reader would announce only
 // its role), and stays quiet when it's named the usual way: its label, a Field, aria-label or aria-labelledby.
 const noop = () => {};
+const TREE = [{ id: 'src', label: 'src' }];
 const OPTIONS = [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }];
 const UNNAMED: Array<[string, () => React.ReactElement]> = [
   ['Dialog', () => <Dialog open={false} onOpenChange={noop}>Body</Dialog>],
@@ -39,6 +49,15 @@ const UNNAMED: Array<[string, () => React.ReactElement]> = [
   ['DatePicker', () => <DatePicker />],
   ['ColorPicker', () => <ColorPicker swatches={['#ff0000']} />],
   ['Carousel', () => <Carousel label=""><div>One</div></Carousel>],
+  ['Textarea', () => <Textarea placeholder="Notes" />],
+  ['NumberInput', () => <NumberInput />],
+  ['PasswordInput', () => <PasswordInput />],
+  ['SearchInput', () => <SearchInput placeholder="Search" />],
+  ['PhoneInput', () => <PhoneInput />],
+  ['PinInput', () => <PinInput />],
+  ['TimePicker', () => <TimePicker />],
+  ['Popover', () => <Popover trigger={<button type="button">Filters</button>}>Body</Popover>],
+  ['TreeView', () => <TreeView items={TREE} />],
 ];
 const NAMED: Array<[string, () => React.ReactElement]> = [
   ['Dialog', () => <Dialog open={false} onOpenChange={noop} title="Delete file">Body</Dialog>],
@@ -56,6 +75,15 @@ const NAMED: Array<[string, () => React.ReactElement]> = [
   ['DatePicker', () => <Field label="Start"><DatePicker /></Field>],
   ['ColorPicker', () => <ColorPicker swatches={['#ff0000']} aria-label="Color" />],
   ['Carousel', () => <Carousel label="Photos"><div>One</div></Carousel>],
+  ['Textarea', () => <Field label="Notes"><Textarea /></Field>],
+  ['NumberInput', () => <Field label="Quantity"><NumberInput /></Field>],
+  ['PasswordInput', () => <Field label="Password"><PasswordInput /></Field>],
+  ['SearchInput', () => <SearchInput aria-label="Search orders" />],
+  ['PhoneInput', () => <Field label="Phone"><PhoneInput /></Field>],
+  ['PinInput', () => <Field label="Code"><PinInput /></Field>],
+  ['TimePicker', () => <Field label="Start"><TimePicker /></Field>],
+  ['Popover', () => <Popover trigger={<button type="button">Filters</button>} title="Filters">Body</Popover>],
+  ['TreeView', () => <TreeView items={TREE} aria-label="Files" />],
 ];
 
 describe('accessible name warnings', () => {

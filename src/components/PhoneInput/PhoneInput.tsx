@@ -5,6 +5,7 @@ import { Icon } from "../Icon/Icon";
 import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { useLocale, useSerupa } from "../../internal/provider";
 import { collatorFor } from "../../internal/collator";
 import * as icons from "../../material/builtin";
@@ -65,6 +66,7 @@ const caretAfter = (text: string, n: number): number => {
 /** A phone number field: a country menu and a tel field that groups the number as people type, reporting E.164 ("+6281234567890"). */
 export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInputProps>("PhoneInput", function PhoneInput(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
+  const nameRef = useNameCheck("PhoneInput", NAME_HOW.field);   // warns when it has no accessible name
   const sds = useSerupa();
   const locale = useLocale();
   const rest = omit(props, own);
@@ -112,8 +114,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const input = React.useRef<HTMLInputElement | null>(null);
   const setRef = React.useCallback(function (node: HTMLInputElement | null) {
     input.current = node;
+    nameRef(node);
     if (typeof ref === "function") ref(node); else if (ref) ref.current = node;
-  }, [ref]);
+  }, [ref, nameRef]);
   // A form reset puts the default number and country back (uncontrolled), in the field and in what the form sends; a
   // controlled field shows its value again (the browser reset the text to its first value).
   const [, rerender] = React.useState(0);

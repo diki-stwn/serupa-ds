@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, omit, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { displayNumber } from "../../internal/numbers";
@@ -45,6 +46,7 @@ function sizesInCss(): boolean {
 
 /** A multi-line text field: a native <textarea> (ref, value, onChange and every textarea attribute go to it) in a box that holds the count; className and style go to the box. Label it with <label htmlFor> or aria-label. */
 export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaProps>("Textarea", function Textarea(props, ref) {
+  const nameRef = useNameCheck("Textarea", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, "md");
@@ -93,7 +95,8 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   const setRefs = React.useCallback(function (node: HTMLTextAreaElement | null) {
     own.current = node;
     setRef(ref, node);
-  }, [ref]);
+    nameRef(node);
+  }, [ref, nameRef]);
   if (props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], countId);
   return (
     <span className={cn("dk-textarea", "dk-textarea--size-" + size, invalid && "dk-textarea--invalid", rest.disabled && "dk-textarea--disabled", rest.readOnly && "dk-textarea--readonly", resize === "none" && "dk-textarea--resize-none", auto && "dk-textarea--auto", props.className)} style={props.style} data-component="textarea" data-size={size}>
