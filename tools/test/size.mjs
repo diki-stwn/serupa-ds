@@ -30,7 +30,7 @@ import { HERE, PROJECT, done, report } from './lib.mjs';
 // when each was last set (index.js 62.2, serupa.iife.js 610.1 on 24 Oct 2026; components.css 27.3 once it shipped
 // without the source comments).
 const TOTALS = {
-  'All components (index.js)': [67.2, 59.3, 'share'],   // +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
+  'All components (index.js)': [67.5, 59.3, 'share'],   // +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
   'components.css': [28.5, 53.6, 'css'],
   'serupa.iife.js': [630, 59.3, 'share'],
 };
