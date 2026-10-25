@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { color, css, lowContrast, settle } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
-import { Checkbox } from './Checkbox';
+import { Checkbox, CheckboxGroup } from './Checkbox';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
 const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
@@ -206,5 +206,82 @@ describe('Checkbox', () => {
       ['focus ring', 'var(--focus-ring)', 'var(--surface)', 3],
       ['invalid border', 'var(--danger)', 'var(--surface)', 3],
     ])).toEqual([]);
+  });
+});
+
+describe('CheckboxGroup', () => {
+  const box = (v: string) => document.querySelector<HTMLInputElement>(`#grp input[value="${v}"]`)!;
+  const all = () => document.querySelector<HTMLInputElement>('#grp .dk-checkbox:first-child input')!;
+
+  test('a named group: one name for every box, values in the boxes\' order, numbers stay numbers, and size, invalid and disabled reach the boxes', async () => {
+    const seen: unknown[] = [];
+    function App() {
+      const [v, set] = React.useState<number[]>([]);
+      return <CheckboxGroup id="grp" aria-label="Days" value={v} onValueChange={(n) => { seen.push(n); set(n); }} size="sm" invalid>
+        <Checkbox value={1}>Mon</Checkbox><Checkbox value={2}>Tue</Checkbox><Checkbox value={3} disabled>Wed</Checkbox>
+      </CheckboxGroup>;
+    }
+    await render(<App />);
+    const g = document.getElementById('grp')!;
+    expect([g.getAttribute('role'), g.getAttribute('aria-invalid'), g.dataset.component]).toEqual(['group', 'true', 'checkbox-group']);
+    const names = [...g.querySelectorAll('input')].map((i) => i.name);
+    expect(new Set(names).size).toBe(1);
+    expect(names[0]).not.toBe('');
+    expect([...g.querySelectorAll('.dk-checkbox')].map((l) => [l.getAttribute('data-size'), l.classList.contains('dk-checkbox--invalid')])).toEqual([['sm', true], ['sm', true], ['sm', true]]);
+    await userEvent.click(box('2'));
+    await userEvent.click(box('1'));
+    await userEvent.click(box('2'));
+    expect(seen).toEqual([[2], [1, 2], [1]]);
+    expect([box('1').checked, box('2').checked, box('3').disabled]).toEqual([true, false, true]);
+  });
+
+  test('selectAll: unchecked with none, indeterminate (announced as mixed) with some, checked with all; a click checks every enabled box, then clears them, and leaves a disabled box as it is', async () => {
+    const seen: string[][] = [];
+    await render(<CheckboxGroup id="grp" aria-label="Toppings" defaultValue={['olives']} onValueChange={(v) => { seen.push(v); }}>
+      <Checkbox selectAll>All toppings</Checkbox>
+      <Checkbox value="cheese">Cheese</Checkbox><Checkbox value="ham">Ham</Checkbox><Checkbox value="olives" disabled>Olives</Checkbox>
+    </CheckboxGroup>);
+    expect([all().checked, all().indeterminate, all().name]).toEqual([false, false, '']);
+    await userEvent.click(box('cheese'));
+    expect([all().checked, all().indeterminate]).toEqual([false, true]);
+    await userEvent.click(all());
+    expect([all().checked, all().indeterminate, box('cheese').checked, box('ham').checked, box('olives').checked]).toEqual([true, false, true, true, true]);
+    await userEvent.click(all());
+    expect([all().checked, box('cheese').checked, box('ham').checked, box('olives').checked]).toEqual([false, false, false, true]);
+    expect(seen).toEqual([['cheese', 'olives'], ['cheese', 'ham', 'olives'], ['olives']]);
+  });
+
+  test('required means at least one: every box is required (and the form won\'t submit) until one is checked; then none is', async () => {
+    await render(<form id="rq"><CheckboxGroup id="grp" aria-label="Contact" name="via" required>
+      <Checkbox value="mail">Email</Checkbox><Checkbox value="sms">SMS</Checkbox>
+    </CheckboxGroup></form>);
+    const form = document.getElementById('rq') as HTMLFormElement;
+    expect([document.getElementById('grp')!.getAttribute('aria-required'), box('mail').required, box('sms').required, form.checkValidity()]).toEqual(['true', true, true, false]);
+    await userEvent.click(box('sms'));
+    expect([box('mail').required, box('sms').required, form.checkValidity()]).toEqual([false, false, true]);
+  });
+
+  test('a form gets every checked value under the name, and a reset brings back defaultValue', async () => {
+    await render(<form id="fr"><CheckboxGroup id="grp" aria-label="Tags" name="tags" defaultValue={['a']}>
+      <Checkbox value="a">A</Checkbox><Checkbox value="b">B</Checkbox><Checkbox value="c">C</Checkbox>
+    </CheckboxGroup></form>);
+    const form = document.getElementById('fr') as HTMLFormElement;
+    await userEvent.click(box('c'));
+    expect(new FormData(form).getAll('tags')).toEqual(['a', 'c']);
+    form.reset();
+    await expect.poll(() => new FormData(form).getAll('tags')).toEqual(['a']);
+    expect(box('c').checked).toBe(false);
+  });
+
+  test('disabled: every box and select-all are disabled, and the group says aria-disabled', async () => {
+    await render(<CheckboxGroup id="grp" aria-label="Off" disabled defaultValue={['x']}><Checkbox selectAll>All</Checkbox><Checkbox value="x">X</Checkbox><Checkbox value="y">Y</Checkbox></CheckboxGroup>);
+    expect([document.getElementById('grp')!.getAttribute('aria-disabled'), all().disabled, box('x').disabled, box('y').disabled]).toEqual(['true', true, true, true]);
+  });
+
+  test('in a Field group: the legend names the group, and the boxes keep their own labels', async () => {
+    await render(<Field label="Notify me about" group><CheckboxGroup id="grp"><Checkbox value="a">Replies</Checkbox><Checkbox value="b">Mentions</Checkbox></CheckboxGroup></Field>);
+    await expect.element(page.getByRole('group', { name: 'Notify me about' })).toBeInTheDocument();
+    await expect.element(page.getByRole('checkbox', { name: 'Replies' })).toBeInTheDocument();
+    await expect.element(page.getByRole('checkbox', { name: 'Mentions' })).toBeInTheDocument();
   });
 });
