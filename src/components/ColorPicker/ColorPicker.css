@@ -5,6 +5,7 @@
    Structure: .dk-color-picker > __swatches (radiogroup) > __swatch; __custom > __native, .dk-input; __contrast.
    --------------------------------------------------------------- */
 @layer dk.components {
+.dk-color-picker__validity { position: absolute; width: var(--spacing-px); height: var(--spacing-px); margin: var(--spacing-0); padding: var(--spacing-0); overflow: hidden; clip-path: inset(var(--sizing-1-2)); white-space: nowrap; border: var(--spacing-0); opacity: var(--opacity-0); }
 .dk-color-picker {
   --dk-cp-size: var(--color-picker-swatch-size-md, var(--spacing-8));
   --dk-cp-check: var(--spacing-5);

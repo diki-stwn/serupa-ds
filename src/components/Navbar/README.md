@@ -29,7 +29,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 
 ## Usage
 
-- Keep the links to the main pages, a few short words each; below 768px they fold into the menu button.
+- Keep the links to the main pages, a few short words each; below 768px they fold into the menu button. More links than fit below the bar scroll inside the panel.
 - Mark the current page with `active` on its NavbarLink.
 - Use `as` to render your router's link component, so links don't reload the page.
 - Set `size` to the same width as the page's Container, so the bar lines up with the content.

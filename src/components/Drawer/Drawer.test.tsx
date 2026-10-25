@@ -67,6 +67,25 @@ describe('Drawer', () => {
     expect(hit && hit.id).not.toBe('behind');
   });
 
+  test('right-to-left page: side="right" still opens on the right, the edge it slides in from', async () => {
+    document.documentElement.dir = 'rtl';
+    try {
+      await render(<Drawer id="drr" open side="right" title="Filters" />);
+      await settled();
+      const r = panel('drr').getBoundingClientRect();
+      expect([Math.round(r.right), Math.round(r.left) > 0]).toEqual([window.innerWidth, true]);
+    } finally { document.documentElement.dir = ''; }
+  });
+
+  test('right-to-left page: side="left" opens on the left', async () => {
+    document.documentElement.dir = 'rtl';
+    try {
+      await render(<Drawer id="drl2" open side="left" title="Menu" />);
+      await settled();
+      expect(Math.round(panel('drl2').getBoundingClientRect().left)).toBe(0);
+    } finally { document.documentElement.dir = ''; }
+  });
+
   test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {
     const asks: boolean[] = [];
     function Keep() {
