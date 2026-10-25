@@ -28,14 +28,14 @@ const { Link, Text } = window.Serupa;
 
 ## Usage
 
-- Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link.
+- Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link. Don't combine it with `tone="neutral"`: that link looks like plain text until it's hovered, so Link warns in the console.
 - Use `tone="neutral"` in muted small print, such as terms under a form, so the link takes the text's color.
-- With a router, pass its link component in `as` so client-side navigation keeps working.
+- With a router, register its link component once with `configure({ link })`, or pass it in `as`, so client-side navigation keeps working.
 - Check any `href` that comes from people, such as a profile's website: allow only `https:`, `http:`, `mailto:` or your own paths. React still renders a `javascript:` link, which runs code when clicked.
 
 ## Accessibility
 
-- Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links.
+- Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links. Color alone doesn't do it in a sentence: the primary color is only 3.1–3.4:1 against body text in the light themes and 1.8–2.6:1 in the dark ones, under the 3:1 that 1.4.1 asks of a link set apart by color.
 - The primary color keeps 4.5:1 on `surface`, on hover too, and the focus ring 3:1, in all six themes (`Link.test.tsx`).
 - With `external`, screen readers hear "(opens in a new tab)" after the text, from the `opensInNewTab` label ("(terbuka di tab baru)" in `idLabels`). Link stays a Server Component: only that note is a small client component.
 - Write link text that makes sense on its own ("Read the pricing guide", not "click here"): screen reader users often move from link to link.
@@ -50,7 +50,7 @@ const { Link, Text } = window.Serupa;
 | `tone` | `'primary'` \| `'neutral'` | `'primary'` | The primary color, or the surrounding text's color (still underlined) |
 | `underline` | `'always'` \| `'hover'` | `'always'` | Always underlined, or only on hover and focus |
 | `external` | boolean | `false` | Opens a new tab (`target="_blank"`, adds `noopener noreferrer` to your `rel`), with a new-tab icon and "(opens in a new tab)" for screen readers |
-| `as` | a component | `'a'` | Your router's link component; it gets `className`, `ref` and every other prop |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; it gets `className`, `ref` and every other prop. Set it once for the app with `configure({ link })`; `as` wins for one link. |
 
 `className`, `style`, `ref`, `target`, `rel` and everything else go to the element, which has `data-component="link"`. It has no font size of its own: it takes the text around it.
 

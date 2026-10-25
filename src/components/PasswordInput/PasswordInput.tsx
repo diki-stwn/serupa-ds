@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { announce } from "../../internal/announce";
-import { cn, domId, isInvalid, omit, oneOf } from "../../internal/cn";
+import { cn, domId, isInvalid, omit, oneOf, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import type { InputProps } from "../Input/Input";
@@ -57,7 +57,23 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
   rest.onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => { sense(e); if (onKeyUp) onKeyUp(e); };
   rest.onBlur = (e: React.FocusEvent<HTMLInputElement>) => { setCaps(false); if (onBlur) onBlur(e); };
   if (caps) rest["aria-describedby"] = cn(rest["aria-describedby"], capsId);
+  // Switching the type puts the caret at the start: keep where it was, so typing goes on where it stopped.
+  const field = React.useRef<HTMLInputElement | null>(null);
+  const caret = React.useRef<[number, number, "forward" | "backward" | "none"] | null>(null);
+  const fieldRef = React.useCallback((n: HTMLInputElement | null) => { field.current = n; setRef(ref, n); }, [ref]);
+  useIsoLayoutEffect(() => {
+    const f = field.current, c = caret.current;
+    caret.current = null;
+    if (!f || !c) return;
+    // Chrome moves the caret once it has applied the new type, after this effect: put it back then too.
+    const put = () => { if (f.selectionStart !== null) f.setSelectionRange(c[0], c[1], c[2]); };
+    put();
+    const frame = requestAnimationFrame(put);
+    return () => { cancelAnimationFrame(frame); };
+  }, [shown]);
   const toggle = () => {
+    const f = field.current;
+    if (f && f.selectionStart !== null && f.selectionEnd !== null) caret.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none"];
     if (!controlled) setOwn(!shown);
     if (props.onVisibleChange) props.onVisibleChange(!shown);
   };
@@ -65,7 +81,7 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
     <span className={cn("dk-input dk-password-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
       style={props.style} data-component="password-input" data-size={size}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
-      <input {...rest} ref={ref} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" />
+      <input {...rest} ref={fieldRef} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" />
       {caps ? <span className="dk-password-input__caps" id={capsId}>{sds.labels.capsLockOn}</span> : null}
       <button type="button" className="dk-password-input__toggle" aria-label={props.toggleLabel || sds.labels.showPassword} aria-pressed={shown}
         aria-controls={rest.id} disabled={rest.disabled} onClick={toggle} onMouseDown={(e) => e.preventDefault()}>

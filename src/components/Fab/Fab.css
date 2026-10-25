@@ -22,4 +22,10 @@
 .dk-fab--bottom-start { inset-block-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-bottom)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
 .dk-fab--top-end { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-right)); }
 .dk-fab--top-start { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
+/* What the keyboard focuses, or a #link jumps to, scrolls into view clear of a fixed FAB, not under it (WCAG 2.4.11):
+   the page keeps the FAB's size, its offset and the same again as a gap free at that edge. With a sticky Navbar
+   at the top too, the larger of the two wins. */
+:root:has(.dk-fab--bottom-end, .dk-fab--bottom-start) { scroll-padding-bottom: calc(var(--fab-size, var(--spacing-14)) + var(--fab-offset, var(--spacing-6)) + var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-bottom)); }
+:root:has(.dk-fab--top-end, .dk-fab--top-start) { scroll-padding-top: calc(var(--fab-size, var(--spacing-14)) + var(--fab-offset, var(--spacing-6)) + var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); }
+:root:has(.dk-fab--top-end, .dk-fab--top-start):has(.dk-navbar--sticky) { scroll-padding-top: max(var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16))), calc(var(--fab-size, var(--spacing-14)) + var(--fab-offset, var(--spacing-6)) + var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top))); }
 }
