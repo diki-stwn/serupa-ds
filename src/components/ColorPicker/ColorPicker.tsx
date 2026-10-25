@@ -73,6 +73,8 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const size = props.size === "sm" ? "sm" : "md";
   const [text, setText] = React.useState((value || "").replace("#", ""));
   const typing = React.useRef(false);
+  /* The field follows the color: on blur it shows the current one, and if the parent takes the typed color the
+     change brings it here; a parent that turns it down leaves the field on its own color, not the rejected text. */
   React.useEffect(() => { if (!typing.current) setText((value || "").replace("#", "")); }, [value]);
   // The group's name: aria-label or aria-labelledby, or a surrounding Field's label.
   const fieldLabel = useFieldLabel(props.id);
@@ -167,7 +169,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
             leftIcon={<span className="dk-color-picker__hash">#</span>} aria-invalid={text !== "" && !normalizeHex(text) ? true : undefined}
             onFocus={() => { typing.current = true; }}
             onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
-            onBlur={() => { typing.current = false; const v = normalizeHex(text); if (v) choose(v); setText(((v || value) || "").replace("#", "")); }}
+            onBlur={() => { typing.current = false; const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
             onKeyDown={(e) => { if (e.key === "Enter") { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } } }} />
         </div>
       ) : null}

@@ -9,3 +9,4 @@
 
 - New: `form` submits the color with a form the picker sits outside of, and that form's reset puts the first color back (U3).
 - Fixed: swatches under minContrast are struck through using size tokens only.
+- Fixed: a controlled ColorPicker whose parent turned down a typed color kept the rejected text in its hex field. On blur the field shows the color it kept (AF2).

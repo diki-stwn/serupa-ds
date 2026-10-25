@@ -100,6 +100,17 @@ describe('ColorPicker', () => {
     expect(new FormData(el('rf') as HTMLFormElement).get('color')).toBe('#1d4ed8');
   });
 
+  test('controlled, a parent that turns down a typed color: on blur the hex field shows the color it kept, not the rejected text (AF2)', async () => {
+    const seen: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} />);
+    await userEvent.clear(hex());
+    await userEvent.type(hex(), '00ff00');
+    await userEvent.tab();
+    expect(seen).toContain('#00ff00');
+    await expect.poll(() => hex().value).toBe('1d4ed8');
+    expect(swatch('Blue').getAttribute('aria-checked')).toBe('true');
+  });
+
   test('form: outside its form, the color still submits with it and its reset puts the first color back', async () => {
     await render(<><form id="ff" /><ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" name="color" form="ff" /></>);
     const f = el('ff') as HTMLFormElement;
