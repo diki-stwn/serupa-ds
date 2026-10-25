@@ -34,6 +34,7 @@ const { Fab } = window.Serupa;
 
 - It's a real `<button>` named by `label`. Put it where it comes in the reading order (often after the main content), since it's fixed but still focused in source order.
 - `shadow-lg` at rest and `shadow-xl` on hover lift it off the page; the colors and focus ring are Button's primary (checked in Button's tests and `Fab.test.tsx`).
+- While it's fixed to a corner, the page gets that much scroll padding at that edge (the FAB's size and twice its offset, 104px by default), so what the keyboard focuses scrolls into view clear of it, not under it (WCAG 2.4.11). With a sticky Navbar at the top, the larger padding wins.
 - It isn't printed: fixed to the viewport, it would repeat on every page.
 
 ## Props
