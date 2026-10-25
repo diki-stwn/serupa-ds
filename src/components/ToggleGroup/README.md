@@ -41,7 +41,7 @@ import { ToggleGroup, ToggleButton } from "serupa-ds";
 
 - **Role and name:** a `role="group"`. Name it with `aria-label` ("Text alignment"). Each button keeps `aria-pressed`, so screen readers say "Align left, toggle button, pressed".
 - **Keyboard:** nothing of its own. Each button is a Tab stop, and Enter or Space presses it, as in a ButtonGroup. Inside a Toolbar, the arrow keys move between the buttons.
-- **Contrast:** each button keeps ToggleButton's colors, which read 4.5:1 on and off in all six themes (`ToggleButton.test.tsx`). The group adds none.
+- **Contrast:** each button keeps ToggleButton's colors, which read 4.5:1 on and off in all six themes (see [ToggleButton](../ToggleButton/README.md)). The group adds none.
 - **What's still yours:** a name for the group and one for each icon-only button.
 
 ## Props
