@@ -66,7 +66,9 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 `src/internal/tabWalk.test.tsx` walks every story with Tab and then Shift+Tab, from a button before it to a button after it (WCAG 2.1.2, no keyboard trap). Focus has to get through and out both ways, and must never land inside `aria-hidden` or `inert` content. When focus goes round in circles, as in an open modal, the test presses Escape, the way out a modal offers, and that has to let focus go.
 
-These four story-wide tests (hydration, server HTML, accessibility tree, keyboard walk) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
+`src/internal/leaks.test.tsx` mounts and unmounts every story three times. What's left behind afterwards must not grow from the first time to the third: listeners on `window`, `document`, `<html>` or `<body>`, intervals, ResizeObserver, MutationObserver and IntersectionObserver instances that were never disconnected, and elements left in `<body>` or `<head>`. Something made once and shared, such as the live regions, is fine. It watches from inside the test's own frame, since a heap count would take in the other test files' frames that share the page.
+
+These five story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
 ### Suite scripts
 
