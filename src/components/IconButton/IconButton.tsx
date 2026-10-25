@@ -19,11 +19,15 @@ interface IconButtonOwnProps {
 
 export type IconButtonProps = Without<ButtonAsButtonProps> & IconButtonOwnProps | Without<ButtonAsLinkProps> & IconButtonOwnProps;
 
+// Named, so the type declarations print it as written: a bare union's members come out in whichever order the
+// compiler met them, and index.d.ts then differs from one build to the next (tools/test/reproducible.mjs).
+type IconButtonElement = HTMLButtonElement | HTMLAnchorElement;
+
 /* IconButton: a Button that shows only an icon, with a required label (its accessible name and a title tooltip).
    Variant defaults to "ghost"; shape "square" (default) or "round". Every other Button prop (size, destructive,
    loading, href, onClick, ref…) works the same. */
 /** A Button that shows only an icon, with a required label for screen readers. Default variant: ghost. */
-export const IconButton = /* @__PURE__ */ component<HTMLButtonElement | HTMLAnchorElement, IconButtonProps>("IconButton", function IconButton(props, ref) {
+export const IconButton = /* @__PURE__ */ component<IconButtonElement, IconButtonProps>("IconButton", function IconButton(props, ref) {
   const { icon, label, shape, noTitle, className, ...rest } = props;
   const round = shape === "round";
   const title = !noTitle && rest.title == null ? label : rest.title;
