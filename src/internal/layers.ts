@@ -39,3 +39,11 @@ export function modalClosed(el: HTMLElement): void {
   modals.splice(at, 1);
   listeners.forEach((l) => l());
 }
+
+// A press that closed an open popup (a Menu, a Popover) is used up by that: a modal under it doesn't also take it as
+// a backdrop click and close. useAnchoredLayer marks the event; Dialog and Drawer check it.
+const dismissals = new WeakSet<Event>();
+/** Marks a press as one that closed a popup. */
+export function markDismissal(e: Event): void { dismissals.add(e); }
+/** Whether this press closed a popup. */
+export const wasDismissal = (e: Event): boolean => dismissals.has(e);

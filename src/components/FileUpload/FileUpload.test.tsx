@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { FileUpload, formatFileSize } from './FileUpload';
 import { idLabels } from '../../internal/labels';
@@ -118,6 +118,20 @@ describe('FileUpload', () => {
     zone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
     await expect.poll(() => zone.className).not.toMatch(/zone--over/);
     expect(names(q(many))).toBe('drop.gif');
+  });
+
+  test('forced colors: the drag-over area keeps a Highlight border, unlike the resting one', async () => {
+    await render(<Many />);
+    const zone = q(`${many} .dk-file-upload__zone`), dt = new DataTransfer();
+    dt.items.add(new File(['x'], 'a.txt', { type: 'text/plain' }));   // only a drag of files highlights the area
+    const r = await forcedColors(async (active) => {
+      if (!active) return null;
+      const rest = css(zone).borderTopColor;
+      zone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
+      await expect.poll(() => zone.className).toMatch(/zone--over/);
+      return [css(zone).borderTopColor !== rest, css(zone).borderTopStyle];
+    });
+    if (r) expect(r).toEqual([true, 'solid']);
   });
 
   test('single file (no multiple): "Drag a file here", "Choose a file"; a new file replaces the old one; onFilesChange gets the list; controlled: clearing it from outside empties it', async () => {
