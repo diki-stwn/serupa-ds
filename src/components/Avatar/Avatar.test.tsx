@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
-import { Avatar, type AvatarSize, type AvatarStatus } from './Avatar';
+import { Avatar, initials, type AvatarSize, type AvatarStatus } from './Avatar';
 import { idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
 
@@ -51,6 +51,11 @@ describe('Avatar', () => {
     const m = (id: string) => { const e = el(id), s = e.querySelector('.dk-avatar__initials'); return [s && s.textContent, s && s.getAttribute('aria-hidden'), !!e.querySelector('img')].join(':'); };
     await expect.poll(() => m('broken')).toBe('AT:true:false');
     expect([m('ini'), m('one')]).toEqual(['GH:true:false', 'L:true:false']);
+  });
+
+  test('initials: one character a person sees per word, from its first letter, digit or pictograph (CD1)', () => {
+    expect(['ßen Müller', '"Ada" Lovelace', '(Grace) Hopper', '— Ada —', '👩🏽‍💻 Dev', 'émile zola', 'e\u0301mile zola', 'ǆemal bijedić', '42 Club', '...'].map((n) => initials(n)))
+      .toEqual(['SM', 'AL', 'GH', 'A', '👩🏽‍💻D', 'ÉZ', 'E\u0301Z', 'ǄB', '4C', '']);
   });
 
   test('no picture and no name: the person icon, hidden from screen readers; alt="" hides it (the name is written beside it); alt replaces the name', async () => {
