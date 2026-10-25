@@ -14,6 +14,7 @@ import { Combobox } from '../components/Combobox/Combobox';
 import { CopyButton } from '../components/CopyButton/CopyButton';
 import { Dialog } from '../components/Dialog/Dialog';
 import { Field } from '../components/Field/Field';
+import { InlineEdit } from '../components/InlineEdit/InlineEdit';
 import { Input } from '../components/Input/Input';
 import { Loader } from '../components/Loader/Loader';
 import { Progress } from '../components/Progress/Progress';
@@ -58,6 +59,9 @@ const SITES: Record<string, Site> = {
   'Field: a new error message': {
     ui: (s) => <Field label="Email" error={s ? 'Enter an email address with an @' : 'Enter an email address'}><Input /></Field>,
     act: (next) => next(), says: /Enter an email address with an @/ },
+  'InlineEdit: a failed save': {
+    ui: () => <InlineEdit label="Slug" defaultValue="apollo" validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} />,
+    act: async () => { await userEvent.click($('[data-component="inline-edit"] button')); await userEvent.fill($('[data-component="inline-edit"] input'), 'apollo plan'); await userEvent.keyboard('{Enter}'); }, says: /Use dashes instead of spaces/ },
   'SortableList: picking an item up with Space': {
     ui: () => <SortableList items={ITEMS} getKey={(t) => t.id} getLabel={(t) => t.name} renderItem={(t) => t.name} onReorder={() => {}} />,
     act: async () => { $('button[aria-label$=" Gemini"]').focus(); await userEvent.keyboard(' '); }, says: /Gemini.*2.*3/ },
