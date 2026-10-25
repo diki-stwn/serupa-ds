@@ -267,10 +267,10 @@ describe('Carousel', () => {
 
   test('perView={3}: three slides share the width, 16px apart, all three reachable; next moves one slide and stops when the last is in view; the dots count pages, named "1–3 of 7"', async () => {
     await render(<div style={{ width: '432px' }}><Carousel id="pv" label="Products" perView={3}>{slides(7, 'p')}</Carousel></div>);
-    const sl = [...el('pv').querySelectorAll('.dk-carousel__slide')].map((s) => s.getBoundingClientRect());
+    const sl = [...el('pv').querySelectorAll('[aria-roledescription="slide"]')].map((s) => s.getBoundingClientRect());
     expect([Math.round(sl[0].width), Math.round(sl[1].left - sl[0].right)]).toEqual([133, 16]);
     expect(state('pv')).toMatchObject({ index: 0, inert: '0001111', hidden: '0001111', dots: 'C0 --1 --1', prev: true, next: false });
-    expect([...el('pv').querySelectorAll('.dk-carousel__dot')].map((d) => d.getAttribute('aria-label'))).toEqual(['1–3 of 7', '4–6 of 7', '5–7 of 7']);
+    expect([0, 1, 2].map((n) => dot('pv', n).getAttribute('aria-label'))).toEqual(['1–3 of 7', '4–6 of 7', '5–7 of 7']);
     await userEvent.click(arrow('pv', 'next'));
     expect(state('pv')).toMatchObject({ index: 1, shown: 1, inert: '1000111', dots: 'C0 --1 --1' });
     await userEvent.click(dot('pv', 2));
@@ -291,7 +291,7 @@ describe('Carousel', () => {
       await page.viewport(900, 700);
       await expect.poll(() => state('rv').dots.split(' ').length).toBe(2);
       expect(state('rv').inert).toBe('0011');
-      expect([el('few').querySelectorAll('.dk-carousel__arrow, .dk-carousel__dot').length, state('few').inert]).toEqual([0, '00']);
+      expect([el('few').querySelectorAll('button').length, state('few').inert]).toEqual([0, '00']);
     } finally { await page.viewport(w, h); }
   });
 
