@@ -1,3 +1,3 @@
 // The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.
-export { ContextMenu, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from "./Menu";
-export type { ContextMenuProps, MenuGroupProps, MenuItemProps, MenuProps, MenuSubProps } from "./Menu";
+export { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from "./Menu";
+export type { ContextMenuProps, MenuCheckboxItemProps, MenuGroupProps, MenuItemProps, MenuProps, MenuRadioGroupProps, MenuRadioItemProps, MenuSubProps } from "./Menu";

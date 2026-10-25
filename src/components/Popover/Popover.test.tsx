@@ -34,6 +34,27 @@ describe('Popover', () => {
     expect([asks.join(), el('tdef').getAttribute('aria-expanded')]).toEqual(['false', 'false']);
   });
 
+  test('onOpenChange says why: trigger, close(), escape, outside, blur', async () => {
+    const why: string[] = [];
+    await render(<div><Button id="away">Away</Button><Popover title="Why" onOpenChange={(v, d) => why.push((v ? 'open ' : 'shut ') + d.reason)} trigger={<Button id="twhy">Why</Button>}>
+      {(close) => <Button id="wdone" onClick={close}>Done</Button>}
+    </Popover></div>);
+    const reopen = async () => { await userEvent.click(el('twhy')); await expect.poll(() => isOpen('twhy')).toBe(true); };
+    await reopen();
+    await userEvent.click(el('wdone'));
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    await reopen();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    await reopen();
+    await userEvent.click(document.body, { position: { x: 5, y: 400 } });
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    await reopen();
+    el('away').focus();
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    expect(why).toEqual(['open trigger', 'shut close', 'open trigger', 'shut escape', 'open trigger', 'shut outside', 'open trigger', 'shut blur']);
+  });
+
   test('closed: the trigger has aria-haspopup="dialog" and aria-expanded="false"; the panel is hidden and empty', async () => {
     await render(<Share />);
     const b = el('tshare'), p = panel('tshare');

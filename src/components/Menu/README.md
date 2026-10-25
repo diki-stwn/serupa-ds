@@ -56,12 +56,14 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
 - Use a `MenuSub` for a set of related choices that would make the menu long ("Share", "Move to"). Keep it to one level where you can: each level is one more step for keyboard and screen reader users, and harder to reach with a pointer. Never put the only way to do something two levels down.
 - Give a `ContextMenu` target `tabIndex={0}` (or use a focusable element), so keyboard users can reach it and press Shift+F10, and say in its hint or a Tooltip that it has one. Leave the browser's own menu where people expect it, such as on text they edit or links: `disabled` does that.
+- For settings, use `MenuCheckboxItem` (on or off, such as "Show grid") or a `MenuRadioGroup` of `MenuRadioItem`s (one of a set, such as a sort order). Put them in their own `MenuGroup` or `MenuRadioGroup`, so the checks line up. The menu's items unmount while it's closed, so you hold the state: `checked` with `onCheckedChange`, and `value` with `onValueChange`.
 - `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work. Write it the way the platform does ("⌘K" on a Mac, "Ctrl+K" elsewhere).
 
 ## Accessibility
 
 - A `MenuSub` is a `menuitem` with `aria-haspopup="menu"` and `aria-expanded`; its submenu is a `menu` named by the item's label, next to the item at its end edge (on the right, or the left in rtl, flipping when there's no room).
 - `role="menu"` with `menuitem`s, `group`s and `separator`s; only the highlighted item takes focus.
+- A `MenuCheckboxItem` is a `menuitemcheckbox` and a `MenuRadioItem` a `menuitemradio`, with `aria-checked`. The check before the label is hidden from assistive tech, which reads `aria-checked` instead.
 - A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Hyphens separate too ("Cmd-K" is `Meta+K`), a last `+` is the key ("Ctrl++" is `Control+Plus`), and "G then I" is two presses in a row (`G I`). Pass `aria-keyshortcuts` to set it yourself.
 - Labels, shortcuts and group headings keep 4.5:1 (also on the highlighted item) and icons 3:1, in all six themes (`Menu.test.tsx`).
 
@@ -123,6 +125,26 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `href` | string | | Makes it a link (the `configure({ link })` component) |
 | `as` | component | | Makes it a link with this component instead, such as a router's Link (pass its props, like `to`, on the item) |
 | `target`, `rel` | string | | For a link item. `target="_blank"` without `rel` gets `rel="noopener noreferrer"` |
+
+### MenuCheckboxItem
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `checked` | boolean | required | Whether it's on |
+| `onCheckedChange` | `(checked) => void` | | Called with the other state when it's chosen. The menu then closes, unless `onSelect` calls `event.preventDefault()` |
+
+It also takes MenuItem's `onSelect`, `icon`, `shortcut` and `disabled`.
+
+### MenuRadioGroup and MenuRadioItem
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `value` (group) | string | required | The chosen item's value |
+| `onValueChange` (group) | `(value) => void` | | Called with an item's value when it's chosen |
+| `label` (group) | node | | A small heading that names the group, as on `MenuGroup` |
+| `value` (item) | string | required | The value the group chooses with this item |
+
+A `MenuRadioItem` also takes MenuItem's `onSelect`, `icon`, `shortcut` and `disabled`.
 
 ### MenuSub
 

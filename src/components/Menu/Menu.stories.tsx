@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ContextMenu, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
+import { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 
@@ -121,6 +121,26 @@ export const Groups: Story = {
       <MenuSeparator />
       <MenuItem icon="logout">Sign out</MenuItem>
     </>,
+  },
+  decorators: [frame({ minHeight: 400 })],
+};
+/** Settings: MenuCheckboxItem for on or off, MenuRadioGroup for one of a set. You hold the state. */
+export const Checkable: Story = {
+  name: 'Checkable items',
+  render: function Render() {
+    const [grid, setGrid] = React.useState(true), [rulers, setRulers] = React.useState(false), [sort, setSort] = React.useState('name');
+    return <Menu defaultOpen trigger={<Button variant="secondary" rightIcon="expand_more">View</Button>}>
+      <MenuGroup label="Show">
+        <MenuCheckboxItem checked={grid} onCheckedChange={setGrid} shortcut="⌘'">Grid</MenuCheckboxItem>
+        <MenuCheckboxItem checked={rulers} onCheckedChange={setRulers} shortcut="⌘R">Rulers</MenuCheckboxItem>
+      </MenuGroup>
+      <MenuSeparator />
+      <MenuRadioGroup label="Sort by" value={sort} onValueChange={setSort}>
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="date">Date modified</MenuRadioItem>
+        <MenuRadioItem value="size">Size</MenuRadioItem>
+      </MenuRadioGroup>
+    </Menu>;
   },
   decorators: [frame({ minHeight: 400 })],
 };
