@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
   SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, useCollator, useLocale, useSerupa, version,
-  type ButtonProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
+  type ButtonProps, type CarouselPerView, type DateRange, type SliderMark, type TreeViewItem, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
 import { type IconData } from 'serupa-ds/icons';
 
@@ -93,6 +93,10 @@ export const generics = [
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.title} renderItem={(t) => t.name} onReorder={() => {}} />,
 ];
 is<Equal<SliderValue, number | [number, number]>>();
+// The types of props a project builds in its own code.
+export const tree: TreeViewItem[] = [{ id: 'src', label: 'src', children: [{ id: 'a', label: 'a.ts' }] }];
+export const marks: SliderMark[] = [{ value: 0, label: 'Low' }];
+export const perView: CarouselPerView = { base: 1, md: 3 };
 
 // Layout props take the spacing scale and the listed elements only.
 export const layout = [
