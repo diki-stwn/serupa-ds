@@ -9,6 +9,8 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const panel = (tid: string) => el(tid).nextElementSibling as HTMLElement;
+// The title is the element that names the dialog (aria-labelledby).
+const titleIn = (p: Element) => document.getElementById(p.getAttribute('aria-labelledby')!) as HTMLElement;
 const isOpen = (tid: string) => { const p = panel(tid); return !!p && p.matches(':popover-open') && !p.hidden; };
 const active = () => document.activeElement && document.activeElement.id;
 const rect = (e: Element) => e.getBoundingClientRect();
@@ -66,7 +68,7 @@ describe('Popover', () => {
     await render(<Share />);
     await userEvent.click(el('tshare'));
     await settle(100);
-    const b = el('tshare'), p = panel('tshare'), title = p.querySelector('.dk-popover__title') as HTMLElement, s = getComputedStyle(p);
+    const b = el('tshare'), p = panel('tshare'), title = titleIn(p), s = getComputedStyle(p);
     expect(isOpen('tshare')).toBe(true);
     expect(b.getAttribute('aria-expanded')).toBe('true');
     expect(b.getAttribute('aria-controls')).toBe(p.id);
@@ -122,7 +124,7 @@ describe('Popover', () => {
       <Popover title="Filters" headingLevel={4} trigger={<Button id="th4">B</Button>}><p>Two</p></Popover>
       <Popover title="Odd" headingLevel={9 as 2} trigger={<Button id="th9">C</Button>}><p>Three</p></Popover>
     </div>);
-    const heading = (tid: string) => panel(tid).querySelector('.dk-popover__title') as HTMLElement;
+    const heading = (tid: string) => titleIn(panel(tid));
     const tags: string[] = [];
     for (const tid of ['th2', 'th4', 'th9']) {
       await userEvent.click(el(tid)); await settle(50);
@@ -187,7 +189,7 @@ describe('Popover', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const p = panel('tc'), bg = getComputedStyle(p).backgroundColor;
-      for (const [name, e] of [['text', p], ['title', p.querySelector('.dk-popover__title')!]] as const) {
+      for (const [name, e] of [['text', p], ['title', titleIn(p)]] as const) {
         const r = contrast(getComputedStyle(e).color, bg);
         if (r < 4.5) low.push(`${th} ${name} ${r.toFixed(2)}`);
       }
