@@ -31,3 +31,5 @@ export const Total: Story = {
 export const WithStatus: Story = {
   render: (args) => <AvatarGroup {...args}>{PEOPLE.slice(0, 3).map((n, i) => <Avatar key={n} name={n} status={(['online', 'away', 'busy'] as const)[i]} />)}</AvatarGroup>,
 };
+/** showMore: "+N" is a button that lists the people not shown, for keyboard and touch users too. */
+export const ShowMore: Story = { args: { max: 3, showMore: true } };

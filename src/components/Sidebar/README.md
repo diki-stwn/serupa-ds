@@ -43,6 +43,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 - Group related items under a `SidebarSection` with a short `title`; keep nesting to one level of SidebarItems.
 - Mark the current page with `active`; a group holding it, at any depth, starts open.
 - Put settings and the signed-in user in `footer`, so they stay at the bottom.
+- Collapsing and expanding slide over 200ms without laying out the page on every frame. The column's width changes once: at the start when expanding, and at the end when collapsing. In between, only the sidebar's visible edge moves, so a heavy page beside it doesn't stutter. Toggling again mid-way turns back from where it is. With reduced motion it switches at once.
 
 ## Accessibility
 

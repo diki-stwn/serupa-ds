@@ -71,6 +71,16 @@
             "cssVar": "--tree-view-focus-ring"
           }
         }
+      },
+      "item-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A row's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-bg-pressed"
+          }
+        }
       }
     },
     "radius": {

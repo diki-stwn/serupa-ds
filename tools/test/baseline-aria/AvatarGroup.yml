@@ -15,6 +15,13 @@
   - img "Katherine Johnson"
   - img "2 more"
 
+# ShowMore
+- group "Assigned to":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - button "3 more"
+
 # Sizes
 - group "Assigned to, xs":
   - img "Ada Lovelace"

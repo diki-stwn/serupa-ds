@@ -34,7 +34,8 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 - Keep `max` small (3 to 5). Past that, the row reads as texture rather than people.
 - When you only have some of the people loaded, pass `total` so "+N" counts everyone not shown.
 - Use one `size` for the group; mixed sizes in one row look like a mistake.
-- Put the names on hover by wrapping each Avatar in a [Tooltip](../Tooltip/README.md), and show the full list behind "+N" with a Tooltip or [Popover](../Popover/README.md) around the group.
+- Put the names on hover by wrapping each Avatar in a [Tooltip](../Tooltip/README.md).
+- To let people see who's behind "+N", pass `showMore`: "+N" becomes a button that opens a [Popover](../Popover/README.md) listing them by name. To show them your own way (a Dialog, a members page), pass `onMore` instead.
 - On a background other than `surface`, set `--avatar-group-ring` to that color so the rings blend in.
 
 ## Behavior
@@ -43,12 +44,12 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 - Each avatar has a 2px ring in `surface`. On another background, set `--avatar-group-ring` to that color.
 - Past 99, "+N" reads "99+" (past 9 at `xs`, "9+") so it fits; its name keeps the exact count ("116 more").
 - Wrap an avatar in a Tooltip to show the name on hover; it still lines up with the others.
-- To show who's in "+N", wrap the group in a Tooltip or Popover with the full list.
+- With `showMore`, "+N" opens a popover listing each hidden avatar with its name, then "N more" for the ones you didn't pass (`total`). With `onMore`, it calls your handler. Without either, "+N" is a picture, not a control.
 
 ## Accessibility
 
 - **Role and name:** `role="group"`, named by `label`. Each avatar keeps its own name (and status), so a screen reader reads every person shown, then "N more".
-- **Keyboard:** nothing of its own. Avatars inside links or Tooltips are reached by Tab as usual.
+- **Keyboard:** with `showMore` or `onMore`, "+N" is a button that Tab reaches and Enter or Space opens, named like the picture ("2 more"). Otherwise nothing of its own; avatars inside links or Tooltips are reached by Tab as usual.
 - **Contrast:** the "+N" text keeps 4.5:1 on its background in all six themes (`AvatarGroup.test.tsx`).
 - **What's still yours:** a `label` for the group, and a `name` on every Avatar.
 
@@ -62,6 +63,8 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 | `total` | `number` | the number of children | How many there are in all, when you pass only some. "+N" counts the ones not shown. |
 | `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | Every avatar's size, wrapped ones included. It wins over each avatar's own `size`. |
 | `label` | `string` | | The group's accessible name, such as "Assigned to". |
+| `showMore` | `boolean` | `false` | Makes "+N" a button that opens a popover listing the people not shown. |
+| `onMore` | `(event) => void` | | Makes "+N" a button that calls this, to show the rest your own way. Wins over `showMore`. |
 | `moreLabel` | `(count) => string` | `"N more"` | What a screen reader hears for "+N". By default the `avatarMore` label ("N lainnya" in `idLabels`). |
 
 `ref`, `className` and other props go to the outer `<div>`.
@@ -75,6 +78,8 @@ Each is an optional override: set it on the page, a container or one group. The 
 | `--avatar-group-ring` | `surface` | The ring around each avatar, which keeps the overlapping edges clear. Set it to the background the group sits on. |
 | `--avatar-group-more-bg` | `secondary` | The "+N" avatar's background. |
 | `--avatar-group-more-color` | `text` | The "+N" text (4.5:1 on more-bg). |
+| `--avatar-group-more-hover-bg` | `secondary-hover` | The "+N" button's background on hover, with `showMore` or `onMore`. |
+| `--avatar-group-focus-ring` | `focus-ring` | The focus ring round the "+N" button. |
 | `--avatar-group-ring-width` | `border-width-2` | The ring's width (2px). |
 | `--avatar-group-overlap-sm` | `spacing-2` | How far each avatar overlaps the one before at size xs and sm (8px). |
 | `--avatar-group-overlap-md` | `spacing-3` | The overlap at size md, the default, and lg (12px). |

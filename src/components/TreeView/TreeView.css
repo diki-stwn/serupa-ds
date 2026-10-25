@@ -27,6 +27,8 @@
   cursor: pointer; touch-action: manipulation; user-select: none;
 }
 @media (hover: hover) { .dk-tree-view__row:hover { background: var(--tree-view-item-bg-hover, var(--secondary)); } }
+/* Pressed: one step past hover while held, at once. Not on the picked row or a disabled one. */
+.dk-tree-view__item:not(.dk-tree-view__item--selected, .dk-tree-view__item--disabled) > .dk-tree-view__row:active { background: var(--tree-view-item-bg-pressed, var(--pressed)); }
 .dk-tree-view__item--selected > .dk-tree-view__row {
   background: var(--tree-view-item-bg-selected, var(--highlight));
   box-shadow: inset var(--dk-bar) 0 0 var(--tree-view-item-indicator, var(--primary));
