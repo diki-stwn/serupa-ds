@@ -59,11 +59,12 @@ jobs:
             gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch "$HEAD_REF" --event pull_request --status "$status" --json databaseId --jq '.[].databaseId' \
               | xargs -r -n1 gh run cancel --repo "$GITHUB_REPOSITORY" || true
           done
-          # A push made with the workflow's token starts no workflows, so start CI on the branch: its checks
+          # A push made with the workflow's token starts no workflows, so start CI and the changeset check on the branch: their checks
           # land on the new head commit, which the pull request's required checks look at. "since" makes it test only
           # what the pull request changes, as the pull request's own run does.
           # The branch name is the PR author's text: it reaches the shell as a variable, never pasted into the script.
           gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF" -f since="$BASE"
+          gh workflow run changeset.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF"
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
