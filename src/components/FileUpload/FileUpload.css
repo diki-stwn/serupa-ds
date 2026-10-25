@@ -11,7 +11,7 @@
   position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--file-upload-gap, var(--spacing-2)); text-align: center;
   padding: var(--file-upload-zone-padding, var(--spacing-6));
   border: var(--border-width-1) dashed var(--file-upload-zone-border, var(--field-border)); border-radius: var(--file-upload-zone-radius, var(--rounded-lg));
-  background: var(--file-upload-zone-bg, var(--surface-muted)); cursor: pointer;
+  background: var(--file-upload-zone-bg, var(--surface-muted)); cursor: pointer; touch-action: manipulation;
   transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
 }
 .dk-file-upload__zone--over { border-style: solid; border-color: var(--file-upload-zone-border-active, var(--primary)); background: var(--file-upload-zone-bg-active, var(--primary-subtle)); }

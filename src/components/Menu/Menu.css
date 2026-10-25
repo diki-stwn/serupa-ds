@@ -16,7 +16,7 @@
   max-height: calc(var(--sizing-dvh) - var(--spacing-4));
   margin: var(--spacing-0);
   padding: var(--menu-padding, var(--spacing-1));
-  overflow-y: auto;
+  overflow-y: auto; overscroll-behavior: contain;
   border: var(--menu-border-width, var(--border-width-1)) solid var(--menu-border, var(--border-overlay));
   border-radius: var(--menu-radius, var(--rounded-lg));
   background: var(--menu-bg, var(--surface-overlay));
@@ -40,7 +40,7 @@
   border-radius: var(--menu-item-radius, var(--rounded-md));
   color: var(--menu-item-text, var(--text));
   text-decoration: none;
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
   user-select: none;
 }
 .dk-menu__item:focus { outline: none; background: var(--menu-item-bg-active, var(--highlight)); }
