@@ -1,0 +1,291 @@
+{
+  "timeline": {
+    "$description": "Timeline's component tokens. Each one is an optional override: set the CSS variable (--timeline-<name>) on the page, a container or one Timeline, and every Timeline inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The content's text (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-text"
+          }
+        }
+      },
+      "title-color": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "An event's title (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-title-color"
+          }
+        }
+      },
+      "time-color": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "An event's time (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-time-color"
+          }
+        }
+      },
+      "line": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line joining the markers.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-line"
+          }
+        }
+      },
+      "dot-neutral": {
+        "$type": "color",
+        "$value": "{color.border-strong}",
+        "$description": "The dot of a neutral event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-neutral"
+          }
+        }
+      },
+      "icon-neutral": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The icon of a neutral event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-neutral"
+          }
+        }
+      },
+      "icon-bg-neutral": {
+        "$type": "color",
+        "$value": "{color.surface-muted}",
+        "$description": "The circle behind a neutral event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-neutral"
+          }
+        }
+      },
+      "dot-primary": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The dot of a primary event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-primary"
+          }
+        }
+      },
+      "icon-primary": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The icon of a primary event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-primary"
+          }
+        }
+      },
+      "icon-bg-primary": {
+        "$type": "color",
+        "$value": "{color.primary-subtle}",
+        "$description": "The circle behind a primary event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-primary"
+          }
+        }
+      },
+      "dot-success": {
+        "$type": "color",
+        "$value": "{color.success}",
+        "$description": "The dot of a success event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-success"
+          }
+        }
+      },
+      "icon-success": {
+        "$type": "color",
+        "$value": "{color.success-text}",
+        "$description": "The icon of a success event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-success"
+          }
+        }
+      },
+      "icon-bg-success": {
+        "$type": "color",
+        "$value": "{color.success-subtle}",
+        "$description": "The circle behind a success event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-success"
+          }
+        }
+      },
+      "dot-warning": {
+        "$type": "color",
+        "$value": "{color.warning}",
+        "$description": "The dot of a warning event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-warning"
+          }
+        }
+      },
+      "icon-warning": {
+        "$type": "color",
+        "$value": "{color.warning-text}",
+        "$description": "The icon of a warning event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-warning"
+          }
+        }
+      },
+      "icon-bg-warning": {
+        "$type": "color",
+        "$value": "{color.warning-subtle}",
+        "$description": "The circle behind a warning event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-warning"
+          }
+        }
+      },
+      "dot-danger": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "The dot of a danger event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-danger"
+          }
+        }
+      },
+      "icon-danger": {
+        "$type": "color",
+        "$value": "{color.danger-text}",
+        "$description": "The icon of a danger event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-danger"
+          }
+        }
+      },
+      "icon-bg-danger": {
+        "$type": "color",
+        "$value": "{color.danger-subtle}",
+        "$description": "The circle behind a danger event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-danger"
+          }
+        }
+      },
+      "dot-info": {
+        "$type": "color",
+        "$value": "{color.info}",
+        "$description": "The dot of a info event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-info"
+          }
+        }
+      },
+      "icon-info": {
+        "$type": "color",
+        "$value": "{color.info-text}",
+        "$description": "The icon of a info event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-info"
+          }
+        }
+      },
+      "icon-bg-info": {
+        "$type": "color",
+        "$value": "{color.info-subtle}",
+        "$description": "The circle behind a info event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-info"
+          }
+        }
+      }
+    },
+    "border": {
+      "line-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-2}",
+        "$description": "The line's width (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-line-width"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "marker-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "The marker's box, and the title's line height (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-marker-size"
+          }
+        }
+      },
+      "dot-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2_5}",
+        "$description": "The dot, when there's no icon (10px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-size"
+          }
+        }
+      },
+      "icon-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "An icon in the marker (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-size"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Between the marker and the body (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-gap"
+          }
+        }
+      },
+      "item-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "Between one event and the next (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-item-gap"
+          }
+        }
+      }
+    }
+  }
+}
