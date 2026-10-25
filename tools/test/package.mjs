@@ -79,7 +79,14 @@ if (D) {
     t(`${name} renders on the server`, !e && /class="dk-/.test(html), e ? e.message : html.slice(0, 160));
   }
   [console.error, console.warn] = keep;
-  t('no React warnings while rendering on the server', !warnings.length, warnings.slice(0, 3).join(' | '));
+  // Several cases write numbers or dates without a locale: Serupa says once that the HTML is en-US until hydration.
+  const serverLocale = warnings.filter((w) => w.startsWith('Serupa: rendered on the server without a locale'));
+  t('a component that writes dates or numbers on the server without a locale warns once, naming SerupaProvider locale (AG1)', serverLocale.length === 1 && serverLocale[0].includes('<SerupaProvider locale>'), `${serverLocale.length} warnings`);
+  // …and says nothing when the provider sets one (a fresh process, so the warning hasn't been given yet).
+  const withLocale = spawnSync(process.execPath, ['--input-type=module', '-e', `const w = []; console.warn = (m) => w.push(m); const React = (await import('react')).default; const { renderToString } = await import('react-dom/server'); const D = await import(${JSON.stringify(pathToFileURL(path.join(PROJECT, 'dist', 'index.js')).href)}); const h = React.createElement; renderToString(h(D.SerupaProvider, { locale: 'id-ID' }, h(D.DatePicker, { 'aria-label': 'Day' }), h(D.NumberInput, { 'aria-label': 'Qty', defaultValue: 1 }))); process.stdout.write(String(w.length));`], { encoding: 'utf8', cwd: PROJECT });
+  t('…and doesn\'t warn when SerupaProvider sets the locale', withLocale.stdout === '0', withLocale.stdout + withLocale.stderr.slice(0, 200));
+  const others = warnings.filter((w) => !serverLocale.includes(w));
+  t('no React warnings while rendering on the server', !others.length, others.slice(0, 3).join(' | '));
   // RelativeTime on a long-running server: each request says how long ago it is then, not when the process started.
   const realNow = Date.now, start = realNow(), stamp = start - 5 * 60e3;
   const ago = () => renderToString(h(D.RelativeTime, { date: stamp, locale: 'en-US' })).replace(/<[^>]*>/g, '');
