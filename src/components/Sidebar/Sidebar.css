@@ -31,7 +31,14 @@
 .dk-sidebar__item[aria-current="page"] { background: var(--sidebar-item-bg-active, var(--highlight)); }
 .dk-sidebar__item:focus-visible { outline: var(--focus-ring-width) solid var(--sidebar-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-sidebar__item--nested { padding-inline-start: var(--sidebar-nested-indent, var(--spacing-11)); }
-.dk-sidebar__icon { display: inline-flex; flex-shrink: 0; }
+.dk-sidebar__icon { position: relative; display: inline-flex; flex-shrink: 0; }
+/* collapsed: a dot on the icon's top end corner for an item with a badge, ringed in the sidebar's background */
+.dk-sidebar__dot {
+  position: absolute; inset-block-start: calc(var(--spacing-0) - var(--spacing-0\.5)); inset-inline-end: calc(var(--spacing-0) - var(--spacing-0\.5));
+  width: var(--spacing-2); height: var(--spacing-2); border-radius: var(--rounded-full);
+  background: var(--sidebar-dot, var(--primary)); box-shadow: 0 0 0 var(--border-width-2) var(--sidebar-bg, var(--surface));
+}
+@media (forced-colors: active) { .dk-sidebar__dot { background: CanvasText; } }
 .dk-sidebar__icon .dk-icon { font-size: var(--sidebar-icon-size, var(--spacing-5)); }
 .dk-sidebar__label { flex: auto; min-width: var(--spacing-0); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dk-sidebar__badge { display: inline-flex; flex-shrink: 0; }
@@ -39,7 +46,7 @@
 .dk-sidebar__li[data-state="open"] > .dk-sidebar__item .dk-sidebar__chevron { rotate: var(--dk-sidebar-turn); }
 /* collapsed: icons only, centered; labels stay for screen readers */
 .dk-sidebar--collapsed .dk-sidebar__item { justify-content: center; padding-inline: var(--spacing-0); }
-.dk-sidebar--collapsed .dk-sidebar__label, .dk-sidebar--collapsed .dk-sidebar__section-title {
+.dk-sidebar--collapsed .dk-sidebar__label, .dk-sidebar--collapsed .dk-sidebar__section-title, .dk-sidebar--collapsed .dk-sidebar__badge {
   position: absolute; width: var(--spacing-px); height: var(--spacing-px); margin: calc(var(--spacing-0) - var(--spacing-px)); padding: var(--spacing-0); overflow: hidden; clip-path: inset(var(--sizing-1-2)); white-space: nowrap;
 }
 /* The collapsed rail's menu: the current page is in medium weight and the active text color (the highlight is focus's). */

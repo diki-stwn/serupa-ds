@@ -52,6 +52,16 @@
           }
         }
       },
+      "dot": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "Collapsed: the dot on an item's icon when it has a badge (3:1 on bg and on the current page's highlight).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--sidebar-dot"
+          }
+        }
+      },
       "item-bg-hover": {
         "$type": "color",
         "$value": "{color.highlight}",

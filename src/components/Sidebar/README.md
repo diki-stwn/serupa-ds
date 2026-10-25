@@ -50,6 +50,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 - The current page has `aria-current="page"` and a shaded background. A group holding it is text-colored, so the trail stays visible when it's closed.
 - A group is a button with `aria-expanded` and `aria-controls`.
 - Collapsed, each label stays in the page for screen readers and shows as a tooltip on hover and focus, on a group's button too. Use a string `label` so the tooltip can show it.
+- Collapsed, an item's badge is hidden on screen like its label but still read with it ("Inbox 4"), and an 8px dot on the icon's corner shows there is one. The dot keeps 3:1 in all six themes, and is CanvasText in forced-colors mode.
 - In a collapsed rail, a group's menu keeps each item's link component (`as`, such as a router's Link, with its own props) and its link attributes, and marks the current page with `aria-current="page"` in medium weight.
 - Items, the current page, hovered items and section titles keep 4.5:1 in all six themes (`Sidebar.test.tsx`).
 
@@ -81,7 +82,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | `href` | string | none | Where it goes |
 | `icon` | an icon name or element | none | A 20px icon; top-level items need one to show when collapsed |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
-| `badge` | node | none | At the end, such as a count Badge. Hidden when collapsed |
+| `badge` | node | none | At the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read the badge |
 | `children` | SidebarItems | none | Makes it a group: a button that shows and hides them |
 | `defaultOpen` | boolean | open when a child is active | Whether a group starts open |
 | `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one item |
@@ -99,6 +100,7 @@ Each is an optional override: set it on the page, a container or one sidebar. Th
 | `--sidebar-item-text` | `text-muted` | An item (4.5:1 on bg). |
 | `--sidebar-item-text-hover` | `text` | An item on hover. |
 | `--sidebar-item-text-active` | `text` | The current page's item. |
+| `--sidebar-dot` | `primary` | Collapsed: the dot on an item's icon when it has a badge (3:1 on bg and on the current page's highlight). |
 | `--sidebar-item-bg-hover` | `highlight` | An item's background on hover. |
 | `--sidebar-item-bg-pressed` | `pressed` | An item's background while it's pressed, one step past hover. |
 | `--sidebar-item-bg-active` | `highlight` | The current page's item background. |

@@ -211,6 +211,14 @@ Button's behaviour follows web standards; its look comes only from this design s
 | Under reduced motion the spinner turns slower with a steady arc, and press, nudge and ripple are off | [WCAG 2.3.3 Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) |
 | Toggle buttons pass `aria-pressed`; menu buttons pass `aria-haspopup`, `aria-expanded` and `aria-controls` | [APG: Button pattern (toggle)](https://www.w3.org/WAI/ARIA/apg/patterns/button/), [APG: Menu Button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) |
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button (also when it's loading or has a `disabledReason`; a plain `disabled` button is skipped) |
+| Enter, Space | Press it; Enter shows the press as Space does. While loading, or disabled with a reason, nothing happens |
+| Enter in a form field | Submits the form through a `type="submit"` button, unless that button is loading |
+
 ## Props
 
 Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading`, `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it) and `successText` (shown with a check and announced after a promise from `onClick` resolves). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through. That includes the native popover and invoker attributes, typed here because React's types don't list them yet: `popoverTarget` with `popoverTargetAction` (`show`, `hide` or `toggle`) works a `[popover]` element by id, and `commandfor` with `command` (such as `show-modal` for a `<dialog>`) sends it an invoker command.

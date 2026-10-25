@@ -37,6 +37,13 @@ const { ToggleButton, ButtonGroup } = window.Serupa;
 - An icon-only toggle needs an `aria-label`.
 - Pressed text keeps 4.5:1 on its background, and the pressed border 3:1 on `surface`, in all six themes (`ToggleButton.test.tsx`). In Windows high-contrast mode it uses the system highlight colors.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button |
+| Enter, Space | Turn it on or off (`aria-pressed`) |
+
 ## Props
 
 | Prop | Type | Default | What it does |

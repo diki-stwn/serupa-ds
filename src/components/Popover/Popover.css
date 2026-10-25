@@ -19,6 +19,6 @@
 .dk-popover:focus { outline: none; }
 .dk-popover:focus-visible { outline: var(--focus-ring-width) solid var(--popover-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 @keyframes dk-popover-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
-.dk-popover__title { margin-bottom: var(--popover-gap, var(--spacing-2)); color: var(--popover-title-color, var(--text)); font-size: var(--popover-title-size, var(--text-sm)); font-weight: var(--popover-title-weight, var(--font-semibold)); }
+.dk-popover__title { margin: var(--spacing-0) var(--spacing-0) var(--popover-gap, var(--spacing-2)); color: var(--popover-title-color, var(--text)); font-size: var(--popover-title-size, var(--text-sm)); font-weight: var(--popover-title-weight, var(--font-semibold)); }
 @media (prefers-reduced-motion: reduce) { .dk-popover { animation: none; } }
 }

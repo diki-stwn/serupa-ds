@@ -61,6 +61,13 @@ const { Checkbox, Field } = window.Serupa;
 - For a set, use `Field group`: a `<fieldset>` and `<legend>`, so the question is read with each option.
 - The label and description keep 4.5:1, the border, checked fill, focus ring and invalid border 3:1, and the check 4.5:1 on its fill, in all six themes (`Checkbox.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the checkbox |
+| Space | Check or uncheck it (an indeterminate one becomes checked) |
+
 ## Props
 
 | Prop | Type | Default | What it does |
