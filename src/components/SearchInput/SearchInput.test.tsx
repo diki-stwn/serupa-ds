@@ -14,7 +14,7 @@ const reach = (b: HTMLElement) => {
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
-const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('.dk-search-input__clear');
+const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('button[aria-controls]');
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 

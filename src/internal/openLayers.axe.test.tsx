@@ -88,21 +88,21 @@ describe('open layers pass axe (WCAG 2.2 AA) in all six themes', () => {
 
   test('DatePicker, open with its calendar', async () => {
     await render(<Field label="Due"><DatePicker locale="en-US" defaultValue={new Date(2026, 2, 12)} min={new Date(2026, 2, 3)} /></Field>);
-    await userEvent.click(document.querySelector('.dk-date-picker__button')!);
+    await userEvent.click(document.querySelector('button[aria-haspopup="dialog"]')!);
     await shown('.dk-date-picker__popup');
     expect(await violations()).toEqual([]);
   }, 60_000);
 
   test('DateRangePicker, open with its calendars', async () => {
     await render(<Field label="Stay" group><DateRangePicker locale="en-US" defaultValue={{ start: new Date(2026, 2, 12), end: new Date(2026, 2, 15) }} /></Field>);
-    await userEvent.click(document.querySelector('.dk-date-range-picker__button')!);
+    await userEvent.click(document.querySelector('button[aria-haspopup="dialog"]')!);
     await shown('.dk-date-range-picker__popup');
     expect(await violations()).toEqual([]);
   }, 60_000);
 
   test('TimePicker, open with its list', async () => {
     await render(<Field label="Start"><TimePicker locale="en-US" defaultValue="09:30" /></Field>);
-    await userEvent.click(document.querySelector('.dk-time-picker__button')!);
+    await userEvent.click(document.querySelector('button[aria-expanded]')!);
     await shown('[role="listbox"]');
     expect(await violations()).toEqual([]);
   }, 60_000);
