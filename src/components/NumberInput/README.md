@@ -62,6 +62,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` | `number \| null` | | Controlled. `null` is an empty field. After a step, Enter or blur the field shows `value`, so a parent that keeps or changes the number it gets is what people see. |
 | `defaultValue` | `number \| null` | | Uncontrolled. |
 | `onValueChange` | `(value: number \| null) => void` | | As people type (numbers within range), on blur (clamped), and from the keys and buttons. |

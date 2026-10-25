@@ -67,6 +67,8 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 | `defaultOpen` | boolean | `false` | Shown at first, without controlling it |
 | `disabled` | boolean | `false` | Never shows |
 
+`id` isn't a prop of its own: an id given here goes to the trigger, unless the trigger has one, which stays. The tooltip's id is made for you.
+
 `className` and `style` go to the tooltip, which has `role="tooltip"`, `data-component="tooltip"`, `data-state` and `data-side`.
 
 ## Component tokens

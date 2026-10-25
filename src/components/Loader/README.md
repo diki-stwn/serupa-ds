@@ -185,6 +185,7 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `variant` | `'ring'` \| `'spokes'` \| `'dots'` \| `'pixel'` \| `'text'` \| `'skeleton'` | `'ring'` | The look |
 | `shape` | `'text'` \| `'circle'` \| `'rect'` | `'text'` | Skeleton only: lines of text, an avatar, or an image or card |
 | `lines` | number, 1 to 20 | `1` | Skeleton with `shape="text"` only: how many lines |

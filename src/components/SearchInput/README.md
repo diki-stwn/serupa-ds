@@ -54,6 +54,7 @@ Every Input prop works (`size`, `invalid`, `value`, `defaultValue`, `onChange`, 
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input type="search">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `onSearch` | `(value: string) => void` | | Called with the text when Enter is pressed. |
 | `onClear` | `() => void` | | Called after the × or Escape clears the field. `onChange` also gets an empty value first, so controlled fields follow. |
 | `clearLabel` | `string` | `'Clear search'` | The ×'s name. |

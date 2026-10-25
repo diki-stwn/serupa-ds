@@ -64,6 +64,7 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `value` | string | | The selected tab (controlled), with `onValueChange` |
 | `defaultValue` | string | the first enabled tab | The tab selected at first (uncontrolled) |
 | `onValueChange` | `(value) => void` | | Called when a tab is chosen |
