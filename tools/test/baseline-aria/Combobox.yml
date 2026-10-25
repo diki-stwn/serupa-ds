@@ -9,6 +9,15 @@
 - button "Show options"
 - text: Pick the country on your passport.
 
+# Multiple
+- text: Reviewers Pick everyone who should review this. Ada Lovelace
+- button "Remove Ada Lovelace"
+- text: Grace Hopper
+- button "Remove Grace Hopper"
+- combobox "Reviewers"
+- button "Clear Reviewers"
+- button "Show options"
+
 # Playground
 - combobox "Country"
 - button "Show options"
