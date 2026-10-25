@@ -8,6 +8,7 @@ import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../inte
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
@@ -33,14 +34,18 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   closeLabel?: string;
   /** Whether a click on the backdrop closes it. Default: true. */
   closeOnBackdrop?: boolean;
+  /** false: a side panel next to the page instead of over it. No backdrop, the page stays usable and scrolls, and
+      focus can leave it; Escape inside it and the × still close it. Default: true. */
+  modal?: boolean;
 }
 
-const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, className: 1, children: 1 } as const;
 
 /* Drawer: a modal panel that slides in from an edge of the screen, for navigation on small screens, filters,
    or details and edits without leaving the page. It's a native <dialog> (showModal) like Dialog: focus stays
    inside, the page behind is inert and doesn't scroll, Escape, the × and the backdrop ask to close
-   (onOpenChange(false)), and focus goes back where it was. */
+   (onOpenChange(false)), and focus goes back where it was. modal={false} shows it with show() instead: a side
+   panel with no backdrop, beside a page that stays usable. */
 /** A modal panel that slides in from an edge: navigation, filters, details. */
 export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>("Drawer", function Drawer(props, ref) {
   const nameRef = useNameCheck("Drawer", NAME_HOW.title);   // warns when it has no accessible name
@@ -52,7 +57,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const side = oneOf(["right", "left", "top", "bottom"] as const, props.side, "right");
   const size = oneOf(["sm", "md", "lg"] as const, props.size, "md");
   const showClose = props.closeButton !== false;
-  const backdrop = props.closeOnBackdrop !== false;
+  const modal = props.modal !== false;
+  const backdrop = modal && props.closeOnBackdrop !== false;
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
@@ -67,27 +73,40 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     if (!d) return;
     if (open && !d.open) {
       if (!back.current) back.current = document.activeElement as HTMLElement | null;   // kept when it opens again
-      modalOpening();
-      if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
-      modalOpened(d);
+      // Non-modal: shown in place (not the top layer), so it isn't on the modal stack and the page stays usable.
+      if (!modal) { if (typeof d.show === "function") d.show(); else d.setAttribute("open", ""); }
+      else {
+        modalOpening();
+        if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
+        modalOpened(d);
+      }
       // A child's autoFocus ran while the dialog was still hidden, and showModal() then focused the first focusable
       // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it.
       const own = d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
       if (own && typeof own.focus === "function") own.focus();
     } else if (open) {
       // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.
-      modalOpened(d);
+      if (modal) modalOpened(d);
     } else {
+      // Non-modal, focus may have moved on to the page: it goes back only from inside the drawer.
+      const inside = modal || d.contains(document.activeElement);
       if (d.open) { if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); }
       modalClosed(d);
       const b = back.current; back.current = null;
-      if (b && b.isConnected && typeof b.focus === "function") b.focus();
+      if (inside && b && b.isConnected && typeof b.focus === "function") b.focus();
     }
   }, [open, reopened]);
   React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); const b = back.current; if (b && b.isConnected) b.focus(); }; }, []);
 
   // React passes a nested dialog's cancel and close up to this one, though the browser doesn't bubble them: only
   // this dialog's own count, or Escape in a Dialog or Drawer opened from inside it would close this one too.
+  // A non-modal dialog gets no cancel event from Escape: its own keydown does it, for focus anywhere inside.
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (rest.onKeyDown) rest.onKeyDown(e);
+    if (modal || e.defaultPrevented || e.key !== "Escape" || isComposing(e)) return;
+    if (e.target instanceof Element && e.target.closest("dialog") !== e.currentTarget) return;   // a dialog opened from inside it
+    e.preventDefault(); close("escape");
+  };
   const onCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => { if (rest.onCancel) rest.onCancel(e); if (e.target !== e.currentTarget) return; e.preventDefault(); close("escape"); };
   // The browser can close it on its own (dialog.close(), a form with method="dialog", an Escape it doesn't let us
   // cancel, such as Chromium's second Escape with no click in between): if open is still true, ask to close. A
@@ -115,11 +134,11 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     : rest["aria-label"] ? { tabIndex: 0, role: "region", "aria-label": rest["aria-label"] } : { tabIndex: 0 };
   return (
     <dialog {...rest} ref={(n) => { el.current = n; nameRef(n); setRef(ref, n); }}
-      aria-modal="true"
+      aria-modal={modal ? "true" : undefined}
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, props.className)} data-component="drawer" data-side={side} data-size={size}
-      onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
+      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size}
+      onKeyDown={onKeyDown} onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-drawer__panel">
         {has(props.title) || has(props.description) || showClose ? (
           <div className="dk-drawer__header">
