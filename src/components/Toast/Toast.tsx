@@ -3,6 +3,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn, oneOf, useIsoLayoutEffect } from "../../internal/cn";
 import { announce, ensureAnnouncer } from "../../internal/announce";
+import { warnOnce } from "../../internal/warn";
 import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
@@ -39,7 +40,9 @@ type Listener = (items: Item[]) => void;
 let items: Item[] = [];
 const listeners = new Set<Listener>();
 let next = 0;
-const emit = () => listeners.forEach((l) => l(items));
+// Only the newest mounted Toaster shows the toasts, so two (one in a layout and one on a page, say) don't show each
+// toast twice; when it unmounts, the one before it takes them over.
+const emit = () => { let left = listeners.size; listeners.forEach((l) => l(--left ? [] : items)); };
 const text = (n: React.ReactNode) => (typeof n === "string" || typeof n === "number" ? String(n) : "");
 const TONES: readonly ToastTone[] = ["neutral", "info", "success", "warning", "danger"];
 // The key that moves focus to the newest toast and back (as in Radix), and the hint the first toast with an action
@@ -142,7 +145,12 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const { position, label, dismissLabel, limit, className, ...rest } = props;
   // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
   const [list, setList] = React.useState<Item[]>([]);
-  React.useEffect(() => { ensureAnnouncer(); hinted = false; listeners.add(setList); setList(items); return () => { listeners.delete(setList); }; }, []);
+  React.useEffect(() => {
+    ensureAnnouncer(); hinted = false;
+    if (listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
+    listeners.add(setList); emit();
+    return () => { listeners.delete(setList); emit(); };
+  }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
   // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
   // does nothing, so a toast doesn't mention it.

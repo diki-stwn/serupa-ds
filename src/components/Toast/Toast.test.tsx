@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, settle } from '../../../tools/test/vitest/helpers';
@@ -31,6 +31,22 @@ describe('Toast', () => {
     const s = q('.dk-toaster');
     expect([s.tagName, s.getAttribute('aria-label'), s.firstElementChild!.tagName, !!document.querySelector('[data-dk-announcer]')]).toEqual(['SECTION', 'Notifications', 'OL', true]);
     expect(s.className).toMatch(/extra/);
+  });
+
+  test('two Toasters: only the newest shows each toast, with a warning once; when it unmounts, the older one takes the toasts over (AO2)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      function Two({ both }: { both: boolean }) {
+        return <><Toaster id="t-old" />{both ? <Toaster id="t-new" /> : null}</>;
+      }
+      const r = await render(<Two both />);
+      React.act(() => { toast({ title: 'Link copied', duration: 0 }); });
+      const shown = (id: string) => el(id).querySelectorAll('li').length;
+      await expect.poll(() => [shown('t-old'), shown('t-new')]).toEqual([0, 1]);
+      expect(warn.mock.calls.filter((c) => String(c[0]).startsWith('Toaster:')).length).toBe(1);
+      await r.rerender(<Two both={false} />);
+      await expect.poll(() => shown('t-old')).toBe(1);
+    } finally { warn.mockRestore(); }
   });
 
   test('toast() shows it at the bottom end, 16px in, 384px wide: labelled by its title, described by its description, a tone icon, a Dismiss button; announced politely', async () => {
