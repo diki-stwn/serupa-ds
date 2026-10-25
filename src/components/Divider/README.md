@@ -44,6 +44,7 @@ const { Divider, Stack } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<hr>`. |
 | `orientation` | `'horizontal'` \| `'vertical'` | `'horizontal'` | Across the full width, or the height of the row it's in |
 | `label` | node | none | Text in the middle of a horizontal line. A vertical divider has no label |
 | `decorative` | boolean | `false` | Leaves it out of the accessibility tree |

@@ -6,6 +6,13 @@ import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { NumberInput } from './NumberInput';
 
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
+
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const steps = (id: string) => [...field(id).parentElement!.querySelectorAll<HTMLButtonElement>('.dk-number-input__step')];
 const minus = (id: string) => steps(id)[0];
@@ -305,5 +312,15 @@ describe('NumberInput', () => {
   test('--number-input-stepper overrides one field', async () => {
     await render(<NumberInput id="tok" aria-label="Tok" style={{ '--number-input-stepper': 'rgb(1, 2, 3)' } as React.CSSProperties} />);
     expect(css(minus('tok')).color).toBe('rgb(1, 2, 3)');
+  });
+  test('size sm: each stepper is 22px but takes presses over 24px (WCAG 2.5.8), past each outer edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><NumberInput id="hb" aria-label="Seats" size="sm" defaultValue={5} /></div>);
+    const [dec, inc] = [...document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelectorAll<HTMLElement>('.dk-number-input__step')];
+    expect([Math.round(dec.getBoundingClientRect().height), Math.round(inc.getBoundingClientRect().width)]).toEqual([22, 22]);
+    // Start, top and bottom of Decrease; end, top and bottom of Increase. The 2px between them goes to one or the other.
+    const [ds, , dt, db] = reach(dec), [, ie, it, ib] = reach(inc);
+    expect([ds, dt, db, ie, it, ib]).toEqual([true, true, true, true, true, true]);
+    const gap = (dec.getBoundingClientRect().right + inc.getBoundingClientRect().left) / 2, mid = dec.getBoundingClientRect().top + 11;
+    expect([dec, inc]).toContain(document.elementFromPoint(gap, mid)?.closest('button'));
   });
 });

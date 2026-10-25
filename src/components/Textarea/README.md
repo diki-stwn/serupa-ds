@@ -65,6 +65,7 @@ const { Textarea } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<textarea>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | `text-xs`, `text-sm` or `text-base`, with 8, 12 or 16px side padding and 4, 6 or 10px top and bottom |
 | `rows` | number | `3` | Visible lines: the starting height, and the smallest one with `autoResize` |
 | `autoResize` | boolean | `false` | Grows with the text, a line at a time, and shrinks back when text is deleted. No resize handle |

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
-import { useLocale } from "../../internal/provider";
+import { useLocale, useOwnLang } from "../../internal/provider";
 
 export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTimeElement>, 'children' | 'dateTime'> {
   /** The moment: a Date, a timestamp in ms, or a string Date can read ("2026-10-24T09:30:00Z"). */
@@ -67,11 +67,11 @@ export function relativeTime(date: Date | number | string, now: number, locale?:
 /** How long ago a moment was, in words ("3 minutes ago"), kept up to date; the exact date in its tooltip. */
 export const RelativeTime = /* @__PURE__ */ component<HTMLTimeElement, RelativeTimeProps>("RelativeTime", function RelativeTime(props, ref) {
   const rest = omit(props, { date: 1, format: 1, numeric: 1, titleFormat: 1, locale: 1, className: 1 });
-  const locale = useLocale(props.locale);
+  const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const current = React.useSyncExternalStore(subscribe, getNow, getServerNow);
   const d = new Date(props.date), valid = isFinite(d.getTime());
   const text = valid ? relativeTime(d, current, locale, { format: props.format, numeric: props.numeric }) : "";
   const title = !valid || props.titleFormat === false ? undefined : new Intl.DateTimeFormat(locale, props.titleFormat || { dateStyle: "long", timeStyle: "short" }).format(d);
-  return <time {...rest} ref={ref} dateTime={valid ? d.toISOString() : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}
+  return <time lang={lang} {...rest} ref={ref} dateTime={valid ? d.toISOString() : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}
     data-component="relative-time" suppressHydrationWarning>{text}</time>;
 });

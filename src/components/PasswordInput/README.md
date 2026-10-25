@@ -30,6 +30,7 @@ const { PasswordInput, Field } = window.Serupa;
 
 ## Accessibility
 
+- The show/hide button takes presses over at least 24px (WCAG 2.5.8), even at size `sm` where it's 22px: a box behind it reaches past its edges without moving anything.
 - The button is named "Show password" and has `aria-pressed`, so screen readers say whether the password is shown. Its `aria-controls` points at the field when the field has an `id` (Field gives it one).
 - Clicking it keeps focus in the field, so typing carries on. It's also reachable with Tab, and Enter or Space press it.
 - Spell check and auto-capitalization are off, so a shown password isn't underlined or changed.
@@ -50,6 +51,7 @@ const { PasswordInput, Field } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `visible` | boolean | none | Shows the password as text (controlled) |
 | `defaultVisible` | boolean | `false` | Shows it at first (uncontrolled) |
 | `onVisibleChange` | `(visible) => void` | none | Called when the button is pressed |

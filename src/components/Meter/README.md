@@ -59,6 +59,7 @@ Without `low` and `high` the bar is primary and `data-state` is `none`. `meterSt
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `value` | `number` | | Between `min` and `max`, clamped. |
 | `min` | `number` | `0` | The lowest possible value. |
 | `max` | `number` | `100` | The highest possible value. |

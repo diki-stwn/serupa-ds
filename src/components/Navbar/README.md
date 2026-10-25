@@ -42,12 +42,21 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 - With the menu open, Tab goes from the button into the links, in the order they appear, since the panel opens under the bar: the links come after the button in the DOM while it's open. Tab past the last link, any move of focus out of the bar, or a press outside it closes the menu.
 - Links keep 4.5:1 on the bar, and the current page and hovered links on their shading, in all six themes (`Navbar.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | Through the brand, links and actions; on small screens, the menu button, then the menu's links once it's open |
+| Enter / Space | On the menu button, opens or closes the menu |
+| Escape | Closes the menu and returns focus to the menu button |
+
 ## Props
 
 ### Navbar
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<header>`. |
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |

@@ -37,6 +37,7 @@ const [q, setQ] = React.useState("");
 
 ## Accessibility
 
+- The clear button takes presses over at least 24px (WCAG 2.5.8), even at size `sm` where it's 22px: a box behind it reaches past its edges without moving anything.
 - `type="search"` (a searchbox) with `enterkeyhint="search"`. Name it with a `<label>` or `aria-label`; a placeholder isn't a name.
 - The icon and × keep 3:1 and the text 4.5:1 on the field in all six themes (`SearchInput.test.tsx`).
 
@@ -54,6 +55,7 @@ Every Input prop works (`size`, `invalid`, `value`, `defaultValue`, `onChange`, 
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input type="search">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `onSearch` | `(value: string) => void` | | Called with the text when Enter is pressed. |
 | `onClear` | `() => void` | | Called after the × or Escape clears the field. `onChange` also gets an empty value first, so controlled fields follow. |
 | `clearLabel` | `string` | `'Clear search'` | The ×'s name. |

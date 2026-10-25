@@ -26,7 +26,7 @@ export const Controlled: Story = {
   render: function ControlledDemo() {
     const [value, setValue] = React.useState<string>('email');
     return <div className="flex flex-col gap-3">
-      <RadioGroup aria-label="Contact by" value={value} onChange={setValue} orientation="horizontal">
+      <RadioGroup aria-label="Contact by" value={value} onValueChange={setValue} orientation="horizontal">
         <Radio value="email">Email</Radio><Radio value="phone">Phone</Radio><Radio value="post">Post</Radio>
       </RadioGroup>
       <p className="text-sm">Picked: <code>{value}</code></p>

@@ -43,6 +43,16 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 - The popup is a `role="dialog"` holding one or two Calendars (see Calendar's keyboard table); a polite live line says which end to pick next.
 - Days in a range, the status line and the dash keep 4.5:1 in all six themes (`DateRangePicker.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | The start field, the end field, then the calendar button |
+| Enter | In a field, reads the date typed |
+| Alt+Down | In a field, opens the calendar |
+| Enter / Space | On the calendar button, opens the calendar; in it, Calendar's keys pick the start, then the end |
+| Escape | Closes the calendar and returns focus to its button |
+
 ## Props
 
 | Prop | Type | Default | Notes |
@@ -53,7 +63,7 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 | `min`, `max` | `Date` | | Days outside can't be either end. |
 | `isDateDisabled` | `(date: Date) => boolean` | | Days that can't be an end. They can sit inside a range. |
 | `months` | `1 \| 2` | `2` | Months side by side in the popup (stacked below 640px). |
-| `locale`, `weekStartsOn` | | the browser's | As in DatePicker. |
+| `locale`, `weekStartsOn` | | the browser's | As in DatePicker. The calendars carry `lang` when it differs from the provider's; the two fields keep the page's, as their names do. |
 | `size`, `invalid`, `disabled`, `readOnly` | | | Like Input. |
 | `required` | `boolean` | `false` | Both fields are required (and `aria-required`), so a form won't submit until each end has a date. Field's `required` sets `aria-required` on both. |
 | `id` | `string` | | The start field's id, so Field or `<label htmlFor>` focuses it. |

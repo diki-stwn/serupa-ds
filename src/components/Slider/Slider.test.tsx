@@ -310,4 +310,71 @@ describe('Slider', () => {
     expect([thumb('fv').getAttribute('aria-invalid'), el('fv').hasAttribute('invalid'), el('fv').hasAttribute('aria-required'), el('fv').hasAttribute('aria-invalid')]).toEqual(['true', false, false, false]);
     expect(warned.filter((w) => /invalid|required/i.test(String(w)))).toEqual([]);
   });
+  test('marks: true draws a mark per step (ticks only between the ends), and over 100 steps one per largeStep', async () => {
+    await render(<div style={{ width: '420px' }}>
+      <Slider id="mk" aria-label="Rating" min={0} max={10} marks defaultValue={3} />
+      <Slider id="mk2" aria-label="Fine" min={0} max={100} step={0.5} largeStep={10} marks />
+    </div>);
+    const count = (id: string, s: string) => el(id).querySelectorAll(s).length;
+    expect([count('mk', '.dk-slider__mark'), count('mk', '.dk-slider__tick'), count('mk', '.dk-slider__mark-label'), count('mk2', '.dk-slider__mark')]).toEqual([11, 9, 0, 21]);
+    expect([...el('mk').querySelectorAll('.dk-slider__mark')].every((m) => m.getAttribute('aria-hidden') === 'true')).toBe(true);
+    // No labels, so no room is added under the track.
+    expect(rect(el('mk')).height).toBe(rect(thumb('mk')).height);
+  });
+
+  test('marks with labels: the text sits under the track, centered on its value in either direction, and the slider makes room for it', async () => {
+    const marks = [{ value: 0, label: '0°' }, { value: 50, label: 'Half' }, { value: 100, label: '100°' }, { value: 120, label: 'Off the track' }];
+    await render(<div style={{ width: '420px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Slider id="ml" aria-label="Heat" marks={marks} defaultValue={20} />
+      <div dir="rtl"><Slider id="mlr" aria-label="Heat" marks={marks} defaultValue={20} /></div>
+    </div>);
+    for (const [id, dir] of [['ml', 1], ['mlr', -1]] as const) {
+      const labels = [...el(id).querySelectorAll<HTMLElement>('.dk-slider__mark-label')], t = track(id);
+      expect(labels.map((l) => l.textContent)).toEqual(['0°', 'Half', '100°']);
+      const mid = center(labels[1]);
+      const want = dir === 1 ? t.left + t.width / 2 : t.right - t.width / 2;
+      const text = document.createRange(); text.selectNodeContents(labels[1]);
+      const tr = text.getBoundingClientRect();
+      expect(Math.abs(tr.left + tr.width / 2 - want)).toBeLessThan(1.5);
+      const start = document.createRange(); start.selectNodeContents(labels[0]);
+      const sr = start.getBoundingClientRect();
+      expect(Math.abs(sr.left + sr.width / 2 - (dir === 1 ? t.left : t.right))).toBeLessThan(1.5);
+      expect(tr.top).toBeGreaterThanOrEqual(rect(thumb(id)).bottom);
+      expect(tr.bottom).toBeLessThanOrEqual(rect(el(id)).bottom + 0.5);
+      expect(mid.y).toBeGreaterThan(t.bottom);
+    }
+    // The thumb still sits on the track's line, and a press on a label moves it there.
+    expect(Math.abs(center(thumb('ml')).y - (track('ml').top + track('ml').height / 2))).toBeLessThan(1);
+    const half = el('ml').querySelectorAll<HTMLElement>('.dk-slider__mark-label')[1], hr = rect(half), r = rect(el('ml'));
+    await userEvent.click(el('ml'), { position: { x: hr.left - r.left + hr.width / 2, y: hr.top - r.top + hr.height / 2 } });
+    expect(now('ml')).toBe(50);
+  });
+
+  test('showValue: the formatted value shows over the thumb only while it is focused, and stays out of what is read out', async () => {
+    await render(<div style={{ width: '420px', paddingTop: '40px' }}><Slider id="sv" aria-label="Price" showValue formatValue={(v) => '$' + v} defaultValue={40} /><button id="away">Away</button></div>);
+    const chip = () => el('sv').querySelector<HTMLElement>('.dk-slider__value')!;
+    expect([chip().textContent, chip().getAttribute('aria-hidden'), thumb('sv').getAttribute('aria-valuetext'), css(chip()).opacity]).toEqual(['$40', 'true', '$40', '0']);
+    thumb('sv').focus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(chip().textContent).toBe('$41');
+    await expect.poll(() => css(chip()).opacity).toBe('1');
+    expect(rect(chip().firstElementChild!).bottom).toBeLessThanOrEqual(rect(thumb('sv')).top);
+    expect(Math.abs(center(chip().firstElementChild!).x - center(thumb('sv')).x)).toBeLessThan(1);
+    el('away').focus();
+    await expect.poll(() => css(chip()).opacity).toBe('0');
+  });
+
+  test('contrast: mark labels keep 4.5:1 on the page, and the value chip\'s text 4.5:1 on the chip, in all six themes', async () => {
+    await render(<div style={{ width: '420px' }}><Slider id="mc" aria-label="Heat" marks={[{ value: 50, label: 'Half' }]} showValue defaultValue={20} /></div>);
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const page = css(document.body).backgroundColor, chip = css(el('mc').querySelector('.dk-slider__value > span'));
+      const a = contrast(css(el('mc').querySelector('.dk-slider__mark-label')).color, page), b = contrast(chip.color, chip.backgroundColor);
+      if (a < 4.5) low.push(`${th} label: ${a.toFixed(2)}`);
+      if (b < 4.5) low.push(`${th} chip: ${b.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
 });

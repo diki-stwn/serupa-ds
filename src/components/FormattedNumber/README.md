@@ -48,13 +48,13 @@ formatNumber(1234, "id-ID", { format: "compact" })                  // "1,2 rb",
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<data>`. |
 | `value` | `number \| bigint` | | The number. `NaN` renders an empty `<data>`. |
 | `format` | `'decimal' \| 'compact' \| 'percent' \| 'currency' \| 'bytes' \| 'unit'` | `'decimal'` | How to write it. |
 | `currency` | `string` | | With `currency`: the ISO 4217 code, `"IDR"`, `"USD"`. |
 | `unit` | `string` | | With `unit`: a unit `Intl.NumberFormat` knows. |
 | `options` | `Intl.NumberFormatOptions` | | Any other options; they win. |
-| `locale` | `string` | the provider's, else the browser's | |
-
+| `locale` | `string` | the provider's, else the browser's | When it differs from the provider's, the element carries `lang`, so screen readers read the number in that language. |
 Every other prop, `className` and `ref` go to the `<data>`, which has `data-component="formatted-number"` and `data-format`. Your own `title` wins over the compact tooltip.
 
 `formatNumber(value, locale?, options?)` gives the same words outside React, and in a Server Component; `options` takes `format` and every `Intl.NumberFormat` option.

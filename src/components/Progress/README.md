@@ -50,6 +50,7 @@ import { Progress } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `value` | `number \| null` | | From 0 to `max`, clamped. Leave it out for an indeterminate bar or ring. |
 | `max` | `number` | `100` | The value that means done. |
 | `variant` | `'bar' \| 'circle'` | `'bar'` | A full-width bar or a ring. |

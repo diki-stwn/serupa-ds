@@ -71,6 +71,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the `<table>`, not the scrolling wrapper, so `aria-describedby` and links to it reach the table. |
 | `size` | `'sm'` \| `'md'` | `'md'` | 12px cell padding, or 8px top and bottom for dense data |
 | `striped` | boolean | `false` | Shades every other body row (rows then don't change on hover) |
 | `stickyHeader` | boolean | `false` | Keeps the header in view; give the frame a height with `containerProps` |

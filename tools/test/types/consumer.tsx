@@ -79,8 +79,8 @@ is<Equal<DateRange, { start: Date | null; end: Date | null }>>();
 declare const count: number;
 declare const range: [number, number];
 export const generics = [
-  <RadioGroup value={count} onChange={(_v) => is<Equal<typeof _v, number>>()}><Radio value={2}>Two</Radio></RadioGroup>,
-  <RadioGroup<'s' | 'm'> defaultValue="s" onChange={(_v) => is<Equal<typeof _v, 's' | 'm'>>()}><Radio value="s">S</Radio></RadioGroup>,
+  <RadioGroup value={count} onValueChange={(_v) => is<Equal<typeof _v, number>>()}><Radio value={2}>Two</Radio></RadioGroup>,
+  <RadioGroup<'s' | 'm'> defaultValue="s" onValueChange={(_v) => is<Equal<typeof _v, 's' | 'm'>>()}><Radio value="s">S</Radio></RadioGroup>,
   // @ts-expect-error: a value outside the group's type
   <RadioGroup<'s' | 'm'> defaultValue="xl" />,
   <Slider value={count} onValueChange={(_v) => is<Equal<typeof _v, number>>()} aria-label="Volume" />,

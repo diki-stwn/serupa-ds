@@ -44,6 +44,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 
 ## Accessibility
 
+- Each stepper button takes presses over at least 24px (WCAG 2.5.8), even at size `sm` where it's 22px: a box behind it reaches past its edges without moving anything.
 - `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. It's `type="text"` with `inputMode` numeric or decimal, which avoids the native number field's scroll-wheel and locale problems.
 - The − and + keep 3:1 and the number 4.5:1 on the field in all six themes (`NumberInput.test.tsx`).
 
@@ -62,6 +63,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` | `number \| null` | | Controlled. `null` is an empty field. After a step, Enter or blur the field shows `value`, so a parent that keeps or changes the number it gets is what people see. |
 | `defaultValue` | `number \| null` | | Uncontrolled. |
 | `onValueChange` | `(value: number \| null) => void` | | As people type (numbers within range), on blur (clamped), and from the keys and buttons. |
@@ -70,7 +72,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `largeStep` | `number` | `10` | Steps moved by PageUp, PageDown and Shift with an arrow. |
 | `steppers` | `boolean` | `true` | The − and + buttons. |
 | `decrementLabel`, `incrementLabel` | `string` | `'Decrease'`, `'Increase'` | The buttons' names. |
-| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's | Whose decimal and group marks are read and written: `1.500,25` in `id-ID`, `1,500.25` in `en-US`. |
+| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's | Whose decimal and group marks are read and written: `1.500,25` in `id-ID`, `1,500.25` in `en-US`. When it differs from the provider's, the field carries `lang`. |
 | `currency` | `string` | | An ISO 4217 code: shows the amount as money and keeps its decimals. Short for `formatOptions={{ style: 'currency', currency }}`; `formatOptions` still wins. |
 | `minorUnits` | `boolean` | `false` | With `currency`: the value props and `onValueChange` are whole minor units (cents). `aria-valuenow` stays in the currency's units. |
 | `formatOptions` | `Intl.NumberFormatOptions` | no grouping | How the number is shown: `{ style: 'currency', currency: 'IDR' }`, `{ useGrouping: true }`, `{ style: 'percent' }` (the value is the fraction, so 0.15 shows 15%), `{ style: 'unit', unit: 'kilometer' }`, or `currencySign: 'accounting'` (a negative in parentheses, read back as negative). Sets `aria-valuetext` too. |
