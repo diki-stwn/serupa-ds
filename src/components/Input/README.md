@@ -61,6 +61,13 @@ const { Input } = window.Serupa;
 - `maxLength` stops typing at the limit, counted in characters as people see them, like the count: an emoji such as 👨‍👩‍👧 is one. Input applies the limit itself, as Textarea does, so once the page is hydrated the `<input>` has no `maxlength` attribute. Server-rendered HTML keeps it, so the cap holds before the script runs. Say the limit in the label or hint too, since the count only shows it visually.
 - The count keeps 4.5:1 on `field` in all six themes, as Textarea's does.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the field |
+| Enter | Submits the form it's in, as a native field does |
+
 ## Props
 
 | Prop | Type | Default | What it does |

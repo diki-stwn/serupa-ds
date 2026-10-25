@@ -56,6 +56,14 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 - The label and description keep 4.5:1, and the border, checked fill, dot, focus ring and invalid border 3:1, in all six themes (`Radio.test.tsx`).
 - A form reset checks the radio that was checked first, and an uncontrolled RadioGroup's choice follows it, so the next click works as expected. A controlled group shows its `value` again.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | Into the group, on the checked radio (or the first, when none is) |
+| ↑ ↓ ← → | The previous or next radio, checking it; wraps, and skips disabled ones |
+| Space | Check the focused radio, when none is checked |
+
 ## Props
 
 ### RadioGroup props

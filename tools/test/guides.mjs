@@ -10,10 +10,10 @@ import { PROJECT, report, done } from './lib.mjs';
 const REQUIRED = ['When to use', 'When not to use', 'Usage', 'Accessibility', 'Props', 'Component tokens'];
 // Guides whose Accessibility section doesn't say yet what the keyboard does (X2), to be filled in. The check fails
 // when one is filled in, so the entry gets removed and can't come back.
-const KEYBOARD_GAPS = ['Accordion', 'Alert', 'Badge', 'Breadcrumb', 'Button', 'ButtonGroup', 'Card', 'Checkbox', 'ColorPicker',
-  'CopyButton', 'DateRangePicker', 'Dialog', 'Drawer', 'EmptyState', 'ErrorBoundary', 'Fab', 'Field', 'FileUpload', 'IconButton', 'Image',
-  'InlineEdit', 'Input', 'Link', 'List', 'Navbar', 'Pagination', 'PasswordInput', 'PhoneInput', 'Popover', 'Radio', 'SearchInput',
-  'SegmentedControl', 'Select', 'Sidebar', 'SortableList', 'Stepper', 'Switch', 'Table', 'Textarea', 'TimePicker', 'Toast', 'ToggleButton',
+const KEYBOARD_GAPS = ['Accordion', 'Alert', 'Breadcrumb', 'ButtonGroup', 'Card', 'ColorPicker',
+  'DateRangePicker', 'Dialog', 'Drawer', 'EmptyState', 'ErrorBoundary', 'Field', 'FileUpload', 'Image',
+  'InlineEdit', 'List', 'Navbar', 'Pagination', 'PhoneInput', 'Popover',
+  'SegmentedControl', 'Sidebar', 'SortableList', 'Stepper', 'Table', 'TimePicker', 'Toast',
   'Tooltip', 'VisuallyHidden'];
 const DIR = path.join(PROJECT, 'src', 'components');
 const R = [];
