@@ -7,6 +7,7 @@ import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
+import { Menu, MenuItem } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
 
 export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
@@ -16,9 +17,12 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   separator?: 'chevron' | 'slash';
   /** Shows at most this many items: the first, a "…" button that shows the rest, and the last ones. Default: no limit. */
   maxItems?: number;
+  /** What the "…" button does. 'inline' (default): shows the hidden items in the trail. 'menu': opens a Menu of
+      them, so a long trail stays on one line on a phone. */
+  collapse?: 'inline' | 'menu';
   /** The nav's accessible name. Default: "Breadcrumb". */
   "aria-label"?: string;
-  /** The "…" button's accessible name. Default: "Show all pages". */
+  /** The "…" button's accessible name. Default: "Show all pages", or "More pages" with collapse="menu". */
   expandLabel?: string;
 }
 
@@ -46,12 +50,14 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
 });
 
 /* Breadcrumb: a nav with an ordered list of pages from the top level to the current one, a chevron (or slash)
-   between them. maxItems collapses the middle into a "…" button that shows them again. className and every
-   other prop go to the <nav>. */
+   between them. Each separator sits inside the item after it, hidden from screen readers, so the list has one
+   <li> per page and is read as "list, 4 items". maxItems collapses the middle into a "…" button that shows them
+   again, or with collapse="menu" opens a Menu of them. className and every other prop go to the <nav>. */
 /** Where the current page sits: links to the pages above it, separated by chevrons. maxItems collapses the middle. */
 export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps>("Breadcrumb", function Breadcrumb(props, ref) {
   const sds = useSerupa();
-  const rest = omit(props, { separator: 1, maxItems: 1, expandLabel: 1, className: 1, children: 1 });
+  const rest = omit(props, { separator: 1, maxItems: 1, collapse: 1, expandLabel: 1, className: 1, children: 1 });
+  const asMenu = props.collapse === "menu";
   const separator = oneOf(["chevron", "slash"] as const, props.separator, "chevron");
   const [expanded, setExpanded] = React.useState(false);
   const firstHidden = React.useRef<HTMLLIElement>(null);
@@ -68,19 +74,22 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
       if (a) a.focus();
     }
   }, [expanded]);
-  const sep = (key: string) => <li key={key} className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <><Icon icon={icons.ChevronRight} className="dk-breadcrumb__ltr" /><Icon icon={icons.ChevronLeft} className="dk-breadcrumb__rtl" /></>}</li>;
+  const sep = <span className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <><Icon icon={icons.ChevronRight} className="dk-breadcrumb__ltr" /><Icon icon={icons.ChevronLeft} className="dk-breadcrumb__rtl" /></>}</span>;
   const out: React.ReactNode[] = [];
   shown.forEach(({ el, i }, n) => {
-    if (n > 0) out.push(sep("s" + i));
     if (collapse && n === 1) {
-      out.push(<li key="more" className="dk-breadcrumb__li">
-        <button type="button" className="dk-breadcrumb__item dk-breadcrumb__more" aria-label={props.expandLabel || sds.labels.showHiddenPages}
-          onClick={() => { focusAfter.current = true; setExpanded(true); }}>…</button>
-      </li>, sep("s-more"));
+      const label = props.expandLabel || (asMenu ? sds.labels.morePages : sds.labels.showHiddenPages);
+      const more = <button type="button" className="dk-breadcrumb__item dk-breadcrumb__more" aria-label={label}
+        onClick={asMenu ? undefined : () => { focusAfter.current = true; setExpanded(true); }}>…</button>;
+      out.push(<li key="more" className="dk-breadcrumb__li">{sep}
+        {asMenu ? <Menu trigger={more} aria-label={label}>
+          {items.slice(1, items.length - (max - 1)).map((h, k) => <MenuItem key={h.key != null ? h.key : k} href={h.props.href} as={h.props.as} icon={h.props.icon}>{h.props.children}</MenuItem>)}
+        </Menu> : more}
+      </li>);
     }
     const last = i === items.length - 1;
     out.push(<li key={el.key != null ? el.key : i} className="dk-breadcrumb__li" ref={expanded && max > 0 && i === 1 ? firstHidden : undefined}>
-      {React.cloneElement(el, { current: last || el.props.current })}
+      {n > 0 ? sep : null}{React.cloneElement(el, { current: last || el.props.current })}
     </li>);
   });
   return (

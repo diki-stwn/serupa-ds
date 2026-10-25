@@ -33,16 +33,18 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 - Go from the top level down to the current page, and make the current page the last item.
 - Label each item with the title people see on that page, so the trail matches where it leads.
 - On deep trails, set `maxItems` so it fits on one line; the first item and the last ones stay visible.
+- Where the trail must stay on one line once "…" is pressed, such as a phone header, add `collapse="menu"`: "…" opens a [Menu](../Menu/README.md) of the hidden pages instead of putting them back in the trail.
 - With a router, register its link component once with `configure({ link })`, or pass it as `as` so client-side navigation keeps working.
 
 ## Accessibility
 
 - Each link takes a press over at least 24px of height (WCAG 2.5.8), past its 20px line, without moving the trail.
 - It's a `<nav>` landmark named "Breadcrumb" holding an ordered list, so screen readers say how many levels there are. Give it another name if the page has two.
-- The current page has `aria-current="page"`. Separators are hidden from screen readers.
+- The current page has `aria-current="page"`. Separators sit inside the item after them and are hidden from screen readers, so the list has one item per page.
+- With `collapse="menu"`, "…" is a menu button named "More pages" (`aria-haspopup="menu"`, `aria-expanded`), and the hidden pages are links in the menu. It follows Menu's keys: Enter, Space or ↓ opens it on the first page, ↑ ↓ move, Enter follows a link, and Escape closes it and returns to "…".
 - Links, the current page and separators keep 4.5:1 on `surface` in all six themes (`Breadcrumb.test.tsx`).
 - Links are underlined on hover only: their place in the trail and the chevrons already say they're links.
-- **Keyboard:** Tab moves through the links, and Enter follows one. The current page is text, not a Tab stop. With `maxItems`, the "…" button is a Tab stop too, and Enter or Space shows the hidden pages.
+- **Keyboard:** Tab moves through the links, and Enter follows one. The current page is text, not a Tab stop. With `maxItems`, the "…" button is a Tab stop too, and Enter or Space shows the hidden pages (or opens their menu with `collapse="menu"`).
 
 ## Props
 
@@ -54,8 +56,9 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 | `children` | BreadcrumbItems | none | From the top level to the current page |
 | `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left pages |
 | `maxItems` | number (2 or more) | no limit | Shows the first item, "…", then the last `maxItems - 1`. Pressing "…" shows them all and moves focus to the first one it showed |
+| `collapse` | `'inline'` \| `'menu'` | `'inline'` | What "…" does: shows the hidden items in the trail, or opens a Menu of them |
 | `aria-label` | string | `"Breadcrumb"` | The nav's name |
-| `expandLabel` | string | `"Show all pages"` | The "…" button's name |
+| `expandLabel` | string | `"Show all pages"` (`"More pages"` with `collapse="menu"`) | The "…" button's name, and the menu's |
 
 `className`, `style`, `ref` and everything else go to the `<nav>`, which has `data-component="breadcrumb"`.
 
