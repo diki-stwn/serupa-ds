@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ButtonGroup } from './ButtonGroup';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
+import { Menu, MenuItem } from '../Menu/Menu';
 
 const meta = {
   title: 'Components/Actions/ButtonGroup',
@@ -25,5 +26,5 @@ export const Vertical: Story = {
 };
 
 export const SplitButton: Story = {
-  args: { 'aria-label': 'Publish', children: [<Button key="p">Publish</Button>, <IconButton key="m" variant="primary" icon="expand_more" label="More publish options" />] },
+  args: { 'aria-label': 'Publish', children: [<Button key="p">Publish</Button>, <Menu key="m" placement="bottom-end" trigger={<IconButton variant="primary" icon="expand_more" label="More publish options" />}><MenuItem>Schedule</MenuItem><MenuItem>Save as draft</MenuItem></Menu>] },
 };
