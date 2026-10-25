@@ -1,0 +1,55 @@
+# Alternate
+- list "Order history":
+  - listitem:
+    - text: Order placed
+    - time: 12 Mar, 09:14
+    - text: Two items, paid by card.
+  - listitem:
+    - text: Payment confirmed
+    - time: 12 Mar, 09:15
+  - listitem:
+    - text: Delivery delayed
+    - time: 13 Mar, 18:40
+    - text: "The courier missed the evening run. New estimate: 15 March."
+  - listitem:
+    - text: Out for delivery
+    - time: 15 Mar, 08:02
+
+# Dots
+- list "Order history":
+  - listitem:
+    - text: Neutral
+    - time: Now
+  - listitem:
+    - text: Primary
+    - time: 1 minute ago
+  - listitem:
+    - text: Success
+    - time: 5 minutes ago
+  - listitem:
+    - text: Warning
+    - time: 1 hour ago
+  - listitem:
+    - text: Danger
+    - time: Yesterday
+  - listitem:
+    - text: Info
+    - time: Last week
+
+# Playground
+- list "Order history":
+  - listitem:
+    - text: Order placed
+    - time: 12 Mar, 09:14
+    - text: Two items, paid by card.
+  - listitem:
+    - text: Payment confirmed
+    - time: 12 Mar, 09:15
+  - listitem:
+    - text: Delivery delayed
+    - time: 13 Mar, 18:40
+    - text: "The courier missed the evening run. New estimate: 15 March."
+  - listitem:
+    - text: Out for delivery
+    - time: 15 Mar, 08:02
+

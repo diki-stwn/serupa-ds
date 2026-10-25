@@ -4,22 +4,22 @@
 - region "How long does shipping take?": Orders ship within 2 business days, and arrive in 3 to 5.
 - heading "Can I return an item?" [level=3]:
   - button "Can I return an item?"
-- region "Can I return an item?": Yes, within 30 days of delivery, as long as it is unused.
+- text: Yes, within 30 days of delivery, as long as it is unused.
 - heading "Is there a warranty?" [level=3]:
   - button "Is there a warranty?"
-- region "Is there a warranty?": Every product has a one-year warranty against defects.
+- text: Every product has a one-year warranty against defects.
 
 # ExpandAll
 - button "Expand all"
 - heading "How long does shipping take?" [level=3]:
   - button "How long does shipping take?"
-- region "How long does shipping take?": Orders ship within 2 business days, and arrive in 3 to 5.
+- text: Orders ship within 2 business days, and arrive in 3 to 5.
 - heading "Can I return an item?" [level=3]:
   - button "Can I return an item?"
-- region "Can I return an item?": Yes, within 30 days of delivery, as long as it is unused.
+- text: Yes, within 30 days of delivery, as long as it is unused.
 - heading "Is there a warranty?" [level=3]:
   - button "Is there a warranty?"
-- region "Is there a warranty?": Every product has a one-year warranty against defects.
+- text: Every product has a one-year warranty against defects.
 
 # Multiple
 - heading "How long does shipping take?" [level=3]:
@@ -30,7 +30,7 @@
 - region "Can I return an item?": Yes, within 30 days of delivery, as long as it is unused.
 - heading "Is there a warranty?" [level=3]:
   - button "Is there a warranty?"
-- region "Is there a warranty?": Every product has a one-year warranty against defects.
+- text: Every product has a one-year warranty against defects.
 
 # Playground
 - heading "How long does shipping take?" [level=3]:
@@ -38,10 +38,10 @@
 - region "How long does shipping take?": Orders ship within 2 business days, and arrive in 3 to 5.
 - heading "Can I return an item?" [level=3]:
   - button "Can I return an item?"
-- region "Can I return an item?": Yes, within 30 days of delivery, as long as it is unused.
+- text: Yes, within 30 days of delivery, as long as it is unused.
 - heading "Is there a warranty?" [level=3]:
   - button "Is there a warranty?"
-- region "Is there a warranty?": Every product has a one-year warranty against defects.
+- text: Every product has a one-year warranty against defects.
 
 # WithDisabled
 - heading "How long does shipping take?" [level=3]:
@@ -49,10 +49,10 @@
 - region "How long does shipping take?": Orders ship within 2 business days, and arrive in 3 to 5.
 - heading "Can I return an item?" [level=3]:
   - button "Can I return an item?"
-- region "Can I return an item?": Yes, within 30 days of delivery, as long as it is unused.
+- text: Yes, within 30 days of delivery, as long as it is unused.
 - heading "Is there a warranty?" [level=3]:
   - button "Is there a warranty?"
-- region "Is there a warranty?": Every product has a one-year warranty against defects.
+- text: Every product has a one-year warranty against defects.
 - heading "Gift wrapping (coming soon)" [level=3]:
   - button "Gift wrapping (coming soon)" [disabled]
 
