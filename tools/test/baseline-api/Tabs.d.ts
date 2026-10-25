@@ -7,6 +7,7 @@ interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultV
     variant?: TabsVariant;
     size?: "md" | "sm";
     activation?: "auto" | "manual";
+    orientation?: "horizontal" | "vertical";
 }
 declare const Tabs: React.ForwardRefExoticComponent<TabsProps & React.RefAttributes<HTMLDivElement>>;
 declare const TabList: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>>;

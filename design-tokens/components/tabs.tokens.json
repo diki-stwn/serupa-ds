@@ -197,6 +197,16 @@
             "cssVar": "--tabs-panel-gap"
           }
         }
+      },
+      "fade-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-8}",
+        "$description": "How far the tab row fades out at an edge with more tabs past it (32px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tabs-fade-size"
+          }
+        }
       }
     },
     "typography": {

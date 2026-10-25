@@ -35,7 +35,8 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 
 ## Usage
 
-- Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways, and tabs out of view are easy to miss.
+- Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways: the edge with more tabs past it fades out, and the selected tab is always scrolled into view, but tabs out of view are still easy to miss.
+- Use `orientation="vertical"` for a settings page or anything with more than about six tabs: a column at the start of the panels, which has room for them all.
 - Set `activation="manual"` when a panel is slow to show, so arrowing past a tab doesn't select it.
 - Hidden panels keep their state. Set `keepMounted={false}` on a panel that doesn't need to, so it renders only while it's selected.
 - The browser's find-in-page searches kept panels too. They're `hidden="until-found"`, so a match on another tab selects that tab and shows it, as Accordion opens an item. A disabled tab's panel isn't searched.
@@ -54,7 +55,7 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 | Key | Does |
 | --- | --- |
 | Tab | Into the tab list (on the selected tab), then to the selected panel |
-| ← → | The previous or next tab, wrapping, following the text direction; disabled tabs are skipped. Also selects it unless `activation="manual"` |
+| ← → | The previous or next tab, wrapping, following the text direction; disabled tabs are skipped. Also selects it unless `activation="manual"`. With `orientation="vertical"`, ↑ ↓ do this instead |
 | Home, End | The first or last tab |
 | Enter, Space | Selects the focused tab |
 
@@ -71,10 +72,11 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 | `variant` | `'line'` \| `'pill'` | `'line'` | A line under the selected tab, or the selected tab filled in `primary` |
 | `size` | `'sm'` \| `'md'` | `'md'` | 32px or 36px tabs |
 | `activation` | `'auto'` \| `'manual'` | `'auto'` | Whether arrow keys also select, or only move (then Enter or Space selects). Use manual when a panel is slow to show |
+| `orientation` | `'horizontal'` \| `'vertical'` | `'horizontal'` | A row over the panels, or a column beside them (`aria-orientation`, ↑ ↓). The line variant's line moves to the column's end side |
 
 ### TabList, Tab and TabPanel
 
-- `TabList`: the row. Give it an `aria-label` when nothing on the page says what the tabs are for. It scrolls sideways when the tabs don't fit.
+- `TabList`: the row. Give it an `aria-label` when nothing on the page says what the tabs are for. It scrolls sideways when the tabs don't fit (down, when vertical and its height is limited), fading out the edge with more tabs past it, and keeps the selected tab in view.
 - `Tab`: `value` (required), `icon` (a name or element), `disabled`, and every `<button>` prop.
 - `TabPanel`: `value` (required). Hidden panels stay in the page and keep their state; `keepMounted={false}` renders a panel only while it's selected.
 
@@ -104,5 +106,6 @@ Each is an optional override: set it on the page, a container or one set of tabs
 | `--tabs-padding-x` | `spacing-3` | Padding at a tab's sides (12px). |
 | `--tabs-gap` | `spacing-1` | Space between tabs (4px). |
 | `--tabs-icon-gap` | `spacing-2` | Space between a tab's icon and label (8px). |
-| `--tabs-panel-gap` | `spacing-4` | Space above a panel (16px). |
+| `--tabs-panel-gap` | `spacing-4` | Space above a panel, or beside it when vertical (16px). |
+| `--tabs-fade-size` | `spacing-8` | How far the row fades out at an edge with more tabs past it (32px). |
 | `--tabs-weight` | `font-medium` | A tab's label weight (500). |
