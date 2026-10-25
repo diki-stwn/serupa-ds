@@ -14,22 +14,22 @@
 .dk-splitter__handle {
   --dk-splitter-line: var(--splitter-line, var(--field-border));
   --dk-splitter-weight: var(--border-width-1);
-  position: relative; flex: none; box-sizing: border-box; touch-action: none; user-select: none;
+  display: flex; justify-content: center; flex: none; box-sizing: border-box; touch-action: none; user-select: none;
   width: var(--splitter-handle-size, var(--spacing-2)); cursor: col-resize;
 }
-.dk-splitter--vertical > .dk-splitter__handle { width: auto; height: var(--splitter-handle-size, var(--spacing-2)); cursor: row-resize; }
+.dk-splitter--vertical > .dk-splitter__handle { flex-direction: column; width: auto; height: var(--splitter-handle-size, var(--spacing-2)); cursor: row-resize; }
+/* The line: centred in the handle by its flex box, the full length of the handle. */
 .dk-splitter__handle::before {
-  content: ""; position: absolute; inset-block: var(--spacing-0); inset-inline-start: calc(50% - var(--dk-splitter-weight) / 2);
-  width: var(--dk-splitter-weight); background: var(--dk-splitter-line);
+  content: ""; flex: none; align-self: stretch; width: var(--dk-splitter-weight); background: var(--dk-splitter-line);
   transition: background-color var(--duration-150) var(--ease-in-out);
 }
-.dk-splitter--vertical > .dk-splitter__handle::before { inset-inline: var(--spacing-0); inset-block-start: calc(50% - var(--dk-splitter-weight) / 2); width: auto; height: var(--dk-splitter-weight); }
+.dk-splitter--vertical > .dk-splitter__handle::before { width: auto; height: var(--dk-splitter-weight); }
 @media (hover: hover) { .dk-splitter__handle:hover { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); } }
 .dk-splitter__handle:focus-visible, .dk-splitter__handle:active { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); }
-.dk-splitter__handle:focus-visible { outline: var(--focus-ring-width) solid var(--splitter-focus-ring, var(--focus-ring)); outline-offset: calc(var(--focus-ring-width) * -1); }
+.dk-splitter__handle:focus-visible { outline: var(--focus-ring-width) solid var(--splitter-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 @media (prefers-reduced-motion: reduce) { .dk-splitter__handle::before { transition: none; } }
 @media (forced-colors: active) {
   .dk-splitter__handle::before { background: CanvasText; }
-  .dk-splitter__handle:focus-visible::before, .dk-splitter__handle:hover::before { background: Highlight; }
+  .dk-splitter__handle:focus-visible::before { background: Highlight; }
 }
 }

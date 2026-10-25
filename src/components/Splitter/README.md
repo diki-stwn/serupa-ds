@@ -44,14 +44,25 @@ import { Splitter } from "serupa-ds";
 ## Accessibility
 
 - **Role and name:** the WAI-ARIA window splitter pattern. The handle is a focusable `role="separator"` with `aria-orientation`, `aria-valuenow` (the first pane's size in percent), `aria-valuemin`, `aria-valuemax` and `aria-controls` pointing at the first pane. It's named by `separatorLabel`, or "Resize panes" (the `resizePanes` label, "Ubah ukuran panel" in `idLabels`).
-- **Keyboard:** Tab reaches the handle. ArrowLeft and ArrowRight (ArrowUp and ArrowDown when `direction="vertical"`) move it by `step`, Home and End go to `min` and `max`, and with `collapsible`, Enter collapses and restores the first pane.
+- **Keyboard:** Tab reaches the handle; the table below says what each key does there.
 - **Contrast:** the handle's line is 3:1 on the page in all six themes, and the focus ring shows around the handle (`Splitter.test.tsx`). In forced colors the line uses the system's text and highlight colors.
 - **What's still yours:** a name for each pane's content (a heading, or `nav` and `main` landmarks inside), and a layout that still works when a pane is at `min`.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the handle, between the first pane's content and the second's |
+| ArrowLeft, ArrowRight | Move the handle by `step` (a side-by-side Splitter; left and right as you see them, also right to left) |
+| ArrowUp, ArrowDown | Move the handle by `step` (`direction="vertical"`) |
+| Home, End | Move the handle to `min` and `max` |
+| Enter | With `collapsible`: collapse the first pane, or bring it back at its last size |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | `string` | | Goes to the root `<div>`. |
 | `children` | two `ReactNode`s | | The first and second panes. The handle resizes the first; the second takes the rest. |
 | `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | Side by side (the first at the start) or stacked (the first on top). |
 | `size` | `number` | | The first pane's size in percent (controlled). |
