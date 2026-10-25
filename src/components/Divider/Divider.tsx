@@ -19,7 +19,13 @@ export const Divider = /* @__PURE__ */ component<HTMLElement, DividerProps>("Div
   const vertical = props.orientation === "vertical";
   const label = props.label != null && props.label !== false && props.label !== "" && !vertical ? props.label : null;
   const cls = cn("dk-divider", vertical && "dk-divider--vertical", label != null && "dk-divider--label", props.className);
-  const a11y: React.AriaAttributes & { role?: React.AriaRole } = props.decorative ? { role: "none", "aria-hidden": true } : { role: "separator", "aria-orientation": vertical ? "vertical" : undefined };
+  const a11y: React.AriaAttributes & { role?: React.AriaRole; "aria-label"?: string } = props.decorative ? { role: "none", "aria-hidden": true } : { role: "separator", "aria-orientation": vertical ? "vertical" : undefined };
+  // A separator's children are presentational, so screen readers skip a label inside one. A text label names the
+  // separator instead; any other label stays plain text between two lines that are only drawn.
+  if (label != null && !props.decorative) {
+    if (typeof label === "string" || typeof label === "number") { if (rest["aria-label"] == null) a11y["aria-label"] = String(label); }
+    else { delete a11y.role; }
+  }
   if (label == null && !vertical) return React.createElement("hr", Object.assign(rest, a11y, { ref: ref, className: cls, "data-component": "divider", role: props.decorative ? "none" : undefined }));
   return React.createElement("div", Object.assign(rest, a11y, { ref: ref, className: cls, "data-component": "divider" }),
     label != null ? <span className="dk-divider__label">{label}</span> : null);
