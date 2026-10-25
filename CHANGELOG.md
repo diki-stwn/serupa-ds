@@ -4,6 +4,14 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [9.6.0] - 2026-10-25
+
+### Added
+
+- `initialFocus` on Dialog, a ref to the element that takes focus when the dialog opens, such as Cancel in a confirmation. It wins over `data-autofocus`. A ref to something outside the dialog is ignored, so focus never leaves the modal.
+- `MenuCheckboxItem` (role `menuitemcheckbox`) for on/off settings in a Menu, and `MenuRadioGroup` with `MenuRadioItem` (role `menuitemradio`) for one of a set, each with `aria-checked` and a check before the label. You hold the state (`checked` with `onCheckedChange`, `value` with `onValueChange`). The arrow keys, Home, End and typeahead reach them like any item.
+- Popover: onOpenChange gets a second argument, `{ reason }`, saying why it opened or closed: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` (the close() its children function gets). The `OpenChangeReason` and `OpenChangeDetails` types are exported for the other overlays to use next.
+
 ## [9.5.0] - 2026-10-25
 
 ### Added
