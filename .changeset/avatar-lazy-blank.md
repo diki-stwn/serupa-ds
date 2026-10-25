@@ -1,5 +1,5 @@
 ---
-"serupa-ds": patch
+"serupa-ds": minor
 ---
 
 Avatar:
