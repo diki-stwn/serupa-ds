@@ -66,7 +66,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 | `editLabel` | `string` | `'Edit'` | The last word of the button's name. |
 | `inputProps` | `InputProps` | | For the field: `maxLength`, `spellCheck`, `autoComplete`, `inputMode`… |
 
-Every other prop, `className` and `ref` go to the outer `<div>`. It has `data-component="inline-edit"`, `data-size` and `data-state` (`viewing` or `editing`).
+Every other prop, `className` and `ref` go to the outer `<div>`. `autoFocus` focuses the edit button (or the field, while editing). It has `data-component="inline-edit"`, `data-size` and `data-state` (`viewing` or `editing`).
 
 ## Component tokens
 

@@ -160,4 +160,10 @@ describe('SortableList', () => {
     document.documentElement.removeAttribute('data-theme');
     expect(low).toEqual([]);
   });
+  test('autoFocus focuses the first handle, not the list', async () => {
+    await render(<SortableList id="sl" autoFocus items={ITEMS} getKey={(i) => i.id} getLabel={(i) => i.name} renderItem={(i) => i.name} onReorder={() => undefined} />);
+    await expect.poll(() => document.activeElement).toBe(handle('Apollo'));
+    expect(document.getElementById('sl')!.hasAttribute('autofocus')).toBe(false);
+  });
+
 });
