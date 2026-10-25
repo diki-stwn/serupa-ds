@@ -65,6 +65,24 @@ export async function browser() {
 // How many stories the visual and Storybook checks open at once, each in a page of its own. Most of a story's time
 // is waiting (loading, fonts, a settle timer), not drawing, so several pages keep a runner's cores busy.
 // SERUPA_PAGES=1 goes back to one page at a time.
+// The stories' clock: a page's Date starts at CLOCK and runs on at the real pace from there. Without it a story that
+// shows today (Calendar's Today, a picker's "from today on", RelativeTime) draws a different picture each day and
+// month, and its screenshot fails on the 1st. Timers are left alone: only Date.now() and new Date() move.
+export const CLOCK = '2025-03-12T10:00:00';
+export async function fixClock(context) {
+  await context.addInitScript((start) => {
+    const Real = Date;
+    const shift = new Real(start).getTime() - Real.now();
+    function FixedDate(...a) {
+      if (!new.target) return new Real(Real.now() + shift).toString();
+      return Reflect.construct(Real, a.length ? a : [Real.now() + shift], new.target);
+    }
+    FixedDate.prototype = Real.prototype;
+    Object.setPrototypeOf(FixedDate, Real);
+    FixedDate.now = () => Real.now() + shift;
+    globalThis.Date = FixedDate;
+  }, CLOCK);
+}
 export const PAGES = Math.max(1, Number(process.env.SERUPA_PAGES) || Math.min(4, os.availableParallelism()));
 // Calls fn(item, worker) for every item, one item per worker at a time, and returns the results in the items' order.
 export async function inParallel(items, workers, fn) {

@@ -16,7 +16,7 @@
 // Small anti-aliasing differences between machines are tolerated (TOLERANCE of pixels may differ).
 import fs from 'node:fs';
 import path from 'node:path';
-import { HERE, PAGES, PROJECT, browser, inParallel, report, serve, suffix, onlyComponents } from './lib.mjs';
+import { HERE, PAGES, PROJECT, browser, fixClock, inParallel, report, serve, suffix, onlyComponents } from './lib.mjs';
 
 const TOLERANCE = 0.002;          // share of pixels allowed to differ
 const DIR = path.join(HERE, `baseline-visual${suffix}`);
@@ -50,7 +50,11 @@ const saved = () => fs.readdirSync(DIR, { recursive: true }).map((f) => String(f
 const { base, close } = serve(SB);
 const b = await browser();
 // Several pages at once (PAGES), each in its own context so focus and the pointer stay its own.
-const pages = await Promise.all(Array.from({ length: PAGES }, async () => (await b.newContext({ viewport: { width: 900, height: 600 }, deviceScaleFactor: 1 })).newPage()));
+const pages = await Promise.all(Array.from({ length: PAGES }, async () => {
+  const context = await b.newContext({ viewport: { width: 900, height: 600 }, deviceScaleFactor: 1 });
+  await fixClock(context);   // today is CLOCK, so a story that shows today draws the same picture every day
+  return context.newPage();
+}));
 const R = [];
 
 async function diff(page, a, bb) {   // share of differing pixels, computed in the browser (no image libraries needed)
