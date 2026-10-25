@@ -34,6 +34,15 @@ export interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTex
    every other prop (value, onChange, placeholder, disabled, readOnly, aria-*…) and ref to the <textarea>. */
 const OWN = { size: 1, invalid: 1, rows: 1, autoResize: 1, maxRows: 1, resize: 1, showCount: 1, className: 1, style: 1 } as const;
 
+// Whether the browser sizes a field to its content (field-sizing: content: Chromium 123+, Safari 26+). False on the
+// server, which only decides the effects there (they don't run), not the markup.
+// module state: what the browser supports, the same for every request.
+let cssSizing: boolean | undefined;
+function sizesInCss(): boolean {
+  if (cssSizing === undefined) cssSizing = typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("field-sizing", "content");
+  return cssSizing;
+}
+
 /** A multi-line text field: a native <textarea> (ref, value, onChange and every textarea attribute go to it) in a box that holds the count; className and style go to the box. Label it with <label htmlFor> or aria-label. */
 export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaProps>("Textarea", function Textarea(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
@@ -52,32 +61,34 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Calendar's
 
-  /* Auto-resize: measure the text and set the height, between rows and maxRows lines. */
+  /* Auto-resize: CSS does it where the browser sizes a field to its content (field-sizing, Textarea.css), with no
+     measuring and no frame at height auto. Elsewhere: measure the text and set the height, between rows and maxRows lines. */
+  const js = auto && !sizesInCss();
   const fit = React.useCallback(function () {
     const el = own.current;
-    if (!auto || !el) return;
+    if (!js || !el) return;
     const cs = getComputedStyle(el), line = parseFloat(cs.lineHeight) || 0, pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
     el.style.height = "auto";
     const need = el.scrollHeight, max = maxRows ? maxRows * line + pad : Infinity;
     el.style.height = Math.min(need, max) + "px";
     el.style.overflowY = need > max ? "auto" : "hidden";
-  }, [auto, maxRows]);
+  }, [js, maxRows]);
   // A new value (controlled, or a form reset), size or row count; typing refits from the change event, so a
   // replacement of the same length that wraps differently is caught too.
   useIsoLayoutEffect(fit, [fit, rest.value, length, size, rows]);
-  if (auto) {
+  if (js) {
     const changed = rest.onChange;
     rest.onChange = function (e: React.ChangeEvent<HTMLTextAreaElement>) { if (changed) changed(e); fit(); };
   }
   React.useEffect(function () {
-    if (!auto || typeof ResizeObserver === "undefined" || !own.current) return;
+    if (!js || typeof ResizeObserver === "undefined" || !own.current) return;
     let w = own.current.offsetWidth, raf = 0;
     // Re-wrap when the width changes, on the next frame: resizing the observed element inside the callback
     // raises "ResizeObserver loop completed with undelivered notifications" on window.
     const ro = new ResizeObserver(function () { const nw = own.current && own.current.offsetWidth; if (nw !== w) { w = nw as number; cancelAnimationFrame(raf); raf = requestAnimationFrame(fit); } });
     ro.observe(own.current);
     return function () { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, [auto, fit]);
+  }, [js, fit]);
 
   const setRefs = React.useCallback(function (node: HTMLTextAreaElement | null) {
     own.current = node;
@@ -86,7 +97,8 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   if (props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], countId);
   return (
     <span className={cn("dk-textarea", "dk-textarea--size-" + size, invalid && "dk-textarea--invalid", rest.disabled && "dk-textarea--disabled", rest.readOnly && "dk-textarea--readonly", resize === "none" && "dk-textarea--resize-none", auto && "dk-textarea--auto", props.className)} style={props.style} data-component="textarea" data-size={size}>
-      <textarea {...rest} ref={setRefs} rows={rows} className="dk-textarea__field" key="field" />
+      <textarea {...rest} ref={setRefs} rows={rows} className="dk-textarea__field" key="field"
+        style={auto ? ({ "--dk-ta-rows": rows, "--dk-ta-max-rows": maxRows || undefined } as React.CSSProperties) : undefined} />
       {props.showCount ? <span className={cn("dk-textarea__count", max != null && length >= max && "dk-textarea__count--full")} id={countId} key="count">{max != null ? num(length) + " / " + num(max) : num(length)}</span> : null}
     </span>
   );

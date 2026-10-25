@@ -103,11 +103,21 @@ describe('Textarea', () => {
     expect([a0.fh, a0.resize]).toEqual([2 * 20 + 12, 'none']);
     await userEvent.click(el('auto'));
     await userEvent.keyboard('1{Enter}2{Enter}3');
-    await expect.poll(() => [box('auto').fh, box('auto').oy]).toEqual([3 * 20 + 12, 'hidden']);
+    await expect.poll(() => [box('auto').fh, el('auto').scrollHeight > el('auto').clientHeight]).toEqual([3 * 20 + 12, false]);
     await userEvent.keyboard('{Enter}4{Enter}5{Enter}6');
-    await expect.poll(() => [box('auto').fh, box('auto').oy]).toEqual([4 * 20 + 12, 'auto']);
+    await expect.poll(() => [box('auto').fh, box('auto').oy, el('auto').scrollHeight > el('auto').clientHeight]).toEqual([4 * 20 + 12, 'auto', true]);
     await userEvent.keyboard('{Control>}a{/Control}{Backspace}');
     await expect.poll(() => box('auto').fh).toBe(2 * 20 + 12);
+  });
+
+  test('autoResize: in CSS (field-sizing: content, no height set inline) where the browser has it, measured in script elsewhere; the page doesn\'t scroll as it grows', async () => {
+    await setup();
+    const f = el('auto'), css = CSS.supports('field-sizing', 'content');
+    await userEvent.click(f);
+    const y = scrollY;
+    await userEvent.keyboard('1{Enter}2{Enter}3');
+    await expect.poll(() => box('auto').fh).toBe(3 * 20 + 12);
+    expect([getComputedStyle(f).getPropertyValue('field-sizing') === 'content', f.style.height !== '', scrollY]).toEqual([css, !css, y]);
   });
 
   test('autoResize: fits wrapped text, and refits when the width changes, raising no ResizeObserver loop error', async () => {
