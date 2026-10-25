@@ -204,8 +204,8 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   React.useEffect(() => { const h = hold.current; if (h && h.timer && atEnd(h.by)) stop(); });
   const stepper = (by: number) => ({
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
+      e.preventDefault();   // focus stays in the field, for any button
       if (e.button !== 0) return;
-      e.preventDefault();   // focus stays in the field
       stop(); press(by);
       const h = { by: by, timer: 0 };
       h.timer = window.setTimeout(() => { if (hold.current === h) h.timer = window.setInterval(() => latest.current(by), 50); }, 400);
@@ -231,11 +231,11 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       {props.steppers !== false ? (
         <span className="dk-number-input__steppers">
           <button type="button" tabIndex={-1} className="dk-number-input__step" aria-label={props.decrementLabel || sds.labels.decrease} aria-controls={rest.id}
-            disabled={atEnd(-1)} {...stepper(-1)} onMouseDown={(e) => e.preventDefault()}>
+            disabled={atEnd(-1)} {...stepper(-1)}>
             <Icon icon={icons.Remove} />
           </button>
           <button type="button" tabIndex={-1} className="dk-number-input__step" aria-label={props.incrementLabel || sds.labels.increase} aria-controls={rest.id}
-            disabled={atEnd(1)} {...stepper(1)} onMouseDown={(e) => e.preventDefault()}>
+            disabled={atEnd(1)} {...stepper(1)}>
             <Icon icon={icons.Add} />
           </button>
         </span>

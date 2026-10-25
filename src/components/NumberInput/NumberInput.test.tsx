@@ -306,6 +306,24 @@ describe('NumberInput', () => {
     expect(n()).toBe(29);
   }, 15_000);
 
+  test('while held, a long touch\'s context menu is held back; a right press steps nothing and keeps focus where it was', async () => {
+    await render(<Col><NumberInput id="ctx" aria-label="Ctx" defaultValue={0} /><button id="ctx-out">Out</button></Col>);
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const menu = () => { const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true }); plus('ctx').dispatchEvent(e); return e.defaultPrevented; };
+    expect(menu()).toBe(false);
+    plus('ctx').dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true, cancelable: true }));
+    await wait(50);
+    expect(menu()).toBe(true);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    await wait(30);
+    document.getElementById('ctx-out')!.focus();
+    const n = field('ctx').value;
+    const right = new PointerEvent('pointerdown', { button: 2, bubbles: true, cancelable: true });
+    plus('ctx').dispatchEvent(right);
+    await wait(30);
+    expect([field('ctx').value, right.defaultPrevented, document.activeElement?.id]).toEqual([n, true, 'ctx-out']);
+  });
+
   test('a click with no pointer press (a screen reader\'s) is one step, and a pointer click is one step too', async () => {
     await render(<Qty />);
     plus('qty').click();
