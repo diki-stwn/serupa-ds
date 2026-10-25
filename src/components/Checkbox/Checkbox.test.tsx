@@ -87,6 +87,27 @@ describe('Checkbox', () => {
     await expect.poll(() => input('c').checked).toBe(false);
   });
 
+  test('onCheckedChange gets the new state and the event after onChange, in a group too; not when read-only', async () => {
+    const calls: string[] = [];
+    await render(<div>
+      <Checkbox id="occ" onChange={() => calls.push('change')} onCheckedChange={(v, e) => calls.push(v + ' ' + e.type)}>Alone</Checkbox>
+      <Checkbox id="ocr" readOnly onCheckedChange={(v) => calls.push('ro ' + v)}>Locked</Checkbox>
+    </div>);
+    await userEvent.click(input('occ'));
+    await userEvent.click(input('occ'));
+    await userEvent.click(input('ocr'));
+    expect(calls).toEqual(['change', 'true change', 'change', 'false change']);
+  });
+
+  test('onCheckedChange on a box in a CheckboxGroup runs with the group\'s onValueChange', async () => {
+    const calls: string[] = [];
+    await render(<CheckboxGroup aria-label="Days" onValueChange={(v) => calls.push('group ' + v.join('+'))}>
+      <Checkbox id="ocg" value="mon" onCheckedChange={(v) => calls.push('box ' + v)}>Monday</Checkbox>
+    </CheckboxGroup>);
+    await userEvent.click(input('ocg'));
+    expect(calls).toEqual(['group mon', 'box true']);
+  });
+
   test('indeterminate: a dash on the primary fill (the native mixed state); it follows the prop after a click', async () => {
     function App() {
       const [mixed, setMixed] = React.useState(true);
