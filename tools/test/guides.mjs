@@ -10,11 +10,7 @@ import { PROJECT, report, done } from './lib.mjs';
 const REQUIRED = ['When to use', 'When not to use', 'Usage', 'Accessibility', 'Props', 'Component tokens'];
 // Guides whose Accessibility section doesn't say yet what the keyboard does (X2), to be filled in. The check fails
 // when one is filled in, so the entry gets removed and can't come back.
-const KEYBOARD_GAPS = ['Alert', 'Breadcrumb', 'ButtonGroup', 'Card', 'ColorPicker',
-  'DateRangePicker', 'EmptyState', 'ErrorBoundary', 'Field', 'FileUpload', 'Image',
-  'InlineEdit', 'List', 'Navbar', 'PhoneInput',
-  'Sidebar',
-  'VisuallyHidden'];
+const KEYBOARD_GAPS = ['ColorPicker', 'DateRangePicker', 'InlineEdit', 'Navbar', 'PhoneInput'];
 const DIR = path.join(PROJECT, 'src', 'components');
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
