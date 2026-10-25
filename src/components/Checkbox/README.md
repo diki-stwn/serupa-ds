@@ -3,7 +3,7 @@
 A native checkbox with its label, for turning one option on or off, or picking any number from a list. The box is drawn from tokens (`appearance: none`) and sits centered on the label's first line; a click anywhere on the label toggles it. `indeterminate` shows a dash for a select-all box when only some items are picked.
 
 ```jsx
-const { Checkbox, Field } = window.Serupa;
+const { Checkbox, CheckboxGroup, Field } = window.Serupa;
 
 <Checkbox checked={agree} onChange={(e) => setAgree(e.target.checked)}>I accept the terms</Checkbox>
 
@@ -15,7 +15,17 @@ const { Checkbox, Field } = window.Serupa;
   <Checkbox name="notify" value="mentions">Mentions</Checkbox>
 </Field>
 
-// select all
+// a group that holds the checked values, with a select-all box
+const [tags, setTags] = React.useState(["news"]);
+<Field group label="Topics">
+  <CheckboxGroup name="topics" value={tags} onValueChange={setTags}>
+    <Checkbox selectAll>All topics</Checkbox>
+    <Checkbox value="news">News</Checkbox>
+    <Checkbox value="tips">Tips</Checkbox>
+  </CheckboxGroup>
+</Field>
+
+// select all by hand (a table)
 <Checkbox checked={all} indeterminate={some && !all} onChange={toggleAll}>Select all</Checkbox>
 
 // no visible label (a table row)
@@ -37,6 +47,8 @@ const { Checkbox, Field } = window.Serupa;
 
 - Write the label as a statement that's true when checked ("Email me about replies"), not a question.
 - Stack sets vertically: they're quicker to scan than a row.
+- For a set whose answer is a list of values, use `CheckboxGroup`. It holds the list, gives every box one `name`, and passes `size`, `invalid`, `disabled` and `required` down.
+- Put a `selectAll` box first when people often want all or none. It needs no `value`.
 
 ## States
 
@@ -59,6 +71,8 @@ const { Checkbox, Field } = window.Serupa;
 - The check and dash are decorative (`aria-hidden`).
 - `readOnly` keeps it focusable and read out with `aria-readonly`, but a click or Space doesn't change it, and `onChange` doesn't run (your `onClick` does). The browser's own `readonly` does nothing on a checkbox, so Checkbox cancels the click. A checked read-only box is still submitted, which `disabled` isn't.
 - For a set, use `Field group`: a `<fieldset>` and `<legend>`, so the question is read with each option.
+- `CheckboxGroup` is a `role="group"` with `aria-invalid`, `aria-required` and `aria-disabled` from its props. `required` means at least one: every box is `required` while none is checked, so the browser won't submit the form and says why, and none is once one is.
+- A `selectAll` box is checked when every enabled box is, and indeterminate (announced as mixed) when only some are. A click checks every enabled box, or clears them when all are checked. Disabled boxes keep their state. It isn't submitted.
 - The label and description keep 4.5:1, the border, checked fill, focus ring and invalid border 3:1, and the check 4.5:1 on its fill, in all six themes (`Checkbox.test.tsx`).
 
 ### Keyboard
@@ -79,7 +93,25 @@ const { Checkbox, Field } = window.Serupa;
 | `invalid` | boolean | `false` | A danger border (while unchecked) and focus ring, and `aria-invalid` |
 | `readOnly` | boolean | `false` | Focusable and read out (`aria-readonly`), but clicks and Space don't change it; a checked box is still submitted |
 
-Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<input type="checkbox">`. `className` and `style` go to the `<label>` around it, which has `data-component="checkbox"` and `data-size`.
+| `selectAll` | boolean | `false` | In a `CheckboxGroup`: checks or clears every other box; checked when all are, indeterminate when some are |
+
+Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<input type="checkbox">`. In a `CheckboxGroup`, the group sets `name` and `checked` from each box's `value`. `className` and `style` go to the `<label>` around it, which has `data-component="checkbox"` and `data-size`.
+
+### CheckboxGroup
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `value` | `(string \| number)[]` | | The checked boxes' values (controlled). Use with `onValueChange` |
+| `defaultValue` | `(string \| number)[]` | `[]` | The values checked at first (uncontrolled). A form reset brings them back |
+| `onValueChange` | `(value, event) => void` | | Called with the new list, in the boxes' order. Numbers stay numbers |
+| `name` | `string` | generated | Every box's name, so each checked one is submitted with its value |
+| `orientation` | `'vertical'` \| `'horizontal'` | `'vertical'` | Stacked, or a wrapping row |
+| `size` | `'sm'` \| `'md'` \| `'lg'` | | The boxes' size, unless a Checkbox sets its own |
+| `invalid` | boolean | `false` | A danger border on every unchecked box, and `aria-invalid` on the group. Field's `error` sets it |
+| `disabled` | boolean | `false` | Disables every box |
+| `required` | boolean | `false` | At least one box must be checked |
+
+Other props (`id`, `aria-label`, `aria-labelledby`, `className`…) and `ref` go to the `<div role="group">`, which has `data-component="checkbox-group"` and `data-orientation`.
 
 ## Component tokens
 
@@ -103,3 +135,5 @@ Each is an optional override: set it on the page, a container or one checkbox. T
 | `--checkbox-gap` | `spacing-2` | Box to label (8px) |
 | `--checkbox-border-width` | `border-width-1` | Border width (1px) |
 | `--checkbox-radius` | `rounded-sm` | Corner radius (4px) |
+| `--checkbox-group-gap` | `spacing-2` | Between boxes in a CheckboxGroup stack, and between rows (8px) |
+| `--checkbox-group-gap-horizontal` | `spacing-4` | Between boxes in a CheckboxGroup row (16px) |
