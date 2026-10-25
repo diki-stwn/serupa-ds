@@ -77,7 +77,8 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const describedBy = rest["aria-describedby"], required = rest["aria-required"] ?? (requiredProp || undefined);
-  delete rest["aria-describedby"]; delete rest["aria-required"];
+  const errorMessage = rest["aria-errormessage"];
+  delete rest["aria-describedby"]; delete rest["aria-required"]; delete rest["aria-errormessage"];
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState<DateRange>(norm(props.defaultValue));
   const value = controlled ? norm(props.value) : own;
@@ -151,7 +152,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const field = (which: "start" | "end") => (
     <input type="text" inputMode="numeric" autoComplete="off" className="dk-input__field dk-date-range-picker__field"
       ref={which === "start" ? startField : undefined} id={which === "start" ? id : undefined}
-      aria-label={which === "start" ? startLabel || sds.labels.startDate : endLabel || sds.labels.endDate} aria-describedby={describedBy} aria-required={required} aria-invalid={invalid || undefined}
+      aria-label={which === "start" ? startLabel || sds.labels.startDate : endLabel || sds.labels.endDate} aria-describedby={describedBy} aria-errormessage={invalid ? errorMessage : undefined} aria-required={required} aria-invalid={invalid || undefined}
       value={text[which]} placeholder={datePattern(locale)} disabled={disabled} readOnly={readOnly} required={requiredProp} form={form}
       onChange={(e) => setText({ ...text, [which]: e.target.value })} onBlur={() => read(which)}
       onKeyDown={(e) => {
