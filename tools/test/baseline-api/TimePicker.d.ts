@@ -2,7 +2,7 @@
 interface TimePickerLabels {
     chooseTime: string;
 }
-interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "max" | "min" | "onChange" | "size" | "step" | "value"> {
+interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "children" | "defaultValue" | "max" | "min" | "onChange" | "size" | "step" | "value"> {
     value?: null | string;
     defaultValue?: null | string;
     onValueChange?: (value: null | string) => void;
