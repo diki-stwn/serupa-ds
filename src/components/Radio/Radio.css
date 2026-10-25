@@ -20,6 +20,11 @@
 .dk-radio--size-lg { --dk-radio-box: var(--radio-size-lg, var(--spacing-5)); --dk-radio-dot: var(--radio-dot-size-lg, var(--spacing-2)); --dk-radio-lh: var(--text-base--line-height); font-size: var(--text-base); }
 .dk-radio__control { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; height: var(--dk-radio-lh); }
 .dk-radio--bare .dk-radio__control { height: var(--dk-radio-box); }
+/* Pressed: the circle shrinks a little while the row is held (pointer, or Space on it) and springs back, as
+   Checkbox's box does. Only scale moves; not when disabled, and not under reduced motion. */
+.dk-radio__control { transition: scale var(--motion-press) var(--ease-out); }
+.dk-radio:active:not(:has(.dk-radio__input:disabled)) .dk-radio__control { scale: var(--radio-press-scale, var(--scale-90)); }
+@media (prefers-reduced-motion: reduce) { .dk-radio__control { transition: none; } .dk-radio:active .dk-radio__control { scale: none; } }
 .dk-radio__input {
   --dk-radio-bd: var(--radio-border, var(--field-border));
   --dk-radio-fill: var(--radio-bg-checked, var(--primary));
