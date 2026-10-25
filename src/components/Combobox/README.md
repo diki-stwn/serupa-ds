@@ -105,4 +105,4 @@ Each is an optional override: set it on the page, a container or one combobox. T
 | `--combobox-listbox-padding` | `spacing-1` | Space inside the list (4px). |
 | `--combobox-option-padding-x` | `spacing-2` | Space on each side of an option (8px). |
 | `--combobox-offset` | `spacing-1` | The gap between the field and the list (4px). |
-| `--combobox-z-index` | `z-50` | The list's stacking order, where the top layer isn't available. |
+| `--combobox-z-index` | `z-popover` | The list's stacking order, where the top layer isn't available. |

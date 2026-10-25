@@ -94,7 +94,7 @@
     "layout": {
       "z-index": {
         "$type": "number",
-        "$value": "{layout.z-50}",
+        "$value": "{layout.z-tooltip}",
         "$description": "The stacking level where the browser has no top layer (popover).",
         "$extensions": {
           "com.serupa": {

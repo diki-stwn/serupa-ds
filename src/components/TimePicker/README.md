@@ -84,6 +84,6 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--time-picker-option-height` | `control-height-md` | Each time's height (32px). |
 | `--time-picker-list-padding` | `spacing-1` | Space inside the list (4px). |
 | `--time-picker-offset` | `spacing-1` | The gap between the field and the list (4px). |
-| `--time-picker-z-index` | `z-50` | The list's stacking order, where the top layer isn't available. |
+| `--time-picker-z-index` | `z-popover` | The list's stacking order, where the top layer isn't available. |
 
 It uses Input's box, so it lines up with other fields.

@@ -93,7 +93,7 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--date-picker-popup-radius` | `rounded-lg` | Its corners (8px). |
 | `--date-picker-popup-padding` | `spacing-3` | Space inside it (12px). |
 | `--date-picker-offset` | `spacing-1` | The gap between the field and the panel (4px). |
-| `--date-picker-z-index` | `z-50` | The panel's stacking order, where the top layer isn't available. |
+| `--date-picker-z-index` | `z-popover` | The panel's stacking order, where the top layer isn't available. |
 
 The field itself uses Input's box (the `dk-input` classes and `--input-*` tokens), so it lines up with other fields.
 

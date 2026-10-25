@@ -6,7 +6,7 @@
 @layer dk.components {
 .dk-popover {
   --dk-popover-offset: var(--popover-offset, var(--spacing-2));
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--popover-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--popover-z-index, var(--z-popover));
   width: var(--popover-width, var(--container-3xs)); max-width: calc(var(--sizing-full) - var(--spacing-4)); max-height: calc(var(--sizing-dvh) - var(--spacing-4));
   margin: var(--spacing-0); padding: var(--popover-padding, var(--spacing-4)); overflow-y: auto; overscroll-behavior: contain;
   border: var(--popover-border-width, var(--border-width-1)) solid var(--popover-border, var(--border-overlay)); border-radius: var(--popover-radius, var(--rounded-lg));
