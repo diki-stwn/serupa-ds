@@ -70,6 +70,8 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |
 | `className`, `style` | | | Go to the panel, which has `data-component="popover"` and `data-side` |
 
+`id` isn't a prop. Put an id on the trigger, which keeps it; the panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
+
 ## Component tokens
 
 Each is an optional override: set it on the page, a container or one popover. The list lives in `src/components/Popover/popover.tokens.json` (also in `design-tokens/components/`).

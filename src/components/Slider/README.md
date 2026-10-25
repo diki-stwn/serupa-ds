@@ -60,6 +60,7 @@ Your `onKeyDown` runs before the slider's own keys, so `e.preventDefault()` in i
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. |
 | `value` | `number \| [number, number]` | | Controlled. A pair makes a range with two thumbs. |
 | `defaultValue` | `number \| [number, number]` | `min` | Uncontrolled. |
 | `onValueChange` | `(value) => void` | | As it moves. |

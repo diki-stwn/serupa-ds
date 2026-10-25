@@ -54,6 +54,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<ul>` or `<ol>`. |
 | `variant` | `'plain'` \| `'card'` | `'plain'` | Bare rows, or rows in a bordered, rounded frame |
 | `divided` | boolean | `true` | Lines between rows |
 | `as` | `'ul'` \| `'ol'` | `'ul'` | `ol` when the order matters |

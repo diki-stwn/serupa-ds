@@ -44,6 +44,7 @@ const { Avatar } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `src` | string | | The picture, cropped to fill the shape |
 | `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH": the first letter, digit or emoji of the first and last words, one character each, so "ßen Müller" is "SM") and the accessible name |
 | `alt` | string | the name | The accessible name; `alt=""` hides the avatar from screen readers |
