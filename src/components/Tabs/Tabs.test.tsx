@@ -247,4 +247,17 @@ describe('Tabs on the server', () => {
     expect(dis.map((p) => p.getAttribute('hidden'))).toEqual([null, '', '']);
   });
 
+  test('only the shown panel is in the Tab order: a kept panel of another tab has no size to land on (CO1)', async () => {
+    await setup();
+    const panels = [...el('un').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(panels.map((p) => p.tabIndex)).toEqual([0, -1, -1]);
+    (el('un').querySelector('[role="tab"][aria-selected="true"]') as HTMLElement).focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(panels[0]);
+    await userEvent.tab();
+    expect(panels).not.toContain(document.activeElement);
+    panels[1].dispatchEvent(new Event('beforematch'));
+    await expect.poll(() => panels.map((p) => p.tabIndex)).toEqual([-1, 0, -1]);
+  });
+
 });
