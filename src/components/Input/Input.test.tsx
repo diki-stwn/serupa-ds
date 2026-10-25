@@ -132,7 +132,7 @@ describe('Input', () => {
     expect(w.firstElementChild).toBe(l);
     expect(w.lastElementChild).toBe(r);
     expect([l.getAttribute('aria-hidden'), r.getAttribute('aria-hidden')]).toEqual(['true', 'true']);
-    expect(css(l.querySelector('.dk-icon')).fontSize).toBe('16px');
+    expect(css(l.querySelector('[data-icon]')).fontSize).toBe('16px');
     expect(css(l).pointerEvents).toBe('none');
   });
 

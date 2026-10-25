@@ -10,6 +10,7 @@ const meta = {
     variant: { control: 'inline-radio', options: ['line', 'pill'] },
     size: { control: 'inline-radio', options: ['sm', 'md'] },
     activation: { control: 'inline-radio', options: ['auto', 'manual'] },
+    orientation: { control: 'inline-radio', options: ['horizontal', 'vertical'] },
   },
   render: (args) => (
     <Tabs {...args} style={{ maxWidth: 520 }}>
@@ -42,3 +43,14 @@ export const Controlled: Story = {
     </div>;
   },
 };
+/** More tabs than fit: the edge with more past it fades out, and the selected tab is scrolled into view. */
+export const Overflow: Story = {
+  render: (args) => (
+    <Tabs {...args} defaultValue="m12" style={{ maxWidth: 400 }}>
+      <TabList aria-label="Months">
+        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => <Tab key={m} value={'m' + (i + 1)}>{m}</Tab>)}
+      </TabList>
+    </Tabs>
+  ),
+};
+export const Vertical: Story = { args: { orientation: 'vertical' } };

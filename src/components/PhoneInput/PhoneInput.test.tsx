@@ -175,7 +175,7 @@ describe('PhoneInput', () => {
       void css(box('p')).backgroundColor;
       await settled();
       const bg = css(box('p')).backgroundColor;
-      for (const [name, fg, min] of [['code', css(part('p')).color, 4.5], ['chevron', css(part('p').querySelector('.dk-icon')).color, 3], ['number', css(field('p')).color, 4.5]] as const) {
+      for (const [name, fg, min] of [['code', css(part('p')).color, 4.5], ['chevron', css(part('p').querySelector('[data-icon]')).color, 3], ['number', css(field('p')).color, 4.5]] as const) {
         const r = contrast(fg, bg);
         if (r < min) low.push(`${th} ${name} ${r.toFixed(2)}`);
       }

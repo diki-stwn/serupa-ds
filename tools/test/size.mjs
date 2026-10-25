@@ -62,7 +62,7 @@ const whole = await bundled(pick(all));
 const labels = await bundled(pick(['enLabels']));
 const cssWhole = cssWithout(null);
 const measured = Object.fromEntries(await Promise.all(folders.map(async (n) => [n, {
-  alone: Math.max(0, await bundled(pick(names[n])) - labels),
+  alone: await bundled(pick([...names[n], 'enLabels'])) - labels,   // with the label text added and taken off again, so a folder that has none isn't measured below its size
   share: whole - await bundled(pick(all.filter((x) => !names[n].includes(x)))),
   css: cssWhole - cssWithout(n),
 }])));

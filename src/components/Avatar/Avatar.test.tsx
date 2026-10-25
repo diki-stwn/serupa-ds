@@ -60,13 +60,13 @@ describe('Avatar', () => {
 
   test('no picture and no name: the person icon, hidden from screen readers; alt="" hides it (the name is written beside it); alt replaces the name', async () => {
     await render(<Row><Avatar id="none" /><Avatar id="alt" name="Ada Lovelace" alt="" /><Avatar id="alt2" name="Atlas" alt="Atlas project" shape="square" /></Row>);
-    expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('.dk-icon') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
+    expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('[data-icon]') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
     expect([el('alt').getAttribute('aria-hidden'), el('alt').getAttribute('role'), el('alt2').getAttribute('aria-label')]).toEqual(['true', null, 'Atlas project']);
   });
 
   test('a name of only spaces counts as none: the icon, hidden, no aria-label of spaces (AU1)', async () => {
     await render(<Row><Avatar id="blank" name="   " /></Row>);
-    expect([el('blank').getAttribute('aria-hidden'), el('blank').getAttribute('aria-label'), el('blank').getAttribute('role'), !!el('blank').querySelector('.dk-icon')]).toEqual(['true', null, null, true]);
+    expect([el('blank').getAttribute('aria-hidden'), el('blank').getAttribute('aria-label'), el('blank').getAttribute('role'), !!el('blank').querySelector('[data-icon]')]).toEqual(['true', null, null, true]);
   });
 
   test('the <img> loads lazily and decodes async by default; imgProps reach it, can make it eager, and its onError still falls back (BJ1)', async () => {

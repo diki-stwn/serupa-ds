@@ -15,7 +15,7 @@ const reach = (b: HTMLElement) => {
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const toggle = (id: string) => field(id).nextElementSibling as HTMLButtonElement;
-const eye = (id: string) => (toggle(id).querySelector<HTMLElement>('.dk-icon'))?.dataset.icon;
+const eye = (id: string) => (toggle(id).querySelector<HTMLElement>('[data-icon]'))?.dataset.icon;
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 
@@ -94,7 +94,7 @@ describe('PasswordInput', () => {
       <PasswordInput id="pnew" aria-label="New" size="lg" />
     </Wrap>);
     await expect.poll(() => css(toggle('ptok')).color).toBe('rgb(1, 2, 3)');
-    expect(['pinv', 'pw', 'pnew'].map((id) => css(toggle(id).querySelector('.dk-icon')).fontSize)).toEqual(['14px', '16px', '20px']);
+    expect(['pinv', 'pw', 'pnew'].map((id) => css(toggle(id).querySelector('[data-icon]')).fontSize)).toEqual(['14px', '16px', '20px']);
   });
 
   test('contrast: the text 4.5:1 and the eye icon 3:1 on the field in all six themes', async () => {

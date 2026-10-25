@@ -88,7 +88,7 @@ describe('Image', () => {
     </Row>);
     await expect.poll(() => [frame('broken').dataset.state, frame('custom').dataset.state]).toEqual(['error', 'error']);
     const f = frame('broken'), fb = f.querySelector('.dk-image__fallback')!;
-    expect([!!f.querySelector('img'), fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
+    expect([!!f.querySelector('img'), fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
       .toEqual([false, 'img', 'Team photo', 'broken_image', 200]);
     expect(frame('custom').querySelector('.dk-image__fallback')!.textContent).toBe('No logo');
   });
@@ -118,7 +118,7 @@ describe('Image', () => {
     await userEvent.click(viewBtn());
     await expect.poll(() => dialog().open).toBe(true);
     await finished();
-    await userEvent.click(dialog().querySelector('.dk-dialog__close')!);
+    await userEvent.click(dialog().querySelector('button[aria-label="Close"]')!);
     await expect.poll(() => dialog().open).toBe(false);
   });
 

@@ -89,7 +89,7 @@ describe('Select', () => {
     const i = field('grp');
     expect([...i.querySelectorAll('optgroup')].map((g) => g.label + '=' + [...g.children].map((o) => (o as HTMLOptionElement).value).join('/')).join()).toBe('Europe=London/Paris');
     expect([...i.options].map((o) => o.value).join()).toBe('London,Paris,Tokyo,kid');
-    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).join())
+    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).join())
       .toBe('true:none:schedule,true:none:expand_more');
     expect(css(i).paddingLeft).toBe('36px');
   });

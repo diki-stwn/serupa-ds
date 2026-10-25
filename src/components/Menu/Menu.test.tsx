@@ -255,7 +255,7 @@ describe('Menu', () => {
     const m = menuOf('mb'), it = m.querySelector<HTMLElement>('[role="menuitem"]')!, s = getComputedStyle(m), i = getComputedStyle(it);
     expect([s.paddingTop, s.borderTopLeftRadius, it.offsetHeight, i.fontSize, i.borderTopLeftRadius]).toEqual(['4px', '8px', 32, '14px', '6px']);
     expect(s.boxShadow).toMatch(/10px 15px -3px/);
-    expect(getComputedStyle(it.querySelector('.dk-icon')!).fontSize).toBe('16px');
+    expect(getComputedStyle(it.querySelector('[data-icon]')!).fontSize).toBe('16px');
   });
 
   test('a long label wraps inside a menu at most 320px wide (--menu-max-width), even under a narrow button (BH2)', async () => {

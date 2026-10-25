@@ -156,7 +156,7 @@ describe('Table', () => {
   test('sortable header: a button inside the th, no aria-sort until sorted; a hidden caption still names the table', async () => {
     await setup();
     const th = el('hsort'), b = th.querySelector('button')!;
-    expect([th.getAttribute('aria-sort'), b.type, b.textContent, b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon]).toEqual([null, 'button', 'Calls', 'unfold_more']);
+    expect([th.getAttribute('aria-sort'), b.type, b.textContent, b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon]).toEqual([null, 'button', 'Calls', 'unfold_more']);
     expect(q('#tsort caption').getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 

@@ -21,9 +21,11 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   size?: 'sm' | 'md';
   /** 'auto' (default): arrow keys move and select at once. 'manual': arrow keys move, Enter or Space selects (for panels that are slow to show). */
   activation?: 'auto' | 'manual';
+  /** 'horizontal' (default): the tabs in a row over the panels. 'vertical': a column beside them, with ↑ ↓ between tabs. */
+  orientation?: 'horizontal' | 'vertical';
 }
 
-interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null }
+interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null }
 const TabsContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const useTabs = (who: string): Ctx => {
   const c = React.useContext(TabsContext);
@@ -47,11 +49,12 @@ function firstTab(children: React.ReactNode): string | null {
 
 /* Tabs: switches between panels in one place, following the WAI-ARIA tabs pattern. <Tabs> holds the state
    (value or defaultValue, onValueChange), <TabList> the row of <Tab value>, and each <TabPanel value> the content.
-   Arrow keys move between tabs (following the text direction), Home and End jump to the ends; with activation
-   "auto" moving also selects. Only the selected tab is in the Tab order, and the selected panel follows it. */
+   Arrow keys move between tabs (following the text direction; ↑ ↓ with orientation "vertical"), Home and End jump
+   to the ends; with activation "auto" moving also selects. Only the selected tab is in the Tab order, and the selected panel follows it. */
 /** Switches between panels in one place: Tabs > TabList > Tab, and a TabPanel for each tab. */
 export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs", function Tabs(props, ref) {
-  const rest = omit(props, { value: 1, defaultValue: 1, onValueChange: 1, variant: 1, size: 1, activation: 1, className: 1 });
+  const rest = omit(props, { value: 1, defaultValue: 1, onValueChange: 1, variant: 1, size: 1, activation: 1, orientation: 1, className: 1 });
+  const vertical = props.orientation === "vertical";
   const base = domId("dk-tabs", React.useId());
   const controlled = props.value !== undefined;
   const [inner, setInner] = React.useState<string | null>(() => (props.defaultValue != null ? props.defaultValue : firstTab(props.children)));
@@ -67,7 +70,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
   // so the tab list can still be reached from the keyboard.
   const [stop, setStop] = React.useState<string | null>(null);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", panels, register, stop }), [base, value, select, props.activation, panels, register, stop]);
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop }), [base, value, select, props.activation, vertical, panels, register, stop]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
@@ -97,14 +100,52 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   return (
     <TabsContext.Provider value={ctx}>
       <div {...rest} ref={(n) => { self.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-        className={cn("dk-tabs", "dk-tabs--" + variant, size === "sm" && "dk-tabs--sm", props.className)} data-component="tabs" data-variant={variant} />
+        className={cn("dk-tabs", "dk-tabs--" + variant, size === "sm" && "dk-tabs--sm", vertical && "dk-tabs--vertical", props.className)} data-component="tabs" data-variant={variant} data-orientation={vertical ? "vertical" : "horizontal"} />
     </TabsContext.Provider>
   );
 });
 
+/* TabList: the row (or column) of tabs. When the tabs don't fit, it scrolls with no scrollbar; the edge with more
+   tabs past it fades out, so it's plain there's more, and the selected tab is scrolled into view whenever it changes. */
 /** The row of tabs. Give it an aria-label when the page doesn't already say what the tabs are for. */
 export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>("TabList", function TabList(props, ref) {
   const ctx = useTabs("TabList");
+  const list = React.useRef<HTMLDivElement | null>(null);
+  const [fade, setFade] = React.useState<{ before: boolean; after: boolean }>({ before: false, after: false });
+  // Which ends have tabs past them: before is the left (or top) edge, after the right (or bottom). In RTL,
+  // scrollLeft runs from 0 down to minus the overflow.
+  const measure = React.useCallback(() => {
+    const el = list.current;
+    if (!el) return;
+    const v = ctx.vertical, max = v ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
+    let at = v ? el.scrollTop : el.scrollLeft;
+    if (!v && getComputedStyle(el).direction === "rtl") at = max + at;
+    const next = { before: max > 1 && at > 1, after: max > 1 && at < max - 1 };
+    setFade((f) => (f.before === next.before && f.after === next.after ? f : next));
+  }, [ctx.vertical]);
+  useIsoLayoutEffect(() => {
+    const el = list.current;
+    if (!el) return;
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    if (ro) { ro.observe(el); Array.from(el.children).forEach((c) => ro.observe(c)); }
+    return () => { el.removeEventListener("scroll", measure); if (ro) ro.disconnect(); };
+  }, [measure]);
+  // The selected tab, scrolled into view inside the list only (the page doesn't move), with the fade's room to spare.
+  useIsoLayoutEffect(() => {
+    const el = list.current;
+    const tab = el && ctx.value != null ? el.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]') : null;
+    if (!el || !tab) return;
+    const room = parseFloat(getComputedStyle(el).getPropertyValue("--dk-tabs-fade")) || 0;
+    const box = el.getBoundingClientRect(), t = tab.getBoundingClientRect();
+    if (ctx.vertical) {
+      if (t.top < box.top + room) el.scrollTop -= box.top + room - t.top;
+      else if (t.bottom > box.bottom - room) el.scrollTop += t.bottom - (box.bottom - room);
+    } else if (t.left < box.left + room) el.scrollLeft -= box.left + room - t.left;
+    else if (t.right > box.right - room) el.scrollLeft += t.right - (box.right - room);
+    measure();
+  }, [ctx.value, ctx.vertical, measure]);
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (props.onKeyDown) props.onKeyDown(e);
     if (e.defaultPrevented) return;
@@ -112,9 +153,10 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttri
     const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
     if (i < 0 || !tabs.length) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+    const fwd = ctx.vertical ? "ArrowDown" : rtl ? "ArrowLeft" : "ArrowRight", back = ctx.vertical ? "ArrowUp" : rtl ? "ArrowRight" : "ArrowLeft";
     let next = -1;
-    if (e.key === "ArrowRight") next = (i + (rtl ? -1 : 1) + tabs.length) % tabs.length;
-    else if (e.key === "ArrowLeft") next = (i + (rtl ? 1 : -1) + tabs.length) % tabs.length;
+    if (e.key === fwd) next = (i + 1) % tabs.length;
+    else if (e.key === back) next = (i - 1 + tabs.length) % tabs.length;
     else if (e.key === "Home") next = 0;
     else if (e.key === "End") next = tabs.length - 1;
     if (next < 0) return;
@@ -122,7 +164,8 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttri
     tabs[next].focus();
     if (!ctx.manual && tabs[next].dataset.value != null) ctx.select(tabs[next].dataset.value as string);
   };
-  return <div {...props} ref={ref} role="tablist" aria-orientation="horizontal" className={cn("dk-tabs__list", props.className)} onKeyDown={onKeyDown} />;
+  return <div {...props} ref={(n) => { list.current = n; setRef(ref, n); }} role="tablist" aria-orientation={ctx.vertical ? "vertical" : "horizontal"}
+    className={cn("dk-tabs__list", props.className)} data-fade-before={fade.before ? "" : undefined} data-fade-after={fade.after ? "" : undefined} onKeyDown={onKeyDown} />;
 });
 
 export interface TabProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
