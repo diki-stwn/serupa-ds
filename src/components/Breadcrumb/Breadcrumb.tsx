@@ -7,6 +7,7 @@ import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
+import { warnOnce } from "../../internal/warn";
 import { Menu, MenuItem } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
 
@@ -41,6 +42,11 @@ export interface BreadcrumbItemProps extends React.AnchorHTMLAttributes<HTMLAnch
 /** One page in a Breadcrumb: a link, or the current page when it's the last. */
 export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, BreadcrumbItemProps>("BreadcrumbItem", function BreadcrumbItem(props, ref) {
   const rest = omit(props, { icon: 1, as: 1, current: 1, className: 1, children: 1 });
+  // An icon with no text and no aria-label is a link (or page) a screen reader can only call "link".
+  const named = (props.children != null && props.children !== false && props.children !== "") || !!props["aria-label"] || !!props["aria-labelledby"] || !!props.title;
+  React.useEffect(function () {
+    if (process.env.NODE_ENV !== "production" && !named) warnOnce("name:BreadcrumbItem", "BreadcrumbItem has no accessible name, so a screen reader announces only its role. Give it text, or an aria-label.");
+  }, [named]);
   const content = <>{props.icon ? <span className="dk-breadcrumb__icon">{asIcon(props.icon)}</span> : null}{props.children}</>;
   if (props.current) {
     delete rest.href;
@@ -92,6 +98,7 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
       {n > 0 ? sep : null}{React.cloneElement(el, { current: last || el.props.current })}
     </li>);
   });
+  if (!items.length) return null;   // no pages: no empty nav landmark
   return (
     <nav aria-label={sds.labels.breadcrumb} {...rest} ref={ref} data-component="breadcrumb" className={cn("dk-breadcrumb", props.className)}>
       <ol className="dk-breadcrumb__list">{out}</ol>
