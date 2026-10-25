@@ -9,6 +9,13 @@ const update = process.argv.includes('--update') ? ['--update'] : [];
 // cross-browser comparison through WebDriver (see compat.mjs).
 const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 if (arg('--browser')) process.env.SERUPA_BROWSER = arg('--browser');
+// --locale ar runs the component tests with the browser in that language (SERUPA_LOCALE, vitest.config.ts).
+if (arg('--locale')) process.env.SERUPA_LOCALE = arg('--locale');
+// A full run on CI (main, the merge queue) runs the component tests a second time with the browser in one of these
+// languages, picked by the commit, so a component that reads the browser's language where it should take the
+// provider's, or a test that expects English without saying so, fails within a few merges. Right-to-left, comma
+// decimals, Thai and Japanese scripts. To repeat one: node tools/test/run.mjs --group components --locale id-ID.
+const LOCALES = ['ar', 'id-ID', 'th', 'ja'];
 // The visual and Storybook steps, by group. They drive a browser through every preview and story, sharded across
 // CI jobs, so they stay scripts of their own.
 const GROUPS = {
@@ -31,6 +38,11 @@ const steps = [
   // The component tests next to each component (src/components/<Name>/<Name>.test.tsx), in a browser. Coverage
   // only on a full run: the floors in vitest.config.ts are for all of src/, which a few components can't reach.
   vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...only].map((n) => `src/components/${n}/`) : [])),
+  ...(process.env.CI && !arg('--since') && !arg('--locale') ? [(() => {
+    const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT, encoding: 'utf8' }).stdout.trim();
+    const locale = LOCALES[parseInt(sha.slice(0, 8) || '0', 16) % LOCALES.length];
+    return [...vitest(`Component tests in ${locale} (Vitest)`, 'components', 'components'), { SERUPA_LOCALE: locale }];
+  })()] : []),
   // --update first accepts the current API and utility classes as the baselines the checks compare with.
   ...(update.length ? [['Public API', 'api.mjs', ...update], ['Utility classes', 'utilities.mjs', ...update]].map(node('checks')) : []),
   // Every other script in tools/test/ is a check (package, tokens, icons, guides, …), run by Vitest's checks project
@@ -49,10 +61,10 @@ if (arg('--compat')) steps.push([`Cross-browser (${arg('--compat')})`, 'node', [
 // --list prints the steps (of the --group, if one is given) without running them.
 if (process.argv.includes('--list')) { for (const [name, , args, g] of steps) console.log(`${g}\t${name}\t${path.basename(args[0])}`); process.exit(0); }
 const summary = [];
-for (const [name, cmd, args] of steps) {
+for (const [name, cmd, args, , env] of steps) {
   console.log(`\n━━ ${name} ━━`);
   const t0 = Date.now();
-  const r = spawnSync(cmd, args, { stdio: 'inherit', cwd: PROJECT, env: { ...process.env, SERUPA_PROJECT: PROJECT } });
+  const r = spawnSync(cmd, args, { stdio: 'inherit', cwd: PROJECT, env: { ...process.env, SERUPA_PROJECT: PROJECT, ...env } });
   summary.push([name, r.status === 0, Date.now() - t0]);
 }
 console.log('\n━━ Summary ━━');
