@@ -10,7 +10,7 @@
   box-sizing: border-box;
   position: fixed;
   inset: auto;
-  z-index: var(--menu-z-index, var(--z-50));
+  z-index: var(--menu-z-index, var(--z-popover));
   min-width: var(--menu-min-width, var(--spacing-48));
   /* At most 20rem, so one long label wraps instead of stretching the menu across the window. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--menu-max-width, var(--spacing-80)));

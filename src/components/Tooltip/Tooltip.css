@@ -8,7 +8,7 @@
   --dk-tooltip-offset: var(--tooltip-offset, var(--spacing-1\.5));
   position: fixed;
   inset: auto;
-  z-index: var(--tooltip-z-index, var(--z-50));
+  z-index: var(--tooltip-z-index, var(--z-tooltip));
   max-width: var(--tooltip-max-width, var(--spacing-60));
   margin: var(--spacing-0);
   padding: var(--tooltip-padding-y, var(--spacing-1)) var(--tooltip-padding-x, var(--spacing-2));

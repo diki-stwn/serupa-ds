@@ -8,7 +8,7 @@
 .dk-toaster {
   --dk-toast-offset: var(--toast-offset, var(--spacing-4));
   position: fixed;
-  z-index: var(--toast-z-index, var(--z-50));
+  z-index: var(--toast-z-index, var(--z-toast));
   width: var(--toast-width, var(--container-sm));
   max-width: calc(var(--sizing-full) - var(--dk-toast-offset) - var(--dk-toast-offset));
   pointer-events: none;

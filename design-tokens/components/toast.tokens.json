@@ -196,7 +196,7 @@
     "layout": {
       "z-index": {
         "$type": "number",
-        "$value": "{layout.z-50}",
+        "$value": "{layout.z-toast}",
         "$description": "The stacking level: above the page and the FAB.",
         "$extensions": {
           "com.serupa": {

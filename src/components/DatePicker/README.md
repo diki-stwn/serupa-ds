@@ -34,7 +34,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 ## Behavior
 
-- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Two-digit years are read as 20xx.
+- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. A two-digit year is the one within 50 years of today: in 2026, `85` is 1985 and `30` is 2030, so birth dates and deadlines both read right.
 - The field always uses Gregorian years and Latin digits, so a date reads back as the same day in every locale: Thai shows 22/11/2025 rather than the Buddhist year 2568, and Persian shows 2025/11/22 rather than ۱۴۰۴/۰۹/۰۱. Digits typed in another script (٢٢/١١/٢٠٢٥) are read too. The calendar's month and weekday names stay in the locale.
 - The text is read on blur and on Enter. A date that can't be read, or one that can't be chosen, puts back the last good value. An empty field clears it.
 - The calendar opens from the button or Alt+↓ in the field, showing the typed or chosen month with focus on that day. Picking a day or Escape closes it and returns focus to the field. A click outside or Tab past the calendar closes it too, leaving focus where it went. On a touch screen, a finger that starts a scroll outside leaves it open; a tap outside closes it.
@@ -93,7 +93,7 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--date-picker-popup-radius` | `rounded-lg` | Its corners (8px). |
 | `--date-picker-popup-padding` | `spacing-3` | Space inside it (12px). |
 | `--date-picker-offset` | `spacing-1` | The gap between the field and the panel (4px). |
-| `--date-picker-z-index` | `z-50` | The panel's stacking order, where the top layer isn't available. |
+| `--date-picker-z-index` | `z-popover` | The panel's stacking order, where the top layer isn't available. |
 
 The field itself uses Input's box (the `dk-input` classes and `--input-*` tokens), so it lines up with other fields.
 

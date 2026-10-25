@@ -52,9 +52,11 @@ export function dateOrder(locale?: string): ("day" | "month" | "year")[] {
   const parts = numeric(locale).formatToParts(new Date(2001, 10, 22));
   return parts.filter((p) => p.type === "day" || p.type === "month" || p.type === "year").map((p) => p.type as "day" | "month" | "year");
 }
-/** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22), or null. Two-digit years are 20xx.
- * A leading 4-digit year reads as ISO year-month-day unless the locale writes its year first. */
-export function parseDate(text: string, locale?: string): Date | null {
+/** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22), or null. A one- or two-digit
+ * year is the one within 50 years of now (in 2026: 85 is 1985, 30 is 2030, 75 is 2075 and 77 is 1977), so a birth
+ * date or a deadline both read right. A leading 4-digit year reads as ISO year-month-day unless the locale writes its
+ * year first. */
+export function parseDate(text: string, locale?: string, now: Date = new Date()): Date | null {
   const nums = latinDigits(text).trim().split(/[^0-9]+/).filter(Boolean);
   if (nums.length !== 3) return null;
   // A leading 4-digit year is ISO (2001-11-22), unless the locale itself writes the year first in another order
@@ -63,8 +65,14 @@ export function parseDate(text: string, locale?: string): Date | null {
   const order = /^\d{4}$/.test(nums[0]) && own[0] !== "year" ? (["year", "month", "day"] as const) : own;
   const v: Record<string, number> = {};
   order.forEach((k, i) => { v[k] = Number(nums[i]); });
-  if (v.year < 100) v.year += 2000;
-  const d = new Date(v.year, v.month - 1, v.day);
+  if (nums[order.indexOf("year")].length <= 2) {
+    const y = now.getFullYear();
+    v.year += y - (y % 100);
+    if (v.year - y > 49) v.year -= 100;
+    else if (y - v.year > 50) v.year += 100;
+  }
+  const d = new Date(2000, 0, 1);
+  d.setFullYear(v.year, v.month - 1, v.day);   // so years 0–99 typed with four digits stay themselves, not 19xx
   return d.getFullYear() === v.year && d.getMonth() === v.month - 1 && d.getDate() === v.day ? d : null;
 }
 /** A date in the locale's short numeric form, as people type it: 11/22/2001. */
