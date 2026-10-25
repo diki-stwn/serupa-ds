@@ -11,7 +11,9 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
-  open: boolean;
+  open?: boolean;
+  /** Open at first, then it closes itself (uncontrolled), for one shown on arrival. Default: false. */
+  defaultOpen?: boolean;
   /** Called with false when people ask to close it: Escape, the close button, or a click on the backdrop. */
   onOpenChange?: (open: boolean) => void;
   /** The heading, which also names the dialog. */
@@ -41,7 +43,7 @@ export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
    the backdrop ask to close (onOpenChange(false)); focus goes back to where it was. The page doesn't scroll
    behind it. alert makes a role="alertdialog" for confirmations. fullScreen fills the
    screen, always or ('mobile') under 640px. */
-const OWN = { open: 1, onOpenChange: 1, title: 1, description: 1, footer: 1, size: 1, alert: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, fullScreen: 1, initialFocus: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, title: 1, description: 1, footer: 1, size: 1, alert: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, fullScreen: 1, initialFocus: 1, className: 1, children: 1 } as const;
 
 /** A modal dialog on the native <dialog>: a title, content and actions, over a dimmed page. */
 export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>("Dialog", function Dialog(props, ref) {
@@ -57,7 +59,10 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   const backdrop = props.closeOnBackdrop != null ? props.closeOnBackdrop : !alert;
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
   const initial = React.useRef(props.initialFocus); initial.current = props.initialFocus;
-  const close = React.useCallback(() => { if (ask.current) ask.current(false); }, []);
+  const [inner, setInner] = React.useState(!!props.defaultOpen);
+  const controlled = props.open !== undefined;
+  const open = controlled ? !!props.open : inner;
+  const close = React.useCallback(() => { if (!controlled) setInner(false); if (ask.current) ask.current(false); }, [controlled]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
 
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
@@ -65,7 +70,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   useIsoLayoutEffect(() => {
     const d = el.current;
     if (!d) return;
-    if (props.open && !d.open) {
+    if (open && !d.open) {
       if (!back.current) back.current = document.activeElement as HTMLElement | null;   // kept when it opens again
       modalOpening();
       if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
@@ -76,7 +81,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
       const want = initial.current && initial.current.current;
       const own = want && d.contains(want) ? want : d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
       if (own && typeof own.focus === "function") own.focus();
-    } else if (props.open) {
+    } else if (open) {
       // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.
       modalOpened(d);
     } else {
@@ -85,7 +90,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
       const b = back.current; back.current = null;
       if (b && b.isConnected && typeof b.focus === "function") b.focus();
     }
-  }, [props.open, reopened]);
+  }, [open, reopened]);
   // Closed while unmounting: give focus back too.
   React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); const b = back.current; if (b && b.isConnected) b.focus(); }; }, []);
 
@@ -96,7 +101,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   // The browser can close it on its own (dialog.close(), a form with method="dialog", an Escape it doesn't let us
   // cancel, such as Chromium's second Escape with no click in between): if open is still true, ask to close. A
   // parent that keeps open true gets it shown again, so open stays the truth.
-  const openNow = React.useRef(props.open); openNow.current = props.open;
+  const openNow = React.useRef(open); openNow.current = open;
   const onClose = (e: React.SyntheticEvent<HTMLDialogElement>) => {
     if (rest.onClose) rest.onClose(e);
     if (e.target !== e.currentTarget) return;

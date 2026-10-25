@@ -1,6 +1,7 @@
 // exports: Dialog, type DialogProps
 interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
-    open: boolean;
+    open?: boolean;
+    defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     title?: React.ReactNode;
     description?: React.ReactNode;

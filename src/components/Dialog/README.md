@@ -46,6 +46,7 @@ const [open, setOpen] = React.useState(false);
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
 - On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
+- Without `open`, it keeps its own state: `defaultOpen` shows it on arrival, and Escape, the × or the backdrop close it by themselves (`onOpenChange(false)` still comes).
 - To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 - Under `<React.StrictMode>`, a Dialog that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 
@@ -70,7 +71,8 @@ const [open, setOpen] = React.useState(false);
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
-| `open` | boolean | required | Whether it's open |
+| `open` | boolean | | Whether it's open (controlled) |
+| `defaultOpen` | boolean | `false` | Open at first, then it closes itself (uncontrolled), for a dialog shown on arrival |
 | `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open` |
 | `title` | node | | The heading (`text-lg`, `font-semibold`), which also names the dialog |
 | `description` | node | | A muted line under the title, read when it opens |
