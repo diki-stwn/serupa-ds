@@ -33,6 +33,23 @@ const OWN = { tone: 1, title: 1, icon: 1, actions: 1, onDismiss: 1, dismissLabel
 const TONES: readonly AlertTone[] = ["info", "success", "warning", "danger", "neutral"];
 const ICONS: Record<AlertTone, IconData> = { info: icons.Info, success: icons.CheckCircle, warning: icons.Warning, danger: icons.Error, neutral: icons.Info };
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+// Dismissing with the focused × would drop focus on <body> once the app removes the alert (DQ1). It goes to the next
+// focusable element after the alert instead, else the one before it. A handler that moves focus, or keeps the alert, is
+// left alone.
+function dismissAndRefocus(e: React.MouseEvent<HTMLElement>, onDismiss: () => void): void {
+  const me = e.currentTarget, box = me.closest(".dk-alert"), doc = me.ownerDocument;
+  const near = box && doc.activeElement === me ? Array.from(doc.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => !box.contains(el)) : [];
+  const next = near.filter((el) => box!.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+  const prev = near.filter((el) => !next.includes(el)).reverse();
+  onDismiss();
+  if (near.length) setTimeout(function () {
+    if (me.isConnected || (doc.activeElement && doc.activeElement !== doc.body)) return;
+    const to = next.concat(prev).find((el) => el.isConnected && el.getClientRects().length > 0);
+    if (to) to.focus();
+  }, 0);
+}
+
 /** A message about the page or a task: a tinted box with an icon, an optional title, actions and a close button. */
 export const Alert = /* @__PURE__ */ component<HTMLDivElement, AlertProps>("Alert", function Alert(props, ref) {
   const sds = useSerupa();
@@ -49,7 +66,7 @@ export const Alert = /* @__PURE__ */ component<HTMLDivElement, AlertProps>("Aler
         {has(props.children) ? <div className="dk-alert__message">{props.children}</div> : null}
         {has(props.actions) ? <div className="dk-alert__actions">{props.actions}</div> : null}
       </div>
-      {props.onDismiss ? <Button className="dk-alert__dismiss" variant="ghost" size="sm" icon={icons.Close} aria-label={props.dismissLabel || sds.labels.dismiss} onClick={props.onDismiss} /> : null}
+      {props.onDismiss ? <Button className="dk-alert__dismiss" variant="ghost" size="sm" icon={icons.Close} aria-label={props.dismissLabel || sds.labels.dismiss} onClick={(e) => dismissAndRefocus(e, props.onDismiss!)} /> : null}
     </div>
   );
 });
