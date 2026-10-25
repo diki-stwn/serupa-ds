@@ -32,5 +32,13 @@ export const Interactive: Story = {
 };
 export const Vertical: Story = { args: { orientation: 'vertical', current: 2 } };
 export const WithError: Story = { args: { current: 2, steps: [{ title: 'Upload' }, { title: 'Check', status: 'error', description: '3 rows need fixing' }, { title: 'Import' }] } };
+export const WithWarning: Story = { args: { current: 2, steps: [{ title: 'Details' }, { title: 'Photos', status: 'warning', description: 'Add at least one' }, { title: 'Publish' }] } };
+/** A form people can fill in any order: clickable="all" makes every step but the current one a button. */
+export const NonLinear: Story = {
+  render: function Render() {
+    const [step, setStep] = React.useState(1);
+    return <Stepper steps={STEPS} current={step} onStepClick={setStep} clickable="all" />;
+  },
+};
 /** Too narrow for the titles side by side (a phone, or 400% zoom): the circles, and the current step under them. */
 export const Narrow: Story = { args: { current: 1 }, decorators: [(S) => <div style={{ width: '320px' }}><S /></div>] };
