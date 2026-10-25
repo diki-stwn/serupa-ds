@@ -39,7 +39,7 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
   const content = <>{props.icon ? <span className="dk-breadcrumb__icon">{asIcon(props.icon)}</span> : null}{props.children}</>;
   if (props.current) {
     delete rest.href;
-    return <span {...rest} ref={ref as React.Ref<HTMLSpanElement>} aria-current="page" className={cn("dk-breadcrumb__item dk-breadcrumb__item--current", props.className)}>{content}</span>;
+    return <span {...rest} ref={ref} aria-current="page" className={cn("dk-breadcrumb__item dk-breadcrumb__item--current", props.className)}>{content}</span>;
   }
   return React.createElement(props.as || "a", Object.assign(rest, { ref: ref, className: cn("dk-breadcrumb__item dk-breadcrumb__link", props.className) }), content);
 });

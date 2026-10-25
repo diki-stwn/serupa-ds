@@ -5,7 +5,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-table {
-  box-sizing: border-box; max-width: var(--sizing-full); overflow: auto; position: relative;
+  box-sizing: border-box; max-width: var(--sizing-full); overflow: auto; overscroll-behavior-x: contain; position: relative;
   border: var(--table-border-width, var(--border-width-1)) solid var(--table-border, var(--border)); border-radius: var(--table-radius, var(--rounded-lg));
   background: var(--table-bg, var(--surface));
 }
@@ -36,7 +36,7 @@
 .dk-table__sort {
   box-sizing: border-box; display: inline-flex; align-items: center; gap: var(--spacing-1); width: var(--sizing-full);
   padding: var(--table-padding-y, var(--spacing-3)) var(--table-padding-x, var(--spacing-3));
-  border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer;
+  border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer; touch-action: manipulation;
 }
 .dk-table--sm .dk-table__sort { padding-block: var(--table-padding-y-sm, var(--spacing-2)); }
 .dk-table__cell--center .dk-table__sort { justify-content: center; }
@@ -48,4 +48,12 @@
 @media (hover: hover) { .dk-table__sort:hover .dk-table__sort-icon--idle { opacity: var(--opacity-100); } }
 @media (forced-colors: active) { .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { border-inline-start: var(--table-indicator-width, var(--border-width-2)) solid Highlight; } }
 @media (prefers-reduced-motion: reduce) { .dk-table__body .dk-table__row { transition: none; } }
+/* Print: the whole table, not its scrolled window; the header row repeats on every page, and a row isn't split
+   across two pages. */
+@media print {
+  .dk-table { overflow: visible; max-height: none; }
+  .dk-table__head { display: table-header-group; }
+  .dk-table__row { break-inside: avoid; }
+  .dk-table--sticky .dk-table__head .dk-table__cell { position: static; }
+}
 }

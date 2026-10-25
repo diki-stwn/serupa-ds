@@ -15,6 +15,7 @@ interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDivElement
     fullWidth?: boolean;
     disabled?: boolean;
     name?: string;
+    form?: string;
     invalid?: boolean;
     required?: boolean;
     readOnly?: boolean;

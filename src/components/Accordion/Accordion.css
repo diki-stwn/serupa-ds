@@ -13,7 +13,7 @@
 .dk-accordion__heading { margin: var(--spacing-0); font: inherit; }
 .dk-accordion__trigger {
   box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); width: var(--sizing-full);
-  padding: var(--accordion-padding-y, var(--spacing-4)) var(--spacing-0); border: var(--spacing-0); background: transparent; cursor: pointer;
+  padding: var(--accordion-padding-y, var(--spacing-4)) var(--spacing-0); border: var(--spacing-0); background: transparent; cursor: pointer; touch-action: manipulation;
   color: var(--accordion-title-color, var(--text)); font-family: inherit; font-size: var(--accordion-title-size, var(--text-sm)); line-height: var(--text-sm--line-height); font-weight: var(--accordion-title-weight, var(--font-medium)); text-align: start;
   border-radius: var(--rounded-sm);
 }

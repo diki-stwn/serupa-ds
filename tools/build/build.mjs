@@ -28,13 +28,17 @@ const read = (f) => fs.readFileSync(path.join(P, f), 'utf8');
 buildRegistry(P);
 const IMPORTS = cascade(P);
 
-const tokens = spawnSync(process.execPath, [path.join(P, 'tools', 'tokens', 'build.mjs')], { cwd: P, stdio: 'inherit' });
+// Progress goes to stderr (the child processes' stdout too): npm runs this as "prepare", and npm pack --json
+// must print nothing but its JSON.
+/** @type {import('node:child_process').StdioOptions} */
+const toStderr = ['inherit', 2, 'inherit'];
+const tokens = spawnSync(process.execPath, [path.join(P, 'tools', 'tokens', 'build.mjs')], { cwd: P, stdio: toStderr });
 if (tokens.status !== 0) process.exit(tokens.status || 1);
 
 fs.mkdirSync(D, { recursive: true });
 if (!process.argv.includes('--css')) {
   // tsup reads tsconfig.json and bundles index.d.ts with TypeScript's compiler API: TypeScript 6's (tools/typescript/api.mjs).
-  const r = spawnSync(process.execPath, ['--import', path.join(P, 'tools', 'typescript', 'api.mjs'), path.join(P, 'node_modules', 'tsup', 'dist', 'cli-default.js')], { cwd: P, stdio: 'inherit' });
+  const r = spawnSync(process.execPath, ['--import', path.join(P, 'tools', 'typescript', 'api.mjs'), path.join(P, 'node_modules', 'tsup', 'dist', 'cli-default.js')], { cwd: P, stdio: toStderr });
   if (r.status !== 0) process.exit(r.status || 1);
   await buildModules();
 }
@@ -50,7 +54,10 @@ const bare = (css) => css.replace(/\/\*(?!!)[\s\S]*?\*\//g, '').replace(/[ \t]+$
 fs.writeFileSync(path.join(D, 'components.css'), banner('components') + bare(components));
 fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + bare(utilities));
 fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + bare(components) + bare(utilities));
-fs.writeFileSync(path.join(D, 'base.css'), bare(read('src/styles/base.css')));
+// base.css and theme.js say __VERSION__ in src/; the build writes package.json's version there, so a release changes
+// the number in one place.
+const stamp = (s) => s.replaceAll('__VERSION__', version);
+fs.writeFileSync(path.join(D, 'base.css'), stamp(bare(read('src/styles/base.css'))));
 
 // components.json: for each component, the names it exports, the dk-* classes its CSS uses and the components it
 // needs (the ones it imports, and the ones whose classes it writes out). serupa-purge --components reads it to
@@ -78,7 +85,7 @@ scan(path.join(P, 'src'));
 const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/g)].map((m) => m[1].replace(/\\(.)/g, '$1')));
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
-fs.copyFileSync(path.join(P, 'src', 'theme.js'), path.join(D, 'theme.js'));
+fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
 
 // React 19 ships no browser builds (React 18's umd/ folder), so they're built here, under the names and globals
 // React 18's had. react-dom takes React from window.React, so both use the one copy.
@@ -96,7 +103,7 @@ for (const { file, contents, plugins } of libs) await build({
   stdin: { contents, resolveDir: P, loader: 'js' }, bundle: true, format: 'iife', platform: 'browser', target: 'es2022',
   minify: true, legalComments: 'inline', define: { 'process.env.NODE_ENV': '"production"' }, plugins, outfile: path.join(D, 'lib', file), logLevel: 'warning',
 });
-console.log(`Built dist/ (v${version})`);
+console.error(`Built dist/ (v${version})`);
 
 // dist/js/: every source file as its own ES module (src/components/Button/Button.tsx → js/components/Button/Button.js),
 // imports kept as imports. Bundled into one file, React Server Components would see one module: either all of it a

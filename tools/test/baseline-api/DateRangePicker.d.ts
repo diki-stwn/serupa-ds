@@ -30,6 +30,7 @@ interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpanElement
     endLabel?: string;
     startName?: string;
     endName?: string;
+    form?: string;
     buttonLabel?: string;
     months?: 1 | 2;
 }

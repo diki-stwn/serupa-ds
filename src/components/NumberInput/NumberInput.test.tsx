@@ -8,8 +8,8 @@ import { NumberInput } from './NumberInput';
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const steps = (id: string) => [...field(id).parentElement!.querySelectorAll<HTMLButtonElement>('.dk-number-input__step')];
-const minus = (id: string) => steps(id)[0]!;
-const plus = (id: string) => steps(id)[1]!;
+const minus = (id: string) => steps(id)[0];
+const plus = (id: string) => steps(id)[1];
 // Replaces the field's text, as a person selecting it all and typing would, then (optionally) leaves it.
 const fill = async (id: string, text: string) => { await userEvent.fill(field(id), text); };
 const blur = async (id: string) => { field(id).blur(); await expect.poll(() => document.activeElement !== field(id)).toBe(true); };
@@ -34,7 +34,7 @@ describe('NumberInput', () => {
       .toEqual(['text', 'spinbutton', '5', '0', '100', 'numeric', true]);
     expect(box.className).toMatch(/dk-input dk-number-input dk-input--size-md/);
     expect(box.className).toMatch(/extra/);
-    expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0]!.textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
+    expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0].textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
     expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
   });
 
@@ -122,6 +122,26 @@ describe('NumberInput', () => {
     const over = calls.join();
     await blur('nctl');
     expect([typed, over, calls.join(), field('nctl').value]).toEqual(['3', '3', '3,4', '4']);
+  });
+
+  test('controlled, and the parent keeps its value: + and ArrowUp ask for 6 but the field still shows 5', async () => {
+    const calls: Array<number | null> = [];
+    await render(<NumberInput id="nkeep" aria-label="Seats" value={5} onValueChange={(n) => calls.push(n)} />);
+    await userEvent.click(plus('nkeep'));
+    await expect.poll(() => field('nkeep').value).toBe('5');
+    await userEvent.keyboard('{ArrowUp}');
+    await expect.poll(() => field('nkeep').value).toBe('5');
+    expect([calls.join(), field('nkeep').getAttribute('aria-valuenow')]).toEqual(['6,6', '5']);
+  });
+
+  test('controlled, and the parent keeps its value: what was typed stays while typing, and blur puts the value back', async () => {
+    const calls: Array<number | null> = [];
+    await render(<NumberInput id="nkept" aria-label="Seats" value={5} onValueChange={(n) => calls.push(n)} />);
+    await fill('nkept', '8');
+    const typed = field('nkept').value;
+    await blur('nkept');
+    await expect.poll(() => field('nkept').value).toBe('5');
+    expect([typed, calls[0]]).toEqual(['8', 8]);
   });
 
   test('step 0.25: ArrowUp 1.5 → 1.75, and 2.333 rounds to 2 decimals (2.33); decimal keyboard', async () => {

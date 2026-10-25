@@ -37,6 +37,8 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   thumbLabels?: [string, string];
   /** Submits the value with a form: one hidden input, or two with the same name for a range. */
   name?: string;
+  /** The id of a form to submit and reset with, when it isn't inside one, as the form attribute of an input. */
+  form?: string;
   /** A danger fill and thumb ring, and aria-invalid on the thumbs. Say what's wrong in text next to it (Field's error does). */
   invalid?: boolean;
   /** Focusable and read out, but keys and presses don't change it; the value is still submitted. */
@@ -45,7 +47,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   required?: boolean;
 }
 
-const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, invalid: 1, readOnly: 1, required: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
+const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
 
 /* Slider: picks a number, or a range with two thumbs, by dragging along a track or with the keyboard. Each thumb
    is role="slider" with aria-valuenow, min, max and valuetext. Arrows change it by step (Right and Up raise it;
@@ -66,10 +68,10 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const [own, setOwn] = React.useState<SliderValue>(props.defaultValue ?? min);
   const raw = controlled ? (props.value as SliderValue) : own;
   const isRange = Array.isArray(raw);
-  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw as number)];
+  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw)];
   const latest = React.useRef(vals); latest.current = vals;
   const root = React.useRef<HTMLDivElement | null>(null);
-  useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? min); });
+  useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? min); }, props.form);
   const thumbs = React.useRef<(HTMLSpanElement | null)[]>([]);
   const drag = React.useRef<number | null>(null);
   // A disabled <fieldset> around it disables it too, as it does native inputs.
@@ -172,7 +174,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
             onKeyDown={onKeyDown(i)} />
         ))}
       </div>
-      {props.name ? vals.map((v, i) => <input key={"in" + i} type="hidden" name={props.name} value={v} disabled={disabled} />) : null}
+      {props.name ? vals.map((v, i) => <input key={"in" + i} type="hidden" name={props.name} form={props.form} value={v} disabled={disabled} />) : null}
     </div>
   );
 }) as (<V extends SliderValue = SliderValue>(props: SliderProps<V> & React.RefAttributes<HTMLDivElement>) => React.ReactElement | null) & { displayName?: string };

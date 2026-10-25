@@ -187,6 +187,11 @@
   .dk-loader--pattern-random .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000) + var(--duration-1000) + var(--duration-1000)); }   /* 4s, one shared clock: the scattered starts keep it random */
   .dk-loader__bone { animation: none; background-image: none; background-color: var(--dk-loader-fill, var(--secondary)); }   /* a still fill */
 }
+/* Forced colors (Windows high contrast) drop background colors, which would leave a skeleton screen blank: the
+   bones keep a still GrayText fill, the system color for content that isn't there yet. */
+@media (forced-colors: active) {
+  .dk-loader__bone { forced-color-adjust: none; animation: none; background-image: none; background-color: GrayText; }
+}
 /* Inside a loading Button the Loader (ring) takes the button's icon size. */
 .dk-btn .dk-loader { --dk-loader-size: var(--button-icon-size-md, var(--spacing-4)); }
 .dk-btn--size-sm .dk-loader { --dk-loader-size: var(--button-icon-size-sm, var(--spacing-3\.5)); }

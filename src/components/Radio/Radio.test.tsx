@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
@@ -15,7 +15,7 @@ const mid = (id: string) => {
   return Math.abs(ir.top + ir.height / 2 - (tr.top + Math.min(tr.height, parseFloat(css(wrap(id)).lineHeight)) / 2));
 };
 
-let errors: ReturnType<typeof vi.spyOn>, warnings: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>, warnings: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); warnings = vi.spyOn(console, 'warn'); });
 afterEach(() => {
   expect(errors).not.toHaveBeenCalled();

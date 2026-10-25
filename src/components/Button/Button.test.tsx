@@ -6,6 +6,7 @@ import { color, keepMotion } from '../../../tools/test/vitest/helpers';
 import * as Serupa from '../../index';
 import { config, configure } from '../../internal/config';
 import { Loader } from '../Loader/Loader';
+import { Tooltip } from '../Tooltip/Tooltip';
 import { Button, buttonClass } from './Button';
 
 // About motion: transitions and animations stay on for this file (setup.ts turns them off elsewhere).
@@ -29,7 +30,7 @@ async function eased(node: Element) {
 async function hold<T>(target: Element, during: () => Promise<T> | T, { ms = 500, at, button }: { ms?: number; at?: { x: number; y: number }; button?: 'right' } = {}): Promise<T> {
   const down = new Promise((ok) => document.addEventListener('pointerdown', ok, { once: true, capture: true }));
   // userEvent calls start once awaited (then), so chain one now and look while the button is down.
-  const click = userEvent.click(target, { delay: ms, position: at, button, force: true } as never).then(() => {});
+  const click = userEvent.click(target, { delay: ms, position: at, button, force: true }).then(() => {});
   await Promise.race([down, new Promise((ok) => setTimeout(ok, ms / 2))]);   // a disabled control may get no pointerdown
   await eased(target);
   const out = await during();
@@ -50,7 +51,7 @@ function reduceMotion(): () => void {
   };
   for (const s of document.styleSheets) { try { walk(s.cssRules); } catch { /* another origin */ } }
   const mm = window.matchMedia;
-  window.matchMedia = ((query: string) => (/prefers-reduced-motion:\s*reduce/.test(query) ? { ...mm.call(window, 'all'), matches: true, media: query } : mm.call(window, query))) as typeof window.matchMedia;
+  window.matchMedia = ((query: string) => (/prefers-reduced-motion:\s*reduce/.test(query) ? { ...mm.call(window, 'all'), matches: true, media: query } : mm.call(window, query)));
   return () => { for (const [m, t] of flipped) m.mediaText = t; window.matchMedia = mm; };
 }
 
@@ -192,6 +193,86 @@ describe('Button', () => {
       await userEvent.click(el('sub'));
       expect(take()).toContain('submit');
     });
+  });
+
+  test('a loading or disabled-with-reason button does nothing itself, but its click still reaches a parent\'s handler', async () => {
+    const heard: string[] = [];
+    await render(<div onClick={(e) => heard.push((e.target as HTMLElement).closest('[id^="b"]')?.id || '')}>
+      <Button id="bl" loading onClick={() => heard.push('own')}>Save</Button>
+      <Button id="bd" disabled disabledReason="Fill in the form first" onClick={() => heard.push('own')}>Send</Button>
+    </div>);
+    for (const id of ['bl', 'bd']) await userEvent.click(el(id), { force: true });
+    expect(heard).toEqual(['bl', 'bd']);
+  });
+
+  test('disabledReason: with disabled it stays in the tab order (aria-disabled, no disabled attribute), the reason is its description and not its name, clicks and form submission do nothing; without disabled it is ignored; a disabled link with a reason is focusable too', async () => {
+    const onClick = vi.fn(), onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    await render(<form onSubmit={onSubmit}>
+      <input id="dr-in" />
+      <Button id="dr" type="submit" disabled disabledReason="Fill in your name first" onClick={onClick}>Save</Button>
+      <Button id="dr-on" disabledReason="Never shown">Save</Button>
+      <Button id="dr-link" href="#x" disabled disabledReason="Not yet">Docs</Button>
+    </form>);
+    const b = el('dr');
+    expect([b.hasAttribute('disabled'), b.getAttribute('aria-disabled'), document.getElementById(b.getAttribute('aria-describedby')!)?.textContent]).toEqual([false, 'true', 'Fill in your name first']);
+    await expect.element(page.getByRole('button', { name: 'Save', exact: true, disabled: true })).toHaveAccessibleDescription('Fill in your name first');
+    el('dr-in').focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(b);
+    await userEvent.keyboard('{Enter}');
+    await userEvent.click(b, { force: true });
+    el('dr-in').focus();
+    await userEvent.keyboard('{Enter}');
+    expect([onClick.mock.calls.length, onSubmit.mock.calls.length]).toEqual([0, 0]);
+    expect([el('dr-on').hasAttribute('aria-describedby'), el('dr-on').hasAttribute('aria-disabled')]).toEqual([false, false]);
+    expect([el('dr-link').tabIndex, el('dr-link').getAttribute('aria-disabled'), el('dr-link').hasAttribute('href')]).toEqual([0, 'true', false]);
+    expect(getComputedStyle(b).opacity).toBe('0.5');
+  });
+
+  test('disabledReason in a Tooltip with the same words: focus shows the tooltip (a disabled button never could), and the reason is read once, from the tooltip', async () => {
+    await render(<Tooltip content="Fill in your name first" delay={0}><Button id="drt" disabled disabledReason="Fill in your name first">Save</Button></Tooltip>);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(el('drt'));
+    const tip = document.querySelector('.dk-tooltip') as HTMLElement;
+    await expect.poll(() => tip.dataset.state).toBe('open');
+    expect([el('drt').getAttribute('aria-describedby'), el('drt').querySelector('[hidden]')]).toEqual([tip.id, null]);
+  });
+
+  test('onClick returning a promise: loading (aria-busy) until it settles, a second click meanwhile does nothing; resolved with successText, a check replaces the label for 2s and the text is announced; rejected, no success', async () => {
+    let settle: Array<[() => void, () => void]> = [];
+    const onClick = vi.fn(() => new Promise<void>((ok, no) => { settle.push([ok, no]); }));
+    await render(<><Button id="pr" onClick={onClick} successText="Saved">Save</Button><Button id="pr2" onClick={onClick} successText="Saved">Send</Button></>);
+    await userEvent.click(el('pr'));
+    await expect.poll(() => el('pr').getAttribute('aria-busy')).toBe('true');
+    await userEvent.click(el('pr'), { force: true });
+    expect(onClick).toHaveBeenCalledTimes(1);
+    settle[0][0]();
+    await expect.poll(() => el('pr').hasAttribute('data-success')).toBe(true);
+    expect([el('pr').hasAttribute('aria-busy'), !!el('pr').querySelector('.dk-btn__success .dk-btn__check')]).toEqual([false, true]);
+    await expect.poll(() => getComputedStyle(el('pr').querySelector('.dk-btn__label')!).opacity).toBe('0');
+    await expect.element(page.getByRole('button', { name: 'Save', exact: true })).toBeInTheDocument();
+    await expect.poll(() => announcer().textContent).toMatch(/Saved$/);
+    await expect.poll(() => el('pr').hasAttribute('data-success'), { timeout: 3000 }).toBe(false);
+    await userEvent.click(el('pr2'));
+    settle[1][1]();
+    await expect.poll(() => el('pr2').hasAttribute('aria-busy')).toBe(false);
+    expect(el('pr2').hasAttribute('data-success')).toBe(false);
+    settle = [];
+  });
+
+  test('onClick with a quick promise (under 300ms): no loading flash and no "Loading" announced, but still no second click until it settles', async () => {
+    let ok: () => void = () => {};
+    const onClick = vi.fn(() => new Promise<void>((r) => { ok = r; }));
+    await render(<Button id="qk" onClick={onClick}>Copy</Button>);
+    const a = announcer(); a.textContent = '';
+    await userEvent.click(el('qk'));
+    await userEvent.click(el('qk'));
+    expect([onClick.mock.calls.length, el('qk').hasAttribute('aria-busy')]).toEqual([1, false]);
+    ok();
+    await new Promise((r) => setTimeout(r, 400));
+    expect([el('qk').hasAttribute('aria-busy'), a.textContent]).toEqual([false, '']);
+    await userEvent.click(el('qk'));
+    expect(onClick).toHaveBeenCalledTimes(2);
   });
 
   test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: turning, its arc growing and shrinking)', async () => {

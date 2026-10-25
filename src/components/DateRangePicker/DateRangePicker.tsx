@@ -51,6 +51,8 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpan
   /** Form names: hidden inputs send each end as yyyy-mm-dd. */
   startName?: string;
   endName?: string;
+  /** The id of a form to submit and reset with, when it isn't inside one, as the form attribute of an input. */
+  form?: string;
   /** The calendar button's name. Default: "Choose dates". */
   buttonLabel?: string;
   /** Months shown side by side in the popup: 1 or 2 (default). */
@@ -70,12 +72,13 @@ const key = (d: Date | null) => (d ? d.getTime() : null);
 export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRangePickerProps>("DateRangePicker", function DateRangePicker(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, disabled, readOnly, required: requiredProp, id, startLabel, endLabel, startName, endName, buttonLabel, months: _m, autoFocus, className, ...rest } = props;
+  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, disabled, readOnly, required: requiredProp, id, startLabel, endLabel, startName, endName, form, buttonLabel, months: _m, autoFocus, className, ...rest } = props;
   const locale = useLocale(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const describedBy = rest["aria-describedby"], required = rest["aria-required"] ?? (requiredProp || undefined);
-  delete rest["aria-describedby"]; delete rest["aria-required"];
+  const errorMessage = rest["aria-errormessage"];
+  delete rest["aria-describedby"]; delete rest["aria-required"]; delete rest["aria-errormessage"];
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState<DateRange>(norm(props.defaultValue));
   const value = controlled ? norm(props.value) : own;
@@ -149,8 +152,8 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const field = (which: "start" | "end") => (
     <input type="text" inputMode="numeric" autoComplete="off" className="dk-input__field dk-date-range-picker__field"
       ref={which === "start" ? startField : undefined} id={which === "start" ? id : undefined}
-      aria-label={which === "start" ? startLabel || sds.labels.startDate : endLabel || sds.labels.endDate} aria-describedby={describedBy} aria-required={required} aria-invalid={invalid || undefined}
-      value={text[which]} placeholder={datePattern(locale)} disabled={disabled} readOnly={readOnly} required={requiredProp}
+      aria-label={which === "start" ? startLabel || sds.labels.startDate : endLabel || sds.labels.endDate} aria-describedby={describedBy} aria-errormessage={invalid ? errorMessage : undefined} aria-required={required} aria-invalid={invalid || undefined}
+      value={text[which]} placeholder={datePattern(locale)} disabled={disabled} readOnly={readOnly} required={requiredProp} form={form}
       onChange={(e) => setText({ ...text, [which]: e.target.value })} onBlur={() => read(which)}
       onKeyDown={(e) => {
         if (isComposing(e)) return;
@@ -174,8 +177,8 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
         disabled={off} onClick={() => { if (open) close(false); else { read("start"); show(); } }}>
         <Icon icon={icons.DateRange} />
       </button>
-      {startName ? <input type="hidden" name={startName} value={value.start ? isoDate(value.start) : ""} disabled={disabled} /> : null}
-      {endName ? <input type="hidden" name={endName} value={value.end ? isoDate(value.end) : ""} disabled={disabled} /> : null}
+      {startName ? <input type="hidden" name={startName} form={form} value={value.start ? isoDate(value.start) : ""} disabled={disabled} /> : null}
+      {endName ? <input type="hidden" name={endName} form={form} value={value.end ? isoDate(value.end) : ""} disabled={disabled} /> : null}
       <div ref={panel} id={popId} role="dialog" aria-label={buttonLabel || sds.labels.chooseDates} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-date-picker__popup dk-date-range-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}
         onMouseLeave={() => setHover(null)}>

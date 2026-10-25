@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Navbar, NavbarLink } from './Navbar';
 
@@ -45,7 +45,7 @@ describe('Navbar', () => {
   test('wide screens: brand, links, then actions on the right, in a Container xl (1280px max, padded); no menu button', async () => {
     await render(<Main />);
     const [b, n, a] = ['#brand', '#nav nav', '#act'].map((s) => Math.round(q(s).getBoundingClientRect().left));
-    expect(b! < n! && n! < a! && a! > 900).toBe(true);
+    expect(b < n && n < a && a > 900).toBe(true);
     const inner = q('#nav .dk-navbar__inner');
     expect([Math.round(inner.getBoundingClientRect().width), css(inner).paddingLeft]).toEqual([1100, '32px']);
     expect(vis('#nav .dk-navbar__toggle')).toBe(false);
@@ -63,6 +63,13 @@ describe('Navbar', () => {
     await userEvent.hover(el('lp'));
     await expect.poll(() => [css(el('lp')).backgroundColor, css(el('lp')).color]).toEqual([active.bg, active.color]);
     await away();
+  });
+
+  test('forced colors: the current page keeps a 2px CanvasText outline, since the shading is dropped; other links have none', async () => {
+    await render(<Main />);
+    const cur = q('#nav [aria-current]');
+    const r = await forcedColors(async (active) => (active ? [css(cur).outlineStyle, css(cur).outlineWidth, css(el('lp')).outlineStyle] : null));
+    if (r) expect(r).toEqual(['solid', '2px', 'none']);
   });
 
   test('as: a router link with the link styles', async () => {
@@ -98,6 +105,25 @@ describe('Navbar', () => {
       .toEqual([0, '40', 'Docs', '1024px']);
   });
 
+  test('sticky: Tab to a field above the screen scrolls it into view below the bar, not under it (WCAG 2.4.11); the page padding follows the bar and goes away with it', async () => {
+    const r = await render(<div>
+      <Navbar id="nfocus" sticky brand="Docs"><NavbarLink href="#a">A</NavbarLink></Navbar>
+      <div style={{ height: '900px' }} />
+      <input id="above" aria-label="Above" />
+      <div style={{ height: '2000px' }} />
+    </div>);
+    const field = el('above'), bar = el('nfocus');
+    expect(getComputedStyle(document.documentElement).scrollPaddingTop).toBe(Math.round(bar.getBoundingClientRect().height) + 'px');
+    // Scroll so the field sits just under the top edge, behind the bar, then focus it.
+    window.scrollTo(0, field.offsetTop - 20);
+    await expect.poll(() => Math.round(field.getBoundingClientRect().top)).toBe(20);
+    field.focus();
+    await expect.poll(() => field.getBoundingClientRect().top).toBeGreaterThanOrEqual(bar.getBoundingClientRect().bottom - 1);
+    await r.rerender(<div><Navbar id="nfocus" brand="Docs" /></div>);
+    expect(getComputedStyle(document.documentElement).scrollPaddingTop).toBe('auto');
+    expect(document.documentElement.style.getPropertyValue('--dk-navbar-offset')).toBe('');
+  });
+
   test('tokens (--navbar-height, --navbar-link-text) override one navbar', async () => {
     await render(<Navbar id="ntok" style={{ '--navbar-height': '48px', '--navbar-link-text': 'rgb(1, 2, 3)' } as React.CSSProperties}><NavbarLink href="#t">T</NavbarLink></Navbar>);
     expect([q('#ntok .dk-navbar__inner').getBoundingClientRect().height, css(q('#ntok .dk-navbar__link')).color]).toEqual([48, 'rgb(1, 2, 3)']);
@@ -120,7 +146,7 @@ describe('Navbar', () => {
     await expect.poll(() => vis('#nav nav')).toBe(true);
     const n = el('nav'), nav = n.querySelector('nav')!, r = nav.getBoundingClientRect(), top = [...nav.querySelectorAll('a')].map((a) => Math.round(a.getBoundingClientRect().top));
     const gap = Math.round(r.top - n.getBoundingClientRect().bottom);
-    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(r.width), top[0]! < top[1]! && top[1]! < top[2]!]).toEqual(['true', 'close', 500, true]);
+    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(r.width), top[0] < top[1] && top[1] < top[2]]).toEqual(['true', 'close', 500, true]);
     expect(gap <= 0 && gap >= -1).toBe(true);
   });
 
@@ -160,6 +186,17 @@ describe('Navbar', () => {
     el('lp').focus();
     await userEvent.keyboard('{Escape}');
     expect([toggle().getAttribute('aria-expanded'), document.activeElement === toggle(), vis('#nav nav')]).toEqual(['false', true, false]);
+  });
+
+  test('a press outside the bar closes it; a press inside it does not', async () => {
+    await render(<Main />);
+    await resize(500);
+    await userEvent.click(toggle());
+    await expect.poll(() => vis('#nav nav')).toBe(true);
+    el('brand').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    expect(vis('#nav nav')).toBe(true);
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await expect.poll(() => [toggle().getAttribute('aria-expanded'), vis('#nav nav')]).toEqual(['false', false]);
   });
 
   test('following a link closes it', async () => {

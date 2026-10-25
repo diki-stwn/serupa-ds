@@ -39,10 +39,13 @@ describe('CopyButton', () => {
 
   test('the width stays the same while it shows "Copied" (both labels share one cell, the hidden one isn\'t read out)', async () => {
     await render(<CopyButton id="w" value="x">OK</CopyButton>);
-    const before = el('w').getBoundingClientRect().width;
+    await document.fonts.ready; // a font that finishes loading between the two reads changes the width
+    // The layout width, not getBoundingClientRect: the press scales the button (scale 0.97, eased back), and CI
+    // once read it mid-way (81.67 against 84).
+    const before = css(el('w')).width;
     await userEvent.click(el('w'));
     await expect.poll(() => el('w').hasAttribute('data-copied')).toBe(true);
-    expect(el('w').getBoundingClientRect().width).toBe(before);
+    expect(css(el('w')).width).toBe(before);
     expect([...el('w').querySelectorAll('.dk-copy-btn__label[aria-hidden]')].map((s) => s.textContent)).toEqual(['OK']);
   });
 

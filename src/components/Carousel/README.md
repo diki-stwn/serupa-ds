@@ -46,7 +46,7 @@ import { Carousel, Image } from "serupa-ds";
 
 ## Accessibility
 
-- **Role and name:** the `<section>` is a region named by `label`, with `aria-roledescription="carousel"`. Each slide is a group named "2 of 5" (`aria-roledescription="slide"`). The slides not shown are `inert` and hidden, so Tab and screen readers only reach the current one.
+- **Role and name:** the `<section>` is a region named by `label`, with `aria-roledescription` "carousel" (the `carouselRole` label, "korsel" in Indonesian). Each slide is a group named "2 of 5" (`aria-roledescription` from `slideRole`). The slides not shown are `inert` and hidden, so Tab and screen readers only reach the current one.
 - **Keyboard:**
 
   | Key | Does |
