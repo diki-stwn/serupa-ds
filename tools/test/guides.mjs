@@ -12,8 +12,8 @@ const REQUIRED = ['When to use', 'When not to use', 'Usage', 'Accessibility', 'P
 // when one is filled in, so the entry gets removed and can't come back.
 const KEYBOARD_GAPS = ['Alert', 'Breadcrumb', 'ButtonGroup', 'Card', 'ColorPicker',
   'DateRangePicker', 'EmptyState', 'ErrorBoundary', 'Field', 'FileUpload', 'Image',
-  'InlineEdit', 'List', 'Navbar', 'Pagination', 'PhoneInput',
-  'SegmentedControl', 'Sidebar', 'SortableList', 'Stepper', 'Table', 'TimePicker',
+  'InlineEdit', 'List', 'Navbar', 'PhoneInput',
+  'Sidebar',
   'VisuallyHidden'];
 const DIR = path.join(PROJECT, 'src', 'components');
 const R = [];
