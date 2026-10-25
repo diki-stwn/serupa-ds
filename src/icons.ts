@@ -25,8 +25,9 @@ export function hasIcon(name: unknown): name is string {
 const NAMED = new Map<string, IconData>();
 let loading: Promise<void> | undefined;
 let loadingNamed: Promise<void> | undefined;
-// The names that came from a load rather than registerIcons: the server never loads them, so a hydration leaves them
-// out even when this page loaded them already (for an island hydrated after another).
+// module state: the names that came from a load rather than registerIcons, the same for every request. The server
+// never loads them, so a hydration leaves them out even when this page loaded them already (for an island hydrated
+// after another).
 const LOADED = new Set<string>();
 const loaded = (v: IconData) => { if (!NAMED.has(v.name)) { NAMED.set(v.name, v); LOADED.add(v.name); } };
 
