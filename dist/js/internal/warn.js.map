@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/warn.ts"],
+  "sourcesContent": ["// module state: which warnings were given; on a server each is given once per process, which is all a warning needs.\nconst warned: Record<string, 1> = {};\n\n/** A console warning, once per key for the page's lifetime. */\nexport function warnOnce(key: string, msg: string): void {\n  if (!warned[key] && typeof console !== \"undefined\") {\n    warned[key] = 1;\n    console.warn(msg);\n  }\n}\n\n/** Forgets which warnings were given. The test setup calls it between tests, so a test that expects a warning\n *  doesn't depend on whether a test before it (in random order) already gave the same one. */\nexport function resetWarnings(): void {\n  for (const k of Object.keys(warned)) delete warned[k];\n}\n"],
+  "mappings": ";AACA,IAAM,SAA4B,CAAC;AAG5B,SAAS,SAAS,KAAa,KAAmB;AACvD,MAAI,CAAC,OAAO,GAAG,KAAK,OAAO,YAAY,aAAa;AAClD,WAAO,GAAG,IAAI;AACd,YAAQ,KAAK,GAAG;AAAA,EAClB;AACF;AAIO,SAAS,gBAAsB;AACpC,aAAW,KAAK,OAAO,KAAK,MAAM,EAAG,QAAO,OAAO,CAAC;AACtD;",
+  "names": []
+}

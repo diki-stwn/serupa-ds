@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/InlineEdit/labels.ts"],
+  "sourcesContent": ["// InlineEdit's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface InlineEditLabels {\n  /** InlineEdit: after the text in its button's name (\"Project name: Apollo, Edit\"). */\n  edit: string;\n}\nexport const en: InlineEditLabels = { edit: \"Edit\" };\nexport const id: InlineEditLabels = { edit: \"Ubah\" };\n"],
+  "mappings": ";AAMO,IAAM,KAAuB,EAAE,MAAM,OAAO;AAC5C,IAAM,KAAuB,EAAE,MAAM,OAAO;",
+  "names": []
+}

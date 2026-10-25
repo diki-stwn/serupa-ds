@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/digits.ts"],
+  "sourcesContent": ["// Digits people type in other scripts, read as ASCII so Number() and the date and time parsers understand them.\n\n// Chinese numerals (zh-u-nu-hanidec) aren't Unicode decimal digits, so they're mapped one by one.\nconst HANIDEC = \"\u3007\u4E00\u4E8C\u4E09\u56DB\u4E94\u516D\u4E03\u516B\u4E5D\";\n\n/** Any decimal digits (Arabic-Indic \u0662\u0662, Persian \u06F2\u06F2, Bengali \u09E8\u09E8, Thai \u0E52\u0E52, full-width \uFF12\uFF12, Chinese \u4E8C\u4E8C) as ASCII. */\nexport function latinDigits(text: string): string {\n  return text.replace(/[\u3007\u4E00\u4E8C\u4E09\u56DB\u4E94\u516D\u4E03\u516B\u4E5D]/g, (c) => String(HANIDEC.indexOf(c))).replace(/\\p{Nd}/gu, (c) => {\n    const cp = c.codePointAt(0)!;\n    if (cp < 128) return c;\n    let zero = cp;\n    while (/\\p{Nd}/u.test(String.fromCodePoint(zero - 1))) zero--;\n    return String((cp - zero) % 10);\n  });\n}\n"],
+  "mappings": ";AAGA,IAAM,UAAU;AAGT,SAAS,YAAY,MAAsB;AAChD,SAAO,KAAK,QAAQ,iBAAiB,CAAC,MAAM,OAAO,QAAQ,QAAQ,CAAC,CAAC,CAAC,EAAE,QAAQ,YAAY,CAAC,MAAM;AACjG,UAAM,KAAK,EAAE,YAAY,CAAC;AAC1B,QAAI,KAAK,IAAK,QAAO;AACrB,QAAI,OAAO;AACX,WAAO,UAAU,KAAK,OAAO,cAAc,OAAO,CAAC,CAAC,EAAG;AACvD,WAAO,QAAQ,KAAK,QAAQ,EAAE;AAAA,EAChC,CAAC;AACH;",
+  "names": []
+}
