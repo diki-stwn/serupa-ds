@@ -766,21 +766,48 @@ Rules of thumb:
 
 ## Motion
 
-Transition and animation scales, as tokens in one `transitions` group (`var(--duration-150)`, `var(--ease-out)`, `var(--animate-spin)`) and as matching utility classes in `bundle.css` (`.transition`, `.duration-200`, `.ease-out`, `.animate-pulse`).
+Motion explains a change: where a menu came from, that a press registered, that something is still loading. It never decorates and never makes anyone wait. Most of it takes 100–300ms.
 
-**Duration** — `duration-0`, `75`, `100`, `150`, `200`, `300`, `500`, `700`, `1000` (ms).
+Transition and animation scales are tokens in one `transitions` group (`var(--duration-150)`, `var(--ease-out)`, `var(--animate-spin)`), with matching utility classes in `bundle.css` (`.transition`, `.duration-200`, `.ease-out`, `.animate-pulse`). Components use the **roles**. A role names what is moving rather than how long it takes, and points at a step of the scale, so one change to a role moves every component that uses it.
 
-| Use | Duration | Easing |
+**Roles**
+
+| Role | Today | What moves |
 | --- | --- | --- |
-| Hover, focus, pressed (colors, shadow) | `duration-150` *(default)* | `ease-in-out` |
-| Small elements entering: tooltips, dropdowns | `duration-200` | `ease-out` |
-| Small elements leaving | `duration-150` | `ease-in` |
-| Large elements entering: dialogs, drawers | `duration-300` | `ease-out` |
-| Page-level or large surface changes | `duration-500` | `ease-in-out` |
+| `motion-press` | `duration-100` | A control answering while it's held down (Button scales down). |
+| `motion-hover` | `duration-150` | Hover and focus changes on a control that stays put: colors, borders, shadows. |
+| `motion-enter-sm` | `duration-150` | A small surface appearing: tooltips, popovers, menus, date pickers. |
+| `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |
+| `motion-enter-lg` | `duration-300` | A large surface appearing: drawers, sheets. |
+| `motion-exit-sm` / `-md` / `-lg` | `duration-100` / `150` / `200` | The same surfaces leaving. |
+| `motion-loop-spinner` | `duration-1000` | One turn of a spinner: Button, Switch and the circular Progress while they load. |
+| `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
+| `ease-enter` | `ease-out` | Something appearing: fast at first, settling at the end. |
+| `ease-exit` | `ease-in` | Something leaving: slow at first, then out of the way. |
+| `ease-move` | `ease-in-out` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
 
-**Easing** — `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`), `ease-in-out` (`cubic-bezier(0.4, 0, 0.2, 1)`, default).
+`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
 
-**Delay** — `delay-0` to `delay-1000`, same steps as duration (both in the `transitions` token group). Use `delay-300` or `delay-500` before showing a tooltip.
+**Timing**
+
+- Bigger surfaces take longer, because they travel further: a tooltip enters in 150ms, a dialog in 200ms, a drawer in 300ms.
+- An exit takes about two thirds of its enter. What was closed should get out of the way, and nobody waits to watch it go.
+- Feedback for an action (a press, a toggle, a check) starts within a frame and takes 100ms or less, so the control feels like it answered the hand.
+- Nothing over 300ms answers a click. `duration-500` and longer are for loops and large page-level changes only.
+
+**Easing.** Enter with `ease-enter`, leave with `ease-exit`, and change in place with `ease-move`. Spinners and progress bars turn at constant speed (`ease-linear`). Steps (`steps()`, `step-end`) are for ticking spinners.
+
+**Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a list's items or a loader's dots, stagger them by `delay-75` or `delay-150`, keep the whole group within 300ms, and don't stagger more than a handful. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
+
+**Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too.
+
+**Reduced motion.** When the viewer prefers reduced motion (`prefers-reduced-motion: reduce`), surfaces appear and leave with a fade or not at all, with no sliding or scaling. Loops slow down (`animate-spin-reduced` turns three times slower) or stop. Progress still shows, because a spinner that stops completely reads as stuck. `bundle.css` stops `ping`, `pulse` and `bounce` and slows `spin`. Every component's own animations do the same, and yours should too.
+
+**Scales.** These are what the roles point at, and what utility classes use.
+
+- **Duration:** `duration-0`, `75`, `100`, `150`, `200`, `300`, `500`, `700`, `1000`, `1200` (ms).
+- **Easing:** `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`), and `ease-in-out` (`cubic-bezier(0.4, 0, 0.2, 1)`, the default).
+- **Delay:** `delay-0` to `delay-1000`, in the same steps as duration.
 
 **Transition properties** — `transition` (the default set: colors, outline and gradient stops, opacity, shadow, transform and translate/scale/rotate, filters, and discrete properties like `display`), `transition-colors`, `transition-opacity`, `transition-shadow`, `transition-transform`, `transition-all`, `transition-none`. Each animates at `duration-150` with `ease-in-out` unless a `duration-*` or `ease-*` class says otherwise, whatever the class order; `duration-initial` and `ease-initial` go back to those defaults. Name the properties you animate; avoid `transition-all` in components because it also animates layout.
 
@@ -797,12 +824,6 @@ Transition and animation scales, as tokens in one `transitions` group (`var(--du
 | `animate-none` | `none` | Turns an animation off. |
 
 The `spin`, `ping`, `pulse` and `bounce` keyframes ship in `bundle.css`.
-
-Rules of thumb:
-
-- Motion should explain a change, not decorate it. Most UI motion is 150–300ms.
-- Enter with `ease-out`, leave with `ease-in`, and change in place with `ease-in-out`.
-- Respect reduced motion: `bundle.css` stops `ping`, `pulse` and `bounce` and slows `spin` when the viewer prefers reduced motion. Do the same for your own animations.
 
 ## SVG
 

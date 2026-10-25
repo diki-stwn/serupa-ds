@@ -26,16 +26,6 @@
       "description": "`text-shadow-none`. Removes a text shadow."
     }
   },
-  "borders": {
-    "focus-ring-width": {
-      "css": "{outline-width-2}",
-      "description": "The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. A third thicker (3px) with more contrast."
-    },
-    "focus-ring-offset": {
-      "css": "{outline-offset-2}",
-      "description": "The transparent gap between an element and its focus ring (`outline-offset`). Inset rings, where an outline would be clipped, use 0."
-    }
-  },
   "typography": {
     "tracking-tighter": {
       "css": "-0.05em",

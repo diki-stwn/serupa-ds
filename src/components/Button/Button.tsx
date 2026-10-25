@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useFormStatus } from "react-dom";
-import { cn, type DataAttributes, domId, omit, oneOf, SIZES } from "../../internal/cn";
+import { cn, type DataAttributes, domId, omit, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
@@ -43,6 +43,10 @@ interface ButtonOwnProps {
   /** Shown with a check in place of the label for 2 seconds, and announced, after an onClick that returned a
       promise resolves ("Saved"). For actions that don't move people elsewhere. Default: none. */
   successText?: string;
+  /** Lets a long label take more than one line: the button grows from its size's height instead of cutting the
+      label with an ellipsis. Without it, a text label that's cut shows in full as the button's title on hover.
+      Default: false. */
+  wrap?: boolean;
 }
 
 /** A Button without href: a native <button>. */
@@ -72,7 +76,7 @@ export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTML
 
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1 } as const;
+const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1, wrap: 1 } as const;
 const SUCCESS_MS = 2000;
 const BUSY_MS = 300;
 const isThenable = (v: unknown): v is PromiseLike<unknown> => v != null && typeof (v as PromiseLike<unknown>).then === "function";
@@ -94,7 +98,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const pos = props.leftIcon != null && props.rightIcon == null ? "left" : props.rightIcon != null && props.leftIcon == null ? "right" : undefined;
   const variant = oneOf(BUTTON_VARIANTS, props.variant, "primary");
   const size = oneOf(SIZES, props.size, "md");
-  let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, className: props.className });
+  let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, wrap: props.wrap, className: props.className });
   if (iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
     warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
   }
@@ -163,6 +167,26 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   }
   if (variant !== "link") content = [<span className="dk-btn__ripples" aria-hidden key="ripples" />, ...content];
 
+  // A text label cut with an ellipsis shows in full as the button's title on hover (the same words as its name, so
+  // nothing is read twice). Not with wrap, an icon-only button, or a name, title or Tooltip of its own. A Tooltip here would
+  // add 2.6 KiB to every Button; wrap is the answer for keyboard and touch.
+  const text = typeof props.children === "string" || typeof props.children === "number" ? String(props.children) : "";
+  const tipOk = !!text && !iconOnly && !props.wrap && rest.title == null && !rest["aria-label"] && !rest["aria-labelledby"] && !rest["aria-describedby"];
+  const node = React.useRef<HTMLElement | null>(null);
+  const [cut, setCut] = React.useState(false);
+  useIsoLayoutEffect(function () {
+    const label = node.current && node.current.querySelector<HTMLElement>(".dk-btn__label");
+    if (!tipOk || !label) { setCut(false); return; }
+    const check = () => setCut(label.scrollWidth > label.clientWidth);
+    check();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(check);
+    ro.observe(label);
+    return () => ro.disconnect();
+  }, [tipOk, text]);
+  if (cut && tipOk) rest.title = text;
+  const setNode = React.useCallback(function (n: HTMLElement | null) { node.current = n; setRef(ref, n); }, [ref]);
+
   // Micro-interactions: ripple on press, Enter shows the press like Space (your handlers run first)
   rest.onPointerDown = chain(rest.onPointerDown, ripple);
   rest.onKeyDown = chain(rest.onKeyDown, pressKey);
@@ -204,10 +228,10 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
       rest.onClick = block;          // and its handler doesn't run (screen readers and scripts can still click it)
     }
     delete rest.type;
-    return React.createElement(disabled ? "a" : config.link, Object.assign({}, rest, { ref: ref, className: classes }), ...content);
+    return React.createElement(disabled ? "a" : config.link, Object.assign({}, rest, { ref: setNode, className: classes }), ...content);
   }
   if (rest.type === undefined) rest.type = "button";   // never submits a form by accident; pass type="submit" to submit
-  return React.createElement("button", Object.assign({}, rest, { ref: ref, className: classes }), ...content);
+  return React.createElement("button", Object.assign({}, rest, { ref: setNode, className: classes }), ...content);
 });
 
 /** A <button> for actions; pass href for navigation and it renders a link. Built-in micro-interactions: press, ripple and a loading cross-fade, plus an opt-in right-icon nudge (--button-icon-nudge); off under reduced motion. Colors, spacing, sizes, borders and motion can be overridden with the --button-* component tokens (button.tokens.json) on the page, a container or one button. */

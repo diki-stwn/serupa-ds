@@ -42,7 +42,7 @@
 .dk-progress__arc { stroke: var(--dk-progress-fill); stroke-linecap: round; transition: stroke-dasharray var(--progress-duration, var(--duration-300)) var(--ease-out); }
 .dk-progress--circle .dk-progress__value { position: absolute; font-size: var(--text-xs); line-height: var(--text-xs--line-height); color: var(--progress-label-color, var(--text)); font-weight: var(--progress-label-weight, var(--font-medium)); }
 .dk-progress--circle.dk-progress--size-lg .dk-progress__value { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
-.dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { --dk-progress-turn: 270deg; animation: dk-progress-turn var(--duration-1000) linear infinite; }
+.dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { --dk-progress-turn: 270deg; animation: dk-progress-turn var(--motion-loop-spinner) var(--ease-linear) infinite; }
 @keyframes dk-progress-turn { to { rotate: var(--dk-progress-turn); } }
 @media (prefers-reduced-motion: reduce) {
   .dk-progress__fill, .dk-progress__arc { transition: none; }
