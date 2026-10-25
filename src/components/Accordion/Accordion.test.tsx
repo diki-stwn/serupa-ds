@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Accordion, AccordionItem } from './Accordion';
@@ -256,5 +256,14 @@ describe('Accordion', () => {
     expect([regions('dp-few'), regions('dp-many')]).toEqual([2, 0]);
     expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.startsWith('Accordion: value has 2 items with type="single"'))).toHaveLength(1);
     warn.mockRestore();
+  });
+
+  test('pressed: a title held down fills with pressed at once, and a disabled one doesn\'t (ED1)', async () => {
+    await render(<Accordion id="pr" variant="card"><AccordionItem value="a" title="One">A</AccordionItem><AccordionItem value="b" title="Two" disabled>B</AccordionItem></Accordion>);
+    const t = trigger('pr', 1);
+    expect(css(t).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    await press(t, () => expect.poll(() => css(t).backgroundColor).toBe(color('var(--pressed)')));
+    const d = trigger('pr', 2);
+    await press(d, () => expect(css(d).backgroundColor).toBe('rgba(0, 0, 0, 0)'));
   });
 });

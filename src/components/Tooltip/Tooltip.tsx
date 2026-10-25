@@ -15,7 +15,7 @@ export interface TooltipProps {
   children: React.ReactElement;
   /** 'top' (default), 'bottom', 'left', 'right', or with '-start' / '-end' ('bottom-start'). It flips when there's no room. */
   placement?: Placement;
-  /** Milliseconds the pointer rests before it shows. Default: 400. Keyboard focus shows it at once. */
+  /** Milliseconds the pointer rests before it shows. Default: 400. Keyboard focus shows it at once, and so does the pointer while another tooltip is open or closed less than 300ms ago. */
   delay?: number;
   /** 'description' (default): adds to the element's name (aria-describedby). 'label': is its name (aria-labelledby), for an icon-only button with no other label. */
   role?: 'description' | 'label';
@@ -35,6 +35,14 @@ export interface TooltipProps {
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
 type Handler = (e: React.SyntheticEvent<HTMLElement>) => void;
 
+// Warm-up: once a tooltip has shown, the next one opens at once (and the open one hands over to it) until the
+// pointer has been off every tooltip for WARM_MS, so scanning a toolbar doesn't wait 400ms per button.
+const WARM_MS = 300;
+// module state: browser only (pointer and focus events set it); a server never shows a tooltip.
+const warm: { until: number; owner: object | null; close: (() => void) | null } = { until: 0, owner: null, close: null };
+/** For tests: start cold, as if no tooltip had shown. Not exported from the package. */
+export function coolTooltips(): void { warm.until = 0; }
+
 const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1, defaultOpen: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, ref: 1 } as const;
 
 /* Tooltip: a short hint about an element, shown while it's hovered (after a delay) or focused, and placed next to
@@ -53,6 +61,20 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { window.clearTimeout(timer.current); if (!controlled) setInner(v); if (onOpenChange.current) onOpenChange.current(v, { reason }); }, [controlled]);
   const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, "hover"), ms); };
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  // The open tooltip is the warm one: opening another closes it, and closing it keeps others warm for WARM_MS.
+  const self = React.useRef({});
+  // Opened warm: no fade, so moving along a toolbar swaps one tooltip for the next without a flicker.
+  const [instant, setInstant] = React.useState(false);
+  React.useEffect(() => {
+    if (!open) return;
+    const me = self.current;
+    if (warm.close && warm.owner !== me) warm.close();
+    warm.owner = me; warm.close = () => set(false, "hover");
+    return () => {
+      if (warm.owner === me) { warm.owner = null; warm.close = null; }
+      warm.until = Date.now() + WARM_MS;
+    };
+  }, [open, set]);
 
   // Place it while open, and keep it placed as the page scrolls or resizes, or its text changes. A press outside hides it.
   useAnchoredLayer(open, tipRef, anchorRef, { placement: props.placement, fallback: "top", offsetVar: "--dk-tooltip-offset", watch: props.content, onOutside: () => set(false, "outside") });
@@ -92,9 +114,9 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     [aria]: merged,
     // Pointer events, not mouse events: a tap sends a mouseenter after its pointerdown and never a mouseleave, so the
     // tooltip opened 400ms after a tap and stayed. A touch pointer doesn't hover; focus still shows it from the keyboard.
-    onPointerEnter: chain("onPointerEnter", (e) => { if (!touch(e)) later(true, delay); }),
+    onPointerEnter: chain("onPointerEnter", (e) => { if (!touch(e)) { const w = !!warm.owner || Date.now() < warm.until; setInstant(w); if (w) set(true, "hover"); else later(true, delay); } }),
     onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) later(false, 100); }),
-    onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (!t.matches || t.matches(":focus-visible")) set(true, "focus"); }),
+    onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (!t.matches || t.matches(":focus-visible")) { setInstant(!!warm.owner || Date.now() < warm.until); set(true, "focus"); } }),
     onBlur: chain("onBlur", () => set(false, "blur")),
     onPointerDown: chain("onPointerDown", () => set(false, "trigger")),
   });
@@ -102,7 +124,7 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     <>
       {trigger}
       <div ref={tipRef} id={id} role="tooltip" {...{ popover: "manual" }} hidden={!open || undefined}
-        className={cn("dk-tooltip", props.className)} style={props.style} data-component="tooltip" data-state={open ? "open" : "closed"}
+        className={cn("dk-tooltip", props.className)} style={props.style} data-component="tooltip" data-state={open ? "open" : "closed"} data-warm={open && instant ? "" : undefined}
         onMouseEnter={() => window.clearTimeout(timer.current)} onMouseLeave={() => later(false, 100)}>
         {props.content}
       </div>
