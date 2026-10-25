@@ -46,6 +46,21 @@ describe('Combobox', () => {
     expect(names).toEqual(['Hapus Negara', 'Tampilkan pilihan']);
   });
 
+  test('long lists: closed, 2,000 options keep no option nodes in the page; open, they all show; typing narrows them', async () => {
+    const many = Array.from({ length: 2000 }, (_, i) => 'Option ' + i);
+    await render(<div style={{ width: '320px' }}><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} /></div>);
+    const list = () => el('cb').parentElement!.querySelector('[role=listbox]')!;
+    expect(list().querySelectorAll('[role=option]').length).toBe(0);
+    await open();
+    expect([list().querySelectorAll('[role=option]').length, st('cb').active]).toEqual([2000, 'Option 0']);
+    await userEvent.keyboard('{ArrowDown}');
+    expect(st('cb').active).toBe('Option 1');
+    await userEvent.keyboard('1999');
+    await expect.poll(() => st('cb').opts).toEqual(['Option 1999']);
+    await userEvent.keyboard('{Escape}');
+    expect(list().querySelectorAll('[role=option]').length).toBe(0);
+  });
+
   test('ArrowDown opens the list in the top layer with every option, the first highlighted, focus staying in the field', async () => {
     await render(<Countries />);
     await open();
