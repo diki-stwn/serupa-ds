@@ -44,7 +44,7 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 ## Accessibility
 
 - `role="tablist"`, `"tab"` and `"tabpanel"`, with `aria-selected`, `aria-controls` and `aria-labelledby` set for you.
-- Only the selected tab is in the Tab order, and the panel itself can take focus, so keyboard users always reach the content.
+- Only the selected tab is in the Tab order, and the panel itself can take focus, so keyboard users always reach the content. When a controlled `value` matches no tab (a stale link, data still loading), the first enabled tab takes the Tab stop instead, so the list can still be reached.
 - Tab labels keep 4.5:1, and the selected line and pill 3:1 against `surface`, in all six themes (`Tabs.test.tsx`). The focus ring sits inside the tab so the scrolling row can't clip it.
 - In forced-colors mode the selected tab is marked in `Highlight`.
 
