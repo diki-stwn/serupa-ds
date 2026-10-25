@@ -34,6 +34,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 
 ## Usage
 
+- The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").
 - Keep it small: a few fields or a short paragraph. If it needs scrolling, use a [Drawer](../Drawer/README.md) or a [Dialog](../Dialog/README.md).
 - Give it a `title`, or an `aria-label` when there's none, so it has a name.
 - Use the function form of `children` to close it from a Done, Cancel or submit button.

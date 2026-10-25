@@ -33,6 +33,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 ## Usage
 
+- The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").
 - Keep `content` to a short line of text, a few words where you can.
 - Use `role="label"` only when the tooltip is the element's only name; otherwise keep the default, which adds to the element's own name.
 - On an IconButton that has a Tooltip, set `noTitle` so the browser's own title doesn't show as well.

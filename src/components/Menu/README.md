@@ -51,6 +51,7 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 
 ## Usage
 
+- The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").
 - Start each label with a verb ("Edit", "Duplicate", "Delete") and keep it short.
 - Put the most used actions first, and destructive ones last, after a `MenuSeparator` or in their own `MenuGroup`.
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
