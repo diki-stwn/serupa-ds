@@ -53,7 +53,8 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 
 - It's a real `<table>`, so screen readers announce rows, columns and headers. Give it a `caption` (or `aria-label`) so people know what it holds.
 - When it's too wide and scrolls, the frame becomes a focusable region named by the caption, so keyboard users can scroll it with the arrow keys. When it fits, it adds no tab stop.
-- A sortable header is a button, and its `<th>` has `aria-sort` once sorted. After sorting, the button keeps focus.
+- A sortable header is a button, and its `<th>` has `aria-sort` once sorted. After sorting, the button keeps focus, and the new order is read out politely ("Sorted by Amount, ascending.", the `tableSorted` label), because `aria-sort` alone is only heard when focus comes back to the header. Nothing is read on the first render.
+- In print, the frame shows the whole table instead of its scrolled window, the header row repeats on every page, and a row isn't split across pages.
 - Text and muted text keep 4.5:1 on plain, hovered, striped and selected rows, and the header text on its background; the selected bar keeps 3:1 (all six themes, `Table.test.tsx`). Selection isn't shown by color alone: the bar shows it, and a `TableSelectCell`'s checkbox ("Select Ada, checked") says it to screen readers. Browsers ignore `aria-selected` on a plain table's rows, so `selected` doesn't set it; give selectable rows a `TableSelectCell`. The checkbox outline keeps 3:1 on a shaded row.
 
 ## Props
