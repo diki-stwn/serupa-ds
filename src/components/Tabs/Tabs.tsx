@@ -73,6 +73,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
   const self = React.useRef<HTMLDivElement | null>(null);
   const order = React.useRef<string[]>([]);
+  // every render: tabs come and go with the children, which change in any render; it reads attributes, not layout.
   useIsoLayoutEffect(() => {
     if (!self.current) return;
     const tabs = Array.from(self.current.querySelectorAll<HTMLElement>('[role="tab"]')).filter((t) => t.id.startsWith(base + "-tab-"));
@@ -167,6 +168,7 @@ export const TabPanel = /* @__PURE__ */ component<HTMLDivElement, TabPanelProps>
   const pick = React.useRef<(() => void) | null>(null);
   const tabOf = () => own.current && (own.current.getRootNode() as Document | ShadowRoot).getElementById(ctx.base + "-tab-" + safe(props.value));
   pick.current = selected ? null : () => { const t = tabOf(); if (t && !t.hasAttribute("disabled")) ctx.select(props.value); };
+  // every render: the panel's tab can be enabled or disabled in any render of the tab list; nothing is measured.
   useIsoLayoutEffect(() => {
     const el = own.current, t = tabOf();
     if (el && !selected && keep && t && !t.hasAttribute("disabled")) el.setAttribute("hidden", "until-found");

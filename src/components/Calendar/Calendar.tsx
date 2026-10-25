@@ -100,6 +100,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     setFocusMonth(monthTime);
     if (!sameMonth(focus, month)) setFocus(value && sameMonth(value, month) ? value : sameMonth(today, month) ? today : month);
   }
+  // every render: autoFocus or a key that moves focus asks for it, and the day's button is there only after the render.
   React.useEffect(() => {
     if (!wantFocus.current || !grid.current) return;
     wantFocus.current = false;

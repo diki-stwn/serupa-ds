@@ -32,6 +32,7 @@ export interface AnchoredLayerOptions {
 export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: AnchoredLayerOptions): void {
   const { placement, fallback = "bottom", offsetVar, inside, matchWidth, watch } = opts;
   const outside = React.useRef(opts.onOutside), focusOutside = React.useRef(opts.onFocusOutside);
+  // every render: keeps the latest callbacks, so the listeners below needn't be added again when they change.
   useIsoLayoutEffect(() => { outside.current = opts.onOutside; focusOutside.current = opts.onFocusOutside; });
   useIsoLayoutEffect(() => {
     const p = layer.current, a = anchor.current;

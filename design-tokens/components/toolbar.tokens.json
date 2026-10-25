@@ -1,0 +1,61 @@
+{
+  "toolbar": {
+    "$description": "Toolbar's component tokens. Each one is an optional override: set the CSS variable (--toolbar-<name>) on the page, a container or one Toolbar, and every Toolbar inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.surface}",
+        "$description": "The background, behind the controls.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--toolbar-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "Text color inherited by plain text inside (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--toolbar-text"
+          }
+        }
+      }
+    },
+    "radius": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "The corners (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--toolbar-radius"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Space inside, on every side (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--toolbar-padding"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Space between the controls (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--toolbar-gap"
+          }
+        }
+      }
+    }
+  }
+}

@@ -80,7 +80,7 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
   // Announced once, when it shows, with the label it has then (a later label change isn't announced again).
   const latestLabel = React.useRef(label);
-  React.useEffect(function () { latestLabel.current = label; });
+  React.useEffect(function () { latestLabel.current = label; });   // every render: keeps the latest label
   React.useEffect(function () { if (shown && latestLabel.current) announce(latestLabel.current); }, [shown]);
 
   rest["data-component"] = "loader";

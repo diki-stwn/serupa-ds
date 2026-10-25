@@ -58,6 +58,11 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
   const L = { completed: sds.labels.completed, error: sds.labels.hasError, warning: sds.labels.hasWarning, optional: sds.labels.optional, stepOf: sds.labels.stepOf, ...(props.labels || {}) };
   const nav = React.useRef<HTMLElement | null>(null);
   const [compact, setCompact] = React.useState(false);
+  // What the measure depends on: the steps' text when it is plain text, so an inline steps array (a new array each
+  // render) doesn't measure again; titles that are elements are compared by the array itself.
+  const text = (n: React.ReactNode) => (n == null || typeof n === "string" || typeof n === "number" || typeof n === "boolean" ? String(n) : null);
+  const parts = steps.map((s) => [text(s.title), text(s.description), String(!!s.optional), s.status || ""]);
+  const shape = parts.every((p) => p[0] != null && p[1] != null) ? parts.map((p) => p.join("\u0001")).join("\u0000") : steps;
   // Measure the titles side by side (at their full width, with the shortest lines) against the width there is.
   useIsoLayoutEffect(() => {
     const el = nav.current;
@@ -73,7 +78,7 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [vertical, steps]);
+  }, [vertical, shape]);
   const shown = Math.min(current, steps.length - 1);
   return (
     <nav {...rest} ref={(node) => { nav.current = node; setRef(ref, node); }} aria-label={rest["aria-label"] || (rest["aria-labelledby"] ? undefined : sds.labels.progress)}
