@@ -31,6 +31,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLElement> {
    one, an empty link over the card named by the card's text (the "stretched link" pattern, so buttons inside
    aren't nested in a link). className, ref and every other prop go to the card element; href, target, rel and
    aria-label go to the link. */
+const INTERACTIVE = "a[href], button, input, select, textarea, label, summary, [tabindex]";
 const OWN = { variant: 1, padding: 1, as: 1, className: 1, href: 1, target: 1, rel: 1, children: 1 } as const;
 
 type CardLinkProps = { href: string; target?: string; rel?: string; "aria-label"?: string };
@@ -55,7 +56,19 @@ export const Card = /* @__PURE__ */ component<HTMLElement, CardProps>("Card", fu
   // A direct CardHeader with a title takes the link; otherwise the card gets an empty one, named by its own text.
   const titled = React.Children.toArray(props.children).some((c) => React.isValidElement(c) && c.type === CardHeader && hasContent((c.props as CardHeaderProps).title));
   const id = rest.id || base;
-  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant }),
+  const own = rest.onClick;
+  // The text (CardBody, the header's description) sits above the link's area so it can be selected and copied. A
+  // click on it still follows the link, unless it ended a selection.
+  const onClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (own) own(e);
+    const t = e.target as Element;
+    if (e.defaultPrevented || !(t instanceof Element) || t.closest(INTERACTIVE)) return;
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && e.currentTarget.contains(sel.anchorNode)) return;
+    const a = e.currentTarget.querySelector(".dk-card__link");
+    if (a) a.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: e.ctrlKey, metaKey: e.metaKey, shiftKey: e.shiftKey, altKey: e.altKey }));
+  };
+  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant, onClick: onClick }),
     titled ? null : React.createElement(config.link, { ...link, className: "dk-card__link dk-card__link--cover", "aria-labelledby": link["aria-label"] ? undefined : id, key: "link" }),
     <CardLinkContext.Provider value={titled ? link : null} key="content">{props.children}</CardLinkContext.Provider>);
 });

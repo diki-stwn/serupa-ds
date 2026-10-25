@@ -24,6 +24,12 @@ describe('Divider', () => {
     expect(l.getBoundingClientRect().left - e.getBoundingClientRect().left).toBeGreaterThan(250);
   });
 
+  test('a text label names the separator (its children are presentational, so the "or" would be skipped); a node label is plain text with no separator role (BQ1)', async () => {
+    await render(<Wide><Divider id="dtext" label="or" /><Divider id="dnode" label={<strong>Section 2</strong>} /><Divider id="down" label="or" aria-label="Or sign in with" /></Wide>);
+    expect([el('dtext').getAttribute('aria-label'), el('dnode').getAttribute('role'), el('dnode').getAttribute('aria-label'), el('dnode').textContent, el('down').getAttribute('aria-label')])
+      .toEqual(['or', null, null, 'Section 2', 'Or sign in with']);
+  });
+
   test('decorative: role none and hidden', async () => {
     await render(<Divider id="ddeco" decorative />);
     expect([el('ddeco').getAttribute('role'), el('ddeco').getAttribute('aria-hidden')]).toEqual(['none', 'true']);

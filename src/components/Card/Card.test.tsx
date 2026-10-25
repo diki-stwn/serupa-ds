@@ -163,6 +163,20 @@ describe('Card', () => {
     history.replaceState(null, '', location.pathname + location.search);
   });
 
+  test('a linked card\'s body text and description sit above the link, so they can be selected; a plain click on them still follows the link, a click ending a selection doesn\'t (BO1)', async () => {
+    await render(<Col><Card id="sel" href="#sel"><CardHeader title="Beacon" description="Status pages" /><CardBody><p id="selp">Copy this order number: 4417-22</p></CardBody></Card></Col>);
+    const p = el('selp'), r = p.getBoundingClientRect();
+    expect(document.elementFromPoint(r.left + 4, r.top + r.height / 2)).toBe(p);   // the text, not the link's area
+    await userEvent.click(p);
+    expect(location.hash).toBe('#sel');
+    history.replaceState(null, '', location.pathname + location.search);
+    const range = document.createRange(); range.selectNodeContents(p);
+    getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
+    p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect([location.hash, getSelection()!.toString()]).toEqual(['', 'Copy this order number: 4417-22']);
+    getSelection()!.removeAllRanges();
+  });
+
   test('hover: a border-strong border', async () => {
     await render(<Card id="lnk" href="#here"><CardHeader title="Atlas" description="Updated" /></Card>);
     const before = css(el('lnk')).borderTopColor, strong = color('var(--border-strong)');
