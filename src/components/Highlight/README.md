@@ -41,6 +41,7 @@ highlightRanges("Łódź, Poland", "lodz")                        // [[0, 4]]
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `children` | `string` | | The text to show. |
 | `query` | `string \| string[]` | | What to mark. Empty marks nothing. |
 | `words` | `boolean` | `false` | Mark each word of the query on its own. |

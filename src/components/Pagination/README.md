@@ -55,6 +55,7 @@ const [page, setPage] = React.useState(1);
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `count` | number | required | How many pages there are |
 | `page` | number | none | The current page, from 1 (controlled) |
 | `defaultPage` | number | `1` | The page it starts on when uncontrolled |

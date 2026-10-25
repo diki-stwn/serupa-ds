@@ -58,6 +58,8 @@ import { ErrorBoundary } from "serupa-ds";
 | `resetKeys` | `unknown[]` | | When a value changes, the error clears. |
 | `className` | `string` | | On the default fallback's box, which has `data-component="error-boundary"`. |
 
+`id` isn't a prop. Put an id on what you pass as `fallback`, or on an element inside.
+
 A function `fallback` gets `ErrorBoundaryFallbackProps`: `error`, the value that was thrown, and `reset`, which clears it and renders the children again.
 
 ## Component tokens

@@ -61,6 +61,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `children` | SidebarSections or SidebarItems | none | The items |
 | `header` | node | none | Above the items |
 | `footer` | node | none | Pinned to the bottom, under a line |

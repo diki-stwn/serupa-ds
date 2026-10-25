@@ -70,10 +70,11 @@ import { <Name> } from "serupa-ds";
 
 ## Props
 
-<!-- Required. -->
+<!-- Required, with an `id` row. -->
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | <Where it goes: the root element, the native field inside (so a `<label htmlFor>` works), or not a prop. Required: guides.mjs checks it.> |
 | `<prop>` | `<type>` | `<default>` | <What it does.> |
 
 <Which native attributes pass through, and to which element.>

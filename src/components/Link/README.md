@@ -53,6 +53,7 @@ const { Link, Text } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<a>`. |
 | `href` | string | none | Where it goes |
 | `tone` | `'primary'` \| `'neutral'` | `'primary'` | The primary color, or the surrounding text's color (still underlined) |
 | `underline` | `'always'` \| `'hover'` | `'always'` | Always underlined, or only on hover and focus |

@@ -70,6 +70,7 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div role="radiogroup">`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. |
 | `value` | string \| number \| null | | The picked radio's value (controlled). `null` picks none |
 | `defaultValue` | string \| number | | The value picked at first (uncontrolled) |
 | `onChange` | `(value, event) => void` | | Called with the picked radio's value and the change event |

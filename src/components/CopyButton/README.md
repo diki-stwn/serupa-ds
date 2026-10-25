@@ -51,6 +51,7 @@ import { CopyButton } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `value` | `string \| () => string \| Promise<string>` | | What to copy. |
 | `children` | `ReactNode` | `'Copy'` (`labels.copy`) | The label, or the name with `iconOnly`. |
 | `copiedLabel` | `string` | `'Copied'` (`labels.copied`) | Shown and announced once it has copied. |
