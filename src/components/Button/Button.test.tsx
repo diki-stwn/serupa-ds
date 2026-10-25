@@ -568,3 +568,37 @@ describe('Button micro-interactions', () => {
     } finally { restore(); setBusy(false); }
   });
 });
+
+describe('Button long labels (DV1)', () => {
+  const LONG = 'Save every change to this very long document';
+
+  test('wrap: a long label takes more lines and the button grows from its size height; nothing is cut', async () => {
+    await render(<div style={{ width: '120px' }}>
+      <Button id="w" wrap>{LONG}</Button>
+      <Button id="ws" wrap size="sm">Short</Button>
+    </div>);
+    const b = el('w'), label = b.querySelector('span:not([aria-hidden])') as HTMLElement;
+    expect([b.classList.contains('dk-btn--wrap'), b.getBoundingClientRect().height > 32, b.getBoundingClientRect().width <= 120, label.scrollWidth <= label.clientWidth]).toEqual([true, true, true, true]);
+    // A short label keeps the size's height.
+    expect(Math.round(el('ws').getBoundingClientRect().height)).toBe(24);
+    expect(buttonClass({ wrap: true })).toContain('dk-btn--wrap');
+  });
+
+  test('a cut text label shows in full as the title; one that fits, or a button with its own name or wrap, gets none', async () => {
+    function Box() {
+      const [w, setW] = React.useState(400);
+      return <div style={{ width: w + 'px' }}>
+        <Button id="grow" onClick={() => setW(90)}>{LONG}</Button>
+        <Button id="fits">OK</Button>
+        <Button id="named" aria-label="Save">{LONG}</Button>
+        <Button id="wrapped" wrap>{LONG}</Button>
+      </div>;
+    }
+    await render(<Box />);
+    expect(el('grow').hasAttribute('title')).toBe(false);
+    el('grow').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('grow').getAttribute('title')).toBe(LONG);
+    expect([document.activeElement?.id, el('fits').hasAttribute('title'), el('named').hasAttribute('title'), el('wrapped').hasAttribute('title')]).toEqual(['grow', false, false, false]);
+  });
+});
