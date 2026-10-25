@@ -1,4 +1,4 @@
-// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useSerupa, version
+// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useSerupa, version
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -20,6 +20,10 @@ interface SerupaTheme {
 type Space = 0 | 0.5 | 1 | 1.5 | 10 | 11 | 12 | 14 | 16 | 2 | 2.5 | 20 | 24 | 3 | 3.5 | 4 | 5 | 6 | 7 | 8 | 9;
 type Side = "bottom" | "left" | "right" | "top";
 type Placement = `${Side}-${"end" | "start"}` | Side;
+type OpenChangeReason = "blur" | "close" | "escape" | "outside" | "trigger";
+interface OpenChangeDetails {
+    reason: OpenChangeReason;
+}
 interface SerupaConfig {
     link?: React.ElementType;
 }
