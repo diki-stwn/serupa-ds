@@ -72,9 +72,9 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 `src/internal/network.test.tsx` shows every story and fails on any network request the story makes of its own: a `fetch`, an `XMLHttpRequest`, a `sendBeacon`, a `WebSocket` or an `EventSource`, or markup that loads from another origin (an `src`, `srcset`, `poster`, a stylesheet or preload `<link>`, a `url()` in a style attribute). The page's own files and `data:` URLs are fine. An app with a strict CSP, an offline page or a privacy review shouldn't find the design system calling out.
 
-These eight story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks, mount time, network, strict CSP) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
-
 `src/internal/strictCsp.test.tsx` shows every story on a page with the strict policy that the getting-started page promises works: `script-src 'self'; style-src 'self'; font-src 'self'`, with no `'unsafe-inline'` and no `'unsafe-eval'`. Any violation the browser reports fails the story, and so does an inline event handler or a `javascript:` URL in its markup, since those are only reported once they run. What a server render needs on top of this is covered by `serverStyles.test.tsx`.
+
+These eight story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks, mount time, network, strict CSP) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
 These five story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
