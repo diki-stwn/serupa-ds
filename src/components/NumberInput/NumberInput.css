@@ -18,4 +18,8 @@
 .dk-number-input__step:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-input--disabled .dk-number-input__step:disabled, .dk-input:where(:has(.dk-input__field:disabled)) .dk-number-input__step:disabled { opacity: var(--opacity-100); }
 @media (prefers-reduced-motion: reduce) { .dk-number-input__step { transition: none; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: at size sm the button is 22px, so a box behind it reaches
+   1px past each edge. The stacking context keeps that box under the icon, and the button paints over the text next to it. */
+.dk-number-input__step { position: relative; isolation: isolate; }
+.dk-number-input__step::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

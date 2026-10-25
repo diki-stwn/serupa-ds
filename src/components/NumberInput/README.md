@@ -44,6 +44,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 
 ## Accessibility
 
+- Each stepper button takes presses over at least 24px (WCAG 2.5.8), even at size `sm` where it's 22px: a box behind it reaches past its edges without moving anything.
 - `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. It's `type="text"` with `inputMode` numeric or decimal, which avoids the native number field's scroll-wheel and locale problems.
 - The − and + keep 3:1 and the number 4.5:1 on the field in all six themes (`NumberInput.test.tsx`).
 
