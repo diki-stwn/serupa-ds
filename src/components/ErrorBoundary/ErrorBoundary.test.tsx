@@ -1,0 +1,89 @@
+import * as React from 'react';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { page, userEvent } from 'vitest/browser';
+import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
+import { ErrorBoundary } from './ErrorBoundary';
+
+// React reports every caught error with console.error; these tests crash on purpose, so those are expected.
+let errors: { mockRestore(): void };
+beforeEach(() => { errors = vi.spyOn(console, 'error').mockImplementation(() => {}); });
+afterEach(() => { errors.mockRestore(); });
+
+let broken = true;
+function Widget({ label = 'Chart' }: { label?: string }) {
+  if (broken) throw new Error('boom');
+  return <button id="widget">{label}</button>;
+}
+
+describe('ErrorBoundary', () => {
+  test('no error: renders the children as they are, with nothing around them', async () => {
+    broken = false;
+    await render(<div id="host"><ErrorBoundary><Widget /></ErrorBoundary></div>);
+    expect(document.getElementById('host')!.innerHTML).toBe('<button id="widget">Chart</button>');
+  });
+
+  test('a render error: a danger Alert (role alert) with the default words and Try again; onError gets the error and the component stack; the rest of the page stays', async () => {
+    broken = true;
+    const onError = vi.fn<(error: unknown, info: React.ErrorInfo) => void>();
+    await render(<div><p id="other">Still here</p><ErrorBoundary onError={onError} className="extra"><Widget /></ErrorBoundary></div>);
+    const box = document.querySelector('[data-component="error-boundary"]') as HTMLElement;
+    expect([box.className, box.querySelector('[role=alert]')?.textContent]).toEqual(['dk-error-boundary extra', expect.stringContaining('Something went wrong')]);
+    expect(box.textContent).toContain("This part of the page couldn't load.");
+    await expect.element(page.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect([(onError.mock.calls[0]?.[0] as Error).message, typeof onError.mock.calls[0]?.[1].componentStack]).toEqual(['boom', 'string']);
+    expect(document.getElementById('other')!.textContent).toBe('Still here');
+  });
+
+  test('Try again renders the children again (and onReset runs); if they still fail, the fallback comes back', async () => {
+    broken = true;
+    const onReset = vi.fn();
+    await render(<ErrorBoundary onReset={onReset}><Widget /></ErrorBoundary>);
+    await userEvent.click(page.getByRole('button', { name: 'Try again' }));
+    expect([onReset.mock.calls.length, !!document.querySelector('[data-component="error-boundary"]')]).toEqual([1, true]);
+    broken = false;
+    await userEvent.click(page.getByRole('button', { name: 'Try again' }));
+    await expect.element(page.getByRole('button', { name: 'Chart' })).toBeInTheDocument();
+    expect(onReset).toHaveBeenCalledTimes(2);
+  });
+
+  test('focus: a crash that took focus with it moves focus to the fallback; focus elsewhere on the page stays put', async () => {
+    broken = false;
+    function Page({ crash }: { crash: boolean }) {
+      return <><input id="elsewhere" /><ErrorBoundary>{crash ? <Thrower /> : <Widget />}</ErrorBoundary></>;
+    }
+    function Thrower(): React.ReactElement { throw new Error('boom'); }
+    const r = await render(<Page crash={false} />);
+    (document.getElementById('widget') as HTMLElement).focus();
+    await r.rerender(<Page crash />);
+    const box = document.querySelector('[data-component="error-boundary"]') as HTMLElement;
+    await expect.poll(() => document.activeElement).toBe(box);
+    expect(box.tabIndex).toBe(-1);
+    await r.rerender(<Page crash={false} />);
+    await r.rerender(<><input id="elsewhere2" autoFocus /><ErrorBoundary><Thrower /></ErrorBoundary></>);
+    expect(document.activeElement?.id).toBe('elsewhere2');
+  });
+
+  test('resetKeys: a change clears the error; the same keys don\'t', async () => {
+    broken = true;
+    const r = await render(<ErrorBoundary resetKeys={['/a']}><Widget /></ErrorBoundary>);
+    broken = false;
+    await r.rerender(<ErrorBoundary resetKeys={['/a']}><Widget /></ErrorBoundary>);
+    expect(!!document.querySelector('[data-component="error-boundary"]')).toBe(true);
+    await r.rerender(<ErrorBoundary resetKeys={['/b']}><Widget /></ErrorBoundary>);
+    await expect.element(page.getByRole('button', { name: 'Chart' })).toBeInTheDocument();
+  });
+
+  test('fallback: an element, or a function of { error, reset }; title and description replace the default words; Indonesian words from the provider', async () => {
+    broken = true;
+    await render(<>
+      <div id="el"><ErrorBoundary fallback={<p>Nope</p>}><Widget /></ErrorBoundary></div>
+      <div id="fn"><ErrorBoundary fallback={({ error, reset }) => <button onClick={reset}>{(error as Error).message}</button>}><Widget /></ErrorBoundary></div>
+      <div id="txt"><ErrorBoundary title="Couldn't load the chart" description="The rest still works."><Widget /></ErrorBoundary></div>
+      <div id="id"><SerupaProvider labels={idLabels}><ErrorBoundary><Widget /></ErrorBoundary></SerupaProvider></div>
+    </>);
+    const text = (id: string) => document.getElementById(id)!.textContent;
+    expect([text('el'), text('fn'), text('txt'), text('id')]).toEqual(['Nope', 'boom', "Couldn't load the chartThe rest still works.Try again", 'Terjadi kesalahanBagian halaman ini tidak dapat dimuat.Coba lagi']);
+  });
+});
