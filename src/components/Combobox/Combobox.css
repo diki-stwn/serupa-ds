@@ -29,6 +29,15 @@
   color: var(--combobox-option-color, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
 }
 .dk-combobox__popup[hidden] { display: none; }
+/* Entry (EF1): the list fades in and grows from the edge facing the field, as Menu and Popover do, in motion-enter-sm.
+   A transition from @starting-style rather than keyframes, so a list closed mid-way never restarts from the top.
+   Reduced motion: the fade alone. */
+.dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+.dk-combobox__popup[data-side="bottom"] { transform-origin: top; }
+.dk-combobox__popup[data-side="top"] { transform-origin: bottom; }
+@starting-style { .dk-combobox__popup:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) { @starting-style { .dk-combobox__popup:not([hidden]) { scale: var(--scale-95); } } }
+@media (prefers-reduced-motion: reduce) { .dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter); } }
 .dk-combobox__option {
   display: flex; align-items: center; gap: var(--spacing-2); box-sizing: border-box; min-height: var(--combobox-option-height, var(--control-height-md));
   padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2));

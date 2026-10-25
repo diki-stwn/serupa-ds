@@ -125,6 +125,7 @@ const INTERACT: Record<string, (host: HTMLElement) => Promise<void>> = {
   Menu: async (h) => { await userEvent.click($(h, 'button')!); },
   Popover: async (h) => { await userEvent.click($(h, 'button')!); },
   Tooltip: async (h) => { await userEvent.hover($(h, 'button')!); },
+  Combobox: async (h) => { await userEvent.click($(h, 'button[aria-expanded]')!); },
   Button: async (h) => { await userEvent.hover($(h, 'button')!); },
 };
 
