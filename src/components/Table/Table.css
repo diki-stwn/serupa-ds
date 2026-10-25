@@ -45,6 +45,7 @@
 .dk-table__cell--center .dk-table__sort { justify-content: center; }
 .dk-table__cell--end .dk-table__sort { justify-content: flex-end; }
 @media (hover: hover) { .dk-table__sort:hover { color: var(--table-text, var(--text)); } }
+.dk-table__sort:active { background: var(--table-sort-bg-pressed, var(--pressed)); }   /* held: the pressed fill, at once */
 .dk-table__sort:focus-visible { outline: var(--focus-ring-width) solid var(--table-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-table__sort-icon.dk-icon { font-size: var(--spacing-4); }
 .dk-table__sort-icon--idle { opacity: var(--opacity-50); }
