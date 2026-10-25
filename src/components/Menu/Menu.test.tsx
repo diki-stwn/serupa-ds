@@ -284,6 +284,11 @@ describe('Menu', () => {
       .toEqual(['Meta+K', 'Meta+Shift+K', 'Alt+Meta+I', 'Control+Shift+P', 'Control+C', 'Alt+F4', 'Meta+Enter', 'Shift+Tab', 'Escape', '?', 'Delete']);
   });
 
+  test('keyShortcuts: a last + or - is the key ("Ctrl++" is Control+Plus), hyphens separate ("Cmd-K"), "G then I" is two presses (CE1)', () => {
+    expect(['Ctrl++', 'Ctrl+-', '⌘+', '+', 'Cmd-K', 'Ctrl-S', 'ctrl - shift - p', 'G then I', 'Ctrl+K then Ctrl+S', 'Shift+Plus'].map(keyShortcuts))
+      .toEqual(['Control+Plus', 'Control+-', 'Meta+Plus', 'Plus', 'Meta+K', 'Control+S', 'Control+Shift+P', 'G I', 'Control+K Control+S', 'Shift+Plus']);
+  });
+
   test('contrast: labels, shortcuts and group labels 4.5:1 (also highlighted), icons 3:1, in all six themes', async () => {
     await render(<Actions chosen={[]} />);
     await userEvent.click(el('mb'));

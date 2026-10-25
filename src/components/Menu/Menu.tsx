@@ -137,11 +137,22 @@ export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, '
 
 const KEY_NAMES: Record<string, string> = { "⌘": "Meta", cmd: "Meta", command: "Meta", meta: "Meta", "⌥": "Alt", opt: "Alt", option: "Alt", alt: "Alt",
   "⇧": "Shift", shift: "Shift", "⌃": "Control", ctrl: "Control", control: "Control", "⏎": "Enter", "↵": "Enter", enter: "Enter", return: "Enter",
-  "⌫": "Backspace", del: "Delete", delete: "Delete", esc: "Escape", "⎋": "Escape", tab: "Tab", space: "Space", "↑": "ArrowUp", "↓": "ArrowDown", "←": "ArrowLeft", "→": "ArrowRight" };
-/** "⌘⇧K", "Ctrl+Shift+P" or "Alt F4" as aria-keyshortcuts wants it: "Meta+Shift+K", "Control+Shift+P", "Alt+F4". */
+  "⌫": "Backspace", del: "Delete", delete: "Delete", esc: "Escape", "⎋": "Escape", tab: "Tab", space: "Space", "↑": "ArrowUp", "↓": "ArrowDown", "←": "ArrowLeft", "→": "ArrowRight", "+": "Plus", plus: "Plus" };
+/** "⌘⇧K", "Ctrl+Shift+P", "Cmd-K" or "Alt F4" as aria-keyshortcuts wants it: "Meta+Shift+K", "Control+Shift+P",
+    "Meta+K", "Alt+F4". A + or - key at the end stays a key ("Ctrl++" is "Control+Plus"), and "G then I" is two
+    presses, space-separated: "G I". */
 export function keyShortcuts(shortcut: string): string {
+  return shortcut.trim().split(/\s+then\s+/i).map(chord).filter(Boolean).join(" ");
+}
+function chord(text: string): string {
   const parts: string[] = [];
-  for (const token of shortcut.trim().split(/\s*[+\s]\s*/).filter(Boolean)) {
+  // A last + or - after a separator (or alone) is the key itself, not a separator.
+  let last = "";
+  const end = /(^|[+\-\s⌘⌥⇧⌃])([+-])$/.exec(text);
+  if (end) { last = end[2]; text = text.slice(0, text.length - 1); }
+  const tokens = text.split(/\s*[+-]\s*|\s+/).filter(Boolean);
+  if (last) tokens.push(last);
+  for (const token of tokens) {
     // Mac symbols are written together ("⌘⇧K"): split off each modifier symbol.
     let rest = token;
     while (rest.length > 1 && KEY_NAMES[rest[0]] && /[⌘⌥⇧⌃]/.test(rest[0])) { parts.push(KEY_NAMES[rest[0]]); rest = rest.slice(1); }
