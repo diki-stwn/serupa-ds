@@ -158,6 +158,16 @@
           }
         }
       },
+      "max-width": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-80}",
+        "$description": "The widest a menu gets (320px). Longer labels wrap.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--menu-max-width"
+          }
+        }
+      },
       "item-height": {
         "$type": "dimension",
         "$value": "{sizing.control-height-md}",

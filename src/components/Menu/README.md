@@ -105,6 +105,7 @@ Each is an optional override: set it on the page, a container or one menu. The l
 | `--menu-item-radius` | `rounded-md` | An item's corners (6px). |
 | `--menu-border-width` | `border-width-1` | The menu's border. |
 | `--menu-min-width` | `spacing-48` | The narrowest a menu gets (192px). |
+| `--menu-max-width` | `spacing-80` | The widest a menu gets (320px). Longer labels wrap. |
 | `--menu-item-height` | `control-height-md` | An item's height (32px). |
 | `--menu-padding` | `spacing-1` | Padding inside the menu (4px). |
 | `--menu-item-padding-x` | `spacing-2` | Padding at an item's sides (8px). |
