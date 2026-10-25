@@ -5761,6 +5761,26 @@
         }
       }
     },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{borders.outline-width-2}",
+      "$description": "The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. A third thicker (3px) with more contrast.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--focus-ring-width"
+        }
+      }
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{borders.outline-offset-2}",
+      "$description": "The transparent gap between an element and its focus ring (`outline-offset`). Inset rings, where an outline would be clipped, use 0.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--focus-ring-offset"
+        }
+      }
+    },
     "stroke-width-0": {
       "$type": "number",
       "$value": 0,
@@ -8043,7 +8063,7 @@
         "value": 100,
         "unit": "ms"
       },
-      "$description": "Small hover changes on dense UI.",
+      "$description": "Presses and small exits: a button held down, a tooltip leaving.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--duration-100"
@@ -8056,7 +8076,7 @@
         "value": 150,
         "unit": "ms"
       },
-      "$description": "Default: hover and focus colors, buttons, links.",
+      "$description": "Default: hover and focus colors, and small surfaces entering (tooltips, popovers, menus, date pickers).",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--duration-150"
@@ -8069,7 +8089,7 @@
         "value": 200,
         "unit": "ms"
       },
-      "$description": "Small elements entering: tooltips, dropdowns.",
+      "$description": "Medium surfaces entering: dialogs and toasts.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--duration-200"
@@ -8082,7 +8102,7 @@
         "value": 300,
         "unit": "ms"
       },
-      "$description": "Larger elements entering: popovers, dialogs, drawers.",
+      "$description": "Large surfaces entering: drawers and sheets.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--duration-300"
@@ -8315,6 +8335,136 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-in-out"
+        }
+      }
+    },
+    "motion-press": {
+      "$type": "duration",
+      "$value": "{transitions.duration-100}",
+      "$description": "A press: a control answering while it's held down (Button scales down).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-press"
+        }
+      }
+    },
+    "motion-hover": {
+      "$type": "duration",
+      "$value": "{transitions.duration-150}",
+      "$description": "Hover and focus changes: colors, borders and shadows on a control that stays put.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-hover"
+        }
+      }
+    },
+    "motion-enter-sm": {
+      "$type": "duration",
+      "$value": "{transitions.duration-150}",
+      "$description": "A small surface appearing: tooltips, popovers, menus, date pickers.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-enter-sm"
+        }
+      }
+    },
+    "motion-enter-md": {
+      "$type": "duration",
+      "$value": "{transitions.duration-200}",
+      "$description": "A medium surface appearing: dialogs and toasts.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-enter-md"
+        }
+      }
+    },
+    "motion-enter-lg": {
+      "$type": "duration",
+      "$value": "{transitions.duration-300}",
+      "$description": "A large surface appearing: drawers and sheets.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-enter-lg"
+        }
+      }
+    },
+    "motion-exit-sm": {
+      "$type": "duration",
+      "$value": "{transitions.duration-100}",
+      "$description": "A small surface leaving. An exit takes about two thirds of its enter, so what was closed gets out of the way.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-exit-sm"
+        }
+      }
+    },
+    "motion-exit-md": {
+      "$type": "duration",
+      "$value": "{transitions.duration-150}",
+      "$description": "A medium surface leaving: dialogs and toasts.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-exit-md"
+        }
+      }
+    },
+    "motion-exit-lg": {
+      "$type": "duration",
+      "$value": "{transitions.duration-200}",
+      "$description": "A large surface leaving: drawers and sheets.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-exit-lg"
+        }
+      }
+    },
+    "motion-loop-spinner": {
+      "$type": "duration",
+      "$value": "{transitions.duration-1000}",
+      "$description": "One turn of a spinner: Button, Switch and the circular Progress while they load.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-loop-spinner"
+        }
+      }
+    },
+    "motion-loop-placeholder": {
+      "$type": "duration",
+      "$value": "{transitions.duration-1000}",
+      "$description": "One pass of a loading placeholder's pulse: Image while it loads.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-loop-placeholder"
+        }
+      }
+    },
+    "ease-enter": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-out}",
+      "$description": "Something appearing: fast at first, settling at the end.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-enter"
+        }
+      }
+    },
+    "ease-exit": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-in}",
+      "$description": "Something leaving: slow at first, then out of the way.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-exit"
+        }
+      }
+    },
+    "ease-move": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-in-out}",
+      "$description": "Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-move"
         }
       }
     }

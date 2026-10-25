@@ -103,7 +103,11 @@ export function exportTokens(t, componentFiles) {
   for (const [g, grp] of Object.entries(GROUPS)) {
     for (const x of grp.tokens) {
       if (g === 'color' && ALIAS.includes(x)) continue;
-      const v = first(x.value), r = typed(g, x.name, v);
+      const v = first(x.value);
+      // A role that names another token of its group (motion-hover is {duration-150}) is exported as a reference to it.
+      const to = full(/\{([^}]+)\}/, String(v)), target = to && grp.tokens.find((y) => y.name === to[1]);
+      const tr = target && typed(g, target.name, first(target.value));
+      const r = tr ? [tr[0], `{${g}.${pathName(target.name)}}`] : typed(g, x.name, v);
       if (!r) { setIn(cssOnly, g)[x.name] = { css: String(v), description: (x.usage || '').replace(/^Tailwind /, '') }; continue; }
       const tok = { $type: r[0], $value: r[1] };
       if (x.usage) tok.$description = x.usage;
