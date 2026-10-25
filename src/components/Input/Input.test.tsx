@@ -184,4 +184,16 @@ describe('Input', () => {
     expect(kb('own')).toEqual(['on', 'off', 'true']);
     expect(kb('nm')).toEqual([null, null, null]);
   });
+  test('iOS: Input, Textarea and Select fields get 16px text where Safari would zoom into a smaller one (the rule only applies there)', () => {
+    const rules: string[] = [];
+    const walk = (list: CSSRuleList) => { for (const r of Array.from(list)) {
+      if (r instanceof CSSSupportsRule && r.conditionText.includes('-webkit-touch-callout')) rules.push(...Array.from(r.cssRules).map((x) => x.cssText));
+      else if ('cssRules' in r) walk((r as CSSGroupingRule).cssRules);
+    } };
+    for (const sheet of Array.from(document.styleSheets)) { try { walk(sheet.cssRules); } catch { /* another origin */ } }
+    for (const f of ['dk-input__field', 'dk-textarea__field', 'dk-select__field']) {
+      expect(rules.find((r) => r.includes('.' + f))).toMatch(/font-size: var\(--text-base\)/);
+    }
+  });
+
 });

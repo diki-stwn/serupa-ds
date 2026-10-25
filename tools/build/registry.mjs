@@ -7,6 +7,10 @@
 //   labels.ts        each component's own words (src/components/<Name>/labels.ts: <Name>Labels, en, id), merged into one English and
 //                    one Indonesian set (src/internal/labels.ts adds the shared ones)
 // The build, Storybook, Vitest, typecheck and lint run it first: node tools/build/registry.mjs.
+// It also keeps the components index in README.md (between the components:start and components:end comments): each
+// component under its Storybook group, with the first sentence of its guide. tools/release.mjs rewrites it on each
+// release pull request, so it can't drift from the folders past a release, and component pull requests never touch
+// README.md (two of them never conflict over it); node tools/build/registry.mjs --readme rewrites it now.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -61,4 +65,36 @@ export function buildRegistry(root = ROOT) {
     + `export const componentId: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.id`).join(', ')});\n`);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(HERE, 'registry.mjs')) buildRegistry();
+const START = '<!-- components:start (written by tools/build/registry.mjs) -->';
+const END = '<!-- components:end -->';
+
+/** README.md's components index: a table per Storybook group (A to Z, like its sidebar), one row per component. */
+export function componentIndex(root = ROOT) {
+  const groups = {};
+  for (const n of components(root)) {
+    const dir = path.join(root, 'src', 'components', n);
+    const stories = path.join(dir, `${n}.stories.tsx`);
+    const group = fs.existsSync(stories) ? (/title: '(?:Components\/)?([^'/]+)\//.exec(fs.readFileSync(stories, 'utf8')) || [])[1] : undefined;
+    const guide = fs.readFileSync(path.join(dir, 'README.md'), 'utf8');
+    // The guide's first paragraph after its heading, up to the end of its first sentence.
+    const intro = (/^# .*\n+([^\n#`|<-][^\n]*)/m.exec(guide) || [])[1] ?? '';
+    // Links between guides (../Combobox/README.md) point from the README instead.
+    const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/\|/g, '\\|').replace(/\]\(\.\.\//g, '](src/components/');
+    (groups[group ?? 'Other'] ||= []).push(`| [${n}](src/components/${n}/README.md) | ${sentence} |`);
+  }
+  return Object.keys(groups).sort((a, b) => Number(a === 'Other') - Number(b === 'Other') || a.localeCompare(b))
+    .map((g) => `### ${g}\n\n| Component | What it's for |\n| --- | --- |\n${groups[g].join('\n')}\n`).join('\n');
+}
+
+/** README.md with its components index rewritten from the component folders. */
+export function stampReadme(root = ROOT) {
+  const file = path.join(root, 'README.md');
+  const text = fs.readFileSync(file, 'utf8');
+  const a = text.indexOf(START), b = text.indexOf(END);
+  if (a < 0 || b < a) throw new Error(`README.md needs the lines ${START} and ${END} around its components index`);
+  write(file, text.slice(0, a + START.length) + '\n\n' + componentIndex(root) + '\n' + text.slice(b));
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(HERE, 'registry.mjs')) {
+  if (process.argv.includes('--readme')) stampReadme(); else buildRegistry();
+}

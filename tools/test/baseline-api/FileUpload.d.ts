@@ -6,6 +6,11 @@ interface FileUploadLabels {
     chooseFile: string;
     chosenFiles: string;
     chosenFile: string;
+    fileWrongType: (name: string, types: null | string[]) => string;
+    fileTooLarge: (name: string, limit: string) => string;
+    fileTooMany: (name: string, max: number) => string;
+    fileOnlyOne: (name: string) => string;
+    fileMissing: (multiple: boolean) => string;
 }
 declare function formatFileSize(bytes: number): string;
 type FileRejection = {
@@ -26,6 +31,7 @@ interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "de
     required?: boolean;
     readOnly?: boolean;
     name?: string;
+    form?: string;
     title?: React.ReactNode;
     buttonLabel?: string;
     hint?: React.ReactNode;

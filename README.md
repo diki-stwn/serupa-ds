@@ -125,6 +125,113 @@ React components, styled only with this system's tokens. Each one's guide (when 
 
 Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Navigation, Content, and Layout and type (each component's stories file names its group in its `title`). The folders are in [`src/components/`](src/components/).
 
+<!-- components:start (written by tools/build/registry.mjs) -->
+
+### Actions
+
+| Component | What it's for |
+| --- | --- |
+| [Button](src/components/Button/README.md) | Triggers an action: submitting a form, opening a dialog, confirming or cancelling. |
+| [ButtonGroup](src/components/ButtonGroup/README.md) | Related buttons side by side, or stacked: joined into one control with shared borders (the default), or spaced apart. |
+| [CopyButton](src/components/CopyButton/README.md) | A button that copies text to the clipboard: an API key, an invite link, a command. |
+| [Fab](src/components/Fab/README.md) | A floating action button: the one main action of a screen, such as "New project" or "Compose", in a round, raised button fixed to a corner. |
+| [IconButton](src/components/IconButton/README.md) | A button that shows only an icon: a menu trigger, a close button, a toolbar action. |
+| [Link](src/components/Link/README.md) | An inline text link: underlined, in the primary color or the surrounding text's. |
+| [ToggleButton](src/components/ToggleButton/README.md) | A Button that stays on or off, for a setting that applies right away: bold in a text editor, mute, show the grid. |
+
+### Content
+
+| Component | What it's for |
+| --- | --- |
+| [Accordion](src/components/Accordion/README.md) | A stack of items whose content shows and hides under a title button: FAQs, settings groups, long forms split into sections. |
+| [Avatar](src/components/Avatar/README.md) | A small picture of a person (a circle) or of a team, project or organisation (a square). |
+| [AvatarGroup](src/components/AvatarGroup/README.md) | Avatars in an overlapping row, such as the people on a project or the assignees of a task. |
+| [Card](src/components/Card/README.md) | A surface that groups related content and its actions: a summary, a settings panel, an item in a grid. |
+| [Carousel](src/components/Carousel/README.md) | One slide at a time, with previous and next buttons, a dot per slide and swipe. |
+| [FormattedNumber](src/components/FormattedNumber/README.md) | Writes a number the way the reader's language does: `1.234,5` in Indonesian, `1,234.5` in English, `١٬٢٣٤٫٥` in Egyptian Arabic. |
+| [Highlight](src/components/Highlight/README.md) | Shows text with the parts that match a search marked, ignoring case and accents, for search results, [Combobox](src/components/Combobox/README.md) options and a command palette. |
+| [Icon](src/components/Icon/README.md) | Shows one icon as an inline SVG: from Material Symbols, always in the **Rounded** style with **Fill** on, or one of your own custom icons. |
+| [Image](src/components/Image/README.md) | A picture in a frame: a fixed ratio, rounded corners, a placeholder while it loads and a fallback if it fails. |
+| [Kbd](src/components/Kbd/README.md) | Shows a keyboard key or shortcut as keycaps, in help text, tooltips, menus and empty states. |
+| [List](src/components/List/README.md) | Rows of related things: people, files, notifications, settings. |
+| [RelativeTime](src/components/RelativeTime/README.md) | Says how long ago, or how far ahead, a moment is, in the reader's language: "3 minutes ago", "yesterday", "in 2 hours". |
+| [SortableList](src/components/SortableList/README.md) | A list people put in their own order: tasks by priority, steps in a flow, columns in a table. |
+| [Table](src/components/Table/README.md) | A data table built on native table markup: a header row, body rows and an optional footer, in a bordered frame that scrolls sideways when the table is too wide. |
+
+### Feedback
+
+| Component | What it's for |
+| --- | --- |
+| [Alert](src/components/Alert/README.md) | A message about the page or a task: something saved, something to know, something that went wrong. |
+| [Badge](src/components/Badge/README.md) | A short label for status, counts and categories, optionally clickable. |
+| [EmptyState](src/components/EmptyState/README.md) | What a page or a panel shows when there's nothing in it yet, or nothing matches: an icon, a few words saying what's empty, what it means, and the action that fills it. |
+| [ErrorBoundary](src/components/ErrorBoundary/README.md) | Catches an error thrown while rendering anything inside it and shows a message with "Try again" in its place, so one broken widget doesn't blank the whole page. |
+| [Loader](src/components/Loader/README.md) | Shows that something is loading when you can't say how far along it is. |
+| [Meter](src/components/Meter/README.md) | Shows a measurement within a known range: storage used, a plan's seats, a password's strength, a battery level. |
+| [Progress](src/components/Progress/README.md) | Shows how far along a task is when you can tell: an upload, a setup, a quota. |
+| [Toast](src/components/Toast/README.md) | A short message that confirms something happened ("Changes saved", "Moved to trash") without getting in the way. |
+
+### Forms
+
+| Component | What it's for |
+| --- | --- |
+| [Calendar](src/components/Calendar/README.md) | A month of days to pick one from, with full keyboard navigation. |
+| [Checkbox](src/components/Checkbox/README.md) | A native checkbox with its label, for turning one option on or off, or picking any number from a list. |
+| [ColorPicker](src/components/ColorPicker/README.md) | Picks a color from a set of swatches, or any color by its hex code or with the browser's own picker. |
+| [Combobox](src/components/Combobox/README.md) | A text field with a list of options that narrows as you type: pick a country, an assignee, a project. |
+| [DatePicker](src/components/DatePicker/README.md) | A date field: people type a date, or pick one from a calendar that opens under the field. |
+| [DateRangePicker](src/components/DateRangePicker/README.md) | Two date fields for the start and end of a range (a stay, a report period, a filter), with a popup of two months to pick both. |
+| [Field](src/components/Field/README.md) | A label, an optional hint and an error message around one form control, wired up for screen readers. |
+| [FileUpload](src/components/FileUpload/README.md) | A drop area with a button for choosing files, and the chosen files listed under it with their size and a remove button. |
+| [InlineEdit](src/components/InlineEdit/README.md) | Text people can change where it is: a project name, a card title, a slug. |
+| [Input](src/components/Input/README.md) | A single-line text field: a native `<input>` in a box that can hold icons. |
+| [NumberInput](src/components/NumberInput/README.md) | A field for a number, with − and + buttons at the end. |
+| [PasswordInput](src/components/PasswordInput/README.md) | A password field with a button at the end that shows and hides what was typed, so people can check it before they submit. |
+| [PhoneInput](src/components/PhoneInput/README.md) | A phone number field with a country menu at the start. |
+| [Radio](src/components/Radio/README.md) | Native radios for one choice from a short list. |
+| [SearchInput](src/components/SearchInput/README.md) | A search field: a search icon at the start, and a × at the end once something is typed. |
+| [SegmentedControl](src/components/SegmentedControl/README.md) | Picks one of a few options shown side by side, such as a view (List, Board) or a period (Day, Week, Month). |
+| [Select](src/components/Select/README.md) | A native `<select>` styled like Input: the same three heights (24, 32 and 44px), colors, focus ring and states, with a chevron and an optional left icon. |
+| [Slider](src/components/Slider/README.md) | Picks a number, or a range with two thumbs, by dragging along a track or with the keyboard. |
+| [Switch](src/components/Switch/README.md) | An on/off setting that takes effect at once. |
+| [Textarea](src/components/Textarea/README.md) | A multi-line text field, Input's sibling: a native `<textarea>` in a box. |
+| [TimePicker](src/components/TimePicker/README.md) | A time-of-day field: people type a time, or pick one from a list. |
+
+### Layout and type
+
+| Component | What it's for |
+| --- | --- |
+| [Container](src/components/Container/README.md) | Centers a page's content with a maximum width, and side padding that grows with the screen: 16px, 24px from 640px and 32px from 1024px wide. |
+| [Divider](src/components/Divider/README.md) | A 1px line between content, horizontal or vertical, with an optional label in the middle such as "or". |
+| [Grid](src/components/Grid/README.md) | Cells in equal columns, or as many columns as fit, with the same space between them from the spacing scale. |
+| [Heading](src/components/Heading/README.md) | A heading, `h1` to `h6`, in the system's type. |
+| [Stack](src/components/Stack/README.md) | Lays its children out in a column, or a row, with the same space between each, taken from the spacing scale. |
+| [Text](src/components/Text/README.md) | Body text in the system's type: a paragraph, a caption, an error line. |
+| [VisuallyHidden](src/components/VisuallyHidden/README.md) | Content that screen readers announce but nobody sees: "(opens in a new tab)", the label of an icon-only control you build yourself, a heading for a section that's obvious by sight. |
+
+### Navigation
+
+| Component | What it's for |
+| --- | --- |
+| [Breadcrumb](src/components/Breadcrumb/README.md) | Shows where the current page sits: links to the pages above it, from the top level down, with chevrons between them. |
+| [Navbar](src/components/Navbar/README.md) | The bar across the top of an app: the brand on the left, the main page links, and actions on the right (search, a user menu, sign in). |
+| [Pagination](src/components/Pagination/README.md) | Moves through pages of results: previous and next arrows around the page numbers, with … where pages are skipped. |
+| [Sidebar](src/components/Sidebar/README.md) | A vertical nav for an app's pages: an optional header (a logo, a workspace switcher), sections of items with icons, badges and nested groups, and a footer pinned to the bottom (settings, the signed-in user). |
+| [Stepper](src/components/Stepper/README.md) | Shows where people are in a task split into steps, such as sign-up, checkout or setup. |
+| [Tabs](src/components/Tabs/README.md) | Switches between related panels in one place, such as a project's Overview, Activity and Settings. |
+
+### Overlays
+
+| Component | What it's for |
+| --- | --- |
+| [Dialog](src/components/Dialog/README.md) | A modal window over a dimmed page, for a task or a decision that needs attention before people go on: inviting someone, confirming a delete, editing a few fields. |
+| [Drawer](src/components/Drawer/README.md) | A modal panel that slides in from an edge of the screen: navigation on small screens, filters, or details and edits without leaving the page. |
+| [Menu](src/components/Menu/README.md) | A list of actions behind a button: a row's "More" menu, an "Actions" dropdown, a user menu. |
+| [Popover](src/components/Popover/README.md) | A small panel next to its trigger for content people interact with: a short form, filters, details with links. |
+| [Tooltip](src/components/Tooltip/README.md) | A short hint about one element, shown while it's hovered or focused: what an icon button does, a keyboard shortcut, why something is unavailable. |
+
+<!-- components:end -->
+
 Shared conventions, so learning one component teaches the rest:
 
 - `size` is `'sm' | 'md' | 'lg'` at the control heights 24, 32 and 44px (some components have only `sm` and `md`).
