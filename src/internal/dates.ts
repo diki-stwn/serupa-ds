@@ -52,17 +52,29 @@ export function dateOrder(locale?: string): ("day" | "month" | "year")[] {
   const parts = numeric(locale).formatToParts(new Date(2001, 10, 22));
   return parts.filter((p) => p.type === "day" || p.type === "month" || p.type === "year").map((p) => p.type as "day" | "month" | "year");
 }
-/** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22), or null. A one- or two-digit
+/** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22, or digits alone: 11222001), or null. A one- or two-digit
  * year is the one within 50 years of now (in 2026: 85 is 1985, 30 is 2030, 75 is 2075 and 77 is 1977), so a birth
  * date or a deadline both read right. A leading 4-digit year reads as ISO year-month-day unless the locale writes its
  * year first. */
 export function parseDate(text: string, locale?: string, now: Date = new Date()): Date | null {
   const nums = latinDigits(text).trim().split(/[^0-9]+/).filter(Boolean);
+  const own = dateOrder(locale);
+  // Digits alone, as typed on a number keypad: 6 or 8 of them, split in the locale's order (11222001 and 112201 in
+  // en-US, 22112001 in de-DE), or as an ISO yyyymmdd. When both make a date (20011122 in de-DE is also 20.01.1122),
+  // the one nearer now wins.
+  if (nums.length === 1 && (nums[0].length === 6 || nums[0].length === 8)) {
+    const run = nums[0], yl = run.length - 4;
+    const read = (order: readonly string[]) => { let i = 0; const parts = order.map((k) => { const n = k === "year" ? yl : 2; i += n; return run.slice(i - n, i); }); return fromParts(parts, order, now); };
+    const mine = read(own), iso = yl === 4 ? read(["year", "month", "day"]) : null;
+    if (!mine || !iso) return mine || iso;
+    return Math.abs(iso.getFullYear() - now.getFullYear()) < Math.abs(mine.getFullYear() - now.getFullYear()) ? iso : mine;
+  }
   if (nums.length !== 3) return null;
   // A leading 4-digit year is ISO (2001-11-22), unless the locale itself writes the year first in another order
   // (Kyrgyz: year-day-month).
-  const own = dateOrder(locale);
-  const order = /^\d{4}$/.test(nums[0]) && own[0] !== "year" ? (["year", "month", "day"] as const) : own;
+  return fromParts(nums, /^\d{4}$/.test(nums[0]) && own[0] !== "year" ? ["year", "month", "day"] : own, now);
+}
+function fromParts(nums: string[], order: readonly string[], now: Date): Date | null {
   const v: Record<string, number> = {};
   order.forEach((k, i) => { v[k] = Number(nums[i]); });
   if (nums[order.indexOf("year")].length <= 2) {
