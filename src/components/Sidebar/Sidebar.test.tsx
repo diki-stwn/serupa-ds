@@ -152,6 +152,16 @@ describe('Sidebar', () => {
     expect(Math.round(rect(tip()!).left - rect(el('ihome')).right)).toBeGreaterThan(0);
   });
 
+  test('collapsed: an item with a badge is named by its label and described by the badge, so "4" is still read (CP1)', async () => {
+    await render(<App />);
+    const text = (attr: string) => (el('iinbox').getAttribute(attr) || '').split(' ').filter(Boolean).map((id) => document.getElementById(id)?.textContent).join(' ');
+    expect(el('iinbox').hasAttribute('aria-describedby')).toBe(false);   // expanded, the badge is in the link's own text
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
+    expect([text('aria-labelledby'), text('aria-describedby')]).toEqual(['Inbox', '4']);
+    expect(el('ihome').hasAttribute('aria-describedby')).toBe(false);
+  });
+
   test('collapsed: a group opens its items in a menu', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
