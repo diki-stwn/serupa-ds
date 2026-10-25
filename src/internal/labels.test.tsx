@@ -13,7 +13,7 @@ function said(set: Record<string, unknown>): Record<string, string> {
   return Object.fromEntries(Object.entries(set).map(([k, v]) => {
     if (typeof v !== 'function') return [k, String(v)];
     if (!ARGS[k]) throw new Error(`labels.test.tsx: add sample arguments for the "${k}" label to ARGS`);
-    return [k, String((v as (...a: unknown[]) => unknown)(...ARGS[k]!))];
+    return [k, String((v as (...a: unknown[]) => unknown)(...ARGS[k]))];
   }));
 }
 // Words that are the same in both languages.
