@@ -59,7 +59,8 @@ export function css(el: Element | null): CSSStyleDeclaration {
   return getComputedStyle(el);
 }
 
-/** Waits for transitions to settle (the components animate colors for 150ms). */
+/** Waits a fixed 200ms: for color transitions to finish (the components animate colors for 150ms), or to show that
+ * nothing happens within that time. To wait for something to happen, poll for it with expect.poll instead. */
 export const settle = (ms = 200) => new Promise((ok) => setTimeout(ok, ms));
 
 /**
