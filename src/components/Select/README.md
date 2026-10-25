@@ -68,7 +68,7 @@ const { Select, Field } = window.Serupa;
 | `leftIcon` | icon name or element | | A decorative icon before the text (14, 16 or 20px, in `text-muted`) |
 | `invalid` | boolean | `false` | A danger border and focus ring, and `aria-invalid` |
 
-Everything else (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<select>`. `className` and `style` go to the box, so `className="w-48"` sets its width (full width by default). The box has `data-component="select"` and `data-size`. `multiple` isn't supported (a native multi-select is hard to use): it's ignored with a warning; use checkboxes.
+Everything else (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<select>`. `className` and `style` go to the box, so `className="w-48"` sets its width (full width by default). The box has `data-component="select"` and `data-size`. `multiple` isn't supported (a native multi-select is hard to use): it's ignored with a warning; use checkboxes. Inside a `<fieldset disabled>` the box takes the disabled look too, as the native select is disabled with it.
 
 ## Component tokens
 
