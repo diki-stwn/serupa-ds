@@ -48,7 +48,6 @@ import { ErrorBoundary } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `id` | string | none | Not a prop. Put an id on what you pass as `fallback`, or on an element inside. |
 | `children` | `ReactNode` | | The part of the page to guard. |
 | `fallback` | `ReactNode \| ({ error, reset }) => ReactNode` | a danger Alert with Try again | What to show instead. |
 | `title` | `ReactNode` | "Something went wrong" | The default fallback's title. |
@@ -57,6 +56,8 @@ import { ErrorBoundary } from "serupa-ds";
 | `onReset` | `() => void` | | Called when the error is cleared (Try again, `reset()` or `resetKeys`). |
 | `resetKeys` | `unknown[]` | | When a value changes, the error clears. |
 | `className` | `string` | | On the default fallback's box, which has `data-component="error-boundary"`. |
+
+`id` isn't a prop. Put an id on what you pass as `fallback`, or on an element inside.
 
 A function `fallback` gets `ErrorBoundaryFallbackProps`: `error`, the value that was thrown, and `reset`, which clears it and renders the children again.
 
