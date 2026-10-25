@@ -1,0 +1,38 @@
+# FullWidth
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# IconOnly
+- radiogroup "Text alignment":
+  - radio "Left" [checked]
+  - radio "Center"
+  - radio "Right"
+
+# Invalid
+- text: Period
+- radiogroup "Period" [invalid]:
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+- text: Pick the period to report on
+
+# Playground
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# ReadOnly
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# WithIcons
+- radiogroup "View":
+  - radio "List" [checked]
+  - radio "Board"
+  - radio "Calendar"
+

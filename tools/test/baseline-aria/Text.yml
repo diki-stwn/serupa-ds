@@ -1,0 +1,25 @@
+# Playground
+- paragraph: Invite people to work on this project with you.
+
+# Sizes
+- paragraph: "text-xs: The quick brown fox"
+- paragraph: "text-sm: The quick brown fox"
+- paragraph: "text-base: The quick brown fox"
+- paragraph: "text-lg: The quick brown fox"
+- paragraph: "text-xl: The quick brown fox"
+
+# Tones
+- paragraph: "default: The quick brown fox"
+- paragraph: "muted: The quick brown fox"
+- paragraph: "primary: The quick brown fox"
+- paragraph: "danger: The quick brown fox"
+
+# Truncate
+- paragraph: quarterly-report-final-version-2.pdf
+
+# Weights
+- paragraph: "normal: The quick brown fox"
+- paragraph: "medium: The quick brown fox"
+- paragraph: "semibold: The quick brown fox"
+- paragraph: "bold: The quick brown fox"
+

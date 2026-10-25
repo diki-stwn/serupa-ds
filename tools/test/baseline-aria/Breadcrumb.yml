@@ -1,0 +1,67 @@
+# Collapsed
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - button "Show all pages": …
+    - listitem:
+      - link "Website redesign":
+        - /url: "#"
+    - listitem: Settings
+
+# CollapsedMenu
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - button "More pages": …
+    - listitem:
+      - link "Website redesign":
+        - /url: "#"
+    - listitem: Settings
+
+# LongLabels
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Customer research and interviews, autumn":
+        - /url: "#"
+    - listitem: Notes from the session with the support team about the new onboarding
+
+# Playground
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Projects":
+        - /url: "#"
+    - listitem: Website redesign
+
+# Slash
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Projects":
+        - /url: "#"
+    - listitem: Website redesign
+
+# TwoLevels
+- navigation "Breadcrumb":
+  - list:
+    - listitem:
+      - link "Projects":
+        - /url: "#"
+    - listitem: Website redesign
+

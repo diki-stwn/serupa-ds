@@ -1,0 +1,24 @@
+# Disabled
+- group "Text alignment":
+  - button "Align left" [disabled] [pressed]
+  - button "Align center" [disabled]
+  - button "Align right" [disabled]
+
+# Multiple
+- group "Text style":
+  - button "Bold" [pressed]
+  - button "Italic"
+  - button "Underline" [pressed]
+
+# Playground
+- group "Text alignment":
+  - button "Align left" [pressed]
+  - button "Align center"
+  - button "Align right"
+
+# WithLabels
+- group "View":
+  - button "Day"
+  - button "Week" [pressed]
+  - button "Month"
+

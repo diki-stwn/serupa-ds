@@ -1,0 +1,34 @@
+# Pending
+- switch "Sync contacts"
+- text: Sync contacts
+
+# Playground
+- switch "Wi-Fi"
+- text: Wi-Fi
+
+# Sizes
+- switch "Small"
+- text: Small
+- switch "Medium" [checked]
+- text: Medium
+- switch "Large"
+- text: Large
+
+# States
+- switch "On" [checked]
+- text: "On"
+- switch "Required setting" [invalid]
+- text: Required setting
+- switch "Read-only and on" [checked]
+- text: Read-only and on
+- switch "Disabled" [disabled]
+- text: Disabled
+- switch "Disabled and on" [checked] [disabled]
+- text: Disabled and on
+- switch "Label first"
+- text: Label first
+
+# WithDescription
+- switch "Auto-update" [checked]
+- text: Auto-update Install updates overnight
+

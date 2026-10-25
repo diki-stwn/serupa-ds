@@ -1,0 +1,28 @@
+# Confirmation
+- button "Invite people"
+
+# FullScreen
+- button "Invite people"
+
+# Large
+- button "Invite people"
+
+# LongText
+- button "Read the terms"
+
+# NoCloseButton
+- button "Invite people"
+
+# OpenOnArrival
+- dialog "Welcome to Atlas":
+  - heading "Welcome to Atlas" [level=2]
+  - paragraph: Your projects, files and team in one place.
+  - button "Close"
+  - button "Get started"
+
+# Playground
+- button "Invite people"
+
+# Small
+- button "Invite people"
+
