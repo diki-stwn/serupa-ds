@@ -23,6 +23,8 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   readOnly?: boolean;
   /** In a CheckboxGroup: the box that checks or clears every other box. It's checked when all are, and indeterminate when some are. Leave out value. */
   selectAll?: boolean;
+  /** Called with the new checked state and the change event, after onChange: the same shape as ToggleButton's onPressedChange. */
+  onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 /** V is the boxes' value type: string (or number) as you use them, inferred from value, defaultValue or onValueChange. */
@@ -130,7 +132,7 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
    select-all box, drawn as a dash and announced as mixed); invalid. Renders <label class="dk-checkbox"> around the
    box and the text, so a click anywhere on it toggles: className and style go to the label, every other prop
    (checked, defaultChecked, onChange, name, value, disabled, required, aria-*…) and ref to the <input>. */
-const OWN = { size: 1, invalid: 1, indeterminate: 1, selectAll: 1, description: 1, children: 1, className: 1, style: 1, type: 1 } as const;
+const OWN = { size: 1, invalid: 1, indeterminate: 1, selectAll: 1, onCheckedChange: 1, description: 1, children: 1, className: 1, style: 1, type: 1 } as const;
 
 /** A native checkbox with its label (ref, checked, onChange and every input attribute go to the <input>); className and style go to the <label> around it. */
 export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProps>("Checkbox", function Checkbox(props, ref) {
@@ -168,6 +170,11 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
       // Required means at least one: every box is required while none is checked, so the browser asks for one.
       if (group.required && !group.values.some((v) => group.boxes.has(v))) rest.required = true;
     }
+  }
+  const checkedChange = props.onCheckedChange;
+  if (checkedChange) {
+    const before = rest.onChange;
+    rest.onChange = function (e: React.ChangeEvent<HTMLInputElement>) { if (before) before(e); checkedChange(e.currentTarget.checked, e); };
   }
   // Read-only: the native readonly does nothing on a checkbox, so a click (Space clicks too) is cancelled, which
   // puts the box back, and aria-readonly says why. Your onClick still runs first; onChange doesn't, since nothing changes.
