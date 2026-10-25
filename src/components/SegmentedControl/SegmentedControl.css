@@ -50,4 +50,8 @@
 @media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } }
 /* The selected label keeps HighlightText on hover too: the hover color, kept as is, was dark on the dark Highlight. */
 @media (forced-colors: active) { .dk-segmented__indicator { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when an option is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-segmented__item { position: relative; isolation: isolate; }
+.dk-segmented__item::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

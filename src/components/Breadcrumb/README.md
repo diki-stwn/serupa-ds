@@ -37,6 +37,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 
 ## Accessibility
 
+- Each link takes a press over at least 24px of height (WCAG 2.5.8), past its 20px line, without moving the trail.
 - It's a `<nav>` landmark named "Breadcrumb" holding an ordered list, so screen readers say how many levels there are. Give it another name if the page has two.
 - The current page has `aria-current="page"`. Separators are hidden from screen readers.
 - Links, the current page and separators keep 4.5:1 on `surface` in all six themes (`Breadcrumb.test.tsx`).
