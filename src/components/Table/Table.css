@@ -5,7 +5,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-table {
-  box-sizing: border-box; max-width: var(--sizing-full); overflow: auto; position: relative;
+  box-sizing: border-box; max-width: var(--sizing-full); overflow: auto; overscroll-behavior-x: contain; position: relative;
   border: var(--table-border-width, var(--border-width-1)) solid var(--table-border, var(--border)); border-radius: var(--table-radius, var(--rounded-lg));
   background: var(--table-bg, var(--surface));
 }
@@ -36,7 +36,7 @@
 .dk-table__sort {
   box-sizing: border-box; display: inline-flex; align-items: center; gap: var(--spacing-1); width: var(--sizing-full);
   padding: var(--table-padding-y, var(--spacing-3)) var(--table-padding-x, var(--spacing-3));
-  border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer;
+  border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer; touch-action: manipulation;
 }
 .dk-table--sm .dk-table__sort { padding-block: var(--table-padding-y-sm, var(--spacing-2)); }
 .dk-table__cell--center .dk-table__sort { justify-content: center; }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
@@ -17,7 +17,7 @@ const dial = (id: string) => (box(id).querySelector('.dk-phone-input__dial') as 
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 const pick = (sel: HTMLSelectElement, code: string) => userEvent.selectOptions(sel, code);
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
@@ -32,7 +32,7 @@ describe('PhoneInput', () => {
     expect([b.className, b.dataset.component, b.style.marginTop, b.getBoundingClientRect().height]).toEqual(['dk-input dk-phone-input dk-input--size-md extra', 'phone-input', '2px', 32]);
     expect([menu('p').getAttribute('aria-label'), menu('p').value, dial('p')]).toEqual(['Country', 'ID', '+62']);
     // Each option names the country in the locale's words, with its calling code, sorted by name.
-    const names = [...menu('p').options].map((o) => o.textContent!);
+    const names = [...menu('p').options].map((o) => o.textContent);
     expect(names).toContain('Indonesia (+62)');
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en-US')));
     expect(names.length).toBe(PHONE_COUNTRIES.length);

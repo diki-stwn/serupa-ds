@@ -54,7 +54,7 @@ describe('Menu', () => {
     await render(<Actions chosen={[]} />);
     await userEvent.click(el('mb'));
     const seen: string[] = [];
-    for (const k of ['{ArrowDown}', '{ArrowDown}', '{End}', '{ArrowDown}', '{ArrowUp}', '{Home}', 's', 'd', 'd']) { await userEvent.keyboard(k); seen.push(focus()!); }
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{End}', '{ArrowDown}', '{ArrowUp}', '{Home}', 's', 'd', 'd']) { await userEvent.keyboard(k); seen.push(focus()); }
     expect(seen).toEqual(['Duplicate', 'Archive', 'Delete', 'Edit', 'Delete', 'Edit', 'Share link', 'Delete', 'Duplicate']);
   });
 
@@ -174,7 +174,7 @@ describe('Menu', () => {
     </Menu>);
     const items = [...menuOf('ks').querySelectorAll<HTMLElement>('[role=menuitem]')];
     expect(items.map((i) => i.getAttribute('aria-keyshortcuts'))).toEqual(['Meta+E', 'Control+Shift+KeyP', null]);
-    expect([items[0]!.querySelector('kbd')!.textContent, items[0]!.querySelector('kbd')!.getAttribute('aria-hidden')]).toEqual(['⌘E', 'true']);
+    expect([items[0].querySelector('kbd')!.textContent, items[0].querySelector('kbd')!.getAttribute('aria-hidden')]).toEqual(['⌘E', 'true']);
     await expect.element(page.getByRole('menuitem', { name: 'Edit', exact: true })).toBeInTheDocument();
   });
 

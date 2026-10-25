@@ -25,7 +25,7 @@ const [tasks, setTasks] = React.useState(initialTasks);
 
 - An order that follows from the data (date, name, size): offer sorting, such as Table's sortable headers.
 - Moving items between groups or columns, such as a kanban board: that needs more than one list.
-- Long lists where dragging past the screen edge is the main job: offer "Move to top" or a position field as well.
+- Very long lists where dragging far is the main job: dragging scrolls at the edges, but offer "Move to top" or a position field as well.
 
 ## Usage
 
@@ -36,7 +36,7 @@ const [tasks, setTasks] = React.useState(initialTasks);
 
 ## Behavior
 
-- Pointer: press the handle and move more than 4px; the row follows the pointer and the others move out of its way. Letting go drops it. A press without moving does nothing.
+- Pointer: press the handle and move more than 4px; the row follows the pointer and the others move out of its way. Letting go drops it. A press without moving does nothing. Held near the top or bottom edge of the list's scrolling container (or of the window), it scrolls that way, faster nearer the edge, so a row can be moved past the screen.
 - Keyboard: Space or Enter on a handle picks the row up. The arrow keys move it one place, Home and End to either end. Space or Enter drops it, and Escape, Tab or a click elsewhere puts it back where it was. Focus stays on its handle throughout.
 - Nothing is reported until the drop, so a cancelled move leaves your data alone.
 - `disabled` shows the rows without handles.

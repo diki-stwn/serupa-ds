@@ -14,7 +14,7 @@
   border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: start; text-decoration: none;
 }
 .dk-list__item:not(:has(.dk-list__trailing)) .dk-list__main { margin-inline-end: calc(var(--spacing-0) - var(--dk-list-px)); padding-inline-end: var(--dk-list-px); }
-.dk-list__item--interactive .dk-list__main { cursor: pointer; }
+.dk-list__item--interactive .dk-list__main { cursor: pointer; touch-action: manipulation; }
 .dk-list__item--selected { background: var(--list-bg-hover, var(--surface-muted)); }
 @media (hover: hover) { .dk-list__item--interactive:hover:not(.dk-list__item--disabled) { background: var(--list-bg-hover, var(--surface-muted)); } }
 .dk-list__item--interactive:not(.dk-list__item--disabled):has(.dk-list__main:active) { background: var(--list-bg-pressed, var(--pressed)); }   /* the row, not its trailing action */

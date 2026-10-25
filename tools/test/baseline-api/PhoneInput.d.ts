@@ -23,7 +23,7 @@ interface PhoneValueDetails {
     national: string;
     complete: boolean;
 }
-interface PhoneInputProps extends Omit<InputProps, "defaultValue" | "leftIcon" | "onChange" | "rightIcon" | "type" | "value"> {
+interface PhoneInputProps extends Omit<InputProps, "defaultValue" | "leftIcon" | "onChange" | "rightIcon" | "showCount" | "type" | "value"> {
     value?: string;
     defaultValue?: string;
     onValueChange?: (value: string, details: PhoneValueDetails) => void;

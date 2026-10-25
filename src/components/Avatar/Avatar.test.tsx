@@ -3,6 +3,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Avatar, type AvatarSize, type AvatarStatus } from './Avatar';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 // A 10×10 red PNG rather than an SVG data URL: WebKit's loaded check failed on the SVG (no 10px natural width).
 const IMG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAEklEQVR4nGM4w8CAB+GTG8HSAJNGT7H9UgyzAAAAAElFTkSuQmCC';
@@ -27,6 +29,11 @@ function forcedColors(): () => void {
 const Row = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>{children}</div>;
 
 describe('Avatar', () => {
+  test('the status is read in the provider\'s words: "Ana Lim, daring" under id-ID; statusLabel still wins', async () => {
+    await render(<><SerupaProvider locale="id-ID" labels={idLabels}><Avatar id="as-id" name="Ana Lim" status="online" /><Avatar id="as-own" name="Ana Lim" status="busy" statusLabel="rapat" /></SerupaProvider></>);
+    expect([el('as-id').getAttribute('aria-label'), el('as-own').getAttribute('aria-label')]).toEqual(['Ana Lim, daring', 'Ana Lim, rapat']);
+  });
+
   test('picture: a 40px circle (role img, named by name), the <img> covers it and is decorative; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLSpanElement>();
     await render(<Avatar id="img" src={IMG} name="Ada Lovelace" ref={r} className="extra" data-x="y" />);

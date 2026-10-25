@@ -41,7 +41,8 @@ const { Button, buttonClass } = window.Serupa;
 - Use `destructive` only for actions that delete or can't be undone, and only one solid (`primary`) destructive button per view, usually in the confirmation step.
 - An icon-only button needs an `aria-label`. Prefer a label with an icon unless the icon is universally understood (close, search, settings).
 - Use a left icon to reinforce the action (`add` for create) and a right icon for direction (`arrow_forward` for next, `expand_more` for menus). Don't use both.
-- Use `loading` for actions that take longer than about a second, and keep the label as it was ("Save changes", not "Saving…") so the width doesn't jump.
+- Prefer `disabledReason` to a bare `disabled`: people can find out what to do instead of guessing.
+- Use `loading` (or return a promise from `onClick`) for actions that take longer than about a second, and keep the label as it was ("Save changes", not "Saving…") so the width doesn't jump.
 - Navigation is a link: give the Button an `href`, not an `onClick` that changes the URL.
 - Icons come from Material Symbols Rounded (filled), drawn as SVG. The consumer provides the click handler.
 
@@ -132,6 +133,8 @@ The button is a plain `<button>`, so it works with any form library, router or d
 - **Every native `<button>` attribute works**, checked in a browser: `autoFocus`, `disabled`, `form`, `formAction`, `formEncType`, `formMethod`, `formNoValidate`, `formTarget`, `name`, `value`, `type`, `popoverTarget` / `popoverTargetAction` (opens a `popover` element with no JavaScript) and `commandfor` / `command` (opens a `<dialog>` with `command="show-modal"`), plus global and event attributes. `name` and `value` are sent with the form when this button submits it, so one form can have Save and Publish buttons (`name="intent"`).
 - **`loading` blocks repeat requests.** While it's true, clicks, Space and Enter on the button, and Enter in a form field (implicit submission) do nothing, so a slow request can't be sent twice. The button keeps keyboard focus (unlike `disabled`, which would drop it mid-request) and sets `aria-busy` and `aria-disabled`.
 - **`disabled`** is the native attribute: the button leaves the tab order and ignores clicks.
+- **`disabledReason` says why.** With `disabled`, the button uses `aria-disabled` instead, so it stays in the tab order: keyboard and screen reader users can reach it and hear the reason as its description (`aria-describedby`), and it still looks disabled and ignores clicks, Enter and form submission. To show the reason on hover and focus as well, wrap it in a [Tooltip](../Tooltip/README.md) with the same words; the button then lets the tooltip describe it, so the reason is read once. A disabled link Button with a reason gets `tabIndex={0}`. Without `disabled`, `disabledReason` does nothing.
+- **An `onClick` that returns a promise loads by itself.** The button shows `loading` until the promise settles, so a second click can't send the request twice, and you don't need your own loading state. With `successText` ("Saved"), a resolved promise shows a check in place of the label for 2 seconds (the button keeps its width and name) and announces the text politely. A rejected promise just ends the loading; show the error yourself.
 - **`ref`** reaches the DOM element (the `<button>`, or the `<a>` with `href`), for focusing after an error.
 
 ```jsx
@@ -152,7 +155,7 @@ function SaveForm() {
 }
 ```
 
-**Data attributes** for tests, analytics and styling: every button has `data-component="button"`, `data-variant` and `data-size`, plus `data-destructive`, `data-icon-only`, `data-loading` and `data-disabled` when they apply. Select with `[data-component="button"][data-loading]`, for example; don't select by the `dk-btn` class names.
+**Data attributes** for tests, analytics and styling: every button has `data-component="button"`, `data-variant` and `data-size`, plus `data-destructive`, `data-icon-only`, `data-loading`, `data-success` and `data-disabled` when they apply. Select with `[data-component="button"][data-loading]`, for example; don't select by the `dk-btn` class names.
 
 ### Micro-interactions
 
@@ -210,7 +213,7 @@ Button's behaviour follows web standards; its look comes only from this design s
 
 ## Props
 
-Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading` and `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through.
+Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading`, `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it) and `successText` (shown with a check and announced after a promise from `onClick` resolves). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through.
 
 `buttonClass({ variant, size, destructive, iconOnly, iconPosition, className })` returns the class names, to style any other element as a button. `Serupa.configure({ link })` sets the component that renders link Buttons.
 

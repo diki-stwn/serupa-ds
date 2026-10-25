@@ -5,6 +5,7 @@ import '../../../src/styles/index.css';
 import { afterEach, beforeEach, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { announcerIdle } from '../../../src/internal/announce';
+import { resetWarnings } from '../../../src/internal/warn';
 
 afterEach(() => { document.documentElement.setAttribute('data-theme', 'blue-light'); });
 document.documentElement.setAttribute('data-theme', 'blue-light');
@@ -27,6 +28,8 @@ afterEach(async () => {
 });
 // The tests run in a frame, and Firefox gives a frame keyboard focus only once something clicks into it: until then
 // el.focus() leaves focus on the body and keys go nowhere. So a click in the empty corner first, when it's needed.
+// Each test starts with no warning given yet (warnOnce remembers them for the page's lifetime).
+beforeEach(resetWarnings);
 // A key press before each test, so a script's focus() is :focus-visible as on a page nobody has clicked yet: after a
 // test that clicked, Chromium would otherwise draw no focus ring and a test that reads one would depend on the order.
 beforeEach(() => userEvent.keyboard('{Shift}'));

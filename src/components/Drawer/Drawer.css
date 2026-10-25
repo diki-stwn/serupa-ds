@@ -53,6 +53,19 @@
   padding: var(--spacing-4) var(--drawer-padding, var(--spacing-6));
   border-top: var(--drawer-border-width, var(--border-width-1)) solid var(--drawer-border, var(--border));
 }
+/* Safe areas: on a phone with a notch or a home bar (with viewport-fit=cover), the panel's padding and the
+   footer clear them; elsewhere env() is 0 and nothing changes. */
+.dk-drawer__panel {
+  --dk-drawer-pad: var(--drawer-padding, var(--spacing-6));
+  padding-top: max(var(--dk-drawer-pad), env(safe-area-inset-top));
+  padding-bottom: max(var(--dk-drawer-pad), env(safe-area-inset-bottom));
+}
+.dk-drawer--left .dk-drawer__panel { padding-inline-start: max(var(--dk-drawer-pad), env(safe-area-inset-left)); }
+.dk-drawer--right .dk-drawer__panel { padding-inline-end: max(var(--dk-drawer-pad), env(safe-area-inset-right)); }
+.dk-drawer__footer {
+  margin-bottom: calc(var(--spacing-0) - max(var(--dk-drawer-pad), env(safe-area-inset-bottom)));
+  padding-bottom: max(var(--spacing-4), env(safe-area-inset-bottom));
+}
 @media (prefers-reduced-motion: reduce) { .dk-drawer__panel, .dk-drawer[open]::backdrop { animation: none; } }
 @media (forced-colors: active) { .dk-drawer__panel { border: var(--border-width-1) solid CanvasText; } }
 }

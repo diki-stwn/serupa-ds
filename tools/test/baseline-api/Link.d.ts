@@ -1,4 +1,7 @@
 // exports: Link, type LinkProps
+interface LinkLabels {
+    opensInNewTab: string;
+}
 interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
     tone?: "neutral" | "primary";
     underline?: "always" | "hover";
