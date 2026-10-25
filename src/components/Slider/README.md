@@ -74,6 +74,7 @@ Your `onKeyDown` runs before the slider's own keys, so `e.preventDefault()` in i
 | `thumbLabels` | `[string, string]` | `['Minimum', 'Maximum']` | A range's thumb names. By default the `sliderMinimum` and `sliderMaximum` labels ("Minimum", "Maksimum" in `idLabels`). |
 | `name` | `string` | | Adds hidden inputs (two for a range) so the value is sent with a form. |
 | `form` | `string` | | The id of a form it sits outside of: its hidden inputs submit, and reset, with that form. |
+| `required` | `boolean` | | Accepted so Field's `required` doesn't reach the page. A slider always has a value, so it has no effect. |
 
 Name a single slider with `aria-label` or `aria-labelledby`; on a range they name the group. `className`, `ref` and other props go to the root `<div>`. Its `focus()` and `autoFocus` move focus to the first thumb (none when disabled), so a form library that focuses the first invalid field after a failed submit lands on the slider.
 

@@ -63,6 +63,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 | `size` | `'sm' \| 'md'` | `'md'` | 24 or 32px swatches. |
 | `disabled` | `boolean` | `false` | |
 | `name` | `string` | | Submits the color with a form. |
+| `form` | `string` | | The id of the form it submits with, when the picker sits outside it (like an input's `form`). |
 
 Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it focuses the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
 
