@@ -46,6 +46,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 - A whole row is one link or button, named by its title and description; trailing actions are separate controls, so give them names that say which row they're for ("More for Ada Lovelace").
 - Selected rows have a bar and `aria-current` or `aria-pressed`, not only a background.
 - Titles and descriptions keep 4.5:1 on plain and shaded rows, and the selected bar 3:1, in all six themes (`List.test.tsx`).
+- **Keyboard:** an item with `href` or `onClick` has one Tab stop, its main area, where Enter (Space too for a button) acts. A disabled one is skipped. Controls in `trailing` are Tab stops of their own. Plain items add none.
 
 ## Props
 

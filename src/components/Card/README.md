@@ -67,6 +67,7 @@ The hover border fades in 150ms (`duration-150`, `ease-in-out`), at once with `p
 - In forced-colors mode every card gets a visible border.
 - The title, description and body text keep 4.5:1 on every variant, in all six themes (`Card.test.tsx`).
 - In print, a card isn't split across two pages.
+- **Keyboard:** with `href`, the card is one Tab stop (its link), and Enter opens it. Buttons and links inside are Tab stops of their own. Without `href`, the card adds no Tab stop.
 
 ## Props
 

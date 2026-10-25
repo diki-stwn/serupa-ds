@@ -43,6 +43,7 @@ A button can be a Menu's trigger or sit in a Tooltip, as in a split button (`<Me
 - It's a `role="group"`: name it with `aria-label` when the buttons share a purpose ("Text formatting"), so screen readers announce it on the way in.
 - A hovered, focused or pressed button comes to the front, so its border and focus ring are never hidden by its neighbor.
 - Each button keeps its own colors and contrast; the group adds none.
+- **Keyboard:** nothing of its own. Tab moves through its buttons one by one, as it would without the group.
 
 ## Props
 

@@ -42,6 +42,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 - The current page has `aria-current="page"`. Separators are hidden from screen readers.
 - Links, the current page and separators keep 4.5:1 on `surface` in all six themes (`Breadcrumb.test.tsx`).
 - Links are underlined on hover only: their place in the trail and the chevrons already say they're links.
+- **Keyboard:** Tab moves through the links, and Enter follows one. The current page is text, not a Tab stop. With `maxItems`, the "…" button is a Tab stop too, and Enter or Space shows the hidden pages.
 
 ## Props
 
