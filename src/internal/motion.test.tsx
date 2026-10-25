@@ -49,7 +49,6 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-badge-loader-in': ['EE1: scales in', ['Badge']],
   },
   origin: {
-    'dk-menu-in': ['EO1: scales in from its centre', ['Menu']],
     'dk-popover-in': ['EO1: scales in from its centre', ['Popover']],
   },
   'will-change': {},
