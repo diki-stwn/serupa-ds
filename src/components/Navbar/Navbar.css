@@ -20,6 +20,8 @@
   transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
 }
 @media (hover: hover) { .dk-navbar__link:hover { background: var(--navbar-link-bg-hover, var(--secondary)); color: var(--navbar-link-text-hover, var(--text)); } }
+/* Pressed: one step past hover while held, at once (no fade in); letting go fades back. */
+.dk-navbar__link:active { background: var(--navbar-link-bg-pressed, var(--pressed)); color: var(--navbar-link-text-hover, var(--text)); transition-duration: var(--duration-0); }
 .dk-navbar__link--active { background: var(--navbar-link-bg-active, var(--secondary)); color: var(--navbar-link-text-active, var(--text)); }
 /* Forced colors drop the background and color, so the current page gets an outline. */
 @media (forced-colors: active) { .dk-navbar__link--active, .dk-navbar__link[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }

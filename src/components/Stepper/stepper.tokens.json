@@ -230,6 +230,18 @@
           }
         }
       }
+    },
+    "motion": {
+      "press-scale": {
+        "$type": "number",
+        "$value": "{transforms.scale-95}",
+        "$description": "Size of a step's indicator while its head is held down (95%). 1 turns press feedback off.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--stepper-press-scale"
+          }
+        }
+      }
     }
   }
 }

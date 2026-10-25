@@ -147,7 +147,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const [list, setList] = React.useState<Item[]>([]);
   React.useEffect(() => {
     ensureAnnouncer(); hinted = false;
-    if (listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
+    if (process.env.NODE_ENV !== "production" && listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
     listeners.add(setList); emit();
     return () => { listeners.delete(setList); emit(); };
   }, []);

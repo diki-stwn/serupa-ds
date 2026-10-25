@@ -45,7 +45,7 @@ export const Select = /* @__PURE__ */ component<HTMLSelectElement, SelectProps>(
   const nameRef = useNameCheck("Select", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const rest = omit(props, OWN);
-  if ((props as { multiple?: boolean }).multiple) warnOnce("select-multiple", "Serupa.Select: multiple isn't supported (a native multi-select is hard to use); use checkboxes instead. It was ignored.");
+  if (process.env.NODE_ENV !== "production" && (props as { multiple?: boolean }).multiple) warnOnce("select-multiple", "Serupa.Select: multiple isn't supported (a native multi-select is hard to use); use checkboxes instead. It was ignored.");
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;

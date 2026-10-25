@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Stepper, type StepperStep } from './Stepper';
 
@@ -179,5 +179,15 @@ describe('Stepper', () => {
     expect(n.querySelector('.dk-stepper__summary')).toBeNull();
     setW(320);
     await expect.poll(() => n.className).toMatch(/compact/);
+  });
+
+  test('pressed: a step\'s indicator shrinks to 95% while its head is held, on scale alone, and springs back (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<Stepper id="sp" steps={STEPS} current={2} onStepClick={() => {}} />);
+      const head = document.querySelector('#sp button') as HTMLButtonElement, dot = head.firstElementChild as HTMLElement;
+      expect(css(dot).transitionProperty).toBe('scale');
+      await press(head, () => expect.poll(() => css(dot).scale).toBe('0.95'));
+      await expect.poll(() => css(dot).scale).toBe('none');
+    });
   });
 });

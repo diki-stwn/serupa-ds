@@ -30,7 +30,7 @@ export function toDay(v: unknown, who?: string): Date | null {
     return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null;
   }
   if (!isValid(v)) return null;
-  if (who && v.getTimezoneOffset() > 0 && v.getUTCHours() + v.getUTCMinutes() + v.getUTCSeconds() + v.getUTCMilliseconds() === 0)
+  if (process.env.NODE_ENV !== "production" && who && v.getTimezoneOffset() > 0 && v.getUTCHours() + v.getUTCMinutes() + v.getUTCSeconds() + v.getUTCMilliseconds() === 0)
     warnOnce(who + ":utc", `${who}: a Date at UTC midnight (${v.toISOString()}) is ${isoDate(v)} here, the day before. A Date made from "yyyy-mm-dd" is UTC; pass the "yyyy-mm-dd" string itself instead.`);
   return day(v);
 }

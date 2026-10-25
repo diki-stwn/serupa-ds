@@ -90,6 +90,7 @@ Each is an optional override: set it on the page, a container or one navbar. The
 | `--navbar-link-text-hover` | `text` | A link on hover. |
 | `--navbar-link-text-active` | `text` | The current page's link. |
 | `--navbar-link-bg-hover` | `secondary` | A link's background on hover. |
+| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
 | `--navbar-link-bg-active` | `secondary` | The current page's link background. |
 | `--navbar-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--navbar-link-size` | `text-sm` | Link text (14px). |

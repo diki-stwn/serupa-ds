@@ -59,7 +59,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   const controlled = props.value !== undefined;
   const [inner, setInner] = React.useState<string[]>(() => (props.defaultValue || []).slice(0, single ? 1 : undefined));
   const open = controlled ? (props.value as string[]) : inner;
-  if (single && controlled && open.length > 1) warnOnce("accordion-single-value", `Accordion: value has ${open.length} items with type="single", so ${open.length} items show open; pass one value, or type="multiple".`);
+  if (process.env.NODE_ENV !== "production" && single && controlled && open.length > 1) warnOnce("accordion-single-value", `Accordion: value has ${open.length} items with type="single", so ${open.length} items show open; pass one value, or type="multiple".`);
   const collapsible = props.collapsible !== false;
   const onChange = React.useRef(props.onValueChange);
   onChange.current = props.onValueChange;

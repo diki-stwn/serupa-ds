@@ -69,7 +69,7 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
   const onValueChange = props.onValueChange, onChange = props.onChange;
-  if (onChange) warnOnce("radio-group-onchange", "RadioGroup: onChange is deprecated and goes in the next major. Use onValueChange, which takes the same (value, event).");
+  if (process.env.NODE_ENV !== "production" && onChange) warnOnce("radio-group-onchange", "RadioGroup: onChange is deprecated and goes in the next major. Use onValueChange, which takes the same (value, event).");
   // A form reset checks the radio that was checked first; the group's choice follows it (a controlled one shows its value again).
   const root = React.useRef<HTMLDivElement | null>(null);
   const [, rerender] = React.useState(0);

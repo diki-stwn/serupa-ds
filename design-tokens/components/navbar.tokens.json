@@ -91,6 +91,16 @@
             "cssVar": "--navbar-focus-ring"
           }
         }
+      },
+      "link-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A link's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--navbar-link-bg-pressed"
+          }
+        }
       }
     },
     "typography": {

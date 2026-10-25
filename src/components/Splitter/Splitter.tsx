@@ -69,7 +69,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   const root = React.useRef<HTMLDivElement | null>(null);
   const base = domId("dk-splitter", React.useId());
   const panes = React.Children.toArray(children);
-  if (panes.length !== 2) warnOnce("splitter-two", "Splitter: give it exactly two children, the two panes (it got " + panes.length + ").");
+  if (process.env.NODE_ENV !== "production" && panes.length !== 2) warnOnce("splitter-two", "Splitter: give it exactly two children, the two panes (it got " + panes.length + ").");
 
   const change = (n: number) => {
     const next = Math.round(n * 100) / 100;
