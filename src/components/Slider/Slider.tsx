@@ -11,6 +11,8 @@ import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { useSerupa } from "../../internal/provider";
 
 export type SliderValue = number | [number, number];
+/** A mark on a Slider's track: a value, and optional text shown under it. */
+export interface SliderMark { value: number; label?: React.ReactNode }
 /** V is a number for one thumb or [low, high] for a range, inferred from value, defaultValue or the callbacks. */
 export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
   /** The value (controlled): a number, or [low, high] for a range with two thumbs. Use with onValueChange. */
@@ -46,9 +48,22 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   readOnly?: boolean;
   /** Accepted so Field's required doesn't reach the DOM. A slider always has a value, so it has no effect. */
   required?: boolean;
+  /** Ticks on the track: true for every step (every largeStep steps past 100 ticks), or a list of values with optional text under each. Visual only; the thumb's value is what's read out. */
+  marks?: boolean | SliderMark[];
+  /** Shows the value (formatValue's text) over a thumb while it's focused, dragged or hovered. Visual only, as aria-valuetext already says it. */
+  showValue?: boolean;
 }
 
-const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
+const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, marks: 1, showValue: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
+
+// The marks to draw: every step for true (every largeStep steps when that's over 100 ticks), or the listed values on the track.
+function markList(marks: SliderProps["marks"], min: number, max: number, step: number, large: number): SliderMark[] {
+  if (Array.isArray(marks)) return marks.filter((m) => m && isFinite(m.value) && m.value >= min && m.value <= max);
+  if (marks !== true) return [];
+  const every = (max - min) / step > 100 ? step * large : step, out: SliderMark[] = [];
+  for (let i = 0, v = min; v <= max + every / 1e9 && i <= 1000; i++, v = min + i * every) out.push({ value: snapToGrid(v, min, max, step) });
+  return out;
+}
 
 /* Slider: picks a number, or a range with two thumbs, by dragging along a track or with the keyboard. Each thumb
    is role="slider" with aria-valuenow, min, max and valuetext. Arrows change it by step (Right and Up raise it;
@@ -157,23 +172,31 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const fieldLabel = useFieldLabel(props.id);
   const labelledBy = props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel);
   const lo = isRange ? pct(vals[0]) : 0, hi = pct(vals[vals.length - 1]);
+  const marks = markList(props.marks, min, max, step, large);
+  const labelled = marks.some((m) => m.label != null && m.label !== false && m.label !== "");
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); restyle(n); }}
       role={isRange ? "group" : rest.role} aria-label={isRange ? props["aria-label"] : undefined} aria-labelledby={isRange ? labelledBy : undefined}
       aria-describedby={isRange ? props["aria-describedby"] : undefined}
-      className={cn("dk-slider", props.size === "sm" ? "dk-slider--size-sm" : "dk-slider--size-md", disabled && "dk-slider--disabled", readOnly && "dk-slider--readonly", invalid && "dk-slider--invalid", props.className)}
+      className={cn("dk-slider", props.size === "sm" ? "dk-slider--size-sm" : "dk-slider--size-md", disabled && "dk-slider--disabled", readOnly && "dk-slider--readonly", invalid && "dk-slider--invalid", labelled && "dk-slider--mark-labels", props.className)}
       data-component="slider" data-size={props.size === "sm" ? "sm" : "md"} data-disabled={disabled ? "" : undefined} data-readonly={readOnly ? "" : undefined} data-invalid={invalid ? "" : undefined}
       onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={end} onPointerCancel={end}
       onKeyDown={undefined} onFocus={onFocus} onBlur={onBlur}>
       <div className="dk-slider__track">
         <div className="dk-slider__fill" style={{ insetInlineStart: lo + "%", inlineSize: hi - lo + "%" }} />
+        {marks.map((m, i) => (
+          <span key={i} className="dk-slider__mark" style={{ insetInlineStart: pct(m.value) + "%" }} aria-hidden="true">
+            {m.value > min && m.value < max ? <span className="dk-slider__tick" /> : null}
+            {m.label != null && m.label !== false ? <span className="dk-slider__mark-label">{m.label}</span> : null}
+          </span>
+        ))}
         {vals.map((v, i) => (
           <span key={i} ref={(n) => { thumbs.current[i] = n; }} className="dk-slider__thumb" style={{ insetInlineStart: pct(v) + "%" }}
             role="slider" tabIndex={disabled ? -1 : 0} aria-valuenow={v} aria-valuemin={isRange && i === 1 ? vals[0] : min} aria-valuemax={isRange && i === 0 ? vals[1] : max}
             aria-valuetext={props.formatValue ? text(v) : undefined} aria-orientation="horizontal" aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} aria-invalid={invalid || undefined}
             aria-label={isRange ? names[i] : props["aria-label"]} aria-labelledby={isRange ? undefined : labelledBy}
             aria-describedby={isRange ? undefined : props["aria-describedby"]}
-            onKeyDown={onKeyDown(i)} />
+            onKeyDown={onKeyDown(i)}>{props.showValue ? <span className="dk-slider__value" aria-hidden="true"><span>{text(v)}</span></span> : null}</span>
         ))}
       </div>
       {props.name ? vals.map((v, i) => <input key={"in" + i} type="hidden" name={props.name} form={props.form} value={v} disabled={disabled} />) : null}

@@ -28,3 +28,7 @@ export const ReadOnly: Story = { args: { readOnly: true, defaultValue: 40 } };
 export const Invalid: Story = {
   render: (args) => <Field label="Volume" error="Keep it under 80 for hearing safety"><Slider {...args} defaultValue={90} /></Field>,
 };
+export const Marks: Story = {
+  args: { 'aria-label': 'Temperature', defaultValue: 21, min: 16, max: 28, marks: [{ value: 16, label: '16°' }, { value: 21, label: 'Comfort' }, { value: 28, label: '28°' }], showValue: true, formatValue: (v: number) => `${v}°` },
+};
+export const EveryStep: Story = { args: { 'aria-label': 'Rating', defaultValue: 3, min: 0, max: 10, marks: true } };

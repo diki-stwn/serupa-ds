@@ -27,12 +27,16 @@ const [price, setPrice] = React.useState<[number, number]>([20, 80]);
 - Use `formatValue` whenever the number has a unit or a currency, so screen readers hear "$40", not "40".
 - Update what's on screen in `onValueChange`, and save or fetch in `onValueCommit`, which runs once per change.
 - Set `step` to the precision people need, so values snap to sensible numbers.
+- Use `marks` when a few values matter, such as `[{ value: 0, label: "Off" }, { value: 100, label: "Max" }]`, or `marks` alone for a tick per step on a short scale. Keep the labels short; they sit on one line under the track.
+- Use `showValue` when people need to see the number while they drag, and there is no label nearby that shows it.
 
 ## Behavior
 
 - A press anywhere on the track moves the nearest thumb there, and dragging follows the pointer even off the slider.
 - Range thumbs can't cross.
 - The thumb grows a little while pressed; it doesn't with `prefers-reduced-motion`.
+- `marks` draws a tick for each mark between the ends, and its label centered under it. With labels, the slider is taller by one line of small text, so nothing overlaps what follows. `true` draws a mark per step, or one per `largeStep` steps past 100 marks. Marks off the track are left out. A press on a label moves the nearest thumb there.
+- `showValue` shows the value, as `formatValue` writes it, in a small chip over a thumb while it's focused, hovered or dragged. The chip floats and takes no room, so leave space above the slider.
 
 ## Accessibility
 
@@ -43,6 +47,7 @@ const [price, setPrice] = React.useState<[number, number]>([20, 80]);
 - `invalid` sets `aria-invalid` on each thumb and turns the fill and the thumb's ring danger (3:1 on the page in all six themes). Color alone doesn't say what's wrong, so put the reason in text next to it: inside a [Field](../Field/README.md), its `error` does both.
 - `readOnly` keeps the thumbs in the Tab order with `aria-readonly`, so people can still hear the value, but keys and presses don't change it. With `name`, the value is still sent with the form, which `disabled` doesn't do.
 - A slider always has a value, so `required` has nothing to check. It's accepted, so Field's `required` doesn't reach the DOM, and has no effect.
+- Marks and the value chip are `aria-hidden`. The thumb's `aria-valuetext` already says the value, and mark labels would be read as stray text. Mark labels keep 4.5:1 on the page, and the chip's text 4.5:1 on the chip, in all six themes (`Slider.test.tsx`).
 - `disabled`, or a disabled `<fieldset>` around it, takes the thumbs out of the Tab order, sets `aria-disabled` and ignores keys and presses, as native inputs do.
 
 ### Keyboard
@@ -73,6 +78,8 @@ Your `onKeyDown` runs before the slider's own keys, so `e.preventDefault()` in i
 | `readOnly` | `boolean` | `false` | Focusable and read out, but it doesn't move; the value is still submitted. |
 | `formatValue` | `(value: number) => string` | | The words read out for a value (`aria-valuetext`), such as "$40". |
 | `thumbLabels` | `[string, string]` | `['Minimum', 'Maximum']` | A range's thumb names. By default the `sliderMinimum` and `sliderMaximum` labels ("Minimum", "Maksimum" in `idLabels`). |
+| `marks` | `boolean \| { value: number; label?: ReactNode }[]` | | Ticks on the track: `true` for every step, or the listed values with text under them. Visual only. |
+| `showValue` | `boolean` | `false` | The value over the thumb while it's focused, hovered or dragged. Visual only. |
 | `name` | `string` | | Adds hidden inputs (two for a range) so the value is sent with a form. |
 | `form` | `string` | | The id of a form it sits outside of: its hidden inputs submit, and reset, with that form. |
 | `required` | `boolean` | | Accepted so Field's `required` doesn't reach the page. A slider always has a value, so it has no effect. |
@@ -91,6 +98,10 @@ Each is an optional override: set it on the page, a container or one slider. The
 | `--slider-thumb-border` | `primary` | The thumb's ring (3:1 on the surface). |
 | `--slider-focus-ring` | `focus-ring` | The thumb's keyboard focus ring. |
 | `--slider-invalid` | `danger` | The fill and the thumb's ring when invalid. |
+| `--slider-mark` | `field` | The marks' ticks, cut into the track. |
+| `--slider-mark-label` | `text-muted` | The marks' text under the track (4.5:1 on the surface). |
+| `--slider-value-bg` | `surface-inverse` | showValue's chip over the thumb. |
+| `--slider-value-text` | `text-inverse` | showValue's text (4.5:1 on value-bg). |
 | `--slider-track-height-sm` | `spacing-1` | The track's thickness, size="sm" (4px). |
 | `--slider-track-height-md` | `spacing-1_5` | The track's thickness, size="md", the default (6px). |
 | `--slider-thumb-size-sm` | `spacing-4` | The thumb, size="sm" (16px). |
