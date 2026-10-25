@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
+import { markDismissal } from "./layers";
 import { cssLength, hideLayer, placeLayer, showLayer, type Placement } from "./position";
 
 type Ref = React.RefObject<HTMLElement | null>;
@@ -64,13 +65,13 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
       touch = false;
       if (within(e.target, [layer, inside])) return;
       if (e.pointerType === "touch") touch = true;
-      else if (outside.current) outside.current();
+      else if (outside.current) { markDismissal(e); outside.current(); }
     };
     const cancel = () => { touch = false; };
     const click = (e: MouseEvent) => {
       if (!touch) return;
       touch = false;
-      if (!within(e.target, [layer, inside]) && outside.current) outside.current();
+      if (!within(e.target, [layer, inside]) && outside.current) { markDismissal(e); outside.current(); }
     };
     const focus = (e: FocusEvent) => { if (focusOutside.current && !within(e.target, [layer, anchor, inside])) focusOutside.current(); };
     document.addEventListener("pointerdown", down, true);

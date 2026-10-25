@@ -7,6 +7,7 @@ import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Dialog } from '../Dialog/Dialog';
 import { topModal } from '../../internal/layers';
+import { Popover } from '../Popover/Popover';
 import { Drawer, type DrawerProps } from './Drawer';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -65,6 +66,27 @@ describe('Drawer', () => {
     expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
     const r = el('behind').getBoundingClientRect(), hit = document.elementFromPoint(r.left + 2, r.top + 2);
     expect(hit && hit.id).not.toBe('behind');
+  });
+
+  test('a backdrop press with a Popover open inside closes only the Popover; the next one asks to close the Drawer', async () => {
+    const asks: boolean[] = [];
+    await render(<Drawer id="dbp" open onOpenChange={(v) => asks.push(v)} title="Filters"><Popover trigger={<Button id="dbpt">Options</Button>}><p id="dbpc">Pick one</p></Popover></Drawer>);
+    const d = el('dbp') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    await settled();
+    await userEvent.click(el('dbpt'));
+    await expect.poll(() => !!el('dbpc') && el('dbpc').getBoundingClientRect().height > 0).toBe(true);
+    await userEvent.click(d, { position: { x: 20, y: 20 } });
+    await expect.poll(() => !el('dbpc') || el('dbpc').getBoundingClientRect().height === 0).toBe(true);
+    expect([d.open, asks.length]).toEqual([true, 0]);
+    await userEvent.click(d, { position: { x: 20, y: 20 } });
+    await expect.poll(() => asks.join()).toBe('false');
+  });
+
+  test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
+    await render(<Drawer id="daf" open title="Filters"><Input id="dafq" aria-label="Search" data-autofocus /></Drawer>);
+    await expect.poll(() => (el('daf') as HTMLDialogElement).open).toBe(true);
+    expect(document.activeElement!.id).toBe('dafq');
   });
 
   test('right-to-left page: side="right" still opens on the right, the edge it slides in from', async () => {
