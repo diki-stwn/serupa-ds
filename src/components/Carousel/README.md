@@ -34,6 +34,7 @@ import { Carousel, Image } from "serupa-ds";
 - Put what matters most on the first slide; that's the one everyone sees.
 - Write a `label` that says what the slides are ("Product photos"). Pass `slideLabel` when "2 of 5" isn't the best name, such as each photo's subject. The default comes from the `slideOf` label, so `SerupaProvider labels` translates it ("2 dari 5" with `idLabels`).
 - Use `loop` for photos with no natural order, and leave it off when the slides have a start and an end.
+- For a row of product cards or testimonials, show two or three at once with `perView`. Set it per screen width, such as `perView={{ base: 1, md: 2, lg: 3 }}`, so phones still get one at a time.
 - Turn off `dots` for 2 slides or when the arrows are enough, and `arrows` only when swiping or your own controls (`index` and `onIndexChange`) replace them.
 
 ## Behavior
@@ -42,11 +43,12 @@ import { Carousel, Image } from "serupa-ds";
 - A swipe of 40px or more, with touch, pen or mouse, moves one slide; a shorter one springs back. Up and down swipes still scroll the page. Swiping works over pictures, and a swipe that starts on a link doesn't follow it.
 - Without `loop`, the button for the way you can't go hides; if it had focus, focus moves to the other button.
 - Slides slide in over 300ms, and change at once with reduced motion. With one slide there are no buttons or dots.
+- With `perView`, the slides share the width, 16px apart (`--carousel-slide-gap`). `index` is the first slide shown, the buttons and a swipe still move one slide, and they stop once the last slide is in view. The dots count pages: with 3 per view and 7 slides, three dots for slides 1–3, 4–6 and 5–7, named "1–3 of 7" (the `slidesOf` label). `{ base, sm, md, lg }` follows the screen width (from 640, 768 and 1024px up) as it changes. With as many slides as fit, or fewer, there are no buttons or dots.
 - In RTL (a `dir` attribute or CSS `direction`) the row runs right to left, and the buttons and arrow keys follow it.
 
 ## Accessibility
 
-- **Role and name:** the `<section>` is a region named by `label`, with `aria-roledescription` "carousel" (the `carouselRole` label, "korsel" in Indonesian). Each slide is a group named "2 of 5" (`aria-roledescription` from `slideRole`). The slides not shown are `inert` and hidden, so Tab and screen readers only reach the current one.
+- **Role and name:** the `<section>` is a region named by `label`, with `aria-roledescription` "carousel" (the `carouselRole` label, "korsel" in Indonesian). Each slide is a group named "2 of 5" (`aria-roledescription` from `slideRole`). The slides not shown are `inert` and hidden, so Tab and screen readers only reach the current one (the ones in view, with `perView`).
 - **Keyboard:**
 
   | Key | Does |
@@ -77,6 +79,7 @@ import { Carousel, Image } from "serupa-ds";
 | `previousLabel` | `string` | `"Previous slide"` | The previous button's name. |
 | `nextLabel` | `string` | `"Next slide"` | The next button's name. |
 | `slideLabel` | `(index, count) => string` | the `slideOf` label, `"2 of 5"` | Each slide's name, and its dot's. |
+| `perView` | `number \| { base?, sm?, md?, lg? }` | `1` | How many slides show side by side, or one count per screen width (640, 768, 1024px up). |
 
 `ref`, `className`, `style` and other props go to the outer `<section>`.
 
@@ -94,5 +97,6 @@ Each is an optional override: set it on the page, a container or one carousel. T
 | `--carousel-dot-size` | `spacing-2` | A dot's size (8px). |
 | `--carousel-dot-active-width` | `spacing-6` | The current dot's width (24px). |
 | `--carousel-gap` | `spacing-3` | Space between the slides and the dots (12px). |
+| `--carousel-slide-gap` | `spacing-4` | Space between slides shown side by side, with `perView` (16px). |
 | `--carousel-arrow-offset` | `spacing-2` | The previous and next buttons' distance from the sides (8px). |
 | `--carousel-arrow-shadow` | `shadow-sm` | The previous and next buttons' shadow, so they stand out on any slide. |
