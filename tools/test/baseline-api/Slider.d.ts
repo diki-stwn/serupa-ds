@@ -24,6 +24,7 @@ interface SliderProps<V extends SliderValue = SliderValue> extends Omit<React.HT
         string
     ];
     name?: string;
+    form?: string;
     invalid?: boolean;
     readOnly?: boolean;
     required?: boolean;

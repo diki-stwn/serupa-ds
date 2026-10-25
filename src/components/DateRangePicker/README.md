@@ -59,6 +59,7 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 | `id` | `string` | | The start field's id, so Field or `<label htmlFor>` focuses it. |
 | `startLabel`, `endLabel` | `string` | `"Start date"`, `"End date"` | The fields' names. |
 | `startName`, `endName` | `string` | | Hidden inputs that send each end as `yyyy-mm-dd`. |
+| `form` | `string` | | The id of a form it sits outside of: both fields and both hidden inputs belong to that form, and reset with it. |
 | `buttonLabel` | `string` | `"Choose dates"` | The calendar button's name, and the popup's. |
 
 `className`, `ref`, `aria-label` and other props go to the box (`role="group"`); `aria-describedby` and `aria-required` (which Field passes) go to both fields. Its `focus()` and `autoFocus` move focus to the start field, so a form library that focuses the first invalid field after a failed submit lands on it.
