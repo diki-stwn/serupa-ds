@@ -42,6 +42,40 @@ function reduceMotion() {
 }
 
 describe('Loader', () => {
+  // EB1: the delay had no minimum, so work ending at 320ms showed a spinner for 20ms, cut off mid fade-in.
+  test('delay, then a minimum: work ending at 320ms keeps the loader until 800ms; ending at 200ms never shows it; loading again during the minimum keeps it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let set: (v: boolean) => void = () => {};
+      function Wait() { const [on, s] = React.useState(true); set = s; return <div id="w"><Loader id="lw" loading={on} /></div>; }
+      await render(<Wait />);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const state = () => { const l = el('lw'); return l ? (l.getAttribute('role') || 'waiting') : 'gone'; };
+      expect(state()).toBe('waiting');
+      await step(300);
+      expect(state()).toBe('progressbar');
+      await step(20);
+      await React.act(async () => set(false));
+      expect(state()).toBe('progressbar');   // 20ms in: stays
+      await step(470);
+      expect(state()).toBe('progressbar');   // 490ms in
+      await step(10);
+      expect(state()).toBe('gone');          // 500ms in: done
+      await React.act(async () => set(true));
+      await step(200);
+      await React.act(async () => set(false));
+      await step(1000);
+      expect(state()).toBe('gone');          // ended inside the delay: never shown
+      await React.act(async () => set(true));
+      await step(300);
+      await React.act(async () => set(false));
+      await step(100);
+      await React.act(async () => set(true));
+      await step(1000);
+      expect(state()).toBe('progressbar');   // loading again during the minimum: still shown
+    } finally { vi.useRealTimers(); }
+  });
+
   test('sizes: sm 16px, md 24px (default), lg 40px; an unknown variant, size and tone fall back to ring, md and neutral', async () => {
     await render(<>
       <Loader id="sm" size="sm" delay={0} />
