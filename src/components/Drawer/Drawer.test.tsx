@@ -6,6 +6,7 @@ import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Dialog } from '../Dialog/Dialog';
+import { topModal } from '../../internal/layers';
 import { Drawer, type DrawerProps } from './Drawer';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -212,5 +213,11 @@ describe('Drawer', () => {
     const c = getComputedStyle(panel('tok')).backgroundColor;
     d.close();
     expect(c).toBe('rgb(1, 2, 3)');
+  });
+
+  test('StrictMode: a Drawer open on mount stays on the modal stack (A1)', async () => {
+    await render(<React.StrictMode><Drawer id="smd" open title="Opened on mount" /></React.StrictMode>);
+    await expect.poll(() => (el('smd') as HTMLDialogElement).open).toBe(true);
+    expect(topModal()).toBe(el('smd'));
   });
 });

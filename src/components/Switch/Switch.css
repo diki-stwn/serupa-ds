@@ -14,7 +14,7 @@
   display: inline-flex; align-items: flex-start; gap: var(--switch-gap, var(--spacing-2));
   vertical-align: top; color: var(--switch-label-color, var(--text));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--dk-switch-lh);
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
 }
 .dk-switch--size-sm { --dk-switch-w: var(--switch-width-sm, var(--spacing-7)); --dk-switch-h: var(--switch-height-sm, var(--spacing-4)); --dk-switch-thumb: var(--switch-thumb-size-sm, var(--spacing-3)); --dk-switch-lh: var(--text-xs--line-height); font-size: var(--text-xs); }
 .dk-switch--size-lg { --dk-switch-w: var(--switch-width-lg, var(--spacing-11)); --dk-switch-h: var(--switch-height-lg, var(--spacing-6)); --dk-switch-thumb: var(--switch-thumb-size-lg, var(--spacing-5)); --dk-switch-lh: var(--text-base--line-height); font-size: var(--text-base); }

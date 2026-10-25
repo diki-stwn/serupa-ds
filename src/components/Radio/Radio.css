@@ -14,7 +14,7 @@
   display: inline-flex; align-items: flex-start; gap: var(--radio-gap, var(--spacing-2));
   vertical-align: top; color: var(--radio-label-color, var(--text));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--dk-radio-lh);
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
 }
 .dk-radio--size-sm { --dk-radio-box: var(--radio-size-sm, var(--spacing-3\.5)); --dk-radio-dot: var(--radio-dot-size-sm, var(--spacing-1\.5)); --dk-radio-lh: var(--text-xs--line-height); font-size: var(--text-xs); }
 .dk-radio--size-lg { --dk-radio-box: var(--radio-size-lg, var(--spacing-5)); --dk-radio-dot: var(--radio-dot-size-lg, var(--spacing-2)); --dk-radio-lh: var(--text-base--line-height); font-size: var(--text-base); }
