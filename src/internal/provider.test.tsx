@@ -32,6 +32,22 @@ describe('SerupaProvider labels', () => {
     expect(name('.dk-loader')).toBe('Memuat');
   });
 
+  test('labels and icons written inline keep the settings when a parent re-renders with the same contents; new contents still change them (U2)', async () => {
+    const seen: Array<ReturnType<typeof useSerupa>> = [];
+    const Peek = React.memo(function Peek() { seen.push(useSerupa()); return null; });
+    const star = { name: 'u2_star', d: 'M0 0h24v24H0z' };
+    let bump: (n: number) => void = () => {};
+    function App() {
+      const [n, setN] = React.useState(0); bump = setN;
+      return <SerupaProvider labels={{ close: n < 2 ? 'Tutup' : 'Keluar' }} icons={[{ star }]}><Peek /></SerupaProvider>;
+    }
+    await render(<App />);
+    React.act(() => bump(1));   // same words, written inline again
+    expect(seen.length).toBe(1);
+    React.act(() => bump(2));   // new words
+    expect([seen.length, seen[seen.length - 1].labels.close, seen[0].icons.has('u2_star')]).toEqual([2, 'Keluar', true]);
+  });
+
   test('a component prop still wins; an inner provider changes only what it sets', async () => {
     await render(<SerupaProvider labels={{ dismiss: 'Abaikan' }}>
       <Alert id="a" title="One" onDismiss={() => {}} />
