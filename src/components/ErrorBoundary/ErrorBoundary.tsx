@@ -40,8 +40,9 @@ interface BoundaryState { error: unknown; failed: boolean }
 const changed = (a?: ReadonlyArray<unknown>, b?: ReadonlyArray<unknown>) =>
   (a || []).length !== (b || []).length || (a || []).some((v, i) => !Object.is(v, (b || [])[i]));
 
-// Error boundaries are class components: there's no hook for componentDidCatch.
-class Boundary extends React.Component<BoundaryProps, BoundaryState> {
+// Error boundaries are class components: there's no hook for componentDidCatch. The class is made inside a pure
+// call because a bundler keeps a bare `class … extends React.Component` in every bundle, imported or not.
+const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<BoundaryProps, BoundaryState> {
   override state: BoundaryState = { error: null, failed: false };
   box = React.createRef<HTMLDivElement>();
   static getDerivedStateFromError(error: unknown): BoundaryState { return { error, failed: true }; }
@@ -73,7 +74,7 @@ class Boundary extends React.Component<BoundaryProps, BoundaryState> {
       </div>
     );
   }
-}
+})();
 
 /* ErrorBoundary: catches an error thrown while rendering anything inside it, so one broken widget doesn't blank
    the whole page. It shows a danger Alert (role="alert", read at once) with "Try again", which renders the
