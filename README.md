@@ -17,6 +17,12 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 npm install github:diki-stwn/serupa-ds#v9.1.1
 ```
 
+Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
+
+```sh
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.1.1/serupa-ds-9.1.1.tgz
+```
+
 Always pin a tag (`#v9.1.1`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
