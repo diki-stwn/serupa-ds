@@ -14,11 +14,10 @@ import path from 'node:path';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const V = '(\\d+\\.\\d+\\.\\d+)';
-// file -> patterns whose group 1 is the version; the built files (dist/) take it from package.json
+// file -> patterns whose group 1 is the version. The built files (dist/, with base.css and theme.js, which say
+// __VERSION__ in src/) take it from package.json at build time.
 const STAMPS = {
   'package.json': [`"version": "${V}"`],
-  'src/styles/base.css': [`Serupa v${V}`],
-  'src/theme.js': [`Serupa v${V}`, `window\\.Serupa\\.version = "${V}"`],
   // the install instructions pin the latest tag
   'README.md': [`serupa-ds#v${V}`, `\\(\`#v${V}\`\\)`],
   'docs/GettingStarted.mdx': [`serupa-ds#v${V}`],

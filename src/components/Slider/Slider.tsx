@@ -66,7 +66,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const [own, setOwn] = React.useState<SliderValue>(props.defaultValue ?? min);
   const raw = controlled ? (props.value as SliderValue) : own;
   const isRange = Array.isArray(raw);
-  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw as number)];
+  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw)];
   const latest = React.useRef(vals); latest.current = vals;
   const root = React.useRef<HTMLDivElement | null>(null);
   useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? min); });

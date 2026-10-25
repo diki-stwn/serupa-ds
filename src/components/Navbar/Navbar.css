@@ -21,6 +21,8 @@
 }
 @media (hover: hover) { .dk-navbar__link:hover { background: var(--navbar-link-bg-hover, var(--secondary)); color: var(--navbar-link-text-hover, var(--text)); } }
 .dk-navbar__link--active { background: var(--navbar-link-bg-active, var(--secondary)); color: var(--navbar-link-text-active, var(--text)); }
+/* Forced colors drop the background and color, so the current page gets an outline. */
+@media (forced-colors: active) { .dk-navbar__link--active, .dk-navbar__link[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }
 .dk-navbar__link:focus-visible { outline: var(--focus-ring-width) solid var(--navbar-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-navbar__actions { display: flex; align-items: center; gap: var(--spacing-2); flex-shrink: 0; margin-inline-start: auto; }
 .dk-navbar__toggle { display: none; }

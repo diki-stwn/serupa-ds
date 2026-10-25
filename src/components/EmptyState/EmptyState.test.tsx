@@ -6,7 +6,7 @@ import { Button } from '../Button/Button';
 import { EmptyState } from './EmptyState';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
-const part = (id: string, name: string) => el(id).querySelector(`.dk-empty-state__${name}`) as HTMLElement | null;
+const part = (id: string, name: string) => el(id).querySelector<HTMLElement>(`.dk-empty-state__${name}`);
 const rect = (e: Element) => e.getBoundingClientRect();
 const near = (a: number, b: number) => Math.abs(a - b) <= 1;
 
@@ -37,8 +37,8 @@ describe('EmptyState', () => {
     expect([t.tagName, css(t).fontSize, css(t).fontWeight, d.tagName, css(d).fontSize, css(part('edef', 'text')).maxWidth]).toEqual(['H3', '16px', '600', 'P', '14px', '384px']);
     expect(el('edef').querySelectorAll('.dk-empty-state__actions button').length).toBe(2);
     const top = ['icon', 'title', 'description', 'actions'].map((n) => rect(part('edef', n)!).top);
-    expect(top[0]! < top[1]! && top[1]! < top[2]! && top[2]! < top[3]!).toBe(true);
-    expect(near(top[1]! - (top[0]! + 48), 16)).toBe(true);
+    expect(top[0] < top[1] && top[1] < top[2] && top[2] < top[3]).toBe(true);
+    expect(near(top[1] - (top[0] + 48), 16)).toBe(true);
   });
 
   test('size sm, dashed, headingLevel 4: 24px padding, a 40px circle, a text-sm <h4>, a 1px dashed frame with 8px corners; nothing for missing parts', async () => {
