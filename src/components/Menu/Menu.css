@@ -30,6 +30,7 @@
   line-height: var(--text-sm--line-height);
   text-align: start;
   animation: dk-menu-in var(--duration-150) var(--ease-out);
+  transform-origin: var(--dk-layer-origin, top);   /* grows out of its trigger (placeLayer sets the point) */
 }
 .dk-menu[hidden] { display: none; }
 .dk-menu:focus { outline: none; }

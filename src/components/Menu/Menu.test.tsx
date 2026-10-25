@@ -537,4 +537,12 @@ describe('ContextMenu', () => {
     await settle();
     expect([seen.join(), openMenu()]).toEqual(['own', undefined]);
   });
+
+  test('the menu scales in from the point on its edge facing the trigger, level with the trigger\'s centre (EO1)', async () => {
+    await render(<div style={{ padding: '40px 120px' }}><Menu trigger={<Button id="mo">Actions</Button>}><MenuItem>Edit</MenuItem><MenuItem>Duplicate</MenuItem></Menu></div>);
+    await userEvent.click(el('mo'));
+    const m = document.querySelector('[role=menu]') as HTMLElement, b = el('mo').getBoundingClientRect(), r = m.getBoundingClientRect();
+    const [x, y] = getComputedStyle(m).transformOrigin.split(' ').map(parseFloat);
+    expect([m.dataset.side, Math.round(y), Math.abs(r.left + x - (b.left + b.width / 2)) <= 1]).toEqual(['bottom', 0, true]);
+  });
 });

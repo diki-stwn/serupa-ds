@@ -22,6 +22,8 @@
      reset()                     forget the choice and go back to the page's data-brand / data-mode
      onChange(fn)                fn({ brand, mode, theme }) after every change; returns an unsubscribe function */
 (function () {
+  // Loaded twice (inline and as a file): the first copy runs the page.
+  if (window.Serupa && window.Serupa.theme) return;
   var BRANDS = ["blue", "violet", "emerald"], MODES = ["auto", "light", "dark"], KEY = "serupa-theme";
   var root = document.documentElement;
   // A page that sets data-theme itself ("violet-dark") and neither data-brand nor data-mode keeps it as its default.
@@ -64,8 +66,8 @@
     var onScheme = function () { if (state.mode === "auto") apply(); };
     if (media.addEventListener) media.addEventListener("change", onScheme); else if (media.addListener) media.addListener(onScheme);
   }
-  // Another tab changed the choice: follow it.
-  window.addEventListener("storage", function (e) { if (e.key === KEY) { state = Object.assign({}, page, load()); apply(true); } });
+  // Another tab changed the choice, or cleared storage (key null): follow it.
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) { state = Object.assign({}, page, load()); apply(true); } });
 
   var api = {
     get: info,

@@ -97,6 +97,23 @@ for (const scheme of ['light', 'dark']) {
   await ctx.close();
 }
 
+{
+  // DX1: loaded twice (an inline copy and the file), the second copy returns early, so the first's onChange still
+  // hears set(); and another tab's localStorage.clear() (a storage event with key null) is followed like a reset.
+  const ctx = await b.newContext({ colorScheme: 'light' });
+  const p = await ctx.newPage();
+  await p.goto(writePage('theme-twice.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="auto"', extraHead: '<script>window.__first = Serupa.theme; window.__heard = []; Serupa.theme.onChange(function (i) { window.__heard.push(i.theme); });</script><script src="../dist/theme.js"></script>' }));
+  const twice = await p.evaluate(() => { Serupa.theme.set({ brand: 'violet', mode: 'dark' }); return [Serupa.theme === window.__first, window.__heard.join(), window.__first.get().theme]; });
+  t('theme.js: loaded twice, the first copy keeps running the page and its onChange hears set()', twice.join() === 'true,violet-dark,violet-dark', twice.join());
+  const other = await ctx.newPage();
+  await other.goto(writePage('theme-twice.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="auto"' }));
+  await other.evaluate(() => localStorage.clear());
+  await p.waitForTimeout(100);
+  const cleared = await p.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  t('theme.js: another tab clearing storage brings this tab back to the page default', cleared === 'blue-light', cleared);
+  await ctx.close();
+}
+
 // 4. serupa-purge keeps exactly what a page needs
 {
   const dir = path.join(PROJECT, '.test-tmp');
