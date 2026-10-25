@@ -224,6 +224,18 @@
           }
         }
       }
+    },
+    "motion": {
+      "press-scale": {
+        "$type": "number",
+        "$value": "{transforms.scale-95}",
+        "$description": "Size of a segment's label while it's held down (95%). 1 turns press feedback off.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--segmented-control-press-scale"
+          }
+        }
+      }
     }
   }
 }

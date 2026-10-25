@@ -103,3 +103,4 @@ Each is an optional override: set it on the page, a container or one control. Th
 | `--segmented-control-gap` | `spacing-1_5` | Space between a segment's icon and label (6px). |
 | `--segmented-control-weight` | `font-medium` | The labels' weight (500). |
 | `--segmented-control-duration` | `duration-200` | How long the selection takes to slide to a new segment. |
+| `--segmented-control-press-scale` | `scale-95` | Size of a segment's label while it's held down (95%). 1 turns it off. |
