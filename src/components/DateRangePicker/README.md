@@ -43,6 +43,16 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 - The popup is a `role="dialog"` holding one or two Calendars (see Calendar's keyboard table); a polite live line says which end to pick next.
 - Days in a range, the status line and the dash keep 4.5:1 in all six themes (`DateRangePicker.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | The start field, the end field, then the calendar button |
+| Enter | In a field, reads the date typed |
+| Alt+Down | In a field, opens the calendar |
+| Enter / Space | On the calendar button, opens the calendar; in it, Calendar's keys pick the start, then the end |
+| Escape | Closes the calendar and returns focus to its button |
+
 ## Props
 
 | Prop | Type | Default | Notes |

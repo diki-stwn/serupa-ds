@@ -8,9 +8,6 @@ import path from 'node:path';
 import { PROJECT, report, done } from './lib.mjs';
 
 const REQUIRED = ['When to use', 'When not to use', 'Usage', 'Accessibility', 'Props', 'Component tokens'];
-// Guides whose Accessibility section doesn't say yet what the keyboard does (X2), to be filled in. The check fails
-// when one is filled in, so the entry gets removed and can't come back.
-const KEYBOARD_GAPS = ['ColorPicker', 'DateRangePicker', 'InlineEdit', 'Navbar', 'PhoneInput'];
 const DIR = path.join(PROJECT, 'src', 'components');
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -35,8 +32,7 @@ for (const name of fs.readdirSync(DIR).sort()) {
   const keys = /onKeyDown|keydown/.test(fs.readFileSync(path.join(DIR, name, `${name}.tsx`), 'utf8'));
   const ok = said && (!keys || table);
   const why = !said ? 'no "### Keyboard" part or "**Keyboard:**" line under Accessibility' : 'it handles keys: add a | Key | Does | table';
-  if (KEYBOARD_GAPS.includes(name)) t(`${name}: a known keyboard gap is still open (KEYBOARD_GAPS)`, !ok, 'filled in: remove it from KEYBOARD_GAPS');
-  else t(`${name}: the guide says what the keyboard does`, ok, why);
+  t(`${name}: the guide says what the keyboard does`, ok, why);
 }
 // The classes the docs name: each word of a class="…" in an example, and each prefixed class in backticks
 // (`md:gap-12`). Utilities have only breakpoint prefixes, so `hover:scale-105` or `focus:not-sr-only` would silently

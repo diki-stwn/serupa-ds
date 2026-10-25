@@ -49,6 +49,15 @@ const [slug, setSlug] = React.useState("apollo-plan");
 - The pencil shows on hover and keyboard focus, and always on touch screens, which have no hover.
 - The text and the placeholder keep 4.5:1 on the page and on the hover background in all six themes (`InlineEdit.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Enter / Space | On the text, opens the field with the text selected |
+| Enter | In the field, saves (unless `validate` keeps it open with an error) and returns focus to the text |
+| Escape | Puts the text back and returns focus, without closing a Dialog or Drawer around it |
+| Tab | Leaves the field, which saves |
+
 ## Props
 
 | Prop | Type | Default | Notes |
