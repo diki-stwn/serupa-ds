@@ -6,6 +6,9 @@
 @layer dk.components {
 .dk-navbar { position: relative; background: var(--navbar-bg, var(--surface)); border-bottom: var(--navbar-border-width, var(--border-width-1)) solid var(--navbar-border, var(--border)); font-family: var(--font-sans); }
 .dk-navbar--sticky { position: sticky; top: 0; z-index: var(--navbar-z-index, var(--z-40)); }
+/* What the keyboard focuses, or a #link jumps to, scrolls into view below a sticky bar, not under it (WCAG 2.4.11).
+   Navbar measures the bar into --dk-navbar-offset; until then, the default bar height. */
+:root:has(.dk-navbar--sticky) { scroll-padding-top: var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16))); }
 .dk-navbar__inner { display: flex; align-items: center; gap: var(--navbar-gap, var(--spacing-6)); height: var(--navbar-height, var(--spacing-16)); }
 .dk-navbar__brand { display: flex; align-items: center; flex-shrink: 0; color: var(--navbar-brand-text, var(--text)); font-weight: var(--font-semibold); }
 .dk-navbar__nav { flex: auto; min-width: var(--spacing-0); }
@@ -18,6 +21,8 @@
 }
 @media (hover: hover) { .dk-navbar__link:hover { background: var(--navbar-link-bg-hover, var(--secondary)); color: var(--navbar-link-text-hover, var(--text)); } }
 .dk-navbar__link--active { background: var(--navbar-link-bg-active, var(--secondary)); color: var(--navbar-link-text-active, var(--text)); }
+/* Forced colors drop the background and color, so the current page gets an outline. */
+@media (forced-colors: active) { .dk-navbar__link--active, .dk-navbar__link[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }
 .dk-navbar__link:focus-visible { outline: var(--focus-ring-width) solid var(--navbar-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-navbar__actions { display: flex; align-items: center; gap: var(--spacing-2); flex-shrink: 0; margin-inline-start: auto; }
 .dk-navbar__toggle { display: none; }

@@ -10,8 +10,8 @@ import { Accordion, AccordionItem } from './Accordion';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > .dk-accordion__item')];
 const state = (id: string) => items(id).map((i) => (i.dataset.state === 'open' ? 1 : 0)).join('');
-const trigger = (id: string, n: number) => items(id)[n - 1]!.querySelector('.dk-accordion__trigger') as HTMLButtonElement;
-const panel = (id: string, n = 1) => items(id)[n - 1]!.querySelector('.dk-accordion__panel') as HTMLElement;
+const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('.dk-accordion__trigger') as HTMLButtonElement;
+const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('.dk-accordion__panel') as HTMLElement;
 const focused = () => document.activeElement!.querySelector('.dk-accordion__title')?.textContent;
 // The open and close animation finished (the panel and the chevron).
 const settled = (id: string) => Promise.all(el(id).getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
@@ -78,7 +78,7 @@ describe('Accordion', () => {
       <SerupaProvider labels={idLabels}><Accordion id="aid" type="multiple" showExpandAll><AccordionItem title="A">1</AccordionItem></Accordion></SerupaProvider>
       <Accordion id="asingle" showExpandAll><AccordionItem title="A">1</AccordionItem></Accordion>
     </div>);
-    const all = (id: string) => el(id).querySelector('.dk-accordion__all') as HTMLButtonElement | null;
+    const all = (id: string) => el(id).querySelector<HTMLButtonElement>('.dk-accordion__all');
     expect([all('aall')!.textContent, all('aall')!.type, all('aid')!.textContent, all('asingle')]).toEqual(['Expand all', 'button', 'Buka semua', null]);
     await userEvent.click(all('aall')!);
     expect([state('aall'), onChange.mock.lastCall?.[0], all('aall')!.textContent]).toEqual(['101', ['a', '2'], 'Collapse all']);
@@ -97,7 +97,7 @@ describe('Accordion', () => {
     expect(rows?.effect?.getComputedTiming().duration).toBe(200);
     // Sample the height every frame until the animation ends.
     let done = false;
-    rows!.finished.then(() => { done = true; });
+    void rows!.finished.then(() => { done = true; });
     while (!done) { heights.push(pn.getBoundingClientRect().height); await new Promise(requestAnimationFrame); }
     await settled('adef');
     const full = pn.getBoundingClientRect().height;
@@ -112,7 +112,7 @@ describe('Accordion', () => {
     expect(state('adef')).toBe('0100');
     await userEvent.click(trigger('adef', 2));
     expect(state('adef')).toBe('0000');
-    await userEvent.click(trigger('adef', 3), { force: true } as never);
+    await userEvent.click(trigger('adef', 3), { force: true });
     expect(state('adef')).toBe('0000');
     expect([trigger('adef', 3).disabled, css(trigger('adef', 3)).opacity]).toEqual([true, '0.5']);
   });
@@ -155,7 +155,7 @@ describe('Accordion', () => {
   test('single with a two-item defaultValue opens only the first; collapsible={false}: the open item stays open (aria-disabled), and opening another replaces it', async () => {
     await render(<Accordion id="afixed" collapsible={false} defaultValue={['p', 'q']}><AccordionItem value="p" title="P">p</AccordionItem><AccordionItem value="q" title="Q">q</AccordionItem></Accordion>);
     expect(state('afixed')).toBe('10');
-    await userEvent.click(trigger('afixed', 1), { force: true } as never);
+    await userEvent.click(trigger('afixed', 1), { force: true });
     expect([state('afixed'), trigger('afixed', 1).getAttribute('aria-disabled')]).toEqual(['10', 'true']);
     await userEvent.click(trigger('afixed', 2));
     expect(state('afixed')).toBe('01');

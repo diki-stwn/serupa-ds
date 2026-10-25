@@ -19,6 +19,9 @@
 //  12. Every stylesheet puts its rules in the dk.* cascade layers, declared in one order.
 //  13. Every width in a media query in src/ (CSS and matchMedia) is a screen-* value (max-width may be value - 0.02px or - 1px).
 //  14. One brand list: theme.js, the ThemeBrand type, Storybook's toolbar and the tests' theme lists follow tokens.json.
+//  15. Hover styles only inside @media (hover: hover).
+//  16. Floating layers don't print; background-only states have a forced-colors fallback.
+//  17. Every dk-* class a component stylesheet styles is one the code can produce.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -341,5 +344,57 @@ for (const f of ['dist/base.css', 'dist/components.css']) {
   }
 }
 check('hover styles apply only with a pointer that hovers: every :hover rule is inside @media (hover: hover)', !sticky.length, sticky.slice(0, 6).join('; '));
+
+// 16. print and forced colors, per component stylesheet (V5): the lists in base.css are kept by hand, so these say
+// when a new component needs a line. A layer that floats over the page (position: fixed, or a popover) mustn't print
+// on every page: it is in base.css's print list, or has its own @media print. Dialog and Drawer are the exception:
+// an open one is what the reader is looking at, so it prints. And a state that only changes the background
+// (--active, --selected, --checked, --over, --current, --pressed) vanishes in forced colors, where backgrounds are the
+// system's: such a rule also changes a border, outline, color or text decoration, or the file has a forced-colors
+// rule for that class.
+const PRINTS = new Set(['Dialog', 'Drawer']);
+const baseCss = stripComments(read('src/styles/base.css'));
+const printBlock = (baseCss.match(/@media print\s*\{([\s\S]*?)\n\}/) || ['', ''])[1];
+const printHidden = new Set([...printBlock.matchAll(/:where\(([^)]*)\)\s*\{\s*display:\s*none/g)].flatMap((w) => [...w[1].matchAll(/\.(dk-[\w-]+)/g)].map((m) => m[1])));
+const floating = [], fadesInForcedColors = [];
+for (const n of fs.readdirSync(path.join(P, 'src', 'components')).sort()) {
+  const f = path.join('src', 'components', n, `${n}.css`);
+  if (!fs.existsSync(path.join(P, f))) continue;
+  const css = stripComments(read(f));
+  const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => [m[1].trim(), m[2]]);
+  const fixed = rules.filter(([, b]) => /(?:^|;)\s*position:\s*fixed/.test(b)).map(([sel]) => sel);
+  const pops = /\[popover\]|:popover-open|popover/.test(rules.map(([sel]) => sel).join(' ')) ? ['popover'] : [];
+  if ((fixed.length || pops.length) && !PRINTS.has(n) && !/@media print/.test(css)) {
+    const own = [...new Set(rules.map(([sel]) => (sel.match(/^\.(dk-[\w-]+)/) || [])[1]).filter(Boolean))];
+    // .dk-fab--bottom-end is hidden by .dk-fab in the list (a modifier's element carries the base class too).
+    if (!own.some((c) => printHidden.has(c) || printHidden.has(c.replace(/(--|__).*$/, '')))) floating.push(`${n} (${[...fixed, ...pops][0].slice(0, 40)})`);
+  }
+  const forced = (css.match(/@media[^{]*forced-colors[^{]*\{(?:[^{}]|\{[^{}]*\})*\}/g) || []).join(' ');
+  for (const [sel, body] of rules) {
+    for (const c of new Set([...sel.matchAll(/\.(dk-[\w-]+--(?:active|selected|checked|over|current|pressed))\b/g)].map((m) => m[1]))) {
+      if (/(?:^|;)\s*background(?:-color)?\s*:/.test(body) && !/(?:^|;)\s*(?:border[\w-]*|outline[\w-]*|color|text-decoration[\w-]*|box-shadow|font-weight)\s*:/.test(body) && !forced.includes(c)) fadesInForcedColors.push(`${n}: .${c}`);
+    }
+  }
+}
+check('print: every component that floats over the page (position: fixed, popover) is hidden when printing (base.css print list or its own @media print), apart from Dialog and Drawer', !floating.length, floating.join('; '));
+check('forced colors: every state that only changes the background also changes a border, outline or color, or has a forced-colors rule', !fadesInForcedColors.length, [...new Set(fadesInForcedColors)].join('; '));
+
+// 17. no dead component CSS (idea 80): every dk-* class a component stylesheet styles is one the code can produce:
+// written out ("dk-btn__label"), built from a prefix the code joins ("dk-loader__px--d" + n, `dk-tag--${tone}`), or
+// ending in a piece the code joins on ("dk-" + name + "__ripple"). A class nothing produces is a rule that never applies.
+const sources = srcFiles('src').filter((f) => /\.tsx?$/.test(f)).map((f) => read(f)).join('\n')
+  + fs.readdirSync(path.join(P, 'src', 'components')).flatMap((n) => fs.existsSync(path.join(P, 'src', 'components', n, 'preview.html')) ? [read(path.join('src', 'components', n, 'preview.html'))] : []).join('\n');
+const written = new Set(sources.match(/dk-[a-z0-9_-]+/g) || []);
+const joined = [...sources.matchAll(/(?<![a-z0-9_-])(dk-[a-z0-9_-]*)(?:["']\s*\+|\$\{)/g)].map((m) => m[1]).filter((pre) => pre.length > 3);   // not "dk-" alone
+const tails = [...sources.matchAll(/(?:\+\s*["']|\}`?)((?:__|--)[a-z0-9_-]+)/g)].map((m) => m[1]);
+const dead = [];
+for (const n of fs.readdirSync(path.join(P, 'src', 'components')).sort()) {
+  const f = path.join('src', 'components', n, `${n}.css`);
+  if (!fs.existsSync(path.join(P, f))) continue;
+  for (const c of new Set([...stripComments(read(f)).matchAll(/\.(dk-[a-z0-9_-]+)/g)].map((m) => m[1]))) {
+    if (!written.has(c) && !joined.some((pre) => c.startsWith(pre)) && !tails.some((t) => c.endsWith(t))) dead.push(`${n}: .${c}`);
+  }
+}
+check('no dead component CSS: every dk-* class in a component stylesheet is one its code can produce', !dead.length, dead.slice(0, 12).join('; '));
 
 done(report('Foundation', results));

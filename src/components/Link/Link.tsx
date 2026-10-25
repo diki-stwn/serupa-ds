@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
-import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
+import { NewTabNote } from "./NewTabNote";
 import { component } from "../../internal/component";
 import { AutoFocusLink } from "./AutoFocusLink";
 import * as icons from "../../material/builtin";
@@ -11,7 +11,7 @@ export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>
   tone?: 'primary' | 'neutral';
   /** 'always' (default): underlined, so it's a link without relying on color. 'hover': only on hover and focus, for links whose place already says they're links (a nav bar, a footer). */
   underline?: 'always' | 'hover';
-  /** Opens in a new tab (target="_blank", rel="noopener noreferrer"), with a new-tab icon and "(opens in a new tab)" for screen readers. Default: false. */
+  /** Opens in a new tab (target="_blank", rel="noopener noreferrer"), with a new-tab icon and "(opens in a new tab)" for screen readers (the opensInNewTab label). Default: false. */
   external?: boolean;
   /** What renders the link: 'a' (default), or your router's link component (it gets href, className and the rest). */
   as?: React.ElementType;
@@ -34,7 +34,7 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
   });
   const children = <>{props.children}{props.external ? <>
     <Icon icon={icons.OpenInNew} className="dk-link__icon" />
-    <VisuallyHidden> (opens in a new tab)</VisuallyHidden>
+    <NewTabNote />
   </> : null}</>;
   // React only autofocuses form controls: with autoFocus, a small client component focuses the link once it's mounted.
   if (props.autoFocus) return <AutoFocusLink as={props.as || "a"} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;

@@ -43,7 +43,7 @@
 
 /* Interactive (href): one link, around the title (or empty, over the card), whose area is stretched over the whole
    card. Buttons and links inside sit above it, so they work on their own. The card shows the link's focus ring. */
-.dk-card--link { position: relative; cursor: pointer; transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out); }
+.dk-card--link { position: relative; cursor: pointer; touch-action: manipulation; transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out); }
 .dk-card__link { color: inherit; text-decoration: none; outline: none; }
 .dk-card__link::after { content: ""; position: absolute; inset: var(--spacing-0); z-index: var(--z-0); border-radius: inherit; }
 .dk-card__link--cover { position: absolute; inset: var(--spacing-0); border-radius: inherit; }
@@ -53,4 +53,6 @@
 .dk-card--link:has(.dk-card__link:focus-visible) { outline: var(--focus-ring-width) solid var(--card-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 @media (prefers-reduced-motion: reduce) { .dk-card--link { transition: none; } }
 @media (forced-colors: active) { .dk-card { border-color: CanvasText; } }
+/* Print: a card isn't split across two pages. */
+@media print { .dk-card { break-inside: avoid; } }
 }

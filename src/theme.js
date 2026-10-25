@@ -1,4 +1,4 @@
-/*! Serupa v9.1.1 by Diki · theme.js */
+/*! Serupa v__VERSION__ by Diki · theme.js */
 /* Serupa theme: picks the theme for a page and keeps it in step with the visitor's light/dark setting.
    Optional and standalone (no React). Load it in <head>, before the stylesheets, so the first paint
    already has the right theme:
@@ -8,6 +8,7 @@
 
    data-brand  blue | violet | emerald         (default: blue)
    data-mode   auto | light | dark             (default: auto = follow the operating system)
+   A page with only data-theme="violet-dark" (no data-brand or data-mode) keeps that theme as its default.
    It sets data-theme (e.g. "blue-dark"), which tokens.css reads. A choice made with
    Serupa.theme.set() is remembered in this browser; without the script, set data-theme yourself.
 
@@ -19,7 +20,10 @@
 (function () {
   var BRANDS = ["blue", "violet", "emerald"], MODES = ["auto", "light", "dark"], KEY = "serupa-theme";
   var root = document.documentElement;
-  var page = { brand: pick(root.getAttribute("data-brand"), BRANDS, "blue"), mode: pick(root.getAttribute("data-mode"), MODES, "auto") };
+  // A page that sets data-theme itself ("violet-dark") and neither data-brand nor data-mode keeps it as its default.
+  var own = !root.hasAttribute("data-brand") && !root.hasAttribute("data-mode") && /^([a-z]+)-(light|dark)$/.exec(root.getAttribute("data-theme") || "");
+  var page = own && BRANDS.indexOf(own[1]) >= 0 ? { brand: own[1], mode: own[2] }
+    : { brand: pick(root.getAttribute("data-brand"), BRANDS, "blue"), mode: pick(root.getAttribute("data-mode"), MODES, "auto") };
   var media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   var listeners = [];
   var state = Object.assign({}, page, load());
@@ -73,6 +77,6 @@
   };
   window.Serupa = window.Serupa || {};
   window.Serupa.theme = api;
-  if (!window.Serupa.version) window.Serupa.version = "9.1.1";
+  if (!window.Serupa.version) window.Serupa.version = "__VERSION__";
   apply();
 })();

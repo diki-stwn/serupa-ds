@@ -33,6 +33,8 @@ const { PasswordInput, Field } = window.Serupa;
 - The button is named "Show password" and has `aria-pressed`, so screen readers say whether the password is shown. Its `aria-controls` points at the field when the field has an `id` (Field gives it one).
 - Clicking it keeps focus in the field, so typing carries on. It's also reachable with Tab, and Enter or Space press it.
 - Spell check and auto-capitalization are off, so a shown password isn't underlined or changed.
+- While Caps Lock is on and the field has focus, "Caps Lock is on" shows before the eye, joins the field's description and is read out once (the `capsLockOn` label). It goes away when Caps Lock is turned off or focus leaves. `capsLockHint={false}` turns it off.
+- Pasting is never blocked, so a password manager or a copied password can fill the field (WCAG 3.3.8, accessible authentication). Don't add an `onPaste` that prevents it.
 - The text keeps 4.5:1 and the eye icon 3:1 on the field in all six themes (`PasswordInput.test.tsx`).
 
 ## Props
@@ -46,6 +48,7 @@ const { PasswordInput, Field } = window.Serupa;
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | 24, 32 or 44px, like Input |
 | `invalid` | boolean | `false` | A danger border and `aria-invalid` |
 | `leftIcon` | an icon name or element | none | A decorative icon before the text |
+| `capsLockHint` | boolean | `true` | Shows and reads out "Caps Lock is on" while it is |
 
 `autoComplete` defaults to `"current-password"`; use `"new-password"` when creating one. `ref`, `value`, `onChange` and every other input attribute go to the `<input>`; `className` and `style` go to the box, which has `data-component="password-input"`.
 
@@ -61,3 +64,4 @@ The field uses Input's tokens. These style the show/hide button; each is an opti
 | `--password-input-focus-ring` | `focus-ring` | The button's keyboard focus ring. |
 | `--password-input-toggle-radius` | `rounded-sm` | The button's corners (4px). |
 | `--password-input-toggle-padding` | `spacing-1` | Space around the button's icon (4px). |
+| `--password-input-caps` | `text-muted` | The Caps Lock hint (4.5:1 on the field). |

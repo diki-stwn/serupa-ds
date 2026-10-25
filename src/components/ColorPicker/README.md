@@ -27,7 +27,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 
 ## Usage
 
-- Name every swatch in words with `label` ("Ocean", "Sunset"). Screen readers say the name; a bare hex string is read as its code.
+- Name every swatch in words with `label` ("Ocean", "Sunset"). Screen readers say the name. A bare hex string (or an empty `label`) gets a rough name from its color, such as "Dark blue" or "Light gray" (the `colorName` label, English and Indonesian built in), and its code as the tooltip; your own names are still better, since two blues both read as "Blue".
 - Pick swatches that pass contrast where they'll be used, and set `contrastWith` to the background (or the text color) when people can pick freely, so they see the ratio. `minContrast` is 4.5 by default (body text); use 3 for large text and icons.
 - Turn off `custom` when only the swatches are allowed.
 - Colors come out as lowercase `#rrggbb`, whatever case or short form people type.
@@ -35,6 +35,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 ## Behavior
 
 - The swatches are one radio group: Tab reaches the picked swatch (or the first), the arrow keys move and pick (wrapping), and Home and End go to the ends.
+- A form reset puts the first color (`defaultValue`) back, in the swatches, the hex field and the submitted value.
 - The hex field picks the color as soon as six digits are typed, and a three-digit code (`f0a`) on Enter or blur. A code that isn't a color is marked invalid while typed and goes back to the picked color on blur. The `#` is optional.
 - The browser's color picker (the square before the field) picks any color too; when the picked color isn't a swatch, no swatch is checked.
 - The contrast ratio is rounded down to one decimal, so 4.49 shows as 4.4 and never looks like a pass. It's written in the locale's numbers ("4,5:1" in Indonesian).
@@ -45,21 +46,24 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 - The picked swatch shows a ring (3:1 on the page in all six themes) and a check in white or black, whichever stands out more on that color, so the choice doesn't rely on seeing the color.
 - Every swatch has a thin inset border, so white shows on white. In forced-colors mode the swatches keep their real colors and the ring uses Highlight.
 - The contrast line is a polite live region, so a change is read out. The warning has an icon and words, not just a color.
+- With `contrastWith`, every swatch also says its ratio before it's picked, as its description ("Contrast 1.3:1, below 4.5:1, which can be hard to read"), and a swatch under `minContrast` is struck through with a diagonal line (`CanvasText` in forced-colors mode) and has `data-low-contrast`. The line goes away once it's picked, when the check and the contrast line take over.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `swatches` | `Array<{ value, label } \| string>` | | The colors, as hex. |
+| `swatches` | `Array<{ value, label } \| string>` | | The colors, as hex. A bare hex is named from its color ("Dark blue"). |
 | `value` | `string \| null` | | Controlled, as hex. |
 | `defaultValue` | `string \| null` | | Uncontrolled. |
 | `onValueChange` | `(value: string) => void` | | With lowercase `#rrggbb`. |
+| `onValueCommit` | `(value: string) => void` | | Called once a color is chosen: a swatch picked, the browser's picker closed, or the hex field left or Enter pressed. Not on every drag step or keystroke, unlike `onValueChange`. |
 | `custom` | `boolean` | `true` | The browser's picker and a hex field. |
-| `contrastWith` | `string` | | A hex color to check the picked one against. |
+| `contrastWith` | `string` | | A hex color to check against: the picked one in the contrast line, and every swatch in its description and strike-through. |
 | `minContrast` | `number` | `4.5` | Below this ratio it warns. |
 | `size` | `'sm' \| 'md'` | `'md'` | 24 or 32px swatches. |
 | `disabled` | `boolean` | `false` | |
 | `name` | `string` | | Submits the color with a form. |
+| `form` | `string` | | The id of the form it submits with, when the picker sits outside it (like an input's `form`). |
 
 Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it focuses the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
 

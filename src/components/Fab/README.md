@@ -26,10 +26,15 @@ const { Fab } = window.Serupa;
 - One per screen, for the action people come to the screen for. Other actions go in the page.
 - Leave room at the end of the content so the FAB never covers the last item.
 
+## Placement
+
+- The offset is measured from the safe area. On a phone with a home bar or a notch, and with `viewport-fit=cover` in the viewport meta tag, the button sits above the bar instead of under it.
+
 ## Accessibility
 
 - It's a real `<button>` named by `label`. Put it where it comes in the reading order (often after the main content), since it's fixed but still focused in source order.
 - `shadow-lg` at rest and `shadow-xl` on hover lift it off the page; the colors and focus ring are Button's primary (checked in Button's tests and `Fab.test.tsx`).
+- It isn't printed: fixed to the viewport, it would repeat on every page.
 
 ## Props
 

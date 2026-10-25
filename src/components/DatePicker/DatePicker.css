@@ -8,7 +8,7 @@
 .dk-date-picker__button {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;
   width: var(--control-height-sm); height: var(--control-height-sm); margin: var(--spacing-0); padding: var(--spacing-0);
-  border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent; color: var(--date-picker-button, var(--text-muted)); cursor: pointer;
+  border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent; color: var(--date-picker-button, var(--text-muted)); cursor: pointer; touch-action: manipulation;
 }
 .dk-date-picker__button .dk-icon { font-size: var(--dk-input-icon); }
 @media (hover: hover) { .dk-date-picker__button:hover:not(:disabled) { background: var(--date-picker-button-bg-hover, var(--surface-muted)); color: var(--date-picker-button-hover, var(--text)); } }

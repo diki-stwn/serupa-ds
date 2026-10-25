@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { cn, isInvalid, oneOf, omit, SIZES } from "../../internal/cn";
+import { cn, isInvalid, oneOf, omit, setRef, SIZES } from "../../internal/cn";
+import { useFormReset } from "../../internal/useFormReset";
 import { warnOnce } from "../../internal/warn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -52,12 +53,17 @@ export const Select = /* @__PURE__ */ component<HTMLSelectElement, SelectProps>(
   const [picked, setPicked] = React.useState(controlled ? rest.value : rest.defaultValue), cur = controlled ? rest.value : picked;
   const onChange = rest.onChange;
   rest.onChange = function (e: React.ChangeEvent<HTMLSelectElement>) { if (!controlled) setPicked(e.target.value); if (onChange) onChange(e); };
+  // A form reset puts the native <select> back on its default; the placeholder look follows it.
+  const own = React.useRef<HTMLSelectElement | null>(null);
+  const setRefs = React.useCallback(function (node: HTMLSelectElement | null) { own.current = node; setRef(ref, node); }, [ref]);
+  const start = rest.defaultValue;
+  useFormReset(own, () => { if (!controlled) setPicked(start); });
   const empty = hasPh && (cur == null || cur === "");
   const left = asIcon(props.leftIcon);
   return (
     <span className={cn("dk-select", "dk-select--size-" + size, invalid && "dk-select--invalid", rest.disabled && "dk-select--disabled", empty && "dk-select--empty", left != null && left !== false && "dk-select--has-icon", props.className)} style={props.style} data-component="select" data-size={size}>
       {left == null || left === false ? null : <span className="dk-select__icon dk-select__icon--left" aria-hidden key="left">{left}</span>}
-      <select {...rest} ref={ref} className="dk-select__field" key="field">
+      <select {...rest} ref={setRefs} className="dk-select__field" key="field">
         {hasPh ? <option value="" disabled key="__placeholder">{props.placeholder}</option> : null}
         {optionNodes(props.options)}
         {props.children}

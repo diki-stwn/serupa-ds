@@ -14,7 +14,7 @@ import { minorDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 
-export interface NumberInputProps extends Omit<InputProps, "type" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
+export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
   /** The number (controlled), or null when the field is empty. Use with onValueChange. */
   value?: number | null;
   /** The number at first (uncontrolled). */
@@ -83,9 +83,12 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, formatOptions));
   const shown = show(value);
   const [text, setText] = React.useState(shown);
-  const focused = React.useRef(false);
-  // A new value, locale or format from outside rewrites the field, unless people are typing in it.
-  React.useEffect(() => { if (!focused.current) setText(shown); }, [shown]);
+  const typing = React.useRef(false);
+  // A new value, locale or format from outside rewrites the field, unless people are typing in it. After a step, a
+  // blur or Enter it's rewritten from the value too (synced), so a controlled field whose parent kept its value, or
+  // changed it, shows that value and not what was typed.
+  const [synced, resync] = React.useState(0);
+  React.useEffect(() => { if (!typing.current) setText(shown); }, [shown, synced]);
   const el = React.useRef<HTMLInputElement | null>(null);
   // The form gets the number itself ("1500000", or cents with minorUnits) from a hidden input, not the shown text
   // ("Rp 1.500.000"), so the visible field has no name. form (the attribute) goes to both, so a field outside its form works.
@@ -95,7 +98,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   // A form reset puts the default back (uncontrolled) and rewrites the text, which the browser reset to its first value.
   const [, rerender] = React.useState(0);
   useFormReset(name ? raw : el, () => {
-    focused.current = false;
+    typing.current = false;
     const v = controlled ? value : (major(props.defaultValue) ?? null);
     if (!controlled) setOwnValue(v);
     setText(show(v));
@@ -117,25 +120,28 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     if (!controlled) setOwnValue(v);
     if (v !== value && props.onValueChange) props.onValueChange(v == null || factor === 1 ? v : Math.round(v * factor));
   };
+  const put = (v: number | null) => {   // a finished change: the field shows the value
+    typing.current = false;
+    setText(show(v)); commit(v); resync((n) => n + 1);
+  };
   const nudge = (by: number) => {
     if (locked) return;
     const base = parse(text);
     const from = typeof base === "number" ? base : (value ?? (min !== undefined && min > 0 ? min - step : max !== undefined && max < 0 ? max + step : 0));
     const next = fit(from + by * step);
-    setText(show(next)); commit(next);
+    put(next);
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
+    setText(e.target.value); typing.current = true;
     const n = parse(e.target.value);   // a number out of range waits for blur, which clamps it
     if (n === null || (n !== undefined && (min === undefined || n >= min) && (max === undefined || n <= max))) commit(n);
     if (rest.onChange) rest.onChange(e);
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    focused.current = false;
     const n = parse(text);
     const v = n == null ? null : fit(n === undefined ? (value ?? 0) : n);
     const out = n === undefined ? value : v;
-    setText(show(out)); commit(out);
+    put(out);
     if (rest.onBlur) rest.onBlur(e);
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -146,9 +152,9 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     else if (k === "ArrowDown") nudge(-big);
     else if (k === "PageUp") nudge(large);
     else if (k === "PageDown") nudge(-large);
-    else if (k === "Home" && min !== undefined && !locked) { setText(show(min)); commit(min); }
-    else if (k === "End" && max !== undefined && !locked) { setText(show(max)); commit(max); }
-    else if (k === "Enter") { const n = parse(text); if (n != null) { const v = fit(n); setText(show(v)); commit(v); } return; }
+    else if (k === "Home" && min !== undefined && !locked) put(min);
+    else if (k === "End" && max !== undefined && !locked) put(max);
+    else if (k === "Enter") { const n = parse(text); if (n != null) put(fit(n)); return; }
     else return;
     e.preventDefault();
   };
@@ -164,7 +170,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
         type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
         role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}
-        onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={(e) => { focused.current = true; if (rest.onFocus) rest.onFocus(e); }} />
+        onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={rest.onFocus} />
       {name ? <input type="hidden" ref={raw} name={name} form={rest.form} disabled={rest.disabled} value={value == null ? "" : String(factor === 1 ? value : Math.round(value * factor))} /> : null}
       {props.steppers !== false ? (
         <span className="dk-number-input__steppers">

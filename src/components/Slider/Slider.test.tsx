@@ -46,7 +46,7 @@ const setup = async (sref?: React.Ref<HTMLDivElement>) => { calls = []; commits 
 describe('Slider', () => {
   test('your onKeyDown runs first: preventDefault() on a key keeps the slider from changing; other keys still work', async () => {
     const changes: number[] = [];
-    await render(<Slider id="kd" aria-label="Volume" defaultValue={50} onValueChange={(v) => changes.push(v as number)}
+    await render(<Slider id="kd" aria-label="Volume" defaultValue={50} onValueChange={(v) => changes.push(v)}
       onKeyDown={(e) => { if (e.key === 'ArrowRight') e.preventDefault(); }} />);
     thumb('kd').focus();
     await userEvent.keyboard('{ArrowRight}');

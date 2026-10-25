@@ -12,7 +12,7 @@
   display: inline-flex; align-items: flex-start; gap: var(--checkbox-gap, var(--spacing-2));
   vertical-align: top; color: var(--checkbox-label-color, var(--text));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--dk-checkbox-lh);
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
 }
 .dk-checkbox--size-sm { --dk-checkbox-box: var(--checkbox-size-sm, var(--spacing-3\.5)); --dk-checkbox-icon: var(--checkbox-icon-size-sm, var(--spacing-3)); --dk-checkbox-lh: var(--text-xs--line-height); font-size: var(--text-xs); }
 .dk-checkbox--size-lg { --dk-checkbox-box: var(--checkbox-size-lg, var(--spacing-5)); --dk-checkbox-icon: var(--checkbox-icon-size-lg, var(--spacing-4)); --dk-checkbox-lh: var(--text-base--line-height); font-size: var(--text-base); }

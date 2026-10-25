@@ -11,7 +11,7 @@
   padding: var(--spacing-0);
   align-items: stretch;
   gap: var(--tabs-gap, var(--spacing-1));
-  overflow-x: auto;
+  overflow-x: auto; overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
 .dk-tabs--line .dk-tabs__list { border-bottom: var(--border-width-1) solid var(--tabs-border, var(--border)); }
@@ -34,7 +34,7 @@
   line-height: var(--text-sm--line-height);
   font-weight: var(--tabs-weight, var(--font-medium));
   white-space: nowrap;
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
   transition: color var(--duration-150) var(--ease-in-out), background-color var(--duration-150) var(--ease-in-out);
 }
 .dk-tabs--sm .dk-tabs__tab { height: var(--tabs-height-sm, var(--control-height-md)); }

@@ -28,5 +28,5 @@ export const IconButton = /* @__PURE__ */ component<HTMLButtonElement | HTMLAnch
   const round = shape === "round";
   const title = !noTitle && rest.title == null ? label : rest.title;
   return <ButtonBase variant="ghost" {...rest} aria-label={label} data-shape={round ? "round" : "square"} title={title}
-    ref={ref as React.Ref<HTMLElement>} icon={icon} className={cn("dk-icon-btn", round && "dk-icon-btn--round", className)} />;
+    ref={ref} icon={icon} className={cn("dk-icon-btn", round && "dk-icon-btn--round", className)} />;
 });
