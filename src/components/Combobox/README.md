@@ -32,6 +32,7 @@ const [owner, setOwner] = React.useState<string | null>(null);
 - Add a `description` when options look alike, such as people with the same name (their email).
 - Set `clearable` when no selection is a valid answer, so people can clear it in one click.
 - Write an `emptyText` that says what to try next, and match the `size` to the fields beside it.
+- Long lists are fine: the options are in the page only while the list is open, each label is prepared for matching once per `options` array, and moving the highlight redraws two rows. Keep `options` the same array between renders (state, a constant or `useMemo`), so that work isn't redone. For tens of thousands of options, fetch the matches as people type (`onInputChange`) and pass only those.
 
 ## Behavior
 
