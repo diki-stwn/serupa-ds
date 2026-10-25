@@ -37,6 +37,7 @@ const { Text } = window.Serupa;
 - Every tone keeps 4.5:1 on `surface` in all six themes (`Text.test.tsx`). On other backgrounds, check it yourself.
 - Don't use color alone to say something is wrong: say it in the words too.
 - A truncated line hides the rest: put the full text in a `title` or somewhere else on the page.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 

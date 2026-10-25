@@ -42,6 +42,7 @@ formatNumber(1234, "id-ID", { format: "compact" })                  // "1,2 rb",
 - It's a `<data>` whose `value` holds the number for machines; screen readers read its words.
 - A compact number's full value is in `title`, which shows on hover but isn't reliably read out. Where the exact figure matters, show it as text.
 - It doesn't wrap: "Rp 150.000" stays on one line.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 

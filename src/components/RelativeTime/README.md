@@ -38,6 +38,7 @@ import { RelativeTime } from "serupa-ds";
 - It's a `<time>` with a machine-readable `datetime`, read out as its words.
 - The exact date is in `title`, which shows on hover but isn't reliably read out or reachable by keyboard. Where the exact time matters, show it as text too or wrap it in a [Tooltip](../Tooltip/README.md) on a focusable element.
 - It doesn't announce its updates: a live region that changes every minute would be noise.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 

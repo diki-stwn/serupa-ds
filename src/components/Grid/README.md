@@ -34,6 +34,7 @@ const { Grid, Card } = window.Serupa;
 
 - The reading and tab order follow the children, row by row: keep them in the order people see them.
 - Use `as="ul"` when the cells are a list of things.
+- **Keyboard:** none: a layout box, not focusable.
 
 ## Props
 

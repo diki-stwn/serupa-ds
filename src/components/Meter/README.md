@@ -53,6 +53,7 @@ Without `low` and `high` the bar is primary and `data-state` is `none`. `meterSt
 - `role="meter"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext` (the shown value). It's named by its `label`.
 - Outside the best zone, the value read out also says where it falls, so the warning the color gives is heard too: "92%, high", "12%, low" or "45%, medium". The words come from the `meterZone` label in `SerupaProvider`. With `formatValue`, your words are read as they are, so say the zone in them.
 - Every zone's fill keeps 3:1 on the page, and the label and value 4.5:1, in all six themes (`Meter.test.tsx`). In forced-colors mode the track gets a border and the fill uses Highlight.
+- **Keyboard:** none: it shows a value and isn't focusable. Use a Slider for a value people set.
 
 ## Props
 

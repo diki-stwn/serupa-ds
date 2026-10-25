@@ -35,6 +35,7 @@ highlightRanges("Łódź, Poland", "lodz")                        // [[0, 4]]
 - Matches are `<mark>` elements, which assistive tech exposes as highlighted text; the words themselves are unchanged, so the text reads as written.
 - A match isn't marked by color alone: it's also semibold. The text keeps 4.5:1 on the tint in all six themes (`Highlight.test.tsx`).
 - In forced-colors mode marks use the system's Mark and MarkText colors.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 

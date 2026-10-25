@@ -33,6 +33,7 @@ const { Container } = window.Serupa;
 
 - Use `as="main"` for the page's main content (once per page), so people can jump to it.
 - `prose` keeps lines to a comfortable reading length: use it for long text.
+- **Keyboard:** none: a layout box, not focusable.
 
 ## Props
 

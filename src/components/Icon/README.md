@@ -112,6 +112,7 @@ Icons take the text color (`currentColor`). Set it with an alias, never a palett
 - **Icon-only buttons:** the button needs the name, not the icon: pass `aria-label` to the Button, or use [IconButton](../IconButton/README.md), which requires a `label`.
 - **Contrast:** icons that carry meaning need 3:1 against their background (see Color, under Usage).
 - **Translation:** icons are SVGs with no text, so translation tools and screen readers never see an icon's name.
+- **Keyboard:** none: the svg is `focusable="false"`, so it's never a Tab stop of its own, in a button or not.
 
 ## Props
 
