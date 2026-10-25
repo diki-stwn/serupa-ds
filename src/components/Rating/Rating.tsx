@@ -26,6 +26,8 @@ export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 
   disabled?: boolean;
   /** Sends the rating with a form (a native radio per choice). */
   name?: string;
+  /** The id of a form elsewhere on the page that the radios belong to. */
+  form?: string;
   /** Marks a rating required (on the radios). */
   required?: boolean;
   /** Marks the rating invalid (aria-invalid on the group). Field sets it from its error. */
@@ -48,7 +50,7 @@ const round = (n: number, by: number) => Math.round(n / by) * by;
 export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Rating", function Rating(given, ref) {
   const props = useFieldControl(given);   // a surrounding Field's id, hint, required, invalid and disabled
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // a Field's <label for> can't name a group, so it's aria-labelledby
-  const { invalid, value: valueIn, defaultValue, onValueChange, max: maxIn, allowHalf, clearable, readOnly, disabled, name, required, size: sizeIn, className, onKeyDown, onPointerLeave, ...rest } = props;
+  const { invalid, value: valueIn, defaultValue, onValueChange, max: maxIn, allowHalf, clearable, readOnly, disabled, name, form, required, size: sizeIn, className, onKeyDown, onPointerLeave, ...rest } = props;
   const nameRef = useNameCheck("Rating", NAME_HOW.group);
   const sds = useSerupa();
   const size = oneOf(SIZES, sizeIn, "md");
@@ -92,7 +94,7 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
     const choices = allowHalf ? [i + 0.5, i + 1] : [i + 1];
     return choices.map((v) => (
       <input key={v} type="radio" className="dk-rating__choice"
-        name={name || auto} value={v} checked={value === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
+        name={name || auto} form={form} value={v} checked={value === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
         onChange={() => set(v)} onClick={() => { if (clearable && value === v) set(null); }}
         onPointerEnter={(e) => { if (e.pointerType !== "touch") setHover(v); }} />
     ));

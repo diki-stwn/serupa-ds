@@ -99,7 +99,7 @@ describe('Rating', () => {
       document.documentElement.setAttribute('data-theme', th);
       const page = css(document.body).backgroundColor;
       for (const [k, layer] of [['fill', 1], ['empty', 0]] as const) {
-        const r = contrast(css(stars('t')[0].children[layer] as HTMLElement).color, page);
+        const r = contrast(css(stars('t')[0].children[layer]).color, page);
         if (r < 3) low.push(`${th} ${k}: ${r.toFixed(2)}`);
       }
     }

@@ -13,6 +13,7 @@ interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaul
     readOnly?: boolean;
     disabled?: boolean;
     name?: string;
+    form?: string;
     required?: boolean;
     invalid?: boolean;
     size?: "lg" | "md" | "sm";
