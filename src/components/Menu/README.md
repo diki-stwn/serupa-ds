@@ -16,6 +16,14 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 </Menu>
 
 <Menu trigger={<IconButton icon="more_vert" label="Row actions" />} placement="bottom-end">…</Menu>
+
+<Menu trigger={<Button variant="secondary">File</Button>}>
+  <MenuItem icon="add">New</MenuItem>
+  <MenuSub icon="share" label="Share">
+    <MenuItem icon="mail">Email</MenuItem>
+    <MenuItem icon="link">Copy link</MenuItem>
+  </MenuSub>
+</Menu>
 ```
 
 ## When to use
@@ -36,12 +44,14 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 - Start each label with a verb ("Edit", "Duplicate", "Delete") and keep it short.
 - Put the most used actions first, and destructive ones last, after a `MenuSeparator` or in their own `MenuGroup`.
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
+- Use a `MenuSub` for a set of related choices that would make the menu long ("Share", "Move to"). Keep it to one level where you can: each level is one more step for keyboard and screen reader users, and harder to reach with a pointer. Never put the only way to do something two levels down.
 - `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work. Write it the way the platform does ("⌘K" on a Mac, "Ctrl+K" elsewhere).
 
 ## Accessibility
 
+- A `MenuSub` is a `menuitem` with `aria-haspopup="menu"` and `aria-expanded`; its submenu is a `menu` named by the item's label, next to the item at its end edge (on the right, or the left in rtl, flipping when there's no room).
 - `role="menu"` with `menuitem`s, `group`s and `separator`s; only the highlighted item takes focus.
-- A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Pass `aria-keyshortcuts` to set it yourself.
+- A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Hyphens separate too ("Cmd-K" is `Meta+K`), a last `+` is the key ("Ctrl++" is `Control+Plus`), and "G then I" is two presses in a row (`G I`). Pass `aria-keyshortcuts` to set it yourself.
 - Labels, shortcuts and group headings keep 4.5:1 (also on the highlighted item) and icons 3:1, in all six themes (`Menu.test.tsx`).
 
 ### Keyboard
@@ -54,8 +64,12 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 | Letters | | The next item starting with them. Letters typed within half a second make one word ("de" finds Delete past Duplicate), the same letter again steps through the items starting with it, and accents and case don't matter ("e" finds "Éditer") |
 | Escape | | Closes it; focus goes back to the button |
 | Tab | | Closes it and moves on |
+| → (← in rtl), Enter, Space | | On a `MenuSub`: opens its submenu on the first item |
+| ← (→ in rtl), Escape | | In a submenu: closes it, and focus goes back to the item that opened it |
 
-Hovering an item highlights it, and a press outside closes the menu.
+In a submenu, ↑ ↓ Home End and letters move among its own items only. Choosing an item in a submenu closes every level and focus goes back to the button.
+
+Hovering an item highlights it, and a press outside closes the menu. Hovering a `MenuSub` opens its submenu after 150ms, and it closes 150ms after the pointer settles on another item, so the pointer can cut across an item on the way into the submenu.
 
 ## Props
 
@@ -81,6 +95,15 @@ Hovering an item highlights it, and a press outside closes the menu.
 | `href` | string | | Makes it a link (the `configure({ link })` component) |
 | `as` | component | | Makes it a link with this component instead, such as a router's Link (pass its props, like `to`, on the item) |
 | `target`, `rel` | string | | For a link item. `target="_blank"` without `rel` gets `rel="noopener noreferrer"` |
+
+### MenuSub
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `label` | node | required | The item's label, which also names the submenu |
+| `children` | nodes | required | `MenuItem`, `MenuGroup`, `MenuSeparator`, or another `MenuSub` |
+| `icon` | icon name \| element | | A muted 16px icon before the label |
+| `disabled` | boolean | `false` | Still reachable with the keys, but doesn't open |
 
 `MenuGroup` takes a `label` (a small heading that names the group); `MenuSeparator` is a line. Every part takes `className`, `style` and `ref`.
 
@@ -111,4 +134,5 @@ Each is an optional override: set it on the page, a container or one menu. The l
 | `--menu-item-padding-x` | `spacing-2` | Padding at an item's sides (8px). |
 | `--menu-item-gap` | `spacing-2` | Space between an item's icon, label and shortcut (8px). |
 | `--menu-offset` | `spacing-1` | The gap between the menu and its button (4px). |
+| `--menu-sub-offset` | `spacing-0` | The gap between a submenu and the item that opens it (0: the submenu overlaps the menu's padding). |
 | `--menu-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
