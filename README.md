@@ -81,6 +81,8 @@ Set the brand and mode on `<html>` and load `theme.js` first in `<head>`, so the
 <html data-brand="blue" data-mode="auto">   <!-- brand: blue | violet | emerald; mode: auto | light | dark -->
 ```
 
+A server-rendered app can save the request by pasting the text of `dist/theme.js` into an inline `<script>` in `<head>` (give it a nonce under a strict Content Security Policy); the file is written so it works inline.
+
 Or set one theme directly on any element: `data-theme="violet-dark"`. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
 
 ### 4. Ship it
@@ -279,6 +281,13 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 | `mix-blend-plus-darker` | Everything but Safari |
 
 Popover and command buttons (`popoverTarget`, `command`) and `text-wrap: balance` are progressive: older browsers ignore them and the page still works.
+
+Two features set the oldest versions that get the whole system:
+
+| Feature | Needs | Without it |
+| --- | --- | --- |
+| `light-dark()`, behind `data-brand` and `data-mode` | Chrome and Edge 123, Safari 17.5, Firefox 120 | A page or section themed only by `data-brand` / `data-mode` loses its theme colors (text and backgrounds fall back to the browser's). A page whose root has `data-theme`, which `theme.js` sets, keeps its colors, because the flat `[data-theme]` themes don't use `light-dark()`. |
+| The `popover` attribute (the top layer) | Chrome and Edge 114, Safari 17, Firefox 125 | Menu, Popover, Tooltip and the picker lists still open where they belong, but in the page instead of the top layer, so a parent's `overflow: hidden` can clip them and a higher `z-index` can cover them. |
 
 ## Maintaining the system
 

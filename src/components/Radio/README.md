@@ -49,6 +49,7 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 
 ## Accessibility
 
+- A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves.
 - They're real radios: Tab moves to the group (to the picked one), arrow keys move the choice, and screen readers announce the position ("2 of 3").
 - Name the group: wrap it in `Field group` (a `<fieldset>` and `<legend>`, with the hint and error describing it), or give the RadioGroup an `aria-label` or `aria-labelledby`.
 - A radio's label names it; a description is read after it. The dot is decorative.
@@ -101,7 +102,6 @@ Each is an optional override: set it on the page, a container or one radio. The 
 | `--radio-label-color` | `text` | The label |
 | `--radio-description-color` | `text-muted` | The description |
 | `--radio-focus-ring` | `focus-ring` | The focus ring |
-| `--radio-focus-gap-color` | `surface` | Deprecated, no effect: the focus ring is an outline now, so its gap is transparent on any background. Removed in 9.0.0. |
 | `--radio-invalid` | `danger` | Border and focus ring when invalid |
 | `--radio-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Circle sizes (14, 16, 20px) |
 | `--radio-dot-size-sm` / `-md` / `-lg` | `spacing-1.5` / `spacing-1.5` / `spacing-2` | Dot sizes (6, 6, 8px) |

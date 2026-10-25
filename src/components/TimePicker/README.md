@@ -60,6 +60,8 @@ const [start, setStart] = React.useState<string | null>("09:00");
 
 `disabled`, `readOnly`, `id`, `aria-*`, `onBlur`, `onKeyDown` and `ref` go to the text field; `className` and `style` to the box.
 
+`autoComplete` is `off` unless you pass one.
+
 ## Component tokens
 
 Each is an optional override: set it on the page, a container or one picker. The list lives in `src/components/TimePicker/time-picker.tokens.json` (also in `design-tokens/components/`).

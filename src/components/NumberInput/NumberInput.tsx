@@ -128,8 +128,13 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     if (locked) return;
     const base = parse(text);
     const from = typeof base === "number" ? base : (value ?? (min !== undefined && min > 0 ? min - step : max !== undefined && max < 0 ? max + step : 0));
-    const next = fit(from + by * step);
-    put(next);
+    // From a typed value off the grid of min and step, the first step lands on the grid point in that direction, as
+    // the native field and Slider do: 0.1 and ↑ with step 0.25 gives 0.25, not 0.35. Money shown with finer decimals
+    // than its step ($19.99 with a step of $1) keeps them, so ↑ is $20.99.
+    const origin = min ?? 0, k = roundTo((from - origin) / step, 9);
+    const onGrid = Number.isInteger(k) || places > gridPlaces(min, step);
+    const to = onGrid ? k + by : by > 0 ? Math.floor(k) + by : Math.ceil(k) + by;
+    put(fit(origin + to * step));
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value); typing.current = true;

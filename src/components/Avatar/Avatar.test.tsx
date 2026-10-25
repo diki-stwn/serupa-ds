@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
-import { Avatar, type AvatarSize, type AvatarStatus } from './Avatar';
+import { Avatar, initials, type AvatarSize, type AvatarStatus } from './Avatar';
 import { idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
 
@@ -53,10 +53,33 @@ describe('Avatar', () => {
     expect([m('ini'), m('one')]).toEqual(['GH:true:false', 'L:true:false']);
   });
 
+  test('initials: one character a person sees per word, from its first letter, digit or pictograph (CD1)', () => {
+    expect(['ßen Müller', '"Ada" Lovelace', '(Grace) Hopper', '— Ada —', '👩🏽‍💻 Dev', 'émile zola', 'e\u0301mile zola', 'ǆemal bijedić', '42 Club', '...'].map((n) => initials(n)))
+      .toEqual(['SM', 'AL', 'GH', 'A', '👩🏽‍💻D', 'ÉZ', 'E\u0301Z', 'ǄB', '4C', '']);
+  });
+
   test('no picture and no name: the person icon, hidden from screen readers; alt="" hides it (the name is written beside it); alt replaces the name', async () => {
     await render(<Row><Avatar id="none" /><Avatar id="alt" name="Ada Lovelace" alt="" /><Avatar id="alt2" name="Atlas" alt="Atlas project" shape="square" /></Row>);
     expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('.dk-icon') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
     expect([el('alt').getAttribute('aria-hidden'), el('alt').getAttribute('role'), el('alt2').getAttribute('aria-label')]).toEqual(['true', null, 'Atlas project']);
+  });
+
+  test('a name of only spaces counts as none: the icon, hidden, no aria-label of spaces (AU1)', async () => {
+    await render(<Row><Avatar id="blank" name="   " /></Row>);
+    expect([el('blank').getAttribute('aria-hidden'), el('blank').getAttribute('aria-label'), el('blank').getAttribute('role'), !!el('blank').querySelector('.dk-icon')]).toEqual(['true', null, null, true]);
+  });
+
+  test('the <img> loads lazily and decodes async by default; imgProps reach it, can make it eager, and its onError still falls back (BJ1)', async () => {
+    const err = vi.fn();
+    await render(<Row>
+      <Avatar id="lazy" src={IMG} name="Ada Lovelace" />
+      <Avatar id="eager" src={IMG} name="Grace Hopper" imgProps={{ loading: 'eager', referrerPolicy: 'no-referrer', className: 'mine' }} />
+      <Avatar id="bad" src="data:image/png;base64,broken" name="Linus T" imgProps={{ onError: err }} />
+    </Row>);
+    const img = (id: string) => el(id).querySelector('img')!;
+    expect([img('lazy').loading, img('lazy').decoding, img('eager').loading, img('eager').referrerPolicy, img('eager').className]).toEqual(['lazy', 'async', 'eager', 'no-referrer', 'dk-avatar__img mine']);
+    await expect.poll(() => el('bad').querySelector('.dk-avatar__initials')?.textContent).toBe('LT');
+    expect(err).toHaveBeenCalledTimes(1);
   });
 
   test('sizes: 24/12, 32/12, 40/14, 48/16 and 64/20 (box/initials, px); the person icon scales with the size (14 to 40px); shape square: 8px corners', async () => {

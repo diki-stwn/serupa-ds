@@ -144,7 +144,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; setRef(ref, n); }}
-        type="text" role="combobox" autoComplete="off" className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
+        type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : h12 ? "hh:mm am" : "hh:mm"} aria-invalid={invalid || undefined}
         aria-expanded={open} aria-controls={id} aria-autocomplete="none" aria-haspopup="listbox" aria-activedescendant={open ? `${id}-${active}` : undefined}
         onChange={(e) => {

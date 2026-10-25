@@ -47,3 +47,14 @@ export const Count: Story = {
     <Input showCount aria-label="Note" defaultValue="No limit" />
   </Col>,
 };
+
+/** A <fieldset disabled> disables the fields inside, and they look disabled too. */
+export const InDisabledFieldset: Story = {
+  name: 'In a disabled fieldset',
+  render: () => <fieldset disabled style={{ border: 0, margin: 0, padding: 0 }}>
+    <Col>
+      <Input aria-label="Company" defaultValue="Atlas Ltd" />
+      <Input aria-label="Tax ID" placeholder="Tax ID" />
+    </Col>
+  </fieldset>,
+};

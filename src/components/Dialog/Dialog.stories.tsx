@@ -31,3 +31,16 @@ export const Small: Story = { args: { size: 'sm', title: 'Rename project', descr
 export const Large: Story = { args: { size: 'lg', title: 'Share Atlas', description: 'Anyone you invite can view and comment.' } };
 export const FullScreen: Story = { args: { fullScreen: true, title: 'Edit profile', description: 'Changes show on your public page.' } };
 export const NoCloseButton: Story = { args: { closeButton: false, title: 'Invite people' } };
+const TERMS = Array.from({ length: 24 }, (_, i) => <p key={i}>Section {i + 1}. You keep the rights to what you upload. We store it only to show it to the people you share it with, and delete it 30 days after you remove it.</p>);
+/** A body taller than the screen with nothing focusable in it: Tab reaches the body, and the arrow keys scroll it. */
+export const LongText: Story = {
+  name: 'Long text',
+  args: { title: 'Terms of use', description: undefined },
+  render: function Render(args: DialogProps) {
+    const [open, setOpen] = React.useState(false);
+    return <>
+      <Button onClick={() => setOpen(true)}>Read the terms</Button>
+      <Dialog {...args} open={open} onOpenChange={setOpen} footer={<Button onClick={() => setOpen(false)}>Accept</Button>}>{TERMS}</Dialog>
+    </>;
+  },
+};

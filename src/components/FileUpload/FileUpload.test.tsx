@@ -290,4 +290,12 @@ describe('FileUpload', () => {
     }
     expect(msgs).toEqual(['alert: photo.heic isn\'t a PNG or JPG.', 'alert: photo.heic isn\'t an SVG.', 'alert: photo.heic isn\'t an audio file or MP4.', 'alert: photo.heic: this type of file isn\'t accepted.']);
   });
+  test('a <label for> that focuses the hidden input (as its click does) hands focus to the choose button', async () => {
+    await render(<><label htmlFor="ful">Attachment</label><FileUpload id="ful" /></>);
+    const inp = document.getElementById('ful') as HTMLInputElement;
+    inp.focus();
+    await expect.poll(() => document.activeElement && document.activeElement.closest('.dk-btn')).toBeTruthy();
+    expect(document.activeElement).not.toBe(inp);
+  });
+
 });

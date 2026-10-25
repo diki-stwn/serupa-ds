@@ -42,6 +42,7 @@ const [open, setOpen] = React.useState(false);
 ## Behavior
 
 - Opening moves focus to the first thing in it that takes focus (put `data-autofocus` on another to choose: React's `autoFocus` runs while the dialog is still hidden, so it can't); closing moves it back to where it was.
+- A body taller than the screen takes Tab focus (with a focus ring) when it scrolls, so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
 - On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
@@ -85,6 +86,7 @@ Each is an optional override: set it on the page, a container or one dialog. The
 | `--dialog-overlay` | `overlay` | The dimmed backdrop over the page. |
 | `--dialog-title-color` | `text` | The title. |
 | `--dialog-description-color` | `text-muted` | The description under the title (4.5:1 on surface). |
+| `--dialog-focus-ring` | `focus-ring` | The keyboard focus ring of a body that scrolls. |
 | `--dialog-shadow` | `shadow-xl` | The panel's shadow. |
 | `--dialog-radius` | `rounded-xl` | The panel's corners (12px). |
 | `--dialog-width-sm` | `container-sm` | size="sm" (384px). |

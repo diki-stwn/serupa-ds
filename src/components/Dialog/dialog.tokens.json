@@ -51,6 +51,16 @@
             "cssVar": "--dialog-description-color"
           }
         }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The keyboard focus ring of a body that scrolls.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--dialog-focus-ring"
+          }
+        }
       }
     },
     "shadow": {

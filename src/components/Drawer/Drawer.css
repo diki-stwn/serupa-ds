@@ -50,6 +50,7 @@
 .dk-drawer__description { margin: var(--spacing-0); color: var(--drawer-description-color, var(--text-muted)); }
 .dk-drawer__close { flex-shrink: 0; }
 .dk-drawer__body { flex: auto; min-height: var(--spacing-0); overflow-y: auto; overscroll-behavior: contain; }
+.dk-drawer__body:focus-visible { outline: var(--focus-ring-width) solid var(--drawer-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-drawer__footer {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--spacing-2); flex-shrink: 0;
   margin: var(--spacing-0) calc(var(--spacing-0) - var(--drawer-padding, var(--spacing-6))) calc(var(--spacing-0) - var(--drawer-padding, var(--spacing-6)));

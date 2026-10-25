@@ -44,12 +44,13 @@ const { Avatar } = window.Serupa;
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `src` | string | | The picture, cropped to fill the shape |
-| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH") and the accessible name |
+| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH": the first letter, digit or emoji of the first and last words, one character each, so "ßen Müller" is "SM") and the accessible name |
 | `alt` | string | the name | The accessible name; `alt=""` hides the avatar from screen readers |
 | `size` | `'xs'` \| `'sm'` \| `'md'` \| `'lg'` \| `'xl'` | `'md'` | 24, 32, 40, 48 or 64px |
 | `shape` | `'circle'` \| `'square'` | `'circle'` | Circles for people, squares (8px corners) for everything else |
 | `status` | `'online'` \| `'busy'` \| `'away'` \| `'offline'` | | A dot at the bottom end, also added to the accessible name ("Grace Hopper, online") |
 | `statusLabel` | string | the status | What the status says to screen readers, such as "in a meeting" |
+| `imgProps` | `<img>` props | `loading="lazy"`, `decoding="async"` | For the picture: `loading="eager"` for one above the fold, `referrerPolicy`, `crossOrigin` |
 
 `className`, `style`, `ref` and everything else go to the outer `<span>`, which has `data-component="avatar"`, `data-size` and `data-shape`. `initials(name)` is exported too.
 

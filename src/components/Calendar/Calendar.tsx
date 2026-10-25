@@ -46,6 +46,27 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   hideOutside?: boolean;
 }
 
+// The four formats a Calendar draws with, built once per locale rather than on every render (a grid of 42 days
+// re-renders on each arrow key).
+type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: Intl.DateTimeFormat; full: Intl.DateTimeFormat };
+const FORMATS = new Map<string, Formats>();
+function formats(locale: string): Formats {
+  let f = FORMATS.get(locale);
+  if (!f) {
+    // The grid is Gregorian with Latin digits, so the title and day labels are too (a Thai or Persian title would
+    // otherwise name another month and year). Month and weekday names stay localized.
+    const greg = { calendar: "gregory", numberingSystem: "latn" } as const;
+    f = {
+      title: new Intl.DateTimeFormat(locale, { ...greg, month: "long", year: "numeric" }),
+      short: new Intl.DateTimeFormat(locale, { weekday: "short" }),
+      long: new Intl.DateTimeFormat(locale, { weekday: "long" }),
+      full: new Intl.DateTimeFormat(locale, { ...greg, weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+    };
+    FORMATS.set(locale, f);
+  }
+  return f;
+}
+
 const OWN = { value: 1, defaultValue: 1, onValueChange: 1, month: 1, defaultMonth: 1, onMonthChange: 1, min: 1, max: 1, isDateDisabled: 1, locale: 1, weekStartsOn: 1, autoFocus: 1, previousLabel: 1, nextLabel: 1, dayClassName: 1, isDateSelected: 1, onDayHover: 1, hideOutside: 1, className: 1 } as const;
 
 /* Calendar: a month of days to pick one from. Follows the ARIA date grid pattern: one Tab stop on the days,
@@ -110,18 +131,18 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
       default: return;
     }
     e.preventDefault();
+    // Keys stop at min and max, as the native date field does, so a PageDown near the end doesn't leave focus on a
+    // day that can't be picked in a month the next button won't show.
+    if (props.min && compare(n, props.min) < 0) n = day(props.min);
+    if (props.max && compare(n, props.max) > 0) n = day(props.max);
     move(n);
   };
 
   const first = startOfWeek(month, ws);
   const weeks: Date[][] = [];
   for (let w = 0; w < 6; w++) { const row: Date[] = []; for (let i = 0; i < 7; i++) row.push(addDays(first, w * 7 + i)); weeks.push(row); }
-  // The grid is Gregorian with Latin digits, so the title and day labels are too (a Thai or Persian title would
-  // otherwise name another month and year). Month and weekday names stay localized.
-  const greg = { calendar: "gregory", numberingSystem: "latn" } as const;
-  const title = new Intl.DateTimeFormat(locale, { ...greg, month: "long", year: "numeric" }).format(month);
-  const short = new Intl.DateTimeFormat(locale, { weekday: "short" }), long = new Intl.DateTimeFormat(locale, { weekday: "long" });
-  const full = new Intl.DateTimeFormat(locale, { ...greg, weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const { short, long, full } = formats(locale);
+  const title = formats(locale).title.format(month);
   const titleId = domId("dk-cal", React.useId()) + "-title";
   const selected = (d: Date) => (props.isDateSelected ? props.isDateSelected(d) : sameDay(d, value));
   return (
@@ -135,7 +156,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
       </div>
       <table ref={grid} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
         <thead>
-          <tr>{weeks[0].map((d) => <th key={d.getDay()} scope="col" abbr={long.format(d)}><span aria-hidden>{short.format(d)}</span></th>)}</tr>
+          <tr>{weeks[0].map((d) => <th key={d.getDay()} scope="col" abbr={long.format(d)}><span aria-hidden>{short.format(d)}</span><span className="dk-visually-hidden">{long.format(d)}</span></th>)}</tr>
         </thead>
         <tbody>
           {weeks.map((row, w) => (
