@@ -6,8 +6,8 @@
 // barrel it passes through brings along). `import "serupa-ds"` alone must put nothing in the output.
 // Build first (npm run build).
 //   node tools/test/tree-shake.mjs
-// Bundlers: esbuild, Rollup (reading "sideEffects" the way @rollup/plugin-node-resolve does), Rolldown (what Vite 8
-// builds with) and webpack (production mode). The full icon set, a dynamic import(), stays a chunk of its own here;
+// Bundlers: esbuild, Rollup (reading "sideEffects" the way @rollup/plugin-node-resolve does, and again without it),
+// Rolldown (what Vite 8 builds with) and webpack (production mode). The full icon set, a dynamic import(), stays a chunk of its own here;
 // size.mjs measures a build that doesn't split it off (DM1).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -71,6 +71,16 @@ const entries = (groups) => {
   return groups.map((list, i) => { const f = path.join(DIR, `e${i}.js`); fs.writeFileSync(f, code(list)); return f; });
 };
 
+async function rollupEach(groups, moduleSideEffects) {
+  const out = [];
+  for (const list of groups) {
+    const b = await rollup({ input: ENTRY_ID, plugins: [virtual(code(list)), lazyChunk], external: isReact, treeshake: { moduleSideEffects }, onwarn() {} });
+    const { output } = await b.generate({ format: 'es' });
+    out.push(ours(Object.entries(output[0].modules).map(([k, m]) => [k, m.renderedLength])));
+  }
+  return out;
+}
+
 // Each takes the groups of exports to import, and returns for each one what its build kept.
 const BUNDLERS = {
   async esbuild(groups) {
@@ -79,15 +89,10 @@ const BUNDLERS = {
     const by = Object.fromEntries(Object.values(r.metafile.outputs).filter((o) => o.entryPoint).map((o) => [path.resolve(PROJECT, o.entryPoint), o.inputs]));
     return files.map((f) => ours(Object.entries(by[f]).map(([k, v]) => [k, v.bytesInOutput])));
   },
-  async rollup(groups) {
-    const out = [];
-    for (const list of groups) {
-      const b = await rollup({ input: ENTRY_ID, plugins: [virtual(code(list)), lazyChunk], external: isReact, treeshake: { moduleSideEffects: (id) => !id.startsWith(JS) || hasEffects(id) }, onwarn() {} });
-      const { output } = await b.generate({ format: 'es' });
-      out.push(ours(Object.entries(output[0].modules).map(([k, m]) => [k, m.renderedLength])));
-    }
-    return out;
-  },
+  rollup: (groups) => rollupEach(groups, (id) => !id.startsWith(JS) || hasEffects(id)),
+  // A bundler that doesn't read "sideEffects" (Rollup without the resolve plugin, a CDN that bundles each package)
+  // judges each module by its code: every top-level call needs /*#__PURE__*/, or it keeps the module.
+  'rollup without "sideEffects"': (groups) => rollupEach(groups, true),
   async rolldown(groups) {
     const out = [];
     for (const list of groups) {

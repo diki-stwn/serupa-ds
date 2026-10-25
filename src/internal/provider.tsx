@@ -30,7 +30,7 @@ export interface SerupaSettings {
 }
 
 const NONE: SerupaSettings = { locale: undefined, labels: DEFAULT_LABELS, icons: new Map(), platform: undefined };
-const Context = React.createContext<SerupaSettings>(NONE);
+const Context = /* @__PURE__ */ React.createContext<SerupaSettings>(NONE);
 
 /* SerupaProvider: settings for every component inside it (ADR-0010), as React context rather than module state, so
    they reach client components from a server layout, differ between concurrent server requests, and can change for
