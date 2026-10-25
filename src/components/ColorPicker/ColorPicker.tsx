@@ -12,6 +12,7 @@ import { useLocale, useSerupa } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
 import { Input } from "../Input/Input";
 import * as icons from "../../material/builtin";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 /** A swatch: its color as hex, and its name in words ("Ocean"), which is what screen readers say. */
 export interface ColorSwatch { value: string; label: string }
@@ -60,6 +61,7 @@ const ink = (hex: string) => ((contrastRatio(hex, "#ffffff") || 0) >= (contrastR
    Colors go in and come out as lowercase #rrggbb. className and other props go to the outer <div>. */
 /** Swatches to pick a color from, a hex field for any other, and a contrast check against a background. */
 export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPickerProps>("ColorPicker", function ColorPicker(props, ref) {
+  const nameRef = useNameCheck("ColorPicker", NAME_HOW.group);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSerupa(), locale = useLocale();
@@ -168,7 +170,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
       data-component="color-picker" data-size={size}>
       {/* The description and states a Field hands the picker go on the radiogroup, the control screen readers reach.
           The id stays on the outer div, so a label click focuses the picked swatch through it. */}
-      <div role="radiogroup" className="dk-color-picker__swatches" aria-label={props["aria-label"]} aria-labelledby={labelledBy} aria-disabled={disabled || undefined}
+      <div ref={nameRef} role="radiogroup" className="dk-color-picker__swatches" aria-label={props["aria-label"]} aria-labelledby={labelledBy} aria-disabled={disabled || undefined}
         aria-describedby={props["aria-describedby"]} aria-required={required || undefined} aria-invalid={invalid || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}>
         {swatches.map((s, i) => {
           const on = s.value === value;

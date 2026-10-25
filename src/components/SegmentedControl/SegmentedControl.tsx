@@ -7,6 +7,7 @@ import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface SegmentedControlOption {
   value: string;
@@ -53,6 +54,7 @@ const OWN = { options: 1, value: 1, defaultValue: 1, onValueChange: 1, size: 1, 
    ToggleButton. */
 /** Picks one of a few options shown side by side: a radio group drawn as segments. */
 export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, SegmentedControlProps>("SegmentedControl", function SegmentedControl(props, ref) {
+  const nameRef = useNameCheck("SegmentedControl", NAME_HOW.group);   // warns when it has no accessible name
   const rest = omit(props, OWN);
   const options = props.options || [];
   const disabled = !!props.disabled;
@@ -124,7 +126,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   const onBlur = (e: React.FocusEvent<HTMLDivElement>) => { if (rest.onBlur && crossing(e)) rest.onBlur(e); };
   const checkedUsable = usable.some((o) => o.value === value);
   return (
-    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, tabStop); setRef(ref, n); }}
+    <div {...rest} ref={(n) => { root.current = n; nameRef(n); delegateFocus(n, tabStop); setRef(ref, n); }}
       role="radiogroup" aria-disabled={disabled || undefined}
       aria-invalid={invalid || undefined} aria-required={required || undefined} aria-readonly={readOnly || undefined}
       aria-labelledby={props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel)}
