@@ -53,6 +53,7 @@ const { Checkbox, Field } = window.Serupa;
 
 ## Accessibility
 
+- A press anywhere within 24px of the box or the row counts (WCAG 2.5.8): when the row is shorter, or the box stands alone, its hit area reaches past what is drawn, so nothing moves.
 - It's a real checkbox: Space toggles it, forms submit it, and screen readers announce checked, unchecked and mixed.
 - The label names it. With a description, the checkbox is named by the label alone (`aria-labelledby`) and the description is read after it (`aria-describedby`).
 - The check and dash are decorative (`aria-hidden`).
