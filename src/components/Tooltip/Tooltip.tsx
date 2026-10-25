@@ -62,7 +62,7 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const child = React.Children.only(props.children) as React.ReactElement<TriggerProps>;
   const cp = child.props;
   const delay = props.delay == null ? 400 : props.delay;
-  const chain = (name: keyof TriggerProps, fn: Handler): Handler => (e) => { const own = cp[name]; if (typeof own === "function") (own as Handler)(e); fn(e); };
+  const chain = (name: keyof TriggerProps, fn: Handler): Handler => (e) => { const own: unknown = cp[name]; if (typeof own === "function") (own as Handler)(e); fn(e); };
   const childRef = elementRef<HTMLElement>(child);
   const aria = props.role === "label" ? "aria-labelledby" : "aria-describedby";
   const merged = [cp[aria], id].filter(Boolean).join(" ");

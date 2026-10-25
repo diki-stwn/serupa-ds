@@ -10,7 +10,7 @@ import { Input } from './Input';
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLElement;
-const announcer = () => document.querySelector('[data-dk-announcer]') as HTMLElement | null;
+const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 
 describe('Input', () => {
   test('a native <input type="text"> in a .dk-input box; md is 32px, text-sm, 12px padding, a 1px border and 6px corners', async () => {

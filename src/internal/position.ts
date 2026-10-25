@@ -16,8 +16,9 @@ export function parsePlacement(p: string | undefined, fallback: Placement): [Sid
 }
 
 /** Where to put the floating element (left, top in viewport px), the side it ended up on, and a maxHeight when it's
-    taller than the room it has: then it takes that height and scrolls inside, so all of it stays on screen. */
-export function place(anchor: DOMRect, floating: { width: number; height: number }, placement: string | undefined, offset: number, fallback: Placement = "top", margin = 8): { x: number; y: number; side: Side; maxHeight?: number } {
+    taller than the room it has: then it takes that height and scrolls inside, so all of it stays on screen. On the
+    left or right, a maxWidth too when it's wider than the room beside the anchor (its text wraps instead). */
+export function place(anchor: DOMRect, floating: { width: number; height: number }, placement: string | undefined, offset: number, fallback: Placement = "top", margin = 8): { x: number; y: number; side: Side; maxHeight?: number; maxWidth?: number } {
   // The part of the page on screen: the visual viewport where there is one, which a phone's on-screen keyboard
   // shrinks and pinch-zoom moves; anchor and result are in layout-viewport px, as getBoundingClientRect gives them.
   const vv = typeof window !== "undefined" ? window.visualViewport : null;
@@ -35,7 +36,7 @@ export function place(anchor: DOMRect, floating: { width: number; height: number
   // Flip when only the other side fits; when neither does, take the side with more room.
   const other = OPPOSITE[side];
   if (space(side) < need(side) && (space(other) >= need(other) || space(other) > space(side))) side = other;
-  let x: number, y: number, height = floating.height, maxHeight: number | undefined;
+  let x: number, y: number, height = floating.height, maxHeight: number | undefined, maxWidth: number | undefined;
   if (side === "top" || side === "bottom") {
     if (height > space(side)) height = maxHeight = Math.max(0, Math.floor(space(side)));
     y = side === "top" ? anchor.top - offset - height : anchor.bottom + offset;
@@ -44,22 +45,34 @@ export function place(anchor: DOMRect, floating: { width: number; height: number
     x = Math.min(Math.max(x, L + margin), Math.max(L + margin, R - margin - floating.width));
   } else {
     if (height > B - T - 2 * margin) height = maxHeight = Math.max(0, Math.floor(B - T - 2 * margin));
-    x = side === "left" ? anchor.left - offset - floating.width : anchor.right + offset;
+    let width = floating.width;
+    if (width > space(side)) width = maxWidth = Math.max(0, Math.floor(space(side)));
+    x = side === "left" ? anchor.left - offset - width : anchor.right + offset;
+    x = Math.min(Math.max(x, L + margin), Math.max(L + margin, R - margin - width));
     y = align === "start" ? anchor.top : align === "end" ? anchor.bottom - height : anchor.top + (anchor.height - height) / 2;
     y = Math.min(Math.max(y, T + margin), Math.max(T + margin, B - margin - height));
   }
-  return maxHeight === undefined ? { x: Math.round(x), y: Math.round(y), side } : { x: Math.round(x), y: Math.round(y), side, maxHeight };
+  const out: { x: number; y: number; side: Side; maxHeight?: number; maxWidth?: number } = { x: Math.round(x), y: Math.round(y), side };
+  if (maxHeight !== undefined) out.maxHeight = maxHeight;
+  if (maxWidth !== undefined) out.maxWidth = maxWidth;
+  return out;
 }
 
 /** Places `layer` next to `anchor` with place(): its left, top and data-side, and a max-height with overflow-y: auto
     while it's taller than the room it has. It's measured at its own height each time, so it grows back when there's
     room again, and it keeps its scroll position. */
+// The max-width the layer had before placeLayer first set one (a style prop's, or none), put back on each call.
+const ownMaxWidth = new WeakMap<HTMLElement, string>();
+
 export function placeLayer(layer: HTMLElement, anchor: Element, placement: string | undefined, offset: number, fallback?: Placement): void {
   const scroll = layer.scrollTop;
-  layer.style.maxHeight = ""; layer.style.overflowY = "";
+  if (!ownMaxWidth.has(layer)) ownMaxWidth.set(layer, layer.style.maxWidth);
+  const own = ownMaxWidth.get(layer)!;
+  layer.style.maxHeight = ""; layer.style.overflowY = ""; layer.style.maxWidth = own;
   const r = place(anchor.getBoundingClientRect(), { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback);
   layer.style.left = r.x + "px"; layer.style.top = r.y + "px"; layer.dataset.side = r.side;
   if (r.maxHeight !== undefined) { layer.style.maxHeight = r.maxHeight + "px"; layer.style.overflowY = "auto"; }
+  if (r.maxWidth !== undefined) layer.style.maxWidth = own ? "min(" + own + ", " + r.maxWidth + "px)" : r.maxWidth + "px";
   layer.scrollTop = scroll;
 }
 

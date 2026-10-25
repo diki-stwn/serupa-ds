@@ -18,6 +18,8 @@ interface ButtonOwnProps {
     icon?: IconSource;
     loading?: boolean;
     loadingText?: string;
+    disabledReason?: string;
+    successText?: string;
 }
 interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
     href?: undefined;

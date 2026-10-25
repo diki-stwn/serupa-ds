@@ -190,7 +190,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
         return (
           <li key={key} data-key={String(key)} className={cn("dk-sortable-list__item", dragging && "dk-sortable-list__item--dragging")} data-state={dragging ? "dragging" : undefined}>
             {props.disabled ? null : (
-              <button type="button" className="dk-sortable-list__handle" aria-label={name + " " + label(it)} aria-describedby={hintId} aria-pressed={dragging && !drag!.pointer}
+              <button type="button" className="dk-sortable-list__handle" aria-label={name + " " + label(it)} aria-describedby={hintId} aria-pressed={dragging && !drag.pointer}
                 ref={(n) => { if (n) handles.current.set(key, n); else handles.current.delete(key); }}
                 onClick={onClick(key, index)} onKeyDown={onKeyDown} onBlur={onBlur}
                 onPointerDown={onPointerDown(key)}>

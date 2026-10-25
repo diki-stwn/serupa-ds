@@ -11,7 +11,7 @@ type Item = { id: string; name: string };
 const ITEMS: Item[] = ['Apollo', 'Gemini', 'Mercury', 'Artemis'].map((name) => ({ id: name.toLowerCase(), name }));
 const names = () => [...document.querySelectorAll('#sl .dk-sortable-list__content')].map((n) => n.textContent);
 const handle = (name: string) => document.querySelector(`#sl button[aria-label$=" ${name}"]`) as HTMLButtonElement;
-const announcer = () => document.querySelector('[data-dk-announcer]') as HTMLElement | null;
+const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 const said = (text: string | RegExp) => expect.poll(() => announcer()?.textContent || '', { timeout: 3000 }).toMatch(text);
 
 function List({ moves, disabled }: { moves?: Array<{ from: number; to: number }>; disabled?: boolean }) {

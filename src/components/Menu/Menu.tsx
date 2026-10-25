@@ -137,7 +137,7 @@ export function keyShortcuts(shortcut: string): string {
   for (const token of shortcut.trim().split(/\s*[+\s]\s*/).filter(Boolean)) {
     // Mac symbols are written together ("⌘⇧K"): split off each modifier symbol.
     let rest = token;
-    while (rest.length > 1 && KEY_NAMES[rest[0]!] && /[⌘⌥⇧⌃]/.test(rest[0]!)) { parts.push(KEY_NAMES[rest[0]!]!); rest = rest.slice(1); }
+    while (rest.length > 1 && KEY_NAMES[rest[0]] && /[⌘⌥⇧⌃]/.test(rest[0])) { parts.push(KEY_NAMES[rest[0]]); rest = rest.slice(1); }
     const named = KEY_NAMES[rest] || KEY_NAMES[rest.toLowerCase()];
     parts.push(named || (rest.length === 1 ? rest.toUpperCase() : rest));
   }
