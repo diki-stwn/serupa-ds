@@ -48,10 +48,24 @@ function numeric(locale?: string): Intl.DateTimeFormat {
   if (!f) numericFormats.set(key, f = new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit", calendar: "gregory", numberingSystem: "latn" }));
   return f;
 }
+type Field = "day" | "month" | "year";
+// module state: a cache by locale, as numericFormats. A DatePicker reads both on every render and every keystroke.
+const shapes = new Map<string, { order: readonly Field[]; pattern: string }>();
+function shape(locale?: string) {
+  const key = locale || "";
+  let s = shapes.get(key);
+  if (!s) {
+    const parts = numeric(locale).formatToParts(new Date(2001, 10, 22));
+    shapes.set(key, s = {
+      order: Object.freeze(parts.filter((p) => p.type === "day" || p.type === "month" || p.type === "year").map((p) => p.type as Field)),
+      pattern: parts.map((p) => (p.type === "day" ? "dd" : p.type === "month" ? "mm" : p.type === "year" ? "yyyy" : p.value)).join(""),
+    });
+  }
+  return s;
+}
 /** The order and separators of a short numeric date in the locale: ["month", "day", "year"] for en-US. */
-export function dateOrder(locale?: string): ("day" | "month" | "year")[] {
-  const parts = numeric(locale).formatToParts(new Date(2001, 10, 22));
-  return parts.filter((p) => p.type === "day" || p.type === "month" || p.type === "year").map((p) => p.type as "day" | "month" | "year");
+export function dateOrder(locale?: string): Field[] {
+  return shape(locale).order.slice();
 }
 /** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22, or digits alone: 11222001), or null. A one- or two-digit
  * year is the one within 50 years of now (in 2026: 85 is 1985, 30 is 2030, 75 is 2075 and 77 is 1977), so a birth
@@ -92,6 +106,5 @@ function fromParts(nums: string[], order: readonly string[], now: Date): Date | 
 export const formatDate = (d: Date, locale?: string) => numeric(locale).format(d);
 /** What to type, in the locale's order: mm/dd/yyyy, dd.mm.yyyy. */
 export function datePattern(locale?: string): string {
-  const parts = numeric(locale).formatToParts(new Date(2001, 10, 22));
-  return parts.map((p) => (p.type === "day" ? "dd" : p.type === "month" ? "mm" : p.type === "year" ? "yyyy" : p.value)).join("");
+  return shape(locale).pattern;
 }

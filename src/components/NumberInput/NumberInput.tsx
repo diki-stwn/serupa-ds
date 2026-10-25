@@ -47,6 +47,9 @@ export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" 
   minorUnits?: boolean;
 }
 
+// Format options back from their JSON key, so a memo can depend on the options by value.
+const keyed = (key: string) => (key ? (JSON.parse(key) as Intl.NumberFormatOptions) : undefined);
+
 /* NumberInput: a field for a number, with − and + buttons at the end. role="spinbutton" with aria-valuenow,
    min and max. ArrowUp and ArrowDown change it by step, PageUp, PageDown and Shift+arrows by largeStep steps,
    Home and End go to min and max. People can type freely, in the locale's marks ("1.500" is 1500 in id-ID); on blur
@@ -71,15 +74,17 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const min = props.min != null && isFinite(props.min) ? (major(props.min) as number) : undefined;
   const max = props.max != null && isFinite(props.max) ? (major(props.max) as number) : undefined;
   // Money keeps the decimals it's shown with (19.99 with a step of 1), so what people see is the value.
+  // formatOptions by value: the memos read the options back from their key (keyed), so an inline object doesn't redo them.
   const optionsKey = formatOptions ? JSON.stringify(formatOptions) : "";
-  const shownPlaces = React.useMemo(() => formatOptions?.style === "currency" ? new Intl.NumberFormat(locale, formatOptions).resolvedOptions().maximumFractionDigits ?? 0 : 0,
-    [locale, optionsKey]);   // eslint-disable-line react-hooks/exhaustive-deps -- formatOptions by value
+  const shownPlaces = React.useMemo(() => { const o = keyed(optionsKey); return o?.style === "currency" ? new Intl.NumberFormat(locale, o).resolvedOptions().maximumFractionDigits ?? 0 : 0; },
+    [locale, optionsKey]);
   const places = Math.max(gridPlaces(min, step), shownPlaces);
   const controlled = props.value !== undefined;
   const [ownValue, setOwnValue] = React.useState<number | null>(major(props.defaultValue) ?? null);
   const value = controlled ? (major(props.value) ?? null) : ownValue;
   // What the shown number is multiplied by: 100 for the percent style, 1 otherwise.
-  const scale = formatOptions ? parseNumber(formatNumber(1, locale, formatOptions), locale) || 1 : 1;
+  const scale = React.useMemo(() => { const o = keyed(optionsKey); return o ? parseNumber(formatNumber(1, locale, o), locale) || 1 : 1; },
+    [locale, optionsKey]);
   const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, formatOptions));
   const shown = show(value);
   const [text, setText] = React.useState(shown);
