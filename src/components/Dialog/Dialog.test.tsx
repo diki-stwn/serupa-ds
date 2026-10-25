@@ -5,6 +5,7 @@ import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
+import { topModal } from '../../internal/layers';
 import { Dialog } from './Dialog';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -208,5 +209,30 @@ describe('Dialog', () => {
     const c = getComputedStyle(panel('tok')).backgroundColor;
     d.close();
     expect(c).toBe('rgb(1, 2, 3)');
+  });
+
+  test('fullScreen: true fills the screen with square corners and the footer at the bottom; "mobile" only under 640px (idea 53)', async () => {
+    await render(<>
+      <Dialog id="fs" open fullScreen title="Edit profile" footer={<Button>Save</Button>}><p>Body</p></Dialog>
+    </>);
+    await settled();
+    const r = panel('fs').getBoundingClientRect(), s = getComputedStyle(panel('fs'));
+    expect([Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height), s.borderTopLeftRadius]).toEqual([0, 0, 1000, 700, '0px']);
+    const foot = panel('fs').querySelector('.dk-dialog__footer')!.getBoundingClientRect();
+    expect(Math.round(foot.bottom)).toBe(700 - 24);
+  });
+
+  test('fullScreen="mobile": a centered panel on a wide screen, the whole screen on a phone', async () => {
+    await render(<Dialog id="fm" open fullScreen="mobile" title="Filters"><p>Body</p></Dialog>);
+    await settled();
+    expect(Math.round(panel('fm').getBoundingClientRect().width)).toBe(512);
+    await page.viewport(390, 700);
+    await expect.poll(() => { const r = panel('fm').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }).toEqual([390, 700]);
+  });
+
+  test('StrictMode: a Dialog open on mount stays on the modal stack, so toasts and announcements move into it (A1)', async () => {
+    await render(<React.StrictMode><Dialog id="sm" open title="Opened on mount" /></React.StrictMode>);
+    await expect.poll(() => isOpen('sm')).toBe(true);
+    expect(topModal()).toBe(dlg('sm'));
   });
 });

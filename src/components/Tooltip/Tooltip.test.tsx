@@ -79,6 +79,19 @@ describe('Tooltip', () => {
     expect(isOpen('c')).toBe(false);
   });
 
+  test('a tap doesn\'t open it later (touch pointerenter, then the compatibility mouseenter), and a press outside hides an open one', async () => {
+    await render(<><Tooltip content="Save" delay={50}><button id="t">Save</button></Tooltip><p id="out">Page</p></>);
+    const b = el('t'), fire = (type: string, init: PointerEventInit = { pointerType: 'touch' }) => b.dispatchEvent(new PointerEvent(type, { bubbles: type !== 'pointerenter', ...init }));
+    fire('pointerenter'); fire('pointerdown'); fire('pointerup');
+    b.dispatchEvent(new MouseEvent('mouseenter')); b.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    await settle(150);
+    expect(isOpen('t')).toBe(false);
+    await userEvent.hover(b);
+    await expect.poll(() => isOpen('t')).toBe(true);
+    el('out').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse' }));
+    await expect.poll(() => isOpen('t')).toBe(false);
+  });
+
   test('controlled: hovering only asks (onOpenChange(true)); open decides. disabled: never shows', async () => {
     const opens: boolean[] = [];
     let setOpen: (v: boolean) => void = () => {};

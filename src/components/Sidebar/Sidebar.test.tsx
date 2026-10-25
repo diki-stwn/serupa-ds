@@ -160,6 +160,32 @@ describe('Sidebar', () => {
     await userEvent.keyboard('{Escape}');
   });
 
+  test('a group opens and shows active when a grandchild is the current page', async () => {
+    await render(<Sidebar id="snest" collapsed={false}>
+      <I icon="folder" label="Docs" id="gdocs">
+        <I label="Guides" id="gguides"><I href="#g1" label="Getting started" active id="ig1" /></I>
+        <I as={RouterLink} {...{ to: '/api' }} label="API" />
+      </I>
+    </Sidebar>);
+    // Expanded: Docs and Guides open, and both show as active, though only a grandchild is the current page.
+    expect([el('gdocs').getAttribute('aria-expanded'), el('gguides').getAttribute('aria-expanded'), el('gdocs').classList.contains('dk-sidebar__item--active'), el('ig1').getAttribute('aria-current')]).toEqual(['true', 'true', true, 'page']);
+  });
+
+  test('collapsed rail menu: router links stay router links, and the current page is marked', async () => {
+    await render(<Sidebar id="srail" collapsed>
+      <I icon="folder" label="Docs" id="grail">
+        <I href="#intro" label="Intro" active />
+        <I as={RouterLink} {...{ to: '/api' }} label="API" target="_self" />
+      </I>
+    </Sidebar>);
+    await userEvent.click(el('grail'));
+    const menu = () => [...document.querySelectorAll('[role="menu"]')].find((x) => x.matches(':popover-open'));
+    await expect.poll(() => !!menu()).toBe(true);
+    const items = [...menu()!.querySelectorAll('[role="menuitem"]')];
+    expect(items.map((i) => [i.tagName, i.getAttribute('href'), i.getAttribute('aria-current'), i.hasAttribute('data-router'), i.getAttribute('target')].join(':'))).toEqual(['A:#intro:page:false:', 'A:#router/api::true:_self']);
+    await userEvent.keyboard('{Escape}');
+  });
+
   test('contrast: items, the current page and hovered items, and section titles keep 4.5:1 in all six themes', async () => {
     await render(<App />);
     const still = document.createElement('style'); still.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
