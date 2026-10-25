@@ -44,6 +44,7 @@ import { RelativeTime } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<time>`. |
 | `date` | `Date \| number \| string` | | The moment. An invalid date renders an empty `<time>`. |
 | `format` | `'long' \| 'short' \| 'narrow'` | `'long'` | "3 minutes ago", "3 min. ago", "3m ago". |
 | `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". |

@@ -84,6 +84,8 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `defaultOpen` | boolean | `false` | Open at first, without controlling it |
 | `aria-label` | string | | The menu's name. Without it, the button's text names it |
 
+`id` isn't a prop. Put an id on the trigger, which keeps it; the menu panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
+
 ### MenuItem
 
 | Prop | Type | Default | What it does |

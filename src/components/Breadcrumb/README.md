@@ -50,6 +50,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `children` | BreadcrumbItems | none | From the top level to the current page |
 | `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left pages |
 | `maxItems` | number (2 or more) | no limit | Shows the first item, "…", then the last `maxItems - 1`. Pressing "…" shows them all and moves focus to the first one it showed |

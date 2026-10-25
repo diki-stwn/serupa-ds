@@ -65,6 +65,7 @@ import { Carousel, Image } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<section>`. |
 | `children` | `ReactNode` | | One slide per child. |
 | `label` | `string` | | Required. What the carousel shows; it names the region. |
 | `index` | `number` | | The slide shown (from 0), when you control it. |

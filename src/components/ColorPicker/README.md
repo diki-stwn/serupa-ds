@@ -52,6 +52,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. A label click then focuses the picked swatch. |
 | `swatches` | `Array<{ value, label } \| string>` | | The colors, as hex. A bare hex is named from its color ("Dark blue"). |
 | `value` | `string \| null` | | Controlled, as hex. |
 | `defaultValue` | `string \| null` | | Uncontrolled. |

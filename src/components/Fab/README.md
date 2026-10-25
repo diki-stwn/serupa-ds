@@ -48,6 +48,7 @@ const { Fab } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element (24px) |
 | `label` | string | required | Shown next to the icon when extended; otherwise its `aria-label` and `title` |
 | `extended` | boolean | `false` | Shows the label: a 56px pill instead of a circle |
