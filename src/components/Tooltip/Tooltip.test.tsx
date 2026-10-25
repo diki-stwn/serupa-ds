@@ -66,22 +66,21 @@ describe('Tooltip', () => {
     await userEvent.hover(el('a'));
     await settle(200);
     expect(isOpen('a')).toBe(false);
-    await settle(350);
+    await expect.poll(() => isOpen('a')).toBe(true);
     const t = tipOf('a'), a = el('a');
-    expect([isOpen('a'), t.dataset.side, t.matches(':popover-open')]).toEqual([true, 'top', true]);
+    expect([t.dataset.side, t.matches(':popover-open')]).toEqual(['top', true]);
     expect(near(rect(a).top - rect(t).bottom, 6)).toBe(true);
     expect(near(rect(t).left + rect(t).width / 2, rect(a).left + rect(a).width / 2)).toBe(true);
     await away();
     await settle(50);
     expect(isOpen('a')).toBe(true);
-    await settle(150);
-    expect(isOpen('a')).toBe(false);
+    await expect.poll(() => isOpen('a')).toBe(false);
   });
 
   test('the pointer can move onto the tooltip without it closing (hoverable); Escape hides it even while hovered (dismissible)', async () => {
     await render(<div style={{ padding: '120px 200px' }}><Tooltip content="Edit the file"><button id="a">Edit</button></Tooltip></div>);
     await userEvent.hover(el('a'));
-    await settle(500);
+    await expect.poll(() => isOpen('a')).toBe(true);
     await userEvent.hover(tipOf('a'));
     await settle(300);
     expect(isOpen('a')).toBe(true);
@@ -144,28 +143,22 @@ describe('Tooltip', () => {
       <div style={{ overflow: 'hidden', width: '60px', height: '30px', position: 'relative', margin: '120px 200px' }}><Tooltip content="Not clipped by overflow hidden" delay={0}><button id="h">Clip</button></Tooltip></div>
     </>);
     await userEvent.hover(el('g'));
-    await settle(100);
-    const g = rect(tipOf('g'));
-    expect([tipOf('g').dataset.side, g.top >= 0 && g.left >= 0 && g.right <= innerWidth && g.bottom <= innerHeight]).toEqual(['bottom', true]);
+    await expect.poll(() => { const g = rect(tipOf('g')); return [tipOf('g').dataset.side, isOpen('g') && g.top >= 0 && g.left >= 0 && g.right <= innerWidth && g.bottom <= innerHeight]; }).toEqual(['bottom', true]);
     await userEvent.hover(el('h'));
-    await settle(100);
-    const t = tipOf('h'), r = rect(t), hit = document.elementFromPoint(r.left + 4, r.top + r.height / 2);
-    expect(t.contains(hit)).toBe(true);
+    await expect.poll(() => { const t = tipOf('h'), r = rect(t); return isOpen('h') && t.contains(document.elementFromPoint(r.left + 4, r.top + r.height / 2)); }).toBe(true);
   });
 
   test('new text while open places it again, still centered', async () => {
     const tip = (content: string) => <div style={{ padding: '120px 200px' }}><Tooltip content={content} open><button id="n">Name</button></Tooltip></div>;
     const { rerender } = await render(tip('Short'));
     await rerender(tip('A much longer line of text than before'));
-    await settle(50);
-    const t = rect(tipOf('n')), a = rect(el('n'));
-    expect(near(t.left + t.width / 2, a.left + a.width / 2)).toBe(true);
+    await expect.poll(() => { const t = rect(tipOf('n')), a = rect(el('n')); return t.width > 100 && near(t.left + t.width / 2, a.left + a.width / 2); }).toBe(true);
   });
 
   test('look: text-xs, 6px corners, 4px 8px padding, 240px at most; --tooltip-bg overrides one', async () => {
     await render(<Tooltip content="Tokens" delay={0} style={{ '--tooltip-bg': 'rgb(1, 2, 3)' } as React.CSSProperties}><button id="f">Tokens</button></Tooltip>);
     await userEvent.hover(el('f'));
-    await settle(100);
+    await expect.poll(() => isOpen('f')).toBe(true);
     const s = getComputedStyle(tipOf('f'));
     expect([s.backgroundColor, s.fontSize, s.borderTopLeftRadius, s.padding, s.maxWidth]).toEqual(['rgb(1, 2, 3)', '12px', '6px', '4px 8px', '240px']);
   });
@@ -178,16 +171,14 @@ describe('Tooltip', () => {
     }
     await render(<InDialog />);
     await userEvent.click(el('dopen'));
-    await settle(300);
+    await expect.poll(() => (el('tdlg') as HTMLDialogElement).open).toBe(true);
     await userEvent.hover(el('i'));
-    await settle(100);
-    expect(isOpen('i')).toBe(true);
+    await expect.poll(() => isOpen('i')).toBe(true);
     await userEvent.keyboard('{Escape}');
-    await settle(100);
-    expect([isOpen('i'), (el('tdlg') as HTMLDialogElement).open]).toEqual([false, true]);
+    await expect.poll(() => isOpen('i')).toBe(false);
+    expect((el('tdlg') as HTMLDialogElement).open).toBe(true);
     await userEvent.keyboard('{Escape}');
-    await settle(100);
-    expect((el('tdlg') as HTMLDialogElement).open).toBe(false);
+    await expect.poll(() => (el('tdlg') as HTMLDialogElement).open).toBe(false);
   });
 
   test('contrast: the text keeps 4.5:1 on the tooltip in all six themes', async () => {

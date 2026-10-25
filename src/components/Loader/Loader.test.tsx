@@ -553,8 +553,7 @@ describe('Loader', () => {
     await settle(100);
     expect(css(el('quick')).visibility).toBe('hidden');
     hide();
-    await settle(500);
-    expect(document.getElementById('quick')).toBeNull();
+    await expect.poll(() => document.getElementById('quick')).toBeNull();
   });
 
   test('reduced motion: the label is plain text; the ring a steady quarter arc turning slowly (3s); the dots only fade; the spokes tick at half speed (2s)', async () => {
