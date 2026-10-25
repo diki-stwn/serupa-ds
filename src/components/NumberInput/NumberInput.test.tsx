@@ -152,7 +152,7 @@ describe('NumberInput', () => {
   });
 
   test('step 0.25: ArrowUp 1.5 → 1.75, and 2.333 rounds to 2 decimals (2.33); decimal keyboard', async () => {
-    await render(<NumberInput id="dec" aria-label="Price" defaultValue={1.5} step={0.25} />);
+    await render(<SerupaProvider locale="en-US"><NumberInput id="dec" aria-label="Price" defaultValue={1.5} step={0.25} /></SerupaProvider>);
     field('dec').focus();
     await userEvent.keyboard('{ArrowUp}');
     const up = field('dec').value;
@@ -162,7 +162,7 @@ describe('NumberInput', () => {
   });
 
   test('from a typed value off the grid, the first step lands on the grid point that way: 0.1 ↑ is 0.25, 0.1 ↓ is 0, 0.6 PageUp is 3; on the grid it steps as before (CC1)', async () => {
-    await render(<NumberInput id="snap" aria-label="Amount" step={0.25} largeStep={10} />);
+    await render(<SerupaProvider locale="en-US"><NumberInput id="snap" aria-label="Amount" step={0.25} largeStep={10} /></SerupaProvider>);
     const seen: string[] = [];
     for (const [typed, key] of [['0.1', '{ArrowUp}'], ['0.1', '{ArrowDown}'], ['0.6', '{PageUp}'], ['0.5', '{ArrowUp}'], ['-0.1', '{ArrowUp}']]) {
       await fill('snap', typed);
@@ -263,7 +263,7 @@ describe('NumberInput', () => {
   });
 
   test('min with decimals the step doesn\'t have (min 0.5, step 1): ArrowUp from 2.5 is 3.5, and from Home (0.5) is 1.5', async () => {
-    await render(<NumberInput id="half" aria-label="Half" min={0.5} max={5.5} step={1} defaultValue={2.5} />);
+    await render(<SerupaProvider locale="en-US"><NumberInput id="half" aria-label="Half" min={0.5} max={5.5} step={1} defaultValue={2.5} /></SerupaProvider>);
     await userEvent.click(field('half'));
     await userEvent.keyboard('{ArrowUp}');
     expect(field('half').value).toBe('3.5');

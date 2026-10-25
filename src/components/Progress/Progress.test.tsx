@@ -21,7 +21,8 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div></SerupaProvider>;
 
 describe('Progress', () => {
   test('bar: a progressbar with valuenow 45, min 0, max 100 and valuetext "45%", named by its label; ref and className reach the outer box', async () => {
@@ -78,12 +79,12 @@ describe('Progress', () => {
   });
 
   test('circle: a 40px progressbar ring (24, 64px for sm, lg), the arc 30% round, the value inside for md and lg only; without a value a quarter arc that turns', async () => {
-    await render(<div>
+    await render(<SerupaProvider locale="en-US"><div>
       <Progress id="c1" variant="circle" value={30} showValue aria-label="Storage" />
       <Progress id="csm" variant="circle" size="sm" value={30} showValue aria-label="sm" />
       <Progress id="clg" variant="circle" size="lg" value={30} showValue aria-label="lg" />
       <Progress id="cind" variant="circle" aria-label="Loading" />
-    </div>);
+    </div></SerupaProvider>);
     const r = (id: string) => el(id).getBoundingClientRect(), dash = (id: string) => el(id).querySelector('.dk-progress__arc')!.getAttribute('stroke-dasharray');
     expect([Math.round(r('c1').width), Math.round(r('c1').height), Math.round(r('csm').width), Math.round(r('clg').width)]).toEqual([40, 40, 24, 64]);
     expect([el('c1').getAttribute('role'), el('c1').getAttribute('aria-valuenow'), el('c1').getAttribute('aria-label'), dash('c1')]).toEqual(['progressbar', '30', 'Storage', '30 100']);

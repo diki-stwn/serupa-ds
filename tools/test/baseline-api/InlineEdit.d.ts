@@ -8,7 +8,7 @@ interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "ch
     defaultValue?: string;
     onValueChange?: (value: string) => void;
     onCancel?: () => void;
-    validate?: (value: string) => React.ReactNode;
+    validate?: (value: string) => Promise<React.ReactNode> | React.ReactNode;
     placeholder?: string;
     size?: "lg" | "md" | "sm";
     editing?: boolean;

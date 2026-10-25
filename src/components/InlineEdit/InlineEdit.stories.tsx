@@ -35,3 +35,11 @@ export const WithValidation: Story = {
     </div>;
   },
 };
+// validate returning a Promise, as a check on the server would: "apollo" is taken.
+export const WithServerCheck: Story = {
+  name: 'With a server check',
+  render: () => <div style={{ maxWidth: '24rem' }}>
+    <InlineEdit label="Slug" defaultValue="apollo-plan" inputProps={{ spellCheck: false }}
+      validate={(v) => new Promise((done) => { setTimeout(() => done(v === 'apollo' ? 'That slug is taken.' : null), 600); })} />
+  </div>,
+};
