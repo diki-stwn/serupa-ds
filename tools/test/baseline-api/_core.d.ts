@@ -50,12 +50,14 @@ interface SerupaProviderProps {
     locale?: string;
     labels?: Partial<SerupaLabels>;
     icons?: Array<IconData | Readonly<Record<string, IconData>>> | IconData | Readonly<Record<string, IconData>>;
+    platform?: "apple" | "other";
     children?: React.ReactNode;
 }
 interface SerupaSettings {
     locale: string | undefined;
     labels: SerupaLabels;
     icons: ReadonlyMap<string, IconData>;
+    platform: "apple" | "other" | undefined;
 }
 declare function SerupaProvider(props: SerupaProviderProps): React.ReactElement;
 declare namespace SerupaProvider {
