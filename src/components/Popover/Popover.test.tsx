@@ -202,4 +202,12 @@ describe('Popover', () => {
     expect(document.getElementById(b.getAttribute('aria-controls')!)!.contains(document.getElementById('tpc'))).toBe(true);
   });
 
+  test('the panel scales in from the point on its edge facing the trigger, level with the trigger\'s centre (EO1)', async () => {
+    await render(<Share />);
+    await userEvent.click(el('tshare'));
+    await expect.poll(() => isOpen('tshare')).toBe(true);
+    const p = panel('tshare'), b = rect(el('tshare')), r = rect(p);
+    const [x, y] = getComputedStyle(p).transformOrigin.split(' ').map(parseFloat);
+    expect([p.dataset.side, Math.round(y), near(r.left + x, b.left + b.width / 2)]).toEqual(['bottom', 0, true]);
+  });
 });

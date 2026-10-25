@@ -14,6 +14,7 @@
   box-shadow: var(--popover-shadow, var(--shadow-lg));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
   animation: dk-popover-in var(--duration-150) var(--ease-out);
+  transform-origin: var(--dk-layer-origin, top);
 }
 .dk-popover[hidden] { display: none; }
 .dk-popover:focus { outline: none; }
