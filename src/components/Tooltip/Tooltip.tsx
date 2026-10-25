@@ -67,10 +67,11 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const [instant, setInstant] = React.useState(false);
   React.useEffect(() => {
     if (!open) return;
-    if (warm.close && warm.owner !== self.current) warm.close();
-    warm.owner = self.current; warm.close = () => set(false, "hover");
+    const me = self.current;
+    if (warm.close && warm.owner !== me) warm.close();
+    warm.owner = me; warm.close = () => set(false, "hover");
     return () => {
-      if (warm.owner === self.current) { warm.owner = null; warm.close = null; }
+      if (warm.owner === me) { warm.owner = null; warm.close = null; }
       warm.until = Date.now() + WARM_MS;
     };
   }, [open, set]);
