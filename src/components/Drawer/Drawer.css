@@ -21,9 +21,13 @@
 .dk-drawer--sm { --dk-drawer-width: var(--drawer-width-sm, var(--container-xs)); }
 .dk-drawer--lg { --dk-drawer-width: var(--drawer-width-lg, var(--container-lg)); }
 .dk-drawer::backdrop { background: var(--drawer-overlay, var(--overlay)); }
-:root:has(.dk-drawer[open]) { overflow: hidden; }
+:root:has(.dk-drawer[open]:not(.dk-drawer--nonmodal)) { overflow: hidden; }
 /* …keeping a classic scrollbar's space, so the page behind doesn't shift (internal/layers.ts sets data-dk-gutter). */
-:root[data-dk-gutter]:has(.dk-drawer[open]) { scrollbar-gutter: stable; }
+:root[data-dk-gutter]:has(.dk-drawer[open]:not(.dk-drawer--nonmodal)) { scrollbar-gutter: stable; }
+/* Non-modal (modal={false}): shown in place, not in the top layer, so it sits over the page by z-index; the
+   full-screen box lets presses through, and only the panel takes them. */
+.dk-drawer--nonmodal { z-index: var(--z-overlay); pointer-events: none; }
+.dk-drawer--nonmodal .dk-drawer__panel { pointer-events: auto; }
 .dk-drawer__panel {
   box-sizing: border-box; display: flex; flex-direction: column; gap: var(--drawer-gap, var(--spacing-4));
   width: var(--dk-drawer-width); max-width: var(--sizing-full); height: var(--sizing-full);

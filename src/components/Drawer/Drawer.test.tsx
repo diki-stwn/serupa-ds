@@ -83,6 +83,39 @@ describe('Drawer', () => {
     await expect.poll(() => asks.join()).toBe('false');
   });
 
+  test('modal={false}: a side panel beside a usable page: not :modal or aria-modal, off the modal stack, the page still clicks and scrolls; Escape inside and the × close it; Escape on the page doesn\'t', async () => {
+    const why: string[] = [], clicks: string[] = [];
+    function Side() {
+      const [open, setOpen] = React.useState(false);
+      return <div style={{ height: '2000px' }}>
+        <Button id="nmopen" onClick={() => setOpen(true)}>Details</Button>
+        <button id="nmpage" onClick={() => clicks.push('page')}>On the page</button>
+        <Drawer id="nm" modal={false} open={open} onOpenChange={(v, d) => { why.push(d.reason); setOpen(v); }} title="Details"><Input id="nmin" aria-label="Note" /></Drawer>
+      </div>;
+    }
+    await render(<Side />);
+    await userEvent.click(el('nmopen'));
+    const d = el('nm') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    expect([d.matches(':modal'), d.getAttribute('aria-modal'), topModal() === d, d.contains(document.activeElement)]).toEqual([false, null, false, true]);
+    const r = panel('nm').getBoundingClientRect();
+    expect([Math.round(r.right), Math.round(r.width)]).toEqual([window.innerWidth, 384]);
+    expect(getComputedStyle(document.documentElement).overflow).not.toBe('hidden');
+    await userEvent.click(el('nmpage'));
+    expect([clicks.join(), d.open, document.activeElement!.id]).toEqual(['page', true, 'nmpage']);
+    await userEvent.keyboard('{Escape}');
+    expect(d.open).toBe(true);
+    el('nmin').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => d.open).toBe(false);
+    expect(document.activeElement!.id).toBe('nmopen');
+    await userEvent.click(el('nmopen'));
+    await expect.poll(() => d.open).toBe(true);
+    await userEvent.click(d.querySelector('button[aria-label="Close"]')!);
+    await expect.poll(() => d.open).toBe(false);
+    expect(why).toEqual(['escape', 'close']);
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     await render(<Drawer id="daf" open title="Filters"><Input id="dafq" aria-label="Search" data-autofocus /></Drawer>);
     await expect.poll(() => (el('daf') as HTMLDialogElement).open).toBe(true);
