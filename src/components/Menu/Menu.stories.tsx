@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Menu, MenuGroup, MenuItem, MenuSeparator, type MenuProps } from './Menu';
+import { Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 
@@ -145,4 +145,27 @@ export const LongLabels: Story = {
       <MenuItem icon="delete" destructive>Delete this project and all of its files for good</MenuItem>
     </>,
   },
+};
+export const Submenus: Story = {
+  args: {
+    trigger: <Button variant="secondary" rightIcon="expand_more">File</Button>,
+    children: <>
+      <MenuItem icon="add" shortcut="⌘N">New</MenuItem>
+      <MenuSub icon="share" label="Share">
+        <MenuItem icon="mail">Email</MenuItem>
+        <MenuItem icon="link">Copy link</MenuItem>
+        <MenuSub label="More apps">
+          <MenuItem>Chat</MenuItem>
+          <MenuItem>Notes</MenuItem>
+        </MenuSub>
+      </MenuSub>
+      <MenuSub icon="drive_file_move" label="Move to">
+        <MenuItem>Drafts</MenuItem>
+        <MenuItem>Archive</MenuItem>
+      </MenuSub>
+      <MenuSeparator />
+      <MenuItem icon="close">Close</MenuItem>
+    </>,
+  },
+  decorators: [frame({ minHeight: 360, paddingInlineEnd: 480 })],
 };

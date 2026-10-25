@@ -219,6 +219,16 @@
             "cssVar": "--menu-offset"
           }
         }
+      },
+      "sub-offset": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-0}",
+        "$description": "The gap between a submenu and the item that opens it (0: the submenu overlaps the menu's padding).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--menu-sub-offset"
+          }
+        }
       }
     },
     "layout": {
