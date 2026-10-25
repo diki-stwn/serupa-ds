@@ -43,6 +43,7 @@ const { Alert, Button } = window.Serupa;
 - In forced-colors mode the box gets a visible border and the icon a system color.
 - The title and message keep 4.5:1 and the icon 3:1 on every tone, in all six themes (`Alert.test.tsx`).
 - **Keyboard:** Tab reaches the buttons and links in `actions`, then, with `onDismiss`, the ×, which Enter or Space presses. The alert itself isn't a Tab stop.
+- **Focus after dismissing:** when the × had focus and `onDismiss` removes the alert, focus moves to the next focusable element after where the alert was, or the one before it at the end of the page, so keyboard and screen reader users keep their place. If `onDismiss` moves focus itself, or keeps the alert on screen, focus is left where it is.
 
 ## Props
 
