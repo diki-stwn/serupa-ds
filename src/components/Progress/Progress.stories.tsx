@@ -35,3 +35,15 @@ export const Circle: Story = {
   </div>,
 };
 export const Indeterminate: Story = { args: { value: undefined, label: 'Preparing your export', showValue: false } };
+/** announceComplete says "Upload: complete" when the value reaches max; press Start to watch it fill. */
+export const AnnounceComplete: Story = {
+  name: 'Announce complete',
+  render: function Render() {
+    const [v, setV] = React.useState(0);
+    React.useEffect(() => { if (v <= 0 || v >= 100) return; const t = setTimeout(() => setV(Math.min(100, v + 20)), 400); return () => clearTimeout(t); }, [v]);
+    return <div style={{ display: 'grid', gap: 'var(--spacing-3)', maxWidth: 320 }}>
+      <Progress label="Upload" value={v} showValue announceComplete />
+      <button type="button" onClick={() => setV(20)}>Start</button>
+    </div>;
+  },
+};
