@@ -104,3 +104,4 @@ Each is an optional override: set it on the page, a container or one switch. The
 | `--switch-thumb-size-sm` / `-md` / `-lg` | `spacing-3` / `spacing-4` / `spacing-5` | Thumb sizes (12, 16, 20px) |
 | `--switch-padding` | `spacing-0.5` | Thumb to the track's ends (2px) |
 | `--switch-gap` | `spacing-2` | Track to label (8px) |
+| `--switch-press-scale` | `scale-90` | Size of the thumb while it's held down (90%). 1 turns it off |

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { cdp, page, server, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Switch } from './Switch';
 
@@ -231,7 +231,7 @@ describe('Switch', () => {
   test('the thumb slides in 150ms, and doesn\'t animate with reduced motion', async () => {
     await setup();
     const dur = () => withMotion(() => css(document.querySelector('.dk-switch__thumb')).transitionDuration + '|' + css(document.querySelector('.dk-switch__input')).transitionDuration);
-    expect(dur()).toBe('0.15s, 0.15s|0.15s');
+    expect(dur()).toBe('0.15s, 0.15s, 0.1s|0.15s');
     if (server.browser === 'chromium') {
       const session = cdp() as unknown as { send: (method: string, params: object) => Promise<unknown> };
       await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
@@ -263,5 +263,16 @@ describe('Switch', () => {
     expect(error).not.toHaveBeenCalled();
     expect(warn).not.toHaveBeenCalled();
     error.mockRestore(); warn.mockRestore();
+  });
+
+  test('pressed: the thumb shrinks to 90% while the row is held and springs back; not when disabled (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<><Switch id="ps">Press me</Switch><Switch id="pd" disabled>Off</Switch></>);
+      const thumb = (id: string) => el(id).nextElementSibling as HTMLElement;
+      expect(css(thumb('ps')).transitionProperty).toContain('scale');
+      await press(el('ps').closest('label')!, () => expect.poll(() => css(thumb('ps')).scale).toBe('0.9'));
+      await expect.poll(() => css(thumb('ps')).scale).toBe('none');
+      await press(el('pd').closest('label')!, () => expect(css(thumb('pd')).scale).toBe('none'));
+    });
   });
 });
