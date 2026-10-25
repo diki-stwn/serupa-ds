@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, elementRef, setRef, useIsoLayoutEffect } from "../../internal/cn";
+import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
@@ -75,7 +76,8 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
     close("blur", false);
   };
 
-  const child = React.Children.only(props.trigger) as React.ReactElement<TriggerProps>;
+  const child = oneElement<TriggerProps>(props.trigger, "Popover", "trigger");
+  useTriggerRef(triggerRef, "Popover");
   const cp = child.props;
   const childRef = elementRef<HTMLElement>(child);
   const trigger = React.cloneElement(child, {

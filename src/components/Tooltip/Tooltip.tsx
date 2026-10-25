@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, elementRef, omit, setRef } from "../../internal/cn";
+import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
@@ -65,7 +66,8 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     return () => document.removeEventListener("keydown", esc, true);
   }, [open, set]);
 
-  const child = React.Children.only(props.children) as React.ReactElement<TriggerProps>;
+  const child = oneElement<TriggerProps>(props.children, "Tooltip", "child");
+  useTriggerRef(anchorRef, "Tooltip");
   /* A Menu, Popover or other component that clones its trigger may be handed this Tooltip as the trigger: the
      props and ref it adds land here, so they go on to the element, with handlers chained after the element's own. */
   const passed = omit(props as TooltipProps & TriggerProps, OWN) as Record<string, unknown>;

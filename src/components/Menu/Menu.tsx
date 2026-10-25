@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, elementRef, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
+import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { config } from "../../internal/config";
 import { type Placement } from "../../internal/position";
 import { typeahead, type Typed } from "../../internal/typeahead";
@@ -97,7 +98,8 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
 
   const onMenuKey = menuKeys(menuRef, typed, close);
 
-  const child = React.Children.only(props.trigger) as React.ReactElement<TriggerProps>;
+  const child = oneElement<TriggerProps>(props.trigger, "Menu", "trigger");
+  useTriggerRef(triggerRef, "Menu");
   const cp = child.props;
   const childRef = elementRef<HTMLElement>(child);
   const trigger = React.cloneElement(child, {
@@ -185,7 +187,8 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
   // From the keyboard, at the focused element's lower start corner.
   const fromElement = (el: EventTarget) => { const r = (el instanceof Element ? el : targetRef.current || document.body).getBoundingClientRect(); show(r.left, r.bottom); };
 
-  const child = React.Children.only(props.target) as React.ReactElement<TriggerProps>;
+  const child = oneElement<TriggerProps>(props.target, "ContextMenu", "target");
+  useTriggerRef(targetRef, "ContextMenu");
   const cp = child.props;
   const childRef = elementRef<HTMLElement>(child);
   const target = React.cloneElement(child, {
