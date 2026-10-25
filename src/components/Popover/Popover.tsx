@@ -5,6 +5,7 @@ import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
+import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -24,7 +25,8 @@ export interface PopoverProps {
   open?: boolean;
   /** Open at first (uncontrolled). Default: false. */
   defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Called when it asks to open or close, with why: { reason: 'trigger' | 'escape' | 'outside' | 'blur' | 'close' }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Its name for screen readers when it has no title. */
   "aria-label"?: string;
   /** Where focus goes when it opens: 'first' (default: the first control inside, or the panel) or 'panel'. */
@@ -48,11 +50,11 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean) => { if (!controlled) setInner(v); if (ask.current) ask.current(v); }, [controlled]);
-  const close = React.useCallback((focusTrigger = true) => { set(false); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
+  const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const focusFirst = props.initialFocus !== "panel";
 
-  useAnchoredLayer(open, panelRef, triggerRef, { placement: props.placement, offsetVar: "--dk-popover-offset", onOutside: () => close(false), inside: triggerRef });
+  useAnchoredLayer(open, panelRef, triggerRef, { placement: props.placement, offsetVar: "--dk-popover-offset", onOutside: () => close("outside", false), inside: triggerRef });
   // On open, focus moves inside (a press outside the panel and its trigger closes it; focus stays where the press put it).
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
@@ -62,7 +64,7 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
   }, [open]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); }
+    if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close("escape", true); }
   };
   // Focus leaving for somewhere other than the trigger closes it.
   const onBlur = (e: React.FocusEvent<HTMLDivElement>) => {
@@ -70,7 +72,7 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
     if (!to) return;
     if (panelRef.current && panelRef.current.contains(to)) return;
     if (triggerRef.current && triggerRef.current.contains(to)) return;
-    close(false);
+    close("blur", false);
   };
 
   const child = React.Children.only(props.trigger) as React.ReactElement<TriggerProps>;
@@ -81,11 +83,11 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
     "aria-haspopup": "dialog",
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
-    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; set(!open); },
+    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; set(!open, "trigger"); },
   });
   const titled = props.title != null && props.title !== false && props.title !== "";
   const H = ("h" + ([2, 3, 4, 5, 6].indexOf(props.headingLevel as number) >= 0 ? props.headingLevel : 2)) as "h2";
-  const content = typeof props.children === "function" ? (props.children as (c: () => void) => React.ReactNode)(() => close(true)) : props.children;
+  const content = typeof props.children === "function" ? (props.children as (c: () => void) => React.ReactNode)(() => close("close", true)) : props.children;
   return (
     <>
       {trigger}

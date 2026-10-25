@@ -4,6 +4,20 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [9.5.0] - 2026-10-25
+
+### Added
+
+- `defaultOpen` on Dialog and Drawer, so they can be open on arrival without a state of their own. `open` is now optional: without it, Escape, the × and the backdrop close them by themselves, and `onOpenChange(false)` still comes. Menu, Popover and Tooltip already had `defaultOpen`; their tests now cover it.
+
+### Changed
+
+- IconButton's ref type is now declared as `IconButtonElement` (`HTMLButtonElement | HTMLAnchorElement`, the same type as before). The type declarations then print it the same way on every build, so index.d.ts no longer changes from one build to the next.
+
+### Fixed
+
+- CheckboxGroup's `selectAll` box rendered disabled and unchecked on the server, and so until hydration, even when `defaultValue` checked some or all boxes. It now counts the Checkboxes among the group's children until they register, so it is enabled and checked or mixed from the first paint.
+
 ## [9.4.0] - 2026-10-25
 
 ### Added
