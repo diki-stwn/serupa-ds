@@ -2,7 +2,7 @@
 interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
     open?: boolean;
     defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     side?: "bottom" | "left" | "right" | "top";
     size?: "lg" | "md" | "sm";
     title?: React.ReactNode;
