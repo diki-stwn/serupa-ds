@@ -35,12 +35,14 @@ const [cents, setCents] = React.useState<number | null>(1999);
 
 ## Behavior
 
-- On blur the text is parsed in the locale's marks, clamped, rounded to the step's decimals and written back in the locale's form. The locale's group mark counts as grouping only when the digits are grouped in threes, so `1.500` is 1500 in `id-ID` and `de-DE`, and `9.5` or `9,5` is 9.5 in any locale. Spaces, a currency symbol or %, a typographic minus and digits in other scripts are accepted. Text that isn't a number goes back to the last number.
+- On blur the text is parsed in the locale's marks, clamped, rounded to the step's decimals and written back in the locale's form. The locale's group mark counts as grouping only when the digits are grouped in threes, so `1.500` is 1500 in `id-ID` and `de-DE`, and `9.5` or `9,5` is 9.5 in any locale. Spaces, a currency symbol or %, a typographic minus and digits in other scripts are accepted. Text that isn't a number goes back to the last number, and screen readers are told ("\"abc\" wasn't accepted, so the previous value was kept.").
+- A typed number outside `min`..`max` is brought back within them on blur or Enter, as spinbuttons do. `onInvalidInput(text, "range")` tells the app, so a form can say "Quantity was reduced to 100"; text that isn't a number calls it with `"unreadable"`.
 - **Forms get the number.** With `name`, the form submits the number itself from a hidden input (`1500000`, not "Rp 1.500.000"; whole cents with `minorUnits`, so `1999` for $19.99), and the visible field has no name. `form` works for a field outside its form. A disabled field sends nothing.
 - **Form reset** puts `defaultValue` back, in the field and in what the form sends. A controlled field shows its `value` again.
 - Leave `locale` unset in most products so it follows the `SerupaProvider` locale, or the visitor's browser without one.
 - A typed number outside the limits isn't reported until blur, so a half-typed number never jumps.
 - The buttons are out of the Tab order, since the arrow keys do the same, and are disabled at the limits.
+- Holding − or + repeats: one step on the press, then after 400ms one every 50ms, until the pointer goes up or leaves the button, Escape is pressed, or the limit is reached. A screen reader's click is one step.
 
 ## Accessibility
 
@@ -68,6 +70,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `prefix`, `suffix`, `plac
 | `defaultValue` | `number \| null` | | Uncontrolled. |
 | `onValueChange` | `(value: number \| null) => void` | | As people type (numbers within range), on blur (clamped), and from the keys and buttons. |
 | `min`, `max` | `number` | | Limits. The field snaps into them when it loses focus. |
+| `onInvalidInput` | `(text: string, reason: 'range' \| 'unreadable') => void` | | When typed text isn't kept as it is: a number brought back within `min`..`max`, or text that isn't a number. |
 | `step` | `number` | `1` | How much the arrows and buttons change it. Its decimals set how many the value keeps. |
 | `largeStep` | `number` | `10` | Steps moved by PageUp, PageDown and Shift with an arrow. |
 | `steppers` | `boolean` | `true` | The − and + buttons. |

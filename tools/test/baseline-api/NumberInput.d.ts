@@ -7,6 +7,7 @@ interface NumberInputProps extends Omit<InputProps, "defaultValue" | "max" | "mi
     value?: null | number;
     defaultValue?: null | number;
     onValueChange?: (value: null | number) => void;
+    onInvalidInput?: (text: string, reason: "range" | "unreadable") => void;
     min?: number;
     max?: number;
     step?: number;
