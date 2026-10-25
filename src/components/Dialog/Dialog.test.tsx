@@ -17,10 +17,10 @@ const isOpen = (id: string) => dlg(id).open;
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 type Ctl = { setOpen: (v: boolean) => void; setAlert: (v: boolean) => void; setSize: (s: 'sm' | 'md' | 'lg') => void };
-function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement> }) {
+function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement>; why?: string[] }) {
   const [open, setOpen] = React.useState(false), [al, setAlert] = React.useState(false), [size, setSize] = React.useState<'sm' | 'md' | 'lg'>('md');
   Object.assign(props.ctl, { setOpen, setAlert, setSize });
-  const ask = (k: string, set: (v: boolean) => void) => (v: boolean) => { props.asks.push(k + ':' + v); set(v); };
+  const ask = (k: string, set: (v: boolean) => void) => (v: boolean, d?: { reason: string }) => { props.asks.push(k + ':' + v); if (props.why && d) props.why.push(d.reason); set(v); };
   return <div style={{ height: '2000px' }}>
     <Button id="opener" onClick={() => setOpen(true)}>Open</Button>
     <Button id="aopener" onClick={() => setAlert(true)}>Delete</Button>
@@ -76,9 +76,9 @@ describe('Dialog', () => {
     expect([asks.join(), document.activeElement!.id]).toEqual(['dlg:false', 'opener']);
   });
 
-  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop (selecting text); a click on the backdrop asks to close', async () => {
-    const asks: string[] = [];
-    await render(<App asks={asks} ctl={{}} />);
+  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop (selecting text); a click on the backdrop asks to close, with reason "outside"', async () => {
+    const asks: string[] = [], why: string[] = [];
+    await render(<App asks={asks} why={why} ctl={{}} />);
     await openDlg();
     await userEvent.click(panel('dlg'), { position: { x: 30, y: 120 } });
     expect(isOpen('dlg')).toBe(true);
@@ -90,7 +90,7 @@ describe('Dialog', () => {
     expect([isOpen('dlg'), asks.join(), clicks]).toEqual([true, '', 1]);
     await userEvent.click(el('dlg'), { position: { x: 20, y: 20 } });
     await expect.poll(() => isOpen('dlg')).toBe(false);
-    expect(asks.join()).toBe('dlg:false');
+    expect([asks.join(), why.join()]).toEqual(['dlg:false', 'outside']);
   });
 
   test('a backdrop press with a Popover open inside closes only the Popover; the next one asks to close the Dialog', async () => {
@@ -131,9 +131,9 @@ describe('Dialog', () => {
     expect(isOpen('dlg')).toBe(true);
   });
 
-  test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves, tell onOpenChange(false), and it stays closed', async () => {
-    const asks: boolean[] = [];
-    const one = (k: string) => <Dialog key={k} id="dd" defaultOpen onOpenChange={(v) => asks.push(v)} title="Welcome"><Input aria-label="Name" /></Dialog>;
+  test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves, tell onOpenChange(false) with why, and it stays closed', async () => {
+    const asks: string[] = [];
+    const one = (k: string) => <Dialog key={k} id="dd" defaultOpen onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)} title="Welcome"><Input aria-label="Name" /></Dialog>;
     const screen = await render(one('a'));
     await expect.poll(() => isOpen('dd')).toBe(true);
     expect(dlg('dd').matches(':modal')).toBe(true);
@@ -146,7 +146,7 @@ describe('Dialog', () => {
     await screen.rerender(one('c'));
     await expect.poll(() => isOpen('dd')).toBe(true);
     dlg('dd').close();
-    await expect.poll(() => asks.join()).toBe('false,false,false');
+    await expect.poll(() => asks.join()).toBe('false close,false escape,false api');
     await new Promise((r) => setTimeout(r, 50));
     expect([isOpen('dd'), getComputedStyle(el('dd')).display]).toEqual([false, 'none']);
   });

@@ -2,7 +2,7 @@
 interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
     open?: boolean;
     defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     title?: React.ReactNode;
     description?: React.ReactNode;
     footer?: React.ReactNode;

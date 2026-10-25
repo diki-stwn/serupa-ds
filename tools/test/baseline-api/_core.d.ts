@@ -20,7 +20,7 @@ interface SerupaTheme {
 type Space = 0 | 0.5 | 1 | 1.5 | 10 | 11 | 12 | 14 | 16 | 2 | 2.5 | 20 | 24 | 3 | 3.5 | 4 | 5 | 6 | 7 | 8 | 9;
 type Side = "bottom" | "left" | "right" | "top";
 type Placement = `${Side}-${"end" | "start"}` | Side;
-type OpenChangeReason = "blur" | "close" | "escape" | "outside" | "trigger";
+type OpenChangeReason = "api" | "blur" | "close" | "escape" | "outside" | "trigger";
 interface OpenChangeDetails {
     reason: OpenChangeReason;
 }
