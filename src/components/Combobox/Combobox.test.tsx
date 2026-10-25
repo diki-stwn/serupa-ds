@@ -464,6 +464,6 @@ describe('Combobox multiple (DF1)', () => {
     expect(b.height).toBeGreaterThan(60);
     expect(toggle.right <= b.right && toggle.left >= b.left).toBe(true);
     expect(tags('g').length).toBe(all.length);
-    expect([box('d').textContent!.includes('Egypt'), tags('d')]).toEqual([true, []]);
+    expect([box('d').textContent.includes('Egypt'), tags('d')]).toEqual([true, []]);
   });
 });
