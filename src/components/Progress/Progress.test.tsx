@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Progress } from './Progress';
+import { idLabels } from '../../internal/labels';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const pb = (id: string) => (el(id).querySelector('[role=progressbar]') || el(id));
@@ -119,3 +120,27 @@ describe('Progress', () => {
     expect(css(el('tok').querySelector('.dk-progress__fill')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 });
+
+describe('Progress: done', () => {
+  test('announceComplete says "Upload: complete" once when the value reaches max, not on mount at max or on the way; onComplete runs each time it gets there; own words and Indonesian', async () => {
+    const said: string[] = [], dones: number[] = [];
+    function App(props: { v: number; words?: string }) {
+      return <><Progress id="pdone" label="Upload" value={props.v} announceComplete={props.words || true} onComplete={() => dones.push(props.v)} />
+        <Progress id="pfull" aria-label="Quota" value={100} announceComplete onComplete={() => dones.push(-1)} /></>;
+    }
+    const screen = await render(<App v={10} />);
+    const live = document.querySelector('[data-dk-announcer]')!;
+    const watch = new MutationObserver(() => { if (live.textContent) said.push(live.textContent); });
+    watch.observe(live, { childList: true, characterData: true, subtree: true });
+    await screen.rerender(<App v={60} />);
+    await screen.rerender(<App v={100} />);
+    await expect.poll(() => said.length).toBeGreaterThan(0);
+    await screen.rerender(<App v={30} />);
+    await screen.rerender(<App v={100} words="All files uploaded" />);
+    await expect.poll(() => said.at(-1)).toBe('All files uploaded');
+    watch.disconnect();
+    expect([[...new Set(said)], dones]).toEqual([['Upload: complete', 'All files uploaded'], [100, 100]]);
+    expect([idLabels.progressComplete('Unggah'), idLabels.progressComplete('')]).toEqual(['Unggah: selesai', 'Selesai']);
+  });
+});
+

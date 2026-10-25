@@ -3,7 +3,8 @@ import * as React from "react";
 import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale } from "../../internal/provider";
+import { useLocale, useSerupa } from "../../internal/provider";
+import { announce, ensureAnnouncer } from "../../internal/announce";
 
 export type ProgressTone = 'primary' | 'success' | 'warning' | 'danger';
 export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -24,10 +25,15 @@ export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /** Turns the value into words, shown and read out. Default: the percentage as the locale writes it: "45%", "%45" in
       Turkish, "45 %" in French, "٤٥٪" in Egyptian Arabic. */
   formatValue?: (value: number, max: number) => string;
+  /** Says politely that it's done when the value reaches max: true says "Upload: complete" (the label or aria-label,
+      then labels.progressComplete), or pass your own words. The bar's value changes aren't read out on their own. */
+  announceComplete?: boolean | string;
+  /** Called once each time the value reaches max (not when it starts there). */
+  onComplete?: () => void;
 }
 
 const TONES: readonly ProgressTone[] = ["primary", "success", "warning", "danger"];
-const OWN = { value: 1, max: 1, variant: 1, size: 1, tone: 1, label: 1, showValue: 1, formatValue: 1, className: 1 } as const;
+const OWN = { value: 1, max: 1, variant: 1, size: 1, tone: 1, label: 1, showValue: 1, formatValue: 1, announceComplete: 1, onComplete: 1, className: 1 } as const;
 const PERCENT = { style: "percent", maximumFractionDigits: 0 } as const;
 
 /* Progress: how far along a task is, when you can tell: an upload, a setup, a quota. variant "bar" (default) or
@@ -50,6 +56,22 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   const hasLabel = props.label != null && props.label !== false && props.label !== "";
   const showValue = !!props.showValue && known;
   const share = known ? value / max : 0;
+  // Reaching max is said once, and onComplete called, when the value gets there (not when it renders there).
+  const sds = useSerupa();
+  const done = known && value >= max;
+  const was = React.useRef(done);
+  const name = typeof props.label === "string" ? props.label : typeof rest["aria-label"] === "string" ? rest["aria-label"] : "";
+  const words = props.announceComplete ? (typeof props.announceComplete === "string" ? props.announceComplete : sds.labels.progressComplete(name)) : "";
+  const finish = React.useRef({ words, onComplete: props.onComplete }); finish.current = { words, onComplete: props.onComplete };
+  const speaks = !!props.announceComplete;
+  React.useEffect(() => { if (speaks) ensureAnnouncer(); }, [speaks]);
+  React.useEffect(() => {
+    if (done && !was.current) {
+      if (finish.current.words) announce(finish.current.words);
+      if (finish.current.onComplete) finish.current.onComplete();
+    }
+    was.current = done;
+  }, [done]);
   const aria: React.AriaAttributes & { role?: React.AriaRole } = { role: "progressbar", "aria-valuemin": 0, "aria-valuemax": max };
   if (known) { aria["aria-valuenow"] = value; aria["aria-valuetext"] = text; }
   if (hasLabel && variant === "bar" && !rest["aria-label"] && !rest["aria-labelledby"]) aria["aria-labelledby"] = base + "-label";
