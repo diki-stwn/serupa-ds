@@ -7,7 +7,7 @@ import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
@@ -49,7 +49,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, step: _st, locale: localeProp, hour12: _h, size: _s, invalid: _i, listLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
-  const locale = useLocale(localeProp);
+  const locale = useLocale(localeProp), lang = useOwnLang(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const h12 = props.hour12 ?? uses12h(locale);
@@ -144,7 +144,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; setRef(ref, n); }}
-        type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
+        lang={rest.lang ?? lang} type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : h12 ? "hh:mm am" : "hh:mm"} aria-invalid={invalid || undefined}
         aria-expanded={open} aria-controls={id} aria-autocomplete="none" aria-haspopup="listbox" aria-activedescendant={open ? `${id}-${active}` : undefined}
         onChange={(e) => {
@@ -158,7 +158,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
       {name ? <input type="hidden" name={name} form={rest.form} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
       <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-time-picker__list">
         {open ? times.map((n, i) => (
-          <li key={n} id={`${id}-${i}`} role="option" aria-selected={n === value} data-value={toHHmm(n)}
+          <li key={n} id={`${id}-${i}`} lang={lang} role="option" aria-selected={n === value} data-value={toHHmm(n)}
             className={cn("dk-time-picker__option", i === active && "dk-time-picker__option--active", n === value && "dk-time-picker__option--selected")}
             onMouseDown={(e) => e.preventDefault()} onMouseMove={() => { if (i !== active) { typed.current = false; setActive(i); } }} onClick={() => pick(n)}>
             <span className="dk-time-picker__time">{fmt(n)}</span>

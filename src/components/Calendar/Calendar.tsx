@@ -5,7 +5,7 @@ import { addDays, addMonths, compare, day, firstDayOfWeek, isValid, sameDay, sam
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -77,7 +77,7 @@ const OWN = { value: 1, defaultValue: 1, onValueChange: 1, month: 1, defaultMont
 export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>("Calendar", function Calendar(props, ref) {
   const sds = useSerupa();
   const rest = omit(props, OWN);
-  const locale = useLocale(props.locale);
+  const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const ws = props.weekStartsOn != null ? ((Math.floor(props.weekStartsOn) % 7) + 7) % 7 : firstDayOfWeek(locale);
   const controlledValue = props.value !== undefined;
   const [ownValue, setOwnValue] = React.useState<Date | null>(isValid(props.defaultValue) ? day(props.defaultValue) : null);
@@ -150,11 +150,11 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
       <div className="dk-calendar__header">
         <IconButton icon={<><Icon icon={icons.ChevronLeft} className="dk-calendar__ltr" /><Icon icon={icons.ChevronRight} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
           disabled={!!props.min && compare(addDays(month, -1), props.min) < 0} onClick={() => showMonth(addMonths(month, -1))} />
-        <h2 className="dk-calendar__title" id={titleId} aria-live="polite">{title}</h2>
+        <h2 className="dk-calendar__title" id={titleId} lang={lang} aria-live="polite">{title}</h2>
         <IconButton icon={<><Icon icon={icons.ChevronRight} className="dk-calendar__ltr" /><Icon icon={icons.ChevronLeft} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
           disabled={!!props.max && compare(addMonths(month, 1), props.max) > 0} onClick={() => showMonth(addMonths(month, 1))} />
       </div>
-      <table ref={grid} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
+      <table ref={grid} lang={lang} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
         <thead>
           <tr>{weeks[0].map((d) => <th key={d.getDay()} scope="col" abbr={long.format(d)}><span aria-hidden>{short.format(d)}</span><span className="dk-visually-hidden">{long.format(d)}</span></th>)}</tr>
         </thead>

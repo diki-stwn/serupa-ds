@@ -8,7 +8,7 @@ import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
@@ -51,7 +51,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
-  const locale = useLocale(localeProp);
+  const locale = useLocale(localeProp), lang = useOwnLang(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const controlled = props.value !== undefined;
@@ -102,7 +102,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-date-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="date-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-        type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
+        lang={rest.lang ?? lang} type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined}
         onChange={(e) => setText(e.target.value)}
         onBlur={(e) => { read(); if (onBlur) onBlur(e); }}

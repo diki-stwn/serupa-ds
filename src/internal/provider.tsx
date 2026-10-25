@@ -71,3 +71,10 @@ export function useLocale(own?: string): string {
   const browser = React.useSyncExternalStore(onLanguageChange, browserLocale, () => SERVER_LOCALE);
   return own || fromProvider || browser;
 }
+/** The lang for text a component writes in its own locale prop, when that differs from the locale it would use
+ *  without one (the provider's, else the browser's), so screen readers read "Januari" in an Indonesian voice on an
+ *  English page (F13). undefined when the prop is unset or the same. */
+export function useOwnLang(own?: string): string | undefined {
+  const base = useLocale();
+  return own && own.toLowerCase() !== base.toLowerCase() ? own : undefined;
+}
