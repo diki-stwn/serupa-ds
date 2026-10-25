@@ -5,7 +5,7 @@ A native checkbox with its label, for turning one option on or off, or picking a
 ```jsx
 const { Checkbox, CheckboxGroup, Field } = window.Serupa;
 
-<Checkbox checked={agree} onChange={(e) => setAgree(e.target.checked)}>I accept the terms</Checkbox>
+<Checkbox checked={agree} onCheckedChange={setAgree}>I accept the terms</Checkbox>
 
 <Checkbox defaultChecked description="Get an email when someone mentions you.">Mentions</Checkbox>
 
@@ -95,6 +95,8 @@ const [tags, setTags] = React.useState(["news"]);
 | `readOnly` | boolean | `false` | Focusable and read out (`aria-readonly`), but clicks and Space don't change it; a checked box is still submitted |
 
 | `selectAll` | boolean | `false` | In a `CheckboxGroup`: checks or clears every other box; checked when all are, indeterminate when some are |
+
+`onCheckedChange(checked, event)` runs after `onChange` with the new state, the same shape as ToggleButton's `onPressedChange`, so you needn't read `event.target.checked`. Not on a read-only box.
 
 Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<input type="checkbox">`. In a `CheckboxGroup`, the group sets `name` and `checked` from each box's `value`. `className` and `style` go to the `<label>` around it, which has `data-component="checkbox"` and `data-size`.
 

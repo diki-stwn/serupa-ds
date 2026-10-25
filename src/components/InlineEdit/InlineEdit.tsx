@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { announce, ensureAnnouncer } from "../../internal/announce";
 import { cn, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useAutoFocus } from "../../internal/focus";
@@ -66,6 +67,12 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   const refocus = React.useRef(false);   // a keyboard save or cancel puts focus back on the button
   const closing = React.useRef(false);   // saved or cancelled: the blur from the field going away saves nothing
   const errorId = domId("dk-ie", React.useId()) + "-error";
+  // A failed save keeps focus in the field, and screen readers don't read a focused field's description again, so
+  // the error is said (politely, as Field says its errors), on every failed try, even with the same words.
+  const [tries, setTries] = React.useState(0);
+  const errorText = React.useRef<HTMLSpanElement>(null);
+  React.useEffect(() => { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
+  React.useEffect(() => { const t = errorText.current && errorText.current.textContent; if (tries && t) announce(t); }, [tries]);
 
   const setEditing = (on: boolean) => {
     if (props.editing === undefined) setOwnEditing(on);
@@ -79,7 +86,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
 
   const save = (keyboard: boolean) => {
     const problem = props.validate ? props.validate(draft) : null;
-    if (problem != null && problem !== false && problem !== "") { setError(problem); return; }
+    if (problem != null && problem !== false && problem !== "") { setError(problem); setTries((n) => n + 1); return; }
     refocus.current = keyboard; closing.current = true;
     if (draft !== value) {
       if (!controlled) setOwn(draft);
@@ -124,7 +131,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
           <Icon icon={icons.Edit} className="dk-inline-edit__icon" />
         </button>
       )}
-      {editing && error != null ? <div className="dk-inline-edit__error" id={errorId}><Icon icon={icons.Error} className="dk-inline-edit__error-icon" /><span>{error}</span></div> : null}
+      {editing && error != null ? <div className="dk-inline-edit__error" id={errorId}><Icon icon={icons.Error} className="dk-inline-edit__error-icon" /><span ref={errorText}>{error}</span></div> : null}
     </div>
   );
 });

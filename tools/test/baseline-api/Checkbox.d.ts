@@ -7,6 +7,7 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
     invalid?: boolean;
     readOnly?: boolean;
     selectAll?: boolean;
+    onCheckedChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 interface CheckboxGroupProps<V extends number | string = number | string> extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
     value?: readonly V[];
