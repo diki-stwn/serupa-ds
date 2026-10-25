@@ -51,7 +51,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 
 | Key | Does |
 | --- | --- |
-| ArrowUp, ArrowDown | ± `step` |
+| ArrowUp, ArrowDown | ± `step`. From a typed value between steps, the first press goes to the nearest step that way (0.1 ↑ with `step={0.25}` is 0.25), as the native field and Slider do. Money shown with finer decimals than its step keeps them ($19.99 ↑ with a step of $1 is $20.99) |
 | PageUp, PageDown, Shift+Arrow | ± `largeStep` steps |
 | Home, End | `min`, `max` (when set) |
 | Enter | Tidies the typed number (clamps and rounds it) |

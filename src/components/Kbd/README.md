@@ -54,6 +54,7 @@ Use `mod` for shortcuts that follow the platform. Any other text shows as it is,
 
 - A combination is one `<kbd>` holding a `<kbd>` per key, as HTML recommends. Symbols are hidden from screen readers and replaced with the key's name, through the `keyName` label (so "Panah atas" and "Spasi" in `idLabels`); the + between keys is hidden.
 - Labels and the + keep 4.5:1 in all six themes (`Kbd.test.tsx`).
+- **Keyboard:** none: it shows keys, it doesn't take them.
 
 ## Props
 

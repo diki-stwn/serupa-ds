@@ -23,7 +23,7 @@ export default defineConfig({
   // make React 19 warn "outdated JSX transform" in dev, which the tests that fail on a console warning catch.
   oxc: { jsx: { runtime: 'automatic' } },
   // Bundled up front: found mid-run, Vite re-optimizes and reloads, failing the test files already loading.
-  optimizeDeps: { include: ['react/jsx-dev-runtime', 'react/jsx-runtime'] },
+  optimizeDeps: { include: ['react/jsx-dev-runtime', 'react/jsx-runtime', 'axe-core'] },
   plugins: [{
     // /__slow-picture__.svg answers after a second, so a test can see a picture while it loads in every engine
     // (lazy loading below the fold can't do that: each engine starts lazy pictures at its own distance).

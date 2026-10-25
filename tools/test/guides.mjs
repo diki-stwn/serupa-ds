@@ -8,6 +8,13 @@ import path from 'node:path';
 import { PROJECT, report, done } from './lib.mjs';
 
 const REQUIRED = ['When to use', 'When not to use', 'Usage', 'Accessibility', 'Props', 'Component tokens'];
+// Guides whose Accessibility section doesn't say yet what the keyboard does (X2), to be filled in. The check fails
+// when one is filled in, so the entry gets removed and can't come back.
+const KEYBOARD_GAPS = ['Accordion', 'Alert', 'Badge', 'Breadcrumb', 'Button', 'ButtonGroup', 'Card', 'Checkbox', 'ColorPicker',
+  'CopyButton', 'DateRangePicker', 'Dialog', 'Drawer', 'EmptyState', 'ErrorBoundary', 'Fab', 'Field', 'FileUpload', 'IconButton', 'Image',
+  'InlineEdit', 'Input', 'Link', 'List', 'Navbar', 'Pagination', 'PasswordInput', 'PhoneInput', 'Popover', 'Radio', 'SearchInput',
+  'SegmentedControl', 'Select', 'Sidebar', 'SortableList', 'Stepper', 'Switch', 'Table', 'Textarea', 'TimePicker', 'Toast', 'ToggleButton',
+  'Tooltip', 'VisuallyHidden'];
 const DIR = path.join(PROJECT, 'src', 'components');
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -24,6 +31,16 @@ for (const name of fs.readdirSync(DIR).sort()) {
   const order = REQUIRED.filter((h) => headings.includes(h)).map((h) => headings.indexOf(h));
   const inOrder = order.every((v, i) => !i || v > order[i - 1]);
   t(`${name}: the guide has ${REQUIRED.join(', ')}, in that order`, !missing.length && inOrder, missing.length ? `missing: ${missing.join(', ')}` : `order: ${headings.join(' · ')}`);
+  // What the keyboard does, under Accessibility: a "### Keyboard" part or a "**Keyboard:**" line ("none: it isn't
+  // focusable" is an answer). A component that handles keys itself (keydown in its source) needs a | Key | … | table.
+  const a11y = (md.split(/^## Accessibility\s*$/m)[1] || '').split(/^## /m)[0];
+  const said = /^### Keyboard\b|\*\*Keyboard:\*\*/m.test(a11y);
+  const table = /^\s*\| Key \|/m.test(a11y);
+  const keys = /onKeyDown|keydown/.test(fs.readFileSync(path.join(DIR, name, `${name}.tsx`), 'utf8'));
+  const ok = said && (!keys || table);
+  const why = !said ? 'no "### Keyboard" part or "**Keyboard:**" line under Accessibility' : 'it handles keys: add a | Key | Does | table';
+  if (KEYBOARD_GAPS.includes(name)) t(`${name}: a known keyboard gap is still open (KEYBOARD_GAPS)`, !ok, 'filled in: remove it from KEYBOARD_GAPS');
+  else t(`${name}: the guide says what the keyboard does`, ok, why);
 }
 // The classes the docs name: each word of a class="…" in an example, and each prefixed class in backticks
 // (`md:gap-12`). Utilities have only breakpoint prefixes, so `hover:scale-105` or `focus:not-sr-only` would silently

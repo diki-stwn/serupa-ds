@@ -10,6 +10,7 @@ import { warnOnce } from "../../internal/warn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Loader } from "../Loader/Loader";
+import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import { component } from "../../internal/component";
 import * as icons from "../../material/builtin";
 
@@ -93,6 +94,12 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     const max = Math.max(1, Math.floor(Number(props.max)) || 99);
     if (n === 0 && !props.showZero) return null;   // nothing to count: no badge
     label = displayNumber(Math.min(n, max), locale, PLAIN) + (n > max ? "+" : "");   // the locale's digits, as Calendar's
+    if (n > max) {
+      // "99+" is what shows; screen readers and the tooltip get the real count.
+      const full = displayNumber(n, locale, PLAIN);
+      label = <><span aria-hidden="true">{label}</span><VisuallyHidden>{full}</VisuallyHidden></>;
+      if (rest.title == null) rest.title = full;
+    }
   }
   const isLink = rest.href != null, interactive = isLink || typeof rest.onClick === "function";
   let removable = !isCount && typeof props.onRemove === "function";

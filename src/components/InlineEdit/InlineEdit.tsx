@@ -29,6 +29,8 @@ export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   size?: 'sm' | 'md' | 'lg';
   /** Whether the field is open (controlled). Use with onEditingChange. */
   editing?: boolean;
+  /** Open at first (uncontrolled), with the field focused, such as a new row's name. Default: false. */
+  defaultEditing?: boolean;
   /** Called with true when it opens and false when it closes. */
   onEditingChange?: (editing: boolean) => void;
   /** Shows the text without an edit button. */
@@ -47,14 +49,14 @@ export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    share Input's height and padding, so the page doesn't move. className and other props go to the outer <div>. */
 /** Text people can click to edit in place: Enter or leaving saves, Escape cancels. */
 export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditProps>("InlineEdit", function InlineEdit(props, ref) {
-  const rest = omit(props, { label: 1, value: 1, defaultValue: 1, onValueChange: 1, onCancel: 1, validate: 1, placeholder: 1, size: 1, editing: 1,
+  const rest = omit(props, { label: 1, value: 1, defaultValue: 1, onValueChange: 1, onCancel: 1, validate: 1, placeholder: 1, size: 1, editing: 1, defaultEditing: 1,
     onEditingChange: 1, disabled: 1, readOnly: 1, editLabel: 1, inputProps: 1, className: 1, autoFocus: 1 } as const);
   const sds = useSerupa();
   const size = oneOf(SIZES, props.size, "md");
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState(props.defaultValue ?? "");
   const value = controlled ? (props.value as string) : own;
-  const [ownEditing, setOwnEditing] = React.useState(false);
+  const [ownEditing, setOwnEditing] = React.useState(!!props.defaultEditing);
   const locked = !!props.disabled || !!props.readOnly;
   const editing = !locked && (props.editing ?? ownEditing);
   const [draft, setDraft] = React.useState(value);

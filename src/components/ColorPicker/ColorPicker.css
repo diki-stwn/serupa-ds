@@ -31,7 +31,8 @@
 }
 @media (forced-colors: active) { .dk-color-picker__swatch--low:not(.dk-color-picker__swatch--checked)::after { background: linear-gradient(to top right, transparent calc(var(--sizing-1-2) - var(--border-width-1)), CanvasText calc(var(--sizing-1-2) - var(--border-width-1)), CanvasText calc(var(--sizing-1-2) + var(--border-width-1)), transparent calc(var(--sizing-1-2) + var(--border-width-1))); forced-color-adjust: none; } }
 .dk-color-picker__swatch:disabled { cursor: not-allowed; }
-.dk-color-picker--disabled { opacity: var(--opacity-disabled); }
+/* Disabled by the prop, or by a <fieldset disabled> around it (its swatches are disabled only together). */
+.dk-color-picker--disabled, .dk-color-picker:where(:has(.dk-color-picker__swatch:disabled)) { opacity: var(--opacity-disabled); }
 .dk-color-picker__custom { display: flex; align-items: center; gap: var(--spacing-2); }
 .dk-color-picker__native {
   inline-size: var(--dk-cp-size); block-size: var(--dk-cp-size); margin: var(--spacing-0); padding: var(--spacing-0);

@@ -39,7 +39,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 - Enter saves and Escape cancels; both put focus back on the button. Leaving the field (Tab or a click elsewhere) saves too and leaves focus where it went.
 - Escape inside a [Dialog](../Dialog/README.md) or [Drawer](../Drawer/README.md) only cancels the edit; the dialog stays open.
 - With `editing` and `onEditingChange` you open and close it yourself, for example from a Rename item in a [Menu](../Menu/README.md).
-- `disabled` and `readOnly` show the text without a button; `disabled` also mutes it (`--inline-edit-text-disabled`, still 4.5:1).
+- `disabled` and `readOnly` show the text without a button; `disabled` also mutes it (`--inline-edit-text-disabled`, still 4.5:1). Inside a `<fieldset disabled>` the button is disabled: the text is muted the same way, with no hover, pointer or pencil.
 - While someone types with an input method (Japanese, Chinese, Korean), Enter and Escape confirm or cancel the composition, not the edit.
 
 ## Accessibility
@@ -62,6 +62,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 | `placeholder` | `string` | | Shown when the text is empty. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Input's sizes. |
 | `editing`, `onEditingChange` | `boolean`, `(editing: boolean) => void` | | Open and close it yourself. |
+| `defaultEditing` | `boolean` | `false` | Open at first, with the field focused, without controlling it. |
 | `disabled`, `readOnly` | `boolean` | `false` | The text without a button. |
 | `editLabel` | `string` | `'Edit'` | The last word of the button's name. |
 | `inputProps` | `InputProps` | | For the field: `maxLength`, `spellCheck`, `autoComplete`, `inputMode`… |

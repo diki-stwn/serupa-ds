@@ -30,15 +30,18 @@
 .dk-inline-edit__text--placeholder { color: var(--inline-edit-placeholder, var(--text-muted)); }
 .dk-inline-edit__icon { flex-shrink: 0; font-size: var(--dk-ie-icon); color: var(--inline-edit-icon, var(--text-muted)); opacity: var(--opacity-0); transition: opacity var(--duration-150) var(--ease-in-out); }
 @media (hover: hover) {
-  .dk-inline-edit__view:not(.dk-inline-edit__view--static):hover { background: var(--inline-edit-bg-hover, var(--surface-muted)); }
-  .dk-inline-edit__view:hover .dk-inline-edit__icon { opacity: var(--opacity-100); }
+  .dk-inline-edit__view:not(.dk-inline-edit__view--static, :disabled):hover { background: var(--inline-edit-bg-hover, var(--surface-muted)); }
+  .dk-inline-edit__view:not(:disabled):hover .dk-inline-edit__icon { opacity: var(--opacity-100); }
 }
 .dk-inline-edit__view:focus-visible { outline: var(--focus-ring-width) solid var(--inline-edit-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-inline-edit__view:focus-visible .dk-inline-edit__icon { opacity: var(--opacity-100); }
 /* Touch screens have no hover: the pencil always shows, so people can tell the text is editable. */
 @media (hover: none) { .dk-inline-edit__icon { opacity: var(--opacity-100); } }
 /* Muted rather than faded: the text stays readable (4.5:1), since there is no control here for WCAG to exempt. */
-.dk-inline-edit--disabled .dk-inline-edit__view { color: var(--inline-edit-text-disabled, var(--text-muted)); }
+.dk-inline-edit--disabled .dk-inline-edit__view, .dk-inline-edit__view:disabled { color: var(--inline-edit-text-disabled, var(--text-muted)); }
+/* In a <fieldset disabled> the button is disabled: no pointer, and no pencil even on touch screens. */
+.dk-inline-edit__view:disabled { cursor: auto; }
+.dk-inline-edit__view:disabled .dk-inline-edit__icon { display: none; }
 .dk-inline-edit__error { display: flex; align-items: flex-start; gap: var(--spacing-1); color: var(--inline-edit-error, var(--danger-text)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-inline-edit__error-icon { flex-shrink: 0; font-size: var(--spacing-4); }
 @media (prefers-reduced-motion: reduce) { .dk-inline-edit__view, .dk-inline-edit__icon { transition: none; } }

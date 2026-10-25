@@ -2,7 +2,7 @@
 interface InputLabels {
     charactersLeft: (left: number) => string;
 }
-interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "children" | "size"> {
     size?: "lg" | "md" | "sm";
     invalid?: boolean;
     leftIcon?: IconSource;

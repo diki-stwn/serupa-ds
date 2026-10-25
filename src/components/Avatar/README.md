@@ -38,6 +38,7 @@ const { Avatar } = window.Serupa;
 - The status is part of the name, so it isn't told by color alone.
 - Initials and the person icon keep 4.5:1 on their background in all six themes (`Avatar.test.tsx`).
 - In forced-colors mode the frame gets a border.
+- **Keyboard:** none of its own: it isn't focusable. Inside a link or a Tooltip trigger, that element takes the focus.
 
 ## Props
 

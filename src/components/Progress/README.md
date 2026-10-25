@@ -44,6 +44,7 @@ import { Progress } from "serupa-ds";
 - `role="progressbar"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext`; an indeterminate one has no value. The bar is named by its `label`.
 - Every tone's fill keeps 3:1 on the page, and the label and value 4.5:1, in all six themes (`Progress.test.tsx`). In forced-colors mode the track gets a border and the fill uses Highlight.
 - Value changes aren't read out on their own, since reading every step is noisy. `announceComplete` says when it's done, politely ("Upload: complete", from `labels.progressComplete`, or your own words); for milestones in between, use `announce()` or your own live region.
+- **Keyboard:** none: it isn't focusable.
 
 ## Props
 

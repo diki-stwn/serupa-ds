@@ -81,6 +81,7 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `children` | nodes | required | `MenuItem`, `MenuGroup` and `MenuSeparator` |
 | `placement` | as Tooltip | `'bottom-start'` | Where it opens; it flips when there's no room and slides to stay on screen. With no room on either side it opens on the roomier one and scrolls inside, so every item can be reached |
 | `open`, `onOpenChange` | boolean, function | | Control it yourself |
+| `defaultOpen` | boolean | `false` | Open at first, without controlling it |
 | `aria-label` | string | | The menu's name. Without it, the button's text names it |
 
 ### MenuItem

@@ -23,6 +23,8 @@ export interface MenuProps {
   placement?: Placement;
   /** Open it yourself (controlled), with onOpenChange. */
   open?: boolean;
+  /** Open at first (uncontrolled), such as a menu a page returns to. Default: false. */
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** The menu's name for screen readers. Default: the trigger's text, by aria-labelledby. */
   'aria-label'?: string;
@@ -44,7 +46,7 @@ const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from
 /** A list of actions behind a button: MenuItem, MenuGroup and MenuSeparator inside. */
 export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps): React.ReactElement {
   const id = domId("dk-menu", React.useId());
-  const [inner, setInner] = React.useState(false);
+  const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
   const menuRef = React.useRef<HTMLDivElement | null>(null);

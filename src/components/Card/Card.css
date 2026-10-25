@@ -49,6 +49,8 @@
 .dk-card__link--cover { position: absolute; inset: var(--spacing-0); border-radius: inherit; }
 .dk-card__link--cover::after { content: none; }
 .dk-card--link :is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-card__link) { position: relative; z-index: var(--z-10); }
+/* The text sits above the link's area too, so it can be selected and copied; a plain click on it still follows the link (Card.tsx). */
+.dk-card--link :is(.dk-card__description, .dk-card__body) { position: relative; z-index: var(--z-10); }
 @media (hover: hover) { .dk-card--link:hover { border-color: var(--card-border-hover, var(--border-strong)); } }
 .dk-card--link:has(.dk-card__link:focus-visible) { outline: var(--focus-ring-width) solid var(--card-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 @media (prefers-reduced-motion: reduce) { .dk-card--link { transition: none; } }

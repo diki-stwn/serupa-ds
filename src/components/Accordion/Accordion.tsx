@@ -37,6 +37,9 @@ export interface AccordionItemProps extends Omit<React.HTMLAttributes<HTMLDivEle
   disabled?: boolean;
   /** The content shown when it's open. */
   children?: React.ReactNode;
+  /** Closed content stays in the page, keeping its state, and find-in-page searches it. false renders the content
+      only while the item is open (and while it closes), for heavy content; find-in-page can't find it then. Default: true. */
+  keepMounted?: boolean;
 }
 
 const toMs = (t: string) => (parseFloat(t) || 0) * (t.trim().endsWith("ms") ? 1 : 1000);
@@ -113,7 +116,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
 /** One item in an Accordion: a title button and the content it shows and hides. */
 export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, AccordionItemProps>("AccordionItem", function AccordionItem(props, ref) {
   const ctx = React.useContext(AccordionContext);
-  const rest = omit(props, { value: 1, title: 1, disabled: 1, className: 1, children: 1 });
+  const rest = omit(props, { value: 1, title: 1, disabled: 1, keepMounted: 1, className: 1, children: 1 });
   const index = String(rest["data-index"] || "0");
   delete rest["data-index"];
   const value = props.value != null ? props.value : index;
@@ -129,18 +132,22 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
   const toggle = React.useRef<(() => void) | null>(null);
   toggle.current = ctx && !open && !props.disabled ? () => ctx.toggle(value) : null;
   const findable = !props.disabled;
+  // With keepMounted={false} the content renders while the item is open, and goes once the closing animation ends.
+  const keep = props.keepMounted !== false;
+  const [mounted, setMounted] = React.useState(open || keep);
+  if ((open || keep) && !mounted) setMounted(true);
   React.useLayoutEffect(function () {
     const el = content.current, panel = el && el.closest<HTMLElement>(".dk-accordion__panel");
     if (!el || !panel) return;
-    if (open || !findable) { el.removeAttribute("hidden"); return; }
+    if (open || (!findable && keep)) { el.removeAttribute("hidden"); return; }
     const style = getComputedStyle(panel);
     const delays = style.transitionDelay.split(",");
     const ms = Math.max(0, ...style.transitionDuration.split(",").map((d, i) => toMs(d) + toMs(delays[i] || "0")));
-    const hide = () => el.setAttribute("hidden", "until-found");
+    const hide = () => { if (findable) el.setAttribute("hidden", "until-found"); if (!keep) setMounted(false); };
     if (!ms || !el.isConnected || panel.getBoundingClientRect().height === 0) { hide(); return; }
     const t = setTimeout(hide, ms);
     return () => clearTimeout(t);
-  }, [open, findable]);
+  }, [open, findable, keep]);
   React.useEffect(function () {
     const el = content.current;
     if (!el) return;
@@ -158,7 +165,7 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
         </button>
       </H>
       <div id={id + "-p"} role="region" aria-labelledby={id + "-t"} className="dk-accordion__panel">
-        <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content">{props.children}</div></div>
+        <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content">{mounted ? props.children : null}</div></div>
       </div>
     </div>
   );

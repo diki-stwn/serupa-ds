@@ -16,6 +16,6 @@
 .dk-number-input__step .dk-icon { font-size: var(--dk-input-icon); }
 @media (hover: hover) { .dk-number-input__step:hover:not(:disabled) { background: var(--number-input-stepper-bg-hover, var(--secondary)); color: var(--number-input-stepper-hover, var(--text)); } }
 .dk-number-input__step:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-input--disabled .dk-number-input__step:disabled { opacity: var(--opacity-100); }
+.dk-input--disabled .dk-number-input__step:disabled, .dk-input:where(:has(.dk-input__field:disabled)) .dk-number-input__step:disabled { opacity: var(--opacity-100); }
 @media (prefers-reduced-motion: reduce) { .dk-number-input__step { transition: none; } }
 }

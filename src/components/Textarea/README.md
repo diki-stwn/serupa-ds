@@ -66,7 +66,7 @@ const { Textarea } = window.Serupa;
 | `invalid` | boolean | `false` | A danger border and focus ring, and `aria-invalid` |
 | `showCount` | boolean | `false` | A character count under the text, in characters as people see them (an emoji is one): "32 / 280" with `maxLength`, "32" without. It turns from `text-muted` to `text` once `maxLength` is reached. The numbers are in the locale's digits, as Calendar's days are: "٣٢ / ٢٨٠" in Egyptian Arabic |
 
-Everything else (`value`, `defaultValue`, `onChange`, `placeholder`, `disabled`, `readOnly`, `required`, `name`, `id`, `aria-*`) and `ref` go to the `<textarea>`. `className` and `style` go to the box, so `className="w-96"` sets its width (full width by default). The box has `data-component="textarea"` and `data-size`.
+Everything else (`value`, `defaultValue`, `onChange`, `placeholder`, `disabled`, `readOnly`, `required`, `name`, `id`, `aria-*`) and `ref` go to the `<textarea>`. `className` and `style` go to the box, so `className="w-96"` sets its width (full width by default). The box has `data-component="textarea"` and `data-size`. Inside a `<fieldset disabled>` the box takes the disabled look too, as the native field is disabled with it.
 
 ## Component tokens
 

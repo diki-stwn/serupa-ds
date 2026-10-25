@@ -19,6 +19,8 @@ export interface TooltipProps {
   role?: 'description' | 'label';
   /** Open it yourself (controlled); with onOpenChange. */
   open?: boolean;
+  /** Open at first (uncontrolled). Default: false. */
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Never shows it, for example while the element is disabled. */
   disabled?: boolean;
@@ -30,7 +32,7 @@ export interface TooltipProps {
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
 type Handler = (e: React.SyntheticEvent<HTMLElement>) => void;
 
-const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, ref: 1 } as const;
+const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1, defaultOpen: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, ref: 1 } as const;
 
 /* Tooltip: a short hint about an element, shown while it's hovered (after a delay) or focused, and placed next to
    it in the top layer. Escape hides it; the pointer can move onto the tooltip without it closing (WCAG 1.4.13).
@@ -38,7 +40,7 @@ const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1,
 /** A short hint about one element, shown on hover and keyboard focus. */
 export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: TooltipProps): React.ReactElement {
   const id = domId("dk-tip", React.useId());
-  const [inner, setInner] = React.useState(false);
+  const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = !props.disabled && (controlled ? !!props.open : inner);
   const tipRef = React.useRef<HTMLDivElement | null>(null);

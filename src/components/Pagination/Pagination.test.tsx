@@ -112,9 +112,11 @@ describe('Pagination', () => {
   });
 
   test('size md is 32px square, sm 24px; the current page is primary with on-primary text, semibold', async () => {
-    await render(<><Pagination id="pdef" count={10} /><Pagination id="psm" count={3} size="sm" /></>);
-    const sq = (id: string) => { const r = named(id, 'Page 1').getBoundingClientRect(); return r.width + 'x' + r.height; };
-    expect([sq('pdef'), sq('psm')]).toEqual(['32x32', '24x24']);
+    // Also in DejaVu Sans, where Inter isn't installed (CI's runners): its "1" is 8.36px, which made a 24.36px page
+    // when sm kept md's 8px sides. And with the widest digits, two of them.
+    await render(<><Pagination id="pdef" count={10} /><Pagination id="psm" count={3} size="sm" /><div style={{ fontFamily: '"DejaVu Sans"' }}><Pagination id="pdv" count={3} size="sm" /><Pagination id="p88" count={88} page={88} size="sm" siblings={0} /></div></>);
+    const sq = (id: string, page = 'Page 1') => { const r = named(id, page).getBoundingClientRect(); return r.width + 'x' + r.height; };
+    expect([sq('pdef'), sq('psm'), sq('pdv'), sq('p88', 'Page 88')]).toEqual(['32x32', '24x24', '24x24', '24x24']);
     const cur = q('pdef', '[aria-current]');
     // The page buttons ease their background for 150ms.
     await expect.poll(() => css(cur).backgroundColor).toBe(color('var(--primary)'));

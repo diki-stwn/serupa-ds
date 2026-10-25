@@ -37,15 +37,16 @@
   font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; user-select: none;
 }
 .dk-input__count--full { color: var(--input-count-full, var(--text)); }
-@media (hover: hover) { .dk-input:hover:not(.dk-input--disabled, .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-border-hover, var(--field-border-hover)); } }
+@media (hover: hover) { .dk-input:hover:not(.dk-input--disabled, :has(.dk-input__field:disabled), .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-border-hover, var(--field-border-hover)); } }
 /* Focus: the border and a ring hugging it take the focus color (2px in all), and a transparent outline that
    forced-colors mode draws, since box-shadow rings disappear there. */
 .dk-input:focus-within { --dk-input-bd: var(--dk-input-ring); box-shadow: 0 0 0 var(--input-border-width, var(--border-width-1)) var(--dk-input-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-input--invalid { --dk-input-bd: var(--input-invalid, var(--danger)); --dk-input-ring: var(--input-invalid, var(--danger)); }
-@media (hover: hover) { .dk-input--invalid:hover:not(.dk-input--disabled, .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
+@media (hover: hover) { .dk-input--invalid:hover:not(.dk-input--disabled, :has(.dk-input__field:disabled), .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
 .dk-input--readonly { background: var(--input-bg-readonly, var(--surface-muted)); }
-.dk-input--disabled { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-input--disabled .dk-input__field { cursor: not-allowed; }
+/* Disabled by the prop, or by a <fieldset disabled> around it (the native field follows that on its own). */
+.dk-input--disabled, .dk-input:where(:has(.dk-input__field:disabled)) { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
+.dk-input--disabled .dk-input__field, .dk-input__field:where(:disabled) { cursor: not-allowed; }
 /* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's
    own text is 16px; the box keeps its height. (maximum-scale=1 would stop the zoom but also pinch zoom: WCAG 1.4.4.) */
 @supports (-webkit-touch-callout: none) { .dk-input:not(.dk-input--size-lg) .dk-input__field { font-size: var(--text-base); } }

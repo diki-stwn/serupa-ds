@@ -15,6 +15,8 @@
 }
 .dk-pagination__arrow { padding: var(--spacing-0); }
 .dk-pagination__arrow .dk-icon { font-size: var(--spacing-5); }
+/* 8px a side leaves 8px for the number: a "1" in some fonts (DejaVu Sans, 8.36px) made the 24px square wider. */
+.dk-pagination--sm .dk-pagination__item:not(.dk-pagination__arrow) { padding: var(--spacing-0) var(--pagination-padding-x-sm, var(--spacing-1)); }
 .dk-pagination--sm .dk-pagination__arrow .dk-icon { font-size: var(--spacing-4); }
 @media (hover: hover) { .dk-pagination__item:hover:not(:disabled, [aria-disabled="true"], .dk-pagination__item--current) { background: var(--pagination-bg-hover, var(--secondary)); } }
 .dk-pagination__item:active:not(:disabled, [aria-disabled="true"], .dk-pagination__item--current) { background: var(--pagination-bg-pressed, var(--pressed)); }

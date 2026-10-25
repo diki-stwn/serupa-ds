@@ -40,6 +40,7 @@ const { Stack, Button } = window.Serupa;
 
 - Stack only lays things out: the reading and tab order stay the order of the children, so keep it the same as what people see.
 - Use `as="ul"` or `as="ol"` when the items are a list, so screen readers say how many there are.
+- **Keyboard:** none: a layout box, not focusable.
 
 ## Props
 

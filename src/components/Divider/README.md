@@ -35,8 +35,10 @@ const { Divider, Stack } = window.Serupa;
 ## Accessibility
 
 - It's a separator to screen readers (an `<hr>`, or `role="separator"` with `aria-orientation`). When it only decorates, such as between items that are already grouped, use `decorative`.
+- A separator's content isn't read, so a text `label` becomes its `aria-label` (your own `aria-label` wins). A label that isn't text, such as a heading, stays ordinary content and the divider drops the separator role, leaving the lines as decoration.
 - The label keeps 4.5:1 on `surface` in all six themes (`Divider.test.tsx`). The line itself is decoration, so it doesn't need 3:1.
 - In Windows high-contrast mode the line uses the text color.
+- **Keyboard:** none: it isn't focusable.
 
 ## Props
 

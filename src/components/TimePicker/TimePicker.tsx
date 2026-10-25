@@ -12,7 +12,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 
-export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step'> {
+export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step' | 'children'> {
   /** The chosen time as "HH:mm" (24-hour, controlled), or null. Use with onValueChange. */
   value?: string | null;
   /** The chosen time at first (uncontrolled). */
@@ -25,7 +25,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   /** The earliest and latest times, as "HH:mm". */
   min?: string;
   max?: string;
-  /** Minutes between the times in the list. Default: 30. Typed times don't have to fall on a step. */
+  /** Minutes between the times in the list (not seconds, as <input type="time"> counts its step: 15, not 900). Default: 30. Typed times don't have to fall on a step. */
   step?: number;
   /** A BCP 47 locale for how times are written. Default: the nearest SerupaProvider's locale, else the browser's. */
   locale?: string;
@@ -144,7 +144,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; setRef(ref, n); }}
-        type="text" role="combobox" autoComplete="off" className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
+        type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : h12 ? "hh:mm am" : "hh:mm"} aria-invalid={invalid || undefined}
         aria-expanded={open} aria-controls={id} aria-autocomplete="none" aria-haspopup="listbox" aria-activedescendant={open ? `${id}-${active}` : undefined}
         onChange={(e) => {

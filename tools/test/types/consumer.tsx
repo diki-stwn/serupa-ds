@@ -54,6 +54,18 @@ export const images = [
   <Image src="/a.png" />,
 ];
 
+// Fields that render a void element (an <input>, <img> or <hr>) take no children: React would throw.
+export const voids = [
+  // @ts-expect-error: an <input> has no children
+  <Input>text</Input>,
+  // @ts-expect-error: nor do the fields built on Input
+  <NumberInput>1</NumberInput>,
+  // @ts-expect-error: an <img> has no children
+  <Image src="/a.png" alt="">caption</Image>,
+  // @ts-expect-error: a picker's field is an <input>
+  <DatePicker>today</DatePicker>,
+];
+
 // Value callbacks get the value's own type.
 is<Equal<ParamOf<React.ComponentProps<typeof Combobox>['onValueChange']>, string | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof DatePicker>['onValueChange']>, Date | null>>();

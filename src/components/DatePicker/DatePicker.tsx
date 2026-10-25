@@ -13,7 +13,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 
-export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max'> {
+export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'children'> {
   /** The chosen day (controlled), or null. Use with onValueChange. */
   value?: Date | null;
   /** The chosen day at first (uncontrolled). */
@@ -102,7 +102,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   return (
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-date-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="date-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-        type="text" inputMode="numeric" autoComplete="off" className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
+        type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined}
         onChange={(e) => setText(e.target.value)}
         onBlur={(e) => { read(); if (onBlur) onBlur(e); }}
