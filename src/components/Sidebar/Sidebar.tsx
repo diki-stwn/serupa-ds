@@ -38,7 +38,7 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAn
   icon?: IconSource;
   /** The current page: shaded, with aria-current="page". Default: false. */
   active?: boolean;
-  /** Something at the end, such as a count Badge. Hidden when collapsed. */
+  /** Something at the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read it. */
   badge?: React.ReactNode;
   /** Nested SidebarItems: the item becomes a button that shows and hides them. */
   children?: React.ReactNode;
@@ -112,10 +112,12 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   const [open, setOpen] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
   const listId = domId("dk-sbi", React.useId());
   const rail = ctx.collapsed && ctx.depth === 0;
+  // In the rail the badge is hidden on screen, like the label, and a dot on the icon says there is one.
+  const dot = rail && props.badge != null && props.badge !== false;
   const inner = (chevron: boolean) => <>
-    {props.icon ? <span className="dk-sidebar__icon">{asIcon(props.icon)}</span> : null}
+    {props.icon ? <span className="dk-sidebar__icon">{asIcon(props.icon)}{dot ? <span className="dk-sidebar__dot" aria-hidden="true" /> : null}</span> : null}
     <span className="dk-sidebar__label">{props.label}</span>
-    {props.badge != null && !rail ? <span className="dk-sidebar__badge">{props.badge}</span> : null}
+    {props.badge != null ? <span className="dk-sidebar__badge">{props.badge}</span> : null}
     {chevron && !rail ? <Icon icon={icons.ExpandMore} className="dk-sidebar__chevron" /> : null}
   </>;
   // An item with children is a button, not a link: its other attributes and handlers go to the button.
