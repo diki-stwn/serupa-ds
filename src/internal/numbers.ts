@@ -34,10 +34,12 @@ export function parseNumber(text: string, locale?: string): number | null | unde
   const { group, decimal } = symbolsOf(locale);
   const s = arabic(latinDigits(text)).replace(/[\u200e\u200f\u061c]/g, "").replace(/\u2212/g, "-").replace(SPACE, "");
   if (s === "") return null;
-  // Text around the number (Rp, $, €, %, a minus) is fine; letters inside it are not.
-  const parts = /^([^0-9.,'\u2019]*)([0-9.,'\u2019]*)([^0-9.,'\u2019]*)$/.exec(s);
+  // Text around the number (Rp, $, €, %, a minus) is fine; letters inside it are not. The text may hold dots away
+  // from the digits, as unit abbreviations do ("กม.", "कि.मि.", "கி.மீ.").
+  const parts = /^((?:[^0-9]*[^0-9.,'\u2019])?)([0-9.,'\u2019]*)((?:[^0-9.,'\u2019][^0-9]*)?)$/.exec(s);
   if (!parts || !/[0-9]/.test(parts[2])) return undefined;
-  const neg = parts[1].includes("-");
+  // A minus before or after the number ("1234.5-"), or accounting parentheses ("(Rp 1.500)"), make it negative.
+  const neg = parts[1].includes("-") || parts[3].includes("-") || (parts[1].includes("(") && parts[3].includes(")"));
   let t = parts[2];
   if (/['\u2019]/.test(t)) { if (group !== "'" && group !== "\u2019") return undefined; t = t.replace(/['\u2019]/g, ""); }
   const marks = [...new Set(t.replace(/[0-9-]/g, ""))];

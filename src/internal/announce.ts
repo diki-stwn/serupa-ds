@@ -50,13 +50,22 @@ function pump(ch: Channel): void {
   }, wait);
 }
 
+/** text is already one of the sentences waiting in queued. */
+function said(queued: string, text: string): boolean {
+  if (queued === text) return true;
+  const at = queued.indexOf(text);
+  return at >= 0 && (at === 0 || /[.!?…。] $/.test(queued.slice(0, at)) || queued.slice(at - 2, at) === ". ") && (at + text.length === queued.length || /^(\.? )/.test(queued.slice(at + text.length)));
+}
+
 /** Says text to screen readers. assertive interrupts what's being read: only for errors. */
 export function announce(text: string, options?: { assertive?: boolean }): void {
   const ch = options && options.assertive ? assertive : polite;
   if (!region(ch, options && options.assertive ? "assertive" : "polite")) return;
   // At most one message waits: a burst is said as one, so nothing is dropped and nothing is said late.
+  // Joined as sentences: ". " after a message that doesn't end in its own stop, a space after one that does
+  // ("Picked up Apollo, position 1 of 3. Apollo, position 2 of 3."), never "3.. Apollo".
   if (!ch.queue.length) ch.queue.push(text);
-  else if (!ch.queue[0].split(". ").includes(text)) ch.queue[0] += ". " + text;
+  else if (!said(ch.queue[0], text)) ch.queue[0] += (/[.!?…。]$/.test(ch.queue[0]) ? " " : ". ") + text;
   pump(ch);
 }
 

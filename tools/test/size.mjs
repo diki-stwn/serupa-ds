@@ -23,12 +23,11 @@ import { HERE, PROJECT, done, report } from './lib.mjs';
 
 // KiB, gzipped: [budget, the sum of the folders' budgets it was set at, which ones]. About 3 to 4% above the size
 // when each was last set (index.js 62.2, serupa.iife.js 610.1 on 24 Oct 2026; components.css 27.3 once it shipped
-// without the source comments). Both JS totals rose 0.6 on 25 Oct 2026 for FileUpload's refusal messages, which
-// moved into the shared labels so they can be translated.
+// without the source comments).
 const TOTALS = {
-  'All components (index.js)': [65.1, 59.3, 'share'],
+  'All components (index.js)': [66.1, 59.3, 'share'],   // +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code
   'components.css': [28.5, 53.6, 'css'],
-  'serupa.iife.js': [630.6, 59.3, 'share'],
+  'serupa.iife.js': [630, 59.3, 'share'],
 };
 // Not made of component folders.
 const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
