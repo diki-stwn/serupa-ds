@@ -36,7 +36,10 @@ export default defineConfig([
     clean: false,
     define,
     esbuildPlugins: [windowReact],
-    minify: name !== 'serupa.iife',
+    minify: true,
+    // A map beside the browser script, so a stack trace on a page can be read; the map points to the sources by
+    // path without carrying them, which would double the package.
+    ...(name === 'serupa.iife' ? { sourcemap: true, esbuildOptions(o) { o.sourcesContent = false; } } : {}),
     banner: {
       js: name === 'serupa.iife' ? `/*! Serupa v${version} by Diki · components (needs React 19) · CHANGELOG.md */` : `/*! Serupa v${version} · serupa-icons.iife.js is empty since 6.1 (serupa.iife.js has every icon): remove it from your page */`,
     },
