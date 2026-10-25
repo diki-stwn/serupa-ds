@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, oneOf, omit, useIsoLayoutEffect } from "../../internal/cn";
+import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
@@ -160,8 +160,26 @@ export const TabPanel = /* @__PURE__ */ component<HTMLDivElement, TabPanelProps>
   const keep = props.keepMounted !== false;
   const register = ctx.register;
   useIsoLayoutEffect(() => { register(props.value, 1); return () => register(props.value, -1); }, [props.value, register]);
+  // A kept panel of another tab is hidden="until-found", as Accordion's closed content is: hidden from everyone, but
+  // the browser's find-in-page still searches it and, on a match, fires beforematch, which selects its tab. React
+  // renders any hidden value as hidden="", so it's set here. A disabled tab's panel stays plainly hidden.
+  const own = React.useRef<HTMLDivElement | null>(null);
+  const pick = React.useRef<(() => void) | null>(null);
+  const tabOf = () => own.current && (own.current.getRootNode() as Document | ShadowRoot).getElementById(ctx.base + "-tab-" + safe(props.value));
+  pick.current = selected ? null : () => { const t = tabOf(); if (t && !t.hasAttribute("disabled")) ctx.select(props.value); };
+  useIsoLayoutEffect(() => {
+    const el = own.current, t = tabOf();
+    if (el && !selected && keep && t && !t.hasAttribute("disabled")) el.setAttribute("hidden", "until-found");
+  });
+  React.useEffect(() => {
+    const el = own.current;
+    if (!el) return;
+    const onMatch = () => { if (pick.current) pick.current(); };
+    el.addEventListener("beforematch", onMatch);
+    return () => el.removeEventListener("beforematch", onMatch);
+  }, []);
   return (
-    <div tabIndex={0} {...rest} ref={ref} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}
+    <div tabIndex={0} {...rest} ref={(n) => { own.current = n; setRef(ref, n); }} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}
       hidden={!selected} data-state={selected ? "active" : "inactive"} className={cn("dk-tabs__panel", props.className)}>
       {selected || keep ? props.children : null}
     </div>
