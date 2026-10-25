@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
-import { contrastRatio, normalizeHex } from '../../internal/color';
+import { colorName, contrastRatio, normalizeHex } from '../../internal/color';
 import { Field } from '../Field/Field';
 import { ColorPicker } from './ColorPicker';
 
@@ -13,6 +13,7 @@ const SW = [{ value: '#1D4ED8', label: 'Blue' }, { value: '#fde047', label: 'Yel
 const group = () => document.querySelector('[role="radiogroup"]') as HTMLElement;
 const radios = () => [...document.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
 const swatch = (name: string) => radios().find((r) => r.getAttribute('aria-label') === name)!;
+const el = (id: string) => document.getElementById(id) as HTMLElement;
 const hex = () => document.querySelector('.dk-color-picker__hex input') as HTMLInputElement;
 const line = () => document.querySelector('.dk-color-picker__contrast') as HTMLElement;
 
@@ -22,11 +23,11 @@ function Controlled({ calls }: { calls: string[] }) {
 }
 
 describe('ColorPicker', () => {
-  test('a radiogroup of swatches named by their labels (a bare hex by its code), the picked one checked with a check icon; one Tab stop', async () => {
+  test('a radiogroup of swatches named by their labels (a bare hex by a name from its color, with its code as the tooltip), the picked one checked with a check icon; one Tab stop', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<ColorPicker ref={ref} id="cp" className="extra" aria-label="Label color" swatches={SW} defaultValue="#1d4ed8" />);
     expect([group().getAttribute('aria-label'), radios().map((r) => r.getAttribute('aria-label')), radios().map((r) => r.getAttribute('aria-checked')), radios().map((r) => r.tabIndex)])
-      .toEqual(['Label color', ['Blue', 'Yellow', '#ffffff', 'Black'], ['true', 'false', 'false', 'false'], [0, -1, -1, -1]]);
+      .toEqual(['Label color', ['Blue', 'Yellow', 'White', 'Black'], ['true', 'false', 'false', 'false'], [0, -1, -1, -1]]);
     expect([ref.current === document.getElementById('cp'), ref.current!.className, ref.current!.dataset.component, !!swatch('Blue').querySelector('.dk-icon'), css(swatch('Blue')).backgroundColor])
       .toEqual([true, 'dk-color-picker dk-color-picker--size-md extra', 'color-picker', true, 'rgb(29, 78, 216)']);
   });
@@ -39,7 +40,7 @@ describe('ColorPicker', () => {
     expect([document.activeElement === swatch('Yellow'), swatch('Yellow').getAttribute('aria-checked'), calls]).toEqual([true, 'true', ['#fde047']]);
     await userEvent.keyboard('{End}{ArrowDown}{Home}{ArrowLeft}');
     expect([calls, document.activeElement === swatch('Black')]).toEqual([['#fde047', '#18181b', '#1d4ed8', '#18181b'], true]);
-    await userEvent.click(swatch('#ffffff'));
+    await userEvent.click(swatch('White'));
     expect(calls.at(-1)).toBe('#ffffff');
   });
 
@@ -70,6 +71,56 @@ describe('ColorPicker', () => {
     await expect.poll(() => calls.at(-1)).toBe('#00ff00');
   });
 
+  test('onValueCommit: once per choice: a swatch at once; the browser picker only when it closes (change), not on each drag step; the hex field on blur or Enter, not while typing', async () => {
+    const changes: string[] = [], commits: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" onValueChange={(v) => changes.push(v)} onValueCommit={(v) => commits.push(v)} />);
+    await userEvent.click(swatch('Yellow'));
+    expect([changes, commits]).toEqual([['#fde047'], ['#fde047']]);
+    const native = document.querySelector('input[type="color"]') as HTMLInputElement;
+    const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+    for (const v of ['#110000', '#220000', '#330000']) { set.call(native, v); native.dispatchEvent(new Event('input', { bubbles: true })); }
+    await expect.poll(() => changes.at(-1)).toBe('#330000');
+    expect(commits).toEqual(['#fde047']);
+    native.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(commits).toEqual(['#fde047', '#330000']);
+    await userEvent.fill(hex(), '7c3aed');
+    expect([changes.at(-1), commits.at(-1)]).toEqual(['#7c3aed', '#330000']);
+    await userEvent.keyboard('{Enter}');
+    hex().blur();
+    expect(commits).toEqual(['#fde047', '#330000', '#7c3aed']);
+  });
+
+  test('form reset puts the first color back (uncontrolled), in the swatches, the hex field and the submitted value', async () => {
+    await render(<form id="rf"><ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" name="color" /></form>);
+    await userEvent.click(swatch('Black'));
+    expect(new FormData(el('rf') as HTMLFormElement).get('color')).toBe('#18181b');
+    (el('rf') as HTMLFormElement).reset();
+    await expect.poll(() => swatch('Blue').getAttribute('aria-checked')).toBe('true');
+    await expect.poll(() => hex().value).toBe('1d4ed8');
+    expect(new FormData(el('rf') as HTMLFormElement).get('color')).toBe('#1d4ed8');
+  });
+
+  test('controlled, a parent that turns down a typed color: on blur the hex field shows the color it kept, not the rejected text (AF2)', async () => {
+    const seen: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} />);
+    await userEvent.clear(hex());
+    await userEvent.type(hex(), '00ff00');
+    await userEvent.tab();
+    expect(seen).toContain('#00ff00');
+    await expect.poll(() => hex().value).toBe('1d4ed8');
+    expect(swatch('Blue').getAttribute('aria-checked')).toBe('true');
+  });
+
+  test('form: outside its form, the color still submits with it and its reset puts the first color back', async () => {
+    await render(<><form id="ff" /><ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" name="color" form="ff" /></>);
+    const f = el('ff') as HTMLFormElement;
+    await userEvent.click(swatch('Black'));
+    expect(new FormData(f).get('color')).toBe('#18181b');
+    f.reset();
+    await expect.poll(() => swatch('Blue').getAttribute('aria-checked')).toBe('true');
+    expect(new FormData(f).get('color')).toBe('#1d4ed8');
+  });
+
   test('contrastWith: the WCAG ratio, rounded down, in a polite live region; below minContrast it warns', async () => {
     const calls: string[] = [];
     await render(<Controlled calls={calls} />);
@@ -84,6 +135,32 @@ describe('ColorPicker', () => {
     expect(line().textContent).toBe('Kontras 4,5:1');
     await userEvent.click(swatch('Yellow'));
     expect(line().textContent).toBe('Kontras 1,3:1, di bawah 3,0:1, bisa sulit dibaca');
+  });
+
+  test('contrastWith: before anything is picked, each swatch describes its ratio, and one under minContrast says so and is struck through; a bare hex swatch has its code as the tooltip', async () => {
+    await render(<ColorPicker aria-label="C" swatches={SW} contrastWith="#ffffff" />);
+    const desc = (r: HTMLElement) => document.getElementById(r.getAttribute('aria-describedby')!)?.textContent;
+    expect(radios().map(desc)).toEqual(['Contrast 6.7:1', 'Contrast 1.3:1, below 4.5:1, which can be hard to read', 'Contrast 1.0:1, below 4.5:1, which can be hard to read', 'Contrast 17.7:1']);
+    expect(radios().map((r) => r.hasAttribute('data-low-contrast'))).toEqual([false, true, true, false]);
+    expect(radios().map((r) => getComputedStyle(r, '::after').content)).toEqual(['none', '""', '""', 'none']);
+    expect([swatch('White').title, swatch('Blue').title, swatch('White').querySelector('[hidden]') != null]).toEqual(['#ffffff', 'Blue', true]);
+    await expect.element(page.getByRole('radio', { name: 'Yellow' })).toHaveAccessibleDescription('Contrast 1.3:1, below 4.5:1, which can be hard to read');
+    await userEvent.click(swatch('Yellow'));
+    expect(getComputedStyle(swatch('Yellow'), '::after').content).toBe('none');
+  });
+
+  test('colorName: rough names from hue, saturation and lightness, in English and Indonesian through the provider', async () => {
+    const cases: Array<[string, string, string]> = [
+      ['#000000', 'Black', 'Hitam'], ['#ffffff', 'White', 'Putih'], ['#808080', 'Gray', 'Abu-abu'], ['#e4e4e7', 'Light gray', 'Abu-abu muda'],
+      ['#ef4444', 'Red', 'Merah'], ['#7f1d1d', 'Dark red', 'Merah tua'], ['#f97316', 'Orange', 'Oranye'], ['#78350f', 'Brown', 'Cokelat'],
+      ['#facc15', 'Yellow', 'Kuning'], ['#22c55e', 'Green', 'Hijau'], ['#14b8a6', 'Teal', 'Hijau toska'], ['#1d4ed8', 'Blue', 'Biru'],
+      ['#1e3a8a', 'Dark blue', 'Biru tua'], ['#bfdbfe', 'Light blue', 'Biru muda'], ['#7c3aed', 'Purple', 'Ungu'], ['#ec4899', 'Pink', 'Merah muda'],
+    ];
+    await render(<><ColorPicker aria-label="en" swatches={cases.map((c) => c[0])} custom={false} />
+      <SerupaProvider labels={idLabels}><ColorPicker aria-label="id" swatches={cases.map((c) => c[0])} custom={false} /></SerupaProvider></>);
+    const names = (g: string) => [...document.querySelectorAll(`[role=radiogroup][aria-label="${g}"] [role=radio]`)].map((r) => r.getAttribute('aria-label'));
+    expect([names('en'), names('id')]).toEqual([cases.map((c) => c[1]), cases.map((c) => c[2])]);
+    expect([colorName('nope'), colorName('#1d4ed8')]).toEqual([null, { hue: 'blue', tone: '' }]);
   });
 
   test('in a Field: named by its label, and focusing the picker (a label click) focuses the picked swatch', async () => {

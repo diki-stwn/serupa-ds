@@ -51,7 +51,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |
-| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40) |
+| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. |
 | `size` | `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The content's maximum width, the same as Container, so it lines up with the page |
 | `aria-label` | string | `"Main"` | The links' nav name |
 | `menuLabel` | string | `"Menu"` | The small-screen menu button's name |
