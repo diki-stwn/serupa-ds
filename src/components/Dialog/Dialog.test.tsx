@@ -6,6 +6,7 @@ import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { topModal } from '../../internal/layers';
+import { Popover } from '../Popover/Popover';
 import { Dialog } from './Dialog';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -92,6 +93,19 @@ describe('Dialog', () => {
     expect(asks.join()).toBe('dlg:false');
   });
 
+  test('a backdrop press with a Popover open inside closes only the Popover; the next one asks to close the Dialog', async () => {
+    const asks: boolean[] = [];
+    await render(<Dialog id="bp" open onOpenChange={(v) => asks.push(v)} title="Share"><Popover trigger={<Button id="bpt">Options</Button>}><p id="bpc">Pick one</p></Popover></Dialog>);
+    await expect.poll(() => isOpen('bp')).toBe(true);
+    await userEvent.click(el('bpt'));
+    await expect.poll(() => !!el('bpc') && el('bpc').getBoundingClientRect().height > 0).toBe(true);
+    await userEvent.click(el('bp'), { position: { x: 20, y: 20 } });
+    await expect.poll(() => !el('bpc') || el('bpc').getBoundingClientRect().height === 0).toBe(true);
+    expect([isOpen('bp'), asks.length]).toEqual([true, 0]);
+    await userEvent.click(el('bp'), { position: { x: 20, y: 20 } });
+    await expect.poll(() => asks.join()).toBe('false');
+  });
+
   test('the × (a button named "Close") asks to close', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await openDlg();
@@ -134,6 +148,18 @@ describe('Dialog', () => {
     expect(Math.round(r.top)).toBeGreaterThanOrEqual(16);
     expect(Math.round(r.bottom)).toBeLessThanOrEqual(284);
     React.act(() => ctl.setOpen!(false));
+  });
+
+  test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
+    function Pick() {
+      const [open, setOpen] = React.useState(false);
+      return <><Button id="afopen" onClick={() => setOpen(true)}>Open</Button>
+        <Dialog id="af" open={open} onOpenChange={setOpen} title="Rename"><Input id="afname" aria-label="Name" data-autofocus /></Dialog></>;
+    }
+    await render(<Pick />);
+    await userEvent.click(el('afopen'));
+    await expect.poll(() => isOpen('af')).toBe(true);
+    expect(document.activeElement!.id).toBe('afname');
   });
 
   test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {

@@ -36,6 +36,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 - Keep `content` to a short line of text, a few words where you can.
 - Use `role="label"` only when the tooltip is the element's only name; otherwise keep the default, which adds to the element's own name.
 - On an IconButton that has a Tooltip, set `noTitle` so the browser's own title doesn't show as well.
+- A Tooltip can be the `trigger` of a Menu or Popover (`<Menu trigger={<Tooltip content="More"><IconButton … /></Tooltip>}>`): the props and ref they add pass through to the element, with its own handlers run first and its own id kept.
 - Keep the default `placement` unless it covers something people need to see.
 
 ## Accessibility

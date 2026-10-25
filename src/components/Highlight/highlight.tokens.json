@@ -1,0 +1,51 @@
+{
+  "highlight": {
+    "$description": "Highlight's component tokens. Each one is an optional override: set the CSS variable (--highlight-<name>) on the page, a container or one highlight. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.warning-subtle}",
+        "$description": "Behind a match.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--highlight-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "A match's text (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--highlight-text"
+          }
+        }
+      }
+    },
+    "typography": {
+      "weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "A match's weight, so it isn't marked by color alone.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--highlight-weight"
+          }
+        }
+      }
+    },
+    "radius": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-xs}",
+        "$description": "A match's corners (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--highlight-radius"
+          }
+        }
+      }
+    }
+  }
+}

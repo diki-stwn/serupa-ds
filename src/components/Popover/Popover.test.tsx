@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Popover } from './Popover';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const panel = (tid: string) => el(tid).nextElementSibling as HTMLElement;
@@ -143,4 +144,13 @@ describe('Popover', () => {
     }
     expect(low).toEqual([]);
   });
+  test('a Tooltip around the trigger: the button gets aria-haspopup and a click opens the popover', async () => {
+    await render(<Popover trigger={<Tooltip content="Filters"><Button id="tpt">Filter</Button></Tooltip>}><p id="tpc">Pick one</p></Popover>);
+    const b = document.getElementById('tpt')!;
+    expect([b.getAttribute('aria-haspopup'), b.getAttribute('aria-expanded')]).toEqual(['dialog', 'false']);
+    await userEvent.click(b);
+    await expect.poll(() => b.getAttribute('aria-expanded')).toBe('true');
+    expect(document.getElementById(b.getAttribute('aria-controls')!)!.contains(document.getElementById('tpc'))).toBe(true);
+  });
+
 });

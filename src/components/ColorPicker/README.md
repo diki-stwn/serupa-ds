@@ -42,7 +42,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 
 ## Accessibility
 
-- `role="radiogroup"` named by `aria-label`, `aria-labelledby` or a surrounding [Field](../Field/README.md)'s label, with a `role="radio"` swatch for each color and `aria-checked` on the picked one.
+- `role="radiogroup"` named by `aria-label`, `aria-labelledby` or a surrounding [Field](../Field/README.md)'s label, with a `role="radio"` swatch for each color and `aria-checked` on the picked one. In a Field, the hint and error describe the radiogroup, and `aria-required` and `aria-invalid` sit on it. The hex field is its own field, named "Hex code".
 - The picked swatch shows a ring (3:1 on the page in all six themes) and a check in white or black, whichever stands out more on that color, so the choice doesn't rely on seeing the color.
 - Every swatch has a thin inset border, so white shows on white. In forced-colors mode the swatches keep their real colors and the ring uses Highlight.
 - The contrast line is a polite live region, so a change is read out. The warning has an icon and words, not just a color.
@@ -64,6 +64,8 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 | `disabled` | `boolean` | `false` | |
 | `name` | `string` | | Submits the color with a form. |
 | `form` | `string` | | The id of the form it submits with, when the picker sits outside it (like an input's `form`). |
+| `required` | `boolean` | `false` | A color must be picked: `aria-required` on the swatches, and the form won't submit without one (the swatches are marked invalid and take focus). Set for you in a required Field. |
+| `invalid` | `boolean` | `false` | Marks the swatches invalid. Set for you in a Field with an error. |
 
 Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it focuses the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
 

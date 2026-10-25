@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, press, settle } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
+import { Tooltip } from '../Tooltip/Tooltip';
 import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator } from './Menu';
 import { page } from 'vitest/browser';
 
@@ -210,6 +211,20 @@ describe('Menu', () => {
     await userEvent.click(el('mb'));
     const item = menuOf('mb').querySelectorAll<HTMLElement>('[role="menuitem"]')[1];
     await press(item, () => expect.poll(() => getComputedStyle(item).backgroundColor).toBe(color('var(--pressed)')));
+  });
+
+  test('a Tooltip around the trigger: the button still gets aria-haspopup, opens the menu on click and keeps its own onClick and ref', async () => {
+    const clicks: string[] = [], ref = React.createRef<HTMLButtonElement>();
+    await render(<Menu trigger={<Tooltip content="More"><IconButton id="tb" ref={ref} icon="more_vert" label="More" noTitle onClick={() => clicks.push('own')} /></Tooltip>}>
+      <MenuItem>Edit</MenuItem>
+    </Menu>);
+    const b = el('tb');
+    expect([b.getAttribute('aria-haspopup'), b.getAttribute('aria-expanded'), ref.current]).toEqual(['menu', 'false', b]);
+    expect(b.getAttribute('aria-describedby')).toBe(document.querySelector('[role="tooltip"]')!.id);
+    await userEvent.click(b);
+    await expect.poll(() => openMenu()).toBeTruthy();
+    expect([b.getAttribute('aria-expanded'), b.getAttribute('aria-controls'), clicks]).toEqual(['true', openMenu()!.id, ['own']]);
+    expect(openMenu()!.getAttribute('aria-labelledby')).toBe(b.id);
   });
 
 });

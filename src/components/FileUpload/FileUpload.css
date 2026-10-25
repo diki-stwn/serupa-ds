@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    FileUpload: a drop area (surface-muted, a dashed field-border outline, 8px corners, 24px inside) with an upload
    icon, a title, an outline button and a muted hint, centered. While files are dragged over it, it turns
-   primary-subtle with a primary outline. Under it: messages about files that weren't added (danger), and the
+   primary-subtle with a primary outline (a Highlight one in forced colors). Under it: messages about files that weren't added (danger), and the
    chosen files as rows (surface, outline, 6px corners) with a type icon, the name, the size and a remove
    button. Disabled: faded. Invalid: a solid danger outline. Read-only: the files are listed without remove buttons.
    --------------------------------------------------------------- */
@@ -36,4 +36,6 @@
 .dk-file-upload--invalid .dk-file-upload__zone { border-style: solid; border-color: var(--file-upload-zone-border-invalid, var(--danger)); }
 .dk-file-upload--readonly .dk-file-upload__zone { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .dk-file-upload__zone { transition: none; } }
+/* Forced colors drop the primary fill and outline, so the drag-over area is told apart by a Highlight border. */
+@media (forced-colors: active) { .dk-file-upload__zone--over { border-color: Highlight; } }
 }
