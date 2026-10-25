@@ -1,6 +1,7 @@
 /*! Serupa · React components (needs React 18+) · CHANGELOG.md */
 export type { Space } from "./internal/space";
 export type { Placement } from "./internal/position";
+export type { OpenChangeDetails, OpenChangeReason } from "./internal/openChange";
 import { configure } from "./internal/config";
 export type { SerupaConfig } from "./internal/config";
 import { idLabels, DEFAULT_LABELS as enLabels } from "./internal/labels";

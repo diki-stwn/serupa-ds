@@ -182,6 +182,32 @@ describe('Dialog', () => {
     expect(document.activeElement!.id).toBe('afname');
   });
 
+  function Confirm({ inside }: { inside: boolean }) {
+    const [open, setOpen] = React.useState(false);
+    const cancel = React.useRef<HTMLButtonElement>(null), outside = React.useRef<HTMLButtonElement>(null);
+    return <><Button id="ifopen" ref={outside} onClick={() => setOpen(true)}>Delete</Button>
+      <Dialog id="if" open={open} onOpenChange={setOpen} title="Delete the file?" initialFocus={inside ? cancel : outside}
+        footer={<><Button id="ifcancel" ref={cancel} variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button id="ifdelete" destructive data-autofocus>Delete</Button></>} /></>;
+  }
+
+  test('initialFocus picks where focus lands when it opens, over data-autofocus', async () => {
+    await render(<Confirm inside />);
+    await userEvent.click(el('ifopen'));
+    await expect.poll(() => isOpen('if')).toBe(true);
+    expect(document.activeElement!.id).toBe('ifcancel');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('if')).toBe(false);
+  });
+
+  test('initialFocus pointing outside the dialog is ignored, so focus stays in the modal', async () => {
+    await render(<Confirm inside={false} />);
+    await userEvent.click(el('ifopen'));
+    await expect.poll(() => isOpen('if')).toBe(true);
+    expect(document.activeElement!.id).toBe('ifdelete');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('if')).toBe(false);
+  });
+
   test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {
     const asks: boolean[] = [];
     function Keep() {

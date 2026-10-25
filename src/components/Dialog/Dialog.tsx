@@ -34,6 +34,8 @@ export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   closeOnBackdrop?: boolean;
   /** Fills the screen: true always, 'mobile' under 640px wide (a long form on a phone). Default: false. */
   fullScreen?: boolean | 'mobile';
+  /** The element that takes focus when it opens, instead of the first that can (the ×) or one marked data-autofocus: the safe choice in a confirmation (Cancel), or the field people came to fill. */
+  initialFocus?: React.RefObject<HTMLElement | null>;
 }
 
 /* Dialog: a modal on the native <dialog> (showModal), so the browser keeps focus inside, makes the page behind
@@ -41,7 +43,7 @@ export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
    the backdrop ask to close (onOpenChange(false)); focus goes back to where it was. The page doesn't scroll
    behind it. alert makes a role="alertdialog" for confirmations. fullScreen fills the
    screen, always or ('mobile') under 640px. */
-const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, title: 1, description: 1, footer: 1, size: 1, alert: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, fullScreen: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, title: 1, description: 1, footer: 1, size: 1, alert: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, fullScreen: 1, initialFocus: 1, className: 1, children: 1 } as const;
 
 /** A modal dialog on the native <dialog>: a title, content and actions, over a dimmed page. */
 export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>("Dialog", function Dialog(props, ref) {
@@ -56,6 +58,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   const showClose = props.closeButton != null ? props.closeButton : !alert;
   const backdrop = props.closeOnBackdrop != null ? props.closeOnBackdrop : !alert;
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
+  const initial = React.useRef(props.initialFocus); initial.current = props.initialFocus;
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
@@ -73,8 +76,10 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
       if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
       modalOpened(d);
       // A child's autoFocus ran while the dialog was still hidden, and showModal() then focused the first focusable
-      // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it.
-      const own = d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
+      // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it;
+      // initialFocus, when it points inside, wins over both.
+      const want = initial.current && initial.current.current;
+      const own = want && d.contains(want) ? want : d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
       if (own && typeof own.focus === "function") own.focus();
     } else if (open) {
       // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.

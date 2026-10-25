@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
-import { formatTime, parseTime, toHHmm, toMinutes, uses12h } from "../../internal/times";
+import { formatTime, parseTime, timePattern, toHHmm, toMinutes, uses12h } from "../../internal/times";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Icon } from "../Icon/Icon";
@@ -145,7 +145,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; setRef(ref, n); }}
         lang={rest.lang ?? lang} type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
-        placeholder={placeholder != null ? placeholder : h12 ? "hh:mm am" : "hh:mm"} aria-invalid={invalid || undefined}
+        placeholder={placeholder != null ? placeholder : timePattern(locale, h12)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}
         aria-expanded={open} aria-controls={id} aria-autocomplete="none" aria-haspopup="listbox" aria-activedescendant={open ? `${id}-${active}` : undefined}
         onChange={(e) => {
           setText(e.target.value);
@@ -155,6 +155,8 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
         onMouseDown={(e) => e.preventDefault()} onClick={() => { if (open) setOpen(false); else show(); if (field.current) field.current.focus(); }}>
         <Icon icon={icons.Schedule} />
       </button>
+      {/* The format to type, read after the field's name (a placeholder is gone once something is typed). */}
+      <span id={id + "-format"} hidden>{sds.labels.formatHint(timePattern(locale, h12))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
       <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-time-picker__list">
         {open ? times.map((n, i) => (

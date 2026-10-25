@@ -4,6 +4,28 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [9.6.0] - 2026-10-25
+
+### Added
+
+- `initialFocus` on Dialog, a ref to the element that takes focus when the dialog opens, such as Cancel in a confirmation. It wins over `data-autofocus`. A ref to something outside the dialog is ignored, so focus never leaves the modal.
+- `MenuCheckboxItem` (role `menuitemcheckbox`) for on/off settings in a Menu, and `MenuRadioGroup` with `MenuRadioItem` (role `menuitemradio`) for one of a set, each with `aria-checked` and a check before the label. You hold the state (`checked` with `onCheckedChange`, `value` with `onValueChange`). The arrow keys, Home, End and typeahead reach them like any item.
+- Popover: onOpenChange gets a second argument, `{ reason }`, saying why it opened or closed: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` (the close() its children function gets). The `OpenChangeReason` and `OpenChangeDetails` types are exported for the other overlays to use next.
+
+## [9.5.0] - 2026-10-25
+
+### Added
+
+- `defaultOpen` on Dialog and Drawer, so they can be open on arrival without a state of their own. `open` is now optional: without it, Escape, the × and the backdrop close them by themselves, and `onOpenChange(false)` still comes. Menu, Popover and Tooltip already had `defaultOpen`; their tests now cover it.
+
+### Changed
+
+- IconButton's ref type is now declared as `IconButtonElement` (`HTMLButtonElement | HTMLAnchorElement`, the same type as before). The type declarations then print it the same way on every build, so index.d.ts no longer changes from one build to the next.
+
+### Fixed
+
+- CheckboxGroup's `selectAll` box rendered disabled and unchecked on the server, and so until hydration, even when `defaultValue` checked some or all boxes. It now counts the Checkboxes among the group's children until they register, so it is enabled and checked or mixed from the first paint.
+
 ## [9.4.0] - 2026-10-25
 
 ### Added

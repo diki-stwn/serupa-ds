@@ -1,4 +1,4 @@
-// exports: ContextMenu, type ContextMenuProps, Menu, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuSeparator, MenuSub, type MenuSubProps
+// exports: ContextMenu, type ContextMenuProps, Menu, MenuCheckboxItem, type MenuCheckboxItemProps, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuRadioGroup, type MenuRadioGroupProps, MenuRadioItem, type MenuRadioItemProps, MenuSeparator, MenuSub, type MenuSubProps
 interface MenuProps {
     trigger: React.ReactElement;
     children: React.ReactNode;
@@ -38,6 +38,21 @@ interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, "onSelec
     rel?: string;
 }
 declare const MenuItem: React.ForwardRefExoticComponent<MenuItemProps & React.RefAttributes<HTMLElement>>;
+type CheckableProps = Omit<MenuItemProps, "aria-checked" | "as" | "destructive" | "href" | "rel" | "role" | "target">;
+interface MenuCheckboxItemProps extends CheckableProps {
+    checked: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+}
+declare const MenuCheckboxItem: React.ForwardRefExoticComponent<MenuCheckboxItemProps & React.RefAttributes<HTMLElement>>;
+interface MenuRadioGroupProps extends Omit<MenuGroupProps, "defaultValue" | "onChange"> {
+    value: string | undefined;
+    onValueChange?: (value: string) => void;
+}
+declare const MenuRadioGroup: React.ForwardRefExoticComponent<MenuRadioGroupProps & React.RefAttributes<HTMLDivElement>>;
+interface MenuRadioItemProps extends CheckableProps {
+    value: string;
+}
+declare const MenuRadioItem: React.ForwardRefExoticComponent<MenuRadioItemProps & React.RefAttributes<HTMLElement>>;
 interface MenuSubProps extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
     label: React.ReactNode;
     children: React.ReactNode;

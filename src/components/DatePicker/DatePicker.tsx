@@ -105,7 +105,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
     <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-date-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="date-picker" data-size={size}>
       <input {...rest} ref={(n) => { field.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         lang={rest.lang ?? lang} type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
-        placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined}
+        placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}
         onChange={(e) => setText(e.target.value)}
         onBlur={(e) => { read(); if (onBlur) onBlur(e); }}
         onKeyDown={(e) => {
@@ -118,6 +118,8 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
         disabled={off} onClick={() => { if (!open) read(); setOpen(!open); }}>
         <Icon icon={icons.CalendarToday} />
       </button>
+      {/* The format to type, read after the field's name: a placeholder is gone once something is typed, and not every screen reader reads it. */}
+      <span id={id + "-format"} hidden>{sds.labels.formatHint(datePattern(locale))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value ? isoDate(value) : ""} disabled={disabled} /> : null}
       <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-date-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}>

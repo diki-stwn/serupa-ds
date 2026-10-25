@@ -64,7 +64,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `title` | node | none | A heading at the top that names it |
 | `headingLevel` | `2`–`6` | `2` | The title's heading level, to fit the page outline |
 | `placement` | `'bottom'`, `'top'`, `'left'`, `'right'`, each with `-start` or `-end` | `'bottom'` | Where it goes; it flips and shifts to stay on screen, and with no room on either side it takes the roomier one and scrolls inside. On the left or right, a popover wider than the room beside its trigger gets that width and wraps |
-| `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled) |
+| `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled). onOpenChange(open, { reason }) says why: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` |
 | `defaultOpen` | boolean | `false` | Open at first (uncontrolled) |
 | `aria-label` | string | none | Its name when there's no title |
 | `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |
