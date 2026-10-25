@@ -1,0 +1,111 @@
+{
+  "timeline": {
+    "$description": "Timeline's component tokens. Each one is an optional override: set the CSS variable (--timeline-<name>) on the page, a container or one Timeline, and every Timeline inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The content's text (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-text"
+          }
+        }
+      },
+      "title-color": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "An event's title (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-title-color"
+          }
+        }
+      },
+      "time-color": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "An event's time (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-time-color"
+          }
+        }
+      },
+      "line": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line joining the markers.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-line"
+          }
+        }
+      }
+    },
+    "border": {
+      "line-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-2}",
+        "$description": "The line's width (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-line-width"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "marker-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "The marker's box, and the title's line height (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-marker-size"
+          }
+        }
+      },
+      "dot-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2_5}",
+        "$description": "The dot, when there's no icon (10px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-size"
+          }
+        }
+      },
+      "icon-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "An icon in the marker (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-size"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Between the marker and the body (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-gap"
+          }
+        }
+      },
+      "item-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "Between one event and the next (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-item-gap"
+          }
+        }
+      }
+    }
+  }
+}

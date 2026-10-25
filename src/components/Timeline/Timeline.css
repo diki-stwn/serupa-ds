@@ -1,0 +1,44 @@
+/* ---------------------------------------------------------------
+   Timeline: events down a line. Each item is a grid: the rail (a 24px marker, a dot or an icon in a tinted
+   circle, and the line down to the next marker) and the body (title, muted time, content). align="alternate"
+   centers the rail from 768px up and puts every other body on the far side. Every value reads one of its own
+   tokens (timeline.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-timeline { margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; color: var(--timeline-text, var(--text)); }
+.dk-timeline__item {
+  --dk-timeline-dot: var(--border-strong); --dk-timeline-tint: var(--surface-muted); --dk-timeline-ink: var(--text-muted);
+  display: grid; grid-template-columns: var(--timeline-marker-size, var(--spacing-6)) minmax(var(--spacing-0), auto); column-gap: var(--timeline-gap, var(--spacing-3));
+  justify-content: start;
+}
+.dk-timeline__item--primary { --dk-timeline-dot: var(--primary); --dk-timeline-tint: var(--primary-subtle); --dk-timeline-ink: var(--primary); }
+.dk-timeline__item--success { --dk-timeline-dot: var(--success); --dk-timeline-tint: var(--success-subtle); --dk-timeline-ink: var(--success-text); }
+.dk-timeline__item--warning { --dk-timeline-dot: var(--warning); --dk-timeline-tint: var(--warning-subtle); --dk-timeline-ink: var(--warning-text); }
+.dk-timeline__item--danger { --dk-timeline-dot: var(--danger); --dk-timeline-tint: var(--danger-subtle); --dk-timeline-ink: var(--danger-text); }
+.dk-timeline__item--info { --dk-timeline-dot: var(--info); --dk-timeline-tint: var(--info-subtle); --dk-timeline-ink: var(--info-text); }
+.dk-timeline__rail { display: flex; flex-direction: column; align-items: center; grid-column: 1; grid-row: 1; }
+/* The line from this marker to the next one; the last item has none. */
+.dk-timeline__rail::after { content: ""; flex: auto; width: var(--timeline-line-width, var(--border-width-2)); margin-block: var(--spacing-1); background: var(--timeline-line, var(--border)); }
+.dk-timeline__item:last-child .dk-timeline__rail::after { visibility: hidden; }
+.dk-timeline__marker { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--timeline-marker-size, var(--spacing-6)); height: var(--timeline-marker-size, var(--spacing-6)); border-radius: var(--rounded-full); }
+.dk-timeline__marker::before { content: ""; width: var(--timeline-dot-size, var(--spacing-2_5)); height: var(--timeline-dot-size, var(--spacing-2_5)); border-radius: var(--rounded-full); background: var(--dk-timeline-dot); }
+.dk-timeline__marker--icon { background: var(--dk-timeline-tint); color: var(--dk-timeline-ink); }
+.dk-timeline__marker--icon::before { content: none; }
+.dk-timeline__marker--icon .dk-icon { font-size: var(--timeline-icon-size, var(--spacing-4)); }
+.dk-timeline__body { grid-column: 2; grid-row: 1; min-width: var(--spacing-0); padding-block-end: var(--timeline-item-gap, var(--spacing-6)); }
+.dk-timeline__item:last-child .dk-timeline__body { padding-block-end: var(--spacing-0); }
+/* The title's first line sits level with the 24px marker. */
+.dk-timeline__title { color: var(--timeline-title-color, var(--text)); font-weight: var(--font-semibold); line-height: var(--timeline-marker-size, var(--spacing-6)); }
+.dk-timeline__time { display: block; color: var(--timeline-time-color, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-timeline__content { margin-block-start: var(--spacing-2); }
+@media (min-width: 768px) {
+  .dk-timeline--alternate .dk-timeline__item { grid-template-columns: minmax(var(--spacing-0), 1fr) var(--timeline-marker-size, var(--spacing-6)) minmax(var(--spacing-0), 1fr); justify-content: stretch; }
+  .dk-timeline--alternate .dk-timeline__rail { grid-column: 2; }
+  .dk-timeline--alternate .dk-timeline__body { grid-column: 3; }
+  .dk-timeline--alternate .dk-timeline__item:nth-child(even) .dk-timeline__body { grid-column: 1; text-align: end; }
+}
+@media (forced-colors: active) {
+  .dk-timeline__marker::before, .dk-timeline__rail::after { background: CanvasText; }
+  .dk-timeline__marker--icon { border: var(--border-width-1) solid CanvasText; }
+}
+}
