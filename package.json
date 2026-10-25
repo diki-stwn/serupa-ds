@@ -20,11 +20,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./icons": {
       "types": "./dist/icons.d.ts",
-      "import": "./dist/icons.js"
+      "import": "./dist/icons.js",
+      "default": "./dist/icons.js"
     },
     "./tokens.css": "./tokens.css",
     "./tokens.json": "./tokens.json",
@@ -120,7 +122,14 @@
     "vitest-browser-react": "2.3.0"
   },
   "engines": {
-    "node": ">=26"
+    "node": ">=22"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=26",
+      "onFail": "error"
+    }
   },
   "overrides": {
     "typescript-eslint": {

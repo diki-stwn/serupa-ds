@@ -28,13 +28,17 @@ const read = (f) => fs.readFileSync(path.join(P, f), 'utf8');
 buildRegistry(P);
 const IMPORTS = cascade(P);
 
-const tokens = spawnSync(process.execPath, [path.join(P, 'tools', 'tokens', 'build.mjs')], { cwd: P, stdio: 'inherit' });
+// Progress goes to stderr (the child processes' stdout too): npm runs this as "prepare", and npm pack --json
+// must print nothing but its JSON.
+/** @type {import('node:child_process').StdioOptions} */
+const toStderr = ['inherit', 2, 'inherit'];
+const tokens = spawnSync(process.execPath, [path.join(P, 'tools', 'tokens', 'build.mjs')], { cwd: P, stdio: toStderr });
 if (tokens.status !== 0) process.exit(tokens.status || 1);
 
 fs.mkdirSync(D, { recursive: true });
 if (!process.argv.includes('--css')) {
   // tsup reads tsconfig.json and bundles index.d.ts with TypeScript's compiler API: TypeScript 6's (tools/typescript/api.mjs).
-  const r = spawnSync(process.execPath, ['--import', path.join(P, 'tools', 'typescript', 'api.mjs'), path.join(P, 'node_modules', 'tsup', 'dist', 'cli-default.js')], { cwd: P, stdio: 'inherit' });
+  const r = spawnSync(process.execPath, ['--import', path.join(P, 'tools', 'typescript', 'api.mjs'), path.join(P, 'node_modules', 'tsup', 'dist', 'cli-default.js')], { cwd: P, stdio: toStderr });
   if (r.status !== 0) process.exit(r.status || 1);
   await buildModules();
 }
@@ -99,7 +103,7 @@ for (const { file, contents, plugins } of libs) await build({
   stdin: { contents, resolveDir: P, loader: 'js' }, bundle: true, format: 'iife', platform: 'browser', target: 'es2022',
   minify: true, legalComments: 'inline', define: { 'process.env.NODE_ENV': '"production"' }, plugins, outfile: path.join(D, 'lib', file), logLevel: 'warning',
 });
-console.log(`Built dist/ (v${version})`);
+console.error(`Built dist/ (v${version})`);
 
 // dist/js/: every source file as its own ES module (src/components/Button/Button.tsx → js/components/Button/Button.js),
 // imports kept as imports. Bundled into one file, React Server Components would see one module: either all of it a
