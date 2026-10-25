@@ -10,6 +10,7 @@ const assertive: Channel = { el: null, queue: [], since: 0, timer: null };
 const HOLD = 500;   // each message stays this long before the next one replaces it, so a quick second one doesn't drop the first
 
 const home = () => topModal() || document.body;
+// module state: browser only (it watches the page's open modals); a server render never sets it.
 let watching = false;
 function region(ch: Channel, live: "polite" | "assertive"): HTMLDivElement | null {
   if (ch.el || typeof document === "undefined") return ch.el;

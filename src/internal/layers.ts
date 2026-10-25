@@ -1,6 +1,7 @@
 // The open modal dialogs (Dialog and Drawer, shown with showModal()), innermost last. While one is open the
 // browser makes everything outside it inert: screen readers skip it and it can't be clicked. So what the whole
 // page shares (the live regions, the Toaster) moves into the innermost open modal, and back when it closes.
+// module state: browser only: showModal() fills it, and a server never opens a dialog.
 const modals: HTMLElement[] = [];
 const listeners = new Set<() => void>();
 
@@ -42,6 +43,7 @@ export function modalClosed(el: HTMLElement): void {
 
 // A press that closed an open popup (a Menu, a Popover) is used up by that: a modal under it doesn't also take it as
 // a backdrop click and close. useAnchoredLayer marks the event; Dialog and Drawer check it.
+// module state: browser events, weakly held.
 const dismissals = new WeakSet<Event>();
 /** Marks a press as one that closed a popup. */
 export function markDismissal(e: Event): void { dismissals.add(e); }

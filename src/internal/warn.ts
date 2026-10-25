@@ -1,3 +1,4 @@
+// module state: which warnings were given; on a server each is given once per process, which is all a warning needs.
 const warned: Record<string, 1> = {};
 
 /** A console warning, once per key for the page's lifetime. */

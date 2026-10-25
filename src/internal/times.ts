@@ -15,6 +15,7 @@ export const toHHmm = (n: number) => `${String(Math.floor(n / 60)).padStart(2, "
 export function uses12h(locale?: string): boolean {
   return !!new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hour12;
 }
+// module state: a cache by locale.
 const formats = new Map<string, Intl.DateTimeFormat>();
 /** A time as the locale writes it: "2:05 PM", "14:05". */
 export function formatTime(n: number, locale?: string, hour12?: boolean): string {
@@ -26,6 +27,7 @@ export function formatTime(n: number, locale?: string, hour12?: boolean): string
 }
 // The locale's own words for morning and afternoon ("오전" "오후" in ko, "ص" "م" in ar), and the other words it writes
 // around a time ("ч." in bg, "ཆུ་ཚོད་" hour and "སྐར་མ་" minute in dz), lowercased without spaces, as typed text is.
+// module state: a cache by locale.
 const words = new Map<string, { am: string; pm: string; other: string[] }>();
 const squash = (x: string) => x.toLowerCase().replace(/\s+/g, "");
 function wordsOf(locale?: string): { am: string; pm: string; other: string[] } {
