@@ -4,6 +4,7 @@ import { cn, domId, omit } from "../../internal/cn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
+import { config } from "../../internal/config";
 import { Menu, MenuItem } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
@@ -43,7 +44,7 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAn
   children?: React.ReactNode;
   /** With children: open at first. Default: open when one of them is active. */
   defaultOpen?: boolean;
-  /** What renders the link: 'a' (default), or your router's link component. */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
 }
 
@@ -152,7 +153,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
       </li>
     );
   }
-  const link = React.createElement(props.as || "a", Object.assign(rest, { ref: ref, className: cls, "aria-current": props.active ? "page" : undefined }), inner(false));
+  const link = React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cls, "aria-current": props.active ? "page" : undefined }), inner(false));
   return (
     <li className="dk-sidebar__li">
       {rail && typeof props.label === "string" ? <Tooltip content={props.label} placement="right" role="label">{link}</Tooltip> : link}

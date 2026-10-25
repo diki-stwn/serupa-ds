@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { config, configure } from '../../internal/config';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
@@ -180,6 +181,16 @@ describe('Sidebar', () => {
       <Sidebar collapsed><I ref={railed} icon="folder" label="Docs" id="gref2"><I href="#b" label="B" /></I></Sidebar>
     </>);
     expect([open.current === el('gref1'), railed.current === el('gref2'), el('gref2').tagName]).toEqual([true, true, 'BUTTON']);
+  });
+
+  test('links go through the app\'s configure({ link }) component; as still wins for one item (BL1)', async () => {
+    const Marked = React.forwardRef<HTMLAnchorElement, React.AnchorHTMLAttributes<HTMLAnchorElement>>(function Marked(p, r) { return <a {...p} ref={r} data-marked="" />; });
+    const was = config.link;
+    configure({ link: Marked });
+    try {
+      await render(<Sidebar><I href="#m" label="Marked" id="lm" /><I as="a" href="#p" label="Plain" id="lp" /></Sidebar>);
+      expect([el('lm').hasAttribute('data-marked'), el('lp').hasAttribute('data-marked')]).toEqual([true, false]);
+    } finally { config.link = was; }
   });
 
   test('a group opens and shows active when a grandchild is the current page', async () => {

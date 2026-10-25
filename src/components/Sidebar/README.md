@@ -84,7 +84,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | `badge` | node | none | At the end, such as a count Badge. Hidden when collapsed |
 | `children` | SidebarItems | none | Makes it a group: a button that shows and hides them |
 | `defaultOpen` | boolean | open when a child is active | Whether a group starts open |
-| `as` | a component | `'a'` | Your router's link component |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one item |
 
 `className`, `ref` and everything else go to the link (or a group's button).
 
