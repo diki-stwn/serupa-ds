@@ -2,7 +2,7 @@
    Menu: a list of actions in the top layer next to its button. Surface with a border, 8px corners, shadow-lg,
    4px padding, at least 192px wide. Items are 32px, text-sm, with an optional muted icon and shortcut; the
    highlighted item (hover or keyboard) gets highlight, a destructive one danger-subtle; from the keyboard it
-   also gets a 2px primary bar at its start. Groups have a muted text-xs heading; separators are 1px lines. Every value goes through --menu-* tokens.
+   also gets a 2px primary bar at its start. Groups have a muted text-xs heading; separators are 1px lines. A MenuSub item has a chevron and stays highlighted while its submenu is open. Every value goes through --menu-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-menu {
@@ -60,6 +60,15 @@
 .dk-menu__item--destructive:focus { background: var(--menu-danger-bg-active, var(--danger-subtle)); }
 .dk-menu__item--destructive:focus-visible { box-shadow: inset var(--dk-bar) 0 0 var(--menu-danger, var(--danger-text)); }
 .dk-menu__item[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
+/* MenuSub: a chevron at the end, pointing where the submenu opens; the submenu overlaps the menu's padding so
+   its first item lines up with the item that opened it. */
+.dk-menu--sub { --dk-menu-sub-offset: var(--menu-sub-offset, var(--spacing-0)); }
+.dk-menu__chevron { display: inline-flex; flex-shrink: 0; margin-inline-start: auto; color: var(--menu-muted, var(--text-muted)); }
+.dk-menu__chevron .dk-icon { font-size: var(--spacing-4); }
+.dk-menu__item:focus .dk-menu__chevron, .dk-menu__item--sub[aria-expanded="true"] .dk-menu__chevron { color: var(--menu-item-text, var(--text)); }
+.dk-menu__item--sub[aria-expanded="true"]:not(:focus) { background: var(--menu-item-bg-active, var(--highlight)); }
+.dk-menu__rtl, .dk-menu__item:dir(rtl) .dk-menu__ltr { display: none; }
+.dk-menu__item:dir(rtl) .dk-menu__rtl { display: inline-block; }
 .dk-menu__group-label { padding: var(--spacing-1\.5) var(--menu-item-padding-x, var(--spacing-2)) var(--spacing-1); color: var(--menu-muted, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
 .dk-menu__separator { height: var(--border-width-1); margin: var(--spacing-1) var(--spacing-0); background: var(--menu-separator, var(--border)); }
 @media (prefers-reduced-motion: reduce) { .dk-menu { animation: none; } }
