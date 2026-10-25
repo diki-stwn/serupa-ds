@@ -45,6 +45,7 @@ export interface PhoneInputProps extends Omit<InputProps, "type" | "showCount" |
 const own = { size: 1, invalid: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, country: 1, defaultCountry: 1,
   onCountryChange: 1, countries: 1, countryLabel: 1, name: 1, onKeyDown: 1 } as const;
 
+const never = () => () => {}, yes = () => true, no = () => false;
 const regionOf = (locale: string): string | undefined => {
   try { return new Intl.Locale(locale).maximize().region; } catch { return undefined; }
 };
@@ -78,6 +79,10 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     return mine.map((c) => ({ ...c, code: c.code.toUpperCase() })).concat(PHONE_COUNTRIES.filter((c) => !codes.has(c.code)));
   }, [props.countries]);
   const find = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
+  // Country names come from the runtime's Intl data, and a server's (Node's ICU) words some of them differently from
+  // the browser's ("Falkland Islands (Islas Malvinas)"), so the names and their order may not match the server HTML.
+  // The hydration render keeps the server's options as sent; right after it they are drawn again, in the browser's words.
+  const hydrated = React.useSyncExternalStore(never, yes, no);
   const list = React.useMemo(function () {
     const pick = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
     const picked = props.countries ? props.countries.map((c) => pick(typeof c === "string" ? c : c && c.code)).filter((c): c is PhoneCountry => !!c) : table.slice();
@@ -190,7 +195,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
         <Icon icon={icons.ExpandMore} className="dk-phone-input__chevron" />
         <select className="dk-phone-input__select" value={country.code} onChange={onCountry} disabled={rest.disabled || rest.readOnly}
           aria-label={props.countryLabel || sds.labels.country}>
-          {list.map(({ c, name }) => <option key={c.code} value={c.code}>{name + " (+" + c.dial + ")"}</option>)}
+          {list.map(({ c, name }) => <option key={(hydrated ? "" : "server-") + c.code} value={c.code} suppressHydrationWarning>{name + " (+" + c.dial + ")"}</option>)}
         </select>
       </span>
       <input autoComplete="tel-national" {...rest} ref={setRef} type="tel" inputMode="tel" className="dk-input__field" value={text} onChange={onChange} onKeyDown={onKeyDown} />

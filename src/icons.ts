@@ -25,13 +25,17 @@ export function hasIcon(name: unknown): name is string {
 const NAMED = new Map<string, IconData>();
 let loading: Promise<void> | undefined;
 let loadingNamed: Promise<void> | undefined;
+// The names that came from a load rather than registerIcons: the server never loads them, so a hydration leaves them
+// out even when this page loaded them already (for an island hydrated after another).
+const LOADED = new Set<string>();
+const loaded = (v: IconData) => { if (!NAMED.has(v.name)) { NAMED.set(v.name, v); LOADED.add(v.name); } };
 
 /** Loads the icon for a name (Icon calls it when it meets a name it doesn't know yet): the components' own icons first,
  * from a small chunk, then every Material Symbol. Resolves to the icon, or undefined if no icon has that name. */
 export function loadIcon(name: string): Promise<IconData | undefined> {
   const found = () => NAMED.get(name);
   if (!loadingNamed) loadingNamed = import("./material/named").then((m) => {
-    for (const v of m.NAMED_ICONS) if (!NAMED.has(v.name)) NAMED.set(v.name, v);
+    for (const v of m.NAMED_ICONS) loaded(v);
   });
   return loadingNamed.then(() => found() || loadAllIcons().then(found));
 }
@@ -39,7 +43,7 @@ export function loadIcon(name: string): Promise<IconData | undefined> {
 /** Loads every Material Symbol so its name works (once; Icon calls it when it meets a name it doesn't know yet). */
 export function loadAllIcons(): Promise<void> {
   return loading || (loading = import("./material/icons").then((all) => {
-    for (const v of Object.values(all)) if (isIconData(v) && !NAMED.has(v.name)) NAMED.set(v.name, v);
+    for (const v of Object.values(all)) if (isIconData(v)) loaded(v);
   }));
 }
 
@@ -48,14 +52,18 @@ export function loadAllIcons(): Promise<void> {
  * the first render (server rendering, say), register the full set first: `registerIcons(await import("serupa-ds/icons"))`. */
 export function registerIcons(...icons: Array<IconData | Readonly<Record<string, IconData>>>): void {
   for (const x of icons) {
-    if (isIconData(x)) NAMED.set(x.name, x);
-    else for (const v of Object.values(x)) if (isIconData(v)) NAMED.set(v.name, v);
+    for (const v of isIconData(x) ? [x] : Object.values(x)) if (isIconData(v)) { NAMED.set(v.name, v); LOADED.delete(v.name); }
   }
 }
 
 /** The Material Symbol for a name, if it is registered or already loaded. */
 export function getIcon(name: string): IconData | undefined {
   return NAMED.get(name);
+}
+
+/** The Material Symbol for a name if it is registered: what a server draws, so what a hydration must draw too. */
+export function getRegisteredIcon(name: string): IconData | undefined {
+  return LOADED.has(name) ? undefined : NAMED.get(name);
 }
 
 export function isIconData(x: unknown): x is IconData {
