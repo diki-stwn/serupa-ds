@@ -3,6 +3,7 @@ import * as React from "react";
 import { useFormStatus } from "react-dom";
 import { cn, type DataAttributes, domId, omit, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
+import { useShowAfter } from "../../internal/showAfter";
 import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
@@ -103,11 +104,13 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     warnOnce("button-icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
-  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading"), then successText if it
-  // resolved.
-  const [busy, setBusy] = React.useState(false);
+  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading") and then for at least
+  // MIN_SHOWN, so one that ends just after BUSY_MS doesn't flash the spinner (EB1); then successText if it resolved.
+  const [working, setWorking] = React.useState(false);
+  const busy = useShowAfter(working, BUSY_MS);
   const [success, setSuccess] = React.useState(false);
   const pending = React.useRef(false);
+  const won = React.useRef("");   // successText, once resolved: shown when the spinner has gone
   const alive = React.useRef(true);
   React.useEffect(function () { alive.current = true; return () => { alive.current = false; }; }, []);
   React.useEffect(function () {
@@ -115,6 +118,13 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     const t = setTimeout(() => setSuccess(false), SUCCESS_MS);
     return () => clearTimeout(t);
   }, [success]);
+  React.useEffect(function () {
+    if (working || busy || !won.current) return;
+    const text = won.current;
+    won.current = "";
+    setSuccess(true);
+    announce(text);
+  }, [working, busy]);
   const successText = props.successText;
   const own = rest.onClick;
   if (own) rest.onClick = function (e: React.MouseEvent<HTMLElement>) {
@@ -122,14 +132,14 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     const r: unknown = own(e);
     if (!isThenable(r)) return;
     pending.current = true;
+    won.current = "";
     setSuccess(false);
-    const slow = setTimeout(function () { if (alive.current && pending.current) setBusy(true); }, BUSY_MS);
+    setWorking(true);
     const settle = function (ok: boolean) {
       pending.current = false;
-      clearTimeout(slow);
       if (!alive.current) return;
-      setBusy(false);
-      if (ok && successText) { setSuccess(true); announce(successText); }
+      if (ok && successText) won.current = successText;
+      setWorking(false);
     };
     r.then(function () { settle(true); }, function () { settle(false); });
   };

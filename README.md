@@ -296,6 +296,19 @@ Names are never removed in a minor or patch release: they're marked deprecated i
 
 Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The files are generated from `tokens.json` (`npm run tokens`) and the tests fail if they fall out of step. `tools/tokens/style-dictionary.config.mjs` builds them back into CSS, one file per theme, with the system's own variable names; the tests check that every one of its 3,500 values equals the token.
 
+## Editor autocomplete
+
+The package carries [VS Code custom data](https://code.visualstudio.com/api/extension-guides/custom-data-extension) for the utility classes and the tokens. With it, VS Code offers every utility class in `class="…"` with what it sets, the themes in `data-theme`, and every token where a stylesheet sets one (`:root { --primary: … }`). Add this to the project's `.vscode/settings.json`:
+
+```json
+{
+  "html.customData": ["./node_modules/serupa-ds/dist/vscode/serupa.html-data.json"],
+  "css.customData": ["./node_modules/serupa-ds/dist/vscode/serupa.css-data.json"]
+}
+```
+
+The class list works in HTML files. JSX's `className` and `var(--…)` inside a value are completed by other means: VS Code offers inside `var()` only the custom properties of the stylesheet being edited.
+
 ## Browser support
 
 Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cross-browser test (`tools/test/compat.mjs`) runs the system in Safari's engine (WebKit) or Firefox and compares every utility class and the behaviour of `base.css`, `theme.js`, responsive classes and Button with Chromium. A few classes depend on newer CSS that not every browser has yet; they do nothing where it's missing:
