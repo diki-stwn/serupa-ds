@@ -29,6 +29,7 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 
 - Label it with [Field](../Field/README.md). Say in the hint what the number is for ("We'll text you a code").
 - Store the E.164 value, not the text in the field. `onValueChange` gives it, and `name` submits it.
+- **Form reset** puts `defaultValue` and `defaultCountry` back, in the field and in what the form sends. A controlled field shows its `value` again.
 - `complete` says whether the number has a length the country uses. Use it to enable submit or to show an error after blur. It doesn't check that the number exists.
 - Set `defaultCountry` to where most of your users are. Without it, the country comes from the locale's region (`id-ID` gives Indonesia), else the US.
 - Pasting or typing a number that starts with `+` or `00` picks the country from its calling code. Where countries share one, the area decides: `+1 416…` is Canada, `+1 684…` American Samoa, `+7 7…` Kazakhstan, `+44 1481…` Guernsey.

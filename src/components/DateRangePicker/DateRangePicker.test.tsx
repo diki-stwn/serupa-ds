@@ -40,6 +40,16 @@ describe('DateRangePicker', () => {
     expect([vals('drpi'), calls]).toEqual([' – ', ['12/31/2025:unavailable', 'later:unreadable']]);
   });
 
+  test('an end typed before the start is put back and reported as unavailable, not dropped without a word', async () => {
+    const calls: string[] = [];
+    await render(<DateRangePicker data-testid="drpo" locale="en-US" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await userEvent.fill(fields('drpo')[0], '10/20/2026');
+    await userEvent.keyboard('{Tab}');
+    await userEvent.fill(fields('drpo')[1], '10/10/2026');
+    await userEvent.keyboard('{Enter}');
+    expect(calls).toEqual(['10/10/2026:unavailable']);
+  });
+
   test('a role="group" dk-input box with "Start date" and "End date" fields, a "Choose dates" button; Field labels the start field and describes both; ref and className; defaultValue fills both fields', async () => {
     const ref = React.createRef<HTMLSpanElement>();
     await render(<Trip tref={ref} />);

@@ -122,7 +122,12 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
     let d: Date | null = raw === "" ? null : parseDate(raw, locale);
     if (raw !== "" && !(d && allowed(d))) { reject(raw, d ? "unavailable" : "unreadable", onInvalidInput, sds.labels.inputNotAccepted); d = value[which]; }
     const r = { ...value, [which]: d };
-    if (r.start && r.end && compare(r.start, r.end) > 0) { if (which === "start") r.end = null; else r.end = value.end; }
+    // A start past the end clears the end; an end before the start is turned down out loud, as a date outside min and
+    // max is, so the text doesn't just vanish.
+    if (r.start && r.end && compare(r.start, r.end) > 0) {
+      if (which === "start") r.end = null;
+      else { reject(raw, "unavailable", onInvalidInput, sds.labels.inputNotAccepted); r.end = value.end; }
+    }
     commit(r);
   };
   const close = (focus: boolean) => { setOpen(false); setHover(null); if (focus && startField.current) startField.current.focus(); };
