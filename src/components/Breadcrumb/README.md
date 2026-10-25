@@ -38,7 +38,10 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 
 ## Accessibility
 
-- Each link takes a press over at least 24px of height (WCAG 2.5.8), past its 20px line, without moving the trail.
+- Each link, and the "…" button, takes a press over at least 24×24px (WCAG 2.5.8) without moving the trail.
+- A long unbroken label, such as a file name or a URL slug, wraps inside the trail rather than running past a 320px screen (WCAG 1.4.10).
+- An item with only an `icon` needs an `aria-label`. Without one it's a link a screen reader can only call "link", and it warns once in the console.
+- A Breadcrumb with no items renders nothing, so it doesn't leave an empty nav landmark.
 - It's a `<nav>` landmark named "Breadcrumb" holding an ordered list, so screen readers say how many levels there are. Give it another name if the page has two.
 - The current page has `aria-current="page"`. Separators sit inside the item after them and are hidden from screen readers, so the list has one item per page.
 - With `collapse="menu"`, "…" is a menu button named "More pages" (`aria-haspopup="menu"`, `aria-expanded`), and the hidden pages are links in the menu. It follows Menu's keys: Enter, Space or ↓ opens it on the first page, ↑ ↓ move, Enter follows a link, and Escape closes it and returns to "…".
