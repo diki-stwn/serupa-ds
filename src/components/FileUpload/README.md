@@ -45,6 +45,7 @@ import { FileUpload } from "serupa-ds";
 - In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. With the Field's `error` the button gets `aria-invalid`; with `required` it's described by "Required" first (`labels.required`), since a button can't carry `aria-required`.
 - Text keeps 4.5:1 (also while dragging), and the icons and dashed outline 3:1, in all six themes (`FileUpload.test.tsx`).
 - In forced colors (Windows High Contrast), the drag-over area turns its border solid and `Highlight`, so the state still shows without the primary fill.
+- **Keyboard:** Tab reaches the choose button, where Enter or Space opens the file picker, then each chosen file's remove button. Dropping files needs a pointer, so the button is the keyboard's way in. Read-only, the choose button stays focusable but opens nothing.
 
 ## Props
 
