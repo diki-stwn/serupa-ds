@@ -10,7 +10,7 @@ const ARGS: Record<string, unknown[]> = {
   reorderGrabbed: ['Apollo', 2, 5], reorderMoved: ['Apollo', 2, 5], reorderDropped: ['Apollo', 2, 5], reorderCancelled: ['Apollo', 2, 5],
   avatarMore: [3], avatarStatus: ['online'], charactersLeft: [12], clearValue: ['Email'], inputNotAccepted: ['abc'],
   keyName: ['Up arrow'], tableSorted: ['Amount', 'ascending'], resultsCount: [3],
-  fileWrongType: ['cat.txt', ['image', 'PDF']], fileTooLarge: ['cat.png', '2 MB'], fileTooMany: ['cat.png', 3], fileOnlyOne: ['cat.png'], fileMissing: [true],
+  fileWrongType: ['cat.txt', ['image', 'PDF']], fileTooLarge: ['cat.png', '2 MB'], fileTooMany: ['cat.png', 3], fileOnlyOne: ['cat.png'], fileMissing: [true], toastRepeated: [12],
 };
 function said(set: Record<string, unknown>): Record<string, string> {
   return Object.fromEntries(Object.entries(set).map(([k, v]) => {

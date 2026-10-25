@@ -33,6 +33,7 @@ const { PasswordInput, Field } = window.Serupa;
 - The button is named "Show password" and has `aria-pressed`, so screen readers say whether the password is shown. Its `aria-controls` points at the field when the field has an `id` (Field gives it one).
 - Clicking it keeps focus in the field, so typing carries on. It's also reachable with Tab, and Enter or Space press it.
 - Spell check and auto-capitalization are off, so a shown password isn't underlined or changed.
+- Showing or hiding the password keeps the caret and any selection where they were (changing the field's type would put the caret at the start), so typing goes on where it stopped.
 - While Caps Lock is on and the field has focus, "Caps Lock is on" shows before the eye, joins the field's description and is read out once (the `capsLockOn` label). It goes away when Caps Lock is turned off or focus leaves. `capsLockHint={false}` turns it off.
 - Pasting is never blocked, so a password manager or a copied password can fill the field (WCAG 3.3.8, accessible authentication). Don't add an `onPaste` that prevents it.
 - The text keeps 4.5:1 and the eye icon 3:1 on the field in all six themes (`PasswordInput.test.tsx`).

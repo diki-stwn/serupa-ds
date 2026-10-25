@@ -33,7 +33,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 - Go from the top level down to the current page, and make the current page the last item.
 - Label each item with the title people see on that page, so the trail matches where it leads.
 - On deep trails, set `maxItems` so it fits on one line; the first item and the last ones stay visible.
-- With a router, pass its link component as `as` so client-side navigation keeps working.
+- With a router, register its link component once with `configure({ link })`, or pass it as `as` so client-side navigation keeps working.
 
 ## Accessibility
 
@@ -63,7 +63,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 | --- | --- | --- | --- |
 | `href` | string | none | Where it goes |
 | `icon` | an icon name or element | none | A 16px icon before the label |
-| `as` | a component | `'a'` | Your router's link component |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. |
 
 The last item is the current page (Breadcrumb sets its `current` prop; you don't pass it): text with `aria-current="page"`, not a link, even if it has an `href`. `className`, `ref` and everything else go to the link.
 

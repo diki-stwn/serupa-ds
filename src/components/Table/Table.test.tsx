@@ -252,3 +252,24 @@ describe('Table', () => {
     expect([low, n]).toEqual([[], 42]);
   });
 });
+
+describe('Table: stickyHeader and focus', () => {
+  test('walking up the rows with Shift+Tab, no focused link ends up under the sticky header (WCAG 2.4.11); the frame measures the header into --dk-table-head', async () => {
+    const rows = []; for (let i = 0; i < 40; i++) rows.push(<TableRow key={i}><TableCell>Invoice {i}</TableCell><TableCell><a href={'#e' + i} id={'e' + i}>Edit</a></TableCell></TableRow>);
+    await render(<Table stickyHeader caption="Invoices" containerProps={{ style: { maxHeight: '240px' } }}>
+      <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Action</TableHeaderCell></TableRow></TableHead>
+      <TableBody>{rows}</TableBody>
+    </Table>);
+    const head = document.querySelector('.dk-table__head') as HTMLElement, frame = head.closest('.dk-table') as HTMLElement;
+    await expect.poll(() => frame.style.getPropertyValue('--dk-table-head')).toBe(head.getBoundingClientRect().height + 'px');
+    el('e39').focus();
+    const covered: number[] = [];
+    for (let i = 38; i >= 0; i--) {
+      await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+      expect(document.activeElement!.id).toBe('e' + i);
+      // The header cells are what stick (the <thead> box itself scrolls away).
+      if (document.activeElement!.getBoundingClientRect().top < head.querySelector('th')!.getBoundingClientRect().bottom - 1) covered.push(i);
+    }
+    expect(covered).toEqual([]);
+  });
+});
