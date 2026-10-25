@@ -99,7 +99,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const variant = oneOf(BUTTON_VARIANTS, props.variant, "primary");
   const size = oneOf(SIZES, props.size, "md");
   let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, wrap: props.wrap, className: props.className });
-  if (iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
+  if (process.env.NODE_ENV !== "production" && iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
     warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run

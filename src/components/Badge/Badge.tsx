@@ -94,7 +94,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "subtle");
   const tone = oneOf(TONES, props.tone, "neutral");
-  if (props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
+  if (process.env.NODE_ENV !== "production" && props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
   const loading = !!props.loading;
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;
   // Hooks first: a count of 0 renders nothing below, and hooks must run on every render.
@@ -122,14 +122,14 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const isLink = rest.href != null, interactive = isLink || typeof rest.onClick === "function";
   let removable = !isCount && typeof props.onRemove === "function";
   if (removable && interactive) {   // a button inside a button (or link) isn't valid: the badge's own click wins
-    warnOnce("badge-remove-interactive", "Badge: onRemove is ignored on a badge with onClick or href (a button can't hold another button).");
+    if (process.env.NODE_ENV !== "production") warnOnce("badge-remove-interactive", "Badge: onRemove is ignored on a badge with onClick or href (a button can't hold another button).");
     removable = false;
   }
   // Indicator: dot with no label, icon or count is a lone dot ("something new", no number): a solid circle in the
   // tone with a ring in the surface color, for the corner of an icon or avatar. Decorative unless you name it.
   const hasLabel = !(label == null || label === false || label === "");
   if (!isCount && props.dot && !hasLabel && (props.leftIcon == null || props.leftIcon === false)) {
-    if (interactive || typeof props.onRemove === "function") warnOnce("badge-indicator", "Badge: a dot indicator can't be clicked or removed (it's too small to target); name and handle the control it sits on.");
+    if (process.env.NODE_ENV !== "production" && (interactive || typeof props.onRemove === "function")) warnOnce("badge-indicator", "Badge: a dot indicator can't be clicked or removed (it's too small to target); name and handle the control it sits on.");
     delete rest.href; delete rest.onClick; delete rest.type; delete rest.disabled; delete rest.target; delete rest.rel;
     rest["data-component"] = "badge";
     rest["data-variant"] = "indicator";

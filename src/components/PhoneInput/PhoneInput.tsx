@@ -159,7 +159,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     if (/^\s*(\+|00)/.test(raw)) {
       const p = parsePhone(raw, country.code, table);
       if (p) { const d = commit(p.national, p.country); caret.current = formatNational(d, p.country).length; return; }
-      if (raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
+      if (process.env.NODE_ENV !== "production" && raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
     }
     const all = raw.replace(/\D/g, "");
     let digits = stripTrunk(all, country);
