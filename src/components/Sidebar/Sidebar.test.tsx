@@ -160,6 +160,28 @@ describe('Sidebar', () => {
     await userEvent.keyboard('{Escape}');
   });
 
+  test('collapsed: a group button also shows its label as a tooltip on focus, and still opens its menu', async () => {
+    await render(<Sidebar id="stip" collapsed>
+      <I icon="folder" label="Docs" id="gtip"><I href="#intro" label="Intro" /></I>
+    </Sidebar>);
+    el('gtip').focus();
+    const tip = () => document.getElementById((el('gtip').getAttribute('aria-labelledby') || '').split(' ').pop() || '');
+    await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
+    expect([tip()!.textContent, el('gtip').getAttribute('aria-haspopup')]).toEqual(['Docs', 'menu']);
+    await userEvent.click(el('gtip'));
+    await expect.poll(() => [...document.querySelectorAll('[role="menu"]')].some((x) => x.matches(':popover-open'))).toBe(true);
+    await userEvent.keyboard('{Escape}');
+  });
+
+  test('the ref reaches a group item\'s button, expanded and in the rail', async () => {
+    const open = React.createRef<HTMLAnchorElement>(), railed = React.createRef<HTMLAnchorElement>();
+    await render(<>
+      <Sidebar collapsed={false}><I ref={open} icon="folder" label="Docs" id="gref1"><I href="#a" label="A" /></I></Sidebar>
+      <Sidebar collapsed><I ref={railed} icon="folder" label="Docs" id="gref2"><I href="#b" label="B" /></I></Sidebar>
+    </>);
+    expect([open.current === el('gref1'), railed.current === el('gref2'), el('gref2').tagName]).toEqual([true, true, 'BUTTON']);
+  });
+
   test('a group opens and shows active when a grandchild is the current page', async () => {
     await render(<Sidebar id="snest" collapsed={false}>
       <I icon="folder" label="Docs" id="gdocs">
