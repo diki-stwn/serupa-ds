@@ -37,3 +37,16 @@ export const Small: Story = { args: { size: 'sm', title: 'Filters' } };
 export const Large: Story = { args: { size: 'lg', title: 'Project details', description: 'Everything about Atlas in one place.' } };
 export const NoCloseButton: Story = { args: { closeButton: false, title: 'Filters' } };
 export const StaysOpenOnBackdropPress: Story = { name: 'Stays open on a backdrop press', args: { closeOnBackdrop: false, title: 'Unsaved filters', description: 'Apply or reset them to close.' } };
+const NOTES = Array.from({ length: 24 }, (_, i) => <p key={i}>Release {24 - i}. Faster search, a new export menu, and fixes for the calendar in right-to-left pages.</p>);
+/** A body taller than the screen with nothing focusable in it: Tab reaches the body, and the arrow keys scroll it. */
+export const LongText: Story = {
+  name: 'Long text',
+  args: { title: 'Release notes', description: undefined },
+  render: function Render(args: DrawerProps) {
+    const [open, setOpen] = React.useState(false);
+    return <>
+      <Button onClick={() => setOpen(true)}>Release notes</Button>
+      <Drawer {...args} open={open} onOpenChange={setOpen}>{NOTES}</Drawer>
+    </>;
+  },
+};
