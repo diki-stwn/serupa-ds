@@ -115,6 +115,30 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
+### For your own components
+
+The package also exports what the components use themselves, so a component you build follows the same settings:
+
+| Export | What it gives |
+| --- | --- |
+| `useSerupa()` | The nearest `SerupaProvider`'s settings: `locale`, `labels` (the built-in words), `icons` and `platform`. |
+| `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
+| `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
+| `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
+
+```tsx
+import { announce, useLocale } from "serupa-ds";
+
+function SavedAt({ at }: { at: Date }) {
+  const locale = useLocale();
+  return <span>{at.toLocaleTimeString(locale)}</span>;
+}
+
+announce("Draft saved");
+```
+
+[Localization](docs/Localization.mdx) has more on the provider.
+
 ### How the utility classes read tokens
 
 Every utility class works on its own, with no framework or build step, and every class whose value is on a scale reads it from its token: `p-4` is `var(--spacing-4)`, `duration-300` is `var(--duration-300)`. Change a token on a page and its classes follow. Three deliberate exceptions: breakpoints (CSS can't read variables inside `@media`), shadow classes (they write the token's shape out so a color class can recolor it), and `rounded-full` (9999px). Border and divide style classes (`border-dashed`) only change a line that a width class draws, so the system needs no CSS reset.

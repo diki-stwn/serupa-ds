@@ -58,7 +58,8 @@ function said(queued: string, text: string): boolean {
   return at >= 0 && (at === 0 || /[.!?…。] $/.test(queued.slice(0, at)) || queued.slice(at - 2, at) === ". ") && (at + text.length === queued.length || /^(\.? )/.test(queued.slice(at + text.length)));
 }
 
-/** Says text to screen readers. assertive interrupts what's being read: only for errors. */
+/** Says text to screen readers through the live regions the components use, which move into an open Dialog or Drawer
+ *  so they're heard there too. A burst is said as one message. assertive interrupts what's being read: only for errors. */
 export function announce(text: string, options?: { assertive?: boolean }): void {
   const ch = options && options.assertive ? assertive : polite;
   if (!region(ch, options && options.assertive ? "assertive" : "polite")) return;

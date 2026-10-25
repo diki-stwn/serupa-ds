@@ -1,4 +1,4 @@
-// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useSerupa, version
+// exports: announce, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -64,6 +64,10 @@ declare namespace SerupaProvider {
     var displayName: string;
 }
 declare function useSerupa(): SerupaSettings;
+declare function useLocale(own?: string): string;
+declare function announce(text: string, options?: {
+    assertive?: boolean;
+}): void;
 declare function useCollator(options?: Intl.CollatorOptions & {
     locale?: string;
 }): Intl.Collator;
@@ -77,6 +81,7 @@ declare global {
     interface Window {
         Serupa: ComponentGlobals & {
             version: string;
+            announce: typeof announce;
             configure: typeof configure;
             customIcons: typeof customIcons;
             enLabels: typeof DEFAULT_LABELS;
@@ -85,6 +90,7 @@ declare global {
             registerIcons: typeof registerIcons;
             SerupaProvider: typeof SerupaProvider;
             useCollator: typeof useCollator;
+            useLocale: typeof useLocale;
             useSerupa: typeof useSerupa;
             theme?: ThemeApi;
         };
