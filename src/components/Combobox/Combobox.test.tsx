@@ -301,3 +301,11 @@ describe('Combobox', () => {
     expect(['f1', 'f2', 'f3', 'f4', 'f5'].map(name)).toEqual(['Clear Country', 'Clear Region', 'Clear Ship to', 'Clear', 'Remove country']);
   });
 });
+
+describe('Combobox: autocomplete', () => {
+  test('off by default; a passed autoComplete ("country-name") reaches the field', async () => {
+    await render(<><Combobox id="cbac" aria-label="Topic" options={COUNTRIES} /><Combobox id="cbcn" aria-label="Country" options={COUNTRIES} autoComplete="country-name" /></>);
+    const a = document.getElementById('cbac') as HTMLInputElement, b = document.getElementById('cbcn') as HTMLInputElement;
+    expect([a.getAttribute('autocomplete'), b.getAttribute('autocomplete')]).toEqual(['off', 'country-name']);
+  });
+});

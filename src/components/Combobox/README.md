@@ -78,7 +78,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. By default they come from the `showOptions` and `clearValue` labels ("Tampilkan pilihan", "Hapus Negara" in `idLabels`). |
 | `name` | `string` | | Sends the value with a form, in a hidden input. With `form`, the hidden input belongs to that form too. |
 
-`className` and `style` go to the box; `ref` and every other prop go to the `<input>`.
+`className` and `style` go to the box; `ref` and every other prop go to the `<input>`. `autoComplete` is `off` unless you pass one: for a field about the user, pass its purpose, such as `autoComplete="country-name"` for their country, so browsers can fill it (WCAG 1.3.5).
 
 ## Component tokens
 

@@ -172,3 +172,15 @@ describe('DatePicker', () => {
     expect(n).toBe(54);
   });
 });
+
+describe('DatePicker: autocomplete', () => {
+  test('off by default; a passed autoComplete ("bday" for a date of birth) reaches the field, and what autofill types is read as the date', async () => {
+    const got: string[] = [];
+    await render(<><DatePicker id="dpac" aria-label="Start" /><DatePicker id="dpbd" aria-label="Date of birth" locale="en-US" autoComplete="bday" onValueChange={(d) => got.push(d ? d.toDateString() : 'null')} /></>);
+    const a = document.getElementById('dpac') as HTMLInputElement, b = document.getElementById('dpbd') as HTMLInputElement;
+    expect([a.getAttribute('autocomplete'), b.getAttribute('autocomplete')]).toEqual(['off', 'bday']);
+    await userEvent.fill(b, '1990-05-12');
+    b.blur();
+    await expect.poll(() => got.at(-1)).toBe('Sat May 12 1990');
+  });
+});

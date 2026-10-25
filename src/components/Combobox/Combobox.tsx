@@ -203,7 +203,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       <input {...rest} ref={(n) => { input.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         type="text" role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="list" aria-haspopup="listbox"
         aria-activedescendant={open && activeShown ? base + "-opt-" + active : undefined}
-        autoComplete="off" autoCorrect="off" spellCheck={false} className="dk-input__field" value={text}
+        autoComplete={rest.autoComplete || "off"} autoCorrect="off" spellCheck={false} className="dk-input__field" value={text}
         onChange={onChange} onKeyDown={onKeyDown} onBlur={onBlur}
         onClick={(e) => { if (rest.onClick) rest.onClick(e); if (!open) show("selected"); }} />
       {showClear ? (
