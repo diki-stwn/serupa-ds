@@ -124,6 +124,8 @@ export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, '
   disabled?: boolean;
   /** Makes it a link (the configure({ link }) component, <a> by default). */
   href?: string;
+  /** Makes it a link with this component, in place of the configure({ link }) one: a router's Link, with its own props (to). */
+  as?: React.ElementType;
   target?: string;
   rel?: string;
 }
@@ -147,24 +149,25 @@ export function keyShortcuts(shortcut: string): string {
 /** One action in a Menu. */
 export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("MenuItem", function MenuItem(props, ref) {
   const ctx = React.useContext(MenuContext);
-  const rest = omit(props, { onSelect: 1, icon: 1, shortcut: 1, destructive: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1 });
+  const rest = omit(props, { onSelect: 1, icon: 1, shortcut: 1, destructive: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1, as: 1 });
   const own = { onClick: props.onClick, onKeyDown: props.onKeyDown, onPointerMove: props.onPointerMove };
+  const linked = rest.href != null || props.as != null;   // a link component of its own may take its address another way (to)
   const choose = (e: React.SyntheticEvent) => {
     if (props.disabled) { e.preventDefault(); return; }
     if (props.onSelect) props.onSelect(e);
     if (!e.defaultPrevented && ctx) ctx.close(true);
   };
-  const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (rest.href != null && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close(false); return; } choose(e); };
+  const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close(false); return; } choose(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (own.onKeyDown) own.onKeyDown(e);
     if (e.defaultPrevented) return;
-    if (e.key === "Enter" || e.key === " ") { if (rest.href != null && e.key === "Enter" && !props.disabled) return; choose(e); e.preventDefault(); }
+    if (e.key === "Enter" || e.key === " ") { if (linked && e.key === "Enter" && !props.disabled) return; choose(e); e.preventDefault(); }
   };
-  const isLink = rest.href != null && !props.disabled;
+  const isLink = linked && !props.disabled;
   if (!isLink) delete rest.href;
   if (props.shortcut && rest["aria-keyshortcuts"] == null) rest["aria-keyshortcuts"] = keyShortcuts(props.shortcut);
   if (isLink && rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
-  return React.createElement(isLink ? config.link : "div", Object.assign(rest, {
+  return React.createElement(isLink ? props.as || config.link : "div", Object.assign(rest, {
     ref: ref, role: "menuitem", tabIndex: -1, "aria-disabled": props.disabled || undefined,
     className: cn("dk-menu__item", props.destructive && "dk-menu__item--destructive", props.className),
     onClick: onClick, onKeyDown: onKeyDown, onPointerMove: (e: React.PointerEvent<HTMLElement>) => { if (own.onPointerMove) own.onPointerMove(e); if (document.activeElement !== e.currentTarget) e.currentTarget.focus(); },

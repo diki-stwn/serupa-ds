@@ -15,7 +15,7 @@ for (const f of ['src/internal/labels.ts', 'tokens.json', 'src/styles/cascade.tx
   t(`a change to ${f} tests everything`, affectedComponents(['src/components/Meter/Meter.tsx', f]) === null, list(affectedComponents([f])));
 }
 t('a changeset alone covers no component', affectedComponents(['.changeset/x.md'])?.size === 0);
-const none = ['tools/test/size.mjs', 'tools/publish.mjs', '.github/dependabot.yml', '.github/workflows/release.yml', 'tools/test/baseline-utilities.json', 'licenses/inter.txt'];
+const none = ['CONTRIBUTING.md', '.github/pull_request_template.md', 'tools/test/size.mjs', 'tools/publish.mjs', '.github/dependabot.yml', '.github/workflows/release.yml', 'tools/test/baseline-utilities.json', 'licenses/inter.txt'];
 t('the release scripts, the Node checks and the other workflows cover no component', affectedComponents(none)?.size === 0, list(affectedComponents(none)));
 for (const f of ['.github/workflows/ci.yml', 'tools/test/lib.mjs', 'tools/test/storybook.mjs', 'tools/test/vitest/setup.ts', 'CHANGELOG.md']) t(`a change to ${f} tests everything`, affectedComponents([f]) === null);
 const deps = withDependents(new Set(['Button']));
