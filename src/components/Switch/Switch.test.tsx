@@ -156,6 +156,48 @@ describe('Switch', () => {
     expect(new FormData(document.getElementById('ro-form') as HTMLFormElement).get('wifi')).toBe('on');
   });
 
+  test('pending: aria-busy and a ring turning on the thumb; clicks and Space leave it, onChange doesn\'t run, it stays focusable and submitted, and the ring keeps 3:1 on the thumb on and off in all six themes', async () => {
+    const onChange = vi.fn();
+    function Saving() {
+      const [on, setOn] = React.useState(false), [busy, setBusy] = React.useState(false);
+      return <form id="pd-form">
+        <Switch id="pd" name="sync" checked={on} pending={busy} onChange={(e) => { onChange(); setOn(e.currentTarget.checked); setBusy(true); }}>Sync</Switch>
+        <Switch id="pd-on" defaultChecked pending>Backup</Switch>
+        <button type="button" id="pd-done" onClick={() => { setBusy(false); }}>Saved</button>
+      </form>;
+    }
+    await render(<Saving />);
+    const lab = (id: string) => el(id).closest('.dk-switch') as HTMLElement;
+    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('.dk-switch__spinner')]).toEqual([false, null]);
+    await userEvent.click(lab('pd'));
+    expect([el('pd').checked, el('pd').getAttribute('aria-busy'), el('pd').hasAttribute('aria-readonly'), css(lab('pd')).cursor, el('pd').tabIndex]).toEqual([true, 'true', false, 'progress', 0]);
+    expect(withMotion(() => css(lab('pd').querySelector('.dk-switch__thumb > .dk-switch__spinner')).animationName)).toBe('spin');
+    await userEvent.click(lab('pd'));
+    el('pd').focus();
+    await userEvent.keyboard(' ');
+    expect([el('pd').checked, onChange.mock.calls.length, document.activeElement === el('pd')]).toEqual([true, 1, true]);
+    expect(new FormData(document.getElementById('pd-form') as HTMLFormElement).get('sync')).toBe('on');
+    await userEvent.click(el('pd-done'));
+    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('.dk-switch__spinner')]).toEqual([false, null]);
+    await userEvent.click(lab('pd'));
+    expect(el('pd').checked).toBe(false);
+    // The ring sits inside the thumb.
+    const t = lab('pd-on').querySelector('.dk-switch__thumb')!.getBoundingClientRect(), r = lab('pd-on').querySelector('.dk-switch__spinner')!.getBoundingClientRect();
+    expect([r.width > 0, r.left >= t.left, r.right <= t.right, r.top >= t.top, r.bottom <= t.bottom]).toEqual([true, true, true, true, true]);
+    const low: string[] = [];
+    function Off() { return <Switch id="pd-off" pending>Off</Switch>; }
+    await render(<Off />);
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      for (const id of ['pd-on', 'pd-off']) {
+        const w = lab(id), ring = css(w.querySelector('.dk-switch__spinner')).borderInlineStartColor, bg = css(w.querySelector('.dk-switch__thumb')).backgroundColor;
+        const c = contrast(ring, bg); if (c < 3) low.push(`${th} ${id}: ${c.toFixed(2)}`);
+      }
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
   test('readOnly and controlled (checked without onChange): no React warning, and it stays on', async () => {
     const warned: unknown[] = [], warn = console.error;
     console.error = (...a: unknown[]) => { warned.push(a[0]); };

@@ -31,7 +31,7 @@
   cursor: inherit;
   transition: background-color var(--duration-150) var(--ease-in-out);
 }
-@media (hover: hover) { .dk-switch:hover .dk-switch__input:not(:disabled, [readonly]) { --dk-switch-track: var(--switch-track-hover, var(--field-border-hover)); --dk-switch-on: var(--switch-track-checked-hover, var(--primary-hover)); } }
+@media (hover: hover) { .dk-switch:not(.dk-switch--pending):hover .dk-switch__input:not(:disabled, [readonly]) { --dk-switch-track: var(--switch-track-hover, var(--field-border-hover)); --dk-switch-on: var(--switch-track-checked-hover, var(--primary-hover)); } }
 .dk-switch__input:checked { background: var(--dk-switch-on); }
 .dk-switch__thumb {
   position: absolute; inset-block: var(--spacing-0); inset-inline-start: var(--dk-switch-pad);
@@ -52,14 +52,25 @@
 .dk-switch__description { color: var(--switch-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't flip it. */
 .dk-switch--readonly { cursor: default; }
+/* Pending: a ring turns on the thumb, in primary (3:1 on the off thumb's field, and on the on thumb's on-primary). */
+.dk-switch--pending { cursor: progress; }
+.dk-switch__thumb { display: inline-flex; align-items: center; justify-content: center; }
+.dk-switch__spinner {
+  --dk-switch-spin: calc(var(--dk-switch-thumb) - var(--dk-switch-pad) * 2);
+  box-sizing: border-box; width: var(--dk-switch-spin); height: var(--dk-switch-spin);
+  border: var(--border-width-2) solid var(--switch-pending, var(--primary)); border-block-start-color: transparent; border-radius: var(--rounded-full);
+  animation: var(--animate-spin);
+}
 /* Disabled, by its own prop or a disabled fieldset (Field group). */
 .dk-switch:has(.dk-switch__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
-@media (prefers-reduced-motion: reduce) { .dk-switch__input, .dk-switch__thumb { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-switch__input, .dk-switch__thumb { transition: none; } .dk-switch__spinner { animation: var(--animate-spin-reduced); } }
 @media (forced-colors: active) {
   .dk-switch__input { border: var(--border-width-1) solid CanvasText; }
   .dk-switch__thumb { forced-color-adjust: none; background: CanvasText; }
   .dk-switch__input:checked { forced-color-adjust: none; background: Highlight; }
   .dk-switch__input:checked + .dk-switch__thumb { background: HighlightText; }
+  .dk-switch__spinner { border-color: Canvas; border-block-start-color: transparent; }
+  .dk-switch__input:checked + .dk-switch__thumb > .dk-switch__spinner { border-color: Highlight; border-block-start-color: transparent; }
 }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
