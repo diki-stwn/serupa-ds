@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { css, settle } from '../../tools/test/vitest/helpers';
+import { css } from '../../tools/test/vitest/helpers';
 import { ColorPicker } from '../components/ColorPicker/ColorPicker';
 import { InlineEdit } from '../components/InlineEdit/InlineEdit';
 import { Select } from '../components/Select/Select';
@@ -24,7 +24,6 @@ describe('in a <fieldset disabled>', () => {
         <InlineEdit label="Name" defaultValue="Apollo" />
       </fieldset>
     </>);
-    await settle(300);
     for (const cls of ['.dk-textarea', '.dk-select', '.dk-color-picker']) {
       expect([cls, look(q('#fs ' + cls))]).toEqual([cls, look(q('#prop ' + cls))]);
     }

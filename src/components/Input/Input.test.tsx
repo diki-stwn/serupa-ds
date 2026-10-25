@@ -95,13 +95,11 @@ describe('Input', () => {
 
   test('invalid: aria-invalid, a danger border and a danger focus ring', async () => {
     await render(<Input id="i" invalid aria-label="Invalid" />);
-    await settle(300);
     const danger = color('var(--danger)');
     expect(field('i').getAttribute('aria-invalid')).toBe('true');
     expect(css(box('i')).borderTopColor).toBe(danger);
     field('i').focus();
-    await settle(250);
-    expect(css(box('i')).boxShadow).toContain(danger);
+    await expect.poll(() => css(box('i')).boxShadow).toContain(danger);
   });
 
   test('read-only: a surface-muted background, still focusable; disabled: native disabled, 50%, not-allowed', async () => {
@@ -110,7 +108,6 @@ describe('Input', () => {
       <Input id="ro" readOnly defaultValue="INV-1" aria-label="Read-only" />
       <Input id="dis" disabled aria-label="Disabled" />
     </>);
-    await settle(300);
     expect(css(box('ro')).backgroundColor).not.toBe(css(box('plain')).backgroundColor);
     expect(box('ro').className).toMatch(/readonly/);
     field('ro').focus();
@@ -129,7 +126,6 @@ describe('Input', () => {
         <NumberInput id="fdnum" aria-label="Seats" defaultValue={3} />
       </fieldset>
     </>);
-    await settle(300);
     const ref = css(box('fdref')), b = css(box('fdin'));
     expect(field('fdin').matches(':disabled')).toBe(true);
     expect([b.opacity, b.backgroundColor, b.cursor, css(field('fdin')).cursor]).toEqual(['0.5', ref.backgroundColor, 'not-allowed', 'not-allowed']);

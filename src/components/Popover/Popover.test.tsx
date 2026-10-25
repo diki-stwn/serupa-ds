@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Popover } from './Popover';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -67,7 +67,7 @@ describe('Popover', () => {
   test('opening: a dialog named by its title in the top layer, centered under the trigger 8px away; 256px wide, 16px padding, 8px corners; focus on the first control', async () => {
     await render(<Share />);
     await userEvent.click(el('tshare'));
-    await settle(100);
+    await expect.poll(() => isOpen('tshare') && panel('tshare').contains(document.activeElement)).toBe(true);
     const b = el('tshare'), p = panel('tshare'), title = titleIn(p), s = getComputedStyle(p);
     expect(isOpen('tshare')).toBe(true);
     expect(b.getAttribute('aria-expanded')).toBe('true');
@@ -113,8 +113,7 @@ describe('Popover', () => {
     await userEvent.click(el('tshare'));
     el('plink').focus();
     el('other').focus();
-    await settle(50);
-    expect(isOpen('tshare')).toBe(false);
+    await expect.poll(() => isOpen('tshare')).toBe(false);
     expect(active()).toBe('other');
   });
 
@@ -127,7 +126,7 @@ describe('Popover', () => {
     const heading = (tid: string) => titleIn(panel(tid));
     const tags: string[] = [];
     for (const tid of ['th2', 'th4', 'th9']) {
-      await userEvent.click(el(tid)); await settle(50);
+      await userEvent.click(el(tid)); await expect.poll(() => isOpen(tid)).toBe(true);
       tags.push(heading(tid).tagName);
       expect(panel(tid).getAttribute('aria-labelledby')).toBe(heading(tid).id);
       const s = getComputedStyle(heading(tid));
@@ -139,7 +138,7 @@ describe('Popover', () => {
   test('aria-label names it without a title; right-start sits to the right, tops lined up; initialFocus="panel" focuses the panel', async () => {
     await render(<Popover aria-label="Info" placement="right-start" initialFocus="panel" trigger={<Button id="tinfo">Info</Button>}><p>Plain text, nothing to focus.</p></Popover>);
     await userEvent.click(el('tinfo'));
-    await settle(100);
+    await expect.poll(() => isOpen('tinfo') && panel('tinfo').dataset.side).toBe('right');
     const b = el('tinfo'), p = panel('tinfo');
     expect([p.getAttribute('aria-label'), p.dataset.side]).toEqual(['Info', 'right']);
     expect([near(rect(p).left - rect(b).right, 8), near(rect(p).top, rect(b).top)]).toEqual([true, true]);
@@ -170,16 +169,14 @@ describe('Popover', () => {
   test("it flips to the top when there's no room below", async () => {
     await render(<div style={{ position: 'fixed', bottom: '8px', left: '40px' }}><Popover title="Low" trigger={<Button id="tlow">Low</Button>}><p>Flips up.</p></Popover></div>);
     await userEvent.click(el('tlow'));
-    await settle(100);
-    expect(panel('tlow').dataset.side).toBe('top');
+    await expect.poll(() => isOpen('tlow') && panel('tlow').dataset.side).toBe('top');
     expect(rect(panel('tlow')).bottom).toBeLessThanOrEqual(rect(el('tlow')).top);
   });
 
   test('Popover tokens (--popover-width, --popover-padding) override one popover', async () => {
     await render(<Popover title="Tok" style={{ '--popover-width': '300px', '--popover-padding': '7px' } as React.CSSProperties} trigger={<Button id="ttok">Tok</Button>}><p>t</p></Popover>);
     await userEvent.click(el('ttok'));
-    await settle(100);
-    expect([panel('ttok').offsetWidth, getComputedStyle(panel('ttok')).paddingTop]).toEqual([300, '7px']);
+    await expect.poll(() => [isOpen('ttok'), panel('ttok').offsetWidth, getComputedStyle(panel('ttok')).paddingTop]).toEqual([true, 300, '7px']);
   });
 
   test('contrast: text and title keep 4.5:1 on the panel in all six themes', async () => {
