@@ -179,7 +179,7 @@ export const TabPanel = /* @__PURE__ */ component<HTMLDivElement, TabPanelProps>
     return () => el.removeEventListener("beforematch", onMatch);
   }, []);
   return (
-    <div tabIndex={0} {...rest} ref={(n) => { own.current = n; setRef(ref, n); }} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}
+    <div tabIndex={selected ? 0 : -1} {...rest} ref={(n) => { own.current = n; setRef(ref, n); }} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}
       hidden={!selected} data-state={selected ? "active" : "inactive"} className={cn("dk-tabs__panel", props.className)}>
       {selected || keep ? props.children : null}
     </div>
