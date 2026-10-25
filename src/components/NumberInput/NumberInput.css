@@ -10,7 +10,7 @@
 .dk-number-input__step {
   display: inline-flex; align-items: center; justify-content: center; padding: var(--number-input-stepper-padding, var(--spacing-1));
   border: var(--spacing-0); border-radius: var(--number-input-stepper-radius, var(--rounded-sm)); background: transparent;
-  color: var(--number-input-stepper, var(--text-muted)); cursor: pointer;
+  color: var(--number-input-stepper, var(--text-muted)); cursor: pointer; touch-action: manipulation;
   transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
 }
 .dk-number-input__step .dk-icon { font-size: var(--dk-input-icon); }

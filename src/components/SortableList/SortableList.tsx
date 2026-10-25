@@ -35,7 +35,8 @@ type Drag = { key: string | number; from: number; to: number; pointer: boolean }
 export const SortableList = /* @__PURE__ */ component<HTMLUListElement, SortableListProps<unknown>>("SortableList", function SortableList(props, ref) {
   const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, className: 1 } as const);
   const sds = useSerupa();
-  const { items, getKey, getLabel } = props;
+  const { getKey, getLabel } = props;
+  const items: readonly unknown[] = props.items || [];   // missing items (a plain-JS caller): an empty list, not a TypeError
   const [drag, setDrag] = React.useState<Drag | null>(null);
   const current = React.useRef(drag);
   current.current = drag;
@@ -105,13 +106,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
     const row = e.currentTarget.closest("li") as HTMLElement;
     pointer.current = { id: e.pointerId, key, startY: e.clientY, y: e.clientY, grab: e.clientY - row.getBoundingClientRect().top, moved: false };
-    const moveTo = (ev: PointerEvent) => {
-      const p = pointer.current;
-      if (!p || p.id !== ev.pointerId) return;
-      p.y = ev.clientY;
-      if (!p.moved && Math.abs(p.y - p.startY) < 4) return;
-      p.moved = true;
-      ev.preventDefault();
+    const placeAt = (p: NonNullable<typeof pointer.current>) => {
       const { items: all, getKey: keyOf } = latest.current;
       const at = all.findIndex((it) => keyOf(it) === p.key);
       if (at < 0) return;
@@ -124,6 +119,41 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       // A new object every move, so the row is placed under the pointer again.
       setDrag({ key: p.key, from: at, to, pointer: true });
     };
+    // Near the top or bottom edge of what scrolls (the list's scrolling container, or the page), it scrolls that way,
+    // faster the closer the pointer is, so a long list can be reordered past the screen. touch-action: none on the
+    // handle means the browser won't scroll for a touch drag on its own.
+    let frame = 0;
+    const scroller = (): HTMLElement => {
+      for (let n = list.current ? list.current.parentElement : null; n && n !== document.body; n = n.parentElement) {
+        const o = getComputedStyle(n).overflowY;
+        if ((o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight) return n;
+      }
+      return (document.scrollingElement || document.documentElement) as HTMLElement;
+    };
+    const tick = () => {
+      frame = 0;
+      const p = pointer.current;
+      if (!p || !p.moved) return;
+      const box = scroller(), page = box === document.scrollingElement || box === document.documentElement;
+      const top = page ? 0 : box.getBoundingClientRect().top, bottom = page ? window.innerHeight : box.getBoundingClientRect().bottom;
+      const edge = Math.min(48, (bottom - top) / 4);
+      const by = p.y < top + edge ? -Math.ceil((top + edge - p.y) / edge * 16) : p.y > bottom - edge ? Math.ceil((p.y - bottom + edge) / edge * 16) : 0;
+      if (!by) return;
+      const before = box.scrollTop;
+      box.scrollTop = before + by;
+      if (box.scrollTop !== before) placeAt(p);
+      frame = requestAnimationFrame(tick);
+    };
+    const moveTo = (ev: PointerEvent) => {
+      const p = pointer.current;
+      if (!p || p.id !== ev.pointerId) return;
+      p.y = ev.clientY;
+      if (!p.moved && Math.abs(p.y - p.startY) < 4) return;
+      p.moved = true;
+      ev.preventDefault();
+      placeAt(p);
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
     const end = (cancel: boolean) => (ev: PointerEvent) => {
       const p = pointer.current;
       if (!p || p.id !== ev.pointerId) return;
@@ -134,6 +164,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     const up = end(false), cancel = end(true);
     const off = () => {
       pointer.current = null; stop.current = null;
+      if (frame) { cancelAnimationFrame(frame); frame = 0; }
       window.removeEventListener("pointermove", moveTo); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", cancel);
     };
     if (stop.current) stop.current();

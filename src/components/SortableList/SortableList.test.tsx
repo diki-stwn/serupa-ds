@@ -33,6 +33,12 @@ describe('SortableList', () => {
       .toEqual(['button', 'false', 'Press Space to pick it up, the arrow keys to move it, Space again to drop it, or Escape to cancel.']);
   });
 
+  test('without items (a plain-JS caller) it renders an empty list instead of throwing', async () => {
+    const Loose = SortableList as unknown as React.ComponentType<Record<string, unknown>>;
+    const screen = await render(<Loose id="noitems" getKey={(s: string) => s} getLabel={(s: string) => s} renderItem={(s: string) => s} onReorder={() => {}} />);
+    expect(screen.container.querySelector('#noitems')!.querySelectorAll('li').length).toBe(0);
+  });
+
   test('keyboard: Space picks up, the arrows move (focus stays on the handle), Space drops and reports the move once; each step is announced', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
@@ -89,6 +95,25 @@ describe('SortableList', () => {
     expect([names(), moves]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], [{ from: 0, to: 2 }]]);
     await said('Dropped Apollo at position 3 of 4.');
     expect(([...document.querySelectorAll('#sl > li')] as HTMLElement[]).map((r) => r.style.transform)).toEqual(['', '', '', '']);
+  });
+
+  test('pointer: held near the bottom of a scrolling container, the list scrolls and the row keeps moving down; near the top it scrolls back', async () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + i }));
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<div id="box" style={{ width: '320px', height: '200px', overflowY: 'auto' }}><SortableList id="sl" aria-label="Missions" items={many} getKey={(i) => i.id} getLabel={(i) => i.name}
+      onReorder={(_next, m) => { moves.push(m); }} renderItem={(i) => <span>{i.name}</span>} /></div>);
+    const box = document.getElementById('box')!, h = handle('Mission 0'), r = h.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const at = (type: string, y: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 7, button: 0, isPrimary: true, clientX: r.left + 4, clientY: y }));
+    at('pointerdown', r.top + 4, h);
+    at('pointermove', r.top + 20);
+    at('pointermove', b.bottom - 4);
+    await expect.poll(() => box.scrollTop, { timeout: 3000 }).toBeGreaterThan(150);
+    at('pointermove', b.top + 4);
+    const down = box.scrollTop;
+    await expect.poll(() => box.scrollTop).toBeLessThan(down);
+    at('pointermove', b.bottom - 60);
+    at('pointerup', b.bottom - 60);
+    expect(moves.length === 1 && moves[0].from === 0 && moves[0].to > 0).toBe(true);
   });
 
   test('a press without moving does nothing; a drag back to where it started reports nothing', async () => {

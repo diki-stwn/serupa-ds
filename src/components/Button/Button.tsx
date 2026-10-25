@@ -45,8 +45,10 @@ interface ButtonOwnProps {
 }
 
 /** A Button without href: a native <button>. */
-export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {
   href?: undefined;
+  /** Can return a promise: the button then takes no second click until it settles, shows loading if it takes a while, and shows successText once it resolves. */
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
   /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
@@ -58,7 +60,9 @@ export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHT
 }
 
 /** A Button with href: a link (<a>, or the component set with Serupa.configure({ link })), for navigation. */
-export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> {
+export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type' | 'onClick'> {
+  /** Can return a promise, as on a button. */
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => unknown;
   /** Where the link goes. With target="_blank", rel defaults to "noopener noreferrer". */
   href: string;
   /** A link has no disabled state in HTML: a disabled link Button renders without href, with aria-disabled, and can't be focused or followed. */

@@ -24,3 +24,13 @@ export const Shown: Story = { args: { defaultValue: 'correct horse battery stapl
 export const Invalid: Story = {
   render: () => <div style={{ maxWidth: 320 }}><Field label="Password" error="That password is wrong."><PasswordInput defaultValue="hunter2" /></Field></div>,
 };
+
+// Caps Lock on: a key event with Caps Lock held shows the hint, as typing with it on does.
+export const CapsLockOn: Story = {
+  args: { defaultValue: 'PASSWORD', 'aria-label': 'Password' },
+  play: ({ canvasElement }) => {
+    const input = canvasElement.querySelector('input')!;
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'A', bubbles: true, modifierCapsLock: true }));
+  },
+};

@@ -24,6 +24,8 @@ interface SerupaConfig {
     link?: React.ElementType;
 }
 declare function configure(opts?: SerupaConfig): Required<SerupaConfig>;
+type ColorHue = "black" | "blue" | "brown" | "gray" | "green" | "orange" | "pink" | "purple" | "red" | "teal" | "white" | "yellow";
+type ColorTone = "" | "dark" | "light";
 interface SerupaLabels extends ComponentLabels {
     close: string;
     dismiss: string;
