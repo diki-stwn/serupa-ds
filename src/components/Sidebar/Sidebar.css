@@ -8,8 +8,21 @@
 .dk-sidebar {
   box-sizing: border-box; display: flex; flex-direction: column; width: var(--sidebar-width, var(--container-3xs)); height: var(--sizing-full); flex-shrink: 0;
   background: var(--sidebar-bg, var(--surface)); border-inline-end: var(--sidebar-border-width, var(--border-width-1)) solid var(--sidebar-border, var(--border)); font-family: var(--font-sans);
-  transition: width var(--duration-200) var(--ease-in-out);
+  transition: clip-path var(--duration-200) var(--ease-in-out);
 }
+/* Collapsing and expanding (EA1): the width changes once and the clip-path slides between the rail and the full
+   column, with a line for the moving edge, so every frame is paint-free. Sidebar.tsx sets data-slide. */
+.dk-sidebar[data-slide] { --dk-sidebar-rail: var(--sidebar-width-collapsed, var(--spacing-16)); --dk-sidebar-travel: calc(var(--sidebar-width, var(--container-3xs)) - var(--dk-sidebar-rail)); position: relative; }
+.dk-sidebar[data-slide="full"] { clip-path: inset(var(--spacing-0)); }
+.dk-sidebar[data-slide="rail"] { clip-path: inset(var(--spacing-0) calc(var(--sizing-full) - var(--dk-sidebar-rail)) var(--spacing-0) var(--spacing-0)); }
+.dk-sidebar[data-slide="rail"]:dir(rtl) { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--spacing-0) calc(var(--sizing-full) - var(--dk-sidebar-rail))); }
+.dk-sidebar[data-slide]::after {
+  content: ""; position: absolute; inset-block: var(--spacing-0); inset-inline-start: calc(var(--dk-sidebar-rail) - var(--sidebar-border-width, var(--border-width-1)));
+  width: var(--sidebar-border-width, var(--border-width-1)); background: var(--sidebar-border, var(--border)); transition: translate var(--duration-200) var(--ease-in-out);
+}
+.dk-sidebar[data-slide="full"]::after { translate: var(--dk-sidebar-travel); }
+.dk-sidebar[data-slide="full"]:dir(rtl)::after { translate: calc(var(--spacing-0) - var(--dk-sidebar-travel)); }
+@media (forced-colors: active) { .dk-sidebar[data-slide]::after { background: CanvasText; } }
 .dk-sidebar--collapsed { width: var(--sidebar-width-collapsed, var(--spacing-16)); }
 .dk-sidebar__header, .dk-sidebar__footer { flex-shrink: 0; padding: var(--sidebar-padding, var(--spacing-3)); }
 .dk-sidebar__footer { border-top: var(--sidebar-border-width, var(--border-width-1)) solid var(--sidebar-border, var(--border)); }
@@ -53,5 +66,5 @@
 .dk-sidebar__menu-item[aria-current="page"] { color: var(--sidebar-item-text-active, var(--text)); font-weight: var(--font-medium); }
 @media (forced-colors: active) { .dk-sidebar__menu-item[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; outline-offset: calc(var(--spacing-0) - var(--outline-width-2)); } }
 @media (forced-colors: active) { .dk-sidebar__item[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }
-@media (prefers-reduced-motion: reduce) { .dk-sidebar, .dk-sidebar__item, .dk-sidebar__chevron.dk-icon { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-sidebar, .dk-sidebar[data-slide]::after, .dk-sidebar__item, .dk-sidebar__chevron.dk-icon { transition: none; } }
 }
