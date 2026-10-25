@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
 import { Card, CardBody, CardFooter, CardHeader } from './Card';
@@ -245,5 +245,15 @@ describe('Card', () => {
     await render(<Col><Variants /><Card href="#x" target="_blank">Out</Card><Card href="#y"><CardHeader title="T" /><CardFooter><Button>Save</Button></CardFooter></Card></Col>);
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();
+  });
+
+  test('pressed: a card with href shrinks to 97% while held and springs back; not while a button inside it is pressed (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<Card id="pc" href="#pc"><CardHeader title="Atlas" /><CardFooter><Button id="pb">Save</Button></CardFooter></Card>);
+      expect(css(el('pc')).transitionProperty).toContain('scale');
+      await press(el('pc'), () => expect.poll(() => css(el('pc')).scale).toBe('0.97'), { x: 8, y: 8 });
+      await expect.poll(() => css(el('pc')).scale).toBe('none');
+      await press(el('pb'), () => expect(css(el('pc')).scale).toBe('none'));
+    });
   });
 });
