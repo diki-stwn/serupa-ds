@@ -155,7 +155,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
         onMouseDown={(e) => e.preventDefault()} onClick={() => { if (open) setOpen(false); else show(); if (field.current) field.current.focus(); }}>
         <Icon icon={icons.Schedule} />
       </button>
-      {name ? <input type="hidden" name={name} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
+      {name ? <input type="hidden" name={name} form={rest.form} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
       <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-time-picker__list">
         {open ? times.map((n, i) => (
           <li key={n} id={`${id}-${i}`} role="option" aria-selected={n === value} data-value={toHHmm(n)}
