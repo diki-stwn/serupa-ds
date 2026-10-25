@@ -28,14 +28,14 @@ const { Link, Text } = window.Serupa;
 
 ## Usage
 
-- Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link.
+- Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link. Don't combine it with `tone="neutral"`: that link looks like plain text until it's hovered, so Link warns in the console.
 - Use `tone="neutral"` in muted small print, such as terms under a form, so the link takes the text's color.
 - With a router, register its link component once with `configure({ link })`, or pass it in `as`, so client-side navigation keeps working.
 - Check any `href` that comes from people, such as a profile's website: allow only `https:`, `http:`, `mailto:` or your own paths. React still renders a `javascript:` link, which runs code when clicked.
 
 ## Accessibility
 
-- Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links.
+- Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links. Color alone doesn't do it in a sentence: the primary color is only 3.1–3.4:1 against body text in the light themes and 1.8–2.6:1 in the dark ones, under the 3:1 that 1.4.1 asks of a link set apart by color.
 - The primary color keeps 4.5:1 on `surface`, on hover too, and the focus ring 3:1, in all six themes (`Link.test.tsx`).
 - With `external`, screen readers hear "(opens in a new tab)" after the text, from the `opensInNewTab` label ("(terbuka di tab baru)" in `idLabels`). Link stays a Server Component: only that note is a small client component.
 - Write link text that makes sense on its own ("Read the pricing guide", not "click here"): screen reader users often move from link to link.

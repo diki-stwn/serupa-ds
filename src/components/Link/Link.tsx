@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
 import { config } from "../../internal/config";
+import { warnOnce } from "../../internal/warn";
 import { Icon } from "../Icon/Icon";
 import { NewTabNote } from "./NewTabNote";
 import { component } from "../../internal/component";
@@ -25,6 +26,8 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
   const rest = omit(props, { tone: 1, underline: 1, external: 1, as: 1, className: 1, children: 1, autoFocus: 1 });
   const tone = oneOf(["primary", "neutral"] as const, props.tone, "primary");
   const underline = oneOf(["always", "hover"] as const, props.underline, "always");
+  // In the text's color with no underline at rest, nothing marks it as a link until it's hovered (WCAG 1.4.1).
+  if (tone === "neutral" && underline === "hover") warnOnce("link-neutral-hover", 'Link: tone="neutral" with underline="hover" looks like plain text until it is hovered. Keep the underline, or use tone="primary" in a place that already says it holds links.');
   if (props.external) {
     if (rest.target == null) rest.target = "_blank";
     rest.rel = cn(rest.rel, "noopener noreferrer");
