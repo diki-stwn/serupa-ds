@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------
    Accordion: items separated by 1px lines (card: inside a bordered, rounded frame). A title is a full-width
-   text-sm font-medium button with a chevron that turns over when open, and an underline on hover. Content
+   text-sm font-medium button with a chevron that turns over when open, an underline on hover, and the pressed fill while held. Content
    (muted text-sm) opens and closes by animating the row height from 0fr to 1fr; closed, it's hidden.
    --------------------------------------------------------------- */
 @layer dk.components {
@@ -19,6 +19,8 @@
 }
 .dk-accordion--card .dk-accordion__trigger { padding-inline: var(--accordion-padding-x, var(--spacing-4)); border-radius: var(--spacing-0); }
 @media (hover: hover) { .dk-accordion__trigger:hover:not(:disabled) .dk-accordion__title { text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
+/* Pressed: one step past hover, as rows, tabs and days are while held. Instant, so the press answers within a frame. */
+.dk-accordion__trigger:active:not(:disabled, [aria-disabled="true"]) { background: var(--accordion-trigger-bg-pressed, var(--pressed)); }
 .dk-accordion__trigger:focus-visible { outline: var(--focus-ring-width) solid var(--accordion-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-accordion--card .dk-accordion__trigger:focus-visible { outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-accordion__trigger:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
