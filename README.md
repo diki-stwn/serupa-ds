@@ -280,6 +280,13 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 
 Popover and command buttons (`popoverTarget`, `command`) and `text-wrap: balance` are progressive: older browsers ignore them and the page still works.
 
+Two features set the oldest versions that get the whole system:
+
+| Feature | Needs | Without it |
+| --- | --- | --- |
+| `light-dark()`, behind `data-brand` and `data-mode` | Chrome and Edge 123, Safari 17.5, Firefox 120 | A page or section themed only by `data-brand` / `data-mode` loses its theme colors (text and backgrounds fall back to the browser's). A page whose root has `data-theme`, which `theme.js` sets, keeps its colors, because the flat `[data-theme]` themes don't use `light-dark()`. |
+| The `popover` attribute (the top layer) | Chrome and Edge 114, Safari 17, Firefox 125 | Menu, Popover, Tooltip and the picker lists still open where they belong, but in the page instead of the top layer, so a parent's `overflow: hidden` can clip them and a higher `z-index` can cover them. |
+
 ## Maintaining the system
 
 The source is in `src/`: one folder per component in `src/components/<Name>/` (the component in TypeScript, its CSS, its component tokens, its guidelines and its preview), the utility classes in `src/styles/utilities.template.css` (expanded over the tokens by `tools/utilities/build.mjs`), and `base.css` and `theme.js`. `npm run build` makes `dist/`, which is never edited or committed: `index.js` and `index.d.ts` (ES modules and types), `serupa.iife.js` (the browser script), `components.css`, `utilities.css`, `bundle.css`, `base.css`, `theme.js` and `lib/`. `npm run typecheck` checks the types.

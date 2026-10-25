@@ -6,7 +6,7 @@ import { THEMES, color, contrast, press, settle } from '../../../tools/test/vite
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator } from './Menu';
+import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -29,6 +29,20 @@ function Actions({ chosen }: { chosen: string[] }) {
     <MenuGroup label="Danger zone"><MenuItem icon="delete" destructive onSelect={pick('del')}>Delete</MenuItem></MenuGroup>
   </Menu>;
 }
+
+function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
+  const pick = (k: string) => () => { chosen.push(k); };
+  return <div dir={dir} style={{ padding: '0 300px' }}><Menu trigger={<Button id="nb">File</Button>}>
+    <MenuItem onSelect={pick('new')}>New</MenuItem>
+    <MenuSub id="share" icon="share" label="Share">
+      <MenuItem onSelect={pick('email')}>Email</MenuItem>
+      <MenuItem onSelect={pick('link')}>Copy link</MenuItem>
+      <MenuSub id="more" label="More apps"><MenuItem onSelect={pick('chat')}>Chat</MenuItem></MenuSub>
+    </MenuSub>
+    <MenuItem onSelect={pick('close')}>Close</MenuItem>
+  </Menu></div>;
+}
+const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
   test('closed: the button has aria-haspopup="menu" and aria-expanded="false"; the menu is empty and hidden', async () => {
@@ -157,6 +171,83 @@ describe('Menu', () => {
     expect(menuOf('pm').dataset.side).toBe('top');
   });
 
+  test('MenuSub: an item with aria-haspopup and a chevron; → opens its submenu at the end edge on its first item; ← closes it back on the item', async () => {
+    await render(<Nested chosen={[]} />);
+    await userEvent.click(el('nb'));
+    await userEvent.keyboard('{ArrowDown}');
+    const item = el('share');
+    expect([focus(), item.getAttribute('aria-haspopup'), item.getAttribute('aria-expanded'), !!item.querySelector('.dk-menu__chevron .dk-icon')]).toEqual(['Share', 'menu', 'false', true]);
+    await userEvent.keyboard('{ArrowRight}');
+    const panel = sub('share')!;
+    expect([focus(), item.getAttribute('aria-expanded'), panel.getAttribute('role'), panel.matches(':popover-open')]).toEqual(['Email', 'true', 'menu', true]);
+    expect(document.getElementById(panel.getAttribute('aria-labelledby')!)!.textContent).toBe('Share');
+    expect([rect(panel).left >= rect(item).right - 8, near(rect(panel).top, rect(item).top)]).toEqual([true, true]);
+    await userEvent.keyboard('{ArrowLeft}');
+    expect([focus(), item.getAttribute('aria-expanded'), sub('share')]).toEqual(['Share', 'false', null]);
+  });
+
+  test('MenuSub: ↑ ↓ Home End and letters stay inside the submenu; Escape closes only the submenu, a second Escape the menu', async () => {
+    await render(<Nested chosen={[]} />);
+    await userEvent.click(el('nb'));
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    const seen: string[] = [];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowDown}', '{End}', '{Home}', 'c', 'm', 'n']) { await userEvent.keyboard(k); seen.push(focus()); }
+    expect(seen).toEqual(['Copy link', 'More apps', 'Email', 'More apps', 'Email', 'Copy link', 'More apps', 'More apps']);
+    await userEvent.keyboard('{Escape}');
+    expect([focus(), !!openMenu()]).toEqual(['Share', true]);
+    await userEvent.keyboard('{Escape}');
+    expect([focus(), !!openMenu()]).toEqual(['nb', false]);
+  });
+
+  test('MenuSub: choosing an item two levels down closes every menu and focus goes back to the button', async () => {
+    const chosen: string[] = [];
+    await render(<Nested chosen={chosen} />);
+    await userEvent.click(el('nb'));
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}{End}{ArrowRight}');
+    expect(focus()).toBe('Chat');
+    await userEvent.keyboard('{Enter}');
+    expect([chosen.join(), !!openMenu(), focus()]).toEqual(['chat', false, 'nb']);
+  });
+
+  test('MenuSub: hovering the item opens it after a moment, a click opens it at once; moving to another item closes it', async () => {
+    await render(<Nested chosen={[]} />);
+    await userEvent.click(el('nb'));
+    await userEvent.hover(el('share'));
+    expect(sub('share')).toBe(null);
+    await expect.poll(() => el('share').getAttribute('aria-expanded')).toBe('true');
+    expect(focus()).toBe('Share');
+    await userEvent.hover(sub('share')!.querySelector('[role="menuitem"]')!);
+    await settle(250);
+    expect([focus(), el('share').getAttribute('aria-expanded')]).toEqual(['Email', 'true']);
+    await userEvent.hover(menuOf('nb').querySelector('[role="menuitem"]')!);
+    await expect.poll(() => el('share').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(el('share'));
+    expect([el('share').getAttribute('aria-expanded'), focus()]).toEqual(['true', 'Email']);
+  });
+
+  test('MenuSub in rtl: ← opens it on the left, → closes it; the chevron points left', async () => {
+    await render(<Nested chosen={[]} dir="rtl" />);
+    await userEvent.click(el('nb'));
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}');
+    expect(sub('share')).toBe(null);
+    await userEvent.keyboard('{ArrowLeft}');
+    const item = el('share'), panel = sub('share')!;
+    expect([focus(), rect(panel).right <= rect(item).left + 8]).toEqual(['Email', true]);
+    expect([getComputedStyle(item.querySelector('.dk-menu__ltr')!).display, getComputedStyle(item.querySelector('.dk-menu__rtl')!).display !== 'none']).toEqual(['none', true]);
+    await userEvent.keyboard('{ArrowRight}');
+    expect([focus(), sub('share')]).toEqual(['Share', null]);
+  });
+
+  test('MenuSub disabled: reachable, but → Enter and a click don\'t open it', async () => {
+    await render(<Menu trigger={<Button id="db">More</Button>}><MenuItem>One</MenuItem><MenuSub id="ds" disabled label="Move to"><MenuItem>A</MenuItem></MenuSub></Menu>);
+    await userEvent.click(el('db'));
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}{Enter}');
+    expect([focus(), el('ds').getAttribute('aria-disabled'), sub('ds')]).toEqual(['Move to', 'true', null]);
+    el('ds').click();   // Playwright won't click an aria-disabled item
+    await settle(50);
+    expect(sub('ds')).toBe(null);
+  });
+
   test('look: 4px padding, 8px corners, shadow-lg; 32px items, text-sm, 6px corners, 16px icons', async () => {
     await render(<Actions chosen={[]} />);
     await userEvent.click(el('mb'));
@@ -165,6 +256,15 @@ describe('Menu', () => {
     expect([s.paddingTop, s.borderTopLeftRadius, it.offsetHeight, i.fontSize, i.borderTopLeftRadius]).toEqual(['4px', '8px', 32, '14px', '6px']);
     expect(s.boxShadow).toMatch(/10px 15px -3px/);
     expect(getComputedStyle(it.querySelector('.dk-icon')!).fontSize).toBe('16px');
+  });
+
+  test('a long label wraps inside a menu at most 320px wide (--menu-max-width), even under a narrow button (BH2)', async () => {
+    const long = 'Move this conversation to the archive and stop notifications about it from now on';
+    await render(<Menu trigger={<Button id="mw" size="sm">More</Button>}><MenuItem>Short</MenuItem><MenuItem id="ml">{long}</MenuItem></Menu>);
+    await userEvent.click(el('mw'));
+    await Promise.all(document.getAnimations().map((a) => a.finished));
+    const m = menuOf('mw'), short = m.querySelector<HTMLElement>('[role="menuitem"]')!, item = el('ml');
+    expect([near(rect(m).width, 320), short.offsetHeight, item.offsetHeight > 32, item.scrollWidth <= item.clientWidth]).toEqual([true, 32, true, true]);
   });
 
   test('shortcut: shown as <kbd>, left out of the item\'s name, and given as aria-keyshortcuts; your own aria-keyshortcuts wins', async () => {
@@ -182,6 +282,11 @@ describe('Menu', () => {
   test('keyShortcuts: Mac symbols written together, words with + or spaces, named keys, single letters upper case', () => {
     expect(['⌘K', '⌘⇧K', '⌥⌘I', 'Ctrl+Shift+P', 'ctrl + c', 'Alt F4', 'Cmd+Enter', '⇧Tab', 'Esc', '?', 'Delete'].map(keyShortcuts))
       .toEqual(['Meta+K', 'Meta+Shift+K', 'Alt+Meta+I', 'Control+Shift+P', 'Control+C', 'Alt+F4', 'Meta+Enter', 'Shift+Tab', 'Escape', '?', 'Delete']);
+  });
+
+  test('keyShortcuts: a last + or - is the key ("Ctrl++" is Control+Plus), hyphens separate ("Cmd-K"), "G then I" is two presses (CE1)', () => {
+    expect(['Ctrl++', 'Ctrl+-', '⌘+', '+', 'Cmd-K', 'Ctrl-S', 'ctrl - shift - p', 'G then I', 'Ctrl+K then Ctrl+S', 'Shift+Plus'].map(keyShortcuts))
+      .toEqual(['Control+Plus', 'Control+-', 'Meta+Plus', 'Plus', 'Meta+K', 'Control+S', 'Control+Shift+P', 'G I', 'Control+K Control+S', 'Shift+Plus']);
   });
 
   test('contrast: labels, shortcuts and group labels 4.5:1 (also highlighted), icons 3:1, in all six themes', async () => {

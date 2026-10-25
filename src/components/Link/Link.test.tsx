@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
@@ -58,6 +58,15 @@ describe('Link', () => {
     await expect.poll(() => underline('lhov').line).toBe('underline');
     expect(before).toBe('none');
     await away();
+  });
+
+  test('tone="neutral" with underline="hover" warns once: it looks like plain text until hovered (CB1); either alone doesn\'t', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<><Link href="#a" tone="neutral">Terms</Link><Link href="#b" underline="hover">Pricing</Link></>);
+    expect(warn).not.toHaveBeenCalled();
+    await render(<><Link href="#c" tone="neutral" underline="hover">Help</Link><Link href="#d" tone="neutral" underline="hover">Docs</Link></>);
+    expect([warn.mock.calls.length, String(warn.mock.calls[0][0])]).toEqual([1, expect.stringContaining('looks like plain text')]);
+    warn.mockRestore();
   });
 
   test('unknown tone and underline fall back to primary and always', async () => {

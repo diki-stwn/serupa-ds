@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
+import { useScrolls } from "../../internal/useScrolls";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -97,6 +98,13 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const downOnBackdrop = React.useRef(false);
   const onPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => { if (rest.onPointerDown) rest.onPointerDown(e); downOnBackdrop.current = e.target === e.currentTarget && !wasDismissal(e.nativeEvent); };
   const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close(); downOnBackdrop.current = false; };
+  // A body taller than the panel takes Tab focus, so it can be scrolled from the keyboard when nothing in it is
+  // focusable (only Chromium scrolls it with focus on the ×). It's a region named like the drawer, as Table's frame is.
+  const [body, setBody] = React.useState<HTMLDivElement | null>(null);
+  const scrolls = useScrolls(body);
+  const named = rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined);
+  const region = !scrolls ? {} : named ? { tabIndex: 0, role: "region", "aria-labelledby": named }
+    : rest["aria-label"] ? { tabIndex: 0, role: "region", "aria-label": rest["aria-label"] } : { tabIndex: 0 };
   return (
     <dialog {...rest} ref={(n) => { el.current = n; setRef(ref, n); }}
       aria-modal="true"
@@ -114,7 +122,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
             {showClose ? <IconButton className="dk-drawer__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" noTitle onClick={close} /> : null}
           </div>
         ) : null}
-        {has(props.children) ? <div className="dk-drawer__body">{props.children}</div> : null}
+        {has(props.children) ? <div {...region} ref={setBody} className="dk-drawer__body">{props.children}</div> : null}
         {has(props.footer) ? <div className="dk-drawer__footer">{props.footer}</div> : null}
       </div>
     </dialog>

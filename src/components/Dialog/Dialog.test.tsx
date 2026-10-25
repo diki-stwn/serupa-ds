@@ -279,3 +279,28 @@ describe('Dialog', () => {
     expect(topModal()).toBe(dlg('sm'));
   });
 });
+
+describe('Dialog: a body that scrolls', () => {
+  test('a long body with nothing focusable takes Tab focus after the ×, as a region named by the title with a focus ring, and Page Down scrolls it; aria-label names it without a title; a short one stays out of the Tab order', async () => {
+    const text = []; for (let i = 0; i < 80; i++) text.push(<p key={i}>Line {i}</p>);
+    const screen = await render(<Dialog id="dsl" open onOpenChange={() => {}} title="Terms">{text}</Dialog>);
+    const d = dlg('dsl');
+    await expect.poll(() => d.open).toBe(true);
+    await settled();
+    const body = d.querySelector('.dk-dialog__body') as HTMLElement;
+    await expect.poll(() => body.tabIndex).toBe(0);
+    expect([body.getAttribute('role'), document.getElementById(body.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['region', 'Terms']);
+    (d.querySelector('.dk-dialog__close') as HTMLElement).focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(body);
+    expect([getComputedStyle(body).outlineStyle, parseFloat(getComputedStyle(body).outlineWidth) >= 2]).toEqual(['solid', true]);
+    await userEvent.keyboard('{PageDown}');
+    await expect.poll(() => body.scrollTop).toBeGreaterThan(100);
+    await screen.rerender(<Dialog id="dsl" open onOpenChange={() => {}} aria-label="Terms of use">{text}</Dialog>);
+    await expect.poll(() => body.getAttribute('aria-label')).toBe('Terms of use');
+    expect([body.getAttribute('role'), body.hasAttribute('aria-labelledby')]).toEqual(['region', false]);
+    await screen.rerender(<Dialog id="dsl" open onOpenChange={() => {}} title="Terms"><p>Short</p></Dialog>);
+    await expect.poll(() => body.hasAttribute('tabindex')).toBe(false);
+    expect(body.hasAttribute('role')).toBe(false);
+  });
+});

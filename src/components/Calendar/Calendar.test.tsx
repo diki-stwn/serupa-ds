@@ -27,8 +27,10 @@ describe('Calendar', () => {
     expect(el.className).toMatch(/extra/);
     expect([t.textContent, t.getAttribute('aria-live'), document.getElementById(grid.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['March 2025', 'polite', 'March 2025']);
     expect([grid.querySelectorAll('tbody tr').length, grid.querySelectorAll('tbody button').length]).toEqual([6, 42]);
-    expect([...grid.querySelectorAll('th')].map((x) => x.textContent).join()).toBe('Sun,Mon,Tue,Wed,Thu,Fri,Sat');
-    expect(grid.querySelector('th')!.getAttribute('abbr')).toBe('Sunday');
+    // Short names are shown, full ones are what screen readers read (the short span is hidden from them).
+    expect([...grid.querySelectorAll('th [aria-hidden]')].map((x) => x.textContent).join()).toBe('Sun,Mon,Tue,Wed,Thu,Fri,Sat');
+    expect([...grid.querySelectorAll('th .dk-visually-hidden')].map((x) => x.textContent).join()).toBe('Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
+    expect([grid.querySelector('th')!.getAttribute('abbr'), css(grid.querySelector('th .dk-visually-hidden')).position]).toEqual(['Sunday', 'absolute']);
     expect(grid.querySelector<HTMLElement>('tbody button')!.dataset.date).toBe('2025-02-23');
     expect([...grid.querySelectorAll<HTMLElement>('button[tabindex="0"]')].map((x) => x.dataset.date).join()).toBe('2025-03-10');
     expect(grid.querySelector('[data-date="2025-02-23"]')!.className).toMatch(/outside/);
@@ -49,7 +51,7 @@ describe('Calendar', () => {
 
   test('de-DE: German names and weeks starting on Monday', async () => {
     await render(<Calendar data-testid="de" locale="de-DE" defaultMonth={new Date(2025, 2, 1)} />);
-    const de = [...document.querySelectorAll('[data-testid=de] th')].map((x) => x.textContent).join() + ' ' + q('[data-testid=de] .dk-calendar__title').textContent;
+    const de = [...document.querySelectorAll('[data-testid=de] th [aria-hidden]')].map((x) => x.textContent).join() + ' ' + q('[data-testid=de] .dk-calendar__title').textContent;
     expect(de).toMatch(/^Mo\.?,Di\.?,Mi\.?,Do\.?,Fr\.?,Sa\.?,So\.? März 2025$/);
   });
 
@@ -84,17 +86,23 @@ describe('Calendar', () => {
     expect([b.textContent, b.getAttribute('tabindex'), /today/.test(b.className)]).toEqual([String(new Date().getDate()), '0', true]);
   });
 
-  test('arrows move a day or week, Home/End to the week\'s ends, PageUp/PageDown a month, Shift+PageUp a year; moving past the month shows the next one and keeps focus on the day; onMonthChange gets the first of each month shown', async () => {
+  test('arrows move a day or week, Home/End to the week\'s ends, PageUp/PageDown a month, Shift+PageUp a year, stopping at min and max; moving past the month shows the next one and keeps focus on the day; onMonthChange gets the first of each month shown', async () => {
     const months: string[] = [];
     await render(<Cal months={months} />);
     cal('[data-date="2025-03-10"]').focus();
     const seen: string[] = [];
     for (const k of ['{ArrowRight}', '{ArrowDown}', '{ArrowLeft}', '{ArrowUp}', '{End}', '{Home}', '{PageDown}', '{PageUp}', '{Shift>}{PageUp}{/Shift}']) { await userEvent.keyboard(k); seen.push(focused()); }
-    expect(seen).toEqual(['2025-03-11', '2025-03-18', '2025-03-17', '2025-03-10', '2025-03-15', '2025-03-09', '2025-04-09', '2025-03-09', '2024-03-09']);
-    await userEvent.keyboard('{Shift>}{PageDown}{/Shift}{ArrowUp}{ArrowUp}');
-    expect([focused(), title()]).toEqual(['2025-02-23', 'February 2025']);
-    await userEvent.keyboard('{PageDown}{PageDown}');
-    expect(months.slice(-2).join('|')).toBe('Sat Mar 01 2025|Tue Apr 01 2025');
+    // A year back from Mar 9 2025 is before min (Feb 3 2025): it stops there, and ArrowUp stays.
+    expect(seen).toEqual(['2025-03-11', '2025-03-18', '2025-03-17', '2025-03-10', '2025-03-15', '2025-03-09', '2025-04-09', '2025-03-09', '2025-02-03']);
+    await userEvent.keyboard('{ArrowUp}');
+    expect([focused(), title()]).toEqual(['2025-02-03', 'February 2025']);
+    // A year on is after max (Jun 20 2025): it stops there too.
+    await userEvent.keyboard('{Shift>}{PageDown}{/Shift}');
+    expect([focused(), title()]).toEqual(['2025-06-20', 'June 2025']);
+    await userEvent.keyboard('{ArrowDown}{End}');
+    expect(focused()).toBe('2025-06-20');
+    await userEvent.keyboard('{PageUp}{PageUp}');
+    expect([focused(), months.slice(-2).join('|')]).toEqual(['2025-04-20', 'Thu May 01 2025|Tue Apr 01 2025']);
   });
 
   test('Enter and a click pick a day: onValueChange, aria-selected moves', async () => {

@@ -14,6 +14,7 @@ import { isComposing } from "../../internal/ime";
 import { fieldName } from "../../internal/fieldName";
 import * as icons from "../../material/builtin";
 import { fold } from "../../internal/fold";
+import { announce } from "../../internal/announce";
 
 export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
 export interface ComboboxProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
@@ -134,6 +135,17 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     setActive(usable[n].i);
   };
 
+  // PageDown and PageUp move by what the list shows at once (about seven options at 240px), stopping at the ends.
+  const page = (dir: 1 | -1) => {
+    if (!usable.length) return;
+    const row = pop.current && pop.current.querySelector<HTMLElement>("[role=option]");
+    const h = row ? row.offsetHeight : 0;
+    const by = h && pop.current ? Math.max(1, Math.floor(pop.current.clientHeight / h)) : 10;
+    const i = usable.findIndex((o) => o.i === active);
+    const n = i < 0 ? (dir > 0 ? 0 : usable.length - 1) : Math.min(usable.length - 1, Math.max(0, i + dir * by));
+    setActive(usable[n].i);
+  };
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const t = e.target.value;
     setText(t); setTyped(true);
@@ -149,7 +161,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     else if (e.key === "ArrowUp") { e.preventDefault(); if (!open) show("last"); else move(-1); }
     else if (e.key === "Enter" && open) { e.preventDefault(); const o = opts[active]; if (o && shown.includes(o)) pick(o); else { const x = exact(); if (x) pick(x); else hide(); } }
     else if (e.key === "Escape" && open) { e.preventDefault(); e.stopPropagation(); hide(); }
-    else if ((e.key === "PageDown" || e.key === "PageUp") && open) { e.preventDefault(); if (usable.length) setActive(usable[e.key === "PageDown" ? usable.length - 1 : 0].i); }
+    else if ((e.key === "PageDown" || e.key === "PageUp") && open) { e.preventDefault(); page(e.key === "PageDown" ? 1 : -1); }
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (rest.onBlur) rest.onBlur(e);
@@ -163,6 +175,14 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     if (props.onInputChange) props.onInputChange("");
     if (input.current) input.current.focus();
   };
+
+  // While typing, how many options match is said once the typing stops (a role=status row already says "No results").
+  const count = usable.length;
+  React.useEffect(() => {
+    if (!open || !typed || props.loading || !count) return;
+    const t = setTimeout(() => announce(sds.labels.resultsCount(count)), 700);
+    return () => clearTimeout(t);
+  }, [open, typed, props.loading, count, text, sds.labels]);
 
   // Place the list under the field, in the top layer, as wide as the field at least.
   useAnchoredLayer(open, pop, box, { placement: "bottom-start", offsetVar: "--dk-combobox-offset", matchWidth: true });
@@ -181,7 +201,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       <input {...rest} ref={(n) => { input.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-        type="text" role="combobox" aria-expanded={open} aria-controls={listId} aria-autocomplete="list" aria-haspopup="listbox"
+        type="text" role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="list" aria-haspopup="listbox"
         aria-activedescendant={open && activeShown ? base + "-opt-" + active : undefined}
         autoComplete="off" autoCorrect="off" spellCheck={false} className="dk-input__field" value={text}
         onChange={onChange} onKeyDown={onKeyDown} onBlur={onBlur}
@@ -191,7 +211,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
           <Icon icon={icons.Close} />
         </button>
       ) : null}
-      <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__toggle" aria-label={props.toggleLabel || sds.labels.showOptions} aria-expanded={open} aria-controls={listId}
+      <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__toggle" aria-label={props.toggleLabel || sds.labels.showOptions} aria-expanded={open} aria-controls={open ? listId : undefined}
         disabled={locked} onMouseDown={keep} onClick={() => { if (open) hide(); else show("selected"); if (input.current) input.current.focus(); }}>
         <Icon icon={icons.ExpandMore} />
       </button>
@@ -200,11 +220,12 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         <div id={listId} role="listbox" className="dk-combobox__listbox" aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
           {shown.map((o) => (
             <div key={o.value} id={base + "-opt-" + o.i} role="option" aria-selected={o.value === value} aria-disabled={o.disabled || undefined}
+              aria-description={typeof o.description === "string" && o.description ? o.description : undefined}
               className={cn("dk-combobox__option", o.i === active && "dk-combobox__option--active", o.value === value && "dk-combobox__option--selected")}
               onMouseMove={() => { if (!o.disabled && active !== o.i) setActive(o.i); }} onClick={() => pick(o)}>
               <span className="dk-combobox__text">
                 <span className="dk-combobox__label">{o.label}</span>
-                {o.description != null && o.description !== "" ? <span className="dk-combobox__description">{o.description}</span> : null}
+                {o.description != null && o.description !== "" ? <span className="dk-combobox__description" aria-hidden={typeof o.description === "string" || undefined}>{o.description}</span> : null}
               </span>
               {o.value === value ? <Icon icon={icons.Check} className="dk-combobox__check" /> : null}
             </div>

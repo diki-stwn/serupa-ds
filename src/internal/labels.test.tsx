@@ -9,7 +9,7 @@ const ARGS: Record<string, unknown[]> = {
   contrast: ['4.5'], lowContrast: ['4.5'], meterZone: ['92%', 'high'], colorName: ['blue', 'dark'],
   reorderGrabbed: ['Apollo', 2, 5], reorderMoved: ['Apollo', 2, 5], reorderDropped: ['Apollo', 2, 5], reorderCancelled: ['Apollo', 2, 5],
   avatarMore: [3], avatarStatus: ['online'], charactersLeft: [12], clearValue: ['Email'], inputNotAccepted: ['abc'],
-  keyName: ['Up arrow'], tableSorted: ['Amount', 'ascending'],
+  keyName: ['Up arrow'], tableSorted: ['Amount', 'ascending'], resultsCount: [3],
   fileWrongType: ['cat.txt', ['image', 'PDF']], fileTooLarge: ['cat.png', '2 MB'], fileTooMany: ['cat.png', 3], fileOnlyOne: ['cat.png'], fileMissing: [true],
 };
 function said(set: Record<string, unknown>): Record<string, string> {
