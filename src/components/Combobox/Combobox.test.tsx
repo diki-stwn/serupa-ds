@@ -539,7 +539,7 @@ describe('Combobox loadOptions (DG1)', () => {
       await render(<Countries />);
       await userEvent.click(toggleOf('cb'));
       const pop = popOf('cb');
-      const moves = pop.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => (a as CSSTransition).transitionProperty).sort();
+      const moves = pop.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
       expect([moves, pop.getAnimations().some((a) => a instanceof CSSAnimation), pop.dataset.side, css(pop).transformOrigin.split(' ')[1]]).toEqual([['opacity', 'scale'], false, 'bottom', '0px']);
       await Promise.all(pop.getAnimations().map((a) => a.finished));
       expect([css(pop).opacity, css(pop).scale]).toEqual(['1', 'none']);
