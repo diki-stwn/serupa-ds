@@ -91,6 +91,11 @@ if (D) {
   const cal = renderToString(await ssrCase('Calendar')), picker = renderToString(await ssrCase('DatePicker'));
   t('Calendar and DatePicker on the server: 18 October 2026 is selected and typed as 18/10/2026 (en-GB)',
     /<td aria-selected="true"[^>]*><button[^>]*aria-label="Sunday, 18 October 2026"/.test(cal) && picker.includes('value="18/10/2026"'), `${(cal.match(/<td aria-selected="true".{0,120}/) || ['nothing selected'])[0]} | ${(picker.match(/value="[^"]*"/) || ['no value'])[0]}`);
+  // CheckboxGroup's boxes register as they mount, which never happens on the server: select-all counts its sibling
+  // Checkboxes instead, so with defaultValue ['a'] of a and b it's enabled and mixed (a dash) from the first paint.
+  const all = (renderToString(await ssrCase('CheckboxGroup')).match(/<label[^>]*>.*?<\/label>/) || [''])[0];
+  t('CheckboxGroup on the server: select-all is enabled and mixed when defaultValue checks some boxes',
+    !/ disabled=""/.test(all) && !/ checked=""/.test(all) && /data-icon="remove"/.test(all) && !/dk-checkbox--disabled/.test(all), all.slice(0, 400));
   t('version matches package.json', D.version === pkg.version, D.version);
   // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
   const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
