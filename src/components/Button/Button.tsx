@@ -100,7 +100,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const size = oneOf(SIZES, props.size, "md");
   let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, wrap: props.wrap, className: props.className });
   if (process.env.NODE_ENV !== "production" && iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
-    warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
+    warnOnce("button-icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
   // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading"), then successText if it
