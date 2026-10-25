@@ -46,6 +46,12 @@ export interface TreeViewProps extends Omit<React.HTMLAttributes<HTMLUListElemen
 
 interface Row { item: TreeViewItem; level: number; parent: string | null }
 
+/* What the rows read: open and picked ids as Sets, the Tab stop and the mode. Each row subscribes to its own part
+   (open, picked, Tab stop), so a focus move or a pick redraws the rows it changes, not every row in view. */
+interface Store { open: Set<string>; value: Set<string>; tab: string | null; mode: string; listeners: Set<() => void> }
+interface Api { focus: (id: string) => void; press: (item: TreeViewItem, e: React.MouseEvent) => void; toggle: (item: TreeViewItem) => void }
+const TreeContext = /* @__PURE__ */ React.createContext<{ store: Store; api: React.RefObject<Api> } | null>(null);
+
 const textOf = (it: TreeViewItem) => it.textValue ?? (typeof it.label === "string" || typeof it.label === "number" ? String(it.label) : "");
 const opens = (it: TreeViewItem) => it.children !== undefined;
 const within = (item: TreeViewItem, id: string): boolean => !!item.children && item.children.some((c) => c.id === id || within(c, id));
@@ -85,14 +91,16 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     return out;
   }, [props.items, open]);
   const index = (id: string | null) => id == null ? -1 : rows.findIndex((r) => r.item.id === id);
+  const openSet = React.useMemo(() => new Set(open), [open]);
+  const valueSet = React.useMemo(() => new Set(value), [value]);
   // The Tab stop: the item focused last while it's in view, else the first picked one in view, else the first.
-  const firstPicked = rows.find((r) => value.indexOf(r.item.id) >= 0);
+  const firstPicked = rows.find((r) => valueSet.has(r.item.id));
   const tabStop = index(focusId) >= 0 ? focusId : firstPicked ? firstPicked.item.id : rows.length ? rows[0].item.id : null;
 
   useIsoLayoutEffect(function () {
     if (!moveFocus.current || !root.current) return;
     moveFocus.current = false;
-    const el = Array.from(root.current.querySelectorAll<HTMLElement>("[role=treeitem]")).find((e) => e.dataset.id === focusId);
+    const el = focusId == null ? null : root.current.querySelector<HTMLElement>('[role=treeitem][data-id="' + CSS.escape(focusId) + '"]');
     if (el) el.focus();
   }, [focusId, rows]);
   const go = (id: string) => { moveFocus.current = true; setFocusId(id); };
@@ -107,7 +115,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   };
   const toggleOpen = (item: TreeViewItem) => {
     if (item.disabled || !opens(item)) return;
-    const was = open.indexOf(item.id) >= 0;
+    const was = openSet.has(item.id);
     setOpen(was ? open.filter((x) => x !== item.id) : open.concat(item.id));
     // Closing an item that holds the focused one brings focus up to it.
     if (was && focusId && within(item, focusId)) go(item.id);
@@ -120,10 +128,11 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     if (range && a >= 0) {
       const b = index(id);
       const span = rows.slice(Math.min(a, b), Math.max(a, b) + 1).filter((x) => !x.item.disabled).map((x) => x.item.id);
-      pick(value.filter((v) => span.indexOf(v) < 0).concat(span));
+      const inSpan = new Set(span);
+      pick(value.filter((v) => !inSpan.has(v)).concat(span));
       return;
     }
-    pick(value.indexOf(id) >= 0 ? value.filter((v) => v !== id) : value.concat(id));
+    pick(valueSet.has(id) ? value.filter((v) => v !== id) : value.concat(id));
     anchor.current = id;
   };
 
@@ -136,7 +145,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     if (i < 0) return;
     const r = rows[i], item = r.item;
     const rtl = getComputedStyle(root.current).direction === "rtl";
-    const isOpen = open.indexOf(item.id) >= 0;
+    const isOpen = openSet.has(item.id);
     let to = -1;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       to = Math.min(rows.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)));
@@ -156,7 +165,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
       if (mode === "none") toggleOpen(item); else choose(item, multi && e.shiftKey);
     }
     else if (e.key === "*") {
-      const shut = rows.filter((x) => x.parent === r.parent && opens(x.item) && !x.item.disabled && open.indexOf(x.item.id) < 0);
+      const shut = rows.filter((x) => x.parent === r.parent && opens(x.item) && !x.item.disabled && !openSet.has(x.item.id));
       if (shut.length) setOpen(open.concat(shut.map((x) => x.item.id)));
     }
     else if (multi && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") pick(rows.filter((x) => !x.item.disabled).map((x) => x.item.id));
@@ -166,37 +175,62 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     if (to >= 0 && to !== i) go(rows[to].item.id);
   };
 
-  const render = (list: TreeViewItem[], level: number): React.ReactNode => list.map((item, n) => {
-    const isOpen = opens(item) && open.indexOf(item.id) >= 0;
-    const picked = value.indexOf(item.id) >= 0;
-    const icon = item.icon != null ? asIcon(item.icon) : null;
-    return (
-      <li key={item.id} role="treeitem" data-id={item.id} tabIndex={item.id === tabStop ? 0 : -1}
-        aria-level={level} aria-posinset={n + 1} aria-setsize={list.length}
-        aria-expanded={opens(item) ? isOpen : undefined}
-        aria-selected={mode === "none" ? undefined : multi ? picked : picked || undefined}
-        aria-disabled={item.disabled || undefined}
-        className={cn("dk-tree-view__item", picked && "dk-tree-view__item--selected", item.disabled && "dk-tree-view__item--disabled")}
-        onFocus={(e) => { if (e.target === e.currentTarget && focusId !== item.id) setFocusId(item.id); }}>
-        <div className="dk-tree-view__row" style={{ "--dk-tree-level": level - 1 } as React.CSSProperties}
-          onClick={(e) => { setFocusId(item.id); if (mode === "none") toggleOpen(item); else choose(item, multi && e.shiftKey); }}>
-          <span className="dk-tree-view__toggle" aria-hidden="true"
-            onClick={opens(item) ? (e) => { e.stopPropagation(); setFocusId(item.id); toggleOpen(item); } : undefined}>
-            {opens(item) ? <Icon icon={icons.ChevronRight} /> : null}
-          </span>
-          {icon != null ? <span className="dk-tree-view__icon" aria-hidden="true">{icon}</span> : null}
-          <span className="dk-tree-view__label">{item.label}</span>
-        </div>
-        {isOpen && item.children && item.children.length ? <ul role="group" className="dk-tree-view__group">{render(item.children, level + 1)}</ul> : null}
-      </li>
-    );
-  });
+  // The rows read this through context, so none of them redraws because the tree did; see TreeRow.
+  const store = React.useRef<Store | null>(null);
+  if (!store.current) store.current = { open: openSet, value: valueSet, tab: tabStop, mode, listeners: new Set() };
+  const st = store.current;
+  st.open = openSet; st.value = valueSet; st.tab = tabStop; st.mode = mode;
+  useIsoLayoutEffect(function () { st.listeners.forEach((l) => l()); }, [openSet, valueSet, tabStop, mode]);
+  const api = React.useRef<Api>({ focus: () => {}, press: () => {}, toggle: () => {} });
+  api.current = {
+    focus: (id) => { if (focusId !== id) setFocusId(id); },
+    press: (item, e) => { setFocusId(item.id); if (mode === "none") toggleOpen(item); else choose(item, multi && e.shiftKey); },
+    toggle: (item) => { setFocusId(item.id); toggleOpen(item); },
+  };
+  const ctx = React.useMemo(() => ({ store: st, api: api }), [st]);
 
   return (
     <ul {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="tree"
       aria-multiselectable={multi || undefined}
       className={cn("dk-tree-view", props.className)} data-component="tree-view" onKeyDown={onKeyDown}>
-      {render(props.items, 1)}
+      <TreeContext.Provider value={ctx}><Rows list={props.items} level={1} /></TreeContext.Provider>
     </ul>
+  );
+});
+
+const Rows = /* @__PURE__ */ React.memo(function Rows(props: { list: TreeViewItem[]; level: number }) {
+  return <>{props.list.map((item, n) => <TreeRow key={item.id} item={item} level={props.level} pos={n + 1} size={props.list.length} />)}</>;
+});
+
+/* One treeitem and, while it's open, its children. Memoised on the item and its place, and subscribed to just its
+   own open, picked and Tab-stop state, so a change elsewhere in the tree leaves it alone. */
+const TreeRow = /* @__PURE__ */ React.memo(function TreeRow(props: { item: TreeViewItem; level: number; pos: number; size: number }) {
+  const { store, api } = React.useContext(TreeContext)!;
+  const { item, level } = props, id = item.id;
+  const subscribe = React.useCallback((l: () => void) => { store.listeners.add(l); return () => { store.listeners.delete(l); }; }, [store]);
+  // One string, so React compares a primitive: open, picked, Tab stop, mode.
+  const snap = () => (store.open.has(id) ? "o" : "-") + (store.value.has(id) ? "p" : "-") + (store.tab === id ? "t" : "-") + store.mode;
+  const key = React.useSyncExternalStore(subscribe, snap, snap);
+  const canOpen = opens(item), isOpen = canOpen && key[0] === "o", picked = key[1] === "p", mode = key.slice(3);
+  const icon = item.icon != null ? asIcon(item.icon) : null;
+  return (
+    <li role="treeitem" data-id={id} tabIndex={key[2] === "t" ? 0 : -1}
+      aria-level={level} aria-posinset={props.pos} aria-setsize={props.size}
+      aria-expanded={canOpen ? isOpen : undefined}
+      aria-selected={mode === "none" ? undefined : mode === "multiple" ? picked : picked || undefined}
+      aria-disabled={item.disabled || undefined}
+      className={cn("dk-tree-view__item", picked && "dk-tree-view__item--selected", item.disabled && "dk-tree-view__item--disabled")}
+      onFocus={(e) => { if (e.target === e.currentTarget) api.current.focus(id); }}>
+      <div className="dk-tree-view__row" style={{ "--dk-tree-level": level - 1 } as React.CSSProperties}
+        onClick={(e) => api.current.press(item, e)}>
+        <span className="dk-tree-view__toggle" aria-hidden="true"
+          onClick={canOpen ? (e) => { e.stopPropagation(); api.current.toggle(item); } : undefined}>
+          {canOpen ? <Icon icon={icons.ChevronRight} /> : null}
+        </span>
+        {icon != null ? <span className="dk-tree-view__icon" aria-hidden="true">{icon}</span> : null}
+        <span className="dk-tree-view__label">{item.label}</span>
+      </div>
+      {isOpen && item.children && item.children.length ? <ul role="group" className="dk-tree-view__group"><Rows list={item.children} level={level + 1} /></ul> : null}
+    </li>
   );
 });

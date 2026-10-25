@@ -216,4 +216,39 @@ describe('TreeView', () => {
       expect(contrast(css(row('c')).color, css(row('c')).backgroundColor), th + ' picked').toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  test('a focus move or a pick redraws only the rows it changes, not every row in view (DE1): 3,060 items, 60 folders open', async () => {
+    // A row reads its item's label each time it draws: counting the reads counts the draws.
+    const draws = new Map<string, number>();
+    const counted = (id: string, text: string, children?: TreeViewItem[]): TreeViewItem => {
+      const it = { id, textValue: text, children } as TreeViewItem;
+      Object.defineProperty(it, 'label', { enumerable: true, get: () => { draws.set(id, (draws.get(id) || 0) + 1); return text; } });
+      return it;
+    };
+    const big: TreeViewItem[] = [], openIds: string[] = [];
+    for (let f = 0; f < 60; f++) {
+      const kids: TreeViewItem[] = [];
+      for (let i = 0; i < 50; i++) kids.push(counted(f + '-' + i, 'File ' + i));
+      big.push(counted('f' + f, 'Folder ' + f, kids));
+      openIds.push('f' + f);
+    }
+    await render(<TreeView id="big" aria-label="Files" items={big} defaultExpanded={openIds} selectionMode="multiple" />);
+    expect(items().length).toBe(3060);
+    item('f0').focus();
+    draws.clear();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(focused()).toBe('0-0');
+    expect([...draws.keys()].sort()).toEqual(['0-0', 'f0']);
+    draws.clear();
+    await userEvent.keyboard(' ');
+    expect(item('0-0').getAttribute('aria-selected')).toBe('true');
+    expect([...draws.keys()]).toEqual(['0-0']);
+    draws.clear();
+    // Closing a folder redraws that folder (its children leave the page), not the other 59.
+    item('f1').focus();
+    draws.clear();
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(item('f1').getAttribute('aria-expanded')).toBe('false');
+    expect([...draws.keys()].sort()).toEqual(['0-0', 'f1']);
+  });
 });
