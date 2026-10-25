@@ -3,6 +3,7 @@ interface PopoverProps {
     trigger: React.ReactElement;
     children: ((close: () => void) => React.ReactNode) | React.ReactNode;
     title?: React.ReactNode;
+    headingLevel?: 2 | 3 | 4 | 5 | 6;
     placement?: Placement;
     open?: boolean;
     defaultOpen?: boolean;

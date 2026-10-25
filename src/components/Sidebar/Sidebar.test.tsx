@@ -128,14 +128,16 @@ describe('Sidebar', () => {
     expect(css(n.querySelector('a')).color).toBe('rgb(1, 2, 3)');
   });
 
-  test('collapsed: a 64px rail of centered icons; labels and section titles hidden on screen; no badges', async () => {
+  test('collapsed: a 64px rail of centered icons; labels, section titles and badges hidden on screen (still read); a dot on the icon of an item with a badge', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
     const a = el('ihome'), r = rect(a), i = rect(a.querySelector('.dk-icon')!);
     expect(rect(a.querySelector('.dk-sidebar__label')!).width).toBeLessThanOrEqual(1);
     expect(Math.abs(Math.round((i.left + i.right) / 2 - (r.left + r.right) / 2))).toBeLessThanOrEqual(1);
-    expect(el('iinbox').querySelector('.dk-sidebar__badge')).toBeNull();
+    const badge = el('iinbox').querySelector('.dk-sidebar__badge')!, dot = el('iinbox').querySelector('.dk-sidebar__dot')!, icon = rect(el('iinbox').querySelector('.dk-icon')!), d = rect(dot);
+    expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector('.dk-sidebar__dot')]).toEqual([true, '4', 'true', 8, null]);
+    expect([Math.round(d.top - icon.top), Math.round(d.right - icon.right)]).toEqual([-2, 2]);   // on the icon's top end corner
     expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);
   });
 
@@ -231,6 +233,21 @@ describe('Sidebar', () => {
     }
     still.remove();
     expect([low, n]).toEqual([[], 18]);
+  });
+
+  test('contrast: the collapsed rail\'s badge dot keeps 3:1 on the sidebar and on the current page\'s highlight in all six themes', async () => {
+    await render(<App />);
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => el('iinbox').querySelector('.dk-sidebar__dot')).not.toBeNull();
+    const low: string[] = []; let n = 0;
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const dot = css(el('iinbox').querySelector('.dk-sidebar__dot')).backgroundColor;
+      for (const [name, on] of [['sidebar', css(el('sb')).backgroundColor], ['highlight', color('var(--sidebar-item-bg-active, var(--highlight))')]]) {
+        const r = contrast(dot, on); n++; if (r < 3) low.push(`${th} on ${name}: ${r.toFixed(2)}`);
+      }
+    }
+    expect([low, n]).toEqual([[], 12]);
   });
 
   test('pressed: an item held down fills with pressed, one step past hover', async () => {
