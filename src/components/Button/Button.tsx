@@ -140,7 +140,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const wasLoading = React.useRef(false);
   // Announced when loading starts, with the text it has then (a later loadingText change isn't announced again).
   const latestText = React.useRef(loadingText);
-  React.useEffect(function () { latestText.current = loadingText; });
+  React.useEffect(function () { latestText.current = loadingText; });   // every render: keeps the latest text
   React.useEffect(function () {
     if (loading && !wasLoading.current && latestText.current) announce(latestText.current);
     wasLoading.current = loading;

@@ -62,7 +62,13 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
     el.style.height = Math.min(need, max) + "px";
     el.style.overflowY = need > max ? "auto" : "hidden";
   }, [auto, maxRows]);
-  useIsoLayoutEffect(fit);   // after every render: a new value, size or font
+  // A new value (controlled, or a form reset), size or row count; typing refits from the change event, so a
+  // replacement of the same length that wraps differently is caught too.
+  useIsoLayoutEffect(fit, [fit, rest.value, length, size, rows]);
+  if (auto) {
+    const changed = rest.onChange;
+    rest.onChange = function (e: React.ChangeEvent<HTMLTextAreaElement>) { if (changed) changed(e); fit(); };
+  }
   React.useEffect(function () {
     if (!auto || typeof ResizeObserver === "undefined" || !own.current) return;
     let w = own.current.offsetWidth, raf = 0;

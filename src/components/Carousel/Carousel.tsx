@@ -72,6 +72,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const rtl = () => !!viewport.current && getComputedStyle(viewport.current).direction === "rtl";
   // The direction as laid out (a dir attribute or CSS direction), so the track and chevrons can follow it.
   const [dir, setDir] = React.useState<"ltr" | "rtl">("ltr");
+  // every render: an ancestor's dir or direction can change without a render of ours; reading it is a style lookup, not a layout.
   useIsoLayoutEffect(() => { const d = rtl() ? "rtl" : "ltr"; if (d !== dir) setDir(d); });
 
   const onDotsKey = (e: React.KeyboardEvent) => {
@@ -92,6 +93,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     if (!loop && (to <= 0 || to >= count - 1)) refocus.current = step > 0 ? "prev" : "next";   // this button hides at the end: keep focus on the other
     go(to);
   };
+  // every render: puts focus back after a key or button moved the slides, once the render has moved them.
   useIsoLayoutEffect(() => {
     const r = refocus.current;
     refocus.current = null;
