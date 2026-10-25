@@ -33,10 +33,10 @@ export function highlightRanges(text: string, query: string | ReadonlyArray<stri
   const hits: Array<[number, number]> = [];
   for (const t of terms) {
     for (let at = folded.indexOf(t); at >= 0; at = folded.indexOf(t, at + t.length)) {
-      let end = to[at + t.length - 1]!;
+      let end = to[at + t.length - 1];
       // A combining accent after the last matched letter belongs to it: "e" + "́" is marked whole.
-      while (end < text.length && /\p{M}/u.test(text[end]!)) end++;
-      hits.push([from[at]!, end]);
+      while (end < text.length && /\p{M}/u.test(text[end])) end++;
+      hits.push([from[at], end]);
     }
   }
   hits.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
