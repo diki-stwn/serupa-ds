@@ -73,7 +73,7 @@ const [open, setOpen] = React.useState(false);
 | `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
 | `open` | boolean | | Whether it's open (controlled) |
 | `defaultOpen` | boolean | `false` | Open at first, then it closes itself (uncontrolled), for a dialog shown on arrival |
-| `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open` |
+| `onOpenChange` | `(open, { reason }) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open`. `reason` says which: `'escape'`, `'close'` (the ×), `'outside'` (the backdrop) or `'api'` (the browser closed it, as `dialog.close()` or a `method="dialog"` form do) |
 | `title` | node | | The heading (`text-lg`, `font-semibold`), which also names the dialog |
 | `description` | node | | A muted line under the title, read when it opens |
 | `footer` | node | | Buttons at the end, the main action last |
