@@ -63,8 +63,7 @@ describe('Accordion', () => {
     await settled('adef');
     await expect.poll(() => content(2).getAttribute('hidden')).toBe('until-found');
     content(3).dispatchEvent(new Event('beforematch'));
-    await new Promise((r) => setTimeout(r, 50));
-    expect(state('adef')).toBe('0001');
+    await expect.poll(() => state('adef')).toBe('0001');
   }));
 
   test('showExpandAll (type="multiple"): "Expand all" opens every enabled item and becomes "Collapse all", which closes them; controlled gets the values; Indonesian words from the provider; not shown in type="single"', async () => {

@@ -149,8 +149,7 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('dd')).toBe(true);
     dlg('dd').close();
     await expect.poll(() => asks.join()).toBe('false close,false escape,false api');
-    await new Promise((r) => setTimeout(r, 50));
-    expect([isOpen('dd'), getComputedStyle(el('dd')).display]).toEqual([false, 'none']);
+    await expect.poll(() => [isOpen('dd'), getComputedStyle(el('dd')).display]).toEqual([false, 'none']);
   });
 
   test('lg: 672px; on a small screen it keeps 16px from each edge and fits the height', async () => {
