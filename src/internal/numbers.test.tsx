@@ -27,6 +27,23 @@ describe('typed numbers', () => {
     expect(parseNumber(c, locale), c).toBe(1500);
   });
 
+  test('a negative written the accounting way, in parentheses, or with a trailing minus stays negative', () => {
+    expect([parseNumber('(1,234.50)', 'en-US'), parseNumber('1234.5-', 'en-US'), parseNumber('(Rp 1.500)', 'id-ID'), parseNumber('(15', 'en-US')]).toEqual([-1234.5, -1234.5, -1500, 15]);
+    for (const locale of ['en-US', 'id-ID', 'de-DE']) {
+      const t = formatNumber(-1500, locale, { style: 'currency', currency: 'IDR', currencySign: 'accounting' });
+      expect(parseNumber(t, locale), t).toBe(-1500);
+    }
+  });
+
+  test('unit abbreviations with dots (Thai, Nepali, Tamil) and Chinese numerals read back', () => {
+    for (const locale of ['th', 'ne', 'ta', 'en-IN']) {
+      const t = formatNumber(12.5, locale, { style: 'unit', unit: 'kilometer' });
+      expect(parseNumber(t, locale), t).toBe(12.5);
+    }
+    const han = new Intl.NumberFormat('zh-u-nu-hanidec', { useGrouping: false }).format(2025);
+    expect([han, parseNumber(han, 'zh')]).toEqual(['二〇二五', 2025]);
+  });
+
   test('formatNumber: Latin digits and the locale\'s decimal mark, no grouping by default', () => {
     expect(formatNumber(1500.5, 'de-DE')).toBe('1500,5');
     expect(formatNumber(1500.5, 'id-ID', { useGrouping: true })).toBe('1.500,5');

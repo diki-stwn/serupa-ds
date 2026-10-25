@@ -53,4 +53,6 @@
 .dk-card--link:has(.dk-card__link:focus-visible) { outline: var(--focus-ring-width) solid var(--card-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 @media (prefers-reduced-motion: reduce) { .dk-card--link { transition: none; } }
 @media (forced-colors: active) { .dk-card { border-color: CanvasText; } }
+/* Print: a card isn't split across two pages. */
+@media print { .dk-card { break-inside: avoid; } }
 }

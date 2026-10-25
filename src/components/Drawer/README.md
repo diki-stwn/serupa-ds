@@ -27,14 +27,14 @@ const [open, setOpen] = React.useState(false);
 
 ## Usage
 
-- Use `side="right"` (the default) for details and filters, and `side="left"` for navigation; use `bottom` for short sheets on small screens.
+- Use `side="right"` (the default) for details and filters, and `side="left"` for navigation; use `bottom` for short sheets on small screens. `side` is physical: `right` is the right edge in a right-to-left page too.
 - Give it a `title` that names what's inside ("Filters", "Order #1042").
 - Put the actions in `footer` so they stay in view, with the main action last.
 - Set `closeOnBackdrop={false}` when closing would lose work, such as unsaved edits.
 
 ## Behavior
 
-- It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was.
+- It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was. Focus goes to the first thing that takes it; put `data-autofocus` on another to choose. A backdrop press while a popup is open inside closes only the popup.
 - Left and right drawers are full height. Top and bottom drawers are full width, as tall as their content up to the screen less 64px, and rounded on the open side.
 - The body scrolls on its own, so the header and footer stay in view.
 - It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
