@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { NumberInput } from './NumberInput';
 
@@ -269,6 +270,67 @@ describe('NumberInput', () => {
     expect(field('half').value).toBe('3.5');
     await userEvent.keyboard('{Home}{ArrowUp}');
     expect(field('half').value).toBe('1.5');
+  });
+
+  test('holding + repeats after 400ms, every 50ms, and stops on pointerup, on leaving the button, on Escape and at max (P7)', async () => {
+    await render(<NumberInput id="hold" aria-label="Hold" defaultValue={0} min={0} max={30} />);
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const down = (b: HTMLElement) => b.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true, cancelable: true }));
+    const n = () => Number(field('hold').value);
+    down(plus('hold'));
+    await wait(300);
+    expect([n(), document.activeElement === field('hold')]).toEqual([1, true]);   // one step on the press, then a pause
+    await wait(400);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    await wait(30);
+    const held = n();
+    await wait(200);
+    expect([held >= 4 && held <= 10, n()]).toEqual([true, held]);
+    // Leaving the button and Escape stop it too.
+    down(plus('hold')); await wait(600);
+    plus('hold').dispatchEvent(new PointerEvent('pointerout', { bubbles: true, relatedTarget: document.body }));   // React's onPointerLeave
+    await wait(30);
+    const left = n(); await wait(200);
+    expect(n()).toBe(left);
+    down(minus('hold')); await wait(600);
+    await userEvent.keyboard('{Escape}');
+    await wait(30);
+    const esc = n(); await wait(200);
+    expect([esc < left, n()]).toEqual([true, esc]);
+    // At max the button is disabled and the repeat ends there.
+    down(plus('hold')); await expect.poll(n, { timeout: 4000 }).toBe(30);
+    expect([n(), plus('hold').disabled]).toEqual([30, true]);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    down(minus('hold')); await wait(100);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    expect(n()).toBe(29);
+  }, 15_000);
+
+  test('a click with no pointer press (a screen reader\'s) is one step, and a pointer click is one step too', async () => {
+    await render(<Qty />);
+    plus('qty').click();
+    await expect.poll(() => field('qty').value).toBe('6');
+    await userEvent.click(plus('qty'));
+    expect(field('qty').value).toBe('7');
+  });
+
+  test('onInvalidInput: a number out of range is brought back and reported as "range" (blur and Enter); text that isn\'t a number as "unreadable", and said', async () => {
+    const seen: string[] = [];
+    await render(<Col><NumberInput id="inv" aria-label="Quantity" defaultValue={5} min={0} max={100} onInvalidInput={(t, why) => seen.push(t + ':' + why)} /></Col>);
+    await fill('inv', ' 250 ');
+    await blur('inv');
+    await fill('inv', '-4');
+    field('inv').focus();
+    await userEvent.keyboard('{Enter}');
+    await fill('inv', 'abc');
+    await blur('inv');
+    await fill('inv', '42');
+    await blur('inv');
+    field('inv').focus(); await blur('inv');   // untouched: nothing to report
+    expect([seen, field('inv').value]).toEqual([['250:range', '-4:range', 'abc:unreadable'], '42']);
+    await fill('inv', 'xyz');
+    await blur('inv');
+    await expect.poll(() => announcerIdle() && document.querySelector('[data-dk-announcer-assertive]')!.textContent).toMatch(/"xyz" wasn't accepted/);
   });
 
   test('steppers={false}: no buttons', async () => {
