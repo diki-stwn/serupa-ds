@@ -1,0 +1,145 @@
+{
+  "pin-input": {
+    "$description": "PinInput's component tokens. Each one is an optional override: set the CSS variable (--pin-input-<name>) on the page, a container or one PinInput, and every PinInput inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.field}",
+        "$description": "A box's background.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The characters (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-text"
+          }
+        }
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.field-border}",
+        "$description": "A box's border (3:1 on the surface).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-border"
+          }
+        }
+      },
+      "border-hover": {
+        "$type": "color",
+        "$value": "{color.field-border-hover}",
+        "$description": "The boxes' border on hover.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-border-hover"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The border and ring of the box the caret is in.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-focus-ring"
+          }
+        }
+      },
+      "invalid": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "Every box's border when invalid (3:1 on the surface).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-invalid"
+          }
+        }
+      },
+      "bg-readonly": {
+        "$type": "color",
+        "$value": "{color.surface-muted}",
+        "$description": "The boxes' background when read-only or disabled.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-bg-readonly"
+          }
+        }
+      }
+    },
+    "radius": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "A box's corners (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-radius"
+          }
+        }
+      }
+    },
+    "sizing": {
+      "box-sm": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-sm}",
+        "$description": "A box's width and height, size=\"sm\" (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-box-sm"
+          }
+        }
+      },
+      "box-md": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-md}",
+        "$description": "A box's width and height, size=\"md\", the default (32px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-box-md"
+          }
+        }
+      },
+      "box-lg": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-lg}",
+        "$description": "A box's width and height, size=\"lg\" (44px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-box-lg"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space between the boxes (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-gap"
+          }
+        }
+      }
+    },
+    "border": {
+      "border-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-1}",
+        "$description": "A box's border (1px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pin-input-border-width"
+          }
+        }
+      }
+    }
+  }
+}
