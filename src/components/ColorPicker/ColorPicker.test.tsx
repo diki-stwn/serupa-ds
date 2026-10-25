@@ -225,6 +225,25 @@ describe('ColorPicker', () => {
     expect(low).toEqual([]);
   });
 
+  // DT1: the edge was --border, 1.27:1 on the page, so a white swatch on a white page (a black one on a dark page) had no edge.
+  test('every swatch and the native well have an edge that keeps 3:1 on the page in all six themes, so white and black swatches show', async () => {
+    await render(<div style={{ background: 'var(--surface)', padding: '8px' }}><ColorPicker aria-label="C" swatches={['#ffffff', '#000000']} /></div>);
+    const page = () => css(radios()[0].closest('div[style]')).backgroundColor;
+    const native = document.querySelector('input[type="color"]') as HTMLElement;
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      for (const b of radios()) {
+        const edge = /rgba?\([^)]*\)/.exec(css(b).boxShadow)![0], r = contrast(edge, page());
+        if (r < 3) low.push(`${th} ${b.getAttribute('aria-label')} ${r.toFixed(2)}`);
+      }
+      const n = contrast(css(native).borderTopColor, page());
+      if (n < 3) low.push(`${th} native well ${n.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
   test('normalizeHex and contrastRatio', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
