@@ -3,6 +3,9 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { Button } from '../Button/Button';
+import { IconButton } from '../IconButton/IconButton';
+import { Menu, MenuItem } from '../Menu/Menu';
+import { Tooltip } from '../Tooltip/Tooltip';
 import { ButtonGroup } from './ButtonGroup';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -55,4 +58,16 @@ describe('ButtonGroup', () => {
     expect([r[1].t - r[0].b, r[0].l === r[1].l, r[0].w === r[1].w]).toEqual([-1, true, true]);
     expect([el('gv').dataset.orientation, getComputedStyle(c[0]).borderBottomLeftRadius, getComputedStyle(c[1]).borderTopRightRadius]).toEqual(['vertical', '0px', '0px']);
   });
+  test('split button: a Menu trigger at the end (its menu comes after it) and a Tooltip at the start still get the outer corners', async () => {
+    await render(<ButtonGroup id="gs" attached aria-label="Publish">
+      <Tooltip content="Publish now"><Button id="gs1">Publish</Button></Tooltip>
+      <Menu trigger={<IconButton id="gs2" variant="primary" icon="expand_more" label="More publish options" />}><MenuItem>Schedule</MenuItem></Menu>
+    </ButtonGroup>);
+    const r = getComputedStyle(el('gs1')).borderTopLeftRadius;
+    expect(r).not.toBe('0px');
+    expect(corners(el('gs1'))).toBe([r, '0px', '0px', r].join(' '));
+    expect(corners(el('gs2'))).toBe(['0px', r, r, '0px'].join(' '));
+    expect(el('gs2').getBoundingClientRect().left).toBeLessThan(el('gs1').getBoundingClientRect().right);   // the borders overlap
+  });
+
 });
