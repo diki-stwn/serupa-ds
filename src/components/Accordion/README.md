@@ -63,6 +63,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `type` | `'single'` \| `'multiple'` | `'single'` | One open at a time, or any number |
 | `value` | `string[]` | none | The open items (controlled) |
 | `defaultValue` | `string[]` | `[]` | The items open at first. With `single`, only the first counts |

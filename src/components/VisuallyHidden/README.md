@@ -41,6 +41,7 @@ const { VisuallyHidden } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `focusable` | boolean | `false` | Shows it while it, or something inside it, has focus |
 | `as` | `'span'` \| `'div'` \| `'h1'`…`'h6'` \| `'p'` \| `'label'` \| `'legend'` | `'span'` | The element |
 

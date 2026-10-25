@@ -72,6 +72,7 @@ const { Checkbox, Field } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input type="checkbox">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `children` | node | | The label. Without one, give the checkbox an `aria-label` |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | A 14px box with `text-xs`, 16px with `text-sm`, 20px with `text-base` |
 | `description` | node | | A muted second line under the label, linked with `aria-describedby` (and kept out of the name) |
