@@ -57,6 +57,8 @@ import { ErrorBoundary } from "serupa-ds";
 | `resetKeys` | `unknown[]` | | When a value changes, the error clears. |
 | `className` | `string` | | On the default fallback's box, which has `data-component="error-boundary"`. |
 
+A function `fallback` gets `ErrorBoundaryFallbackProps`: `error`, the value that was thrown, and `reset`, which clears it and renders the children again.
+
 ## Component tokens
 
 Each is an optional override: set it on the page, a container or one boundary. The fallback is an Alert, so its colors follow the `--alert-*` tokens. The list lives in `src/components/ErrorBoundary/error-boundary.tokens.json` (also in `design-tokens/components/`).

@@ -7,7 +7,7 @@ import { idLabels } from '../../internal/labels';
 import { ErrorBoundary } from './ErrorBoundary';
 
 // React reports every caught error with console.error; these tests crash on purpose, so those are expected.
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: { mockRestore(): void };
 beforeEach(() => { errors = vi.spyOn(console, 'error').mockImplementation(() => {}); });
 afterEach(() => { errors.mockRestore(); });
 
@@ -26,13 +26,13 @@ describe('ErrorBoundary', () => {
 
   test('a render error: a danger Alert (role alert) with the default words and Try again; onError gets the error and the component stack; the rest of the page stays', async () => {
     broken = true;
-    const onError = vi.fn();
+    const onError = vi.fn<(error: unknown, info: React.ErrorInfo) => void>();
     await render(<div><p id="other">Still here</p><ErrorBoundary onError={onError} className="extra"><Widget /></ErrorBoundary></div>);
     const box = document.querySelector('[data-component="error-boundary"]') as HTMLElement;
     expect([box.className, box.querySelector('[role=alert]')?.textContent]).toEqual(['dk-error-boundary extra', expect.stringContaining('Something went wrong')]);
     expect(box.textContent).toContain("This part of the page couldn't load.");
     await expect.element(page.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
-    expect([onError.mock.calls[0]![0].message, typeof onError.mock.calls[0]![1].componentStack]).toEqual(['boom', 'string']);
+    expect([(onError.mock.calls[0]?.[0] as Error).message, typeof onError.mock.calls[0]?.[1].componentStack]).toEqual(['boom', 'string']);
     expect(document.getElementById('other')!.textContent).toBe('Still here');
   });
 
