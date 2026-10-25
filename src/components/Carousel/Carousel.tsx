@@ -168,10 +168,6 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
 
   const style = { ...props.style, "--dk-carousel-index": index, "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
   const shown = (i: number) => i >= index && i < index + per;
-  const track = React.useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {   // the slides not shown can't be reached (inert isn't a React 18 prop)
-    if (track.current) Array.from(track.current.children).forEach((el, i) => { (el as HTMLElement).inert = !shown(i); });
-  }, [index, count, per]);
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 
   return (
@@ -182,10 +178,10 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
         onDragStart={(e) => e.preventDefault()}   // a picture's own drag would end the swipe
         onClickCapture={(e) => { if (dragged.current && e.detail) { dragged.current = false; e.preventDefault(); e.stopPropagation(); } }}   // a swipe across a link isn't a click
         data-dragging={offset ? "" : undefined}>
-        <div className="dk-carousel__track" ref={track} aria-live="polite">
+        <div className="dk-carousel__track" aria-live="polite">
           {slides.map((s, i) => (
             <div key={(s as React.ReactElement).key ?? i} className="dk-carousel__slide" role="group" aria-roledescription={sds.labels.slideRole} aria-label={name(i, count)}
-              aria-hidden={shown(i) ? undefined : true} data-active={shown(i) ? "" : undefined}>
+              aria-hidden={shown(i) ? undefined : true} inert={!shown(i)} data-active={shown(i) ? "" : undefined}>
               {s}
             </div>
           ))}
