@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export type ProgressTone = 'primary' | 'success' | 'warning' | 'danger';
 export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -44,6 +45,7 @@ const PERCENT = { style: "percent", maximumFractionDigits: 0 } as const;
    that. Renders role="progressbar" with aria-valuenow / min / max and aria-valuetext. */
 /** How far along a task is: a bar or a ring with role="progressbar"; leave value out when you can't tell. */
 export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>("Progress", function Progress(props, ref) {
+  const nameRef = useNameCheck("Progress", NAME_HOW.label);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const locale = useLocale();
@@ -82,7 +84,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
 
   if (variant === "circle") {
     return (
-      <div {...rest} {...aria} {...data} ref={restyle} className={cls}>
+      <div {...rest} {...aria} {...data} ref={(n) => { restyle(n); nameRef(n); }} className={cls}>
         <svg className="dk-progress__ring" viewBox="0 0 24 24" aria-hidden focusable="false">
           <circle className="dk-progress__track" cx={12} cy={12} r={10.5} />
           <circle className="dk-progress__arc" cx={12} cy={12} r={10.5} pathLength={100} strokeDasharray={known ? share * 100 + " 100" : "25 100"} />
@@ -100,7 +102,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
           {showValue ? <span className="dk-progress__value" aria-hidden>{text}</span> : null}
         </div>
       ) : null}
-      <div {...aria} className="dk-progress__track" aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || aria["aria-labelledby"]}>
+      <div {...aria} ref={nameRef} className="dk-progress__track" aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || aria["aria-labelledby"]}>
         <div className="dk-progress__fill" style={known ? { inlineSize: share * 100 + "%" } : undefined} />
       </div>
     </div>

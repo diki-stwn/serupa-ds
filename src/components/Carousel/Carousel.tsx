@@ -8,6 +8,7 @@ import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
@@ -44,6 +45,7 @@ const SWIPE = 40; // px a swipe must travel to change the slide
 
 /** One slide at a time, with previous and next buttons, dots and swipe. */
 export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("Carousel", function Carousel(props, ref) {
+  const nameRef = useNameCheck("Carousel", NAME_HOW.label);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const sds = useSerupa();
   const rest = omit(props, OWN);
@@ -136,7 +138,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const prevOff = !loop && index === 0, nextOff = !loop && index >= count - 1;
 
   return (
-    <section {...rest} ref={restyle} className={cn("dk-carousel", props.className)} style={style}
+    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", props.className)} style={style}
       aria-roledescription={sds.labels.carouselRole} aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}

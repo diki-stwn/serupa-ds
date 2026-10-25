@@ -85,9 +85,11 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     if (!enabled.length || matched) return;
     if (controlled) {
       if (value != null && before.includes(value)) warnOnce("tabs-removed", `Tabs: the selected tab "${value}" was removed, so no tab is selected. Set value to another tab when you remove it.`);
+      else if (value != null) warnOnce("tabs-value", `Tabs: value "${value}" matches no Tab, so no tab is selected. Set it to one of the Tabs' values.`);
       return;
     }
     const at = value != null ? before.indexOf(value) : -1;
+    if (at < 0 && value != null && !before.length) warnOnce("tabs-value", `Tabs: defaultValue "${value}" matches no Tab, so the first tab is selected. Set it to one of the Tabs' values.`);
     if (at < 0) { setInner(enabled[0]); return; }   // nothing chosen yet (or a defaultValue with no tab): no onValueChange
     const after = before.slice(at + 1).find((v) => enabled.includes(v)), prev = before.slice(0, at).reverse().find((v) => enabled.includes(v));
     select(after ?? prev ?? enabled[0]);

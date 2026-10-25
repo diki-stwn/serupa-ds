@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
 import type { MeterZone } from "./labels";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export type MeterState = 'optimum' | 'suboptimal' | 'poor' | 'none';
 export interface MeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -63,6 +64,7 @@ const TONE: Record<MeterState, string | null> = { optimum: "success", suboptimal
    role="meter" with aria-valuenow / min / max and aria-valuetext, and data-state with the zone. */
 /** A measurement within a known range (storage used, strength, a level): a bar with role="meter", colored by the low, high and optimum zones. */
 export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Meter", function Meter(props, ref) {
+  const nameRef = useNameCheck("Meter", NAME_HOW.label);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const locale = useLocale();
@@ -90,7 +92,7 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
           {showValue ? <span className="dk-meter__value" aria-hidden>{text}</span> : null}
         </div>
       ) : null}
-      <div className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
+      <div ref={nameRef} className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
         aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || (hasLabel && !rest["aria-label"] ? base + "-label" : undefined)}>
         <div className="dk-meter__fill" style={{ inlineSize: share * 100 + "%" }} />
       </div>
