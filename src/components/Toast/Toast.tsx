@@ -100,7 +100,10 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const [list, setList] = React.useState<Item[]>(items);
   React.useEffect(() => { ensureAnnouncer(); hinted = false; listeners.add(setList); setList(items); return () => { listeners.delete(setList); }; }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
-  hint = sds.labels.toastShortcut(HOTKEY);
+  // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
+  // does nothing, so a toast doesn't mention it.
+  const shortcut = sds.labels.toastShortcut(HOTKEY);
+  React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
   const self = React.useRef<HTMLElement | null>(null);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {

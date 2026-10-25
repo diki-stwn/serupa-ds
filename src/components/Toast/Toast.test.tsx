@@ -77,6 +77,18 @@ describe('Toast', () => {
     expect(titles()).toEqual(['Message deleted', 'Another deleted']);
   });
 
+  test('once the Toaster is gone, a toast with an action doesn\'t mention F8', async () => {
+    const r = await render(<App />);
+    await r.unmount();
+    const said = new Set<string>();
+    const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.add(t); });
+    watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
+    React.act(() => { toast({ title: 'Archived', action: { label: 'Undo', onClick: () => {} } }); });
+    await expect.poll(() => [...said].join(' | ')).toMatch(/Archived/);
+    watch.disconnect();
+    expect([...said].some((t) => /F8/.test(t))).toBe(false);
+  });
+
   test('F8 moves focus to the newest toast (Tab then reaches its action) and F8 again goes back; Escape goes back too; with no toasts F8 does nothing', async () => {
     await render(<div><App /><button id="before">Before</button></div>);
     q('#before').focus();
