@@ -47,6 +47,14 @@ export function renderAll(): Record<string, string> {
   return out;
 }
 
+// A component's stories' server HTML as its baseline file (tools/test/baseline-server/<Component>.html, E4): each
+// story under a comment with its name, sorted by name (Node and the browser list a module's exports in different
+// orders), one tag per line so a change reads as a diff of a few lines.
+export function serverBaseline(name: string, html: Record<string, string>): string {
+  const list = (stories.find(([n]) => n === name)?.[1] || []).map(([n]) => n).sort();
+  return list.map((exportName) => `<!-- ${exportName} -->\n${(html[`${name}/${exportName}`] ?? '').replace(/></g, '>\n<')}\n`).join('\n');
+}
+
 // What serverStories.ts hands the browser tests (inject('serverStories')).
 declare module 'vitest' {
   export interface ProvidedContext { serverStories: Record<string, string> }
