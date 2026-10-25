@@ -26,7 +26,7 @@ afterEach(() => {
 const Grid = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'grid', gap: '16px', width: '420px', justifyItems: 'start' }}>{children}</div>;
 function Letters({ changes, gref, rref }: { changes: string[]; gref?: React.Ref<HTMLDivElement>; rref?: React.Ref<HTMLInputElement> }) {
   const [v, setV] = React.useState('b');
-  return <RadioGroup id="ctl" ref={gref} aria-label="Letters" value={v} onChange={(val, e) => { changes.push(val + ':' + e.type); setV(val); }} className="extra" data-x="y">
+  return <RadioGroup id="ctl" ref={gref} aria-label="Letters" value={v} onValueChange={(val, e) => { changes.push(val + ':' + e.type); setV(val); }} className="extra" data-x="y">
     <Radio id="a" value="a" ref={rref} name="ignored" defaultChecked>Alpha</Radio>
     <Radio id="b" value="b" description="The second letter.">Bravo</Radio>
     <Radio id="c" value="c" size="lg">Charlie</Radio>
@@ -60,7 +60,7 @@ describe('Radio', () => {
   test('form reset: the first choice is checked again and the group follows it (uncontrolled); a controlled group shows its value again', async () => {
     await render(<form id="rr">
       <RadioGroup aria-label="Plan" name="plan" defaultValue="free"><Radio id="rr-free" value="free">Free</Radio><Radio id="rr-pro" value="pro">Pro</Radio></RadioGroup>
-      <RadioGroup aria-label="Ship" value="air" onChange={() => {}}><Radio id="rr-air" value="air">Air</Radio><Radio id="rr-sea" value="sea">Sea</Radio></RadioGroup>
+      <RadioGroup aria-label="Ship" value="air" onValueChange={() => {}}><Radio id="rr-air" value="air">Air</Radio><Radio id="rr-sea" value="sea">Sea</Radio></RadioGroup>
     </form>);
     await userEvent.click(input('rr-pro'));
     expect(input('rr-pro').checked).toBe(true);
@@ -95,7 +95,7 @@ describe('Radio', () => {
     expect(Math.abs(dr.left + dr.width / 2 - (ir.left + ir.width / 2)) + Math.abs(dr.top + dr.height / 2 - (ir.top + ir.height / 2))).toBeLessThan(0.5);
   });
 
-  test('a click on a label calls onChange(value, event) and moves the check; arrow keys move the choice, natively', async () => {
+  test('a click on a label calls onValueChange(value, event) and moves the check; arrow keys move the choice, natively', async () => {
     const changes: string[] = [];
     await render(<Grid><Letters changes={changes} /></Grid>);
     await userEvent.click(wrap('a').querySelector('.dk-radio__label')!);
@@ -105,6 +105,19 @@ describe('Radio', () => {
     await userEvent.keyboard('{ArrowDown}');
     await expect.poll(() => input('b').checked).toBe(true);
     expect([document.activeElement!.id, changes.join()]).toEqual(['b', 'a:change,b:change']);
+  });
+
+  test('onChange, deprecated: still called with (value, event) after onValueChange, and warns once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const calls: string[] = [];
+    await render(<Grid><RadioGroup aria-label="Ship" onValueChange={(v, e) => calls.push('value:' + v + ':' + e.type)} onChange={(v, e) => calls.push('change:' + v + ':' + e.type)}>
+      <Radio id="dc-air" value="air">Air</Radio><Radio id="dc-sea" value="sea">Sea</Radio>
+    </RadioGroup></Grid>);
+    await userEvent.click(input('dc-sea'));
+    await userEvent.click(input('dc-air'));
+    expect(calls).toEqual(['value:sea:change', 'change:sea:change', 'value:air:change', 'change:air:change']);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes('RadioGroup: onChange is deprecated')).length).toBe(1);
+    warn.mockRestore();
   });
 
   test('a radio\'s own size wins over the group\'s: lg is a 20px circle with text-base, centered', async () => {

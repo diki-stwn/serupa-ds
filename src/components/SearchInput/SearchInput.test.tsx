@@ -5,6 +5,13 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SearchInput } from './SearchInput';
 
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
+
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('.dk-search-input__clear');
@@ -126,5 +133,14 @@ describe('SearchInput', () => {
     (document.getElementById('rf') as HTMLFormElement).reset();
     await expect.poll(() => !!clearBtn('r1')).toBe(false);
     expect([field('r1').value, field('r2').value, !!clearBtn('r2')]).toEqual(['', 'apollo', true]);
+  });
+  test('size sm: the clear button is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><SearchInput id="hb" aria-label="Search" size="sm" defaultValue="shoes" /></div>);
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-search-input__clear')!];
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);
+      expect(reach(b)).toEqual([true, true, true, true]);
+    }
   });
 });

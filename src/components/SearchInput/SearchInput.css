@@ -18,4 +18,8 @@
 @media (hover: hover) { .dk-search-input__clear:hover { background: var(--search-input-clear-bg-hover, var(--secondary)); color: var(--search-input-clear-hover, var(--text)); } }
 .dk-search-input__clear:focus-visible { outline: var(--focus-ring-width) solid var(--search-input-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
 @media (prefers-reduced-motion: reduce) { .dk-search-input__clear { transition: none; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: at size sm the button is 22px, so a box behind it reaches
+   1px past each edge. The stacking context keeps that box under the icon, and the button paints over the text next to it. */
+.dk-search-input__clear { position: relative; isolation: isolate; }
+.dk-search-input__clear::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }
