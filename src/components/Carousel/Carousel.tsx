@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, omit, useIsoLayoutEffect } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
@@ -43,6 +44,7 @@ const SWIPE = 40; // px a swipe must travel to change the slide
 
 /** One slide at a time, with previous and next buttons, dots and swipe. */
 export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("Carousel", function Carousel(props, ref) {
+  const restyle = useServerStyles(ref);
   const sds = useSerupa();
   const rest = omit(props, OWN);
   const slides = flattenChildren(props.children);
@@ -132,7 +134,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const prevOff = !loop && index === 0, nextOff = !loop && index >= count - 1;
 
   return (
-    <section {...rest} ref={ref} className={cn("dk-carousel", props.className)} style={style}
+    <section {...rest} ref={restyle} className={cn("dk-carousel", props.className)} style={style}
       aria-roledescription={sds.labels.carouselRole} aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}

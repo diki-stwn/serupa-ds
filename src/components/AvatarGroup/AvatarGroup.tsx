@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { AVATAR_SIZES, AvatarGroupSize } from "../Avatar/Avatar";
 import type { AvatarSize } from "../Avatar/Avatar";
 import { component } from "../../internal/component";
@@ -30,6 +31,7 @@ const OWN = { children: 1, max: 1, total: 1, size: 1, moreLabel: 1, label: 1, cl
 
 /** Avatars in an overlapping row, with "+N" for the rest. */
 export const AvatarGroup = /* @__PURE__ */ component<HTMLDivElement, AvatarGroupProps>("AvatarGroup", function AvatarGroup(props, ref) {
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const size = oneOf(AVATAR_SIZES, props.size, "md");
   const all = flattenChildren(props.children).filter(React.isValidElement);
@@ -42,7 +44,7 @@ export const AvatarGroup = /* @__PURE__ */ component<HTMLDivElement, AvatarGroup
   const cap = size === "xs" ? 9 : 99;   // the most "+N" writes out: three characters don't fit in 24px
   if (props.label) rest["aria-label"] = props.label;
   return (
-    <div {...rest} ref={ref} role="group" className={cn("dk-avatar-group", "dk-avatar-group--" + size, props.className)}
+    <div {...rest} ref={restyle} role="group" className={cn("dk-avatar-group", "dk-avatar-group--" + size, props.className)}
       data-component="avatar-group" data-size={size}>
       <AvatarGroupSize.Provider value={size}>
         {shown.map((el, i) => <span key={el.key ?? i} className="dk-avatar-group__item" style={{ zIndex: count - i }}>{el}</span>)}
