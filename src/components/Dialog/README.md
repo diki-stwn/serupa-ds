@@ -41,7 +41,7 @@ const [open, setOpen] = React.useState(false);
 
 ## Behavior
 
-- Opening moves focus to the first thing in it that takes focus (put `data-autofocus` on another to choose: React's `autoFocus` runs while the dialog is still hidden, so it can't); closing moves it back to where it was.
+- Opening moves focus to the first thing in it that takes focus. To choose another, pass its ref as `initialFocus` (Cancel in a confirmation, so Enter doesn't delete), or put `data-autofocus` on it (React's `autoFocus` runs while the dialog is still hidden, so it can't). Closing moves focus back to where it was.
 - A body taller than the screen takes Tab focus (with a focus ring) when it scrolls, so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
@@ -83,6 +83,7 @@ const [open, setOpen] = React.useState(false);
 | `closeLabel` | string | `'Close'` | The ×'s name |
 | `closeOnBackdrop` | boolean | `true` (`false` for alert) | Whether a click on the dimmed page closes it |
 | `fullScreen` | boolean \| `'mobile'` | `false` | Fills the screen: `true` always, or `'mobile'` under 640px wide. Square corners, no shadow, the body takes the free height, and the padding clears the notch and home bar |
+| `initialFocus` | `RefObject<HTMLElement>` | | The element that takes focus when it opens, instead of the first that can. A ref to something outside the dialog is ignored |
 
 `children` is the body, which scrolls when it's taller than the screen. `className`, `style`, `ref` and everything else go to the `<dialog>`, which has `data-component="dialog"` and `data-size`.
 
