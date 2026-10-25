@@ -44,3 +44,9 @@ export const LongText: Story = {
     </>;
   },
 };
+/** `defaultOpen` without `open`: shown on arrival, and it closes itself (Escape, the ×, the backdrop or the button). */
+export const OpenOnArrival: Story = {
+  name: 'Open on arrival (defaultOpen)',
+  args: { open: undefined, title: 'Welcome to Atlas', description: 'Your projects, files and team in one place.' },
+  render: (args: DialogProps) => <Dialog {...args} defaultOpen footer={<Button onClick={(e) => (e.currentTarget.closest('dialog') as HTMLDialogElement).close()}>Get started</Button>} />,
+};

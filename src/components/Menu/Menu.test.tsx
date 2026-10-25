@@ -45,6 +45,17 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    await render(<Menu defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="mdef">Actions</Button>}><MenuItem>Edit</MenuItem></Menu>);
+    await expect.poll(() => !menuOf('mdef').hidden).toBe(true);
+    expect(el('mdef').getAttribute('aria-expanded')).toBe('true');
+    menuOf('mdef').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect([asks.join(), el('mdef').getAttribute('aria-expanded')]).toEqual(['false', 'false']);
+  });
+
   test('closed: the button has aria-haspopup="menu" and aria-expanded="false"; the menu is empty and hidden', async () => {
     await render(<Actions chosen={[]} />);
     const b = el('mb'), m = document.querySelector('[role="menu"]') as HTMLElement;

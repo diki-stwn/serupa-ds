@@ -89,6 +89,21 @@ describe('Drawer', () => {
     expect(document.activeElement!.id).toBe('dafq');
   });
 
+  test('defaultOpen: open on arrival with no open prop; the × and Escape close it by themselves and tell onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    const one = (k: string) => <Drawer key={k} id="drw" defaultOpen onOpenChange={(v) => asks.push(v)} title="Filters"><Input aria-label="Name" /></Drawer>;
+    const screen = await render(one('a'));
+    await expect.poll(() => isOpen()).toBe(true);
+    expect(drw().matches(':modal')).toBe(true);
+    await userEvent.click(drw().querySelector('button[aria-label="Close"]')!);
+    await expect.poll(() => isOpen()).toBe(false);
+    await screen.rerender(one('b'));
+    await expect.poll(() => isOpen()).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen()).toBe(false);
+    expect(asks.join()).toBe('false,false');
+  });
+
   test('right-to-left page: side="right" still opens on the right, the edge it slides in from', async () => {
     document.documentElement.dir = 'rtl';
     try {

@@ -1,6 +1,7 @@
 // exports: Drawer, type DrawerProps
 interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
-    open: boolean;
+    open?: boolean;
+    defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     side?: "bottom" | "left" | "right" | "top";
     size?: "lg" | "md" | "sm";

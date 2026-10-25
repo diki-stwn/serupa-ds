@@ -21,6 +21,15 @@ const near = (a: number, b: number) => Math.abs(a - b) <= 1;
 const away = () => userEvent.hover(document.body, { position: { x: 500, y: 20 } });
 
 describe('Tooltip', () => {
+  test('defaultOpen: shown on arrival, uncontrolled; Escape hides it by itself and tells onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    await render(<Tooltip content="Edit the file" defaultOpen onOpenChange={(v) => asks.push(v)}><button id="tdef">Edit</button></Tooltip>);
+    await expect.poll(() => isOpen('tdef')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('tdef')).toBe(false);
+    expect(asks.join()).toBe('false');
+  });
+
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
     await render(<>
       <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" noTitle aria-describedby="other" /></Tooltip>

@@ -23,6 +23,17 @@ function Share() {
 }
 
 describe('Popover', () => {
+  test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    await render(<Popover title="Share" defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="tdef">Share</Button>}><input aria-label="Email" /></Popover>);
+    await expect.poll(() => isOpen('tdef')).toBe(true);
+    expect(el('tdef').getAttribute('aria-expanded')).toBe('true');
+    panel('tdef').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('tdef')).toBe(false);
+    expect([asks.join(), el('tdef').getAttribute('aria-expanded')]).toEqual(['false', 'false']);
+  });
+
   test('closed: the trigger has aria-haspopup="dialog" and aria-expanded="false"; the panel is hidden and empty', async () => {
     await render(<Share />);
     const b = el('tshare'), p = panel('tshare');
