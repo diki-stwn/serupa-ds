@@ -48,9 +48,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-btn-loader-in': ['EE1: scales in', ['Button', 'IconButton', 'Fab']],
     'dk-badge-loader-in': ['EE1: scales in', ['Badge']],
   },
-  origin: {
-    'dk-popover-in': ['EO1: scales in from its centre', ['Popover']],
-  },
+  origin: {},
   'will-change': {},
 };
 // Keyframes that may run once: what appears and can't be taken back mid-way, so there is nothing to reverse.
