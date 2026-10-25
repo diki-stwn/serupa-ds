@@ -28,6 +28,7 @@
 }
 .dk-tooltip[hidden] { display: none; }
 @keyframes dk-tooltip-in { from { opacity: var(--opacity-0); } }
+.dk-tooltip[data-warm] { animation: none; }   /* opened warm, straight after another: swapped in at once */
 @media (prefers-reduced-motion: reduce) { .dk-tooltip { animation: none; } }
 @media (forced-colors: active) { .dk-tooltip { border: var(--border-width-1) solid CanvasText; } }
 }

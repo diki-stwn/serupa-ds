@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
 import { Dialog } from '../Dialog/Dialog';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
-import { Tooltip } from './Tooltip';
+import { Tooltip, coolTooltips } from './Tooltip';
+
+// Every test starts cold: the warm-up (EC1) would otherwise carry over from the test before.
+beforeEach(() => coolTooltips());
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 // The tooltip an element points at, through aria-describedby or aria-labelledby.
@@ -190,5 +193,39 @@ describe('Tooltip', () => {
       if (r < 4.5) low.push(`${th} ${r.toFixed(2)}`);
     }
     expect(low).toEqual([]);
+  });
+});
+
+describe('Tooltip warm-up (EC1)', () => {
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  function Bar() {
+    return <div style={{ display: 'flex', gap: '8px', padding: '80px' }}>
+      <Tooltip content="Bold"><button id="wa">B</button></Tooltip>
+      <Tooltip content="Italic"><button id="wb">I</button></Tooltip>
+      <Tooltip content="Underline"><button id="wc">U</button></Tooltip>
+    </div>;
+  }
+
+  test('once one has shown, the next opens at once without a fade and the first closes; after 300ms off them all, the delay is back', async () => {
+    await render(<Bar />);
+    await away(); await wait(400);
+    await userEvent.hover(el('wa'));
+    await wait(150);
+    expect(isOpen('wa')).toBe(false);   // a cold start waits for the delay
+    await expect.poll(() => isOpen('wa')).toBe(true);
+    expect(tipOf('wa').hasAttribute('data-warm')).toBe(false);
+    await userEvent.hover(el('wb'));
+    expect([isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), getComputedStyle(tipOf('wb')).animationName]).toEqual([true, false, true, 'none']);
+    // Off every tooltip for less than 300ms: still warm.
+    await away(); await wait(150);
+    await userEvent.hover(el('wc'));
+    expect(isOpen('wc')).toBe(true);
+    // Off them all for longer: cold again.
+    await away(); await wait(500);
+    await userEvent.hover(el('wa'));
+    await wait(150);
+    expect(isOpen('wa')).toBe(false);
+    await expect.poll(() => isOpen('wa')).toBe(true);
+    await away();
   });
 });
