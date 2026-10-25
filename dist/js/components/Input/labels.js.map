@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Input/labels.ts"],
+  "sourcesContent": ["// Input's own words, in English and Indonesian, shared with Textarea's count. tools/build/registry.mjs adds them to\n// SerupaLabels, enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface InputLabels {\n  /** Input and Textarea with showCount and maxLength: read out when few characters are left, and at the limit\n      (left is 0). Not on every keystroke. */\n  charactersLeft: (left: number) => string;\n}\nexport const en: InputLabels = {\n  charactersLeft: (left) => (left === 0 ? \"Character limit reached.\" : left === 1 ? \"1 character left.\" : left + \" characters left.\"),\n};\nexport const id: InputLabels = {\n  charactersLeft: (left) => (left === 0 ? \"Batas karakter tercapai.\" : \"Sisa \" + left + \" karakter.\"),\n};\n"],
+  "mappings": ";AAOO,IAAM,KAAkB;AAAA,EAC7B,gBAAgB,CAAC,SAAU,SAAS,IAAI,6BAA6B,SAAS,IAAI,sBAAsB,OAAO;AACjH;AACO,IAAM,KAAkB;AAAA,EAC7B,gBAAgB,CAAC,SAAU,SAAS,IAAI,6BAA6B,UAAU,OAAO;AACxF;",
+  "names": []
+}

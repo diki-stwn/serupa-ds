@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/fold.ts"],
+  "sourcesContent": ["// Text folded for matching what people type against labels: case, accents and width ignored, so \"lodz\" finds \"\u0141\u00F3d\u017A\",\n// \"strasse\" finds \"Stra\u00DFe\", \"\uFF54\uFF4F\uFF4B\uFF59\uFF4F\" finds \"Tokyo\" and \"\u30C8\u30A6\u30AD\u30E7\u30A6\" finds \"\uFF84\uFF73\uFF77\uFF6E\uFF73\". NFKD splits accents off\n// and maps full- and half-width forms to the usual ones; a few letters don't decompose and get a table.\nconst LETTERS: Record<string, string> = { \"\u0142\": \"l\", \"\u0111\": \"d\", \"\u00F0\": \"d\", \"\u00F8\": \"o\", \"\u00E6\": \"ae\", \"\u0153\": \"oe\", \"\u00DF\": \"ss\", \"\u0127\": \"h\", \"\u0131\": \"i\", \"\u00FE\": \"th\", \"\u0167\": \"t\", \"\u014B\": \"n\", \"\u0138\": \"k\" };\n\n/** Lowercased, without accents or width differences, with \u0142\u2192l, \u00F8\u2192o, \u00E6\u2192ae, \u00DF\u2192ss and the like. */\nexport function fold(s: string): string {\n  return s.normalize(\"NFKD\").replace(/\\p{M}/gu, \"\").toLowerCase().replace(/[\u0142\u0111\u00F0\u00F8\u00E6\u0153\u00DF\u0127\u0131\u00FE\u0167\u014B\u0138]/g, (c) => LETTERS[c]);\n}\n"],
+  "mappings": ";AAGA,IAAM,UAAkC,EAAE,UAAK,KAAK,UAAK,KAAK,QAAK,KAAK,QAAK,KAAK,QAAK,MAAM,UAAK,MAAM,QAAK,MAAM,UAAK,KAAK,UAAK,KAAK,QAAK,MAAM,UAAK,KAAK,UAAK,KAAK,UAAK,IAAI;AAGxK,SAAS,KAAK,GAAmB;AACtC,SAAO,EAAE,UAAU,MAAM,EAAE,QAAQ,WAAW,EAAE,EAAE,YAAY,EAAE,QAAQ,oBAAoB,CAAC,MAAM,QAAQ,CAAC,CAAC;AAC/G;",
+  "names": []
+}

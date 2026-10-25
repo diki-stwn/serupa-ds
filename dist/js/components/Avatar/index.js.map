@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Avatar/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Avatar } from \"./Avatar\";\nexport { initials } from \"./initials\";\nexport type { AvatarProps, AvatarSize, AvatarStatus } from \"./Avatar\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;AACvB,SAAS,gBAAgB;",
+  "names": []
+}

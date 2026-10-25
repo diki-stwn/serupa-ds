@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/material/index.ts"],
+  "sourcesContent": ["/*! Serupa \u00B7 Material Symbols Rounded (filled) as SVG, one named export per icon \u00B7 Apache 2.0 */\n// serupa-ds/icons: import the icons you use and only those ship.\n//   import { Add, ArrowForward } from \"serupa-ds/icons\";\n//   <Button leftIcon={Add}>New</Button>   <Icon icon={ArrowForward} />\nexport * from \"./icons\";\nexport type { IconData } from \"./types\";\n"],
+  "mappings": ";AAIA,cAAc;",
+  "names": []
+}

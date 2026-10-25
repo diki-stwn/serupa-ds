@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/children.ts"],
+  "sourcesContent": ["import * as React from \"react\";\n\n/** The children as a flat list, with Fragments opened up (at any depth) and null, false and undefined dropped.\n *  Keys stay unique: an item inside a Fragment gets the Fragment's key in front of its own. Components that count,\n *  number or wrap their children use it, so `{admin && <><Item /><Item /></>}` gives two items, not one. */\nexport function flattenChildren(children: React.ReactNode, prefix = \"\"): React.ReactNode[] {\n  const out: React.ReactNode[] = [];\n  for (const c of React.Children.toArray(children)) {\n    if (React.isValidElement(c) && c.type === React.Fragment) out.push(...flattenChildren((c.props as { children?: React.ReactNode }).children, prefix + String(c.key)));\n    else if (prefix && React.isValidElement(c)) out.push(React.cloneElement(c, { key: prefix + String(c.key) }));\n    else out.push(c);\n  }\n  return out;\n}\n"],
+  "mappings": ";AAAA,YAAY,WAAW;AAKhB,SAAS,gBAAgB,UAA2B,SAAS,IAAuB;AACzF,QAAM,MAAyB,CAAC;AAChC,aAAW,KAAW,eAAS,QAAQ,QAAQ,GAAG;AAChD,QAAU,qBAAe,CAAC,KAAK,EAAE,SAAe,eAAU,KAAI,KAAK,GAAG,gBAAiB,EAAE,MAAyC,UAAU,SAAS,OAAO,EAAE,GAAG,CAAC,CAAC;AAAA,aAC1J,UAAgB,qBAAe,CAAC,EAAG,KAAI,KAAW,mBAAa,GAAG,EAAE,KAAK,SAAS,OAAO,EAAE,GAAG,EAAE,CAAC,CAAC;AAAA,QACtG,KAAI,KAAK,CAAC;AAAA,EACjB;AACA,SAAO;AACT;",
+  "names": []
+}

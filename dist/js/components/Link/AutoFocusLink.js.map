@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Link/AutoFocusLink.tsx"],
+  "sourcesContent": ["\"use client\";\nimport * as React from \"react\";\nimport { setRef } from \"../../internal/cn\";\nimport { useAutoFocus } from \"../../internal/focus\";\n\n/* The element Link renders when it has autoFocus. React only autofocuses form controls, so this focuses the link\n   once it's mounted. It's a client module of its own, so Link stays a Server Component without autoFocus. */\nexport function AutoFocusLink(props: { as: React.ElementType; linkRef: React.ForwardedRef<HTMLAnchorElement>; attrs: Record<string, unknown>; children?: React.ReactNode }) {\n  const node = React.useRef<HTMLAnchorElement | null>(null);\n  useAutoFocus(true, () => node.current);\n  return React.createElement(props.as, { ...props.attrs, ref: (n: HTMLAnchorElement | null) => { node.current = n; setRef(props.linkRef, n); } }, props.children);\n}\n"],
+  "mappings": ";;;AACA,YAAY,WAAW;AACvB,SAAS,cAAc;AACvB,SAAS,oBAAoB;AAItB,SAAS,cAAc,OAA8I;AAC1K,QAAM,OAAa,aAAiC,IAAI;AACxD,eAAa,MAAM,MAAM,KAAK,OAAO;AACrC,SAAa,oBAAc,MAAM,IAAI,EAAE,GAAG,MAAM,OAAO,KAAK,CAAC,MAAgC;AAAE,SAAK,UAAU;AAAG,WAAO,MAAM,SAAS,CAAC;AAAA,EAAG,EAAE,GAAG,MAAM,QAAQ;AAChK;",
+  "names": []
+}

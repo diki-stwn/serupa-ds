@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Link/labels.ts"],
+  "sourcesContent": ["// Link's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface LinkLabels {\n  /** Link with external: read after the link text. */\n  opensInNewTab: string;\n}\nexport const en: LinkLabels = {\n  opensInNewTab: \"(opens in a new tab)\",\n};\nexport const id: LinkLabels = {\n  opensInNewTab: \"(terbuka di tab baru)\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAiB;AAAA,EAC5B,eAAe;AACjB;AACO,IAAM,KAAiB;AAAA,EAC5B,eAAe;AACjB;",
+  "names": []
+}
