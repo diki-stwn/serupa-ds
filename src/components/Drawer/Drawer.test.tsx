@@ -120,7 +120,7 @@ describe('Drawer', () => {
 
   test('swipe to close: a touch drag toward the edge past a third closes it (reason "swipe"); a short slow one, a drag across, a mouse drag or swipeToClose={false} leave it open', async () => {
     const why: string[] = [];
-    const one = (k: string, p: Partial<DrawerProps> = {}) => <Drawer key={k} id="sw" defaultOpen onOpenChange={(v, d) => why.push(d.reason)} title="Filters" {...p}><p id="swb">Body</p></Drawer>;
+    const one = (k: string, p: Partial<DrawerProps> = {}) => <Drawer key={k} id="sw" defaultOpen onOpenChange={(_, d) => why.push(d.reason)} title="Filters" {...p}><p id="swb">Body</p></Drawer>;
     // Events at real times, 100ms apart: a drag's speed comes from their time stamps.
     const swipe = async (dx: number, dy: number, o: { type?: string; from?: Element } = {}) => {
       const p = o.from || panel('sw'), r = p.getBoundingClientRect(), x = r.left + 40, y = r.top + 40;
