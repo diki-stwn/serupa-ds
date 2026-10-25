@@ -109,7 +109,7 @@ describe('PinInput', () => {
     await render(<div style={{ background: 'var(--surface)' }} id="bg"><PinInput id="p" aria-label="Code" defaultValue="1" /><PinInput id="v" aria-label="Bad" invalid /></div>);
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const b = css(boxes('p')[0]), surface = css(document.getElementById('bg') as HTMLElement).backgroundColor;
+      const b = css(boxes('p')[0]), surface = css(root('p').parentElement).backgroundColor;
       expect(contrast(b.color, b.backgroundColor), th + ' text').toBeGreaterThanOrEqual(4.5);
       expect(contrast(b.borderTopColor, surface), th + ' border').toBeGreaterThanOrEqual(3);
       expect(contrast(css(boxes('v')[0]).borderTopColor, surface), th + ' invalid').toBeGreaterThanOrEqual(3);
