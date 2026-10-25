@@ -1,0 +1,49 @@
+{
+  "splitter": {
+    "$description": "Splitter's component tokens. Each one is an optional override: set the CSS variable (--splitter-<name>) on the page, a container or one Splitter, and every Splitter inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "line": {
+        "$type": "color",
+        "$value": "{color.field-border}",
+        "$description": "The handle's line (3:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--splitter-line"
+          }
+        }
+      },
+      "line-active": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The line on hover, while dragged and on focus.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--splitter-line-active"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The handle's focus ring.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--splitter-focus-ring"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "handle-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "How thick the handle is, the area a pointer can grab (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--splitter-handle-size"
+          }
+        }
+      }
+    }
+  }
+}

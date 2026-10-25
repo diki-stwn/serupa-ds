@@ -1,0 +1,35 @@
+/* ---------------------------------------------------------------
+   Splitter: two panes in a row (or a column) with an 8px handle between them: a 1px field-border line down its
+   middle that turns 2px primary on hover, while dragged and on focus (with the focus ring around the handle). The
+   cursor shows the direction it moves. Every value reads one of its own tokens (splitter.tokens.json), which fall
+   back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-splitter { display: flex; min-width: var(--spacing-0); min-height: var(--spacing-0); }
+.dk-splitter--vertical { flex-direction: column; }
+.dk-splitter__pane { box-sizing: border-box; min-width: var(--spacing-0); min-height: var(--spacing-0); overflow: auto; overscroll-behavior: contain; }
+.dk-splitter__pane--first { flex: none; }
+.dk-splitter__pane--second { flex: auto; flex-basis: var(--spacing-0); }
+.dk-splitter__pane[hidden] { display: none; }
+.dk-splitter__handle {
+  --dk-splitter-line: var(--splitter-line, var(--field-border));
+  --dk-splitter-weight: var(--border-width-1);
+  display: flex; justify-content: center; flex: none; box-sizing: border-box; touch-action: none; user-select: none;
+  width: var(--splitter-handle-size, var(--spacing-2)); cursor: col-resize;
+}
+.dk-splitter--vertical > .dk-splitter__handle { flex-direction: column; width: auto; height: var(--splitter-handle-size, var(--spacing-2)); cursor: row-resize; }
+/* The line: centred in the handle by its flex box, the full length of the handle. */
+.dk-splitter__handle::before {
+  content: ""; flex: none; align-self: stretch; width: var(--dk-splitter-weight); background: var(--dk-splitter-line);
+  transition: background-color var(--duration-150) var(--ease-in-out);
+}
+.dk-splitter--vertical > .dk-splitter__handle::before { width: auto; height: var(--dk-splitter-weight); }
+@media (hover: hover) { .dk-splitter__handle:hover { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); } }
+.dk-splitter__handle:focus-visible, .dk-splitter__handle:active { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); }
+.dk-splitter__handle:focus-visible { outline: var(--focus-ring-width) solid var(--splitter-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
+@media (prefers-reduced-motion: reduce) { .dk-splitter__handle::before { transition: none; } }
+@media (forced-colors: active) {
+  .dk-splitter__handle::before { background: CanvasText; }
+  .dk-splitter__handle:focus-visible::before { background: Highlight; }
+}
+}
