@@ -1,6 +1,6 @@
 // Custom icons in the browser: builds two sample SVGs with tools/icons/build.mjs into a scratch copy of
 // the source and bundles it, then checks Icon and Button draw them like the Material Symbols (size, color, alignment,
-// accessibility, loading) and that every other name still comes from Material Symbols.
+// accessibility, loading), that they draw with Trusted Types on, and that every other name still comes from Material Symbols.
 //   node tools/test/icons.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -98,6 +98,20 @@ const px = await p.evaluate(async (b64) => {
 }, shot);
 t('the icon actually paints, in the text color (center pixel)', px[0] === px[1], JSON.stringify(px));
 t('no page errors', errors.length === 0, errors.join('; '));
+
+// With Trusted Types on, custom icons draw with no policy: Icon builds their shapes as elements, never as HTML.
+const tt = await b.newPage();
+const ttErrors = [];
+tt.on('pageerror', (e) => ttErrors.push(e.message));
+await tt.goto(writePage('icons-tt.html', `<div id="root"></div><script>
+var V = []; document.addEventListener('securitypolicyviolation', function (e) { V.push(e.effectiveDirective + ' ' + e.sample); });
+var D = window.Serupa, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', null, h(D.Icon, { id: 'sq', name: 'test-square' }), h(D.Icon, { id: 'ring', name: 'test-ring' })));
+</script>`, { extraHead: `<meta http-equiv="Content-Security-Policy" content="require-trusted-types-for 'script'">${libs}` }));
+await tt.waitForTimeout(300);
+const ttInfo = await tt.evaluate(() => ({ on: (() => { try { document.createElement('div').innerHTML = '<b></b>'; return false; } catch { return true; } })(), V: window.V,
+  sq: document.querySelector('#sq svg path')?.getAttribute('d'), ring: document.querySelector('#ring svg g')?.getAttribute('stroke-width'), circle: !!document.querySelector('#ring svg g circle') }));
+t('with Trusted Types on, custom icons draw with no policy and no violation (shapes, an outline and its group)', ttInfo.on && !ttInfo.V.length && !ttErrors.length && ttInfo.sq === 'M2 2H22V22H2Z' && ttInfo.ring === '2' && ttInfo.circle, JSON.stringify([ttInfo, ttErrors]));
 
 await b.close();
 cleanup();

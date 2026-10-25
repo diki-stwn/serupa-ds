@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Radio, RadioGroup } from './Radio';
 
@@ -217,5 +217,16 @@ describe('Radio', () => {
       ['focus', 'var(--focus-ring)', 'var(--surface)', 3],
       ['invalid', 'var(--danger)', 'var(--surface)', 3],
     ])).toEqual([]);
+  });
+
+  test('pressed: the circle shrinks to 90% while the row is held, on scale alone, and springs back; not when disabled (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<RadioGroup aria-label="Press"><Radio id="pr" value="a">Press me</Radio><Radio id="pq" value="b" disabled>Off</Radio></RadioGroup>);
+      const dot = (id: string) => (document.getElementById(id) as HTMLElement).parentElement as HTMLElement;   // the control around the input
+      expect(css(dot('pr')).transitionProperty).toBe('scale');
+      await press(dot('pr').closest('label')!, () => expect.poll(() => css(dot('pr')).scale).toBe('0.9'));
+      await expect.poll(() => css(dot('pr')).scale).toBe('none');
+      await press(dot('pq').closest('label')!, () => expect(css(dot('pq')).scale).toBe('none'));
+    });
   });
 });
