@@ -7,6 +7,7 @@ import { useSerupa } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -42,6 +43,7 @@ const OWN = { open: 1, onOpenChange: 1, title: 1, description: 1, footer: 1, siz
 
 /** A modal dialog on the native <dialog>: a title, content and actions, over a dimmed page. */
 export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>("Dialog", function Dialog(props, ref) {
+  const nameRef = useNameCheck("Dialog", NAME_HOW.title);   // warns when it has no accessible name
   const sds = useSerupa();
   const rest = omit(props, OWN);
   const base = domId("dk-dlg", React.useId());
@@ -112,7 +114,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   const region = !scrolls ? {} : named ? { tabIndex: 0, role: "region", "aria-labelledby": named }
     : rest["aria-label"] ? { tabIndex: 0, role: "region", "aria-label": rest["aria-label"] } : { tabIndex: 0 };
   return (
-    <dialog {...rest} ref={(n) => { el.current = n; setRef(ref, n); }}
+    <dialog {...rest} ref={(n) => { el.current = n; nameRef(n); setRef(ref, n); }}
       role={alert ? "alertdialog" : undefined} aria-modal="true"
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}

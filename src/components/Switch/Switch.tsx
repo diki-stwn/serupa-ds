@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, domId, isInvalid, oneOf, omit, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type' | 'role'> {
   /** 'sm' (28 by 16px track, text-xs), 'md' (36 by 20px, text-sm, default) or 'lg' (44 by 24px, text-base). */
@@ -30,6 +31,7 @@ const OWN = { size: 1, invalid: 1, pending: 1, description: 1, labelPosition: 1,
 
 /** An on/off setting that applies at once: a native checkbox with role="switch" (ref, checked, onChange and every input attribute go to it), drawn as a track and thumb; className and style go to the <label> around it. */
 export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("Switch", function Switch(props, ref) {
+  const nameRef = useNameCheck("Switch", NAME_HOW.label, ref);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, "md");
@@ -54,7 +56,7 @@ export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("
   return (
     <label className={cn("dk-switch", "dk-switch--size-" + size, props.labelPosition === "start" && "dk-switch--label-start", invalid && "dk-switch--invalid", rest.disabled && "dk-switch--disabled", readOnly && "dk-switch--readonly", pending && "dk-switch--pending", !hasLabel && !hasDesc && "dk-switch--bare", props.className)} style={props.style} data-component="switch" data-size={size} data-pending={pending ? "" : undefined}>
       <span className="dk-switch__control" key="control">
-        <input {...rest} ref={ref} type="checkbox" role="switch" className="dk-switch__input" key="input" />
+        <input {...rest} ref={nameRef} type="checkbox" role="switch" className="dk-switch__input" key="input" />
         <span className="dk-switch__thumb" aria-hidden key="thumb">{pending ? <span className="dk-switch__spinner" key="spin" /> : null}</span>
       </span>
       {hasLabel || hasDesc ? <span className="dk-switch__text" key="text">
