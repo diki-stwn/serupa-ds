@@ -165,6 +165,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [Alert](src/components/Alert/README.md) | A message about the page or a task: something saved, something to know, something that went wrong. |
 | [Badge](src/components/Badge/README.md) | A short label for status, counts and categories, optionally clickable. |
 | [EmptyState](src/components/EmptyState/README.md) | What a page or a panel shows when there's nothing in it yet, or nothing matches: an icon, a few words saying what's empty, what it means, and the action that fills it. |
+| [ErrorBoundary](src/components/ErrorBoundary/README.md) | Catches an error thrown while rendering anything inside it and shows a message with "Try again" in its place, so one broken widget doesn't blank the whole page. |
 | [Loader](src/components/Loader/README.md) | Shows that something is loading when you can't say how far along it is. |
 | [Meter](src/components/Meter/README.md) | Shows a measurement within a known range: storage used, a plan's seats, a password's strength, a battery level. |
 | [Progress](src/components/Progress/README.md) | Shows how far along a task is when you can tell: an upload, a setup, a quota. |
