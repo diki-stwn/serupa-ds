@@ -45,6 +45,7 @@ const { EmptyState, Button } = window.Serupa;
 - The icon is decorative and hidden from screen readers.
 - When the empty state appears after an action (a search), consider announcing it, for example by putting it in a region with `aria-live="polite"`.
 - The title and description keep 4.5:1 on `surface`, and the icon 3:1 on its circle, in all six themes (`EmptyState.test.tsx`).
+- **Keyboard:** none. It isn't focusable; Tab reaches the buttons and links in its actions.
 
 ## Props
 
