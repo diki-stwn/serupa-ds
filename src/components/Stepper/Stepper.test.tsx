@@ -22,6 +22,8 @@ function App(props: { sref?: React.Ref<HTMLElement> }) {
   return <div style={{ width: '640px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
     <Stepper id="st" steps={STEPS} current={c} ref={props.sref} className="extra" onStepClick={(i) => { clicks.push(i); set(i); }} />
     <Stepper id="err" steps={[{ title: 'Upload' }, { title: 'Check', status: 'error' }, { title: 'Done' }]} current={1} aria-label="Import" labels={{ error: 'needs attention' }} />
+    <Stepper id="warn" steps={[{ title: 'Details' }, { title: 'Photos', status: 'warning' }, { title: 'Publish' }]} current={2} />
+    <Stepper id="any" steps={STEPS} current={1} clickable="all" onStepClick={(i) => { clicks.push(i); }} />
     <Stepper id="ver" orientation="vertical" steps={STEPS} current={1} />
     <Stepper id="sm" size="sm" steps={STEPS} current={4} />
     <div dir="rtl"><Stepper id="rtl" steps={STEPS.slice(0, 3)} current={1} /></div>
@@ -94,6 +96,21 @@ describe('Stepper', () => {
     expect([e[1].state, e[1].ind, e[1].text, el('err').getAttribute('aria-label')]).toEqual(['error', 'priority_high', 'Check, needs attention', 'Import']);
   });
 
+  test('status="warning": a warning-subtle circle with a warning mark, read as "…, needs attention"; it wins over complete', async () => {
+    await setup();
+    const w = steps('warn');
+    expect([w[1].state, w[1].ind, w[1].text, w[0].state]).toEqual(['warning', 'warning', 'Photos, needs attention', 'complete']);
+    expect(css(lis('warn')[1].querySelector('.dk-stepper__indicator')).backgroundColor).not.toBe(css(lis('err')[1].querySelector('.dk-stepper__indicator')).backgroundColor);
+  });
+
+  test('clickable="all": every step but the current one is a button, upcoming ones too, and clicking one calls onStepClick', async () => {
+    await setup();
+    expect(steps('any').map((s) => s.btn)).toEqual([true, false, true, true]);
+    await userEvent.click(lis('any')[3].querySelector('button')!);
+    await userEvent.click(lis('any')[0].querySelector('button')!);
+    expect(clicks).toEqual([3, 0]);
+  });
+
   test('vertical: a 2px line runs down the middle of each circle, 8px from it and from the next', async () => {
     await setup();
     const v = lis('ver').slice(0, 3).map((li) => {
@@ -119,18 +136,20 @@ describe('Stepper', () => {
     const low: string[] = []; let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const page = css(document.body).backgroundColor, li = lis('st'), err = lis('err')[1], c = (l: Element, s: string) => css(l.querySelector(s));
+      const page = css(document.body).backgroundColor, li = lis('st'), err = lis('err')[1], warn = lis('warn')[1], c = (l: Element, s: string) => css(l.querySelector(s));
       const pairs: Array<[string, string, string, number]> = [
         ['upcoming number', c(li[3], '.dk-stepper__indicator').color, c(li[3], '.dk-stepper__indicator').backgroundColor, 4.5],
         ['upcoming ring', c(li[3], '.dk-stepper__indicator').borderTopColor, page, 3],
         ['current number', c(li[2], '.dk-stepper__indicator').color, c(li[2], '.dk-stepper__indicator').backgroundColor, 4.5],
         ['complete circle', c(li[0], '.dk-stepper__indicator').backgroundColor, page, 3],
         ['error mark', c(err, '.dk-stepper__indicator').color, c(err, '.dk-stepper__indicator').backgroundColor, 3],
+        ['warning mark', c(warn, '.dk-stepper__indicator').color, c(warn, '.dk-stepper__indicator').backgroundColor, 3],
+        ['warning ring', c(warn, '.dk-stepper__indicator').borderTopColor, page, 3],
         ['title', c(li[0], '.dk-stepper__title').color, page, 4.5],
         ['description', c(li[0], '.dk-stepper__description').color, page, 4.5]];
       for (const [k, fg, bg, min] of pairs) { const r = contrast(fg, bg); n++; if (r < min) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
-    expect([low, n]).toEqual([[], 42]);
+    expect([low, n]).toEqual([[], 54]);
   });
 
   test('--stepper-active-bg overrides one stepper', async () => {

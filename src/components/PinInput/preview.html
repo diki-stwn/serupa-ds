@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>PinInput — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface); color: var(--text); font-family: var(--font-sans); }
+  #root { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var D = window.Serupa, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
+    h(D.Field, { label: 'Verification code', hint: 'We sent a 6-digit code to your phone.' }, h(D.PinInput, { defaultValue: '381' })),
+    h(D.PinInput, { 'aria-label': 'PIN', length: 4, mask: true, size: 'lg', defaultValue: '27' }),
+    h(D.PinInput, { 'aria-label': 'Invite code', type: 'alphanumeric', length: 5, size: 'sm', invalid: true, defaultValue: 'K7Q' })
+  ));
+</script>
+</body>
+</html>
