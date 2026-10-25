@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PROJECT, done, report } from './lib.mjs';
 
-const BUDGET = { 'double casts (as unknown as)': 6, 'checks switched off (@ts-ignore, @ts-expect-error, eslint-disable)': 1 };
+const BUDGET = { 'double casts (as unknown as)': 6, 'checks switched off (@ts-ignore, @ts-expect-error, eslint-disable)': 0 };
 const PATTERN = { 'double casts (as unknown as)': /\bas unknown as\b/g, 'checks switched off (@ts-ignore, @ts-expect-error, eslint-disable)': /@ts-(?:ignore|expect-error|nocheck)\b|eslint-disable/g };
 
 const files = fs.readdirSync(path.join(PROJECT, 'src'), { recursive: true }).map((f) => String(f).split(path.sep).join('/'))
