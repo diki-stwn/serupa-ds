@@ -19,14 +19,14 @@ const box = () => { const r = panel().getBoundingClientRect(); return [r.left, r
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 type Ctl = { setOpen: (v: boolean) => void; setSide: (s: DrawerProps['side']) => void; setSize: (s: DrawerProps['size']) => void; setBd: (v: boolean) => void };
-function App(props: { asks: boolean[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement> }) {
+function App(props: { asks: boolean[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement>; why?: string[] }) {
   const [open, setOpen] = React.useState(false), [side, setSide] = React.useState<DrawerProps['side']>('right'), [size, setSize] = React.useState<DrawerProps['size']>('md'), [bd, setBd] = React.useState(true);
   Object.assign(props.ctl, { setOpen, setSide, setSize, setBd });
   const rows = []; for (let i = 0; i < 60; i++) rows.push(<p key={i}>Row {i}</p>);
   return <div style={{ height: '2000px' }}>
     <Button id="opener" onClick={() => setOpen(true)}>Filters</Button>
     <button id="behind">Behind</button>
-    <Drawer id="drw" open={open} side={side} size={size} closeOnBackdrop={bd} onOpenChange={(v) => { props.asks.push(v); setOpen(v); }} title="Filters" description="Narrow the list." ref={props.dref} className="extra"
+    <Drawer id="drw" open={open} side={side} size={size} closeOnBackdrop={bd} onOpenChange={(v, d) => { props.asks.push(v); if (props.why) props.why.push(d.reason); setOpen(v); }} title="Filters" description="Narrow the list." ref={props.dref} className="extra"
       footer={[<Button key={1} variant="secondary">Reset</Button>, <Button key={2} id="apply">Apply</Button>]}>
       <Input id="q" aria-label="Search" />{rows}
     </Drawer>
@@ -89,9 +89,9 @@ describe('Drawer', () => {
     expect(document.activeElement!.id).toBe('dafq');
   });
 
-  test('defaultOpen: open on arrival with no open prop; the × and Escape close it by themselves and tell onOpenChange(false)', async () => {
-    const asks: boolean[] = [];
-    const one = (k: string) => <Drawer key={k} id="drw" defaultOpen onOpenChange={(v) => asks.push(v)} title="Filters"><Input aria-label="Name" /></Drawer>;
+  test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves and tell onOpenChange(false) with why', async () => {
+    const asks: string[] = [];
+    const one = (k: string) => <Drawer key={k} id="drw" defaultOpen onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)} title="Filters"><Input aria-label="Name" /></Drawer>;
     const screen = await render(one('a'));
     await expect.poll(() => isOpen()).toBe(true);
     expect(drw().matches(':modal')).toBe(true);
@@ -101,7 +101,10 @@ describe('Drawer', () => {
     await expect.poll(() => isOpen()).toBe(true);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => isOpen()).toBe(false);
-    expect(asks.join()).toBe('false,false');
+    await screen.rerender(one('c'));
+    await expect.poll(() => isOpen()).toBe(true);
+    drw().close();
+    await expect.poll(() => asks.join()).toBe('false close,false escape,false api');
   });
 
   test('right-to-left page: side="right" still opens on the right, the edge it slides in from', async () => {
@@ -182,9 +185,9 @@ describe('Drawer', () => {
     expect([asks.join(), document.activeElement!.id]).toEqual(['false', 'opener']);
   });
 
-  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop; a click on the backdrop asks to close', async () => {
-    const asks: boolean[] = [];
-    await render(<App asks={asks} ctl={{}} />);
+  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop; a click on the backdrop asks to close, with reason "outside"', async () => {
+    const asks: boolean[] = [], why: string[] = [];
+    await render(<App asks={asks} why={why} ctl={{}} />);
     await openDrw();
     const title = el('drw').querySelector('.dk-drawer__title') as HTMLElement;
     await userEvent.click(title);
@@ -197,7 +200,7 @@ describe('Drawer', () => {
     expect([isOpen(), asks.join(), clicks]).toEqual([true, '', 1]);
     await userEvent.click(drw(), { position: { x: 20, y: 20 } });
     await expect.poll(() => isOpen()).toBe(false);
-    expect(asks.join()).toBe('false');
+    expect([asks.join(), why.join()]).toEqual(['false', 'outside']);
   });
 
   test('the × (a button named "Close") asks to close', async () => {
