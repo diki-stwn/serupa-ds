@@ -2,6 +2,7 @@
 interface DatePickerLabels {
     chooseDate: string;
     inputNotAccepted: (text: string) => string;
+    formatHint: (pattern: string) => string;
 }
 interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "children" | "defaultValue" | "max" | "min" | "onChange" | "size" | "value"> {
     value?: Date | null;

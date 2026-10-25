@@ -41,6 +41,7 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 
 - The box is a `role="group"`; name it with `aria-label` when it has no Field. Each field has its own name.
 - The popup is a `role="dialog"` holding one or two Calendars (see Calendar's keyboard table); a polite live line says which end to pick next.
+- Each field's description ends with the format to type ("Format: mm/dd/yyyy"), after a Field hint, so it's heard once the placeholder is gone (the `formatHint` label).
 - Days in a range, the status line and the dash keep 4.5:1 in all six themes (`DateRangePicker.test.tsx`).
 
 ### Keyboard

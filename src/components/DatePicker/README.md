@@ -42,6 +42,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 ## Accessibility
 
 - **Role and name:** the field is a text input; label it with Field, `<label htmlFor>` or `aria-label`. The calendar button is named by `buttonLabel` ("Choose a date").
+- **Format:** the format to type ("Format: mm/dd/yyyy", in the locale's order) is part of the field's description, after a Field hint, so screen readers say it even once the placeholder is gone. The words come from the `formatHint` label.
 - **Keyboard:**
 
   | Key | Does |
