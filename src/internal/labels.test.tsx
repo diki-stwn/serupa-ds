@@ -3,20 +3,43 @@ import { DEFAULT_LABELS, idLabels } from './labels';
 
 // Every word a component says or shows on its own, in English and Indonesian, called with sample arguments: none is
 // empty, none has doubled or stray punctuation or spacing, and none is left in English in the Indonesian set.
-// Sample arguments for each label that's a function. A new one needs a line here, so its words are checked too.
+// Sample arguments for the labels that are functions. A label that isn't listed is called with 3 for each argument
+// it takes, so a new label needs no line here unless 3 doesn't make sense for it (a name, a direction, a list); the
+// check below fails when a call gives "undefined", "NaN" or "[object", and asks for one. One label per line, so two
+// pull requests that each add a label don't edit the same line.
 const ARGS: Record<string, unknown[]> = {
-  page: [3], stepOf: [2, 5], slideOf: [2, 5], slidesOf: [1, 3, 7], moreToasts: [9], toastShortcut: ['F8'],
-  contrast: ['4.5'], lowContrast: ['4.5'], meterZone: ['92%', 'high'], colorName: ['blue', 'dark'],
-  reorderGrabbed: ['Apollo', 2, 5], reorderMoved: ['Apollo', 2, 5], reorderDropped: ['Apollo', 2, 5], reorderCancelled: ['Apollo', 2, 5],
-  avatarMore: [3], avatarStatus: ['online'], charactersLeft: [12], clearValue: ['Email'], inputNotAccepted: ['abc'],
-  keyName: ['Up arrow'], tableSorted: ['Amount', 'ascending'], resultsCount: [3], moreResults: [1900],
-  fileWrongType: ['cat.txt', ['image', 'PDF']], fileTooLarge: ['cat.png', '2 MB'], fileTooMany: ['cat.png', 3], fileOnlyOne: ['cat.png'], fileMissing: [true], toastRepeated: [12], progressComplete: ['Upload'],
+  avatarStatus: ['online'],
+  clearValue: ['Email'],
+  colorName: ['blue', 'dark'],
+  contrast: ['4.5'],
+  fileMissing: [true],
+  fileOnlyOne: ['cat.png'],
+  fileTooLarge: ['cat.png', '2 MB'],
+  fileTooMany: ['cat.png', 3],
+  fileWrongType: ['cat.txt', ['image', 'PDF']],
+  inputNotAccepted: ['abc'],
+  keyName: ['Up arrow'],
+  lowContrast: ['4.5'],
+  meterZone: ['92%', 'high'],
+  moreResults: [1900],
+  progressComplete: ['Upload'],
+  reorderCancelled: ['Apollo', 2, 5],
+  reorderDropped: ['Apollo', 2, 5],
+  reorderGrabbed: ['Apollo', 2, 5],
+  reorderMoved: ['Apollo', 2, 5],
+  slideOf: [2, 5],
+  slidesOf: [1, 3, 7],
+  stepOf: [2, 5],
+  tableSorted: ['Amount', 'ascending'],
+  toastShortcut: ['F8'],
 };
 function said(set: Record<string, unknown>): Record<string, string> {
   return Object.fromEntries(Object.entries(set).map(([k, v]) => {
     if (typeof v !== 'function') return [k, String(v)];
-    if (!ARGS[k]) throw new Error(`labels.test.tsx: add sample arguments for the "${k}" label to ARGS`);
-    return [k, String((v as (...a: unknown[]) => unknown)(...ARGS[k]))];
+    const fn = v as (...a: unknown[]) => unknown;
+    const text = String(fn(...(ARGS[k] || Array.from({ length: fn.length }, () => 3))));
+    if (/undefined|NaN|\[object/.test(text)) throw new Error(`labels.test.tsx: "${k}" says "${text}" with 3 for each argument; add sample arguments for it to ARGS`);
+    return [k, text];
   }));
 }
 // Words that are the same in both languages. "Slide" is the usual loanword in Indonesian.

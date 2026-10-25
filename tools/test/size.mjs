@@ -2,18 +2,23 @@
 //   node tools/test/size.mjs                  check
 //   node tools/test/size.mjs --update Name    set Name's budgets from what it weighs now (5% and 0.1 KiB over); with no
 //                                             name, only the component folders that have no budgets yet
+//   node tools/test/size.mjs --update Name --only alone    set that one budget and keep the others
 // The JavaScript is measured as a project's bundler ships it (minified, React left out, the full icon set left to
 // load on demand). Over budget fails; when a change is worth the bytes, raise the budget in the same pull request,
 // so the growth is a decision someone reviews.
 //
 // Each component folder has its own budgets, in tools/test/baseline-size/<Name>.json, so a component pull request
 // edits only its own file (no two pull requests edit the same line):
-//   alone  what a project that imports only this folder's exports ships
+//   alone  what a project that imports only this folder's exports ships, less the built-in label text (below)
 //   share  what the folder adds to the whole package (all of index.js, less the same build without it)
 //   css    what its CSS adds to components.css
 // The totals grow with the folders' budgets: TOTALS below holds each total's budget and what the folders' shares
 // (or CSS) added up to when it was set, and the budget moves by however much that sum has moved since. So adding a
 // component, or raising one's budget, raises the totals too, and only a change to the shared code edits TOTALS.
+// The built-in label text (enLabels: every folder's labels.ts) goes into every component's bundle, so a new label
+// in one folder used to push other folders' "alone" over budget and send several pull requests to the same files.
+// It has one budget of its own instead, LABELS, with room for a few dozen more labels; while the text is within it,
+// a pull request that adds a label edits no budget, and the totals allow for it.
 // CI writes the table to the run's summary page.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,6 +34,8 @@ const TOTALS = {
   'components.css': [28.5, 53.6, 'css'],
   'serupa.iife.js': [630, 59.3, 'share'],
 };
+// KiB, gzipped: [budget, the size it was set at]. The totals that count shared code move with the budget.
+const LABELS = [2.6, 1.9];
 // Not made of component folders.
 const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
 
@@ -52,9 +59,10 @@ const pick = (list) => `export { ${list.join(', ')} } from './dist/index.js';`;
 
 const all = folders.flatMap((n) => names[n]);
 const whole = await bundled(pick(all));
+const labels = await bundled(pick(['enLabels']));
 const cssWhole = cssWithout(null);
 const measured = Object.fromEntries(await Promise.all(folders.map(async (n) => [n, {
-  alone: await bundled(pick(names[n])),
+  alone: Math.max(0, await bundled(pick(names[n])) - labels),
   share: whole - await bundled(pick(all.filter((x) => !names[n].includes(x)))),
   css: cssWhole - cssWithout(n),
 }])));
@@ -63,13 +71,16 @@ const kib = (n) => (n / 1024).toFixed(1);
 const budgetFile = (n) => path.join(DIR, `${n}.json`);
 const ui = process.argv.indexOf('--update');
 if (ui > 0) {
-  const asked = process.argv.slice(ui + 1).filter((a) => !a.startsWith('-'));
+  const asked = process.argv.slice(ui + 1).filter((a, i, all) => !a.startsWith('-') && all[i - 1] !== '--only');
   const which = asked.length ? asked : folders.filter((n) => !fs.existsSync(budgetFile(n)));
   fs.mkdirSync(DIR, { recursive: true });
   for (const n of which) {
     if (!measured[n]) { console.log(`No component folder ${n}`); process.exit(1); }
     // 5% over plus 0.1 KiB, rounded up, so a small fix doesn't fail on a few bytes.
-    const b = Object.fromEntries(KEYS.map((k) => [k, Math.ceil((Math.max(0, measured[n][k]) / 1024 * 1.05 + 0.1) * 10) / 10]));
+    // --only alone (or share, css) sets that budget alone and keeps the others.
+    const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
+    const kept = only && fs.existsSync(budgetFile(n)) ? JSON.parse(fs.readFileSync(budgetFile(n), 'utf8')) : {};
+    const b = Object.fromEntries(KEYS.map((k) => [k, only && k !== only && k in kept ? kept[k] : Math.ceil((Math.max(0, measured[n][k]) / 1024 * 1.05 + 0.1) * 10) / 10]));
     fs.writeFileSync(budgetFile(n), JSON.stringify(b, null, 2) + '\n');
     console.log(`${n}: ${KEYS.map((k) => `${k} ${b[k]} KiB`).join(', ')}`);
   }
@@ -78,7 +89,7 @@ if (ui > 0) {
 
 const budgets = Object.fromEntries(folders.map((n) => [n, fs.existsSync(budgetFile(n)) ? JSON.parse(fs.readFileSync(budgetFile(n), 'utf8')) : null]));
 const sum = (k) => folders.reduce((t, n) => t + (budgets[n]?.[k] || 0), 0);
-const BUDGET = { ...Object.fromEntries(Object.entries(TOTALS).map(([f, [at, was, k]]) => [f, +(at + sum(k) - was).toFixed(1)])), ...FIXED };
+const BUDGET = { ...Object.fromEntries(Object.entries(TOTALS).map(([f, [at, was, k]]) => [f, +(at + sum(k) - was + (k === 'share' ? LABELS[0] - LABELS[1] : 0)).toFixed(1)])), ...FIXED };
 BUDGET['bundle.css'] = +(BUDGET['components.css'] + BUDGET['utilities.css']).toFixed(1);
 const size = { 'All components (index.js)': whole };
 for (const f of ['components.css', 'utilities.css', 'bundle.css', 'base.css', 'theme.js', 'serupa.iife.js']) size[f] = file(f);
@@ -94,6 +105,8 @@ const totals = rows.map((r) => ({
   detail: r.now < 1024 ? 'not measured: its line in `size` must measure the build, not repeat the budget'
     : `${kib(r.now - r.budget * 1024)} KiB over; ${r.name in FIXED ? 'if the growth is worth it, raise its budget in tools/test/size.mjs' : 'the shared code grew (each component is held to its own budget): if that is worth it, raise its line in TOTALS in tools/test/size.mjs'}`,
 }));
+totals.push({ name: `Built-in label text (enLabels): ${kib(labels)} KiB gzipped, within ${LABELS[0]} KiB`, ok: labels <= LABELS[0] * 1024 && labels >= 512,
+  detail: labels < 512 ? 'not measured: enLabels should bundle every folder\'s labels.ts' : `${kib(labels - LABELS[0] * 1024)} KiB over; if the words are worth it, raise LABELS in tools/test/size.mjs (and its second number to the size now)` });
 const LABEL = { alone: 'imported alone', share: 'adds to the whole package', css: 'adds to components.css' };
 const own = folders.flatMap((n) => (budgets[n]
   ? KEYS.map((k) => ({ name: `${n} ${LABEL[k]}: ${kib(measured[n][k])} KiB, within ${budgets[n][k]} KiB`, ok: measured[n][k] <= budgets[n][k] * 1024,
