@@ -20,6 +20,8 @@ export interface PopoverProps {
   placement?: Placement;
   /** Open it yourself (controlled), with onOpenChange. */
   open?: boolean;
+  /** Open at first (uncontrolled). Default: false. */
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Its name for screen readers when it has no title. */
   "aria-label"?: string;
@@ -38,7 +40,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 /** A small non-modal dialog next to its trigger, for interactive content: a form, filters, details. */
 export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: PopoverProps): React.ReactElement {
   const id = domId("dk-pop", React.useId());
-  const [inner, setInner] = React.useState(false);
+  const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
   const panelRef = React.useRef<HTMLDivElement | null>(null);

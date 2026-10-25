@@ -4,6 +4,7 @@ interface MenuProps {
     children: React.ReactNode;
     placement?: Placement;
     open?: boolean;
+    defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     "aria-label"?: string;
     className?: string;

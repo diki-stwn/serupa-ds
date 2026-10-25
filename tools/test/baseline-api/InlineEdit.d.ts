@@ -12,6 +12,7 @@ interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "ch
     placeholder?: string;
     size?: "lg" | "md" | "sm";
     editing?: boolean;
+    defaultEditing?: boolean;
     onEditingChange?: (editing: boolean) => void;
     disabled?: boolean;
     readOnly?: boolean;

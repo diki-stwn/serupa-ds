@@ -57,6 +57,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 | `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once |
 | `role` | `'description'` \| `'label'` | `'description'` | Adds to the element's name (`aria-describedby`), or is its name (`aria-labelledby`) |
 | `open`, `onOpenChange` | boolean, function | | Control it yourself |
+| `defaultOpen` | boolean | `false` | Shown at first, without controlling it |
 | `disabled` | boolean | `false` | Never shows |
 
 `className` and `style` go to the tooltip, which has `role="tooltip"`, `data-component="tooltip"`, `data-state` and `data-side`.

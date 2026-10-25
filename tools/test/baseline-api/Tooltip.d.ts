@@ -6,6 +6,7 @@ interface TooltipProps {
     delay?: number;
     role?: "description" | "label";
     open?: boolean;
+    defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     disabled?: boolean;
     className?: string;
