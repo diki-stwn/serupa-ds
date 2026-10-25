@@ -1,4 +1,4 @@
-// exports: Carousel, type CarouselProps
+// exports: Carousel, type CarouselPerView, type CarouselProps
 interface CarouselLabels {
     previousSlide: string;
     nextSlide: string;
