@@ -154,6 +154,28 @@ describe('Breadcrumb', () => {
     expect([low, n]).toEqual([[], 18]);
   });
 
+  // DU1: a long unbroken label ran 16px past a 320px screen, "…" was a 16×20 target, an icon-only item was a
+  // nameless link, and an empty Breadcrumb left an empty nav landmark.
+  test('at 320px a long unbroken label wraps inside; "…" reaches 24×24 like the links; an icon-only item with no name warns once; no items renders nothing', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<>
+      <div style={{ width: '320px' }}><Breadcrumb id="narrow" maxItems={2}>
+        <BreadcrumbItem href="#a">Files</BreadcrumbItem><BreadcrumbItem href="#b">Middle</BreadcrumbItem>
+        <BreadcrumbItem>quarterly-report-final-version-2026-10-25-reviewed.pdf</BreadcrumbItem>
+      </Breadcrumb></div>
+      <Breadcrumb id="icons"><BreadcrumbItem href="#h" icon="home" /><BreadcrumbItem href="#h2" icon="home" /><BreadcrumbItem href="#ok" icon="home" aria-label="Home" /><BreadcrumbItem>Page</BreadcrumbItem></Breadcrumb>
+      <Breadcrumb id="empty" />
+    </>);
+    const box = el('narrow').getBoundingClientRect();
+    const far = Math.max(...[...el('narrow').querySelectorAll('li')].map((li) => Math.round(li.getBoundingClientRect().right)));
+    expect(far).toBeLessThanOrEqual(Math.round(box.right));
+    const more = el('narrow').querySelector('button')!, r = more.getBoundingClientRect();
+    const reach = [[r.left - 3, (r.top + r.bottom) / 2], [(r.left + r.right) / 2, r.top - 1.5]].map(([x, y]) => document.elementFromPoint(x, y) === more);
+    expect(reach).toEqual([true, true]);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes('BreadcrumbItem has no accessible name')).length).toBe(1);
+    expect(document.getElementById('empty')).toBeNull();
+  });
+
   test('no errors or React warnings', async () => {
     const error = vi.spyOn(console, 'error');
     await render(<><Home /><Slash /></>);
