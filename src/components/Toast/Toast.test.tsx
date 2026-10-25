@@ -56,6 +56,26 @@ describe('Toast', () => {
     expect(titles()).toEqual(['Plain message']);
   });
 
+  test('toast.promise: a neutral "Saving…" that stays while pending, then the result in its place, success or danger (said at once), from a string or a function of the value; it returns the promise; two with the same words are two toasts', async () => {
+    await render(<App />);
+    let ok: (v: number) => void = () => {}, fail: (e: Error) => void = () => {};
+    const a = new Promise<number>((r) => { ok = r; }), b = new Promise<number>((_, r) => { fail = r; });
+    let back: Promise<number> | null = null;
+    React.act(() => {
+      back = toast.promise(a, { loading: 'Saving…', success: (n) => n + ' files saved', error: 'Couldn\'t save' });
+      void toast.promise(() => b, { loading: 'Saving…', success: 'Saved', error: (e) => ({ title: 'Couldn\'t save', description: (e as Error).message }) });
+    });
+    expect([back === a, toasts().map((x) => x.dataset.tone + ':' + x.textContent.includes('Saving…'))]).toEqual([true, ['neutral:true', 'neutral:true']]);
+    await new Promise((r) => setTimeout(r, 5200));
+    expect(toasts().length).toBe(2);
+    await React.act(async () => { ok(3); await a; });
+    await expect.poll(() => titles()).toEqual(['3 files saved', 'Saving…']);
+    await React.act(async () => { fail(new Error('The server is offline.')); await b.catch(() => {}); });
+    await expect.poll(() => titles()).toEqual(['3 files saved', 'Couldn\'t save']);
+    expect(toasts().map((x) => x.dataset.tone)).toEqual(['success', 'danger']);
+    await expect.poll(() => q('[data-dk-announcer-assertive]').textContent).toBe('Couldn\'t save. The server is offline.');
+  }, 15000);
+
   test('the action runs and closes the toast', async () => {
     await render(<App />);
     let undos = 0;

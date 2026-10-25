@@ -18,6 +18,13 @@ const id = toast({ title: "Saving…", duration: 0 });
 await save();
 toast({ id, title: "Saved", tone: "success" });
 
+// or let toast.promise do the same from one call
+toast.promise(save(), {
+  loading: "Saving…",
+  success: "Saved",
+  error: (e) => ({ title: "Couldn't save", description: String(e) }),
+});
+
 toast.dismiss(id);   // or toast.dismiss() for all
 ```
 
@@ -37,7 +44,7 @@ toast.dismiss(id);   // or toast.dismiss() for all
 
 - Keep the title short and say what happened, in a few words: "Changes saved", not "Your changes have been saved successfully."
 - Use one `action` at most, for something quick such as Undo; the toast may go before people reach it.
-- For work that takes a while, show a toast with `duration: 0` and replace it by `id` when the work is done, as above.
+- For work that takes a while, show a toast with `duration: 0` and replace it by `id` when the work is done, as above, or hand the work to `toast.promise`.
 - Render one `<Toaster>` for the whole app, and keep its `position` the same on every page.
 - A burst can't bury the page: at most `limit` toasts show (3), and the same message again (same words and tone, with no `id` or `action`) adds a count to the toast that's showing ("Network error ×12") and starts its time over, rather than stacking. The stack stays clear of a phone's notch and home indicator.
 
@@ -72,6 +79,10 @@ toast.dismiss(id);   // or toast.dismiss() for all
 | `id` | string | new | Reuse one to replace a toast that's showing |
 
 It returns the toast's id. `toast.dismiss(id)` closes one, `toast.dismiss()` all of them.
+
+### toast.promise(work, messages)
+
+Shows `messages.loading` while `work` (a promise, or a function that returns one) runs, then replaces that same toast with `messages.success` or `messages.error`. Each message is a title string or `toast()` options; `success` and `error` can also be functions that get the result or the error. The loading toast stays until the work settles (`duration: 0`); the result gets the success or danger tone unless the message sets one, and the usual duration. Since it's one toast replaced in place, screen readers hear the loading message and then the result. It returns `work`'s promise, so you can still await it or catch its error.
 
 ### Toaster
 
