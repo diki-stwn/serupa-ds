@@ -60,6 +60,8 @@ without it. `npm run new-component -- <Name>` (`tools/new-component.mjs`) writes
 rest of the folder; `tools/test/new-component.mjs` checks that what it writes passes the contract. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
 turns them back on with `withMotion()` (one read or one test) or `keepMotion()` (the whole file). It also starts each test file at the stories' clock (`CLOCK` in `lib.mjs`, 12 March 2025, ticking from there), so a test of today's date or a relative time doesn't depend on the day the suite runs; `vi.useFakeTimers` still fakes `Date` on top of it.
 
+Every story is also rendered to HTML in Node, as a server would (`tools/test/vitest/serverStories.ts`, on the same clock, standing still). `src/internal/hydrateStories.test.tsx` hydrates that HTML in the browser and fails on any mismatch, and `src/internal/serverHtml.test.tsx` compares it with `tools/test/baseline-server/<Component>.html`: each story under a comment with its name, one tag per line, so a change to what a server sends shows in the pull request as a diff of a few lines. When the change is intended, run `npm run test:server-html:update` and commit the new baselines with it. They're plain text from Node (the version in `.nvmrc`), so they're the same on every machine.
+
 ### Suite scripts
 
 Vitest runs every script in `tools/test/` as its checks project (vitest.config.ts), except the shared code, the

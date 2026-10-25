@@ -3,6 +3,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { settle } from '../../../tools/test/vitest/helpers';
 import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
+import { loadIcon } from '../../icons';
 import { Close } from '../../material/builtin';
 import { NAMED_ICONS } from '../../material/named';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -48,5 +50,19 @@ describe('Icon', () => {
     await render(<><Icon id="deco" name="home" /><Icon id="meaning" name="error" aria-label="Error" /></>);
     expect(document.getElementById('deco')!.getAttribute('aria-hidden')).toBe('true');
     expect(document.getElementById('meaning')!.getAttribute('role')).toBe('img');
+  });
+
+  test('hydrating: an icon this page loaded but the server never had is drawn right after the hydration, not during it', async () => {
+    expect(await loadIcon('schedule')).toBeTruthy();   // loaded here (another island, say), not registered
+    const ui = <Icon id="hyd" name="schedule" />;
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(ui);
+    expect(host.querySelector('svg')).toBeNull();   // the server's box is empty
+    document.body.appendChild(host);
+    const errors: string[] = [];
+    const root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) });
+    await expect.poll(() => !!host.querySelector('#hyd svg')).toBe(true);
+    expect(errors).toEqual([]);
+    root.unmount(); host.remove();
   });
 });
