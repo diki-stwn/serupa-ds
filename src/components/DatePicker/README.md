@@ -74,6 +74,8 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 `disabled`, `readOnly`, `id`, `aria-*`, `onBlur`, `onKeyDown` and `ref` go to the text field; `className` and `style` to the box.
 
+`autoComplete` is `off` unless you pass one. For a date of birth, pass `autoComplete="bday"` so browsers can fill it (WCAG 1.3.5); what they type, such as 1990-05-12 or 05/12/1990, is read as the date.
+
 ## Component tokens
 
 Each is an optional override: set it on the page, a container or one picker. The list lives in `src/components/DatePicker/date-picker.tokens.json` (also in `design-tokens/components/`). The calendar inside uses the `--calendar-*` tokens.

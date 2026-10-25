@@ -7,6 +7,7 @@ import { Button } from '../Button/Button';
 import { Dialog } from '../Dialog/Dialog';
 import { Drawer } from '../Drawer/Drawer';
 import { toast, Toaster, type ToasterPosition } from './Toast';
+import { idLabels } from '../../internal/labels';
 
 const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
 const titles = () => toasts().map((x) => x.querySelector('.dk-toast__title')!.textContent);
@@ -228,10 +229,10 @@ describe('Toast', () => {
     expect(toasts().map((x) => css(x).backgroundColor)).toEqual(['rgb(1, 2, 3)', 'rgb(1, 2, 3)']);
   });
 
-  test('a burst of the same message is one toast with a count ("×12"), said once; one with an id or an action is never merged', async () => {
+  test('a burst of the same message is one toast with a count ("×12", read as "12 times"); one with an id or an action is never merged', async () => {
     await render(<App />);
     React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', tone: 'danger', duration: 0 }); });
-    expect([toasts().length, titles()[0], q('.dk-toast__count').textContent]).toEqual([1, 'Network error×12', '×12']);
+    expect([toasts().length, q('.dk-toast__count [aria-hidden]').textContent, q('.dk-toast__count .dk-visually-hidden').textContent]).toEqual([1, '×12', ', 12 times']);
     React.act(() => { toast({ title: 'Network error', tone: 'warning', duration: 0 }); toast({ title: 'Network error', tone: 'danger', id: 'mine', duration: 0 }); toast({ title: 'Network error', tone: 'danger', duration: 0, action: { label: 'Retry', onClick: () => {} } }); });
     expect(toasts().length).toBe(3);   // the warning and the one with an id; the third waits past the limit
     expect(q('.dk-toaster__more').textContent).toBe('+1 more');
@@ -339,5 +340,19 @@ describe('Toast with a Dialog open', () => {
     // Said in turn, or together when another message was just said; never only the second.
     await expect.poll(() => [...seen].join(' | ')).toMatch(/First(\. | \| )Second/);
     watch.disconnect();
+  });
+
+  test('a burst is said when the toast first shows, and once more with the count a second after the last repeat (not twelve times); Indonesian count words', async () => {
+    const said: string[] = [];
+    await render(<App />);
+    const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.push(t); });
+    watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
+    React.act(() => { toast({ title: 'Network error', duration: 0 }); });
+    for (let i = 0; i < 11; i++) { await new Promise((r) => setTimeout(r, 50)); React.act(() => { toast({ title: 'Network error', duration: 0 }); }); }
+    await expect.poll(() => said.filter((x) => /12 times/.test(x)).length, { timeout: 4000 }).toBe(1);
+    await new Promise((r) => setTimeout(r, 1300));
+    watch.disconnect();
+    expect([...new Set(said)]).toEqual(['Network error', 'Network error. 12 times.']);
+    expect(idLabels.toastRepeated(3)).toBe('3 kali');
   });
 });

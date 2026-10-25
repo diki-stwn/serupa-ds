@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { config } from "../../internal/config";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
@@ -26,7 +27,7 @@ export interface BreadcrumbItemProps extends React.AnchorHTMLAttributes<HTMLAnch
   href?: string;
   /** An icon before the label: a Material Symbols or custom name, or an element. */
   icon?: IconSource;
-  /** What renders the link: 'a' (default), or your router's link component. */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
   /** Set by Breadcrumb on the last item. */
   current?: boolean;
@@ -41,7 +42,7 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
     delete rest.href;
     return <span {...rest} ref={ref} aria-current="page" className={cn("dk-breadcrumb__item dk-breadcrumb__item--current", props.className)}>{content}</span>;
   }
-  return React.createElement(props.as || "a", Object.assign(rest, { ref: ref, className: cn("dk-breadcrumb__item dk-breadcrumb__link", props.className) }), content);
+  return React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cn("dk-breadcrumb__item dk-breadcrumb__link", props.className) }), content);
 });
 
 /* Breadcrumb: a nav with an ordered list of pages from the top level to the current one, a chevron (or slash)

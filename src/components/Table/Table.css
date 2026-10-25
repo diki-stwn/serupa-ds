@@ -31,6 +31,9 @@
 .dk-table__select { width: var(--spacing-px); padding-inline-end: var(--spacing-0); }
 .dk-table__select .dk-checkbox { vertical-align: middle; }
 .dk-table--sticky .dk-table__head .dk-table__cell { position: sticky; top: 0; z-index: var(--z-10); }
+/* What the keyboard focuses in the frame scrolls into view below the sticky header, not under it (WCAG 2.4.11).
+   Table measures the header into --dk-table-head; until then, one md header row (40px). */
+.dk-table--sticky { scroll-padding-top: var(--dk-table-head, var(--spacing-10)); }
 /* sortable headers: the whole label is a button */
 .dk-table__header--sortable { padding: var(--spacing-0); }
 .dk-table__sort {

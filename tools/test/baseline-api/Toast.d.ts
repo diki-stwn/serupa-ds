@@ -3,6 +3,7 @@ interface ToastLabels {
     notifications: string;
     toastShortcut: (key: string) => string;
     moreToasts: (count: number) => string;
+    toastRepeated: (count: number) => string;
 }
 type ToastTone = "danger" | "info" | "neutral" | "success" | "warning";
 type ToasterPosition = "bottom-center" | "bottom-end" | "bottom-start" | "top-center" | "top-end" | "top-start";

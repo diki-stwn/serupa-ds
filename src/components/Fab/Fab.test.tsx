@@ -97,3 +97,29 @@ describe('Fab', () => {
     expect(warns.filter((m) => /aria-label/.test(m))).toEqual([]);
   });
 });
+
+describe('Fab: focus stays clear of it', () => {
+  test('tabbing down a phone-sized page of links, none is left under a bottom-end FAB (WCAG 2.4.11); a top FAB pads the top', async () => {
+    await page.viewport(390, 700);
+    try {
+      const links = []; for (let i = 0; i < 60; i++) links.push(<p key={i} style={{ textAlign: 'end', margin: '0 0 12px' }}><a href={'#l' + i} id={'l' + i}>Link {i}</a></p>);
+      // The page leaves room for the FAB after its last line, as the README asks; scroll padding can't scroll past the end.
+      const screen = await render(<div style={{ paddingBottom: '104px' }}><Fab id="ffab" icon="add" label="New" />{links}</div>);
+      const fab = el('ffab').getBoundingClientRect();
+      const under: number[] = [];
+      document.documentElement.scrollTop = 0;
+      for (let i = 0; i < 60; i++) {
+        await userEvent.keyboard('{Tab}');
+        const a = document.activeElement as HTMLElement;
+        if (a.id !== 'l' + i) { await userEvent.keyboard('{Tab}'); }
+        const r = (document.activeElement as HTMLElement).getBoundingClientRect();
+        if (r.bottom > fab.top && r.top < fab.bottom && r.right > fab.left && r.left < fab.right) under.push(i);
+      }
+      expect(under).toEqual([]);
+      await screen.rerender(<div style={{ paddingBottom: '104px' }}><Fab id="ffab" icon="add" label="New" position="top-end" />{links}</div>);
+      expect([css(document.documentElement).scrollPaddingTop, css(document.documentElement).scrollPaddingBottom]).toEqual(['104px', 'auto']);
+    } finally {
+      await page.viewport(800, 600);
+    }
+  });
+});

@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
+import { config } from "../../internal/config";
 import { IconButton } from "../IconButton/IconButton";
 import type { ContainerSize } from "../Container/Container";
 import { component } from "../../internal/component";
@@ -30,7 +31,7 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
 export interface NavbarLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   /** The current page: shaded, with aria-current="page". Default: false. */
   active?: boolean;
-  /** What renders the link: 'a' (default), or your router's link component. */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
 }
 
@@ -117,7 +118,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
 export const NavbarLink = /* @__PURE__ */ component<HTMLAnchorElement, NavbarLinkProps>("NavbarLink", function NavbarLink(props, ref) {
   const ctx = React.useContext(NavbarContext);
   const rest = omit(props, { active: 1, as: 1, className: 1, onClick: 1 });
-  return React.createElement(props.as || "a", Object.assign(rest, {
+  return React.createElement(props.as || config.link, Object.assign(rest, {
     ref: ref, "aria-current": props.active ? "page" : undefined,
     className: cn("dk-navbar__link", props.active && "dk-navbar__link--active", props.className),
     onClick: (e: React.MouseEvent<HTMLAnchorElement>) => { if (props.onClick) props.onClick(e); if (ctx) ctx.close(); },

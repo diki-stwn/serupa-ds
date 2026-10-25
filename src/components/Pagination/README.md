@@ -28,7 +28,7 @@ const [page, setPage] = React.useState(1);
 ## Usage
 
 - Put it under the list or table it pages through.
-- When pages have URLs, pass `getHref` so every page is a link; clicks still call `onPageChange`.
+- When pages have URLs, pass `getHref` so every page is a link; clicks still call `onPageChange`. They go through your router's link set with `configure({ link })`, or `linkAs`.
 - Where space is tight, use `size="sm"` and fewer `siblings`. The number of slots stays the same, so the arrows don't move.
 - Page numbers are written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its
   days: ١ ٢ ٣ in Egyptian Arabic, ۱ ۲ ۳ in Persian. A page's name comes from `pageLabel`, so translate it with the
@@ -53,6 +53,7 @@ const [page, setPage] = React.useState(1);
 | `defaultPage` | number | `1` | The page it starts on when uncontrolled |
 | `onPageChange` | `(page) => void` | none | Called with the new page |
 | `getHref` | `(page) => string` | none | Makes every page a link. Clicks still call `onPageChange` |
+| `linkAs` | a component | the `configure({ link })` link, else `'a'` | With `getHref`, your router's link component for the page links (it gets `href`, `className` and the rest). The disabled arrows stay plain `<a>` |
 | `siblings` | number | `1` | Pages on each side of the current one |
 | `boundaries` | number | `1` | Pages always shown at each end |
 | `size` | `'sm'` \| `'md'` | `'md'` | 24px or 32px squares |

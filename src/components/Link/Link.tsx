@@ -1,5 +1,7 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { config } from "../../internal/config";
+import { warnOnce } from "../../internal/warn";
 import { Icon } from "../Icon/Icon";
 import { NewTabNote } from "./NewTabNote";
 import { component } from "../../internal/component";
@@ -13,7 +15,7 @@ export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>
   underline?: 'always' | 'hover';
   /** Opens in a new tab (target="_blank", rel="noopener noreferrer"), with a new-tab icon and "(opens in a new tab)" for screen readers (the opensInNewTab label). Default: false. */
   external?: boolean;
-  /** What renders the link: 'a' (default), or your router's link component (it gets href, className and the rest). */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a' (it gets href, className and the rest). */
   as?: React.ElementType;
 }
 
@@ -24,6 +26,8 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
   const rest = omit(props, { tone: 1, underline: 1, external: 1, as: 1, className: 1, children: 1, autoFocus: 1 });
   const tone = oneOf(["primary", "neutral"] as const, props.tone, "primary");
   const underline = oneOf(["always", "hover"] as const, props.underline, "always");
+  // In the text's color with no underline at rest, nothing marks it as a link until it's hovered (WCAG 1.4.1).
+  if (tone === "neutral" && underline === "hover") warnOnce("link-neutral-hover", 'Link: tone="neutral" with underline="hover" looks like plain text until it is hovered. Keep the underline, or use tone="primary" in a place that already says it holds links.');
   if (props.external) {
     if (rest.target == null) rest.target = "_blank";
     rest.rel = cn(rest.rel, "noopener noreferrer");
@@ -37,6 +41,6 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
     <NewTabNote />
   </> : null}</>;
   // React only autofocuses form controls: with autoFocus, a small client component focuses the link once it's mounted.
-  if (props.autoFocus) return <AutoFocusLink as={props.as || "a"} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;
-  return React.createElement(props.as || "a", Object.assign(attrs, { ref: ref }), children);
+  if (props.autoFocus) return <AutoFocusLink as={props.as || config.link} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;
+  return React.createElement(props.as || config.link, Object.assign(attrs, { ref: ref }), children);
 });

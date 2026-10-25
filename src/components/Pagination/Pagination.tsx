@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { config } from "../../internal/config";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
@@ -21,6 +22,8 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>,
   onPageChange?: (page: number) => void;
   /** Makes every page a link to this URL instead of a button (it still calls onPageChange on click). */
   getHref?: (page: number) => string;
+  /** With getHref, what renders each page link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
+  linkAs?: React.ElementType;
   /** Pages shown on each side of the current one. Default: 1. */
   siblings?: number;
   /** Pages always shown at the start and the end. Default: 1. */
@@ -49,7 +52,7 @@ function int(v: unknown, min: number, fallback: number): number {
 export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps>("Pagination", function Pagination(props, ref) {
   const sds = useSerupa();
   const locale = useLocale();
-  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, className: 1 });
+  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, className: 1 });
   const count = int(props.count, 0, 0);
   const [own, setOwn] = React.useState(() => int(props.defaultPage, 1, 1));
   const controlled = props.page !== undefined;
@@ -63,7 +66,7 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   };
   const item = (n: number, content: React.ReactNode, aria: React.AriaAttributes & { rel?: string }, disabled: boolean, cls: string) => {
     const common = Object.assign({ className: cn("dk-pagination__item", cls), onClick: (e: React.MouseEvent) => go(n, e) }, aria);
-    if (props.getHref) return disabled ? <a {...common} role="link" aria-disabled="true">{content}</a> : <a {...common} href={props.getHref(n)}>{content}</a>;
+    if (props.getHref) return disabled ? <a {...common} role="link" aria-disabled="true">{content}</a> : React.createElement(props.linkAs || config.link, Object.assign(common, { href: props.getHref(n) }), content);
     return <button type="button" {...common} disabled={disabled}>{content}</button>;
   };
   const arrow = (dir: "prev" | "next") => {

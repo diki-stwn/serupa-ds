@@ -95,6 +95,10 @@ if (D) {
   // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
   const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
   t('dist/base.css and dist/theme.js carry package.json\'s version (stamped at build)', !unstamped.length && read('dist/theme.js').includes(`version = "${pkg.version}"`), unstamped.join(', '));
+  // Server-rendered apps paste theme.js into an inline <script> to avoid a flash of the wrong theme: a closing script tag
+  // anywhere in it (a comment included) ends that script early, and an HTML comment opener changes how the rest is read.
+  const inlineBreakers = ['</script', '<!--'].filter((x) => read('dist/theme.js').toLowerCase().includes(x));
+  t('dist/theme.js works pasted into an inline <script>: no closing script tag or HTML comment opener in it', !inlineBreakers.length, inlineBreakers.join(', '));
   // Icons: each component imports the icons it draws, so they draw on the server. A name drawn as a string loads in
   // the browser (the components' icons from a small chunk, the rest from the full set), so on the server it's an empty box.
   const iconHtml = (props) => renderToString(h(D.Icon, props));

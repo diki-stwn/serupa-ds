@@ -7,14 +7,18 @@ export interface ToastLabels {
   toastShortcut: (key: string) => string;
   /** Toaster: the line for toasts waiting past the limit. */
   moreToasts: (count: number) => string;
+  /** A toast shown again while it was still up: the count read with it and said once the burst stops ("12 times"). */
+  toastRepeated: (count: number) => string;
 }
 export const en: ToastLabels = {
   notifications: "Notifications",
   toastShortcut: (key) => "Press " + key + " to reach it.",
   moreToasts: (n) => "+" + n + " more",
+  toastRepeated: (n) => n + " times",
 };
 export const id: ToastLabels = {
   notifications: "Notifikasi",
   toastShortcut: (key) => "Tekan " + key + " untuk menjangkaunya.",
   moreToasts: (n) => "+" + n + " lainnya",
+  toastRepeated: (n) => n + " kali",
 };
