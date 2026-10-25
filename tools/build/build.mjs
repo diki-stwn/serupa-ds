@@ -7,6 +7,7 @@
 //   utilities.css          the utility classes, from src/styles/utilities.template.css (tools/utilities/build.mjs)
 //   bundle.css             both in one file, components first (what bundle.css has always been)
 //   base.css, theme.js     page defaults and automatic dark mode, from src/
+//   vscode/                VS Code custom data for editor autocomplete: utility classes and tokens (editor-data.mjs)
 //   components.json        each component's exports, CSS classes and the components it needs (for serupa-purge --components)
 //   lib/                   React for plain pages: react.production.min.js sets window.React, and
 //                          react-dom.production.min.js sets window.ReactDOM (react-dom and react-dom/client)
@@ -18,6 +19,7 @@ import { spawnSync } from 'node:child_process';
 import { build } from 'esbuild';
 import { buildUtilities } from '../utilities/build.mjs';
 import { buildRegistry, cascade } from './registry.mjs';
+import { editorData } from './editor-data.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const D = path.join(P, 'dist');
@@ -86,6 +88,11 @@ const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
+// VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
+const editor = editorData(utilities, read('tokens.css'));
+fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });
+fs.writeFileSync(path.join(D, 'vscode', 'serupa.html-data.json'), JSON.stringify(editor.html) + '\n');
+fs.writeFileSync(path.join(D, 'vscode', 'serupa.css-data.json'), JSON.stringify(editor.css) + '\n');
 
 // React 19 ships no browser builds (React 18's umd/ folder), so they're built here, under the names and globals
 // React 18's had. react-dom takes React from window.React, so both use the one copy.
