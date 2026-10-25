@@ -111,8 +111,8 @@ describe('PasswordInput', () => {
 
   test('Caps Lock on while typing: "Caps Lock is on" shows before the eye, describes the field and is read out once; off again, or leaving the field, hides it (Q3)', async () => {
     await render(<><PasswordInput id="cl" aria-label="Password" /><PasswordInput id="nocl" capsLockHint={false} aria-label="Other" /></>);
-    const key = (id: string, type: string, caps: boolean) => field(id).dispatchEvent(new KeyboardEvent(type, { key: 'a', bubbles: true, modifierCapsLock: caps } as KeyboardEventInit));
-    const hint = (id: string) => box(id).querySelector('.dk-password-input__caps') as HTMLElement | null;
+    const key = (id: string, type: string, caps: boolean) => field(id).dispatchEvent(new KeyboardEvent(type, { key: 'a', bubbles: true, modifierCapsLock: caps }));
+    const hint = (id: string) => box(id).querySelector<HTMLElement>('.dk-password-input__caps');
     field('cl').focus();
     key('cl', 'keydown', true);
     await expect.poll(() => hint('cl')?.textContent).toBe('Caps Lock is on');
