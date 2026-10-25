@@ -109,8 +109,31 @@ describe('Avatar', () => {
     const sts = STATUSES.map((s) => { const e = q(`[data-st="${s}"]`), d = e.querySelector('.dk-avatar__status') as HTMLElement, r = d.getBoundingClientRect(), o = e.getBoundingClientRect();
       return { name: e.getAttribute('aria-label'), w: r.width, end: Math.round(o.right - r.right), bottom: Math.round(o.bottom - r.bottom), ring: /0px 0px 0px 2px/.test(css(d).boxShadow), hidden: d.getAttribute('aria-hidden'), bg: css(d).backgroundColor }; });
     STATUSES.forEach((s, i) => expect({ ...sts[i], bg: undefined }).toEqual({ name: 'Ada Lovelace, ' + s, w: 10, end: 0, bottom: 0, ring: true, hidden: 'true', bg: undefined }));
-    expect(new Set(sts.map((s) => s.bg)).size).toBe(4);
+    expect(new Set(sts.map((s) => s.bg)).size).toBeGreaterThan(1);
     expect(el('stl').getAttribute('aria-label')).toBe('Ada Lovelace, in a meeting');
+  });
+
+  // DR1: color alone failed 1.4.1, and forced colors turned all four into the same dot.
+  test('each status has its own shape (filled, bar, ring with a dot, empty ring), still four shapes in forced colors', async () => {
+    await render(<Row>{STATUSES.map((s) => <Avatar key={s} data-st={s} status={s} name="Ada Lovelace" />)}</Row>);
+    const shape = (s: AvatarStatus) => { const d = q(`[data-st="${s}"] [aria-hidden="true"]:not(.dk-avatar__frame *)`), a = getComputedStyle(d, '::after');
+      return [css(d).borderTopWidth !== '0px', a.width !== '0px' && a.backgroundColor !== 'rgba(0, 0, 0, 0)' ? Math.round(parseFloat(a.width) / parseFloat(a.height)) : 0].join(); };
+    expect(STATUSES.map(shape)).toEqual(['false,0', 'false,2', 'true,1', 'true,0']);
+    const restore = forcedColors();
+    try {
+      expect(STATUSES.map(shape)).toEqual(['false,0', 'false,2', 'true,1', 'true,0']);
+      const d = q('[data-st="busy"] [aria-hidden="true"]:not(.dk-avatar__frame *)');
+      expect(getComputedStyle(d, '::after').backgroundColor).not.toBe(css(d).backgroundColor);
+    } finally { restore(); }
+  });
+
+  test('alt="" with a status: the picture is hidden but the status is still read ("online"), in the provider\'s words or statusLabel', async () => {
+    await render(<Row><Avatar data-a="1" alt="" name="Ada Lovelace" status="away" /><Avatar data-a="2" alt="" status="busy" statusLabel="in a meeting" /><Avatar data-a="3" alt="" name="Ada Lovelace" /></Row>);
+    const a = (n: string) => q(`[data-a="${n}"]`);
+    expect([a('1').getAttribute('aria-hidden'), a('1').getAttribute('role')]).toEqual([null, null]);
+    expect(a('1').querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('away');
+    expect(a('2').querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('in a meeting');
+    expect(a('3').getAttribute('aria-hidden')).toBe('true');
   });
 
   test('component tokens (--avatar-bg, --avatar-size-md) override one avatar', async () => {
