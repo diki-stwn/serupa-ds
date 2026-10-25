@@ -55,6 +55,13 @@ The thumb slides in 150ms (`duration-150`, `ease-in-out`) and jumps with `prefer
 - In forced-colors mode the track gets a border and the thumb and on track use system colors.
 - The label and description keep 4.5:1; the tracks on the page, each thumb on its track (at rest and on hover) and the focus ring 3:1, in all six themes (`Switch.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the switch |
+| Space | Turn it on or off |
+
 ## Props
 
 | Prop | Type | Default | What it does |
