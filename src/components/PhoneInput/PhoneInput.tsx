@@ -121,6 +121,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   });
   const caret = React.useRef<number | null>(null);
   const text = formatNational(shown, country);
+  // every render: an edit that reformats the number asks for the caret back, and the new text is there only after the render.
   React.useLayoutEffect(function () {
     if (caret.current == null || !input.current || document.activeElement !== input.current) return;
     input.current.setSelectionRange(caret.current, caret.current);

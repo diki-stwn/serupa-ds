@@ -92,6 +92,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     if (d && !d.pointer && handles.current.get(d.key) !== document.activeElement) finish(d, false);
   });
   // Moving a row in the DOM can take focus off its handle: give it back.
+  // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
   useIsoLayoutEffect(() => {
     if (!drag || drag.pointer) return;
     const h = handles.current.get(drag.key);
@@ -174,6 +175,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     window.addEventListener("pointermove", moveTo); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
   };
   // The dragged row sits where the pointer is, between the others.
+  // every render: each pointer move re-renders; outside a drag it only clears a transform left behind.
   useIsoLayoutEffect(() => {
     const p = pointer.current, rows = list.current ? [...list.current.children] as HTMLElement[] : [];
     for (const r of rows) {

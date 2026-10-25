@@ -57,12 +57,14 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   const errorRef = React.useRef<HTMLSpanElement>(null);
   const said = React.useRef<string | null>(null);
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
+  // every render: the error is the caller's children, so its text can change in any render; reading it is cheap.
   React.useEffect(function () {
     const text = errorRef.current ? errorRef.current.textContent || "" : "";
     if (said.current !== null && text && text !== said.current) announce(text);
     said.current = text;
   });
   // The label points at the control by id: say so when nothing on the page has it.
+  // every render: the control is the caller's children and can come or go in any render; it warns once.
   React.useEffect(function () {
     if (!group && props.label != null && !document.getElementById(controlId)) {
       warnOnce("field-control", "Field: no element has the id \"" + controlId + "\", so the label names nothing. Put the control inside the Field, or pass its id.");

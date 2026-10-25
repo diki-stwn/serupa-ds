@@ -10,7 +10,7 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import type * as lib from '../index';
-import { Checkbox } from '../components/Checkbox/Checkbox';
+import { Checkbox, CheckboxGroup } from '../components/Checkbox/Checkbox';
 import { ColorPicker } from '../components/ColorPicker/ColorPicker';
 import { Combobox } from '../components/Combobox/Combobox';
 import { DatePicker } from '../components/DatePicker/DatePicker';
@@ -77,6 +77,9 @@ const CONTROLS: { [K in Named]: Control | string } = {
     change: async (r) => { await userEvent.click($(r, 'input')); }, changed: {} },
   Switch: { el: (form) => <Switch name="alerts" value="on" form={form} defaultChecked>Alerts</Switch>, initial: { alerts: 'on' },
     change: async (r) => { await userEvent.click($(r, 'input')); }, changed: {} },
+  // One value per box under one name; this table keeps the last of a name, so one box is checked at a time here.
+  CheckboxGroup: { el: (form) => <CheckboxGroup aria-label="Tags" name="tags" defaultValue={['news']}><Checkbox value="news" form={form}>News</Checkbox><Checkbox value="tips" form={form}>Tips</Checkbox></CheckboxGroup>, initial: { tags: 'news' },
+    change: async (r) => { await userEvent.click($(r, 'input[value="news"]')); await userEvent.click($(r, 'input[value="tips"]')); }, changed: { tags: 'tips' } },
   RadioGroup: { el: (form) => <RadioGroup aria-label="Plan" name="plan" defaultValue="free"><Radio value="free" form={form}>Free</Radio><Radio value="pro" form={form}>Pro</Radio></RadioGroup>, initial: { plan: 'free' },
     change: async (r) => { await userEvent.click($(r, 'input[value="pro"]')); }, changed: { plan: 'pro' } },
   Radio: { el: (form) => <><Radio name="size" value="s" form={form} defaultChecked>S</Radio><Radio name="size" value="m" form={form}>M</Radio></>, initial: { size: 's' },
