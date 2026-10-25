@@ -84,6 +84,24 @@ describe('Popover', () => {
     expect(active()).toBe('other');
   });
 
+  test('the title is an <h2> by default (14px, 8px under it, no other margin); headingLevel sets its level, and an unknown one falls back to 2', async () => {
+    await render(<div style={{ display: 'flex', gap: '200px', justifyContent: 'center' }}>
+      <Popover title="Share" trigger={<Button id="th2">A</Button>}><p>One</p></Popover>
+      <Popover title="Filters" headingLevel={4} trigger={<Button id="th4">B</Button>}><p>Two</p></Popover>
+      <Popover title="Odd" headingLevel={9 as 2} trigger={<Button id="th9">C</Button>}><p>Three</p></Popover>
+    </div>);
+    const heading = (tid: string) => panel(tid).querySelector('.dk-popover__title') as HTMLElement;
+    const tags: string[] = [];
+    for (const tid of ['th2', 'th4', 'th9']) {
+      await userEvent.click(el(tid)); await settle(50);
+      tags.push(heading(tid).tagName);
+      expect(panel(tid).getAttribute('aria-labelledby')).toBe(heading(tid).id);
+      const s = getComputedStyle(heading(tid));
+      expect([s.fontSize, s.marginTop, s.marginBottom, s.marginInlineStart]).toEqual(['14px', '0px', '8px', '0px']);
+    }
+    expect(tags).toEqual(['H2', 'H4', 'H2']);
+  });
+
   test('aria-label names it without a title; right-start sits to the right, tops lined up; initialFocus="panel" focuses the panel', async () => {
     await render(<Popover aria-label="Info" placement="right-start" initialFocus="panel" trigger={<Button id="tinfo">Info</Button>}><p>Plain text, nothing to focus.</p></Popover>);
     await userEvent.click(el('tinfo'));
