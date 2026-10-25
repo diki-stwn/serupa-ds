@@ -40,6 +40,7 @@ export function firstDayOfWeek(locale?: string): number {
 // The typed date is always Gregorian with Latin digits, so it reads back as the same day: Thai (Buddhist years),
 // ja-u-ca-japanese (era years) and fa (Persian calendar and digits) would otherwise drift on the way back in.
 // Month names in the calendar grid stay localized.
+// module state: a cache by locale; the same locale gives the same format in every request.
 const numericFormats = new Map<string, Intl.DateTimeFormat>();
 function numeric(locale?: string): Intl.DateTimeFormat {
   const key = locale || "";

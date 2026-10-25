@@ -101,6 +101,7 @@ export const PHONE_COUNTRIES: readonly PhoneCountry[] = (ROWS + NANP.replace(/(\
   return c;
 });
 
+// module state: a fixed index of PHONE_COUNTRIES, never changed.
 const BY_CODE = new Map(PHONE_COUNTRIES.map((c) => [c.code, c]));
 /** The country with this ISO code (any case), or undefined. */
 export const phoneCountry = (code: string | undefined): PhoneCountry | undefined => (code ? BY_CODE.get(code.toUpperCase()) : undefined);

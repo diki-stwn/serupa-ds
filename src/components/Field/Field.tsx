@@ -10,6 +10,7 @@ import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { warnOnce } from "../../internal/warn";
 
+// module state: a fixed list, never changed.
 const LABELABLE = new Set(["select", "button", "meter", "output", "progress", "textarea"]);
 
 export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {

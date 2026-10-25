@@ -14,16 +14,16 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v9.1.1
+npm install github:diki-stwn/serupa-ds#v9.2.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.1.1/serupa-ds-9.1.1.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.2.0/serupa-ds-9.2.0.tgz
 ```
 
-Always pin a tag (`#v9.1.1`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v9.2.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -140,6 +140,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [IconButton](src/components/IconButton/README.md) | A button that shows only an icon: a menu trigger, a close button, a toolbar action. |
 | [Link](src/components/Link/README.md) | An inline text link: underlined, in the primary color or the surrounding text's. |
 | [ToggleButton](src/components/ToggleButton/README.md) | A Button that stays on or off, for a setting that applies right away: bold in a text editor, mute, show the grid. |
+| [Toolbar](src/components/Toolbar/README.md) | A set of controls, such as an editor's formatting buttons, that takes one Tab stop instead of one per control. |
 
 ### Content
 
@@ -190,6 +191,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [NumberInput](src/components/NumberInput/README.md) | A field for a number, with − and + buttons at the end. |
 | [PasswordInput](src/components/PasswordInput/README.md) | A password field with a button at the end that shows and hides what was typed, so people can check it before they submit. |
 | [PhoneInput](src/components/PhoneInput/README.md) | A phone number field with a country menu at the start. |
+| [PinInput](src/components/PinInput/README.md) | A one-time code or PIN, shown as one box per character, such as the 6-digit code texted at sign-in. |
 | [Radio](src/components/Radio/README.md) | Native radios for one choice from a short list. |
 | [SearchInput](src/components/SearchInput/README.md) | A search field: a search icon at the start, and a × at the end once something is typed. |
 | [SegmentedControl](src/components/SegmentedControl/README.md) | Picks one of a few options shown side by side, such as a view (List, Board) or a period (Day, Week, Month). |

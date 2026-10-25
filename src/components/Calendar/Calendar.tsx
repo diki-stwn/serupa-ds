@@ -49,6 +49,7 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
 // The four formats a Calendar draws with, built once per locale rather than on every render (a grid of 42 days
 // re-renders on each arrow key).
 type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: Intl.DateTimeFormat; full: Intl.DateTimeFormat };
+// module state: a cache by locale.
 const FORMATS = new Map<string, Formats>();
 function formats(locale: string): Formats {
   let f = FORMATS.get(locale);
