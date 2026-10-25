@@ -98,13 +98,13 @@ describe('Splitter', () => {
     localStorage.removeItem('dk-test-split');
   });
 
-  test('the handle\'s line is 3:1 on the page and its active line 3:1 too, in all six themes; the default name comes from the resizePanes label', async () => {
+  test('the handle\'s line is 3:1 on the page in all six themes; the default name comes from the resizePanes label', async () => {
     await render(<Two />);
     const line = (pseudo: string) => getComputedStyle(handle('s'), pseudo).backgroundColor;
-    const page = css(document.body).backgroundColor;
     const low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
+      const page = css(document.body).backgroundColor;
       const r = contrast(line('::before'), page);
       if (r < 3) low.push(`${th}: ${r.toFixed(2)}`);
     }
