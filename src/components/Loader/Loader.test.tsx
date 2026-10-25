@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page } from 'vitest/browser';
-import { color, css, settle, keepMotion } from '../../../tools/test/vitest/helpers';
+import { color, css, forcedColors, settle, keepMotion } from '../../../tools/test/vitest/helpers';
 import { Loader } from './Loader';
 import { announcerIdle } from '../../internal/announce';
 
@@ -427,6 +427,16 @@ describe('Loader', () => {
     expect([d.querySelector('.dk-loader__label')!.textContent, d.getAttribute('aria-label')]).toEqual(['Loading…', 'Loading…']);
     expect([!!q('#ring .dk-loader__label'), !!q('#dots .dk-loader__label')]).toEqual([false, false]);
     expect(box('ring')).toEqual([24, 24]);
+  });
+
+  test('forced colors: skeleton bones keep a still GrayText fill instead of going blank (AM1)', async () => {
+    await render(<div style={{ background: 'Canvas' }}><Loader id="fcs" variant="skeleton" lines={2} label="" delay={0} /></div>);
+    const r = await forcedColors(async (active) => {
+      if (!active) return null;
+      const bone = css(q('#fcs .dk-loader__bone')), page = css(q('#fcs').parentElement);
+      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', bone.backgroundImage, bone.animationName];
+    });
+    if (r) expect(r).toEqual([true, 'none', 'none']);
   });
 
   function Skeletons() {

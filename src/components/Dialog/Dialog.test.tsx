@@ -136,6 +136,23 @@ describe('Dialog', () => {
     React.act(() => ctl.setOpen!(false));
   });
 
+  test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {
+    const asks: boolean[] = [];
+    function Keep() {
+      const [open, setOpen] = React.useState(false);
+      return <><Button id="kopen" onClick={() => setOpen(true)}>Open</Button><Dialog id="keep" open={open} onOpenChange={(v) => asks.push(v)} title="Unsaved changes" /></>;
+    }
+    await render(<Keep />);
+    await userEvent.click(el('kopen'));
+    await expect.poll(() => isOpen('keep')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('keep')).toBe(true);
+    expect(asks.length).toBeGreaterThanOrEqual(3);   // the forced close asks once more
+    expect([asks.every((v) => !v), dlg('keep').matches(':modal'), topModal() === dlg('keep')]).toEqual([true, true, true]);
+  });
+
   test('alert: role="alertdialog", 384px (sm), no ×, the backdrop doesn\'t close it, Escape does', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await userEvent.click(el('aopener'));

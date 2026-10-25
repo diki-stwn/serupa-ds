@@ -11,6 +11,7 @@ import { toast, Toaster, type ToasterPosition } from './Toast';
 const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
 const titles = () => toasts().map((x) => x.querySelector('.dk-toast__title')!.textContent);
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
+const el = (id: string) => document.getElementById(id) as HTMLElement;
 const away = () => userEvent.hover(document.body, { position: { x: 5, y: 5 } });
 // Toasts slide in for 200ms: measure once that has finished.
 const landed = () => Promise.all(document.getAnimations().map((a) => a.finished));
@@ -75,6 +76,40 @@ describe('Toast', () => {
     watch.disconnect();
     await settle(5300);
     expect(titles()).toEqual(['Message deleted', 'Another deleted']);
+  });
+
+  test('once the Toaster is gone, a toast with an action doesn\'t mention F8', async () => {
+    const r = await render(<App />);
+    await r.unmount();
+    const said = new Set<string>();
+    const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.add(t); });
+    watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
+    React.act(() => { toast({ title: 'Archived', action: { label: 'Undo', onClick: () => {} } }); });
+    await expect.poll(() => [...said].join(' | ')).toMatch(/Archived/);
+    watch.disconnect();
+    expect([...said].some((t) => /F8/.test(t))).toBe(false);
+  });
+
+  test('a toast closing with focus in it: focus goes back where F8 came from, else to the toast next to it; not after focus has left', async () => {
+    await render(<><button id="before">Before</button><App /></>);
+    let one = '', three = '';
+    React.act(() => { one = toast({ title: 'One', duration: 0 }); toast({ title: 'Two', duration: 0 }); });
+    await expect.poll(() => toasts().length).toBe(2);
+    el('before').focus();
+    await userEvent.keyboard('{F8}');
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement!.classList.contains('dk-toast__close')).toBe(true);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement!.id).toBe('before');
+    toasts()[0].querySelector<HTMLElement>('.dk-toast__close')!.focus();   // reached without F8
+    React.act(() => { three = toast({ title: 'Three', duration: 0 }); });
+    React.act(() => { toast.dismiss(one); });
+    await expect.poll(() => document.activeElement!.querySelector('.dk-toast__title')?.textContent).toBe('Three');
+    (document.activeElement as HTMLElement).blur();
+    await new Promise((r) => setTimeout(r, 20));
+    React.act(() => { toast.dismiss(three); });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(document.activeElement).toBe(document.body);
   });
 
   test('F8 moves focus to the newest toast (Tab then reaches its action) and F8 again goes back; Escape goes back too; with no toasts F8 does nothing', async () => {
