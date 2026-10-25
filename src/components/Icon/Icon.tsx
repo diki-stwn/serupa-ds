@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { useServerStyles } from "../../internal/serverStyles";
 import { warnOnce } from "../../internal/warn";
-import { ICONS, hasIcon, getIcon, loadIcon, type CustomIconName } from "../../icons";
+import { ICONS, hasIcon, getIcon, getRegisteredIcon, loadIcon, type CustomIconName } from "../../icons";
 import type { MaterialIconName } from "../../material/icons";
 import type { IconData } from "../../material/types";
 import { component } from "../../internal/component";
@@ -26,6 +26,8 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   size?: number | string;
 }
 
+const never = () => () => {}, yes = () => true, no = () => false;
+
 /* Icon: an inline SVG in a 1em box, drawn in the text color. Material Symbols Rounded, filled (src/material), or
    one of your custom icons (tools/icons/build.mjs). */
 /** An icon: Material Symbols Rounded (filled) or one of your custom SVG icons. Sized by font-size, drawn in the text color. Decorative by default (aria-hidden); pass aria-label to make it meaningful. */
@@ -33,8 +35,11 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   const restyle = useServerStyles(ref);
   const [, loadedAll] = React.useReducer((n: number) => n + 1, 0);
   const own = useSerupa().icons;   // icons given to a SerupaProvider
+  // The hydration render draws only what the server could (an icon passed or registered), not one this page loaded
+  // since; right after it, the loaded one appears.
+  const hydrated = React.useSyncExternalStore(never, yes, no);
   const custom = !props.icon && hasIcon(props.name);
-  const data = props.icon || (custom || props.name == null ? undefined : own.get(props.name) || getIcon(props.name));
+  const data = props.icon || (custom || props.name == null ? undefined : own.get(props.name) || (hydrated ? getIcon : getRegisteredIcon)(props.name));
   const missing = !custom && !data && props.name != null;
   // A name not loaded yet: load it, then draw it (or warn if it isn't a Material Symbol). Until then, and on the
   // server, the box is empty: pass `icon={…}` or register the icon to draw it on the first render.
