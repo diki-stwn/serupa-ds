@@ -73,7 +73,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's | Whose decimal and group marks are read and written: `1.500,25` in `id-ID`, `1,500.25` in `en-US`. |
 | `currency` | `string` | | An ISO 4217 code: shows the amount as money and keeps its decimals. Short for `formatOptions={{ style: 'currency', currency }}`; `formatOptions` still wins. |
 | `minorUnits` | `boolean` | `false` | With `currency`: the value props and `onValueChange` are whole minor units (cents). `aria-valuenow` stays in the currency's units. |
-| `formatOptions` | `Intl.NumberFormatOptions` | no grouping | How the number is shown: `{ style: 'currency', currency: 'IDR' }`, `{ useGrouping: true }`, `{ style: 'percent' }` (the value is the fraction, so 0.15 shows 15%). Sets `aria-valuetext` too. |
+| `formatOptions` | `Intl.NumberFormatOptions` | no grouping | How the number is shown: `{ style: 'currency', currency: 'IDR' }`, `{ useGrouping: true }`, `{ style: 'percent' }` (the value is the fraction, so 0.15 shows 15%), `{ style: 'unit', unit: 'kilometer' }`, or `currencySign: 'accounting'` (a negative in parentheses, read back as negative). Sets `aria-valuetext` too. |
 
 `className` and `style` go to the box; `ref` and every other prop go to the `<input>`.
 
