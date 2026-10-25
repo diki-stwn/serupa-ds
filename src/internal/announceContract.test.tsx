@@ -16,6 +16,7 @@ import { Dialog } from '../components/Dialog/Dialog';
 import { Field } from '../components/Field/Field';
 import { Input } from '../components/Input/Input';
 import { Loader } from '../components/Loader/Loader';
+import { Progress } from '../components/Progress/Progress';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { SortableList } from '../components/SortableList/SortableList';
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '../components/Table/Table';
@@ -63,6 +64,9 @@ const SITES: Record<string, Site> = {
   'PasswordInput: Caps Lock turning on': {
     ui: () => <PasswordInput aria-label="Password" />,
     act: async () => { const f = $('input'); f.focus(); f.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, modifierCapsLock: true })); }, says: /Caps Lock is on/ },
+  'Progress: announceComplete when the value reaches max': {
+    ui: (s) => <Progress label="Upload" value={s ? 100 : 60} announceComplete />,
+    act: (next) => next(), says: /Upload: complete/ },
   'Table: a new sort order': {
     ui: (s) => <Table><TableHead><TableRow><TableHeaderCell sort={s ? 'ascending' : 'none'} onSort={() => {}}>Name</TableHeaderCell></TableRow></TableHead><TableBody><TableRow><TableCell>Apollo</TableCell></TableRow></TableBody></Table>,
     act: (next) => next(), says: /Sorted by Name, ascending/ },
