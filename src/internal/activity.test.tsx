@@ -43,7 +43,7 @@ async function hidden(ui: React.ReactElement, exportName: string, problems: stri
   flushSync(() => root.render(<React.Activity mode="visible">{ui}</React.Activity>));
   await frame();
   await wait(50);
-  const opened = document.querySelectorAll(':popover-open, dialog[open], [role="status"].dk-toast, .dk-toast').length;
+  const opened = document.querySelectorAll(':popover-open, dialog[open], [data-component="toaster"] li[data-tone]').length;
   flushSync(() => root.render(<React.Activity mode="hidden">{ui}</React.Activity>));
   await frame();
   await wait(50);
