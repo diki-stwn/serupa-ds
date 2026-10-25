@@ -70,11 +70,18 @@ export function placeLayer(layer: HTMLElement, anchor: Element, placement: strin
   if (!ownMaxWidth.has(layer)) ownMaxWidth.set(layer, layer.style.maxWidth);
   const own = ownMaxWidth.get(layer)!;
   layer.style.maxHeight = ""; layer.style.overflowY = ""; layer.style.maxWidth = own;
-  const r = place(anchor.getBoundingClientRect(), { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback);
+  const a = anchor.getBoundingClientRect();
+  const r = place(a, { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback);
   layer.style.left = r.x + "px"; layer.style.top = r.y + "px"; layer.dataset.side = r.side;
   if (r.maxHeight !== undefined) { layer.style.maxHeight = r.maxHeight + "px"; layer.style.overflowY = "auto"; }
   if (r.maxWidth !== undefined) layer.style.maxWidth = own ? "min(" + own + ", " + r.maxWidth + "px)" : r.maxWidth + "px";
   layer.scrollTop = scroll;
+  // --dk-layer-origin: the point on the layer's edge facing the anchor, level with the anchor's centre, so a layer that
+  // scales in grows out of what opened it (wherever it slid to stay on screen, and mirrored in right to left on its own).
+  const w = layer.offsetWidth, h = layer.offsetHeight, clamp = (v: number, max: number) => Math.round(Math.min(Math.max(v, 0), max));
+  const ox = r.side === "left" ? w : r.side === "right" ? 0 : clamp(a.left + a.width / 2 - r.x, w);
+  const oy = r.side === "top" ? h : r.side === "bottom" ? 0 : clamp(a.top + a.height / 2 - r.y, h);
+  layer.style.setProperty("--dk-layer-origin", ox + "px " + oy + "px");
 }
 
 /** Shows an element in the top layer when the browser supports popover="manual", so nothing can cover or clip it. */

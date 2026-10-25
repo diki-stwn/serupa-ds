@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Combobox, type ComboboxOption } from './Combobox';
 import { Field } from '../Field/Field';
 import { DEFAULT_LABELS, idLabels } from '../../internal/labels';
@@ -532,5 +532,17 @@ describe('Combobox loadOptions (DG1)', () => {
     const last = s.calls.at(-1)!;
     await unmount();
     expect([last.text, last.signal.aborted]).toEqual(['q', true]);
+  });
+
+  test('entry: the list fades in and grows from its top edge with a transition, not keyframes; only the fade under reduced motion (EF1)', async () => {
+    await withMotion(async () => {
+      await render(<Countries />);
+      await userEvent.click(toggleOf('cb'));
+      const pop = popOf('cb');
+      const moves = pop.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
+      expect([moves, pop.getAnimations().some((a) => a instanceof CSSAnimation), pop.dataset.side, css(pop).transformOrigin.split(' ')[1]]).toEqual([['opacity', 'scale'], false, 'bottom', '0px']);
+      await Promise.all(pop.getAnimations().map((a) => a.finished));
+      expect([css(pop).opacity, css(pop).scale]).toEqual(['1', 'none']);
+    });
   });
 });
