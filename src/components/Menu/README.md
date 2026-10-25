@@ -95,7 +95,7 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `trigger` | one element | required | The button that opens it. It gets `aria-haspopup`, `aria-expanded`, `aria-controls` and the keys, and keeps its own handlers and ref. It can be wrapped in a [Tooltip](../Tooltip/README.md) |
 | `children` | nodes | required | `MenuItem`, `MenuGroup` and `MenuSeparator` |
 | `placement` | as Tooltip | `'bottom-start'` | Where it opens; it flips when there's no room and slides to stay on screen. With no room on either side it opens on the roomier one and scrolls inside, so every item can be reached |
-| `open`, `onOpenChange` | boolean, function | | Control it yourself |
+| `open`, `onOpenChange` | boolean, function | | Control it yourself. onOpenChange(open, { reason }) says why: `'trigger'`, `'select'` (an item chosen), `'escape'`, `'blur'` (Tab) or `'outside'` |
 | `defaultOpen` | boolean | `false` | Open at first, without controlling it |
 | `aria-label` | string | | The menu's name. Without it, the button's text names it |
 
@@ -108,7 +108,7 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `target` | one element | required | The area it belongs to. A right-click, a long press, Shift+F10 or the Menu key in it opens the menu. It keeps its own handlers and ref, and its `onContextMenu` can call `preventDefault()` to stop it |
 | `children` | nodes | required | `MenuItem`, `MenuGroup`, `MenuSub` and `MenuSeparator` |
 | `aria-label` | string | required | The menu's name ("File actions"), since there's no button to take it from |
-| `open`, `onOpenChange` | boolean, function | | Control it yourself. Opened this way, it shows at the target's corner |
+| `open`, `onOpenChange` | boolean, function | | Control it yourself. Opened this way, it shows at the target's corner. onOpenChange(open, { reason }) says why: `'trigger'`, `'select'` (an item chosen), `'escape'`, `'blur'` (Tab) or `'outside'` |
 | `disabled` | boolean | `false` | Leaves the browser's own menu in place |
 
 `id` isn't a prop: put an id on the target, which keeps it.
