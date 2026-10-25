@@ -80,4 +80,4 @@ Each is an optional override: set it on the page, a container or one popover. Th
 | `--popover-padding` | `spacing-4` | Space inside the panel (16px). |
 | `--popover-gap` | `spacing-2` | Space under the title (8px). |
 | `--popover-offset` | `spacing-2` | The gap between the panel and its trigger (8px). |
-| `--popover-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
+| `--popover-z-index` | `z-popover` | The stacking level where the browser has no top layer (popover). |

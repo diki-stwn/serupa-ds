@@ -99,5 +99,5 @@ Each is an optional override: set it on the page or the Toaster. The list lives 
 | `--toast-stack-gap` | `spacing-2` | Space between toasts (8px). |
 | `--toast-offset` | `spacing-4` | The distance from the edges of the screen (16px). |
 | `--toast-title-weight` | `font-semibold` | The title's weight (600). |
-| `--toast-z-index` | `z-50` | The stacking level: above the page and the FAB. |
+| `--toast-z-index` | `z-toast` | The stacking level: above the page and the FAB. |
 | `--toast-focus-ring` | `focus-ring` | The ring around a toast that F8 moved focus to. |

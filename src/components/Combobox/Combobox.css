@@ -18,7 +18,7 @@
 .dk-combobox[data-state="open"] .dk-combobox__toggle .dk-icon { --dk-combobox-turn: 180deg; rotate: var(--dk-combobox-turn); }
 .dk-combobox__popup {
   --dk-combobox-offset: var(--combobox-offset, var(--spacing-1));
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-popover));
   /* At least as wide as the field (set by the script), at most 28rem, so one long label wraps instead of widening the list. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--combobox-listbox-max-width, var(--container-md)));
   max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;

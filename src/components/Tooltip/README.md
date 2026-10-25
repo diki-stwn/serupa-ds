@@ -76,4 +76,4 @@ Each is an optional override: set it on the page, a container or one tooltip. Th
 | `--tooltip-padding-y` | `spacing-1` | Padding at the top and bottom (4px). |
 | `--tooltip-offset` | `spacing-1_5` | The gap between the tooltip and what it describes (6px). |
 | `--tooltip-max-width` | `spacing-60` | The widest a tooltip gets before it wraps (240px). |
-| `--tooltip-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
+| `--tooltip-z-index` | `z-tooltip` | The stacking level where the browser has no top layer (popover). |

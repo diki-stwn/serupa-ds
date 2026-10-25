@@ -136,4 +136,4 @@ Each is an optional override: set it on the page, a container or one menu. The l
 | `--menu-item-gap` | `spacing-2` | Space between an item's icon, label and shortcut (8px). |
 | `--menu-offset` | `spacing-1` | The gap between the menu and its button (4px). |
 | `--menu-sub-offset` | `spacing-0` | The gap between a submenu and the item that opens it (0: the submenu overlaps the menu's padding). |
-| `--menu-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
+| `--menu-z-index` | `z-popover` | The stacking level where the browser has no top layer (popover). |

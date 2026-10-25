@@ -16,7 +16,7 @@
 .dk-date-picker__button:focus-visible { outline: var(--focus-ring-width) solid var(--date-picker-focus-ring, var(--focus-ring)); }
 .dk-date-picker__button:disabled { cursor: not-allowed; }
 .dk-date-picker__popup {
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--date-picker-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--date-picker-z-index, var(--z-popover));
   margin: var(--spacing-0); padding: var(--date-picker-popup-padding, var(--spacing-3));
   border: var(--border-width-1) solid var(--date-picker-popup-border, var(--border-overlay)); border-radius: var(--date-picker-popup-radius, var(--rounded-lg));
   background: var(--date-picker-popup-bg, var(--surface-overlay)); color: var(--date-picker-popup-text, var(--text));
