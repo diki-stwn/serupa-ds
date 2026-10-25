@@ -38,6 +38,28 @@ const ITEMS = '[role="menuitem"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
 const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
 
+/* The keys inside an open menu (or a submenu's panel, whose keys bubble to the menu's element): ↑ ↓ move,
+   wrapping, Home and End jump, typing goes to the next item starting with what was typed, Escape closes and puts
+   focus back, Tab closes. Shared by Menu and ContextMenu. */
+function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.RefObject<Typed>, close: (focusBack: boolean) => void) {
+  return (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isComposing(e)) return;
+    const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
+    const list = itemsOf(panel || menuRef.current), i = list.indexOf(document.activeElement as HTMLElement);
+    const go = (n: number) => { e.preventDefault(); if (list.length) list[(n + list.length) % list.length].focus(); };
+    if (e.key === "ArrowDown") go(i + 1);
+    else if (e.key === "ArrowUp") go(i < 0 ? list.length - 1 : i - 1);
+    else if (e.key === "Home") go(0);
+    else if (e.key === "End") go(list.length - 1);
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); }
+    else if (e.key === "Tab") close(false);
+    else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const n = typeahead(typed.current, e.key, list.map((it) => (it.querySelector(".dk-menu__label") || it).textContent || ""), i);
+      if (n >= 0) list[n].focus();
+    }
+  };
+}
+
 /* Menu: a list of actions behind a button, following the WAI-ARIA menu button pattern. Enter, Space or ↓ on the
    button opens it on the first item (↑ on the last); ↑ ↓ move (wrapping), Home and End jump, typing goes to the
    next item starting with what was typed (internal/typeahead.ts), Enter or Space chooses, Escape closes, and focus
@@ -71,22 +93,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
     if (target) target.focus(); else menu.focus();
   }, [open]);
 
-  const onMenuKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isComposing(e)) return;
-    const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
-    const list = itemsOf(panel || menuRef.current), i = list.indexOf(document.activeElement as HTMLElement);
-    const go = (n: number) => { e.preventDefault(); if (list.length) list[(n + list.length) % list.length].focus(); };
-    if (e.key === "ArrowDown") go(i + 1);
-    else if (e.key === "ArrowUp") go(i < 0 ? list.length - 1 : i - 1);
-    else if (e.key === "Home") go(0);
-    else if (e.key === "End") go(list.length - 1);
-    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); }
-    else if (e.key === "Tab") close(false);
-    else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const n = typeahead(typed.current, e.key, list.map((it) => (it.querySelector(".dk-menu__label") || it).textContent || ""), i);
-      if (n >= 0) list[n].focus();
-    }
-  };
+  const onMenuKey = menuKeys(menuRef, typed, close);
 
   const child = React.Children.only(props.trigger) as React.ReactElement<TriggerProps>;
   const cp = child.props;
@@ -110,6 +117,95 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
       <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] ? undefined : cp.id || (triggerRef.current && triggerRef.current.id) || id + "-button"}
         className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={onMenuKey}>
+        {open ? props.children : null}
+      </div>
+    </MenuContext.Provider>
+  );
+});
+
+export interface ContextMenuProps {
+  /** The area the menu belongs to: one element, such as a Card, a table row or a canvas. A right-click (a long
+      press on touch), Shift+F10 or the Menu key in it opens the menu. */
+  target: React.ReactElement;
+  /** MenuItem, MenuGroup, MenuSub and MenuSeparator. */
+  children: React.ReactNode;
+  /** The menu's name for screen readers ("File actions"). Required: there's no button to take it from. */
+  'aria-label': string;
+  /** Open it yourself (controlled), with onOpenChange. It opens where it was last asked for, or at the target. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Leaves the browser's own menu in place: the target's right-click and keys do nothing. Default: false. */
+  disabled?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+/* ContextMenu: a Menu opened from an area instead of a button, at the pointer on a right-click (or a long press,
+   which browsers turn into contextmenu) or at the focused element on Shift+F10 or the Menu key. Its items, keys,
+   top layer and closing are Menu's; when it closes after a choice or Escape, focus goes back to where it was. */
+/** A Menu that opens at the pointer on a right-click, or at the focused element on Shift+F10 or the Menu key. */
+export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function ContextMenu(props: ContextMenuProps): React.ReactElement {
+  const id = domId("dk-ctxmenu", React.useId());
+  const [inner, setInner] = React.useState(false);
+  const controlled = props.open !== undefined;
+  const open = controlled ? !!props.open : inner;
+  const [at, setAt] = React.useState<{ x: number; y: number } | null>(null);
+  const menuRef = React.useRef<HTMLDivElement | null>(null);
+  const point = React.useRef<HTMLSpanElement | null>(null);
+  const targetRef = React.useRef<HTMLElement | null>(null);
+  const back = React.useRef<HTMLElement | null>(null);
+  const typed = React.useRef<Typed>({ text: "", at: 0 });
+  const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
+  const set = React.useCallback((v: boolean) => { if (!controlled) setInner(v); if (ask.current) ask.current(v); }, [controlled]);
+  const close = React.useCallback((focusBack: boolean) => {
+    set(false);
+    const to = back.current || targetRef.current;
+    if (focusBack && to) to.focus();
+  }, [set]);
+  const ctx = React.useMemo(() => ({ close }), [close]);
+  // Opened from outside (controlled) before any right-click: at the target's corner.
+  const spot = at || (open && targetRef.current ? (() => { const r = targetRef.current.getBoundingClientRect(); return { x: r.left, y: r.top }; })() : null);
+
+  useAnchoredLayer(open && !!spot, menuRef, point, { placement: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close(false), watch: spot && spot.x + "," + spot.y });
+  useIsoLayoutEffect(() => {
+    const menu = menuRef.current;
+    if (!open || !menu) return;
+    const first = itemsOf(menu)[0];
+    if (first) first.focus(); else menu.focus();
+  }, [open, at]);
+
+  const show = (x: number, y: number) => {
+    if (!open) back.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    setAt({ x: x, y: y });
+    if (!open) set(true);
+  };
+  // From the keyboard, at the focused element's lower start corner.
+  const fromElement = (el: EventTarget) => { const r = (el instanceof Element ? el : targetRef.current || document.body).getBoundingClientRect(); show(r.left, r.bottom); };
+
+  const child = React.Children.only(props.target) as React.ReactElement<TriggerProps>;
+  const cp = child.props;
+  const childRef = elementRef<HTMLElement>(child);
+  const target = React.cloneElement(child, {
+    ref: (n: HTMLElement | null) => { targetRef.current = n; if (childRef) setRef(childRef, n); },
+    onContextMenu: (e: React.MouseEvent<HTMLElement>) => {
+      if (cp.onContextMenu) cp.onContextMenu(e);
+      if (e.defaultPrevented || props.disabled) return;
+      e.preventDefault();
+      // A contextmenu from the keyboard has no pointer position.
+      if (e.clientX === 0 && e.clientY === 0) fromElement(e.target); else show(e.clientX, e.clientY);
+    },
+    onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+      if (cp.onKeyDown) cp.onKeyDown(e);
+      if (e.defaultPrevented || props.disabled) return;
+      if ((e.key === "F10" && e.shiftKey) || e.key === "ContextMenu") { e.preventDefault(); fromElement(e.target); }
+    },
+  });
+  return (
+    <MenuContext.Provider value={ctx}>
+      {target}
+      <span ref={point} className="dk-menu__point" aria-hidden style={spot ? { left: spot.x + "px", top: spot.y + "px" } : undefined} />
+      <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-label={props["aria-label"]}
+        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={menuKeys(menuRef, typed, close)}>
         {open ? props.children : null}
       </div>
     </MenuContext.Provider>

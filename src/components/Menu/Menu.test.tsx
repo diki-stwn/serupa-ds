@@ -6,7 +6,7 @@ import { THEMES, color, contrast, press, settle } from '../../../tools/test/vite
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from './Menu';
+import { ContextMenu, keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -363,5 +363,80 @@ describe('Menu', () => {
     await expect.poll(() => el('hb').getAttribute('aria-expanded')).toBe('false');
     await userEvent.click(el('eb'));
     await expect.poll(() => document.activeElement).toBe(menuOf('eb'));
+  });
+});
+
+describe('ContextMenu', () => {
+  function Area({ chosen, ...p }: { chosen: string[]; disabled?: boolean }) {
+    return <>
+      <button id="before">Before</button>
+      <ContextMenu aria-label="File actions" {...p} target={<div id="area" tabIndex={0} style={{ width: '300px', height: '200px', margin: '40px' }}>Report.pdf</div>}>
+        <MenuItem onSelect={() => chosen.push('open')}>Open</MenuItem>
+        <MenuItem onSelect={() => chosen.push('rename')}>Rename</MenuItem>
+        <MenuItem destructive onSelect={() => chosen.push('delete')}>Delete</MenuItem>
+      </ContextMenu>
+    </>;
+  }
+
+  test('a right-click opens a role="menu" named by aria-label at the pointer, focus on the first item; the browser\'s menu is kept away', async () => {
+    await render(<Area chosen={[]} />);
+    const r = rect(el('area'));
+    const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + 50, clientY: r.top + 60, button: 2 });
+    el('area').dispatchEvent(ev);
+    await settle();
+    const m = openMenu()!;
+    expect([ev.defaultPrevented, m.getAttribute('aria-label'), focus()]).toEqual([true, 'File actions', 'Open']);
+    const mr = rect(m);
+    expect(near(mr.left, r.left + 50) && mr.top >= r.top + 60 && mr.top <= r.top + 60 + 8).toBe(true);
+  });
+
+  test('Shift+F10 or the Menu key on the focused area opens it at the area\'s lower corner; Escape closes it and focus goes back', async () => {
+    await render(<Area chosen={[]} />);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await settle();
+    expect([!!openMenu(), focus()]).toEqual([true, 'Open']);
+    expect(near(rect(openMenu()!).left, rect(el('area')).left)).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await settle();
+    expect([openMenu(), document.activeElement!.id]).toEqual([undefined, 'area']);
+    await userEvent.keyboard('{ContextMenu}');
+    await settle();
+    expect(focus()).toBe('Open');
+  });
+
+  test('Menu\'s keys work in it; choosing an item runs onSelect, closes it and puts focus back; a click outside closes it', async () => {
+    const chosen: string[] = [];
+    await render(<Area chosen={chosen} />);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await settle();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(focus()).toBe('Rename');
+    await userEvent.keyboard('d');
+    expect(focus()).toBe('Delete');
+    await userEvent.keyboard('{Enter}');
+    await settle();
+    expect([chosen.join(), openMenu(), document.activeElement!.id]).toEqual(['delete', undefined, 'area']);
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await settle();
+    await userEvent.click(el('before'));
+    await settle();
+    expect(openMenu()).toBeUndefined();
+  });
+
+  test('disabled: the browser keeps its own menu and the keys do nothing; the target\'s own onContextMenu runs first and can stop it', async () => {
+    await render(<Area chosen={[]} disabled />);
+    const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 60, clientY: 60 });
+    el('area').dispatchEvent(ev);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await settle();
+    expect([ev.defaultPrevented, openMenu()]).toEqual([false, undefined]);
+    const seen: string[] = [];
+    await render(<ContextMenu aria-label="Own" target={<div id="own" onContextMenu={(e) => { seen.push('own'); e.preventDefault(); }}>Own</div>}><MenuItem>One</MenuItem></ContextMenu>);
+    el('own').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 10, clientY: 10 }));
+    await settle();
+    expect([seen.join(), openMenu()]).toEqual(['own', undefined]);
   });
 });
