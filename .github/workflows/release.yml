@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          token: ${{ secrets.BOT_TOKEN }}
           fetch-depth: 0
       - id: head
         run: |
@@ -56,6 +57,7 @@ jobs:
         id: changesets
         with:
           version-script: npm run version-packages
+          github-token: ${{ secrets.BOT_TOKEN }}
           publish-script: npm run release
           pr-title: 'Release: next version'
           commit-message: 'Release: next version'
@@ -64,11 +66,4 @@ jobs:
           push-git-tags: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # A pull request this workflow opens or updates gets no CI of its own, so start CI and the changeset check on its branch;
-      # the checks land on its head commit, which is what main's required checks look at.
-      - if: steps.head.outputs.current && steps.changesets.outputs.pr-number
-        run: |
-          gh workflow run ci.yml --ref changeset-release/main
-          gh workflow run changeset.yml --ref changeset-release/main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
