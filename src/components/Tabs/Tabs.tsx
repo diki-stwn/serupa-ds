@@ -23,7 +23,7 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   activation?: 'auto' | 'manual';
 }
 
-interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; panels: Record<string, number>; register: (v: string, d: number) => void }
+interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null }
 const TabsContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const useTabs = (who: string): Ctx => {
   const c = React.useContext(TabsContext);
@@ -64,7 +64,10 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // drive content of its own (a filter, say) with no TabPanel at all.
   const [panels, setPanels] = React.useState<Record<string, number>>({});
   const register = React.useCallback((v: string, d: number) => setPanels((p) => Object.assign({}, p, { [v]: (p[v] || 0) + d })), []);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", panels, register }), [base, value, select, props.activation, panels, register]);
+  // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
+  // so the tab list can still be reached from the keyboard.
+  const [stop, setStop] = React.useState<string | null>(null);
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", panels, register, stop }), [base, value, select, props.activation, panels, register, stop]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
@@ -76,7 +79,9 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     const all = tabs.map((t) => t.dataset.value as string), enabled = tabs.filter((t) => !t.hasAttribute("disabled")).map((t) => t.dataset.value as string);
     const before = order.current;
     order.current = all;
-    if (!enabled.length || (value != null && all.includes(value))) return;
+    const matched = value != null && all.includes(value);
+    setStop(matched || !enabled.length ? null : enabled[0]);
+    if (!enabled.length || matched) return;
     if (controlled) {
       if (value != null && before.includes(value)) warnOnce("tabs-removed", `Tabs: the selected tab "${value}" was removed, so no tab is selected. Set value to another tab when you remove it.`);
       return;
@@ -132,7 +137,7 @@ export const Tab = /* @__PURE__ */ component<HTMLButtonElement, TabProps>("Tab",
   const id = ctx.base + "-tab-" + safe(props.value), panel = ctx.base + "-panel-" + safe(props.value);
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => { if (props.onClick) props.onClick(e); if (!e.defaultPrevented) ctx.select(props.value); };
   return (
-    <button {...rest} ref={ref} type="button" role="tab" id={id} aria-controls={ctx.panels[props.value] ? panel : undefined} aria-selected={selected} tabIndex={selected ? 0 : -1}
+    <button {...rest} ref={ref} type="button" role="tab" id={id} aria-controls={ctx.panels[props.value] ? panel : undefined} aria-selected={selected} tabIndex={selected || ctx.stop === props.value ? 0 : -1}
       data-value={props.value} data-state={selected ? "active" : "inactive"} className={cn("dk-tabs__tab", props.className)} onClick={onClick}>
       {props.icon != null ? <span className="dk-tabs__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null}
       <span className="dk-tabs__label">{props.children}</span>
