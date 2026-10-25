@@ -6,6 +6,7 @@ import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Dialog } from '../Dialog/Dialog';
+import { topModal } from '../../internal/layers';
 import { Drawer, type DrawerProps } from './Drawer';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -64,6 +65,24 @@ describe('Drawer', () => {
     expect(getComputedStyle(document.documentElement).overflow).toBe('hidden');
     const r = el('behind').getBoundingClientRect(), hit = document.elementFromPoint(r.left + 2, r.top + 2);
     expect(hit && hit.id).not.toBe('behind');
+  });
+
+  test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {
+    const asks: boolean[] = [];
+    function Keep() {
+      const [open, setOpen] = React.useState(false);
+      return <><Button id="kopen" onClick={() => setOpen(true)}>Open</Button><Drawer id="dkeep" open={open} onOpenChange={(v) => asks.push(v)} title="Filters" /></>;
+    }
+    await render(<Keep />);
+    await userEvent.click(el('kopen'));
+    const d = el('dkeep') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => d.open).toBe(true);
+    expect(asks.length).toBeGreaterThanOrEqual(3);   // the forced close asks once more
+    expect([asks.every((v) => !v), d.matches(':modal'), topModal() === d]).toEqual([true, true, true]);
   });
 
   test('a Dialog opened from inside it: Escape closes only the Dialog, and the next Escape the Drawer', async () => {
@@ -212,5 +231,11 @@ describe('Drawer', () => {
     const c = getComputedStyle(panel('tok')).backgroundColor;
     d.close();
     expect(c).toBe('rgb(1, 2, 3)');
+  });
+
+  test('StrictMode: a Drawer open on mount stays on the modal stack (A1)', async () => {
+    await render(<React.StrictMode><Drawer id="smd" open title="Opened on mount" /></React.StrictMode>);
+    await expect.poll(() => (el('smd') as HTMLDialogElement).open).toBe(true);
+    expect(topModal()).toBe(el('smd'));
   });
 });

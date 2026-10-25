@@ -46,7 +46,7 @@ describe('Breadcrumb', () => {
   test('separators: a 16px chevron_right, hidden from screen readers; an item can have a 16px icon', async () => {
     await render(<Home />);
     const s = q('#bdef .dk-breadcrumb__separator'), vis = shownIcons(s);
-    expect([s.getAttribute('aria-hidden'), vis.map((i) => i.dataset.icon).join(), css(vis[0]!).fontSize]).toEqual(['true', 'chevron_right', '16px']);
+    expect([s.getAttribute('aria-hidden'), vis.map((i) => i.dataset.icon).join(), css(vis[0]).fontSize]).toEqual(['true', 'chevron_right', '16px']);
     const i = q('#bdef .dk-breadcrumb__icon .dk-icon');
     expect([i.dataset.icon, css(i).fontSize]).toEqual(['home', '16px']);
   });
@@ -86,7 +86,7 @@ describe('Breadcrumb', () => {
     await render(<Breadcrumb id="bdef" maxItems={2}>
       {['Home', 'Org', 'Team'].map((l) => <BreadcrumbItem key={l} href={'#' + l}>{l}</BreadcrumbItem>)}
     </Breadcrumb>);
-    expect(q('#bdef .dk-breadcrumb__more')!.getAttribute('aria-label')).toBe('Show all pages');
+    expect(q('#bdef .dk-breadcrumb__more').getAttribute('aria-label')).toBe('Show all pages');
   });
 
   test('unknown separator falls back to the chevron; maxItems below 2 is ignored; right to left: the chevron points left', async () => {

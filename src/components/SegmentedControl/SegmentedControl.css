@@ -27,7 +27,7 @@
   position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--segmented-control-gap, var(--spacing-1\.5));
   min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0) var(--segmented-control-padding-x, var(--spacing-3));
   border: var(--spacing-0); border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: transparent;
-  color: var(--segmented-control-text, var(--text-muted)); font: inherit; font-weight: var(--segmented-control-weight, var(--font-medium)); white-space: nowrap; cursor: pointer;
+  color: var(--segmented-control-text, var(--text-muted)); font: inherit; font-weight: var(--segmented-control-weight, var(--font-medium)); white-space: nowrap; cursor: pointer; touch-action: manipulation;
   transition: color var(--duration-150) var(--ease-in-out);
 }
 /* At least 24px wide, so in sm (18px inside a 24px box) the segments' centers are 24px apart: WCAG 2.5.8. */

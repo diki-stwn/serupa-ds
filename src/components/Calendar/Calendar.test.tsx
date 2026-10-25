@@ -56,7 +56,7 @@ describe('Calendar', () => {
   test('th, fa, ja-u-ca-japanese, ar-EG: the title and day labels name the Gregorian month shown in the grid, with localized month names', async () => {
     await render(<>{['th', 'fa', 'ja-u-ca-japanese', 'ar-EG'].map((l) => <Calendar key={l} data-testid={l} locale={l} defaultMonth={new Date(2025, 10, 1)} />)}</>);
     for (const l of ['th', 'fa', 'ja-u-ca-japanese', 'ar-EG']) {
-      const t = q(`[data-testid="${l}"] .dk-calendar__title`).textContent!;
+      const t = q(`[data-testid="${l}"] .dk-calendar__title`).textContent;
       const label = q(`[data-testid="${l}"] [data-date="2025-11-22"]`).getAttribute('aria-label')!;
       expect(t, l).toContain('2025');
       expect(t, l).toContain(new Intl.DateTimeFormat(l, { calendar: 'gregory', month: 'long' }).format(new Date(2025, 10, 1)));

@@ -18,6 +18,9 @@ const pkg = JSON.parse(read('package.json'));
 t('package.json is private and has no publishConfig, so npm publish refuses', pkg.private === true && !('publishConfig' in pkg), `private: ${pkg.private}, publishConfig: ${JSON.stringify(pkg.publishConfig)}`);
 // Every component is built by tools in devDependencies, so a project installs nothing else (J7).
 t('package.json has no dependencies (React is a peer dependency; everything else is bundled)', !Object.keys(pkg.dependencies || {}).length && !Object.keys(pkg.optionalDependencies || {}).length, JSON.stringify({ ...pkg.dependencies, ...pkg.optionalDependencies }));
+// npm runs the build as "prepare", so it reports on stderr: npm pack --json then prints only its JSON.
+const builder = read('tools/build/build.mjs');
+t('the build writes its progress to stderr, never stdout (npm pack --json stays JSON)', !/console\.log\(|stdio: 'inherit'/.test(builder));
 
 // 1. exports
 const targets = [];
@@ -34,6 +37,13 @@ const bundlesAll = /import \* as Serupa from "\.\/index";/.test(browserTs) && /O
 const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
+
+// A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
+// is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
+// matches "default", not "import".
+t('engines.node is ">=22" and devEngines asks for Node 26 to work on the repo', pkg.engines?.node === '>=22' && pkg.devEngines?.runtime?.version === '>=26', JSON.stringify({ engines: pkg.engines, devEngines: pkg.devEngines }));
+const noDefault = Object.entries(pkg.exports).filter(([, v]) => typeof v === 'object' && v.import && v.default !== v.import).map(([k]) => k);
+t('every export with an "import" condition has the same file as "default", so require(esm) finds it', !noDefault.length, noDefault.join(', '));
 
 // 2. server rendering: no window, document or navigator while importing and rendering
 for (const g of ['window', 'document']) t(`no ${g} in Node`, typeof globalThis[g] === 'undefined');
@@ -76,7 +86,15 @@ if (D) {
   let first = '', later = '';
   try { first = ago(); Date.now = () => start + 2 * 3600e3; later = ago(); } finally { Date.now = realNow; }
   t('RelativeTime on the server: a request two hours later says "2 hours ago", not the first request\'s words', first === '5 minutes ago' && later === '2 hours ago', `${first} | ${later}`);
+  // The date components format on the server too: the picked day is selected, and the field shows it in the locale's format.
+  const ssrCase = async (n) => (await import(path.join(HERE, 'ssr', `${n}.mjs`))).default({ h, D })[n];
+  const cal = renderToString(await ssrCase('Calendar')), picker = renderToString(await ssrCase('DatePicker'));
+  t('Calendar and DatePicker on the server: 18 October 2026 is selected and typed as 18/10/2026 (en-GB)',
+    /<td aria-selected="true"[^>]*><button[^>]*aria-label="Sunday, 18 October 2026"/.test(cal) && picker.includes('value="18/10/2026"'), `${(cal.match(/<td aria-selected="true".{0,120}/) || ['nothing selected'])[0]} | ${(picker.match(/value="[^"]*"/) || ['no value'])[0]}`);
   t('version matches package.json', D.version === pkg.version, D.version);
+  // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
+  const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
+  t('dist/base.css and dist/theme.js carry package.json\'s version (stamped at build)', !unstamped.length && read('dist/theme.js').includes(`version = "${pkg.version}"`), unstamped.join(', '));
   // Icons: each component imports the icons it draws, so they draw on the server. A name drawn as a string loads in
   // the browser (the components' icons from a small chunk, the rest from the full set), so on the server it's an empty box.
   const iconHtml = (props) => renderToString(h(D.Icon, props));

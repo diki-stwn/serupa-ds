@@ -72,6 +72,26 @@
           }
         }
       },
+      "count": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The character count (showCount), 4.5:1 on the field; it turns text-colored at maxLength.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--input-count"
+          }
+        }
+      },
+      "count-full": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The character count once it reaches maxLength.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--input-count-full"
+          }
+        }
+      },
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",

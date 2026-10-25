@@ -64,9 +64,11 @@ jobs:
           push-git-tags: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # A pull request this workflow opens or updates gets no CI of its own, so start CI on its branch;
+      # A pull request this workflow opens or updates gets no CI of its own, so start CI and the changeset check on its branch;
       # the checks land on its head commit, which is what main's required checks look at.
       - if: steps.head.outputs.current && steps.changesets.outputs.pr-number
-        run: gh workflow run ci.yml --ref changeset-release/main
+        run: |
+          gh workflow run ci.yml --ref changeset-release/main
+          gh workflow run changeset.yml --ref changeset-release/main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

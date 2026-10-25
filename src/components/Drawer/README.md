@@ -39,11 +39,16 @@ const [open, setOpen] = React.useState(false);
 - The body scrolls on its own, so the header and footer stay in view.
 - It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
 
+- On a phone with a notch or a home bar, the panel's padding and the footer clear them. This needs `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`; without `viewport-fit=cover` the browser keeps the page out of those areas itself.
+- Scrolling to the end of the body doesn't scroll the page behind it (`overscroll-behavior: contain`).
+
 ## Accessibility
 
 - `aria-modal`, named by the title (`aria-labelledby`) and described by the description.
 - The title, description and body text keep 4.5:1 on the panel in all six themes (`Drawer.test.tsx`). In forced-colors mode the panel gets a border.
 - A Dialog opened from inside it closes on its own: Escape closes the Dialog first, and the next Escape the Drawer.
+- On Android, the system back gesture asks to close it, like Escape. Under `<React.StrictMode>`, a Drawer that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
+- To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 
 ## Props
 

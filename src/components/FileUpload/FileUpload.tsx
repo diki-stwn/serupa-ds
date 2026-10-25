@@ -49,7 +49,7 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   removeLabel?: (name: string) => string;
 }
 
-const OWN = { files: 1, onFilesChange: 1, onReject: 1, accept: 1, multiple: 1, maxSize: 1, maxFiles: 1, disabled: 1, name: 1, title: 1, buttonLabel: 1, hint: 1, removeLabel: 1, autoFocus: 1, className: 1, id: 1, "aria-describedby": 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1 } as const;
+const OWN = { files: 1, onFilesChange: 1, onReject: 1, accept: 1, multiple: 1, maxSize: 1, maxFiles: 1, disabled: 1, name: 1, title: 1, buttonLabel: 1, hint: 1, removeLabel: 1, autoFocus: 1, className: 1, id: 1, "aria-describedby": 1, "aria-errormessage": 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1 } as const;
 
 function accepts(file: File, accept?: string) {
   if (!accept) return true;
@@ -164,7 +164,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
         <Icon icon={icons.UploadFile} className="dk-file-upload__icon" />
         <p className="dk-file-upload__title">{props.title ?? (multiple ? sds.labels.dragFiles : sds.labels.dragFile)}</p>
         <Button ref={chooser} variant="outline" size="sm" disabled={disabled} onClick={() => { if (!readOnly && input.current) input.current.click(); }}
-          aria-disabled={readOnly || undefined} aria-invalid={invalid || undefined}
+          aria-disabled={readOnly || undefined} aria-invalid={invalid || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
           aria-labelledby={fieldLabel ? fieldLabel + " " + base + "-choose" : undefined} aria-describedby={cn(required && base + "-req", props["aria-describedby"], hasHint && base + "-hint") || undefined}>
           <span id={base + "-choose"}>{props.buttonLabel || (multiple ? sds.labels.chooseFiles : sds.labels.chooseFile)}</span>
         </Button>

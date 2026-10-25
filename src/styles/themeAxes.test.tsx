@@ -10,7 +10,7 @@ import { contrast, lowContrast, THEMES } from '../../tools/test/vitest/helpers';
 // flat data-theme="<brand>-<mode>" themes, through light-dark() pairs that the element's color-scheme resolves.
 const root = document.documentElement;
 type Tok = { name: string; value: unknown };
-const varying = (tokens.color.tokens as Tok[]).filter((t) => t.value && typeof t.value === 'object' && new Set(Object.values(t.value as object)).size > 1).map((t) => t.name);
+const varying = (tokens.color.tokens as Tok[]).filter((t) => t.value && typeof t.value === 'object' && new Set(Object.values(t.value)).size > 1).map((t) => t.name);
 
 // The resolved color of every varying token on a probe inside `host`.
 function read(host: HTMLElement): Record<string, string> {
@@ -135,6 +135,36 @@ describe('Contrast axis', () => {
     expect(lowContrast(pairs)).not.toEqual([]);   // without it muted text is 4.5:1, so passing below is the attribute's work
     root.setAttribute('data-contrast', 'more');
     expect(lowContrast(pairs)).toEqual([]);
+  });
+
+  test('data-contrast="more": the focus ring is 3px instead of 2px, on any focused element', () => {
+    const b = document.createElement('button');
+    document.body.appendChild(b);
+    b.style.outline = 'var(--focus-ring-width) solid';
+    expect(getComputedStyle(b).outlineWidth).toBe('2px');
+    root.setAttribute('data-contrast', 'more');
+    expect(getComputedStyle(b).outlineWidth).toBe('3px');
+    b.remove();
+  });
+
+  test('base.css: bare native controls and the caret take the brand color, and a nested theme its own', () => {
+    const probe = (parent: HTMLElement) => {
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.style.color = 'var(--primary)';
+      parent.appendChild(box);
+      const st = getComputedStyle(box);
+      return [st.accentColor, st.caretColor, st.color];
+    };
+    const section = document.createElement('section');
+    section.setAttribute('data-theme', 'emerald-light');
+    document.body.appendChild(section);
+    const [outer, inner] = [probe(document.body), probe(section)];
+    expect(outer).toEqual([outer[2], outer[2], outer[2]]);
+    expect(inner).toEqual([inner[2], inner[2], inner[2]]);
+    expect(inner[0]).not.toBe(outer[0]);
+    document.querySelectorAll('input[type=checkbox]').forEach((x) => x.remove());
+    section.remove();
   });
 
   test('works with the axes too, and outranks them', () => {

@@ -92,15 +92,21 @@ export const SidebarSection = /* @__PURE__ */ component<HTMLDivElement, SidebarS
   );
 });
 
+const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, as: 1, className: 1 } as const;
+type ItemElement = React.ReactElement<SidebarItemProps>;
+const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(React.isValidElement) as ItemElement[];
+/** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
+const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.props.children).some(activeWithin);
+
 /* SidebarItem: a link (icon, label, badge), or with nested items a button with aria-expanded that shows and
    hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. */
 /** An item in a Sidebar: a link, or a group of nested items. */
 export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarItemProps>("SidebarItem", function SidebarItem(props, ref) {
   const ctx = React.useContext(SidebarContext);
-  const rest = omit(props, { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, as: 1, className: 1 });
-  const kids = flattenChildren(props.children).filter(React.isValidElement) as React.ReactElement<SidebarItemProps>[];
+  const rest = omit(props, ITEM_OWN);
+  const kids = itemsOf(props.children);
   const group = kids.length > 0;
-  const childActive = kids.some((k) => k.props.active);
+  const childActive = kids.some(activeWithin);
   const [open, setOpen] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
   const listId = domId("dk-sbi", React.useId());
   const rail = ctx.collapsed && ctx.depth === 0;
@@ -120,7 +126,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
         <Menu placement="right-start" trigger={
           <button type="button" {...btnProps} className={cls}>{inner(false)}</button>
         }>
-          {kids.map((k, i) => <MenuItem key={k.key != null ? k.key : i} href={k.props.href} icon={k.props.icon}
+          {/* Each item keeps its link component (as), its other link attributes and the current page. */}
+          {kids.map((k, i) => <MenuItem key={k.key != null ? k.key : i} {...omit(k.props, ITEM_OWN) as object} onClick={undefined}
+            as={k.props.as} icon={k.props.icon} aria-current={activeWithin(k) ? "page" : undefined} className={cn("dk-sidebar__menu-item", k.props.className)}
             onSelect={k.props.onClick as ((e: React.SyntheticEvent) => void) | undefined}>{k.props.label}</MenuItem>)}
         </Menu>
       </li>

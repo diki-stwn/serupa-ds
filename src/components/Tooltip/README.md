@@ -40,10 +40,10 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 ## Accessibility
 
-- It shows on keyboard focus as well as hover, and only for the focus ring (not after a click).
+- It shows on keyboard focus as well as hover, and only for the focus ring (not after a click). A tap on a touch screen doesn't show it, and a press anywhere outside hides it.
 - WCAG 1.4.13: Escape hides it from anywhere, the pointer can move onto it without it closing, and it stays until the pointer or focus leaves.
 - Don't put anything only in a tooltip that people need to do the task: touch screens have no hover.
-- A disabled `<button>` can't take focus or hover events: wrap it in a `<span tabIndex={0}>`, or use `aria-disabled` instead.
+- A disabled `<button>` can't take focus or hover events, so a tooltip on it never shows. For a Serupa [Button](../Button/README.md), pass `disabledReason` with `disabled`: it stays focusable, and a Tooltip with the same words shows on hover and focus. For other elements, use `aria-disabled` instead of `disabled`.
 - The text keeps 4.5:1 on the tooltip in all six themes (`Tooltip.test.tsx`). In forced-colors mode it gets a border.
 
 ## Props

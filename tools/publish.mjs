@@ -37,6 +37,7 @@ if (tagged) {
   const prebuilt = { ...pkg };
   delete prebuilt.scripts;
   delete prebuilt.devDependencies;
+  delete prebuilt.devEngines;   // the Node this repo builds with, not what a project needs (engines says that)
   let named = false;
   try { named = !!run('git', ['config', 'user.name'], { stdio: ['ignore', 'pipe', 'ignore'] }); } catch { /* not set */ }
   const who = named ? [] : ['-c', 'user.name=github-actions[bot]', '-c', 'user.email=41898282+github-actions[bot]@users.noreply.github.com'];

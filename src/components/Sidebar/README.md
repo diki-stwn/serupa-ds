@@ -41,7 +41,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 
 - Give top-level items an `icon`, so they still show when the sidebar is collapsed, and use a string `label` so the tooltip can show it.
 - Group related items under a `SidebarSection` with a short `title`; keep nesting to one level of SidebarItems.
-- Mark the current page with `active`; a group holding it starts open.
+- Mark the current page with `active`; a group holding it, at any depth, starts open.
 - Put settings and the signed-in user in `footer`, so they stay at the bottom.
 
 ## Accessibility
@@ -50,7 +50,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 - The current page has `aria-current="page"` and a shaded background. A group holding it is text-colored, so the trail stays visible when it's closed.
 - A group is a button with `aria-expanded` and `aria-controls`.
 - Collapsed, each label stays in the page for screen readers and shows as a tooltip on hover and focus. Use a string `label` so the tooltip can show it.
-- In a collapsed rail, a group's menu shows its items as plain links (`href`); a router `as` there falls back to a normal page load.
+- In a collapsed rail, a group's menu keeps each item's link component (`as`, such as a router's Link, with its own props) and its link attributes, and marks the current page with `aria-current="page"` in medium weight.
 - Items, the current page, hovered items and section titles keep 4.5:1 in all six themes (`Sidebar.test.tsx`).
 
 ## Props

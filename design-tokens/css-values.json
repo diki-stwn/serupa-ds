@@ -29,7 +29,7 @@
   "borders": {
     "focus-ring-width": {
       "css": "{outline-width-2}",
-      "description": "The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it."
+      "description": "The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. A third thicker (3px) with more contrast."
     },
     "focus-ring-offset": {
       "css": "{outline-offset-2}",

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
@@ -15,7 +15,7 @@ const mid = (id: string) => {
   return Math.abs(ir.top + ir.height / 2 - (tr.top + Math.min(tr.height, parseFloat(css(wrap(id)).lineHeight)) / 2));
 };
 
-let errors: ReturnType<typeof vi.spyOn>, warnings: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>, warnings: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); warnings = vi.spyOn(console, 'warn'); });
 afterEach(() => {
   expect(errors).not.toHaveBeenCalled();
@@ -55,6 +55,21 @@ describe('Radio', () => {
     expect(new Set(names).size).toBe(1);
     expect(names[0]).toBeTruthy();
     expect(names[0]).not.toBe('ignored');
+  });
+
+  test('form reset: the first choice is checked again and the group follows it (uncontrolled); a controlled group shows its value again', async () => {
+    await render(<form id="rr">
+      <RadioGroup aria-label="Plan" name="plan" defaultValue="free"><Radio id="rr-free" value="free">Free</Radio><Radio id="rr-pro" value="pro">Pro</Radio></RadioGroup>
+      <RadioGroup aria-label="Ship" value="air" onChange={() => {}}><Radio id="rr-air" value="air">Air</Radio><Radio id="rr-sea" value="sea">Sea</Radio></RadioGroup>
+    </form>);
+    await userEvent.click(input('rr-pro'));
+    expect(input('rr-pro').checked).toBe(true);
+    (document.getElementById('rr') as HTMLFormElement).reset();
+    await expect.poll(() => input('rr-free').checked).toBe(true);
+    expect([input('rr-pro').checked, input('rr-air').checked, new FormData(document.getElementById('rr') as HTMLFormElement).get('plan')]).toEqual([false, true, 'free']);
+    // The group's state followed: one more click on Pro checks it (it would do nothing if the group still held "pro").
+    await userEvent.click(input('rr-pro'));
+    expect(input('rr-pro').checked).toBe(true);
   });
 
   test('Radio: a native radio (no system look) in a <label class="dk-radio"> (data-component="radio"); md: a 16px circle, 1px field border, text-sm, centered on the label\'s first line; ref goes to the <input>', async () => {
