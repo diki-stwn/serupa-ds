@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/currency.ts"],
+  "sourcesContent": ["// A currency's minor units from ISO 4217: 2 for most (USD, EUR, IDR), 0 for JPY and KRW, 3 for KWD, 4 for CLF.\n// From the standard rather than Intl, whose display digits differ between engines (IDR shows 0 in Chrome and 2 in\n// Node), so an amount stored in minor units is the same number on the server and in every browser.\n// module state: a fixed table, filled once below.\nconst DIGITS: Record<string, number> = {};\nfor (const c of \"BIF CLP DJF GNF ISK JPY KMF KRW PYG RWF UGX UYI VND VUV XAF XOF XPF\".split(\" \")) DIGITS[c] = 0;\nfor (const c of \"BHD IQD JOD KWD LYD OMR TND\".split(\" \")) DIGITS[c] = 3;\nfor (const c of \"CLF UYW\".split(\" \")) DIGITS[c] = 4;\n\n/** How many minor units a currency has, as a power of ten: minorDigits(\"USD\") is 2 (cents), \"JPY\" 0. */\nexport const minorDigits = (currency: string): number => DIGITS[currency.toUpperCase()] ?? 2;\n"],
+  "mappings": ";AAIA,IAAM,SAAiC,CAAC;AACxC,WAAW,KAAK,sEAAsE,MAAM,GAAG,EAAG,QAAO,CAAC,IAAI;AAC9G,WAAW,KAAK,8BAA8B,MAAM,GAAG,EAAG,QAAO,CAAC,IAAI;AACtE,WAAW,KAAK,UAAU,MAAM,GAAG,EAAG,QAAO,CAAC,IAAI;AAG3C,IAAM,cAAc,CAAC,aAA6B,OAAO,SAAS,YAAY,CAAC,KAAK;",
+  "names": []
+}

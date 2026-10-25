@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Pagination/labels.ts"],
+  "sourcesContent": ["// Pagination's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface PaginationLabels {\n  /** Pagination. */\n  pagination: string;\n  previousPage: string;\n  nextPage: string;\n}\nexport const en: PaginationLabels = {\n  pagination: \"Pagination\",\n  previousPage: \"Previous page\",\n  nextPage: \"Next page\",\n};\nexport const id: PaginationLabels = {\n  pagination: \"Halaman\",\n  previousPage: \"Halaman sebelumnya\",\n  nextPage: \"Halaman berikutnya\",\n};\n"],
+  "mappings": ";AAQO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,cAAc;AAAA,EACd,UAAU;AACZ;AACO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,cAAc;AAAA,EACd,UAAU;AACZ;",
+  "names": []
+}
