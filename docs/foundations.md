@@ -954,6 +954,7 @@ The target is **WCAG 2.2 level AA**, in all six themes, at any zoom up to 400%, 
 - **Announcements.** Loading, toasts and other status changes are announced through live regions that work inside an open Dialog too.
 - **Target size.** Buttons, fields and other sized controls are at least 24px tall (2.5.8), including `sm` and compact density; `lg` is 44px for touch-first screens. A checkbox, radio or switch takes clicks on its label too; one without a visible label is smaller than 24px, so leave space around it (the spacing exception in 2.5.8).
 - **Reflow and zoom.** Components fit a 320px-wide screen and wrap instead of clipping, and sizes are in `rem`, so text zoom works.
+- **Fields on iOS.** Safari on iPhone and iPad zooms into a focused field whose text is under 16px. There, Input, Textarea and Select (and the components built on them) draw their own text at 16px at every size, keeping the box height. Don't stop the zoom with `maximum-scale=1` in the viewport tag: it also stops pinch zoom, which WCAG 1.4.4 needs.
 - **Motion.** Under `prefers-reduced-motion`, components stop their animations, and `base.css` makes every transition near-instant. Nothing flashes.
 - **Forced colors and RTL.** Borders, focus and selected states stay visible in forced colors, and layouts use logical properties, so right-to-left languages mirror correctly.
 - **Dragging.** Anything you can drag also works without dragging (2.5.7): Slider takes arrow keys and clicks on the track, and FileUpload has a Choose button.

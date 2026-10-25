@@ -52,6 +52,7 @@ const { Select, Field } = window.Serupa;
 
 ## Accessibility
 
+- On iOS the field's text is 16px at every size, so Safari doesn't zoom the page when it takes focus; the box keeps its height.
 - It's the browser's own select, so screen readers, the keyboard (arrows, Home/End, type to find) and the phone's picker all work without extra code.
 - Every select needs a name: Field, a `<label htmlFor>` or `aria-label`. The placeholder isn't a label.
 - The chevron and left icon are decorative and don't take clicks: a click anywhere in the box opens the select.
