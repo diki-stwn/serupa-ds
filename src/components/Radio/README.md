@@ -6,7 +6,7 @@ Native radios for one choice from a short list. `RadioGroup` names them, holds t
 const { Radio, RadioGroup, Field } = window.Serupa;
 
 <Field group label="Plan" hint="You can change it later." error={error}>
-  <RadioGroup name="plan" value={plan} onChange={(value) => setPlan(value)}>
+  <RadioGroup name="plan" value={plan} onValueChange={(value) => setPlan(value)}>
     <Radio value="free" description="Up to 3 projects.">Free</Radio>
     <Radio value="pro" description="Unlimited projects and history.">Pro</Radio>
   </RadioGroup>
@@ -73,7 +73,8 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 | `id` | string | none | Goes to the root `<div role="radiogroup">`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. |
 | `value` | string \| number \| null | | The picked radio's value (controlled). `null` picks none |
 | `defaultValue` | string \| number | | The value picked at first (uncontrolled) |
-| `onChange` | `(value, event) => void` | | Called with the picked radio's value and the change event |
+| `onValueChange` | `(value, event) => void` | | Called with the picked radio's value and the change event, like SegmentedControl's and Tabs' |
+| `onChange` | `(value, event) => void` | | Deprecated: the old name for `onValueChange`. It still works, warns once in the console, and goes in the next major |
 | `name` | string | generated | The radios' name, for forms |
 | `orientation` | `'vertical'` \| `'horizontal'` | `'vertical'` | A stack 8px apart, or a wrapping row 16px apart |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | Every radio's size, unless one sets its own |
