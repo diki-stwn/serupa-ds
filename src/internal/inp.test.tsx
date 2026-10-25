@@ -10,8 +10,11 @@ import { stories } from '../../tools/test/vitest/stories';
 // where an answer takes one or two frames (16-24 ms on 25 Oct 2026), so BUDGET fails a change that makes one take
 // several times that, such as rebuilding every option on each keystroke.
 const BUDGET = 100;
+// Event Timing reports only an answer that took 16 ms or more: on a fast machine, none at all is a pass. WebKit has
+// no Event Timing, so there is nothing to measure there.
+const supported = PerformanceObserver.supportedEntryTypes.includes('event');
 const timings: PerformanceEventTiming[] = [];
-new PerformanceObserver((list) => timings.push(...(list.getEntries() as PerformanceEventTiming[]))).observe({ type: 'event', durationThreshold: 16 } as PerformanceObserverInit);
+if (supported) new PerformanceObserver((list) => timings.push(...(list.getEntries() as PerformanceEventTiming[]))).observe({ type: 'event', durationThreshold: 16 } as PerformanceObserverInit);
 // Event Timing entries arrive after the paint they wait for.
 const settle = () => new Promise((r) => setTimeout(r, 300));
 const story = (component: string, name = 'Playground') => stories.find(([n]) => n === component)![1].find(([n]) => n === name)![1];
@@ -26,14 +29,13 @@ const INTERACTIONS: Array<[string, string, () => Promise<void>]> = [
 
 describe('interaction to next paint', () => {
   for (const [component, what, act] of INTERACTIONS) {
-    test(`${component}: ${what} answers within ${BUDGET} ms`, async () => {
+    test.runIf(supported)(`${component}: ${what} answers within ${BUDGET} ms`, async () => {
       const r = await render(story(component));
       await settle();
       timings.length = 0;
       await act();
       await settle();
       const slow = timings.filter((t) => t.interactionId && t.duration > BUDGET).map((t) => `${t.name}: ${t.duration} ms`);
-      expect(timings.some((t) => t.interactionId)).toBe(true);
       expect(slow).toEqual([]);
       await r.unmount();
     });
