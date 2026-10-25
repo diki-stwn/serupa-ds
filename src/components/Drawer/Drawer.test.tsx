@@ -14,6 +14,8 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const drw = () => el('drw') as HTMLDialogElement;
 const panel = (id = 'drw') => el(id).querySelector('.dk-drawer__panel') as HTMLElement;
 const isOpen = () => drw().open;
+// The title is the element that names the dialog (aria-labelledby).
+const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 const box = () => { const r = panel().getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); };
 // The panel slides in: read positions once every finite animation has ended (headless WebKit can start it late).
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
@@ -258,7 +260,7 @@ describe('Drawer', () => {
     const asks: boolean[] = [], why: string[] = [];
     await render(<App asks={asks} why={why} ctl={{}} />);
     await openDrw();
-    const title = el('drw').querySelector('.dk-drawer__title') as HTMLElement;
+    const title = titleOf('drw');
     await userEvent.click(title);
     expect(isOpen()).toBe(true);
     // The press goes down on the title and up on the backdrop, which the browser reports as a click on the <dialog>.
@@ -335,7 +337,7 @@ describe('Drawer', () => {
     const ctl: Partial<Ctl> = {};
     await render(<App asks={[]} ctl={ctl} />);
     await reopen(ctl, () => {});
-    const s = getComputedStyle(panel()), ti = getComputedStyle(el('drw').querySelector('.dk-drawer__title')!);
+    const s = getComputedStyle(panel()), ti = getComputedStyle(titleOf('drw'));
     expect([s.paddingTop, s.rowGap, ti.fontSize, ti.fontWeight, withMotion(() => getComputedStyle(panel()).animationDuration)]).toEqual(['24px', '16px', '18px', '600', '0.3s']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
