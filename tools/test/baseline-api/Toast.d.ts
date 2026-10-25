@@ -1,4 +1,4 @@
-// exports: toast, Toaster, type ToasterPosition, type ToasterProps, type ToastOptions, type ToastTone
+// exports: toast, Toaster, type ToasterPosition, type ToasterProps, type ToastOptions, type ToastPromiseMessages, type ToastTone
 interface ToastLabels {
     notifications: string;
     toastShortcut: (key: string) => string;
@@ -21,8 +21,16 @@ interface ToastOptions {
 }
 declare function show(options: string | ToastOptions): string;
 declare function dismiss(id?: string): void;
+type Message<A> = ((arg: A) => string | ToastOptions) | string | ToastOptions;
+interface ToastPromiseMessages<T> {
+    loading: string | ToastOptions;
+    success: Message<T>;
+    error: Message<unknown>;
+}
+declare function promise<T>(work: (() => Promise<T>) | Promise<T>, messages: ToastPromiseMessages<T>): Promise<T>;
 declare const toast: typeof show & {
     dismiss: typeof dismiss;
+    promise: typeof promise;
 };
 interface ToasterProps extends React.HTMLAttributes<HTMLElement> {
     position?: ToasterPosition;
