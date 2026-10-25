@@ -182,6 +182,8 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     if (c) commit(shown, c);
   };
 
+  // The 244 options as elements made once per list, so typing (a render per key) doesn't rebuild and compare them all.
+  const options = React.useMemo(() => list.map(({ c, name }) => <option key={c.code} value={c.code}>{name + " (+" + c.dial + ")"}</option>), [list]);
   return (
     <span className={cn("dk-input dk-phone-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
       style={props.style} data-component="phone-input" data-size={size}>
@@ -190,7 +192,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
         <Icon icon={icons.ExpandMore} className="dk-phone-input__chevron" />
         <select className="dk-phone-input__select" value={country.code} onChange={onCountry} disabled={rest.disabled || rest.readOnly}
           aria-label={props.countryLabel || sds.labels.country}>
-          {list.map(({ c, name }) => <option key={c.code} value={c.code}>{name + " (+" + c.dial + ")"}</option>)}
+          {options}
         </select>
       </span>
       <input autoComplete="tel-national" {...rest} ref={setRef} type="tel" inputMode="tel" className="dk-input__field" value={text} onChange={onChange} onKeyDown={onKeyDown} />
