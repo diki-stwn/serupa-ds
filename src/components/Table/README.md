@@ -47,7 +47,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.
 - Use `size="sm"` for dense data, and `striped` when long rows are hard to follow across.
-- With `stickyHeader`, give the frame a height through `containerProps`.
+- With `stickyHeader`, give the frame a height through `containerProps`. The frame measures the header and keeps that much scroll padding at the top, so a focused link or button in a row scrolls into view below the header, not under it (WCAG 2.4.11).
 
 ## Accessibility
 

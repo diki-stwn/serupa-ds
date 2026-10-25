@@ -131,6 +131,19 @@ describe('PasswordInput', () => {
     expect(hint('nocl')).toBe(null);
   });
 
+  test('showing and hiding keeps the caret and the selection where they were, so typing goes on there (BW1)', async () => {
+    await render(<PasswordInput id="pcar" aria-label="Password" />);
+    await userEvent.click(field('pcar'));
+    await userEvent.keyboard('secret{ArrowLeft}{ArrowLeft}');
+    await userEvent.click(toggle('pcar'));
+    await userEvent.keyboard('X');
+    expect([field('pcar').type, field('pcar').value]).toEqual(['text', 'secrXet']);
+    field('pcar').setSelectionRange(1, 4, 'backward');
+    await userEvent.click(toggle('pcar'));
+    const f = field('pcar');
+    expect([f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
+  });
+
   test('pasting works: nothing blocks it, so a password manager or a pasted password fills the field (WCAG 3.3.8)', async () => {
     await render(<PasswordInput id="pp" aria-label="Password" />);
     field('pp').focus();

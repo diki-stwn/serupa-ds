@@ -78,6 +78,17 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
     check();
     return () => ro.disconnect();
   }, []);
+  // A sticky header covers the top of the frame: measure it, so focus scrolls in below it (the CSS reads --dk-table-head).
+  const sticky = !!props.stickyHeader;
+  React.useEffect(() => {
+    const el = frame.current, head = el && el.querySelector<HTMLElement>(".dk-table__head");
+    if (!el || !sticky || !head || typeof ResizeObserver === "undefined") return;
+    const set = () => el.style.setProperty("--dk-table-head", head.getBoundingClientRect().height + "px");
+    const ro = new ResizeObserver(set);
+    ro.observe(head);
+    set();
+    return () => { ro.disconnect(); el.style.removeProperty("--dk-table-head"); };
+  }, [sticky]);
   // A name on the frame belongs to its region role: a plain div that doesn't scroll can't carry one (axe aria-prohibited-attr).
   const { "aria-label": frameLabel, "aria-labelledby": frameLabelledBy, ...cp } = props.containerProps || {};
   const hasCaption = props.caption != null && props.caption !== false && props.caption !== "";
