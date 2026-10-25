@@ -47,7 +47,7 @@ Use `mod` for shortcuts that follow the platform. Any other text shows as it is,
 
 ## Behavior
 
-- The platform is read in the browser after the page loads, so server-rendered pages show the words first.
+- Inside a `SerupaProvider` with `platform` set (`"apple"` or `"other"`, worked out on the server from the User-Agent or `Sec-CH-UA-Platform`), the right keys show from the first render, the server's too. Without it, the platform is read in the browser after the page loads, so server-rendered pages show the words first.
 - It sits with the text, so it can go inline in a sentence.
 
 ## Accessibility

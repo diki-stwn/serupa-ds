@@ -13,6 +13,10 @@ export interface SerupaProviderProps {
   labels?: Partial<SerupaLabels>;
   /** Icons that work by name inside this provider, in the shape registerIcons takes: one icon, or a module of them. */
   icons?: Array<IconData | Readonly<Record<string, IconData>>> | IconData | Readonly<Record<string, IconData>>;
+  /** The device's platform, for Kbd's key names (⌘ or Ctrl): 'apple' or 'other'. Set it from the request (the
+   *  User-Agent or Sec-CH-UA-Platform header) so the server writes the right keys and nothing changes on hydration.
+   *  Default: found on the device after it mounts. */
+  platform?: 'apple' | 'other';
   children?: React.ReactNode;
 }
 
@@ -21,9 +25,10 @@ export interface SerupaSettings {
   locale: string | undefined;
   labels: SerupaLabels;
   icons: ReadonlyMap<string, IconData>;
+  platform: 'apple' | 'other' | undefined;
 }
 
-const NONE: SerupaSettings = { locale: undefined, labels: DEFAULT_LABELS, icons: new Map() };
+const NONE: SerupaSettings = { locale: undefined, labels: DEFAULT_LABELS, icons: new Map(), platform: undefined };
 const Context = React.createContext<SerupaSettings>(NONE);
 
 /* SerupaProvider: settings for every component inside it (ADR-0010), as React context rather than module state, so
@@ -32,7 +37,7 @@ const Context = React.createContext<SerupaSettings>(NONE);
 /** Locale, built-in words and extra icons for every component inside it. A component's own prop still wins. */
 export function SerupaProvider(props: SerupaProviderProps): React.ReactElement {
   const outer = React.useContext(Context);
-  const { locale, labels, icons } = props;
+  const { locale, labels, icons, platform } = props;
   const value = React.useMemo<SerupaSettings>(() => {
     const merged: SerupaLabels = { ...outer.labels };
     if (labels) for (const k of Object.keys(labels) as (keyof SerupaLabels)[]) {
@@ -48,8 +53,8 @@ export function SerupaProvider(props: SerupaProviderProps): React.ReactElement {
       }
       map = m;
     }
-    return { locale: locale || outer.locale, labels: merged, icons: map };
-  }, [outer, locale, labels, icons]);
+    return { locale: locale || outer.locale, labels: merged, icons: map, platform: platform === "apple" || platform === "other" ? platform : outer.platform };
+  }, [outer, locale, labels, icons, platform]);
   return <Context.Provider value={value}>{props.children}</Context.Provider>;
 }
 SerupaProvider.displayName = "SerupaProvider";

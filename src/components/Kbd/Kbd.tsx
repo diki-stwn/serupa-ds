@@ -52,9 +52,12 @@ function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string)
 /** A keyboard key or shortcut, drawn as keycaps; "mod" follows the platform (⌘ or Ctrl). */
 export const Kbd = /* @__PURE__ */ component<HTMLElement, KbdProps>("Kbd", function Kbd(props, ref) {
   const rest = omit(props, { keys: 1, size: 1, className: 1, children: 1 } as const);
-  const say = useSerupa().labels.keyName;
-  const [apple, setApple] = React.useState(false);   // false on the server; the device decides after mount
-  React.useEffect(() => { setApple(isApple()); }, []);
+  const sds = useSerupa(), say = sds.labels.keyName;
+  // A SerupaProvider's platform decides from the first render (the server's too); without one, Ctrl on the server
+  // and the device decides after mount.
+  const [found, setFound] = React.useState(false);
+  React.useEffect(() => { if (!sds.platform) setFound(isApple()); }, [sds.platform]);
+  const apple = sds.platform ? sds.platform === "apple" : found;
   const size = props.size === "sm" ? "sm" : "md";
   const keys = props.keys && props.keys.length ? props.keys : typeof props.children === "string" ? [props.children] : null;
   const cls = cn("dk-kbd", "dk-kbd--size-" + size, props.className);
