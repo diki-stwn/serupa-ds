@@ -61,6 +61,46 @@
             "cssVar": "--slider-invalid"
           }
         }
+      },
+      "mark": {
+        "$type": "color",
+        "$value": "{color.field}",
+        "$description": "The marks' ticks, cut into the track.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--slider-mark"
+          }
+        }
+      },
+      "mark-label": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The marks' text under the track (4.5:1 on the surface).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--slider-mark-label"
+          }
+        }
+      },
+      "value-bg": {
+        "$type": "color",
+        "$value": "{color.surface-inverse}",
+        "$description": "showValue's chip over the thumb.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--slider-value-bg"
+          }
+        }
+      },
+      "value-text": {
+        "$type": "color",
+        "$value": "{color.text-inverse}",
+        "$description": "showValue's text (4.5:1 on value-bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--slider-value-text"
+          }
+        }
       }
     },
     "sizing": {

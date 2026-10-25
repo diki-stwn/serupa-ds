@@ -1,7 +1,9 @@
 /* ---------------------------------------------------------------
    Slider: a rounded track (field-border, 3:1 on the surface) with the selected part in primary, and one or two
    round thumbs (field inside, a 2px primary ring, shadow-sm) centered on their values. sm: 4px track, 16px
-   thumb; md: 6px, 20px. The whole thumb-high strip takes presses. Invalid: the fill and ring turn danger. Read-only: no grab cursor, and presses and keys do nothing. Disabled: faded.
+   thumb; md: 6px, 20px. The whole thumb-high strip takes presses. marks: 2px ticks cut into the track (none at its ends), and
+   muted text-xs labels under it, centered on their values, with room made below. showValue: the value in a small inverse
+   chip over the thumb while it's focused, hovered or dragged. Invalid: the fill and ring turn danger. Read-only: no grab cursor, and presses and keys do nothing. Disabled: faded.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-slider {
@@ -28,17 +30,44 @@
 .dk-slider__thumb:focus { outline: none; }
 .dk-slider__thumb:focus-visible { outline: var(--focus-ring-width) solid var(--slider-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-slider:not(.dk-slider--disabled, .dk-slider--readonly) .dk-slider__thumb:active { cursor: grabbing; scale: var(--scale-110); }
+.dk-slider--mark-labels {
+  --dk-slider-labels: calc(var(--spacing-1) + var(--text-xs--line-height));
+  height: calc(var(--dk-slider-thumb) + var(--dk-slider-labels)); padding-block-end: var(--dk-slider-labels);
+}
+/* Each mark is a zero-wide point on the track; its tick and label center on it in either direction. */
+.dk-slider__mark { position: absolute; inset-block: var(--spacing-0); inline-size: var(--spacing-0); display: flex; justify-content: center; }
+.dk-slider__tick { flex: none; inline-size: var(--border-width-2); background: var(--slider-mark, var(--field)); }
+.dk-slider__mark-label {
+  --dk-slider-under: calc(var(--sizing-full) + var(--dk-slider-half) - var(--dk-slider-track) / 2 + var(--spacing-1));
+  position: absolute; inset-block-start: var(--dk-slider-under);
+  inset-inline: var(--spacing-0); display: flex; justify-content: center; white-space: nowrap;
+  color: var(--slider-mark-label, var(--text-muted)); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height);
+}
+.dk-slider__value {
+  position: absolute; inset-block-end: calc(var(--sizing-full) + var(--spacing-1\.5)); inset-inline: var(--spacing-0);
+  display: flex; justify-content: center; pointer-events: none; opacity: var(--opacity-0);
+  transition: opacity var(--duration-150) var(--ease-out);
+}
+.dk-slider__value > span {
+  flex: none; white-space: nowrap; padding: var(--spacing-0\.5) var(--spacing-1\.5); border-radius: var(--rounded-md);
+  background: var(--slider-value-bg, var(--surface-inverse)); color: var(--slider-value-text, var(--text-inverse));
+  font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium);
+}
+.dk-slider:not(.dk-slider--disabled) .dk-slider__thumb:focus > .dk-slider__value { opacity: var(--opacity-100); }
+@media (hover: hover) { .dk-slider:not(.dk-slider--disabled) .dk-slider__thumb:hover > .dk-slider__value { opacity: var(--opacity-100); } }
 .dk-slider--invalid .dk-slider__fill { background: var(--slider-invalid, var(--danger)); }
 .dk-slider--invalid .dk-slider__thumb { border-color: var(--slider-invalid, var(--danger)); }
 .dk-slider--readonly, .dk-slider--readonly .dk-slider__thumb { cursor: default; }
 .dk-slider--disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-slider--disabled .dk-slider__thumb { cursor: not-allowed; }
-@media (prefers-reduced-motion: reduce) { .dk-slider__thumb { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-slider__thumb, .dk-slider__value { transition: none; } }
 @media (forced-colors: active) {
   .dk-slider__track { background: CanvasText; }
   .dk-slider__fill { background: Highlight; }
   .dk-slider__thumb { border-color: Highlight; background: Canvas; }
   .dk-slider__thumb:focus-visible { outline-color: Highlight; }
+  .dk-slider__tick { background: Canvas; }
+  .dk-slider__value > span { border: var(--border-width-1) solid CanvasText; }
 }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when the slider is shorter or narrower, a box behind
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
