@@ -62,6 +62,7 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const child = React.Children.only(props.children) as React.ReactElement<TriggerProps>;
   const cp = child.props;
   const delay = props.delay == null ? 400 : props.delay;
+  const touch = (e: React.SyntheticEvent) => "pointerType" in e && e.pointerType === "touch";
   const chain = (name: keyof TriggerProps, fn: Handler): Handler => (e) => { const own: unknown = cp[name]; if (typeof own === "function") (own as Handler)(e); fn(e); };
   const childRef = elementRef<HTMLElement>(child);
   const aria = props.role === "label" ? "aria-labelledby" : "aria-describedby";
@@ -71,8 +72,8 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     [aria]: merged,
     // Pointer events, not mouse events: a tap sends a mouseenter after its pointerdown and never a mouseleave, so the
     // tooltip opened 400ms after a tap and stayed. A touch pointer doesn't hover; focus still shows it from the keyboard.
-    onPointerEnter: chain("onPointerEnter", (e) => { if ((e as unknown as React.PointerEvent).pointerType !== "touch") later(true, delay); }),
-    onPointerLeave: chain("onPointerLeave", (e) => { if ((e as unknown as React.PointerEvent).pointerType !== "touch") later(false, 100); }),
+    onPointerEnter: chain("onPointerEnter", (e) => { if (!touch(e)) later(true, delay); }),
+    onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) later(false, 100); }),
     onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (!t.matches || t.matches(":focus-visible")) set(true); }),
     onBlur: chain("onBlur", () => set(false)),
     onPointerDown: chain("onPointerDown", () => set(false)),
