@@ -9,7 +9,7 @@ import { useFieldControl } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
 import { formatNumber, parseNumber } from "../../internal/numbers";
 import { gridPlaces, roundTo } from "../../internal/step";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import { minorDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
@@ -61,7 +61,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
   // Without a locale from the prop or a provider: en-US on the server and while hydrating, then the browser's.
-  const locale = useLocale(props.locale);
+  const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const formatOptions: Intl.NumberFormatOptions | undefined = props.currency ? { style: "currency", currency: props.currency, ...props.formatOptions } : props.formatOptions;
   // With minorUnits, the props are whole cents (1999) and the field works in the currency's units (19.99).
   const factor = props.minorUnits && formatOptions?.style === "currency" && formatOptions.currency ? 10 ** minorDigits(formatOptions.currency) : 1;
@@ -172,7 +172,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       style={props.style} data-component="number-input" data-size={size}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       <input {...rest} ref={(n) => { el.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-        type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
+        lang={rest.lang ?? lang} type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
         role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}
         onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={rest.onFocus} />

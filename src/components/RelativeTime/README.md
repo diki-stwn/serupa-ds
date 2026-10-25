@@ -49,8 +49,7 @@ import { RelativeTime } from "serupa-ds";
 | `format` | `'long' \| 'short' \| 'narrow'` | `'long'` | "3 minutes ago", "3 min. ago", "3m ago". |
 | `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". |
 | `titleFormat` | `Intl.DateTimeFormatOptions \| false` | `{ dateStyle: 'long', timeStyle: 'short' }` | The tooltip's date; `false` leaves it out. Your own `title` wins. |
-| `locale` | `string` | the provider's, else the browser's | |
-
+| `locale` | `string` | the provider's, else the browser's | When it differs from the provider's, the element carries `lang`, so screen readers read the words in that language. |
 Every other prop, `className` and `ref` go to the `<time>`, which has `data-component="relative-time"`.
 
 ## Component tokens
