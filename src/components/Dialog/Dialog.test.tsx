@@ -131,6 +131,26 @@ describe('Dialog', () => {
     expect(isOpen('dlg')).toBe(true);
   });
 
+  test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves, tell onOpenChange(false), and it stays closed', async () => {
+    const asks: boolean[] = [];
+    const one = (k: string) => <Dialog key={k} id="dd" defaultOpen onOpenChange={(v) => asks.push(v)} title="Welcome"><Input aria-label="Name" /></Dialog>;
+    const screen = await render(one('a'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    expect(dlg('dd').matches(':modal')).toBe(true);
+    await userEvent.click(el('dd').querySelector('button[aria-label="Close"]')!);
+    await expect.poll(() => isOpen('dd')).toBe(false);
+    await screen.rerender(one('b'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('dd')).toBe(false);
+    await screen.rerender(one('c'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    dlg('dd').close();
+    await expect.poll(() => asks.join()).toBe('false,false,false');
+    await new Promise((r) => setTimeout(r, 50));
+    expect([isOpen('dd'), getComputedStyle(el('dd')).display]).toEqual([false, 'none']);
+  });
+
   test('lg: 672px; on a small screen it keeps 16px from each edge and fits the height', async () => {
     const ctl: Partial<Ctl> = {};
     await render(<App asks={[]} ctl={ctl} />);
