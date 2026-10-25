@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { config } from "../../internal/config";
 import { Icon } from "../Icon/Icon";
 import { NewTabNote } from "./NewTabNote";
 import { component } from "../../internal/component";
@@ -13,7 +14,7 @@ export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>
   underline?: 'always' | 'hover';
   /** Opens in a new tab (target="_blank", rel="noopener noreferrer"), with a new-tab icon and "(opens in a new tab)" for screen readers (the opensInNewTab label). Default: false. */
   external?: boolean;
-  /** What renders the link: 'a' (default), or your router's link component (it gets href, className and the rest). */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a' (it gets href, className and the rest). */
   as?: React.ElementType;
 }
 
@@ -37,6 +38,6 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
     <NewTabNote />
   </> : null}</>;
   // React only autofocuses form controls: with autoFocus, a small client component focuses the link once it's mounted.
-  if (props.autoFocus) return <AutoFocusLink as={props.as || "a"} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;
-  return React.createElement(props.as || "a", Object.assign(attrs, { ref: ref }), children);
+  if (props.autoFocus) return <AutoFocusLink as={props.as || config.link} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;
+  return React.createElement(props.as || config.link, Object.assign(attrs, { ref: ref }), children);
 });

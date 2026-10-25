@@ -30,7 +30,7 @@ const { Link, Text } = window.Serupa;
 
 - Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link.
 - Use `tone="neutral"` in muted small print, such as terms under a form, so the link takes the text's color.
-- With a router, pass its link component in `as` so client-side navigation keeps working.
+- With a router, register its link component once with `configure({ link })`, or pass it in `as`, so client-side navigation keeps working.
 - Check any `href` that comes from people, such as a profile's website: allow only `https:`, `http:`, `mailto:` or your own paths. React still renders a `javascript:` link, which runs code when clicked.
 
 ## Accessibility
@@ -50,7 +50,7 @@ const { Link, Text } = window.Serupa;
 | `tone` | `'primary'` \| `'neutral'` | `'primary'` | The primary color, or the surrounding text's color (still underlined) |
 | `underline` | `'always'` \| `'hover'` | `'always'` | Always underlined, or only on hover and focus |
 | `external` | boolean | `false` | Opens a new tab (`target="_blank"`, adds `noopener noreferrer` to your `rel`), with a new-tab icon and "(opens in a new tab)" for screen readers |
-| `as` | a component | `'a'` | Your router's link component; it gets `className`, `ref` and every other prop |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; it gets `className`, `ref` and every other prop. Set it once for the app with `configure({ link })`; `as` wins for one link. |
 
 `className`, `style`, `ref`, `target`, `rel` and everything else go to the element, which has `data-component="link"`. It has no font size of its own: it takes the text around it.
 

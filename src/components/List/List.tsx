@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
+import { config } from "../../internal/config";
 import { type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
@@ -29,7 +30,7 @@ export interface ListItemProps extends Omit<React.LiHTMLAttributes<HTMLLIElement
   href?: string;
   /** Makes the item's main area a button (when there's no href). */
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-  /** What renders the link: 'a' (default), or your router's link component. Its props go in linkProps. */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. Its props go in linkProps. */
   as?: React.ElementType;
   /** Extra props for the link or button (to for a router link, target, aria-*). */
   linkProps?: Record<string, unknown>;
@@ -69,7 +70,7 @@ export const ListItem = /* @__PURE__ */ component<HTMLLIElement, ListItemProps>(
     const attrs: Record<string, unknown> = Object.assign(lp, { className: cn("dk-list__main", lp.className), "aria-current": props.selected ? "true" : undefined });
     if (props.disabled) { attrs["aria-disabled"] = true; attrs.tabIndex = -1; attrs.onClick = (e: React.MouseEvent) => e.preventDefault(); }
     else { attrs.href = props.href; if (props.onClick) attrs.onClick = props.onClick; }
-    main = React.createElement(props.as || "a", attrs, body);
+    main = React.createElement(props.as || config.link, attrs, body);
   } else if (props.onClick) {
     main = <button type="button" {...lp} className={cn("dk-list__main", lp.className)} onClick={props.onClick} disabled={props.disabled} aria-pressed={props.selected === undefined ? undefined : !!props.selected}>{body}</button>;
   } else {
