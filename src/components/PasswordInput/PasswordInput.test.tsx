@@ -5,6 +5,13 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { PasswordInput } from './PasswordInput';
 
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
+
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const toggle = (id: string) => field(id).nextElementSibling as HTMLButtonElement;
@@ -152,5 +159,14 @@ describe('PasswordInput', () => {
     const ev = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
     field('pp').dispatchEvent(ev);
     expect(ev.defaultPrevented).toBe(false);
+  });
+  test('size sm: show/hide is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><PasswordInput id="hb" aria-label="Password" size="sm" /></div>);
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-password-input__toggle')!];
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);
+      expect(reach(b)).toEqual([true, true, true, true]);
+    }
   });
 });
