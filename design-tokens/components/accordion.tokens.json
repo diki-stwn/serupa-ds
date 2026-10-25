@@ -61,6 +61,16 @@
             "cssVar": "--accordion-focus-ring"
           }
         }
+      },
+      "trigger-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A title's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--accordion-trigger-bg-pressed"
+          }
+        }
       }
     },
     "typography": {

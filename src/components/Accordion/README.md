@@ -97,6 +97,7 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-title-color` | `text` | An item's title. |
 | `--accordion-content-color` | `text-muted` | An item's content (4.5:1 on surface). |
 | `--accordion-icon-color` | `text-muted` | The chevron. |
+| `--accordion-trigger-bg-pressed` | `pressed` | A title's fill while it's held down. |
 | `--accordion-bg` | `surface` | The background of variant="card". |
 | `--accordion-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--accordion-title-size` | `text-sm` | Title text (14px). |
