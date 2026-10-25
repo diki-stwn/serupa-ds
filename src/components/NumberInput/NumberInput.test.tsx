@@ -124,6 +124,26 @@ describe('NumberInput', () => {
     expect([typed, over, calls.join(), field('nctl').value]).toEqual(['3', '3', '3,4', '4']);
   });
 
+  test('controlled, and the parent keeps its value: + and ArrowUp ask for 6 but the field still shows 5', async () => {
+    const calls: Array<number | null> = [];
+    await render(<NumberInput id="nkeep" aria-label="Seats" value={5} onValueChange={(n) => calls.push(n)} />);
+    await userEvent.click(plus('nkeep'));
+    await expect.poll(() => field('nkeep').value).toBe('5');
+    await userEvent.keyboard('{ArrowUp}');
+    await expect.poll(() => field('nkeep').value).toBe('5');
+    expect([calls.join(), field('nkeep').getAttribute('aria-valuenow')]).toEqual(['6,6', '5']);
+  });
+
+  test('controlled, and the parent keeps its value: what was typed stays while typing, and blur puts the value back', async () => {
+    const calls: Array<number | null> = [];
+    await render(<NumberInput id="nkept" aria-label="Seats" value={5} onValueChange={(n) => calls.push(n)} />);
+    await fill('nkept', '8');
+    const typed = field('nkept').value;
+    await blur('nkept');
+    await expect.poll(() => field('nkept').value).toBe('5');
+    expect([typed, calls[0]]).toEqual(['8', 8]);
+  });
+
   test('step 0.25: ArrowUp 1.5 → 1.75, and 2.333 rounds to 2 decimals (2.33); decimal keyboard', async () => {
     await render(<NumberInput id="dec" aria-label="Price" defaultValue={1.5} step={0.25} />);
     field('dec').focus();
