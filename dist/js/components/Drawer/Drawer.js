@@ -1,0 +1,121 @@
+"use client";
+
+// src/components/Drawer/Drawer.tsx
+import * as React from "react";
+import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn.js";
+import { IconButton } from "../IconButton/IconButton.js";
+import { component } from "../../internal/component.js";
+import { useSerupa } from "../../internal/provider.js";
+import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers.js";
+import * as icons from "../../material/builtin.js";
+import { useScrolls } from "../../internal/useScrolls.js";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck.js";
+var OWN = { open: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, className: 1, children: 1 };
+var Drawer = /* @__PURE__ */ component("Drawer", function Drawer2(props, ref) {
+  const nameRef = useNameCheck("Drawer", NAME_HOW.title);
+  const sds = useSerupa();
+  const rest = omit(props, OWN);
+  const base = domId("dk-drw", React.useId());
+  const el = React.useRef(null);
+  const back = React.useRef(null);
+  const side = oneOf(["right", "left", "top", "bottom"], props.side, "right");
+  const size = oneOf(["sm", "md", "lg"], props.size, "md");
+  const showClose = props.closeButton !== false;
+  const backdrop = props.closeOnBackdrop !== false;
+  const ask = React.useRef(props.onOpenChange);
+  ask.current = props.onOpenChange;
+  const close = React.useCallback(() => {
+    if (ask.current) ask.current(false);
+  }, []);
+  const has = (n) => n != null && n !== false && n !== "";
+  const [reopened, reopen] = React.useState(0);
+  useIsoLayoutEffect(() => {
+    const d = el.current;
+    if (!d) return;
+    if (props.open && !d.open) {
+      if (!back.current) back.current = document.activeElement;
+      modalOpening();
+      if (typeof d.showModal === "function") d.showModal();
+      else d.setAttribute("open", "");
+      modalOpened(d);
+      const own = d.querySelector("[data-autofocus], [autofocus]");
+      if (own && typeof own.focus === "function") own.focus();
+    } else if (props.open) {
+      modalOpened(d);
+    } else {
+      if (d.open) {
+        if (typeof d.close === "function") d.close();
+        else d.removeAttribute("open");
+      }
+      modalClosed(d);
+      const b = back.current;
+      back.current = null;
+      if (b && b.isConnected && typeof b.focus === "function") b.focus();
+    }
+  }, [props.open, reopened]);
+  React.useEffect(() => {
+    const d = el.current;
+    return () => {
+      if (d) modalClosed(d);
+      const b = back.current;
+      if (b && b.isConnected) b.focus();
+    };
+  }, []);
+  const onCancel = (e) => {
+    if (rest.onCancel) rest.onCancel(e);
+    if (e.target !== e.currentTarget) return;
+    e.preventDefault();
+    close();
+  };
+  const openNow = React.useRef(props.open);
+  openNow.current = props.open;
+  const onClose = (e) => {
+    if (rest.onClose) rest.onClose(e);
+    if (e.target !== e.currentTarget) return;
+    if (!e.currentTarget.open) modalClosed(e.currentTarget);
+    if (!openNow.current || e.currentTarget.open) return;
+    close();
+    reopen((n) => n + 1);
+  };
+  const downOnBackdrop = React.useRef(false);
+  const onPointerDown = (e) => {
+    if (rest.onPointerDown) rest.onPointerDown(e);
+    downOnBackdrop.current = e.target === e.currentTarget && !wasDismissal(e.nativeEvent);
+  };
+  const onClick = (e) => {
+    if (rest.onClick) rest.onClick(e);
+    if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close();
+    downOnBackdrop.current = false;
+  };
+  const [body, setBody] = React.useState(null);
+  const scrolls = useScrolls(body);
+  const named = rest["aria-labelledby"] || (has(props.title) ? base + "-title" : void 0);
+  const region = !scrolls ? {} : named ? { tabIndex: 0, role: "region", "aria-labelledby": named } : rest["aria-label"] ? { tabIndex: 0, role: "region", "aria-label": rest["aria-label"] } : { tabIndex: 0 };
+  return /* @__PURE__ */ React.createElement(
+    "dialog",
+    {
+      ...rest,
+      ref: (n) => {
+        el.current = n;
+        nameRef(n);
+        setRef(ref, n);
+      },
+      "aria-modal": "true",
+      "aria-labelledby": rest["aria-labelledby"] || (has(props.title) ? base + "-title" : void 0),
+      "aria-describedby": rest["aria-describedby"] || (has(props.description) ? base + "-desc" : void 0),
+      className: cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, props.className),
+      "data-component": "drawer",
+      "data-side": side,
+      "data-size": size,
+      onCancel,
+      onClose,
+      onPointerDown,
+      onClick
+    },
+    /* @__PURE__ */ React.createElement("div", { className: "dk-drawer__panel" }, has(props.title) || has(props.description) || showClose ? /* @__PURE__ */ React.createElement("div", { className: "dk-drawer__header" }, /* @__PURE__ */ React.createElement("div", { className: "dk-drawer__heading" }, has(props.title) ? /* @__PURE__ */ React.createElement("h2", { className: "dk-drawer__title", id: base + "-title" }, props.title) : null, has(props.description) ? /* @__PURE__ */ React.createElement("p", { className: "dk-drawer__description", id: base + "-desc" }, props.description) : null), showClose ? /* @__PURE__ */ React.createElement(IconButton, { className: "dk-drawer__close", icon: icons.Close, label: props.closeLabel || sds.labels.close, size: "sm", noTitle: true, onClick: close }) : null) : null, has(props.children) ? /* @__PURE__ */ React.createElement("div", { ...region, ref: setBody, className: "dk-drawer__body" }, props.children) : null, has(props.footer) ? /* @__PURE__ */ React.createElement("div", { className: "dk-drawer__footer" }, props.footer) : null)
+  );
+});
+export {
+  Drawer
+};
+//# sourceMappingURL=Drawer.js.map

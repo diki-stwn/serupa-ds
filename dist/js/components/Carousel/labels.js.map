@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Carousel/labels.ts"],
+  "sourcesContent": ["// Carousel's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface CarouselLabels {\n  /** Carousel arrows. */\n  previousSlide: string;\n  nextSlide: string;\n  /** Carousel: each slide's name, and its dot's (\"2 of 5\"). */\n  slideOf: (slide: number, total: number) => string;\n  /** What a screen reader calls the carousel and each slide (aria-roledescription). */\n  carouselRole: string;\n  slideRole: string;\n}\nexport const en: CarouselLabels = {\n  previousSlide: \"Previous slide\",\n  nextSlide: \"Next slide\",\n  slideOf: (slide, total) => slide + \" of \" + total,\n  carouselRole: \"carousel\",\n  slideRole: \"slide\",\n};\nexport const id: CarouselLabels = {\n  previousSlide: \"Slide sebelumnya\",\n  nextSlide: \"Slide berikutnya\",\n  slideOf: (slide, total) => slide + \" dari \" + total,\n  carouselRole: \"korsel\",\n  slideRole: \"slide\",\n};\n"],
+  "mappings": ";AAYO,IAAM,KAAqB;AAAA,EAChC,eAAe;AAAA,EACf,WAAW;AAAA,EACX,SAAS,CAAC,OAAO,UAAU,QAAQ,SAAS;AAAA,EAC5C,cAAc;AAAA,EACd,WAAW;AACb;AACO,IAAM,KAAqB;AAAA,EAChC,eAAe;AAAA,EACf,WAAW;AAAA,EACX,SAAS,CAAC,OAAO,UAAU,QAAQ,WAAW;AAAA,EAC9C,cAAc;AAAA,EACd,WAAW;AACb;",
+  "names": []
+}

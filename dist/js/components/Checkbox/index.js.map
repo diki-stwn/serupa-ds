@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Checkbox/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Checkbox, CheckboxGroup } from \"./Checkbox\";\nexport type { CheckboxProps, CheckboxGroupProps } from \"./Checkbox\";\n"],
+  "mappings": ";AACA,SAAS,UAAU,qBAAqB;",
+  "names": []
+}

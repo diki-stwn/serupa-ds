@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/NumberInput/labels.ts"],
+  "sourcesContent": ["// NumberInput's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface NumberInputLabels {\n  /** NumberInput step buttons. */\n  decrease: string;\n  increase: string;\n}\nexport const en: NumberInputLabels = {\n  decrease: \"Decrease\",\n  increase: \"Increase\",\n};\nexport const id: NumberInputLabels = {\n  decrease: \"Kurangi\",\n  increase: \"Tambah\",\n};\n"],
+  "mappings": ";AAOO,IAAM,KAAwB;AAAA,EACnC,UAAU;AAAA,EACV,UAAU;AACZ;AACO,IAAM,KAAwB;AAAA,EACnC,UAAU;AAAA,EACV,UAAU;AACZ;",
+  "names": []
+}

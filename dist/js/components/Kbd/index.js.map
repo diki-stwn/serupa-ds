@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Kbd/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Kbd } from \"./Kbd\";\nexport type { KbdProps } from \"./Kbd\";\n"],
+  "mappings": ";AACA,SAAS,WAAW;",
+  "names": []
+}

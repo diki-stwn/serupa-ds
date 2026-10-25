@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/ErrorBoundary/labels.ts"],
+  "sourcesContent": ["// ErrorBoundary's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface ErrorBoundaryLabels {\n  /** ErrorBoundary: the default fallback's title, its message and its retry button. */\n  errorTitle: string;\n  errorDescription: string;\n  tryAgain: string;\n}\nexport const en: ErrorBoundaryLabels = {\n  errorTitle: \"Something went wrong\",\n  errorDescription: \"This part of the page couldn't load.\",\n  tryAgain: \"Try again\",\n};\nexport const id: ErrorBoundaryLabels = {\n  errorTitle: \"Terjadi kesalahan\",\n  errorDescription: \"Bagian halaman ini tidak dapat dimuat.\",\n  tryAgain: \"Coba lagi\",\n};\n"],
+  "mappings": ";AAQO,IAAM,KAA0B;AAAA,EACrC,YAAY;AAAA,EACZ,kBAAkB;AAAA,EAClB,UAAU;AACZ;AACO,IAAM,KAA0B;AAAA,EACrC,YAAY;AAAA,EACZ,kBAAkB;AAAA,EAClB,UAAU;AACZ;",
+  "names": []
+}
