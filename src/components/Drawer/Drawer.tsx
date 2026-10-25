@@ -7,6 +7,7 @@ import { useSerupa } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -39,6 +40,7 @@ const OWN = { open: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description:
    (onOpenChange(false)), and focus goes back where it was. */
 /** A modal panel that slides in from an edge: navigation, filters, details. */
 export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>("Drawer", function Drawer(props, ref) {
+  const nameRef = useNameCheck("Drawer", NAME_HOW.title);   // warns when it has no accessible name
   const sds = useSerupa();
   const rest = omit(props, OWN);
   const base = domId("dk-drw", React.useId());
@@ -106,7 +108,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const region = !scrolls ? {} : named ? { tabIndex: 0, role: "region", "aria-labelledby": named }
     : rest["aria-label"] ? { tabIndex: 0, role: "region", "aria-label": rest["aria-label"] } : { tabIndex: 0 };
   return (
-    <dialog {...rest} ref={(n) => { el.current = n; setRef(ref, n); }}
+    <dialog {...rest} ref={(n) => { el.current = n; nameRef(n); setRef(ref, n); }}
       aria-modal="true"
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}

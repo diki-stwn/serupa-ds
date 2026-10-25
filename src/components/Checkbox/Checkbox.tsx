@@ -6,6 +6,7 @@ import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
   /** 'sm' (14px box, text-xs), 'md' (16px, text-sm, default) or 'lg' (20px, text-base). */
@@ -120,6 +121,7 @@ const OWN = { size: 1, invalid: 1, indeterminate: 1, selectAll: 1, description: 
 
 /** A native checkbox with its label (ref, checked, onChange and every input attribute go to the <input>); className and style go to the <label> around it. */
 export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProps>("Checkbox", function Checkbox(props, ref) {
+  const nameRef = useNameCheck("Checkbox", NAME_HOW.label);   // warns when it has no accessible name
   const group = React.useContext(GroupContext);
   // In a group, the group's Field labels and describes the group, not each box.
   const fromField = useFieldControl(props);
@@ -166,8 +168,9 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   const own = React.useRef<HTMLInputElement | null>(null);
   const setRefs = React.useCallback(function (node: HTMLInputElement | null) {
     own.current = node;
+    nameRef(node);
     setRef(ref, node);
-  }, [ref]);
+  }, [ref, nameRef]);
   useIsoLayoutEffect(function () { if (own.current) own.current.indeterminate = mixed; });   // every render: a click clears it natively
   const base = domId("dk-cb", React.useId()), labelId = base + "-label", descId = base + "-desc";
   const hasLabel = props.children != null && props.children !== false && props.children !== "";
