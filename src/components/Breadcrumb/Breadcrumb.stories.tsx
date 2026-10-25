@@ -13,7 +13,7 @@ const meta = {
       <BreadcrumbItem key="w">Website redesign</BreadcrumbItem>,
     ],
   },
-  argTypes: { separator: { control: 'inline-radio', options: ['chevron', 'slash'] }, children: { control: false } },
+  argTypes: { separator: { control: 'inline-radio', options: ['chevron', 'slash'] }, collapse: { control: 'inline-radio', options: ['inline', 'menu'] }, children: { control: false } },
 } satisfies Meta<typeof Breadcrumb>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -25,6 +25,15 @@ export const Slash: Story = { args: { separator: 'slash' } };
 export const Collapsed: Story = {
   args: {
     maxItems: 3,
+    children: ['Home', 'Acme', 'Design', 'Projects', 'Website redesign', 'Settings'].map((l, i, a) => <BreadcrumbItem key={l} href={i < a.length - 1 ? '#' : undefined}>{l}</BreadcrumbItem>),
+  },
+};
+
+/** collapse="menu": "…" opens a menu of the hidden pages, and the trail stays on one line. */
+export const CollapsedMenu: Story = {
+  args: {
+    maxItems: 3,
+    collapse: 'menu',
     children: ['Home', 'Acme', 'Design', 'Projects', 'Website redesign', 'Settings'].map((l, i, a) => <BreadcrumbItem key={l} href={i < a.length - 1 ? '#' : undefined}>{l}</BreadcrumbItem>),
   },
 };

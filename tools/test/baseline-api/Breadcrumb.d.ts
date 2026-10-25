@@ -2,11 +2,13 @@
 interface BreadcrumbLabels {
     breadcrumb: string;
     showHiddenPages: string;
+    morePages: string;
 }
 interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
     children?: React.ReactNode;
     separator?: "chevron" | "slash";
     maxItems?: number;
+    collapse?: "inline" | "menu";
     "aria-label"?: string;
     expandLabel?: string;
 }
