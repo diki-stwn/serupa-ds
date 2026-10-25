@@ -6,7 +6,7 @@ import { useFormReset } from "./useFormReset";
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
 type Handlers<E extends Field> = {
-  value?: unknown; defaultValue?: unknown; maxLength?: number;
+  value?: string | number | readonly string[] | null; defaultValue?: string | number | readonly string[] | null; maxLength?: number;
   onChange?: React.ChangeEventHandler<E>;
   onCompositionStart?: React.CompositionEventHandler<E>;
   onCompositionEnd?: React.CompositionEventHandler<E>;

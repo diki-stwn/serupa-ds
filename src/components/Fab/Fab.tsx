@@ -32,6 +32,6 @@ export const Fab = /* @__PURE__ */ component<HTMLButtonElement, FabProps>("Fab",
   const look = { variant: "primary", size: sm ? "sm" : "md", "data-position": pos,
     className: cn("dk-fab", sm && "dk-fab--sm", extended && "dk-fab--extended", pos !== "static" && "dk-fab--" + pos, className) } as const;
   return extended
-    ? <ButtonBase {...rest} {...look} ref={ref as React.Ref<HTMLElement>} leftIcon={icon}>{label}</ButtonBase>
-    : <ButtonBase title={label} {...rest} {...look} ref={ref as React.Ref<HTMLElement>} icon={icon} aria-label={label} />;
+    ? <ButtonBase {...rest} {...look} ref={ref} leftIcon={icon}>{label}</ButtonBase>
+    : <ButtonBase title={label} {...rest} {...look} ref={ref} icon={icon} aria-label={label} />;
 });

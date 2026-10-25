@@ -7,7 +7,7 @@ import { Calendar } from '../Calendar/Calendar';
 import { DatePicker } from './DatePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
-const announcerA = () => document.querySelector('[data-dk-announcer-assertive]') as HTMLElement | null;
+const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
 const popup = (id: string) => document.querySelector(`#${id} ~ .dk-date-picker__popup`) as HTMLElement;
 const button = (id: string) => document.querySelector(`#${id} ~ .dk-date-picker__button`) as HTMLButtonElement;
 const focused = () => { const a = document.activeElement as HTMLElement; return a.dataset.date || a.id || a.tagName; };

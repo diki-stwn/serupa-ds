@@ -65,6 +65,7 @@ Your `onKeyDown` runs before the control's own keys, so `e.preventDefault()` in 
 | `required` | `boolean` | `false` | `aria-required` on the group. Field's `required` sets it. |
 | `readOnly` | `boolean` | `false` | Focusable and read out, but the selection doesn't change; the value is still submitted. |
 | `name` | `string` | | Sends the value with a form, in a hidden input. |
+| `form` | `string` | | The id of a form it sits outside of: its hidden input submits, and resets, with that form. |
 
 Name it with `aria-label` or `aria-labelledby`. `className`, `ref` and other props go to the root `<div>`. Its `focus()` and `autoFocus` move focus to the selected segment, or else the first one that isn't disabled, so a form library that focuses the first invalid field after a failed submit lands on it.
 

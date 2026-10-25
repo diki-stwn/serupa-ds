@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
@@ -17,7 +17,7 @@ const value = (id: string) => el(id).querySelector('.dk-meter__value')?.textCont
 const aria = (id: string) => { const b = mt(id); return [b.getAttribute('aria-valuenow'), b.getAttribute('aria-valuemin'), b.getAttribute('aria-valuemax'), b.getAttribute('aria-valuetext')]; };
 const fill = (id: string) => css(el(id).querySelector('.dk-meter__fill')).backgroundColor;
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 

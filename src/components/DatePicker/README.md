@@ -68,7 +68,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 | `weekStartsOn` | `0`–`6` | the locale's | |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Like Input. |
 | `invalid` | `boolean` | `false` | Like Input. |
-| `name` | `string` | | Adds a hidden input that sends `yyyy-mm-dd`. |
+| `name` | `string` | | Adds a hidden input that sends `yyyy-mm-dd`. With `form`, the hidden input belongs to that form too. |
 | `placeholder` | `string` | the locale's pattern, such as `mm/dd/yyyy` | |
 | `buttonLabel` | `string` | `"Choose a date"` | The calendar button's name, and the popup's. |
 

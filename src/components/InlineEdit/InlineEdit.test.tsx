@@ -9,7 +9,7 @@ import { InlineEdit } from './InlineEdit';
 
 const root = (id: string) => document.getElementById(id) as HTMLDivElement;
 const view = (id: string) => root(id).querySelector('.dk-inline-edit__view') as HTMLElement;
-const input = (id: string) => root(id).querySelector('input') as HTMLInputElement | null;
+const input = (id: string) => root(id).querySelector<HTMLInputElement>('input');
 const Box = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'grid', gap: '12px', background: 'var(--surface)' }}>{children}</div>;
 
 function Controlled({ calls }: { calls: string[] }) {

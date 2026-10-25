@@ -40,7 +40,7 @@ export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 interface RadioContextValue {
   name: string;
-  value: unknown;
+  value: string | number | null | undefined;
   size: unknown;
   invalid: boolean;
   disabled: boolean;
@@ -60,7 +60,7 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const rest = omit(props, GROUP_OWN);
   const autoName = domId("dk-rg", React.useId());
   const controlled = props.value !== undefined;
-  const [picked, setPicked] = React.useState<unknown>(props.defaultValue), cur = controlled ? props.value : picked;
+  const [picked, setPicked] = React.useState<string | number | null | undefined>(props.defaultValue), cur = controlled ? props.value : picked;
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
   const onChange = props.onChange;
@@ -69,7 +69,7 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const [, rerender] = React.useState(0);
   useFormReset(root, function () { if (!controlled) setPicked(props.defaultValue); rerender(function (n) { return n + 1; }); });
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
-    select: function (v, e) { if (!controlled) setPicked(v); if (onChange) onChange(v as string | number, e); } };
+    select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onChange) onChange(v as string | number, e); } };
   return (
     <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
       className={cn("dk-radio-group", "dk-radio-group--" + orientation, invalid && "dk-radio-group--invalid", props.className)} data-component="radio-group" data-orientation={orientation}>

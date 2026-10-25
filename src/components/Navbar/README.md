@@ -37,9 +37,9 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 ## Accessibility
 
 - It's a `<header>` (the banner landmark, when it's the page's top-level header) holding a `<nav>` named "Main", so people can jump to the links.
-- The current page has `aria-current="page"` and a shaded background, not just a color change.
+- The current page has `aria-current="page"` and a shaded background, not just a color change; in forced colors (Windows High Contrast), where the shading is dropped, an outline.
 - On small screens the menu button has `aria-expanded` and `aria-controls`. Escape closes the menu and returns focus to the button.
-- With the menu open, Tab goes from the button into the links, in the order they appear, since the panel opens under the bar: the links come after the button in the DOM while it's open. Tab past the last link, or any move of focus out of the bar, closes the menu.
+- With the menu open, Tab goes from the button into the links, in the order they appear, since the panel opens under the bar: the links come after the button in the DOM while it's open. Tab past the last link, any move of focus out of the bar, or a press outside it closes the menu.
 - Links keep 4.5:1 on the bar, and the current page and hovered links on their shading, in all six themes (`Navbar.test.tsx`).
 
 ## Props

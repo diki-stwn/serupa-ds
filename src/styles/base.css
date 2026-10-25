@@ -67,7 +67,7 @@
 /* Print: filled controls keep their colors, on-screen layers don't print, and data-print-urls shows link addresses. */
 @media print {
   :where(.dk-btn, .dk-badge, .dk-progress, .dk-switch, .dk-checkbox__input, .dk-radio__input, .dk-avatar, .dk-stepper__indicator, .dk-segmented, .dk-alert, .dk-slider, .dk-calendar, .dk-pagination, .dk-tabs) { print-color-adjust: exact; }
-  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list) { display: none !important; }
+  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-fab) { display: none !important; }
   :where([data-print-urls] a[href^="http"])::after { content: " (" attr(href) ")"; font-size: var(--text-xs); overflow-wrap: anywhere; }
 }
 

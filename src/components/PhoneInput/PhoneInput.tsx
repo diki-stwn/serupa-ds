@@ -180,7 +180,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
         </select>
       </span>
       <input autoComplete="tel-national" {...rest} ref={setRef} type="tel" inputMode="tel" className="dk-input__field" value={text} onChange={onChange} onKeyDown={onKeyDown} />
-      {props.name ? <input type="hidden" name={props.name} value={toE164(shown, country)} disabled={rest.disabled} /> : null}
+      {props.name ? <input type="hidden" name={props.name} form={props.form} value={toE164(shown, country)} disabled={rest.disabled} /> : null}
     </span>
   );
 });
