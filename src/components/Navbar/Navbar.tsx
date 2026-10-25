@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, oneOf, omit } from "../../internal/cn";
+import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { IconButton } from "../IconButton/IconButton";
 import type { ContainerSize } from "../Container/Container";
 import { component } from "../../internal/component";
@@ -16,7 +16,8 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
   /** Controls on the right: a search, a user menu, a sign-in button. */
   actions?: React.ReactNode;
-  /** Keeps the bar at the top while the page scrolls. Default: false. */
+  /** Keeps the bar at the top while the page scrolls, and keeps what the keyboard focuses (or a #link jumps to)
+   *  from scrolling under it. Default: false. */
   sticky?: boolean;
   /** The content's maximum width, like Container: 'md', 'lg', 'xl' (default), '2xl' or 'full'. */
   size?: ContainerSize;
@@ -44,11 +45,24 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
   const rest = omit(props, { brand: 1, children: 1, actions: 1, sticky: 1, size: 1, menuLabel: 1, className: 1, "aria-label": 1, onKeyDown: 1, onBlur: 1 });
   const [open, setOpen] = React.useState(false);
   const toggle = React.useRef<HTMLButtonElement>(null);
+  const bar = React.useRef<HTMLElement | null>(null);
   const id = domId("dk-nav", React.useId());
   const size = oneOf(["prose", "md", "lg", "xl", "2xl", "full"] as const, props.size, "xl");
   const links = flattenChildren(props.children);
   const hasLinks = links.length > 0;
   const close = React.useCallback(() => setOpen(false), []);
+  /* Sticky: the page's scroll-padding-top follows the bar's height (Navbar.css), so a field Tab reaches, or the
+     target of a #link, scrolls into view below the bar instead of under it (WCAG 2.4.11 Focus Not Obscured). */
+  useIsoLayoutEffect(() => {
+    const h = bar.current;
+    if (!props.sticky || !h) return;
+    const root = document.documentElement;
+    const set = () => root.style.setProperty("--dk-navbar-offset", h.getBoundingClientRect().height + "px");
+    set();
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(set) : null;
+    if (ro) ro.observe(h);
+    return () => { if (ro) ro.disconnect(); root.style.removeProperty("--dk-navbar-offset"); };
+  }, [props.sticky]);
   // closes when the screen grows past the breakpoint, so it isn't open the next time it shrinks
   React.useEffect(() => {
     if (!open || typeof window === "undefined" || !window.matchMedia) return;
@@ -56,6 +70,13 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     const on = () => { if (mq.matches) setOpen(false); };
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
+  }, [open]);
+  // A press outside the bar (on the page under the open panel) closes it, as a Popover does. Focus stays where the press puts it.
+  React.useEffect(() => {
+    if (!open) return;
+    const on = (e: PointerEvent) => { if (bar.current && e.target instanceof Node && !bar.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("pointerdown", on, true);
+    return () => document.removeEventListener("pointerdown", on, true);
   }, [open]);
   function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
     if (props.onKeyDown) props.onKeyDown(e);
@@ -76,7 +97,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
   ) : null;
   return (
     <NavbarContext.Provider value={{ close }}>
-      <header {...rest} ref={ref} onKeyDown={onKeyDown} onBlur={onBlur} data-component="navbar" data-state={open ? "open" : "closed"} className={cn("dk-navbar", props.sticky && "dk-navbar--sticky", props.className)}>
+      <header {...rest} ref={(n) => { bar.current = n; setRef(ref, n); }} onKeyDown={onKeyDown} onBlur={onBlur} data-component="navbar" data-state={open ? "open" : "closed"} className={cn("dk-navbar", props.sticky && "dk-navbar--sticky", props.className)}>
         <div className={cn("dk-navbar__inner dk-container dk-container--padded", "dk-container--" + size)}>
           {props.brand != null ? <div className="dk-navbar__brand">{props.brand}</div> : null}
           {open ? null : nav}

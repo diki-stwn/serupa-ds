@@ -173,6 +173,7 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 
 - A loader with a label is a `role="progressbar"` without a value, which is how ARIA says "busy, progress unknown". Its name is `label` ("Loading…").
 - When it appears, `label` is announced once through the system's shared polite status region (the same one Button's loading uses), so screen-reader users hear that something started loading.
+- In forced colors (Windows high contrast) the browser drops background colors, so skeleton bones keep a still `GrayText` fill instead of going blank.
 - `label=""` makes it decorative (`aria-hidden`), for when visible text next to it already says what's loading, or when a parent announces it (as Button does).
 - In a group of skeletons, name one ("Loading profile") and pass `label=""` to the rest, so it's announced once, and set `aria-busy` on the area.
 - It draws in the text color, so it keeps the contrast of the text it sits with. With `tone`, use it on `surface` backgrounds, where `primary` and `text-muted` meet the 3:1 non-text contrast.

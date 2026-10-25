@@ -61,6 +61,7 @@ import { FileUpload } from "serupa-ds";
 | `required` | `boolean` | `false` | `required` on the native input (the form's check) and a hidden "Required" in the button's description. A required Field adds the description for you. |
 | `readOnly` | `boolean` | `false` | The files are listed and submitted but can't change: the button stays focusable with `aria-disabled` and opens no picker, drops are ignored, and there are no remove buttons. |
 | `name` | `string` | | Sends the files with a form. |
+| `form` | `string` | | The id of the form the files submit with, when the FileUpload sits outside it. |
 | `id` | `string` | | Goes to the native input, so a `<label htmlFor>` or Field can point at it. |
 | `title` | `ReactNode` | `'Drag files here'` or `'Drag a file here'` | |
 | `buttonLabel` | `string` | `'Choose files'` or `'Choose a file'` | |

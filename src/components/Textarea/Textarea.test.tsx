@@ -62,7 +62,7 @@ describe('Textarea', () => {
     const ref = React.createRef<HTMLTextAreaElement>();
     await setup(ref);
     const i = el('md');
-    expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels![0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
+    expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels[0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
   });
 
   test('typing (with a new line) updates a controlled value through onChange', async () => {

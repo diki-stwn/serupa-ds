@@ -128,10 +128,10 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     ? <span className="dk-badge__icon" aria-hidden key="icon">{asIcon(props.leftIcon)}</span> : null;
   const dot = !isCount && !icon && props.dot   // in an icon-sized box, so a dot badge lines up with icon badges
     ? <span className="dk-badge__icon dk-badge__icon--dot" aria-hidden key="dot"><span className="dk-badge__dot" /></span> : null;
-  const named = typeof label === "string" || typeof label === "number";
+  const named = typeof label === "string" || typeof label === "number" ? " " + label : "";
   const remove = removable
     ? <button type="button" className="dk-badge__remove" key="remove" onClick={props.onRemove} disabled={loading || undefined}
-        aria-label={(props.removeLabel || sds.labels.remove) + (named ? " " + label : "")}><Icon icon={icons.Close} /></button>
+        aria-label={(props.removeLabel || sds.labels.remove) + named}><Icon icon={icons.Close} /></button>
     : null;
   // Loading: a ring centered over the hidden content, so the badge keeps its width (decorative: the badge announces loadingText)
   const spin = loading ? <span className="dk-badge__loader" aria-hidden key="loader"><Loader label="" delay={0} /></span> : null;

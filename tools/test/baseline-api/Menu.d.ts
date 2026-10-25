@@ -19,6 +19,7 @@ interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, "onSelec
     destructive?: boolean;
     disabled?: boolean;
     href?: string;
+    as?: React.ElementType;
     target?: string;
     rel?: string;
 }

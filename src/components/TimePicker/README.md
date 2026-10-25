@@ -54,7 +54,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | How times are written. |
 | `hour12` | `boolean` | the locale's | 12-hour (2:30 PM) or 24-hour (14:30). |
 | `size`, `invalid` | | `'md'`, `false` | Like Input. |
-| `name` | `string` | | Adds a hidden input that sends `"HH:mm"`. |
+| `name` | `string` | | Adds a hidden input that sends `"HH:mm"`. With `form`, the hidden input belongs to that form too. |
 | `placeholder` | `string` | `"hh:mm am"` or `"hh:mm"` | |
 | `listLabel` | `string` | `"Choose a time"` | The list's name, and the clock button's. |
 

@@ -13,7 +13,7 @@ const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const many = '[data-testid=many]';
 const rootOf = (id: string) => document.getElementById(id)!.closest('[data-component=file-upload]') as HTMLElement;
 const list = (root: Element) => [...root.querySelectorAll('.dk-file-upload__item')].map((li) => li.querySelector('.dk-file-upload__name')!.textContent + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
-const errs = (root: Element) => { const e = root.querySelector('.dk-file-upload__errors'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent!.replace(/^error/, '')).join(' / ') : null; };
+const errs = (root: Element) => { const e = root.querySelector('.dk-file-upload__errors'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
 const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.textContent).join();
 const input = (root: Element) => root.querySelector('input[type=file]') as HTMLInputElement;
 const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonElement;
@@ -39,6 +39,12 @@ describe('FileUpload', () => {
     expect(el.className).toMatch(/extra/);
     expect([el.dataset.component, el.querySelector('.dk-file-upload__title')!.textContent, btn.textContent, document.getElementById(btn.getAttribute('aria-describedby')!)!.textContent]).toEqual(['file-upload', 'Drag files here', 'Choose files', 'Images or PDF, up to 1 MB']);
     expect([inp.accept, inp.multiple, inp.name, inp.id, inp.getAttribute('aria-hidden'), inp.tabIndex]).toEqual(['image/*,.pdf', true, 'docs', 'many', 'true', -1]);
+  });
+
+  test('form: a FileUpload outside its form submits with it (the native input carries the form attribute)', async () => {
+    await render(<><form id="fu-f" /><FileUpload data-testid="fuf" name="docs" form="fu-f" /></>);
+    const input = q<HTMLInputElement>('[data-testid=fuf] input[type=file]');
+    expect([input.form?.id, new FormData(document.getElementById('fu-f') as HTMLFormElement).has('docs')]).toEqual(['fu-f', true]);
   });
 
   test('a drag that carries no files (text, a link) doesn\'t light the area up or allow a drop; a file drag does', async () => {

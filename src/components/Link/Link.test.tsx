@@ -71,7 +71,7 @@ describe('Link', () => {
     expect([e.target, e.rel, i.dataset.icon, i.getAttribute('aria-hidden'), v.textContent, css(i).fontSize]).toEqual(['_blank', 'me noopener noreferrer', 'open_in_new', 'true', ' (opens in a new tab)', '16px']);
     expect(v.getBoundingClientRect().width).toBeLessThanOrEqual(1);
     // The link's text: its words, the note, and the hidden icon's ligature name.
-    expect(e.textContent!.replace('open_in_new', '')).toBe('Example (opens in a new tab)');
+    expect(e.textContent.replace('open_in_new', '')).toBe('Example (opens in a new tab)');
   });
 
   test('as: renders your router link with className and the rest', async () => {

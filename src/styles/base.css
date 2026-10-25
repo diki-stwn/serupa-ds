@@ -55,6 +55,11 @@
 
 ::placeholder { color: var(--placeholder); opacity: var(--opacity-100); }
 
+/* Native controls nobody styled (a bare checkbox, range or progress) and the text caret take the brand color. Set on
+   every theme root too: both inherit, so a nested theme would otherwise keep its parent's color. Scrollbars are left
+   alone: color-scheme already darkens them, and scrollbar-color swaps Chromium to thin scrollbars, which moves layout. */
+:where(:root, [data-theme], [data-brand], [data-mode]) { accent-color: var(--primary); caret-color: var(--primary); }
+
 /* One visible focus style for every focusable element (WCAG 2.4.7); components may draw their own. */
 :where(:focus-visible) {
   outline: var(--focus-ring-width) solid var(--focus-ring);
@@ -67,7 +72,7 @@
 /* Print: filled controls keep their colors, on-screen layers don't print, and data-print-urls shows link addresses. */
 @media print {
   :where(.dk-btn, .dk-badge, .dk-progress, .dk-switch, .dk-checkbox__input, .dk-radio__input, .dk-avatar, .dk-stepper__indicator, .dk-segmented, .dk-alert, .dk-slider, .dk-calendar, .dk-pagination, .dk-tabs) { print-color-adjust: exact; }
-  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list) { display: none !important; }
+  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-fab) { display: none !important; }
   :where([data-print-urls] a[href^="http"])::after { content: " (" attr(href) ")"; font-size: var(--text-xs); overflow-wrap: anywhere; }
 }
 

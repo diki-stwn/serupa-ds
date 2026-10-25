@@ -2,7 +2,11 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { css, lowContrast } from '../../../tools/test/vitest/helpers';
+import { userEvent } from 'vitest/browser';
+import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { Combobox } from '../Combobox/Combobox';
+import { SegmentedControl } from '../SegmentedControl/SegmentedControl';
+import { Slider } from '../Slider/Slider';
 import { Input } from '../Input/Input';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Textarea } from '../Textarea/Textarea';
@@ -49,7 +53,7 @@ describe('Field', () => {
     expect(el('mail').getAttribute('aria-required')).toBe('true');
     expect(f.querySelector('.dk-field__required')?.getAttribute('aria-hidden')).toBe('true');
     expect([...f.children].map((c) => c.className.split(' ')[0])).toEqual(['dk-field__label', 'dk-field__hint', 'dk-field__control', 'dk-field__error']);
-    expect((f.querySelector('.dk-field__error .dk-icon') as HTMLElement | null)?.dataset.icon).toBe('error');
+    expect((f.querySelector<HTMLElement>('.dk-field__error .dk-icon'))?.dataset.icon).toBe('error');
 
     await screen.getByRole('button', { name: 'Clear' }).click();
     expect(described('mail')).toHaveLength(2);
@@ -179,5 +183,34 @@ describe('Field', () => {
     await render(<Field label="Country"><Combobox options={['Indonesia', 'Japan']} /></Field>);
     const list = document.querySelector('[role="listbox"]') as HTMLElement;
     expect(document.getElementById(list.getAttribute('aria-labelledby') || '')?.textContent).toBe('Country');
+  });
+
+  test('clicking the label of a Slider, SegmentedControl or ColorPicker focuses it (their root is a <div>, which a label can\'t focus by itself) (AK1)', async () => {
+    await render(<>
+      <Field label="Volume"><Slider defaultValue={30} /></Field>
+      <Field label="View"><SegmentedControl options={[{ value: 'day', label: 'Day' }, { value: 'week', label: 'Week' }]} defaultValue="week" /></Field>
+      <Field label="Tag color"><ColorPicker swatches={['#1d4ed8', '#16a34a']} defaultValue="#16a34a" /></Field>
+    </>);
+    const label = (t: string) => [...document.querySelectorAll('label')].find((l) => l.textContent === t)!;
+    await userEvent.click(label('Volume'));
+    expect(document.activeElement?.getAttribute('role')).toBe('slider');
+    await userEvent.click(label('View'));
+    expect([document.activeElement?.getAttribute('role'), document.activeElement?.textContent]).toEqual(['radio', 'Week']);
+    await userEvent.click(label('Tag color'));
+    expect(document.activeElement?.getAttribute('aria-checked')).toBe('true');
+  });
+
+  test('with an error, the control points at it with aria-errormessage too (the description keeps it, for screen readers that skip aria-errormessage), directly or at any depth (J12)', async () => {
+    const r = await render(<>
+      <Field label="Email" error="Enter an email address"><input id="em" /></Field>
+      <Field label="Name" error="Required"><Tooltip content="Your full name"><Input id="nm" /></Tooltip></Field>
+    </>);
+    for (const id of ['em', 'nm']) {
+      const c = document.getElementById(id)!;
+      const msg = c.getAttribute('aria-errormessage');
+      expect([!!msg && document.getElementById(msg)?.textContent, (c.getAttribute('aria-describedby') || '').split(' ').includes(msg || '-')]).toEqual([id === 'em' ? 'Enter an email address' : 'Required', true]);
+    }
+    await r.rerender(<Field label="Email"><input id="em" /></Field>);
+    expect(document.getElementById('em')!.hasAttribute('aria-errormessage')).toBe(false);
   });
 });

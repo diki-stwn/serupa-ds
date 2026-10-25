@@ -30,10 +30,10 @@ function emulate(feature: 'forced-colors' | 'prefers-reduced-motion'): () => voi
 
 // Colors with alpha, composited over what's behind them, for WCAG contrast.
 type RGBA = [number, number, number, number];
-const rgb = (c: string): RGBA => { const m = (c.match(/[\d.]+/g) || []).map(Number); return [m[0]!, m[1]!, m[2]!, m.length > 3 ? m[3]! : 1]; };
-const lum = (c: RGBA) => { const v = c.slice(0, 3).map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }); return 0.2126 * v[0]! + 0.7152 * v[1]! + 0.0722 * v[2]!; };
-const over = (fg: RGBA, bg: RGBA): RGBA => (fg[3] >= 1 ? fg : fg.map((x, i) => (i < 3 ? x * fg[3] + bg[i]! * (1 - fg[3]) : 1)) as RGBA);
-const ratio = (a: RGBA, b: RGBA) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x! + 0.05) / (y! + 0.05); };
+const rgb = (c: string): RGBA => { const m = (c.match(/[\d.]+/g) || []).map(Number); return [m[0], m[1], m[2], m.length > 3 ? m[3] : 1]; };
+const lum = (c: RGBA) => { const v = c.slice(0, 3).map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+const over = (fg: RGBA, bg: RGBA): RGBA => (fg[3] >= 1 ? fg : fg.map((x, i) => (i < 3 ? x * fg[3] + bg[i] * (1 - fg[3]) : 1)) as RGBA);
+const ratio = (a: RGBA, b: RGBA) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
 
 const Parts = () => <>
   <CardHeader title="Team plan" description="Up to 10 members" action={<Badge>Active</Badge>} />

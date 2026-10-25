@@ -116,7 +116,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
         disabled={off} onClick={() => { if (!open) read(); setOpen(!open); }}>
         <Icon icon={icons.CalendarToday} />
       </button>
-      {name ? <input type="hidden" name={name} value={value ? isoDate(value) : ""} disabled={disabled} /> : null}
+      {name ? <input type="hidden" name={name} form={rest.form} value={value ? isoDate(value) : ""} disabled={disabled} /> : null}
       <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-date-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}>
         {open ? <Calendar value={value} defaultMonth={(typed && allowed(typed) ? typed : null) || value || undefined} min={min} max={max} isDateDisabled={isDateDisabled} locale={locale} weekStartsOn={weekStartsOn} autoFocus

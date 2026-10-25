@@ -64,7 +64,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 | `icon` | an icon name or element | none | A 16px icon before the label |
 | `as` | a component | `'a'` | Your router's link component |
 
-The last item is the current page: text with `aria-current="page"`, not a link, even if it has an `href`. `className`, `ref` and everything else go to the link.
+The last item is the current page (Breadcrumb sets its `current` prop; you don't pass it): text with `aria-current="page"`, not a link, even if it has an `href`. `className`, `ref` and everything else go to the link.
 
 ## Component tokens
 
