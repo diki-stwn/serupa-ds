@@ -51,6 +51,7 @@ const { EmptyState, Button } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `icon` | an icon name or element | none | An icon in a circle, or your own illustration at its own size |
 | `title` | node | required | What's empty, in a few words |
 | `description` | node | none | What it means or what to do next |

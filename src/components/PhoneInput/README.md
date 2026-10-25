@@ -65,6 +65,7 @@ Every calling code in the world: 244 countries and territories, one row each in 
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input type="tel">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` | string | none | The number in E.164 (controlled) |
 | `defaultValue` | string | none | The number at first (uncontrolled), in E.164 |
 | `onValueChange` | `(value, { country, national, complete }) => void` | none | Called with E.164 (`""` when empty) as the number or country changes |

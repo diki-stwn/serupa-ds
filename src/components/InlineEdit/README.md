@@ -62,6 +62,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `label` | `string` | | Required. What the text is. |
 | `value` | `string` | | Controlled. |
 | `defaultValue` | `string` | `''` | Uncontrolled. |

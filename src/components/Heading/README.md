@@ -38,6 +38,7 @@ const { Heading } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root heading (`<h1>`–`<h6>`, by `level`). |
 | `level` | `1`–`6` | `2` | The element. Keep the levels in order down the page, without skipping |
 | `size` | `'sm'` \| `'base'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'3xl'` \| `'4xl'` \| `'5xl'` | the level's | A step of the type scale, with its line height. Each level's own: 1 `3xl`, 2 `2xl`, 3 `xl`, 4 `lg`, 5 `base`, 6 `sm` |
 

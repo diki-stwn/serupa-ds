@@ -62,6 +62,7 @@ const [open, setOpen] = React.useState(false);
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
 | `open` | `boolean` | | Controlled: close it yourself in `onOpenChange`. |
 | `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. |
 | `side` | `'right' \| 'left' \| 'top' \| 'bottom'` | `'right'` | The edge it slides in from. These are physical edges, so they stay put in right-to-left pages. |

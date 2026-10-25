@@ -56,6 +56,7 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `children` | `<Avatar>` elements | | The avatars, in order. Each can sit inside a Tooltip or a link, and fragments are opened up. |
 | `max` | `number` | all | The most avatars to show; the rest become "+N". |
 | `total` | `number` | the number of children | How many there are in all, when you pass only some. "+N" counts the ones not shown. |

@@ -65,6 +65,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `options` | `string[]` or `{ value, label, description?, disabled? }[]` | | The label is what's typed to find an option and shown once it's picked. |
 | `value` | `string \| null` | | Controlled. |
 | `defaultValue` | `string \| null` | | Uncontrolled. |

@@ -43,6 +43,7 @@ const { Text } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `as` | `'p'` \| `'span'` \| `'div'` \| `'label'` \| `'strong'` \| `'em'` \| `'small'` \| `'li'` \| `'figcaption'` | `'p'` | The element |
 | `size` | `'xs'` \| `'sm'` \| `'base'` \| `'lg'` \| `'xl'` | inherited | A step of the type scale, with its line height |
 | `tone` | `'default'` \| `'muted'` \| `'primary'` \| `'danger'` | inherited | `text`, `text-muted`, `primary` or `danger-text` |
