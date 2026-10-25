@@ -63,7 +63,7 @@ import { FileUpload } from "serupa-ds";
 | `readOnly` | `boolean` | `false` | The files are listed and submitted but can't change: the button stays focusable with `aria-disabled` and opens no picker, drops are ignored, and there are no remove buttons. |
 | `name` | `string` | | Sends the files with a form. |
 | `form` | `string` | | The id of the form the files submit with, when the FileUpload sits outside it. |
-| `id` | `string` | | Goes to the native input, so a `<label htmlFor>` or Field can point at it. |
+| `id` | `string` | | Goes to the native input, so a `<label htmlFor>` or Field can point at it. Clicking such a label opens the picker and puts focus on the choose button. |
 | `title` | `ReactNode` | `'Drag files here'` or `'Drag a file here'` | |
 | `buttonLabel` | `string` | `'Choose files'` or `'Choose a file'` | |
 | `hint` | `ReactNode` | | A muted line such as "PNG or JPG, up to 5 MB". The button is described by it. |

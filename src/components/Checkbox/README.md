@@ -53,6 +53,7 @@ const { Checkbox, Field } = window.Serupa;
 
 ## Accessibility
 
+- A press anywhere within 24px of the box or the row counts (WCAG 2.5.8): when the row is shorter, or the box stands alone, its hit area reaches past what is drawn, so nothing moves.
 - It's a real checkbox: Space toggles it, forms submit it, and screen readers announce checked, unchecked and mixed.
 - The label names it. With a description, the checkbox is named by the label alone (`aria-labelledby`) and the description is read after it (`aria-describedby`).
 - The check and dash are decorative (`aria-hidden`).
@@ -89,7 +90,6 @@ Each is an optional override: set it on the page, a container or one checkbox. T
 | `--checkbox-label-color` | `text` | The label |
 | `--checkbox-description-color` | `text-muted` | The description |
 | `--checkbox-focus-ring` | `focus-ring` | The focus ring |
-| `--checkbox-focus-gap-color` | `surface` | Deprecated, no effect: the focus ring is an outline now, so its gap is transparent on any background. Removed in 9.0.0. |
 | `--checkbox-invalid` | `danger` | Border and focus ring when invalid |
 | `--checkbox-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Box sizes (14, 16, 20px) |
 | `--checkbox-icon-size-sm` / `-md` / `-lg` | `spacing-3` / `spacing-3.5` / `spacing-4` | Check sizes (12, 14, 16px) |

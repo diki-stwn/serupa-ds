@@ -42,7 +42,7 @@
 /* Invalid: a danger border while unchecked, and a danger focus ring. A checked box keeps its fill. */
 .dk-checkbox--invalid .dk-checkbox__input { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
 @media (hover: hover) { .dk-checkbox--invalid:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
-.dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); }
+.dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-checkbox__description { color: var(--checkbox-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't change it. */
 .dk-checkbox--readonly { cursor: default; }
@@ -50,4 +50,8 @@
 .dk-checkbox:has(.dk-checkbox__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-checkbox__input:disabled:not(:checked, :indeterminate) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
 @media (forced-colors: active) { .dk-checkbox__icon { color: CanvasText; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-checkbox { position: relative; isolation: isolate; }
+.dk-checkbox::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

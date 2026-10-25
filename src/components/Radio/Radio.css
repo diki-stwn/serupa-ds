@@ -43,10 +43,14 @@
 /* Invalid (the radio's own prop or its group's): a danger border while unchecked, and a danger focus ring. */
 .dk-radio--invalid .dk-radio__input { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
 @media (hover: hover) { .dk-radio--invalid:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
-.dk-radio__text { display: flex; flex-direction: column; min-width: var(--spacing-0); }
+.dk-radio__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-radio__description { color: var(--radio-description-color, var(--text-muted)); }
 /* Disabled, by its own prop, the group's or a disabled fieldset (Field group). */
 .dk-radio:has(.dk-radio__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-radio__input:disabled:not(:checked) { background: var(--radio-bg-disabled, var(--surface-muted)); }
 @media (forced-colors: active) { .dk-radio__dot { background: CanvasText; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-radio { position: relative; isolation: isolate; }
+.dk-radio::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

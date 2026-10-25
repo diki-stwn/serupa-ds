@@ -14,7 +14,7 @@ const PLAIN = { useGrouping: false } as const;
 const VERBATIM = /^(email|url)$/;
 const VERBATIM_AUTOCOMPLETE = /\b(username|email|url|one-time-code)\b/;
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'children'> {
   /** 'sm' (24px, text-xs), 'md' (32px, text-sm, default) or 'lg' (44px, text-base): the control heights, like Button. */
   size?: 'sm' | 'md' | 'lg';
   /** A danger border and focus ring, and aria-invalid. Say what's wrong in text next to it, linked with aria-describedby. */

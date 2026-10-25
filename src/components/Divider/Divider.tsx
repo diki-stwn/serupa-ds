@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
 
-export interface DividerProps extends React.HTMLAttributes<HTMLElement> {
+export interface DividerProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
   /** 'horizontal' (default) or 'vertical' (between items in a row: it takes the row's height). */
   orientation?: 'horizontal' | 'vertical';
   /** Text in the middle of a horizontal line, such as "or". */

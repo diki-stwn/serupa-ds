@@ -180,7 +180,10 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
         {required ? <span className="dk-file-upload__required" id={base + "-req"}>{sds.labels.required}</span> : null}
         {hasHint ? <p className="dk-file-upload__hint" id={base + "-hint"}>{props.hint}</p> : null}
         <input ref={input} id={inputId} type="file" className="dk-file-upload__input" tabIndex={-1} aria-hidden name={props.name} form={props.form} accept={props.accept} multiple={multiple} disabled={disabled} required={props.required}
-          onChange={(e) => { add(e.target.files); }} onInvalid={onInvalid} />
+          onChange={(e) => { add(e.target.files); }} onInvalid={onInvalid}
+          // A <label for> click opens the picker and focuses this hidden input (no ring, a screen reader on an
+          // aria-hidden element): focus goes on to the button, so the picker returns there.
+          onFocus={() => { const b = chooser.current; if (b && !b.disabled) b.focus(); }} />
       </div>
       {rejected.length || missing ? (
         <div className="dk-file-upload__errors" role="alert">

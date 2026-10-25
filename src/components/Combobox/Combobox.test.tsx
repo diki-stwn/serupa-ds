@@ -5,7 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
 import { Combobox, type ComboboxOption } from './Combobox';
 import { Field } from '../Field/Field';
-import { idLabels } from '../../internal/labels';
+import { DEFAULT_LABELS, idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
 
 const COUNTRIES: ComboboxOption[] = ['Argentina', 'Brazil', 'Canada', { value: 'ci', label: 'Côte d’Ivoire', description: 'Africa' }, { value: 'dk', label: 'Denmark', disabled: true }, 'Egypt', 'France'];
@@ -13,7 +13,7 @@ const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const popOf = (id: string) => document.querySelector(`#${id} ~ .dk-combobox__popup`) as HTMLElement;
 const label = (o: Element) => o.querySelector('.dk-combobox__label')!.textContent;
 const st = (id: string) => {
-  const i = el(id), list = document.getElementById(i.getAttribute('aria-controls')!)!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
+  const i = el(id), list = i.parentElement!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
   return { open: i.getAttribute('aria-expanded'), shown: !pop.hidden && pop.matches(':popover-open'), opts: [...list.querySelectorAll('[role=option]')].map(label), active: ad ? label(document.getElementById(ad)!) : null, text: i.value, focus: document.activeElement === i };
 };
 const selectAll = () => userEvent.keyboard('{Control>}a{/Control}');
@@ -31,8 +31,10 @@ describe('Combobox', () => {
   test('a role="combobox" field (aria-autocomplete list, collapsed) controlling a hidden role="listbox"; Input\'s 32px box; a chevron button out of the Tab order; ref and className', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Countries cref={ref} />);
-    const i = el('cb'), list = document.getElementById(i.getAttribute('aria-controls')!)!, box = i.parentElement!, toggle = box.querySelector<HTMLButtonElement>('.dk-combobox__toggle')!;
+    const i = el('cb'), box = i.parentElement!, list = box.querySelector('[role=listbox]')!, toggle = box.querySelector<HTMLButtonElement>('.dk-combobox__toggle')!;
     expect([i.getAttribute('role'), i.getAttribute('aria-expanded'), i.getAttribute('aria-autocomplete'), i.getAttribute('aria-haspopup'), i.autocomplete]).toEqual(['combobox', 'false', 'list', 'listbox', 'off']);
+    // aria-controls only while the list is open, on the field and the chevron.
+    expect([i.getAttribute('aria-controls'), toggle.getAttribute('aria-controls')]).toEqual([null, null]);
     expect([list.getAttribute('role'), list.parentElement!.hidden, i.labels![0].textContent, ref.current === i]).toEqual(['listbox', true, 'Country', true]);
     expect(box.className).toMatch(/dk-input dk-combobox.*extra/);
     expect([box.dataset.component, box.offsetHeight, toggle.getAttribute('aria-label'), toggle.tabIndex]).toEqual(['combobox', 32, 'Show options', -1]);
@@ -211,6 +213,51 @@ describe('Combobox', () => {
     expect(getComputedStyle(document.querySelector('#tok ~ .dk-combobox__toggle')!).color).toBe('rgb(1, 2, 3)');
   });
 
+  test('PageDown and PageUp move by what the list shows at once (seven 32px rows in 240px), stopping at the ends (BH1)', async () => {
+    const many = Array.from({ length: 50 }, (_, n) => 'Option ' + (n + 1));
+    await render(<Combobox id="cpg" aria-label="Many" options={many} />);
+    el('cpg').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const seen: Array<string | null> = [st('cpg').active];
+    for (const k of ['{PageDown}', '{PageDown}', '{PageUp}', '{PageUp}', '{PageUp}']) { await userEvent.keyboard(k); seen.push(st('cpg').active); }
+    expect(seen).toEqual(['Option 1', 'Option 8', 'Option 15', 'Option 8', 'Option 1', 'Option 1']);
+    for (let n = 0; n < 8; n++) await userEvent.keyboard('{PageDown}');
+    expect(st('cpg').active).toBe('Option 50');
+  });
+
+  test('the list is at most 28rem wide (or the field\'s width, if wider), and a long label wraps (BH2)', async () => {
+    const long = 'A very long option label that would otherwise stretch the list right across the window and beyond';
+    await render(<div style={{ width: '200px' }}><Combobox id="cwide" aria-label="Wide" options={['Short', long, 'x'.repeat(120)]} /></div>);
+    el('cwide').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const pop = el('cwide').parentElement!.querySelector<HTMLElement>('.dk-combobox__popup')!;
+    await expect.poll(() => pop.matches(':popover-open')).toBe(true);
+    const w = pop.getBoundingClientRect().width, opt = pop.querySelectorAll<HTMLElement>('[role=option]');
+    expect([w <= 448.5, w >= 200, opt[1].offsetHeight > 32, opt[2].scrollWidth <= opt[2].clientWidth]).toEqual([true, true, true, true]);
+  });
+
+  test('an option is named by its label; a text description is its aria-description (N8)', async () => {
+    await render(<Countries />);
+    await open();
+    const ci = [...document.querySelectorAll('#cb ~ .dk-combobox__popup [role=option]')].find((o) => label(o) === 'Côte d’Ivoire')!;
+    expect([ci.getAttribute('aria-description'), ci.querySelector('.dk-combobox__description')!.getAttribute('aria-hidden')]).toEqual(['Africa', 'true']);
+  });
+
+  test('once typing stops, how many options match is said ("2 results"); Indonesian "2 hasil" (BE1)', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await render(<Countries />);
+    el('cb').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await new Promise((r) => setTimeout(r, 900));
+    expect(said).toEqual([]);   // opening shows every option; nothing is said until something is typed
+    await userEvent.keyboard('an');
+    await expect.poll(() => said.at(-1), { timeout: 3000 }).toBe('2 results');
+    seen.disconnect();
+    expect([idLabels.resultsCount(2), DEFAULT_LABELS.resultsCount(1)]).toEqual(['2 hasil', '1 result']);
+  });
+
   test('contrast: labels and descriptions keep 4.5:1, even highlighted, and the chevron 3:1, in all six themes', async () => {
     await render(<Countries />);
     await open();
@@ -252,5 +299,13 @@ describe('Combobox', () => {
     await settle();
     const name = (id: string) => document.querySelector(`#${id} ~ .dk-combobox__clear`)!.getAttribute('aria-label');
     expect(['f1', 'f2', 'f3', 'f4', 'f5'].map(name)).toEqual(['Clear Country', 'Clear Region', 'Clear Ship to', 'Clear', 'Remove country']);
+  });
+});
+
+describe('Combobox: autocomplete', () => {
+  test('off by default; a passed autoComplete ("country-name") reaches the field', async () => {
+    await render(<><Combobox id="cbac" aria-label="Topic" options={COUNTRIES} /><Combobox id="cbcn" aria-label="Country" options={COUNTRIES} autoComplete="country-name" /></>);
+    const a = document.getElementById('cbac') as HTMLInputElement, b = document.getElementById('cbcn') as HTMLInputElement;
+    expect([a.getAttribute('autocomplete'), b.getAttribute('autocomplete')]).toEqual(['off', 'country-name']);
   });
 });

@@ -13,5 +13,6 @@ interface AvatarProps extends React.HTMLAttributes<HTMLSpanElement> {
     shape?: "circle" | "square";
     status?: AvatarStatus;
     statusLabel?: string;
+    imgProps?: React.ImgHTMLAttributes<HTMLImageElement>;
 }
 declare const Avatar: React.ForwardRefExoticComponent<AvatarProps & React.RefAttributes<HTMLSpanElement>>;

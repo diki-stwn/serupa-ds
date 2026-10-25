@@ -5,6 +5,8 @@ export interface ComboboxLabels {
   loadingResults: string;
   /** Combobox when nothing matches. */
   noResults: string;
+  /** Combobox, said once typing stops: how many options match. */
+  resultsCount: (count: number) => string;
   /** Combobox chevron button. */
   showOptions: string;
   /** Combobox × button, with the field's label when it has one ("Clear Country"). */
@@ -13,12 +15,14 @@ export interface ComboboxLabels {
 export const en: ComboboxLabels = {
   loadingResults: "Loading…",
   noResults: "No results",
+  resultsCount: (count) => count === 1 ? "1 result" : count + " results",
   showOptions: "Show options",
   clearValue: (label) => label ? "Clear " + label : "Clear",
 };
 export const id: ComboboxLabels = {
   loadingResults: "Memuat…",
   noResults: "Tidak ada hasil",
+  resultsCount: (count) => count + " hasil",
   showOptions: "Tampilkan pilihan",
   clearValue: (label) => label ? "Hapus " + label : "Hapus",
 };

@@ -210,3 +210,10 @@ describe('TimePicker', () => {
     await expect.poll(() => el('loc').value).toBe('14:30');
   });
 });
+
+describe('TimePicker: autocomplete', () => {
+  test('off by default; a passed autoComplete reaches the field', async () => {
+    await render(<><TimePicker id="tpac" aria-label="Start" /><TimePicker id="tpon" aria-label="Arrival" autoComplete="on" /></>);
+    expect([document.getElementById('tpac')!.getAttribute('autocomplete'), document.getElementById('tpon')!.getAttribute('autocomplete')]).toEqual(['off', 'on']);
+  });
+});

@@ -214,12 +214,14 @@ describe('Badge', () => {
       <SerupaProvider locale="fa"><Badge id="cfa12" count={12} /></SerupaProvider>
       <SerupaProvider locale="en-US"><Badge id="cen1500" count={1500} max={9999} /></SerupaProvider>
     </>);
-    expect(['car7', 'car120', 'cfa12', 'cen1500'].map((id) => document.getElementById(id)!.textContent)).toEqual(['٧', '٩٩+', '۱۲', '1500']);
+    const shown = (id: string) => { const e = document.getElementById(id)!; return (e.querySelector('[aria-hidden="true"]') || e).textContent; };
+    expect(['car7', 'car120', 'cfa12', 'cen1500'].map(shown)).toEqual(['٧', '٩٩+', '۱۲', '1500']);
+    expect([document.getElementById('car120')!.title, document.getElementById('car120')!.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['١٢٠', '١٢٠']);
   });
 
   test('count: a round pill (20px for one digit), "99+" past the default max, "max+" past a given max; nothing at 0, unless showZero', async () => {
     await show();
-    const m = (id: string) => { const e = el(id), r = e.getBoundingClientRect(); return [e.textContent, Math.round(r.width), Math.round(r.height), css(e).borderTopLeftRadius, css(e).fontVariantNumeric] as const; };
+    const m = (id: string) => { const e = el(id), r = e.getBoundingClientRect(); return [(e.querySelector('[aria-hidden="true"]') || e).textContent, Math.round(r.width), Math.round(r.height), css(e).borderTopLeftRadius, css(e).fontVariantNumeric] as const; };
     const c3 = m('c3');
     expect([c3[0], c3[1], c3[2], c3[4]]).toEqual(['3', 20, 20, 'tabular-nums']);
     expect(parseFloat(c3[3])).toBeGreaterThanOrEqual(10);
@@ -228,6 +230,12 @@ describe('Badge', () => {
     expect(m('c12m9')[0]).toBe('9+');
     expect(el('zero').children.length).toBe(0);
     expect(m('zshow')[0]).toBe('0');
+  });
+
+  test('count past max: "99+" shows, and screen readers and the tooltip get the real count (AW1); your title wins', async () => {
+    await render(<><Badge id="big" count={150} /><Badge id="own" count={150} title="150 unread messages" /><Badge id="few" count={7} /></>);
+    const big = el('big');
+    expect([big.title, big.querySelector('[aria-hidden="true"]')!.textContent, el('own').title, el('few').title, el('few').querySelector('.dk-visually-hidden'), big.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['150', '99+', '150 unread messages', '', null, '150']);
   });
 
   test('count: a badge whose count goes from 0 to 2 and back to 0 appears and disappears without an error (hooks run on every render)', async () => {
@@ -377,7 +385,9 @@ describe('Badge', () => {
 
   test('loading, interactive: a ring at the icon size (12px) centered over the hidden content (a 150ms cross-fade, the ring grows in), width kept, aria-busy and aria-disabled, announced "Loading"; clicks and Enter do nothing, focus stays; off again, it works again', async () => {
     await show();
-    const ld = el('ld'), w0 = ld.getBoundingClientRect();
+    // The layout size, which the press scale (0.97 while :active or data-pressed) doesn't change: a box measured
+    // mid-press reads 131px for 135px (as it once did in CI), and a press still settling here can depend on test order.
+    const ld = el('ld'), w0 = [ld.offsetWidth, ld.offsetHeight];
     const announcer = q('[data-dk-announcer]');
     announcer.textContent = '';
     setLoading(true);
@@ -399,7 +409,7 @@ describe('Badge', () => {
     expect(Math.abs((art.left + art.width / 2) - (r.left + r.width / 2))).toBeLessThan(1);
     expect(Math.abs((art.top + art.height / 2) - (r.top + r.height / 2))).toBeLessThan(1);
     await expect.poll(() => content().map((c) => css(c).opacity).join()).toBe('0,0');
-    expect([Math.round(r.width), Math.round(r.height)]).toEqual([Math.round(w0.width), Math.round(w0.height)]);
+    expect([ld.offsetWidth, ld.offsetHeight]).toEqual(w0);
     // Every badge that started loading at once is said, in one message.
     await expect.poll(() => announcer.textContent).toMatch(/(^|\. )Loading…$/);
     expect([css(ld).cursor, ld.textContent.endsWith('Approve request')]).toEqual(['progress', true]);

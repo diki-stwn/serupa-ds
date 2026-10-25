@@ -4,7 +4,7 @@ interface ImageLabels {
     removeImage: string;
 }
 type ImageRatio = "4:3" | "auto" | "square" | "video" | number;
-interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "alt" | "placeholder" | "src"> {
+interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "alt" | "children" | "placeholder" | "src"> {
     src: string;
     alt: string;
     ratio?: ImageRatio;

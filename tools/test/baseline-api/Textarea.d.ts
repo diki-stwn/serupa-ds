@@ -1,5 +1,5 @@
 // exports: Textarea, type TextareaProps
-interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "rows"> {
+interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "children" | "rows"> {
     size?: "lg" | "md" | "sm";
     rows?: number;
     autoResize?: boolean;

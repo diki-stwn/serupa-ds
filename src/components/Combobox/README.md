@@ -42,7 +42,9 @@ const [owner, setOwner] = React.useState<string | null>(null);
 
 ## Accessibility
 
-- The ARIA combobox pattern: `role="combobox"` with `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` and `aria-activedescendant`, and a `role="listbox"` of `role="option"` items with `aria-selected`. Empty and loading messages are `role="status"`.
+- The ARIA combobox pattern: `role="combobox"` with `aria-expanded`, `aria-controls` (while the list is open), `aria-autocomplete="list"` and `aria-activedescendant`, and a `role="listbox"` of `role="option"` items with `aria-selected`. Empty and loading messages are `role="status"`.
+- An option is named by its label alone. A text `description` is its `aria-description`, so it's read after a pause instead of run into the name.
+- When typing stops, the number of matching options is said ("3 results", `labels.resultsCount`).
 - Labels and descriptions keep 4.5:1, even on the highlighted option, and the chevron 3:1, in all six themes (`Combobox.test.tsx`).
 
 ### Keyboard
@@ -51,7 +53,7 @@ const [owner, setOwner] = React.useState<string | null>(null);
 | --- | --- |
 | ArrowDown, ArrowUp | Open the list, then move through it (skipping disabled options, wrapping) |
 | Alt+ArrowDown | Open without moving |
-| PageUp, PageDown | First and last option |
+| PageUp, PageDown | Up or down by what the list shows at once, stopping at the first and last option |
 | Enter | Pick the highlighted option |
 | Escape | Close and put back the picked label (and stop there, so a surrounding Dialog stays open) |
 
@@ -76,7 +78,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. By default they come from the `showOptions` and `clearValue` labels ("Tampilkan pilihan", "Hapus Negara" in `idLabels`). |
 | `name` | `string` | | Sends the value with a form, in a hidden input. With `form`, the hidden input belongs to that form too. |
 
-`className` and `style` go to the box; `ref` and every other prop go to the `<input>`.
+`className` and `style` go to the box; `ref` and every other prop go to the `<input>`. `autoComplete` is `off` unless you pass one: for a field about the user, pass its purpose, such as `autoComplete="country-name"` for their country, so browsers can fill it (WCAG 1.3.5).
 
 ## Component tokens
 
@@ -98,6 +100,7 @@ Each is an optional override: set it on the page, a container or one combobox. T
 | `--combobox-listbox-radius` | `rounded-lg` | The list's corners (8px). |
 | `--combobox-option-radius` | `rounded-md` | An option's corners (6px). |
 | `--combobox-listbox-max-height` | `spacing-60` | The list's height before it scrolls (240px). |
+| `--combobox-listbox-max-width` | `container-md` | The list's widest, unless the field is wider (448px). Longer labels wrap. |
 | `--combobox-option-height` | `control-height-md` | An option's least height (32px). |
 | `--combobox-listbox-padding` | `spacing-1` | Space inside the list (4px). |
 | `--combobox-option-padding-x` | `spacing-2` | Space on each side of an option (8px). |

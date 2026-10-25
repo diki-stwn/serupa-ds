@@ -22,4 +22,8 @@
 .dk-breadcrumb__rtl, [dir="rtl"] .dk-breadcrumb__ltr { display: none; }
 [dir="rtl"] .dk-breadcrumb__rtl { display: inline-block; }
 @media (prefers-reduced-motion: reduce) { .dk-breadcrumb__item { transition: none; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when a link is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-breadcrumb__link { position: relative; isolation: isolate; }
+.dk-breadcrumb__link::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

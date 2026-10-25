@@ -1,5 +1,5 @@
 // exports: Divider, type DividerProps
-interface DividerProps extends React.HTMLAttributes<HTMLElement> {
+interface DividerProps extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
     orientation?: "horizontal" | "vertical";
     label?: React.ReactNode;
     decorative?: boolean;

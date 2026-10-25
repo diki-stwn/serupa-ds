@@ -36,7 +36,7 @@ const [open, setOpen] = React.useState(false);
 
 - It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was. Focus goes to the first thing that takes it; put `data-autofocus` on another to choose. A backdrop press while a popup is open inside closes only the popup.
 - Left and right drawers are full height. Top and bottom drawers are full width, as tall as their content up to the screen less 64px, and rounded on the open side.
-- The body scrolls on its own, so the header and footer stay in view.
+- The body scrolls on its own, so the header and footer stay in view. While it scrolls it takes Tab focus (with a focus ring), so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
 - It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
 
 - On a phone with a notch or a home bar, the panel's padding and the footer clear them. This needs `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`; without `viewport-fit=cover` the browser keeps the page out of those areas itself.
@@ -79,6 +79,7 @@ Each is an optional override: set it on the page, a container or one drawer. The
 | `--drawer-title-color` | `text` | The title. |
 | `--drawer-description-color` | `text-muted` | The description under the title (4.5:1 on surface). |
 | `--drawer-border` | `border` | The line above the footer. |
+| `--drawer-focus-ring` | `focus-ring` | The keyboard focus ring of a body that scrolls. |
 | `--drawer-shadow` | `shadow-xl` | The panel's shadow. |
 | `--drawer-width-sm` | `container-xs` | size="sm" (320px). |
 | `--drawer-width-md` | `container-sm` | size="md", the default (384px). |

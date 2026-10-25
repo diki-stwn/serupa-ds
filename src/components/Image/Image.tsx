@@ -11,7 +11,7 @@ import * as icons from "../../material/builtin";
 
 export type ImageRatio = 'auto' | 'square' | '4:3' | 'video' | number;
 
-export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'src' | 'placeholder'> {
+export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'src' | 'placeholder' | 'children'> {
   /** The picture's address. */
   src: string;
   /** What the picture shows, for people who can't see it. Required: use "" only for a decorative picture. */

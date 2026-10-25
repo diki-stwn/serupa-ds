@@ -128,7 +128,7 @@
 /* Text variant: the words in the text color, dimmed to --loader-label-dim, with a band of full color
    sweeping left to right through them every 2s (ease-in-out: easing in and out), a shine. The dimmed text keeps 4.5:1 on surface in every
    theme. Browsers without text clipping or color-mix() show the plain text. */
-.dk-loader__label { font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); white-space: nowrap; }
+.dk-loader__label { font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); overflow-wrap: anywhere; }
 .dk-loader--size-sm .dk-loader__label { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-loader--size-lg .dk-loader__label { font-size: var(--text-base); line-height: var(--text-base--line-height); }
 @supports ((background-clip: text) or (-webkit-background-clip: text)) and (color: color-mix(in srgb, currentColor 50%, transparent)) {
