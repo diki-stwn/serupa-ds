@@ -1,4 +1,4 @@
-/*! Serupa v9.1.1 by Diki · base.css */
+/*! Serupa v__VERSION__ by Diki · base.css */
 /* Serupa base: page defaults. Optional — load it after tokens.css and before bundle.css on pages
    built with the system; leave it out when the system is dropped into an existing app.
    Every value is a token. It sets defaults only (all selectors are :where(), so any class wins). */
@@ -67,7 +67,7 @@
 /* Print: filled controls keep their colors, on-screen layers don't print, and data-print-urls shows link addresses. */
 @media print {
   :where(.dk-btn, .dk-badge, .dk-progress, .dk-switch, .dk-checkbox__input, .dk-radio__input, .dk-avatar, .dk-stepper__indicator, .dk-segmented, .dk-alert, .dk-slider, .dk-calendar, .dk-pagination, .dk-tabs) { print-color-adjust: exact; }
-  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list) { display: none !important; }
+  :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-fab) { display: none !important; }
   :where([data-print-urls] a[href^="http"])::after { content: " (" attr(href) ")"; font-size: var(--text-xs); overflow-wrap: anywhere; }
 }
 

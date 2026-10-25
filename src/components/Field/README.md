@@ -1,6 +1,6 @@
 # Field
 
-A label, an optional hint and an error message around one form control, wired up for screen readers. The label names the control, the hint and error are added to its `aria-describedby`, and an error makes the control invalid. It works with Input, Textarea, Select and any native control. With `group` it renders a `<fieldset>` and `<legend>` for a set of checkboxes or radios.
+A label, an optional hint and an error message around one form control, wired up for screen readers. The label names the control, the hint and error are added to its `aria-describedby`, and an error makes the control invalid. It works with Input, Textarea, Select and any native control, a plain `<select>` with its options included. With `group` it renders a `<fieldset>` and `<legend>` for a set of checkboxes or radios.
 
 ```jsx
 const { Field, Input, Textarea } = window.Serupa;
@@ -46,6 +46,8 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 - Screen readers read the label as the control's name and the hint and error as its description, so a person hears "Email, required, invalid entry, We only use it for receipts. Enter an email address like name@example.com."
 - Say what went wrong and how to fix it, not just "Invalid". The error icon is decorative; the words carry the meaning.
 - The `*` is hidden from screen readers, which hear `aria-required` instead. Explain it once at the top of a long form ("Fields marked * are required"), or when most fields are required, mark the optional ones instead.
+- An error that appears or changes after the Field mounts (after a submit, for example) is announced politely, since focus is usually elsewhere and a description is only read on focus. An error already there on first render isn't announced.
+- If nothing on the page has the control's id (a control Field can't reach, with no `id` passed), Field warns once in the console: the label would name nothing.
 - For radios and checkboxes use `group`: screen readers announce the legend when focus enters the set.
 - Label, hint, error and `*` keep 4.5:1 on `surface` in all six themes (`Field.test.tsx`).
 
@@ -57,7 +59,7 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 | `hint` | text or element | | Help under the label, before the control, in `text-muted`; added to the control's `aria-describedby` |
 | `error` | text or element | | A message under the control, in `danger-text` with an icon; makes the control invalid (`invalid` on Serupa components, `aria-invalid` on DOM elements) and is added to its `aria-describedby` |
 | `required` | boolean | `false` | A `*` after the label (hidden from screen readers) and `aria-required` on the control. Add the control's own `required` too if you want the browser's check |
-| `optional` | boolean or text | `false` | "(optional)" after the label, or your own words. Ignored with `required` |
+| `optional` | boolean or text | `false` | "(optional)" after the label (the `fieldOptional` label, "(opsional)" in `idLabels`), or your own words. Ignored with `required` |
 | `disabled` | boolean | `false` | Disables the control (with `group`, every control in the fieldset) and dims the label and hint |
 | `group` | boolean | `false` | A `<fieldset>` and `<legend>` around a set of controls; the hint and error describe the fieldset |
 | `id` | string | | The control's id; by default the control's own `id`, or a generated one |

@@ -40,8 +40,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # --ignore-scripts: npm ci would otherwise run the "prepare" build, and npm run release builds again.
       - if: steps.head.outputs.current
-        run: npm ci
+        run: npm ci --ignore-scripts
       # Releases the version in package.json if it has no tag yet, before new changesets turn into the next
       # Release pull request. Otherwise a merge that lands right after a Release pull request would skip
       # straight to the next version and that one would never be released. Does nothing once it's tagged.

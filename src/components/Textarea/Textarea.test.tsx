@@ -62,7 +62,7 @@ describe('Textarea', () => {
     const ref = React.createRef<HTMLTextAreaElement>();
     await setup(ref);
     const i = el('md');
-    expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels![0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
+    expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels[0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
   });
 
   test('typing (with a new line) updates a controlled value through onChange', async () => {
@@ -220,5 +220,13 @@ describe('Textarea', () => {
     await userEvent.keyboard('x');
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();
+  });
+
+  test('a form reset puts the count back to the default (P2)', async () => {
+    await render(<form id="tf"><Textarea id="trs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>);
+    await userEvent.type(el('trs'), 'cdef');
+    expect(count('trs').textContent).toBe('6 / 10');
+    (document.getElementById('tf') as HTMLFormElement).reset();
+    await expect.poll(() => [el('trs').value, count('trs').textContent]).toEqual(['ab', '2 / 10']);
   });
 });

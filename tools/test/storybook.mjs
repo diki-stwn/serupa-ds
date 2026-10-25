@@ -1,11 +1,11 @@
 // Storybook (npm run build-storybook first): every story and docs page renders without errors, and every
-// story passes axe's WCAG 2.1 AA checks in all six themes (text in a disabled control is exempt from
+// story passes axe's WCAG 2.2 AA checks in all six themes (text in a disabled control is exempt from
 // contrast, as WCAG 1.4.3 says).
 //   node tools/test/storybook.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { PROJECT, browser, report, serve, onlyComponents } from './lib.mjs';
+import { PAGES, PROJECT, browser, inParallel, report, serve, onlyComponents } from './lib.mjs';
 
 const DIR = path.join(PROJECT, 'storybook-static');
 if (!fs.existsSync(path.join(DIR, 'index.json'))) {
@@ -19,17 +19,22 @@ const axe = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe
 const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emerald-light', 'emerald-dark'];
 
 const b = await browser();
-const page = await b.newPage({ viewport: { width: 1000, height: 800 } });
+// Several pages at once (PAGES), each in its own context, collecting its own page errors.
+const workers = await Promise.all(Array.from({ length: PAGES }, async () => {
+  const page = await (await b.newContext({ viewport: { width: 1000, height: 800 } })).newPage();
+  const w = { page, errors: [] };
+  page.on('pageerror', (e) => w.errors.push(e.message));
+  page.on('console', (m) => { if (m.type() === 'error') w.errors.push(m.text()); });
+  return w;
+}));
 const R = [];
-const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
-let errors = [];
-page.on('pageerror', (e) => errors.push(e.message));
-page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+const t = (name, ok, detail) => ({ name, ok: !!ok, detail });
 
 // Opens an entry in a theme and returns what kept it from being ready ('' when it is).
-async function open(e, theme) {
+async function open(w, e, theme) {
   const [brand, mode] = theme.split('-');
-  errors = [];
+  const { page } = w;
+  w.errors = [];
   // a11y.manual stops the a11y addon's own axe run after each story: it shares window.axe with this check's run.
   await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=${e.type === 'docs' ? 'docs' : 'story'}&globals=brand:${brand};mode:${mode};a11y.manual:!true`);
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0 || document.querySelector('#storybook-docs')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
@@ -47,14 +52,15 @@ const only = onlyComponents();
 const mine = (e) => !only || only.has(e.importPath.split('/')[3]);   // ./src/components/<Name>/…
 const docs = shard === 1 ? Object.values(entries).filter((e) => e.type === 'docs' && mine(e)) : [];
 const stories = Object.values(entries).filter((e) => e.type === 'story' && mine(e)).filter((_, i) => i % shards === shard - 1);
-for (const e of docs) {
-  const notReady = await open(e, 'blue-light');
-  const ok = !notReady && await page.evaluate(() => !document.body.classList.contains('sb-show-errordisplay') && (document.querySelector('#storybook-docs')?.textContent || '').trim().length > 50);
-  const missing = await page.evaluate(() => [...document.querySelectorAll('blockquote')].map((q) => q.textContent).filter((x) => /Missing README section/.test(x)));
-  t(`docs · ${e.title}`, ok && !errors.length && !missing.length, [notReady, ...errors, ...missing].filter(Boolean).slice(0, 3).join(' | '));
+async function checkDocs(e, w) {
+  const out = [];
+  const notReady = await open(w, e, 'blue-light');
+  const ok = !notReady && await w.page.evaluate(() => !document.body.classList.contains('sb-show-errordisplay') && (document.querySelector('#storybook-docs')?.textContent || '').trim().length > 50);
+  const missing = await w.page.evaluate(() => [...document.querySelectorAll('blockquote')].map((q) => q.textContent).filter((x) => /Missing README section/.test(x)));
+  out.push(t(`docs · ${e.title}`, ok && !w.errors.length && !missing.length, [notReady, ...w.errors, ...missing].filter(Boolean).slice(0, 3).join(' | ')));
   // In a dark mode the whole docs page follows the theme, so dark components aren't shown on white.
-  const darkNotReady = await open(e, 'blue-dark');
-  const dark = await page.evaluate(() => {
+  const darkNotReady = await open(w, e, 'blue-dark');
+  const dark = await w.page.evaluate(() => {
     const bg = (s) => { const el = document.querySelector(s); return el ? getComputedStyle(el).backgroundColor : null; };
     const want = getComputedStyle(document.body).backgroundColor, text = getComputedStyle(document.querySelector('.sbdocs-content') || document.body).color;
     const off = ['html', '.sbdocs-wrapper', '.sbdocs-preview', '.docs-story'].filter((s) => bg(s) !== null && bg(s) !== want);
@@ -80,17 +86,19 @@ for (const e of docs) {
     }
     return { theme: document.documentElement.getAttribute('data-theme'), want, text, off, code: [...new Set(code)].slice(0, 4), flat: [...new Set(flat)].slice(0, 4) };
   });
-  t(`docs · ${e.title} · dark: the page, story frames, text, code and controls follow the theme`, !darkNotReady && dark.theme === 'blue-dark' && dark.want === 'rgb(9, 9, 11)' && !dark.off.length && dark.text !== 'rgb(46, 52, 56)' && !dark.code.length && !dark.flat.length, darkNotReady || JSON.stringify(dark));
+  out.push(t(`docs · ${e.title} · dark: the page, story frames, text, code and controls follow the theme`, !darkNotReady && dark.theme === 'blue-dark' && dark.want === 'rgb(9, 9, 11)' && !dark.off.length && dark.text !== 'rgb(46, 52, 56)' && !dark.code.length && !dark.flat.length, darkNotReady || JSON.stringify(dark)));
+  return out;
 }
-for (const e of stories) {
+async function checkStory(e, w) {
+  const out = [];
   const problems = [];
   for (const th of THEMES) {
-    const notReady = await open(e, th);
+    const notReady = await open(w, e, th);
     if (notReady) { problems.push(`${th}: ${notReady}`); continue; }
-    const shown = await page.evaluate((th) => !document.body.classList.contains('sb-show-errordisplay') && document.querySelector('#storybook-root')?.children.length > 0 && document.documentElement.getAttribute('data-theme') === th && getComputedStyle(document.documentElement).backgroundColor === getComputedStyle(document.body).backgroundColor, th);
-    if (!shown || errors.length) { problems.push(`${th}: ${errors[0] || 'did not render'}`); continue; }
-    await page.addScriptTag({ content: axe });
-    const v = await page.evaluate(async () => {
+    const shown = await w.page.evaluate((th) => !document.body.classList.contains('sb-show-errordisplay') && document.querySelector('#storybook-root')?.children.length > 0 && document.documentElement.getAttribute('data-theme') === th && getComputedStyle(document.documentElement).backgroundColor === getComputedStyle(document.body).backgroundColor, th);
+    if (!shown || w.errors.length) { problems.push(`${th}: ${w.errors[0] || 'did not render'}`); continue; }
+    await w.page.addScriptTag({ content: axe });
+    const v = await w.page.evaluate(async () => {
       const r = await window.axe.run('#storybook-root', { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'] } });
       // WCAG 1.4.3 exempts text that is part of an inactive control: a disabled Field's dimmed label and hint, or the dimmed text in a disabled Input box (PhoneInput's "+62").
       const inactive = (n) => document.querySelector(n.target.join(' '))?.closest('.dk-field--disabled, .dk-input--disabled, :disabled, [aria-disabled="true"]');
@@ -99,8 +107,10 @@ for (const e of stories) {
     });
     if (v.length) problems.push(`${th}: ${v.join('; ')}`);
   }
-  t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes`, !problems.length, problems.slice(0, 3).join('\n      '));
+  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes`, !problems.length, problems.slice(0, 3).join('\n      ')));
+  return out;
 }
+R.push(...(await inParallel(docs, workers, checkDocs)).flat(), ...(await inParallel(stories, workers, checkStory)).flat());
 await b.close();
 close();
 console.log(`(${docs.length} docs pages, ${stories.length} stories × ${THEMES.length} themes)`);

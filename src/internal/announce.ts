@@ -17,7 +17,9 @@ function region(ch: Channel, live: "polite" | "assertive"): HTMLDivElement | nul
   el.setAttribute("role", live === "polite" ? "status" : "alert");
   el.setAttribute("aria-live", live);
   el.setAttribute(live === "polite" ? "data-dk-announcer" : "data-dk-announcer-assertive", "");
-  el.className = "sr-only";   // the foundation's screen-reader-only utility (Accessibility)
+  // Hidden the way the sr-only utility hides (kept as the class too), set inline so it holds without utilities.css.
+  el.className = "sr-only";
+  el.style.cssText = "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
   home().appendChild(el);
   ch.el = el;
   if (!watching) {

@@ -1,6 +1,7 @@
 // Shared helpers for the Serupa test suite.
 import fs from 'node:fs';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -61,6 +62,18 @@ export async function browser() {
   try { return await pw[ENGINE].launch(opts); } catch (e) { fail(`Can't start ${ENGINE}: run "npx playwright install ${ENGINE}".\n${e.message.split('\n')[0]}`); }
 }
 
+// How many stories the visual and Storybook checks open at once, each in a page of its own. Most of a story's time
+// is waiting (loading, fonts, a settle timer), not drawing, so several pages keep a runner's cores busy.
+// SERUPA_PAGES=1 goes back to one page at a time.
+export const PAGES = Math.max(1, Number(process.env.SERUPA_PAGES) || Math.min(4, os.availableParallelism()));
+// Calls fn(item, worker) for every item, one item per worker at a time, and returns the results in the items' order.
+export async function inParallel(items, workers, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  await Promise.all(workers.map(async (w) => { while (next < items.length) { const i = next++; out[i] = await fn(items[i], w); } }));
+  return out;
+}
+
 // Under Vitest (npm run test:checks) each result is a test of its own, so the reporter lists it with the component
 // tests and -t picks one out; run with node, a suite prints its results and exits with whether they passed.
 const vt = process.env.VITEST ? await import('vitest') : null;
@@ -103,17 +116,25 @@ export function fail(message) {
 // The project a suite checks: the folder given after the script (node tools/test/foundation.mjs <dir>), or this one.
 export const projectArg = () => path.resolve((!vt && process.argv[2]) || PROJECT);
 
+// Files no component, story or picture depends on: a changeset, the release scripts, the Node checks (the checks
+// group runs them whole on every pull request) and the workflows other than CI. A pull request made only of these
+// skips the component, visual and Storybook steps.
+const NEUTRAL = new RegExp('^(' + [
+  String.raw`\.changeset/[\w-]+\.md`, String.raw`tools/(publish|version|release|changeset-check)\.mjs`, 'tools/README\\.md',
+  String.raw`\.github/(CODEOWNERS|dependabot\.yml|workflows/(release|codeql|changeset|visual-baselines|cross-browser)\.yml)`, 'licenses/.*',
+  String.raw`tools/test/(?!(lib|run|visual|storybook)\.mjs$)[\w-]+\.mjs`, String.raw`tools/test/baseline-utilities\.json`,
+].join('|') + ')$');
 // Pull requests test only what they change (run.mjs --since <ref>); the merge queue and main run everything.
 // The components a list of changed files touches, or null when a file outside the component folders (shared code,
-// tokens, tooling, Storybook's setup) could change any of them. Their tests, visual baselines, API baseline and
-// server-render case count as theirs; a changeset or a guide outside src/ touches none.
+// tokens, tooling, Storybook's setup) could change any of them. Their tests, visual baselines, API baseline,
+// server-render case and size budgets count as theirs; the NEUTRAL files touch none.
 export function affectedComponents(files) {
   const names = new Set();
   for (const f of files) {
     const m = /^src\/components\/([A-Z]\w*)\//.exec(f) || /^tools\/test\/baseline-visual\/([A-Z]\w*)\//.exec(f)
-      || /^tools\/test\/baseline-api\/([A-Z]\w*)\.d\.ts$/.exec(f) || /^tools\/test\/ssr\/([A-Z]\w*)\.mjs$/.exec(f);
+      || /^tools\/test\/baseline-api\/([A-Z]\w*)\.d\.ts$/.exec(f) || /^tools\/test\/baseline-size\/([A-Z]\w*)\.json$/.exec(f) || /^tools\/test\/ssr\/([A-Z]\w*)\.mjs$/.exec(f);
     if (m) names.add(m[1]);
-    else if (!/^\.changeset\/[\w-]+\.md$/.test(f)) return null;
+    else if (!NEUTRAL.test(f)) return null;
   }
   return names;
 }

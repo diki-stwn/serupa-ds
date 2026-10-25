@@ -4,6 +4,10 @@
 //   node tools/test/utilities.mjs --update   accept the current output as the new baseline
 // Custom properties count too, so classes that only set a variable (ring colors, gradient stops) are covered.
 // A change shows up as CHANGED (different effect), NEW (class added) or MISSING (class gone).
+// The baseline keeps each class's effect as text ("color:rgb(…);child color:rgb(…)") when it's 200 characters or
+// fewer, so a CHANGED class prints what changed, property by property; longer effects (masks, gradients, filters)
+// keep a hash, and print what the class does now. The page's line height is fixed, so a font family that isn't
+// installed (Inter on a laptop) changes nothing but the font-family itself.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -23,7 +27,7 @@ const internal = [...new Set([...css.matchAll(/--dk-[a-z0-9-]+/g)].map((m) => m[
 
 const b = await browser();
 const page = await b.newPage({ viewport: { width: 1200, height: 800 } });
-await page.goto(writePage('utilities.html', '<div id="host" style="position:relative;width:1000px"></div>'));
+await page.goto(writePage('utilities.html', '<div id="host" style="position:relative;width:1000px;line-height:20px"></div>'));
 await page.evaluate(() => document.fonts.ready);
 
 const measure = ([list, internal]) => {
@@ -47,11 +51,17 @@ const measure = ([list, internal]) => {
   });
 };
 
-const now = {};
+const MAX = 200;
+const now = {}, text = {};
 for (let i = 0; i < classes.length; i += 1000) {
   const chunk = classes.slice(i, i + 1000);
   const out = await page.evaluate(measure, [chunk, internal]);
-  chunk.forEach((c, j) => { now[c] = crypto.createHash('sha1').update(out[j]).digest('hex').slice(0, 12) + (out[j] ? '' : ' (no effect)'); });
+  chunk.forEach((c, j) => {
+    // -webkit- longhands repeat the standard ones (-webkit-mask-position-x and mask-position).
+    const t = out[j].split(';').filter((d) => d && !/^(child )?-webkit-/.test(d)).join(';');
+    text[c] = t;
+    now[c] = !t ? '(no effect)' : t.length <= MAX ? t : '#' + crypto.createHash('sha1').update(t).digest('hex').slice(0, 12);
+  });
 }
 await b.close();
 cleanup();
@@ -65,8 +75,16 @@ const base = JSON.parse(fs.readFileSync(BASE, 'utf8'));
 const changed = classes.filter((c) => c in base && base[c] !== now[c]);
 const added = classes.filter((c) => !(c in base));
 const missing = Object.keys(base).filter((c) => !(c in now));
-const noEffect = classes.filter((c) => now[c].endsWith('(no effect)') && !(base[c] || '').endsWith('(no effect)'));
-for (const c of changed) console.log('CHANGED  .' + c);
+const noEffect = classes.filter((c) => now[c] === '(no effect)' && base[c] !== undefined && !base[c].endsWith('(no effect)'));
+const parts = (v) => (v && !v.startsWith('#') && !v.endsWith('(no effect)') ? v.split(';') : []);
+for (const c of changed) {
+  console.log('CHANGED  .' + c);
+  if (!base[c].startsWith('#') && !/^[0-9a-f]{12}( \(no effect\))?$/.test(base[c])) {   // (a baseline from before kept only hashes)
+    const was = parts(base[c]), is = parts(now[c] === '(no effect)' || now[c].startsWith('#') ? text[c] : now[c]);
+    for (const d of was) if (!is.includes(d)) console.log('           - ' + d);
+    for (const d of is) if (!was.includes(d)) console.log('           + ' + d);
+  } else console.log('           now: ' + (text[c] || '(no effect)').slice(0, 600));
+}
 for (const c of added) console.log('NEW      .' + c);
 for (const c of missing) console.log('MISSING  .' + c + '   (removing or renaming a class is a breaking change: major version)');
 for (const c of noEffect) console.log('NO EFFECT .' + c);

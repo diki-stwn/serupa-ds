@@ -57,6 +57,16 @@ describe('Table', () => {
     expect([f.getAttribute('tabindex'), f.getAttribute('role')]).toEqual([null, null]);
   });
 
+  test('a containerProps aria-label stays off a frame that fits (a div without a role can\'t be named), and names it once it scrolls', async () => {
+    await render(<div style={{ width: '200px' }}>
+      <Table id="tfit" containerProps={{ 'aria-label': 'Fits' }}><TableBody><TableRow><TableCell>a</TableCell></TableRow></TableBody></Table>
+      <Table id="tover" containerProps={{ 'aria-label': 'Wide' }}><TableBody><TableRow><TableCell><div style={{ width: '600px' }}>wide</div></TableCell></TableRow></TableBody></Table>
+    </div>);
+    const fit = el('tfit').parentElement!, over = el('tover').parentElement!;
+    await expect.poll(() => over.getAttribute('role')).toBe('region');
+    expect([fit.hasAttribute('aria-label'), fit.getAttribute('role'), over.getAttribute('aria-label')]).toEqual([false, null, 'Wide']);
+  });
+
   test('the frame: a 1px border, 8px corners, scrolls on overflow; the table fills it', async () => {
     await setup();
     const s = css(el('tdef').parentElement);

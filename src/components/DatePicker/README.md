@@ -37,7 +37,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 - People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Two-digit years are read as 20xx.
 - The field always uses Gregorian years and Latin digits, so a date reads back as the same day in every locale: Thai shows 22/11/2025 rather than the Buddhist year 2568, and Persian shows 2025/11/22 rather than ۱۴۰۴/۰۹/۰۱. Digits typed in another script (٢٢/١١/٢٠٢٥) are read too. The calendar's month and weekday names stay in the locale.
 - The text is read on blur and on Enter. A date that can't be read, or one that can't be chosen, puts back the last good value. An empty field clears it.
-- The calendar opens from the button or Alt+↓ in the field, showing the typed or chosen month with focus on that day. Picking a day, Escape or a click outside closes it and returns focus to the field.
+- The calendar opens from the button or Alt+↓ in the field, showing the typed or chosen month with focus on that day. Picking a day or Escape closes it and returns focus to the field. A click outside or Tab past the calendar closes it too, leaving focus where it went. On a touch screen, a finger that starts a scroll outside leaves it open; a tap outside closes it.
 
 ## Accessibility
 
@@ -62,6 +62,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 | --- | --- | --- | --- |
 | `value` / `defaultValue` | `Date \| null` | | The chosen day, controlled or not. |
 | `onValueChange` | `(date: Date \| null) => void` | | Called with the new day, or `null` when the field is cleared. |
+| `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max` or disabled). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
 | `min`, `max`, `isDateDisabled` | | | Days that can't be chosen, typed or picked. |
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | The typed format and the calendar's names and first day. |
 | `weekStartsOn` | `0`–`6` | the locale's | |

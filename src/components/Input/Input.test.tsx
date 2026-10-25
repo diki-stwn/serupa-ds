@@ -3,10 +3,14 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { color, css, lowContrast, settle } from '../../../tools/test/vitest/helpers';
+import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
+const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLElement;
+const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 
 describe('Input', () => {
   test('a native <input type="text"> in a .dk-input box; md is 32px, text-sm, 12px padding, a 1px border and 6px corners', async () => {
@@ -120,5 +124,64 @@ describe('Input', () => {
       ['focus', 'var(--focus-ring)', 'var(--surface)', 3],
       ['invalid', 'var(--danger)', 'var(--field)', 3],
     ])).toEqual([]);
+  });
+
+  test('showCount: "2 / 5" at the end of the field, linked by aria-describedby after the field\'s own; stops at maxLength and turns text-colored', async () => {
+    await render(<><span id="hint">Up to 5</span><Input id="cnt" showCount maxLength={5} defaultValue="ab" aria-describedby="hint" aria-label="Code" rightIcon={<b>i</b>} /></>);
+    const c0 = count('cnt'), col0 = css(c0).color;
+    expect([c0.textContent, field('cnt').getAttribute('aria-describedby'), c0.nextElementSibling!.className, field('cnt').hasAttribute('maxlength')]).toEqual(['2 / 5', 'hint ' + c0.id, 'dk-input__icon dk-input__icon--right', false]);
+    await userEvent.type(field('cnt'), 'cdefg');
+    expect([field('cnt').value, count('cnt').textContent, count('cnt').classList.contains('dk-input__count--full')]).toEqual(['abcde', '5 / 5', true]);
+    expect(css(count('cnt')).color).not.toBe(col0);
+  });
+
+  test('maxLength counts the characters people see: an emoji family and a flag are one each', async () => {
+    await render(<Input id="emo" showCount maxLength={3} defaultValue="👨‍👩‍👧🇮🇩" aria-label="Emoji" />);
+    expect(count('emo').textContent).toBe('2 / 3');
+    await userEvent.type(field('emo'), 'abc');
+    expect([field('emo').value, count('emo').textContent]).toEqual(['👨‍👩‍👧🇮🇩a', '3 / 3']);
+  });
+
+  test('the count is read out only near the limit: once when few are left, once at the limit, not on every keystroke (idea 105)', async () => {
+    await render(<Input id="near" showCount maxLength={20} aria-label="Near" />);
+    const said: string[] = [];
+    await settle();
+    const seen = new MutationObserver(() => { const t = announcer()?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await userEvent.type(field('near'), 'a'.repeat(16));
+    await expect.poll(() => said.join('|')).toMatch(/4 characters left\.$/);
+    await userEvent.type(field('near'), 'bbbbbb');
+    await expect.poll(() => said.at(-1)).toBe('Character limit reached.');
+    seen.disconnect();
+    expect(said.join('|')).not.toMatch(/(19|10|5|3|2) characters? left/);
+  });
+
+  test('the count in Indonesian, in the locale\'s digits', async () => {
+    await render(<SerupaProvider locale="ar-EG" labels={idLabels}><Input id="ar" showCount maxLength={12} defaultValue="abc" aria-label="Ar" /></SerupaProvider>);
+    expect(count('ar').textContent).toBe('٣ / ١٢');
+    expect(idLabels.charactersLeft(2)).toBe('Sisa 2 karakter.');
+  });
+
+  test('a form reset puts the count back to the default', async () => {
+    await render(<form id="f"><Input id="rs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>);
+    await userEvent.type(field('rs'), 'cdef');
+    expect(count('rs').textContent).toBe('6 / 10');
+    (document.getElementById('f') as HTMLFormElement).reset();
+    await expect.poll(() => [field('rs').value, count('rs').textContent]).toEqual(['ab', '2 / 10']);
+  });
+
+  test('email, URL, username and one-time-code fields: no autocapitalize, autocorrect or spellcheck, unless set (idea 172)', async () => {
+    await render(<>
+      <Input id="em" type="email" aria-label="Email" />
+      <Input id="url" type="url" aria-label="URL" />
+      <Input id="un" autoComplete="username" aria-label="User" />
+      <Input id="otp" autoComplete="one-time-code" aria-label="Code" />
+      <Input id="own" type="email" spellCheck autoCapitalize="on" aria-label="Own" />
+      <Input id="nm" aria-label="Name" />
+    </>);
+    const kb = (id: string) => [field(id).getAttribute('autocapitalize'), field(id).getAttribute('autocorrect'), field(id).getAttribute('spellcheck')];
+    for (const id of ['em', 'url', 'un', 'otp']) expect(kb(id)).toEqual(['off', 'off', 'false']);
+    expect(kb('own')).toEqual(['on', 'off', 'true']);
+    expect(kb('nm')).toEqual([null, null, null]);
   });
 });

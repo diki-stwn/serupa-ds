@@ -8,6 +8,8 @@
 .dk-accordion__item { border-bottom: var(--accordion-border-width, var(--border-width-1)) solid var(--accordion-border, var(--border)); }
 .dk-accordion--card { overflow: hidden; border: var(--accordion-border-width, var(--border-width-1)) solid var(--accordion-border, var(--border)); border-radius: var(--accordion-radius, var(--rounded-lg)); background: var(--accordion-bg, var(--surface)); }
 .dk-accordion--card > .dk-accordion__item:last-child { border-bottom: var(--spacing-0); }
+.dk-accordion__toolbar { display: flex; justify-content: flex-end; padding-block: var(--spacing-2); border-bottom: var(--accordion-border-width, var(--border-width-1)) solid var(--accordion-border, var(--border)); }
+.dk-accordion--card > .dk-accordion__toolbar { padding-inline: var(--accordion-padding-x, var(--spacing-4)); }
 .dk-accordion__heading { margin: var(--spacing-0); font: inherit; }
 .dk-accordion__trigger {
   box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); width: var(--sizing-full);
@@ -28,6 +30,9 @@
   transition: grid-template-rows var(--accordion-duration, var(--duration-200)) var(--ease-in-out), visibility var(--accordion-duration, var(--duration-200));
 }
 .dk-accordion__item--open > .dk-accordion__panel { grid-template-rows: 1fr; visibility: visible; }
+/* Closed and settled: hidden="until-found" hides the content (content-visibility) and lets find-in-page reach it,
+   which needs the panel visible. */
+.dk-accordion__panel:has(> .dk-accordion__clip > .dk-accordion__content[hidden="until-found"]) { visibility: visible; }
 .dk-accordion__clip { min-height: var(--spacing-0); overflow: hidden; }
 .dk-accordion__content { padding-bottom: var(--accordion-padding-y, var(--spacing-4)); color: var(--accordion-content-color, var(--text-muted)); font-size: var(--accordion-content-size, var(--text-sm)); line-height: var(--text-sm--line-height); }
 .dk-accordion--card .dk-accordion__content { padding-inline: var(--accordion-padding-x, var(--spacing-4)); }

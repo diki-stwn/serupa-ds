@@ -5,6 +5,8 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, drag } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Slider } from './Slider';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const thumb = (id: string, i = 0) => el(id).querySelectorAll<HTMLElement>('[role=slider]')[i];
@@ -44,7 +46,7 @@ const setup = async (sref?: React.Ref<HTMLDivElement>) => { calls = []; commits 
 describe('Slider', () => {
   test('your onKeyDown runs first: preventDefault() on a key keeps the slider from changing; other keys still work', async () => {
     const changes: number[] = [];
-    await render(<Slider id="kd" aria-label="Volume" defaultValue={50} onValueChange={(v) => changes.push(v as number)}
+    await render(<Slider id="kd" aria-label="Volume" defaultValue={50} onValueChange={(v) => changes.push(v)}
       onKeyDown={(e) => { if (e.key === 'ArrowRight') e.preventDefault(); }} />);
     thumb('kd').focus();
     await userEvent.keyboard('{ArrowRight}');
@@ -61,6 +63,11 @@ describe('Slider', () => {
     el('before').focus();
     await userEvent.tab(); await userEvent.tab(); await userEvent.tab();
     expect([document.activeElement!.id, seen]).toEqual(['after', ['focus', 'blur']]);
+  });
+
+  test('a range\'s thumb names come from the labels: Indonesian under an id-ID provider', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Slider defaultValue={[20, 80]} /></SerupaProvider>);
+    expect([...document.querySelectorAll('[role="slider"]')].map((t) => t.getAttribute('aria-label'))).toEqual(['Minimum', 'Maksimum']);
   });
 
   test('one thumb: a role="slider" at 50 of 0..100, labelled by aria-labelledby, in the Tab order; ref and className reach the root; md is 20px tall', async () => {

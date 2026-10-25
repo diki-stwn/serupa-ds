@@ -6,6 +6,11 @@ import { named } from "../../internal/component";
 import { FieldContext, type FieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
 import { FieldLabelProvider } from "../../internal/fieldLabel";
+import { useSerupa } from "../../internal/provider";
+import { announce, ensureAnnouncer } from "../../internal/announce";
+import { warnOnce } from "../../internal/warn";
+
+const LABELABLE = new Set(["select", "button", "meter", "output", "progress", "textarea"]);
 
 export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
   /** The label: a <label> linked to the control, or with group, the fieldset's <legend>. */
@@ -46,21 +51,39 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   const hasError = props.error != null && props.error !== false && props.error !== "";
   const hintId = props.hint ? base + "-hint" : null, errorId = hasError ? base + "-error" : null;
   const group = !!props.group;
+  const sds = useSerupa();
+  // An error that appears (or changes) after mount is said politely: it's only a description, which
+  // screen readers read on focus, and focus is usually elsewhere (the submit button) when it shows.
+  const errorRef = React.useRef<HTMLSpanElement>(null);
+  const said = React.useRef<string | null>(null);
+  React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
+  React.useEffect(function () {
+    const text = errorRef.current ? errorRef.current.textContent || "" : "";
+    if (said.current !== null && text && text !== said.current) announce(text);
+    said.current = text;
+  });
+  // The label points at the control by id: say so when nothing on the page has it.
+  React.useEffect(function () {
+    if (!group && props.label != null && !document.getElementById(controlId)) {
+      warnOnce("field-control", "Field: no element has the id \"" + controlId + "\", so the label names nothing. Put the control inside the Field, or pass its id.");
+    }
+  });
   const labelKids = [props.label,
     props.required ? <span className="dk-field__required" aria-hidden key="req">*</span> : null,
-    !props.required && props.optional ? <span className="dk-field__optional" key="opt">{typeof props.optional === "string" ? props.optional : "(optional)"}</span> : null];
+    !props.required && props.optional ? <span className="dk-field__optional" key="opt">{typeof props.optional === "string" ? props.optional : sds.labels.fieldOptional}</span> : null];
   const label = props.label == null ? null : group
     ? React.createElement("legend", { className: "dk-field__label", key: "label" }, ...labelKids)
     : React.createElement("label", { className: "dk-field__label", htmlFor: controlId, id: base + "-label", key: "label" }, ...labelKids);
   const hint = props.hint ? <div className="dk-field__hint" id={hintId as string} key="hint">{props.hint}</div> : null;
-  const error = hasError ? <div className="dk-field__error" key="error"><Icon icon={icons.Error} className="dk-field__error-icon" /><span id={errorId as string}>{props.error}</span></div> : null;
+  const error = hasError ? <div className="dk-field__error" key="error"><Icon icon={icons.Error} className="dk-field__error-icon" /><span id={errorId as string} ref={errorRef}>{props.error}</span></div> : null;
   const described = cn(hintId, errorId);
   const pass = function (el: React.ReactNode, isControl: boolean) {   // the props Field hands a control: components get invalid, DOM elements aria-invalid
     if (!React.isValidElement(el)) return el;
     const p = el.props as ControlProps & { children?: React.ReactNode };
     const add: ControlProps = {}, dom = typeof el.type === "string";
     // A plain element holding other elements is a wrapper, not the control: the control inside reads FieldContext.
-    if (isControl && dom && React.Children.toArray(p.children).some(React.isValidElement)) return el;
+    // A labelable element is the control even with element children (a <select>'s options, a <button>'s icon).
+    if (isControl && dom && !LABELABLE.has(el.type as string) && React.Children.toArray(p.children).some(React.isValidElement)) return el;
     if (isControl) {
       if (!p.id) add.id = controlId;
       if (described) add["aria-describedby"] = cn(p["aria-describedby"], described);

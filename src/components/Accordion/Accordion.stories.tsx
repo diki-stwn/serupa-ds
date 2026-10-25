@@ -33,3 +33,6 @@ export const Card: Story = { args: { variant: 'card' } };
 export const WithDisabled: Story = {
   args: { children: [...items, <AccordionItem key="gift" value="gift" title="Gift wrapping (coming soon)" disabled>Not yet available.</AccordionItem>] },
 };
+
+/** type="multiple" with showExpandAll: one button opens every item, then closes them all. */
+export const ExpandAll: Story = { args: { type: 'multiple', showExpandAll: true, defaultValue: [] } };

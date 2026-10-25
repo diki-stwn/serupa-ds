@@ -5,6 +5,8 @@ import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import * as icons from "../../material/builtin";
+import { useSerupa } from "../../internal/provider";
+import { buttonClass } from "../Button/buttonClass";
 
 export interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
   /** 'single' (default): opening one closes the others. 'multiple': any number can be open. */
@@ -21,6 +23,9 @@ export interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement
   variant?: 'plain' | 'card';
   /** The heading level of the titles, to fit the page's outline. Default: 3. */
   headingLevel?: 2 | 3 | 4 | 5 | 6;
+  /** With type="multiple": an "Expand all" button above the items, which becomes "Collapse all" once every item
+      is open. Disabled items stay as they are. Default: false. */
+  showExpandAll?: boolean;
 }
 
 export interface AccordionItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
@@ -34,6 +39,8 @@ export interface AccordionItemProps extends Omit<React.HTMLAttributes<HTMLDivEle
   children?: React.ReactNode;
 }
 
+const toMs = (t: string) => (parseFloat(t) || 0) * (t.trim().endsWith("ms") ? 1 : 1000);
+
 interface Ctx { open: string[]; toggle: (v: string) => void; level: number; collapsible: boolean; single: boolean; }
 const AccordionContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 
@@ -42,7 +49,8 @@ const AccordionContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
    wrapper. */
 /** Items that show and hide their content under heading buttons; one open at a time, or several. */
 export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProps>("Accordion", function Accordion(props, ref) {
-  const rest = omit(props, { type: 1, value: 1, defaultValue: 1, onValueChange: 1, collapsible: 1, variant: 1, headingLevel: 1, className: 1, children: 1, onKeyDown: 1 });
+  const rest = omit(props, { type: 1, value: 1, defaultValue: 1, onValueChange: 1, collapsible: 1, variant: 1, headingLevel: 1, showExpandAll: 1, className: 1, children: 1, onKeyDown: 1 });
+  const labels = useSerupa().labels;
   const single = props.type !== "multiple";
   const controlled = props.value !== undefined;
   const [inner, setInner] = React.useState<string[]>(() => (props.defaultValue || []).slice(0, single ? 1 : undefined));
@@ -50,15 +58,17 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   const collapsible = props.collapsible !== false;
   const onChange = React.useRef(props.onValueChange);
   onChange.current = props.onValueChange;
+  const change = React.useCallback((next: string[]) => {
+    if (!controlled) setInner(next);
+    if (onChange.current) onChange.current(next);
+  }, [controlled]);
   const toggle = React.useCallback((v: string) => {
     const isOpen = open.indexOf(v) >= 0;
     let next: string[];
     if (single) next = isOpen ? (collapsible ? [] : open) : [v];
     else next = isOpen ? open.filter((x) => x !== v) : open.concat(v);
-    if (next === open) return;
-    if (!controlled) setInner(next);
-    if (onChange.current) onChange.current(next);
-  }, [open, single, collapsible, controlled]);
+    if (next !== open) change(next);
+  }, [open, single, collapsible, change]);
   const level = [2, 3, 4, 5, 6].indexOf(props.headingLevel as number) >= 0 ? (props.headingLevel as number) : 3;
   const variant = oneOf(["plain", "card"] as const, props.variant, "plain");
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -72,15 +82,34 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   }
   let n = 0;
   const items = flattenChildren(props.children).map((c) => React.isValidElement(c) ? React.cloneElement(c as React.ReactElement<{ "data-index"?: string }>, { "data-index": String(n++) }) : c);
+  // Expand all / Collapse all acts on the items that can open and close (not disabled ones).
+  let all: React.ReactNode = null;
+  if (props.showExpandAll && !single) {
+    const values = items.flatMap((c) => {
+      if (!React.isValidElement(c)) return [];
+      const p = c.props as AccordionItemProps & { "data-index"?: string };
+      return p.disabled ? [] : [p.value != null ? p.value : String(p["data-index"])];
+    });
+    const allOpen = values.length > 0 && values.every((v) => open.indexOf(v) >= 0);
+    const onAll = () => change(allOpen ? open.filter((v) => values.indexOf(v) < 0) : open.concat(values.filter((v) => open.indexOf(v) < 0)));
+    all = (
+      <div className="dk-accordion__toolbar">
+        <button type="button" className={buttonClass({ variant: "link", size: "sm", className: "dk-accordion__all" })} onClick={onAll} disabled={!values.length}>
+          {allOpen ? labels.collapseAll : labels.expandAll}
+        </button>
+      </div>
+    );
+  }
   return (
     <AccordionContext.Provider value={{ open, toggle, level, collapsible, single }}>
-      <div {...rest} ref={ref} onKeyDown={onKeyDown} data-component="accordion" className={cn("dk-accordion", variant === "card" && "dk-accordion--card", props.className)}>{items}</div>
+      <div {...rest} ref={ref} onKeyDown={onKeyDown} data-component="accordion" className={cn("dk-accordion", variant === "card" && "dk-accordion--card", props.className)}>{all}{items}</div>
     </AccordionContext.Provider>
   );
 });
 
 /* AccordionItem: a heading holding a button (aria-expanded, aria-controls) and a region (aria-labelledby) that
-   opens and closes with a height animation; closed content is hidden from everyone. */
+   opens and closes with a height animation; closed content is hidden from everyone, but find-in-page can still
+   find it (hidden="until-found"), which opens the item. */
 /** One item in an Accordion: a title button and the content it shows and hides. */
 export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, AccordionItemProps>("AccordionItem", function AccordionItem(props, ref) {
   const ctx = React.useContext(AccordionContext);
@@ -93,6 +122,32 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
   // an open item in a single, non-collapsible accordion can't close: say so with aria-disabled
   const locked = !!ctx && open && ctx.single && !ctx.collapsible;
   const H = ("h" + (ctx ? ctx.level : 3)) as "h3";
+  // Closed content is hidden="until-found": hidden from everyone, but the browser's find-in-page still searches it,
+  // and on a match fires beforematch, which opens the item. It's set once the closing animation ends, so the
+  // content stays visible while it shrinks. React renders any hidden value as hidden="", so it's set here.
+  const content = React.useRef<HTMLDivElement>(null);
+  const toggle = React.useRef<(() => void) | null>(null);
+  toggle.current = ctx && !open && !props.disabled ? () => ctx.toggle(value) : null;
+  const findable = !props.disabled;
+  React.useLayoutEffect(function () {
+    const el = content.current, panel = el && el.closest<HTMLElement>(".dk-accordion__panel");
+    if (!el || !panel) return;
+    if (open || !findable) { el.removeAttribute("hidden"); return; }
+    const style = getComputedStyle(panel);
+    const delays = style.transitionDelay.split(",");
+    const ms = Math.max(0, ...style.transitionDuration.split(",").map((d, i) => toMs(d) + toMs(delays[i] || "0")));
+    const hide = () => el.setAttribute("hidden", "until-found");
+    if (!ms || !el.isConnected || panel.getBoundingClientRect().height === 0) { hide(); return; }
+    const t = setTimeout(hide, ms);
+    return () => clearTimeout(t);
+  }, [open, findable]);
+  React.useEffect(function () {
+    const el = content.current;
+    if (!el) return;
+    const onMatch = () => { if (toggle.current) toggle.current(); };
+    el.addEventListener("beforematch", onMatch);
+    return () => el.removeEventListener("beforematch", onMatch);
+  }, []);
   return (
     <div {...rest} ref={ref} data-state={open ? "open" : "closed"} className={cn("dk-accordion__item", open && "dk-accordion__item--open", props.disabled && "dk-accordion__item--disabled", props.className)}>
       <H className="dk-accordion__heading">
@@ -103,7 +158,7 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
         </button>
       </H>
       <div id={id + "-p"} role="region" aria-labelledby={id + "-t"} className="dk-accordion__panel">
-        <div className="dk-accordion__clip"><div className="dk-accordion__content">{props.children}</div></div>
+        <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content">{props.children}</div></div>
       </div>
     </div>
   );

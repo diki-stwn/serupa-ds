@@ -54,7 +54,7 @@ describe('SerupaProvider labels', () => {
     expect(seen!.labels.close).toBe('Close');
     expect(seen!.locale).toBeUndefined();
     expect(Object.keys(idLabels).sort()).toEqual(Object.keys(seen!.labels).sort());
-    expect(Object.values(idLabels).every((v) => typeof v === 'function' || v.trim() !== '')).toBe(true);
+    expect(Object.values(idLabels).every((v) => typeof v === 'function' || String(v).trim() !== '')).toBe(true);
   });
 });
 
@@ -84,8 +84,8 @@ describe('SerupaProvider locale', () => {
 describe('SerupaProvider icons', () => {
   test('draw by name inside it, and only there', async () => {
     await render(<>
-      <SerupaProvider icons={[Square]}><Icon id="in" name={'my_square' as never} /></SerupaProvider>
-      <Icon id="out" name={'my_square' as never} />
+      <SerupaProvider icons={[Square]}><Icon id="in" name={'my_square'} /></SerupaProvider>
+      <Icon id="out" name={'my_square'} />
     </>);
     expect(q('#in path')?.getAttribute('d')).toBe(Square.d);
     expect(q('#out path')).toBeNull();

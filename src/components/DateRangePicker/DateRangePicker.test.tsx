@@ -30,6 +30,16 @@ function Ctl(props: { changes: string[]; setRef: { set?: (r: DateRange) => void 
 }
 
 describe('DateRangePicker', () => {
+  test('text typed in either field and put back is reported through onInvalidInput', async () => {
+    const calls: string[] = [];
+    await render(<DateRangePicker data-testid="drpi" locale="en-US" min={new Date(2026, 0, 1)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await userEvent.fill(fields('drpi')[0], '12/31/2025');
+    await userEvent.keyboard('{Tab}');
+    await userEvent.fill(fields('drpi')[1], 'later');
+    await userEvent.keyboard('{Enter}');
+    expect([vals('drpi'), calls]).toEqual([' – ', ['12/31/2025:unavailable', 'later:unreadable']]);
+  });
+
   test('a role="group" dk-input box with "Start date" and "End date" fields, a "Choose dates" button; Field labels the start field and describes both; ref and className; defaultValue fills both fields', async () => {
     const ref = React.createRef<HTMLSpanElement>();
     await render(<Trip tref={ref} />);
@@ -93,6 +103,16 @@ describe('DateRangePicker', () => {
     expect(isOpen('trip')).toBe(true);
     await userEvent.click(document.body, { position: { x: 880, y: 680 } });
     expect(isOpen('trip')).toBe(false);
+  });
+
+  test('Tab past the popup closes it, leaving focus on the next control', async () => {
+    await render(<><DateRangePicker id="tab" aria-label="Stay" locale="en-US" /><button id="after">After</button></>);
+    const btn = document.querySelector('.dk-date-range-picker__button') as HTMLButtonElement;
+    await userEvent.click(btn);
+    const pop = document.querySelector('.dk-date-range-picker__popup') as HTMLElement;
+    expect(pop.hidden).toBe(false);
+    for (let i = 0; i < 12 && document.activeElement !== document.getElementById('after'); i++) await userEvent.keyboard('{Tab}');
+    expect([(document.activeElement as HTMLElement).id, pop.hidden]).toEqual(['after', true]);
   });
 
   test('typing the end (yyyy-mm-dd works anywhere) is read on blur; text that isn\'t a date puts back the last good one; a start after the end clears the end', async () => {

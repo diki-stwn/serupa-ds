@@ -18,7 +18,7 @@ Node 26 (`.nvmrc`), which the package also requires (`engines`). TypeScript 7 ty
 ```sh
 npm run build       # src/ → dist/ (tools/build/build.mjs: tsup for the JavaScript and types, then the CSS)
 npm run typecheck   # tsc over src/ (strict), then tools/ and bin/ (JavaScript, checked from JSDoc)
-npm run lint        # ESLint (TypeScript, React hooks rules, the tools) and Stylelint (the CSS)
+npm run lint        # ESLint (TypeScript with type information for src/, React hooks rules, Vitest rules for the tests, no English words written into a component: tools/lint/, the tools) and Stylelint (the CSS)
 ```
 
 `dist/` is build output: never edit it, and it isn't committed. The utility classes come from `src/styles/utilities.template.css`: `tools/utilities/build.mjs` expands its `@each` loops over the tokens in `tokens.json` (so a new color or spacing token gets its classes) and its `@responsive` list into the `sm:` … `2xl:` variants, writing `src/styles/utilities.css` (not committed). The build, `npm run lint`, Storybook and Vitest run it first; `tools/utilities/template.mjs` describes the syntax. `tools/build/registry.mjs` writes `src/generated/` (not committed) from the component folders: the package's export list (each folder's `index.ts`), the CSS imports (in the order of `src/styles/cascade.txt`, then any other component A to Z) and the label sets (each folder's `labels.ts`). The build, `npm run lint`, `npm run typecheck`, Storybook and Vitest run it first.
@@ -35,7 +35,7 @@ node tools/test/run.mjs --list            # the steps it would run (with --group
 node tools/test/run.mjs --since main      # only the components changed since main, and the ones that use them
 npm run test:unit                         # only the component tests (Vitest), straight from src/, in a few seconds
 npm run test:watch                        # the same, re-running as you edit
-npm run test:coverage                     # the same, and which lines they run (coverage/index.html)
+npm run test:coverage                     # the same, and which lines they run (coverage/index.html); fails under the floors in vitest.config.ts
 npx vitest run src/components/Checkbox    # one component's tests
 npm run test:checks                       # the checks below (all but visual and Storybook), in Vitest; build first
 npx vitest run tools/test/foundation.mjs  # one of them (or node tools/test/foundation.mjs, which prints its results)
@@ -55,7 +55,8 @@ says which one broke, with the expected and received values and a screenshot. Sh
 colors, WCAG contrast in all six themes) are in `tools/test/vitest/helpers.ts`.
 
 Every component has its own `<Name>.test.tsx`, and a new component needs one: the contract check fails
-without it. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
+without it. `npm run new-component -- <Name>` (`tools/new-component.mjs`) writes a starting test with the
+rest of the folder; `tools/test/new-component.mjs` checks that what it writes passes the contract. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
 turns them back on with `withMotion()` (one read or one test) or `keepMotion()` (the whole file).
 
 ### Suite scripts
@@ -69,7 +70,7 @@ mode, and a new script is picked up with no entry anywhere. Run with `node`, a s
 | Test | What it checks |
 | --- | --- |
 | `package.mjs` | The package as a project installs it: every file in `exports` exists, React is a peer dependency, `dist/index.js` imports in Node and every component renders on the server (one case file per component in `ssr/`) with no browser globals or React warnings, `dist/index.d.ts` declares every component, and `bundle.css` is exactly `components.css` + `utilities.css` |
-| `size.mjs` | What each file a project loads weighs, gzipped (the JavaScript as a bundler ships it: everything, Button alone, Dialog alone; the CSS files; theme.js; the browser script), against the budget in the script. The lines that grow with every component allow a set amount more per component folder. Over budget fails; raise the line in the same pull request when the growth is worth it. CI writes the table to the run's summary page |
+| `size.mjs` | What each file a project loads weighs, gzipped (the JavaScript as a bundler ships it; the CSS files; theme.js; the browser script), and what each component weighs: imported alone, what it adds to the whole package, and what its CSS adds. Each component's budgets are its own file, `baseline-size/<Name>.json` (`--update <Name>` sets them 5% over what it weighs now), and the totals grow with them, so a component pull request edits only its own file. Over budget fails; raise the budget in the same pull request when the growth is worth it. CI writes the table to the run's summary page |
 | `package-lint.mjs` | The package exactly as a release ships it, through publint (package.json fields, `exports`, file formats) and Are the Types Wrong (every export's types resolve in Node 16+ and bundlers; ESM only, so CommonJS projects `import()` it) |
 | `foundation.mjs` | Contrast of 24 text, control and focus pairs in all six themes (WCAG 2.2) · responsive variants switch at the `screen-*` values · `base.css` reads tokens only · `tokens.json` names are unique and valid · `bundle.css` under 2 MB · every `var()` names a real token, with no fallback value · every stylesheet keeps its rules in its `dk.*` cascade layer · no utility class writes out a value a token holds · Button and Icon use only tokens · every component token (Button, Spinner) refers to a shared token, and the CSS uses each one with exactly the default its tokens file gives · nothing loads from another server · `tokens.css` is in step with `tokens.json` · every width in a media query in `src/` (CSS and `matchMedia()`) is a `screen-*` value (a `max-width` may be the value − 0.02px or − 1px) · one brand list: `theme.js` (`BRANDS`, its default and header), the `ThemeBrand` type and every theme list written out in `tools/test/` match `tokens.json`'s `color.themes`, each brand with a light and a dark theme, and Storybook's toolbar reads `tokens.json` |
 | `design-tokens.mjs` | `design-tokens/` is in step with `tokens.json`; every token has a standard `$type` and a value of the right shape (DTCG 2025.10); every reference resolves; every token in `tokens.json` is exported somewhere |
@@ -88,7 +89,7 @@ mode, and a new script is picked up with no entry anywhere. Run with `node`, a s
 
 When a test fails, it names what changed. If the change is intended, run with `--update` and commit the new baselines with the change.
 
-**Baselines belong to CI.** Screenshots and computed styles differ a little between machines (fonts, anti-aliasing), so `baseline-visual/` and `baseline-utilities.json` are rendered on GitHub's runner: add the `update-visual-baselines` label to a pull request and the Update baselines workflow commits new ones to its branch. Locally, Visual snapshots and Utility classes can fail for that reason alone.
+**Baselines belong to CI.** Screenshots and computed styles differ a little between machines (fonts, anti-aliasing), so `baseline-visual/` and `baseline-utilities.json` are rendered on GitHub's runner: add the `update-visual-baselines` label to a pull request and the Update baselines workflow commits new ones to its branch. Locally, Visual snapshots can fail for that reason alone. Utility classes don't depend on the installed fonts (the page's line height is fixed), and a CHANGED class prints what changed, property by property, or what it does now when its effect is too long to keep as text.
 
 **When `tokens.css` is reported out of date:** it's generated from `tokens.json` by `tools/tokens/build.mjs`. Run `npm run tokens` (or `npm run build`, which runs it first) and commit the new `tokens.css` with the `tokens.json` change. CI checks they match.
 
@@ -97,7 +98,7 @@ When a test fails, it names what changed. If the change is intended, run with `-
 Releases run on GitHub, from changesets (`.changeset/README.md` has the details):
 
 1. **Each pull request** that changes what projects get adds a changeset: `npx changeset` (patch, minor or major, and a note whose lines start with Added, Changed, Fixed…).
-2. **On `main`**, the Release workflow keeps a pull request called "Release: next version" open. It runs `npm run version-packages` (`tools/version.mjs`): the notes go into `CHANGELOG.md` under the new version, and `tools/release.mjs` stamps the version into `package.json`, `src/styles/base.css`, `src/theme.js` and the install lines in `README.md` and `docs/GettingStarted.mdx` (the build puts it in `dist/` and `Serupa.version`).
+2. **On `main`**, the Release workflow keeps a pull request called "Release: next version" open. It runs `npm run version-packages` (`tools/version.mjs`): the notes go into `CHANGELOG.md` under the new version, and `tools/release.mjs` stamps the version into `package.json` and the install lines in `README.md` and `docs/GettingStarted.mdx`. Everything else takes it from `package.json` at build time: `dist/`, `Serupa.version`, and the `__VERSION__` in the headers of `src/styles/base.css` and `src/theme.js`.
 3. **Merging that pull request** releases it: `npm run release` (`tools/publish.mjs`) tags `vX.Y.Z` and makes a GitHub release with the notes and the package (`npm pack`) attached.
 
 The workflow needs one repository setting: Settings → Actions → General → Workflow permissions → **Allow GitHub Actions to create and approve pull requests**. Pull requests the workflow opens don't start CI themselves; the changes in them are the changelog and version numbers.

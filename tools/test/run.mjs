@@ -28,8 +28,9 @@ const only = onlyComponents();
 const node = (g) => ([name, f, ...args]) => [name, 'node', [path.join(HERE, f), ...args], g];
 const vitest = (name, project, g, ...args) => [name, process.execPath, [path.join(PROJECT, 'node_modules', 'vitest', 'vitest.mjs'), 'run', '--project', project, ...args], g];
 const steps = [
-  // The component tests next to each component (src/components/<Name>/<Name>.test.tsx), in a browser.
-  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE ? ['--coverage'] : []), ...(only ? [...only].map((n) => `src/components/${n}/`) : [])),
+  // The component tests next to each component (src/components/<Name>/<Name>.test.tsx), in a browser. Coverage
+  // only on a full run: the floors in vitest.config.ts are for all of src/, which a few components can't reach.
+  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...only].map((n) => `src/components/${n}/`) : [])),
   // --update first accepts the current API and utility classes as the baselines the checks compare with.
   ...(update.length ? [['Public API', 'api.mjs', ...update], ['Utility classes', 'utilities.mjs', ...update]].map(node('checks')) : []),
   // Every other script in tools/test/ is a check (package, tokens, icons, guides, …), run by Vitest's checks project

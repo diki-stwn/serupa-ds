@@ -23,7 +23,7 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 ## When not to use
 
 - A number you only show: write it with `formatPhone`, in a `<a href="tel:+6281234567890">`.
-- Extensions, short codes or numbers outside the countries listed below: use [Input](../Input/README.md) with `type="tel"`.
+- Extensions or short codes: use [Input](../Input/README.md) with `type="tel"`.
 
 ## Usage
 
@@ -31,7 +31,9 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 - Store the E.164 value, not the text in the field. `onValueChange` gives it, and `name` submits it.
 - `complete` says whether the number has a length the country uses. Use it to enable submit or to show an error after blur. It doesn't check that the number exists.
 - Set `defaultCountry` to where most of your users are. Without it, the country comes from the locale's region (`id-ID` gives Indonesia), else the US.
-- Pasting or typing a number that starts with `+` or `00` picks the country from its calling code. A trunk prefix typed at the start (the `0` of `0812…`) is dropped, since the calling code replaces it.
+- Pasting or typing a number that starts with `+` or `00` picks the country from its calling code. Where countries share one, the area decides: `+1 416…` is Canada, `+1 684…` American Samoa, `+7 7…` Kazakhstan, `+44 1481…` Guernsey.
+- A trunk prefix typed at the start (the `0` of `0812…`) is dropped, since the calling code replaces it. So is a calling code typed without `+` ("62 812…" with Indonesia picked), once the number is too long to be a national one.
+- A `+` code PhoneInput doesn't know warns once in the console; its digits are read as a number in the picked country.
 
 ## Accessibility
 
@@ -43,7 +45,12 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 
 ## Countries
 
-Argentina, Australia, Austria, Bangladesh, Belgium, Brazil, Canada, Chile, China, Colombia, Denmark, Egypt, Finland, France, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Japan, Kenya, Malaysia, Mexico, the Netherlands, New Zealand, Nigeria, Norway, Pakistan, Peru, the Philippines, Poland, Portugal, Russia, Saudi Arabia, Singapore, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Turkey, Ukraine, the United Arab Emirates, the United Kingdom, the United States and Vietnam. Each has the usual grouping of a mobile number and the national number's shortest and longest lengths (`PHONE_COUNTRIES` in `phone.ts`).
+Every calling code in the world: 244 countries and territories, one row each in `PHONE_COUNTRIES` (`phone.ts`).
+
+- About 120 have their usual grouping and the national number's shortest and longest lengths. The rest keep their digits ungrouped and accept 4 digits up to E.164's 15 in all.
+- Germany groups by its area code, which is 2 to 5 digits: Berlin is "30 123456", a mobile "151 23456789", Cologne "221 1234567", and the rest "4621 1234567". Tokyo and Osaka (one digit) and London (two) group the same way.
+- The North American Numbering Plan (+1) tells Canada and the Caribbean and Pacific territories from the US by the area code.
+- A row you pass in `countries` replaces the built-in one with the same code, or adds a country: `{ code: "SG", dial: "65", trunk: "", pattern: "## ## ## ##", min: 8, max: 8 }`. The row can also have `patterns` (groupings by the number's start) and `areas` (for a shared calling code).
 
 ## Props
 
@@ -55,7 +62,7 @@ Argentina, Australia, Austria, Bangladesh, Belgium, Brazil, Canada, Chile, China
 | `country` | string | none | The picked country's ISO code (controlled) |
 | `defaultCountry` | string | the locale's region, else `"US"` | The country at first |
 | `onCountryChange` | `(country) => void` | none | Called when the country changes, from the menu or a pasted number |
-| `countries` | string[] | every country above | The countries in the menu, sorted by name |
+| `countries` | `Array<string \| PhoneCountry>` | every country | The countries in the menu, as ISO codes or your own rows, sorted by name |
 | `countryLabel` | string | `"Country"` | The menu's name |
 | `name` | string | none | Submits the E.164 number in a hidden input |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | 24, 32 or 44px, like Input |
@@ -66,7 +73,7 @@ Argentina, Australia, Austria, Bangladesh, Belgium, Brazil, Canada, Chile, China
 ### Helpers
 
 - `formatPhone(e164, preferCountry?)`: "+62 812-3456-7890". A number with no known calling code comes back as it was.
-- `parsePhone(text, preferCountry?)`: `{ country, national }` from "+62 0812…" or "0062…", or `undefined`.
+- `parsePhone(text, preferCountry?, countries?)`: `{ country, national }` from "+62 0812…" or "0062…", or `undefined`. `preferCountry` decides a shared calling code while the area isn't typed yet.
 
 ## Component tokens
 

@@ -44,10 +44,16 @@ const utilities = buildUtilities(P);
 // Each file declares the system's cascade layers in one order (dk.tokens, dk.base, dk.components, dk.utilities),
 // so page styles outside the layers win over them whatever loads first.
 const banner = (what) => `/*! Serupa v${version} by Diki · ${what} · CHANGELOG.md */\n@layer dk.tokens, dk.base, dk.components, dk.utilities;\n`;
-fs.writeFileSync(path.join(D, 'components.css'), banner('components') + components);
-fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + utilities);
-fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + components + utilities);
-fs.copyFileSync(path.join(P, 'src', 'styles', 'base.css'), path.join(D, 'base.css'));
+// Shipped without the source comments (the explained copy is src/), which are about 40% of components.css
+// gzipped; the /*! banner lines stay. The rules keep their layout, so a stack trace or devtools still reads well.
+const bare = (css) => css.replace(/\/\*(?!!)[\s\S]*?\*\//g, '').replace(/[ \t]+$/gm, '').replace(/\n{2,}/g, '\n');
+fs.writeFileSync(path.join(D, 'components.css'), banner('components') + bare(components));
+fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + bare(utilities));
+fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + bare(components) + bare(utilities));
+// base.css and theme.js say __VERSION__ in src/; the build writes package.json's version there, so a release changes
+// the number in one place.
+const stamp = (s) => s.replaceAll('__VERSION__', version);
+fs.writeFileSync(path.join(D, 'base.css'), stamp(bare(read('src/styles/base.css'))));
 
 // components.json: for each component, the names it exports, the dk-* classes its CSS uses and the components it
 // needs (the ones it imports, and the ones whose classes it writes out). serupa-purge --components reads it to
@@ -75,7 +81,7 @@ scan(path.join(P, 'src'));
 const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/g)].map((m) => m[1].replace(/\\(.)/g, '$1')));
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
-fs.copyFileSync(path.join(P, 'src', 'theme.js'), path.join(D, 'theme.js'));
+fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
 
 // React 19 ships no browser builds (React 18's umd/ folder), so they're built here, under the names and globals
 // React 18's had. react-dom takes React from window.React, so both use the one copy.

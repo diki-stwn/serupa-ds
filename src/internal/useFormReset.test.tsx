@@ -13,7 +13,7 @@ import { TimePicker } from '../components/TimePicker/TimePicker';
 // after its action) must put their default back, as it does for a native field.
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 const form = () => q('#f') as HTMLFormElement;
-const sent = () => Object.fromEntries([...new FormData(form()).entries()].map(([k, v]) => [k, String(v)]));
+const sent = () => Object.fromEntries([...new FormData(form()).entries()].map(([k, v]) => [k, typeof v === "string" ? v : v.name]));
 const typeInto = async (sel: string, text: string) => {
   const el = q(sel) as HTMLInputElement;
   await userEvent.clear(el);

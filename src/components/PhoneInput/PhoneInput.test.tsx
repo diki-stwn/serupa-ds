@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
@@ -17,7 +17,7 @@ const dial = (id: string) => (box(id).querySelector('.dk-phone-input__dial') as 
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 const pick = (sel: HTMLSelectElement, code: string) => userEvent.selectOptions(sel, code);
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
@@ -32,7 +32,7 @@ describe('PhoneInput', () => {
     expect([b.className, b.dataset.component, b.style.marginTop, b.getBoundingClientRect().height]).toEqual(['dk-input dk-phone-input dk-input--size-md extra', 'phone-input', '2px', 32]);
     expect([menu('p').getAttribute('aria-label'), menu('p').value, dial('p')]).toEqual(['Country', 'ID', '+62']);
     // Each option names the country in the locale's words, with its calling code, sorted by name.
-    const names = [...menu('p').options].map((o) => o.textContent!);
+    const names = [...menu('p').options].map((o) => o.textContent);
     expect(names).toContain('Indonesia (+62)');
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en-US')));
     expect(names.length).toBe(PHONE_COUNTRIES.length);
@@ -134,10 +134,46 @@ describe('PhoneInput', () => {
     expect(low).toEqual([]);
   });
 
+  test('a calling code typed without "+" ("62 812…" with Indonesia picked) is dropped once the number is too long to be national, not doubled', async () => {
+    const calls: string[] = [];
+    await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="ID" onValueChange={(v) => calls.push(v)} /></Wrap>);
+    await userEvent.type(field('p'), '62 812-3456-7890');
+    expect([field('p').value, calls.at(-1)]).toEqual(['812-3456-7890', '+6281234567890']);
+    await pick(menu('p'), 'US');
+    await userEvent.fill(field('p'), '1 415 555 0123');
+    expect([field('p').value, calls.at(-1)]).toEqual(['(415) 555-0123', '+14155550123']);
+  });
+
+  test('Germany groups by the area code: "030 123456" is "30 123456"', async () => {
+    await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="DE" /></Wrap>);
+    await userEvent.type(field('p'), '030 123456');
+    expect(field('p').value).toBe('30 123456');
+  });
+
+  test('countries takes your own rows, which replace the built-in one; an unknown "+" code warns once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const mine = { code: 'SG', dial: '65', trunk: '', pattern: '## ## ## ##', min: 8, max: 8 };
+    await render(<Wrap><PhoneInput id="p" aria-label="Phone" countries={['ID', mine]} defaultCountry="SG" /></Wrap>);
+    expect([...menu('p').options].map((o) => o.value).join()).toBe('ID,SG');
+    await userEvent.type(field('p'), '91234567');
+    expect(field('p').value).toBe('91 23 45 67');
+    await userEvent.fill(field('p'), '+65 8123 4567');
+    expect([menu('p').value, field('p').value]).toEqual(['SG', '81 23 45 67']);
+    await userEvent.fill(field('p'), '+999 123');
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes("calling code PhoneInput doesn't know")).length).toBe(1);
+    warn.mockRestore();
+  });
+
   test('the helpers: parsePhone, formatPhone, formatNational', () => {
     expect(parsePhone('+62 0812-3456-7890')).toEqual({ country: phoneCountry('ID'), national: '81234567890' });
     expect(parsePhone('+1 416 555 0199', 'CA')!.country.code).toBe('CA');
-    expect(parsePhone('+1 416 555 0199')!.country.code).toBe('US');
+    // A shared calling code: the area picks the country (Canada's 416, American Samoa's 684, Kazakhstan's 7xx, Guernsey's 1481).
+    expect(['+1 416 555 0199', '+1 684 733 1234', '+1 212 555 0199', '+7 701 123 4567', '+7 495 123 4567', '+44 1481 123456', '+44 7400 123456'].map((v) => parsePhone(v)!.country.code)).toEqual(['CA', 'AS', 'US', 'KZ', 'RU', 'GG', 'GB']);
+    expect([parsePhone('+1 212 555 0199', 'CA')!.country.code, parsePhone('+1 4', 'CA')!.country.code]).toEqual(['US', 'CA']);
+    // Every calling code in the world: Sri Lanka, and a country with no listed grouping (Aruba) keeps its digits ungrouped.
+    expect([formatPhone('+94771234567'), formatPhone('+2975601234'), PHONE_COUNTRIES.length]).toEqual(['+94 77 123 4567', '+297 5601234', 244]);
+    // German area codes are 2 to 5 digits: Berlin, a mobile, Cologne, and a 4-digit one.
+    expect(['+4930123456', '+4915123456789', '+492211234567', '+4946211234567'].map((v) => formatPhone(v))).toEqual(['+49 30 123456', '+49 151 23456789', '+49 221 1234567', '+49 4621 1234567']);
     expect([parsePhone('0812'), parsePhone('+999 1')]).toEqual([undefined, undefined]);
     expect([formatPhone('+6281234567890'), formatPhone('+74951234567'), formatPhone('+999123')]).toEqual(['+62 812-3456-7890', '+7 495 123-45-67', '+999123']);
     expect(formatNational('81234567890123', phoneCountry('ID')!)).toBe('812-3456-7890123');

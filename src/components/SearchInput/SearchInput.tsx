@@ -7,10 +7,11 @@ import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
+import { useFormReset } from "../../internal/useFormReset";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
-export interface SearchInputProps extends Omit<InputProps, "type" | "leftIcon" | "rightIcon"> {
+export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" | "leftIcon" | "rightIcon"> {
   /** Called with the text when Enter is pressed. */
   onSearch?: (value: string) => void;
   /** Called after the field is cleared, by the × or Escape. The field's onChange also gets an empty value. */
@@ -41,6 +42,8 @@ export const SearchInput = /* @__PURE__ */ component<HTMLInputElement, SearchInp
   const [typed, setTyped] = React.useState(String(props.defaultValue ?? ""));
   const text = controlled ? String(props.value ?? "") : typed;
   const locked = !!rest.disabled || !!rest.readOnly;
+  // A form reset empties the field (or puts defaultValue back): the × follows it, instead of staying on an empty field.
+  useFormReset(el, () => { if (!controlled) setTyped(String(props.defaultValue ?? "")); });
 
   const clear = () => {
     const i = el.current;

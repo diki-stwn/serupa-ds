@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
@@ -11,7 +11,7 @@ const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('.dk-s
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
@@ -117,5 +117,14 @@ describe('SearchInput', () => {
     await userEvent.hover(clearBtn('slg')!);
     await expect.poll(() => css(clearBtn('slg')).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     await expect.poll(() => css(clearBtn('stok')).color).toBe('rgb(1, 2, 3)');
+  });
+  test('form reset: the field empties (or goes back to defaultValue) and the × follows it, instead of staying on an empty field (Q1)', async () => {
+    await render(<form id="rf"><SearchInput id="r1" aria-label="Search" /><SearchInput id="r2" aria-label="Search" defaultValue="apollo" /></form>);
+    await userEvent.type(field('r1'), 'mars');
+    await userEvent.fill(field('r2'), 'gemini');
+    expect([!!clearBtn('r1'), !!clearBtn('r2')]).toEqual([true, true]);
+    (document.getElementById('rf') as HTMLFormElement).reset();
+    await expect.poll(() => !!clearBtn('r1')).toBe(false);
+    expect([field('r1').value, field('r2').value, !!clearBtn('r2')]).toEqual(['', 'apollo', true]);
   });
 });

@@ -7,6 +7,7 @@ import { Calendar } from '../Calendar/Calendar';
 import { DatePicker } from './DatePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
+const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
 const popup = (id: string) => document.querySelector(`#${id} ~ .dk-date-picker__popup`) as HTMLElement;
 const button = (id: string) => document.querySelector(`#${id} ~ .dk-date-picker__button`) as HTMLButtonElement;
 const focused = () => { const a = document.activeElement as HTMLElement; return a.dataset.date || a.id || a.tagName; };
@@ -19,6 +20,15 @@ function Ctl(props: { calls: string[]; setRef?: { set?: (d: Date | null) => void
 }
 
 describe('DatePicker', () => {
+  test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
+    const calls: string[] = [];
+    await render(<DatePicker id="dpi" locale="en-US" defaultValue={new Date(2026, 4, 10)} min={new Date(2026, 0, 1)} max={new Date(2026, 11, 31)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await type('dpi', 'soon');
+    await type('dpi', '03/04/2030');
+    expect([el('dpi').value, calls]).toEqual(['05/10/2026', ['soon:unreadable', '03/04/2030:unavailable']]);
+    await expect.poll(() => announcerA()?.textContent).toContain('"03/04/2030" wasn\'t accepted, so the previous value was kept.');
+  });
+
   test('in a 500px tall window with the field at mid-height, the calendar stays on screen and scrolls inside, so its last week can be reached', async () => {
     await page.viewport(900, 500);
     try {
@@ -93,6 +103,29 @@ describe('DatePicker', () => {
     expect(popup('dp').hidden).toBe(false);
     await userEvent.click(document.body, { position: { x: 340, y: 5 } });
     expect(popup('dp').hidden).toBe(true);
+  });
+
+  test('Tab past the calendar closes it, leaving focus on the next control; Shift+Tab back to the button keeps it open', async () => {
+    await render(<><DatePicker id="dp" aria-label="Start" locale="en-US" defaultValue={new Date(2025, 0, 1)} /><button id="after">After</button></>);
+    await userEvent.click(button('dp'));
+    expect(popup('dp').hidden).toBe(false);
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    expect(popup('dp').hidden).toBe(false);
+    for (let i = 0; i < 12 && document.activeElement !== el('after') && document.activeElement !== document.getElementById('after'); i++) await userEvent.keyboard('{Tab}');
+    expect([focused(), popup('dp').hidden]).toEqual(['after', true]);
+  });
+
+  test('touch: a finger that starts a scroll outside (pointercancel, no click) leaves the calendar open; a tap outside closes it', async () => {
+    await render(<DatePicker id="dp" aria-label="Start" locale="en-US" defaultValue={new Date(2025, 0, 1)} />);
+    await userEvent.click(button('dp'));
+    const touch = (type: string) => document.body.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: 'touch' }));
+    touch('pointerdown'); touch('pointercancel');
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(popup('dp').hidden).toBe(false);
+    touch('pointerdown'); touch('pointerup');
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await expect.poll(() => popup('dp').hidden).toBe(true);
   });
 
   test('name: a hidden input sends yyyy-mm-dd; controlled, with max: a day after max puts back the value; a good day calls onValueChange and the hidden input follows; a new value from outside rewrites the field', async () => {

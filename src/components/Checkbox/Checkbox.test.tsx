@@ -96,13 +96,13 @@ describe('Checkbox', () => {
     await settle(300);
     const icon = () => input('m').nextElementSibling as HTMLElement;
     expect(input('m').indeterminate).toBe(true);
-    expect((icon().querySelector('.dk-icon') as HTMLElement | null)?.dataset.icon).toBe('remove');
+    expect((icon().querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).toBe('remove');
     expect(css(icon()).visibility).toBe('visible');
     expect(css(input('m')).backgroundColor).toBe(color('var(--primary)'));
     await page.getByText('Select all').click();
     expect(input('m').indeterminate).toBe(false);
     expect(input('m').checked).toBe(true);
-    expect((icon().querySelector('.dk-icon') as HTMLElement | null)?.dataset.icon).toBe('check');
+    expect((icon().querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).toBe('check');
   });
 
   test('description: a muted second line under the label, added after the checkbox\'s own aria-describedby', async () => {

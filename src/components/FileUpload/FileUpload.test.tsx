@@ -11,7 +11,7 @@ const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const many = '[data-testid=many]';
 const rootOf = (id: string) => document.getElementById(id)!.closest('[data-component=file-upload]') as HTMLElement;
 const list = (root: Element) => [...root.querySelectorAll('.dk-file-upload__item')].map((li) => li.querySelector('.dk-file-upload__name')!.textContent + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
-const errs = (root: Element) => { const e = root.querySelector('.dk-file-upload__errors'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent!.replace(/^error/, '')).join(' / ') : null; };
+const errs = (root: Element) => { const e = root.querySelector('.dk-file-upload__errors'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
 const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.textContent).join();
 const input = (root: Element) => root.querySelector('input[type=file]') as HTMLInputElement;
 const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonElement;

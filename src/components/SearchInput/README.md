@@ -32,6 +32,7 @@ const [q, setQ] = React.useState("");
 
 - The × shows only when there's text and the field isn't disabled or read-only. Clicking it clears the field and keeps focus there.
 - Escape clears a field that has text, and stops there, so a surrounding Dialog or Popover stays open. On an empty field Escape passes through.
+- A form reset empties the field, or puts `defaultValue` back, and the × follows it.
 - The browser's own clear button is hidden, so there's only one ×.
 
 ## Accessibility

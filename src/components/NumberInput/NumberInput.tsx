@@ -11,9 +11,10 @@ import { formatNumber, parseNumber } from "../../internal/numbers";
 import { gridPlaces, roundTo } from "../../internal/step";
 import { useLocale, useSerupa } from "../../internal/provider";
 import { minorDigits } from "../../internal/currency";
+import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 
-export interface NumberInputProps extends Omit<InputProps, "type" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
+export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
   /** The number (controlled), or null when the field is empty. Use with onValueChange. */
   value?: number | null;
   /** The number at first (uncontrolled). */
@@ -86,6 +87,20 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   // A new value, locale or format from outside rewrites the field, unless people are typing in it.
   React.useEffect(() => { if (!focused.current) setText(shown); }, [shown]);
   const el = React.useRef<HTMLInputElement | null>(null);
+  // The form gets the number itself ("1500000", or cents with minorUnits) from a hidden input, not the shown text
+  // ("Rp 1.500.000"), so the visible field has no name. form (the attribute) goes to both, so a field outside its form works.
+  const name = rest.name;
+  delete rest.name;
+  const raw = React.useRef<HTMLInputElement | null>(null);
+  // A form reset puts the default back (uncontrolled) and rewrites the text, which the browser reset to its first value.
+  const [, rerender] = React.useState(0);
+  useFormReset(name ? raw : el, () => {
+    focused.current = false;
+    const v = controlled ? value : (major(props.defaultValue) ?? null);
+    if (!controlled) setOwnValue(v);
+    setText(show(v));
+    rerender((n) => n + 1);
+  });
   const locked = !!rest.disabled || !!rest.readOnly;
 
   const fit = (v: number) => {
@@ -150,6 +165,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
         role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}
         onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={(e) => { focused.current = true; if (rest.onFocus) rest.onFocus(e); }} />
+      {name ? <input type="hidden" ref={raw} name={name} form={rest.form} disabled={rest.disabled} value={value == null ? "" : String(factor === 1 ? value : Math.round(value * factor))} /> : null}
       {props.steppers !== false ? (
         <span className="dk-number-input__steppers">
           <button type="button" tabIndex={-1} className="dk-number-input__step" aria-label={props.decrementLabel || sds.labels.decrease} aria-controls={rest.id}

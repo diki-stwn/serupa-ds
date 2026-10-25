@@ -7,6 +7,7 @@ import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { useSerupa } from "../../internal/provider";
 
 export type SliderValue = number | [number, number];
 /** V is a number for one thumb or [low, high] for a range, inferred from value, defaultValue or the callbacks. */
@@ -32,7 +33,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   disabled?: boolean;
   /** Turns a value into the words read out (aria-valuetext), such as "$40". Default: the number. */
   formatValue?: (value: number) => string;
-  /** A range's thumb names. Default: ["Minimum", "Maximum"]. A single thumb is named by aria-label or aria-labelledby. */
+  /** A range's thumb names. Default: the sliderMinimum and sliderMaximum labels ("Minimum", "Maximum"). A single thumb is named by aria-label or aria-labelledby. */
   thumbLabels?: [string, string];
   /** Submits the value with a form: one hidden input, or two with the same name for a range. */
   name?: string;
@@ -54,6 +55,7 @@ const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min
 /** Picks a number, or a range with two thumbs, on a track. */
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
   const rest = omit(props, OWN);
+  const sds = useSerupa();
   const min = isFinite(Number(props.min)) && props.min != null ? Number(props.min) : 0;
   const maxIn = isFinite(Number(props.max)) && props.max != null ? Number(props.max) : 100;
   const max = maxIn > min ? maxIn : min + 1;
@@ -64,7 +66,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const [own, setOwn] = React.useState<SliderValue>(props.defaultValue ?? min);
   const raw = controlled ? (props.value as SliderValue) : own;
   const isRange = Array.isArray(raw);
-  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw as number)];
+  const vals: number[] = isRange ? [snap((raw as number[])[0]), snap((raw as number[])[1])].sort((a, b) => a - b) : [snap(raw)];
   const latest = React.useRef(vals); latest.current = vals;
   const root = React.useRef<HTMLDivElement | null>(null);
   useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? min); });
@@ -146,7 +148,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const onFocus = (e: React.FocusEvent<HTMLDivElement>) => { if (rest.onFocus && crossing(e)) rest.onFocus(e); };
   const onBlur = (e: React.FocusEvent<HTMLDivElement>) => { if (rest.onBlur && crossing(e)) rest.onBlur(e); };
 
-  const names = props.thumbLabels || ["Minimum", "Maximum"];
+  const names = props.thumbLabels || [sds.labels.sliderMinimum, sds.labels.sliderMaximum];
   // In a Field, its label names the slider (or a range's group) and its hint and error describe the thumb (or the group).
   const fieldLabel = useFieldLabel(props.id);
   const labelledBy = props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel);

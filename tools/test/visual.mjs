@@ -2,7 +2,8 @@
 // with the saved image in baseline-visual/<Component>/: at rest in every theme, and hovered and focused in the
 // first theme (blue-light).
 //   node tools/test/visual.mjs            check
-//   node tools/test/visual.mjs --update   accept the current look as the new baseline
+//   node tools/test/visual.mjs --update   accept the current look as the new baseline (a picture that differs
+//                                         only within the tolerance keeps its old file)
 //   SERUPA_SHARD=2/3 node tools/test/visual.mjs   every third story, starting with the second (CI runs the shards
 //                                                in parallel)
 // A story without a baseline fails the check; --update (or the "update-visual-baselines" label) writes one.
@@ -14,7 +15,7 @@
 // Small anti-aliasing differences between machines are tolerated (TOLERANCE of pixels may differ).
 import fs from 'node:fs';
 import path from 'node:path';
-import { HERE, PROJECT, browser, report, serve, suffix, onlyComponents } from './lib.mjs';
+import { HERE, PAGES, PROJECT, browser, inParallel, report, serve, suffix, onlyComponents } from './lib.mjs';
 
 const TOLERANCE = 0.002;          // share of pixels allowed to differ
 const DIR = path.join(HERE, `baseline-visual${suffix}`);
@@ -41,10 +42,11 @@ const saved = () => fs.readdirSync(DIR, { recursive: true }).map((f) => String(f
 
 const { base, close } = serve(SB);
 const b = await browser();
-const page = await b.newPage({ viewport: { width: 900, height: 600 }, deviceScaleFactor: 1 });
+// Several pages at once (PAGES), each in its own context so focus and the pointer stay its own.
+const pages = await Promise.all(Array.from({ length: PAGES }, async () => (await b.newContext({ viewport: { width: 900, height: 600 }, deviceScaleFactor: 1 })).newPage()));
 const R = [];
 
-async function diff(a, bb) {   // share of differing pixels, computed in the browser (no image libraries needed)
+async function diff(page, a, bb) {   // share of differing pixels, computed in the browser (no image libraries needed)
   return page.evaluate(async ([a, bb]) => {
     const load = (s) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = 'data:image/png;base64,' + s; });
     const [x, y] = await Promise.all([load(a), load(bb)]);
@@ -58,7 +60,7 @@ async function diff(a, bb) {   // share of differing pixels, computed in the bro
 
 // Screenshot once the page has stopped changing: two captures 100 ms apart must match, so a late paint
 // (a popover still placing itself, a glyph still loading on a slow runner) can't land in the image.
-async function stableShot() {
+async function stableShot(page) {
   let last = await page.screenshot({ fullPage: true });
   for (let i = 0; i < 10; i++) {
     await page.waitForTimeout(100);
@@ -71,7 +73,7 @@ async function stableShot() {
 
 // Focus the way a keyboard does (so :focus-visible applies): press Tab from the top of the page until focus
 // is on the element or inside it.
-async function tabTo(el) {
+async function tabTo(page, el) {
   const handle = await el.elementHandle();
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press('Tab');
@@ -81,7 +83,7 @@ async function tabTo(el) {
 }
 
 // Opens a story in a theme, with motion off, once it has drawn and its fonts have loaded. '' when ready.
-async function open(e, theme) {
+async function open(page, e, theme) {
   const [brand, mode] = theme.split('-');
   await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};a11y.manual:!true`);
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
@@ -94,14 +96,15 @@ async function open(e, theme) {
   return '';
 }
 
-for (const e of stories) {
+async function checkStory(e, page) {
+  const out = [];
   const c = component(e);
   fs.mkdirSync(path.join(DIR, c), { recursive: true });
   for (const th of THEMES) {
     for (const state of th === THEMES[0] ? ['rest', 'hover', 'focus'] : ['rest']) {
       const name = `${c}/${e.exportName}-${th}-${state}`;
-      const notReady = await open(e, th);
-      if (notReady) { R.push({ name, ok: false, detail: notReady }); continue; }
+      const notReady = await open(page, e, th);
+      if (notReady) { out.push({ name, ok: false, detail: notReady }); continue; }
       if (state !== 'rest') {
         // What to hover and focus: the element marked data-visual-target="hover" / ="focus" for this state, else the one
         // marked data-visual-target, else the story's first enabled control (for focus, wherever the first Tab lands in
@@ -113,27 +116,34 @@ for (const e of stories) {
         if (!(await el.count())) continue;
         if (state === 'focus' && !(await el.evaluate((n) => n.closest('[data-visual-target]')))) el = page.locator('#storybook-root');
         if (state === 'hover') await el.hover({ timeout: 5000 }).catch(() => {});
-        else if (!(await tabTo(el))) {
-          R.push({ name, ok: false, detail: 'Tab never reaches the element to focus; mark one that takes keyboard focus with data-visual-target, or tag the story "!visual"' });
+        else if (!(await tabTo(page, el))) {
+          out.push({ name, ok: false, detail: 'Tab never reaches the element to focus; mark one that takes keyboard focus with data-visual-target, or tag the story "!visual"' });
           continue;
         }
       }
-      const shot = await stableShot();
+      const shot = await stableShot(page);
       const file = path.join(DIR, `${name}.png`);
-      if (update) { fs.writeFileSync(file, shot); continue; }
+      // --update rewrites a baseline only when the new picture differs past the tolerance, so re-rendering on another
+      // run doesn't commit hundreds of pictures that only changed in anti-aliasing.
+      if (update) {
+        if (!fs.existsSync(file) || await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64')) > TOLERANCE) fs.writeFileSync(file, shot);
+        continue;
+      }
       // A missing baseline fails: only --update (or the "update-visual-baselines" label) writes one, so a
       // story can't pass without being compared.
       if (!fs.existsSync(file)) {
         fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
-        R.push({ name, ok: false, detail: 'no baseline; add the "update-visual-baselines" label to the pull request (or run node tools/test/visual.mjs --update) and review the new images' });
+        out.push({ name, ok: false, detail: 'no baseline; add the "update-visual-baselines" label to the pull request (or run node tools/test/visual.mjs --update) and review the new images' });
         continue;
       }
-      const share = await diff(fs.readFileSync(file).toString('base64'), shot.toString('base64'));
+      const share = await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'));
       if (share > TOLERANCE) fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
-      R.push({ name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ; see ${name}.actual.png` });
+      out.push({ name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ; see ${name}.actual.png` });
     }
   }
+  return out;
 }
+R.push(...(await inParallel(stories, pages, checkStory)).flat());
 await b.close();
 close();
 // A baseline whose story is gone: --update (run whole, not sharded) removes it, and the check fails on it.

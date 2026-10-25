@@ -35,12 +35,15 @@ const { Accordion, AccordionItem } = window.Serupa;
 - Use `type="multiple"` when people may want two sections open to compare them.
 - Set `headingLevel` to fit the page's outline.
 - Keep anything people must not miss out of a closed item: closed content is hidden from everyone.
+- With many items and `type="multiple"`, add `showExpandAll` so people can open everything at once (to read or print the whole page) and close it again.
+- The browser's find-in-page (Ctrl+F or ⌘F) searches closed items too, and opens the item a match is in.
 
 ## Accessibility
 
 - Follows the WAI-ARIA accordion pattern: each title is a button inside a heading, with `aria-expanded` and `aria-controls`; the content is a region labelled by its title.
 - Up and Down move between titles (wrapping, skipping disabled ones), Home and End go to the first and last; Enter and Space open and close.
-- Closed content is hidden from everyone (`visibility: hidden`), so it's out of the tab order and screen readers skip it.
+- Closed content is `hidden="until-found"`, so it's out of the tab order and screen readers skip it, but find-in-page still finds it: a match fires `beforematch`, which opens that item (in `single`, closing the open one). It's set once the closing animation ends. A disabled item's content stays `visibility: hidden` and isn't searchable. Before hydration, and in browsers without `until-found`, closed content is `visibility: hidden` as before.
+- The Expand all button is a plain `<button>` that says "Expand all" or, once every enabled item is open, "Collapse all" (the `expandAll` and `collapseAll` labels in `SerupaProvider`). Disabled items stay as they are.
 - With `collapsible={false}` the open item's button has `aria-disabled`, since pressing it does nothing.
 - Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). With reduced motion it opens without animating.
 
@@ -57,6 +60,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 | `collapsible` | boolean | `true` | With `single`: lets the open item close, leaving none open |
 | `variant` | `'plain'` \| `'card'` | `'plain'` | Lines between items, or a bordered, rounded frame |
 | `headingLevel` | `2`–`6` | `3` | The titles' heading level, to fit the page outline |
+| `showExpandAll` | boolean | `false` | With `multiple`: an Expand all / Collapse all button above the items |
 
 `className`, `style`, `ref` and everything else go to the wrapper, which has `data-component="accordion"`.
 

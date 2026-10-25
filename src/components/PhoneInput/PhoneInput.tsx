@@ -7,6 +7,7 @@ import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { useLocale, useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { warnOnce } from "../../internal/warn";
 import { PHONE_COUNTRIES, formatNational, isPhoneComplete, parsePhone, phoneCountry, stripTrunk, toE164, type PhoneCountry } from "./phone";
 
 /** What onValueChange reports with the E.164 number. */
@@ -19,7 +20,7 @@ export interface PhoneValueDetails {
   complete: boolean;
 }
 
-export interface PhoneInputProps extends Omit<InputProps, "type" | "value" | "defaultValue" | "onChange" | "leftIcon" | "rightIcon"> {
+export interface PhoneInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "onChange" | "leftIcon" | "rightIcon"> {
   /** The number in E.164, such as "+6281234567890", or "" (controlled). Use with onValueChange. */
   value?: string;
   /** The number at first (uncontrolled), in E.164. */
@@ -32,8 +33,8 @@ export interface PhoneInputProps extends Omit<InputProps, "type" | "value" | "de
   defaultCountry?: string;
   /** Called with the ISO code when the country changes, from the menu or a pasted "+…" number. */
   onCountryChange?: (country: string) => void;
-  /** The countries in the menu, as ISO codes; the menu sorts them by name. Default: every country PhoneInput knows. */
-  countries?: string[];
+  /** The countries in the menu, as ISO codes or your own PhoneCountry rows (which replace the built-in row with the same code); the menu sorts them by name. Default: every country PhoneInput knows. */
+  countries?: Array<string | PhoneCountry>;
   /** The country menu's name. Default: "Country". */
   countryLabel?: string;
   /** Submits the E.164 number under this name in a hidden input. */
@@ -68,23 +69,32 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
 
+  // The rows this field knows: the built-in ones, with any rows passed in countries in place of the same code.
+  const table = React.useMemo(function () {
+    const mine = (props.countries || []).filter((c): c is PhoneCountry => typeof c === "object" && !!c && !!c.code);
+    if (!mine.length) return PHONE_COUNTRIES;
+    const codes = new Set(mine.map((c) => c.code.toUpperCase()));
+    return mine.map((c) => ({ ...c, code: c.code.toUpperCase() })).concat(PHONE_COUNTRIES.filter((c) => !codes.has(c.code)));
+  }, [props.countries]);
+  const find = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
   const list = React.useMemo(function () {
-    const picked = props.countries ? props.countries.map(phoneCountry).filter((c): c is PhoneCountry => !!c) : PHONE_COUNTRIES.slice();
+    const pick = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
+    const picked = props.countries ? props.countries.map((c) => pick(typeof c === "string" ? c : c && c.code)).filter((c): c is PhoneCountry => !!c) : table.slice();
     let names: Intl.DisplayNames | undefined;
     try { names = new Intl.DisplayNames([locale], { type: "region" }); } catch { names = undefined; }
     return picked.map((c) => ({ c, name: (names && names.of(c.code)) || c.code })).sort((a, b) => a.name.localeCompare(b.name, locale));
-  }, [props.countries, locale]);
-  const fallback = phoneCountry(props.defaultCountry) || phoneCountry(regionOf(locale)) || phoneCountry("US")!;
-  const start = parsePhone(props.value ?? props.defaultValue ?? "", props.country ?? props.defaultCountry);
+  }, [props.countries, table, locale]);
+  const fallback = find(props.defaultCountry) || find(regionOf(locale)) || find("US") || phoneCountry("US")!;
+  const start = parsePhone(props.value ?? props.defaultValue ?? "", props.country ?? props.defaultCountry, table);
 
   const [ownCountry, setOwnCountry] = React.useState<string>(() => (start ? start.country.code : fallback.code));
-  const country = phoneCountry(props.country) || phoneCountry(ownCountry) || fallback;
+  const country = find(props.country) || find(ownCountry) || fallback;
   const [national, setNational] = React.useState(() => (start ? start.national : ""));
   // A controlled value that changed from outside (not the one this field just reported) is read again.
   const reported = React.useRef(start ? toE164(start.national, start.country) : "");
   let shown = national;
   if (props.value !== undefined && props.value !== reported.current) {
-    const p = parsePhone(props.value, country.code);
+    const p = parsePhone(props.value, country.code, table);
     shown = p ? p.national : "";
     reported.current = props.value;
     if (shown !== national) setNational(shown);
@@ -123,10 +133,15 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     const raw = e.target.value, at = e.target.selectionStart ?? raw.length;
     let before = raw.slice(0, at).replace(/\D/g, "").length;
     if (/^\s*(\+|00)/.test(raw)) {
-      const p = parsePhone(raw, country.code);
+      const p = parsePhone(raw, country.code, table);
       if (p) { const d = commit(p.national, p.country); caret.current = formatNational(d, p.country).length; return; }
+      if (raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
     }
-    const all = raw.replace(/\D/g, ""), digits = stripTrunk(all, country);
+    const all = raw.replace(/\D/g, "");
+    let digits = stripTrunk(all, country);
+    // Too long for a national number but starts with the calling code ("62 812…" typed with Indonesia picked): the
+    // code was typed without "+", so it's dropped rather than written twice.
+    if (digits.length > country.max && all.startsWith(country.dial)) digits = stripTrunk(all.slice(country.dial.length), country);
     if (digits.length < all.length) before = Math.max(0, before - (all.length - digits.length));
     const d = commit(digits, country);
     caret.current = caretAfter(formatNational(d, country), Math.min(before, d.length));
@@ -149,7 +164,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   };
 
   const onCountry = function (e: React.ChangeEvent<HTMLSelectElement>) {
-    const c = phoneCountry(e.target.value);
+    const c = find(e.target.value);
     if (c) commit(shown, c);
   };
 

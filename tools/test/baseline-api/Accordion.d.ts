@@ -1,4 +1,8 @@
 // exports: Accordion, AccordionItem, type AccordionItemProps, type AccordionProps
+interface AccordionLabels {
+    expandAll: string;
+    collapseAll: string;
+}
 interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
     type?: "multiple" | "single";
     value?: string[];
@@ -7,6 +11,7 @@ interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "def
     collapsible?: boolean;
     variant?: "card" | "plain";
     headingLevel?: 2 | 3 | 4 | 5 | 6;
+    showExpandAll?: boolean;
 }
 interface AccordionItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
     value?: string;

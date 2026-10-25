@@ -6,7 +6,7 @@ import path from 'node:path';
 import { PROJECT } from '../lib.mjs';
 
 const file = path.join(PROJECT, 'coverage', 'coverage-summary.json');
-if (!fs.existsSync(file)) { console.log('No coverage report (coverage/coverage-summary.json).'); process.exit(0); }
+if (!fs.existsSync(file)) { console.log('No coverage report (coverage/coverage-summary.json): a pull request tests only the components it changes, and coverage is measured on full runs (main).'); process.exit(0); }
 const data = JSON.parse(fs.readFileSync(file, 'utf8'));
 const pct = (m) => `${m.pct.toFixed(1)}%`;
 const row = (name, s) => `| ${name} | ${pct(s.lines)} | ${pct(s.branches)} | ${pct(s.functions)} |`;

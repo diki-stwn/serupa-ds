@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button, type ButtonAsButtonProps } from './Button';
 import { iconArg } from '../../../.storybook/icon-arg';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 const meta = {
   title: 'Components/Actions/Button',
@@ -85,4 +86,16 @@ export const Loading: Story = {
     const [busy, setBusy] = React.useState(false);
     return <Button loading={busy} loadingText="Saving" onClick={() => { setBusy(true); setTimeout(() => setBusy(false), 2000); }}>Save</Button>;
   },
+};
+
+/** disabledReason: a disabled button that stays focusable and says why, here with a Tooltip showing the same words. */
+export const DisabledWithReason: Story = {
+  render: (args) => (
+    <Tooltip content="Fill in your name first"><Button {...args} disabled disabledReason="Fill in your name first">Save</Button></Tooltip>
+  ),
+};
+
+/** An onClick that returns a promise: loading until it settles, then the successText with a check for 2 seconds. */
+export const AsyncSuccess: Story = {
+  render: (args) => <Button {...args} successText="Saved" onClick={() => new Promise((ok) => setTimeout(ok, 1200))}>Save changes</Button>,
 };

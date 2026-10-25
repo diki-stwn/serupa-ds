@@ -53,7 +53,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `trigger` | element | required | One element that can take focus; it gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` |
 | `children` | node, or `(close) => node` | required | The content. The function form gets `close()` for a Done or Cancel button |
 | `title` | node | none | A heading at the top that names it |
-| `placement` | `'bottom'`, `'top'`, `'left'`, `'right'`, each with `-start` or `-end` | `'bottom'` | Where it goes; it flips and shifts to stay on screen, and with no room on either side it takes the roomier one and scrolls inside |
+| `placement` | `'bottom'`, `'top'`, `'left'`, `'right'`, each with `-start` or `-end` | `'bottom'` | Where it goes; it flips and shifts to stay on screen, and with no room on either side it takes the roomier one and scrolls inside. On the left or right, a popover wider than the room beside its trigger gets that width and wraps |
 | `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled) |
 | `aria-label` | string | none | Its name when there's no title |
 | `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |

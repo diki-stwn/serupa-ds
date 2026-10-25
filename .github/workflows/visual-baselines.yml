@@ -5,6 +5,9 @@ name: Update baselines
 # runner CI uses. Add the "update-visual-baselines" label to a pull request to re-render them on
 # its branch; the new baselines are committed back to the branch. Review them in
 # the pull request's Files changed tab before merging.
+# Only the components the pull request changes (and the ones that use them) are re-rendered, as in CI, and a
+# picture is rewritten only when it differs past the check's tolerance, so the commit holds only real changes and
+# two pull requests that change different components don't conflict over each other's pictures.
 on:
   pull_request:
     types: [labeled]
@@ -22,18 +25,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          # The base branch's history too, to find where the pull request started (git merge-base).
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      # --ignore-scripts: npm ci would otherwise run the "prepare" build, and the next step builds.
+      - run: npm ci --ignore-scripts
       - uses: ./.github/actions/playwright
       - name: Render the baselines
+        id: render
         run: |
+          base=$(git merge-base "origin/$BASE_REF" HEAD)
+          echo "base=$base" >> "$GITHUB_OUTPUT"
           npm run build
           npm run build-storybook
-          node tools/test/visual.mjs --update
+          node tools/test/run.mjs --group visual --update --since "$base"
           node tools/test/utilities.mjs --update
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
       - name: Commit them to the branch
         run: |
           git add tools/test/baseline-visual tools/test/baseline-utilities.json
@@ -42,13 +53,21 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Update test baselines on the CI runner"
           git push
+          # The pull request's CI run for the commit before this one tests pictures that are now replaced: stop it, so
+          # its runners go to the run below.
+          for status in queued in_progress; do
+            gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch "$HEAD_REF" --event pull_request --status "$status" --json databaseId --jq '.[].databaseId' \
+              | xargs -r -n1 gh run cancel --repo "$GITHUB_REPOSITORY" || true
+          done
           # A push made with the workflow's token starts no workflows, so start CI on the branch: its checks
-          # land on the new head commit, which the pull request's required checks look at.
+          # land on the new head commit, which the pull request's required checks look at. "since" makes it test only
+          # what the pull request changes, as the pull request's own run does.
           # The branch name is the PR author's text: it reaches the shell as a variable, never pasted into the script.
-          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF"
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF" -f since="$BASE"
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE: ${{ steps.render.outputs.base }}
       - name: Remove the label
         if: always()
         env:

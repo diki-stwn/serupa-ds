@@ -67,7 +67,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 | `stickyHeader` | boolean | `false` | Keeps the header in view; give the frame a height with `containerProps` |
 | `caption` | node | none | The table's title, as its `<caption>` |
 | `captionHidden` | boolean | `false` | Hides the caption on screen; screen readers still announce it |
-| `containerProps` | div props | none | Go to the scrolling frame, which has `data-component="table"` |
+| `containerProps` | div props | none | Go to the scrolling frame, which has `data-component="table"`. An `aria-label` or `aria-labelledby` here names the frame only while it scrolls (when it's a region); a caption takes precedence |
 
 `className`, `ref` and everything else go to the `<table>`.
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
@@ -20,7 +20,7 @@ const shown = (id: string) => [...el(id).querySelectorAll('li')].map((li) => {
   return e.getAttribute('aria-current') ? `[${e.textContent}]` : e.textContent;
 }).join(' ');
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 afterEach(() => {
   expect(errors).not.toHaveBeenCalled();
   errors.mockRestore();

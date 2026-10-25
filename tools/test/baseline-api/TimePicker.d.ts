@@ -6,6 +6,7 @@ interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElemen
     value?: null | string;
     defaultValue?: null | string;
     onValueChange?: (value: null | string) => void;
+    onInvalidInput?: (text: string, reason: "unavailable" | "unreadable") => void;
     min?: string;
     max?: string;
     step?: number;

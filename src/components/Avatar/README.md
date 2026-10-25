@@ -30,7 +30,7 @@ const { Avatar } = window.Serupa;
 - Pass `name` even when there's a `src`: it gives the accessible name, and the initials if the picture fails to load.
 - Next to the written name, pass `alt=""` so screen readers don't read it twice.
 - Use circles for people and squares for everything else.
-- Set `statusLabel` when the status means something more specific, such as "in a meeting".
+- Set `statusLabel` when the status means something more specific, such as "in a meeting". By default the status is read through the `avatarStatus` label, so it follows the provider's language ("daring" in `idLabels`).
 
 ## Accessibility
 

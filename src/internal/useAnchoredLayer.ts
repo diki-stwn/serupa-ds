@@ -11,8 +11,11 @@ export interface AnchoredLayerOptions {
   fallback?: Placement;
   /** The custom property holding the gap between anchor and layer, such as "--dk-menu-offset". */
   offsetVar: string;
-  /** Called on a press outside the layer and `inside`. */
+  /** Called on a press outside the layer and `inside`. On touch it waits for the tap's click, so a finger that
+      starts a scroll outside doesn't close the layer. */
   onOutside?: () => void;
+  /** Called when focus moves to an element outside the layer, the anchor and `inside` (Tab past the layer). */
+  onFocusOutside?: () => void;
   /** An element a press on doesn't count as outside, such as the button that opens the layer. */
   inside?: Ref;
   /** Keeps the layer at least as wide as the anchor, as a list under its field. */
@@ -22,12 +25,13 @@ export interface AnchoredLayerOptions {
 }
 
 /** Shows `layer` in the top layer next to `anchor` while open, following scrolls, resizes and size changes;
-    a press outside the layer (and `inside`) calls onOutside. Focus is the caller's: do it in a layout effect
+    a press outside the layer (and `inside`) calls onOutside, and focus moving outside them and the anchor calls
+    onFocusOutside. Focus is the caller's: do it in a layout effect
     declared after this hook, which runs once the layer is shown and placed. */
 export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: AnchoredLayerOptions): void {
   const { placement, fallback = "bottom", offsetVar, inside, matchWidth, watch } = opts;
-  const outside = React.useRef(opts.onOutside);
-  useIsoLayoutEffect(() => { outside.current = opts.onOutside; });
+  const outside = React.useRef(opts.onOutside), focusOutside = React.useRef(opts.onFocusOutside);
+  useIsoLayoutEffect(() => { outside.current = opts.onOutside; focusOutside.current = opts.onFocusOutside; });
   useIsoLayoutEffect(() => {
     const p = layer.current, a = anchor.current;
     if (!p) return;
@@ -43,16 +47,39 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
     if (ro) { ro.observe(p); ro.observe(a); }
     window.addEventListener("scroll", scrolled, true); window.addEventListener("resize", update);
-    return () => { if (ro) ro.disconnect(); window.removeEventListener("scroll", scrolled, true); window.removeEventListener("resize", update); };
+    // A phone's keyboard opening, or pinch-zoom, moves the visual viewport without a window resize or scroll.
+    const vv = window.visualViewport;
+    if (vv) { vv.addEventListener("resize", update); vv.addEventListener("scroll", update); }
+    return () => {
+      if (ro) ro.disconnect(); window.removeEventListener("scroll", scrolled, true); window.removeEventListener("resize", update);
+      if (vv) { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); }
+    };
   }, [open, layer, anchor, placement, fallback, offsetVar, matchWidth, watch]);
   React.useEffect(() => {
     if (!open) return;
+    const within = (t: EventTarget | null, refs: Array<Ref | undefined>) => refs.some((r) => !!r && !!r.current && t instanceof Node && r.current.contains(t));
+    // A touch outside waits for its click: a finger that drags (a scroll) gets pointercancel and no click.
+    let touch = false;
     const down = (e: PointerEvent) => {
-      const t = e.target as Node;
-      for (const r of [layer, inside]) if (r && r.current && r.current.contains(t)) return;
-      if (outside.current) outside.current();
+      touch = false;
+      if (within(e.target, [layer, inside])) return;
+      if (e.pointerType === "touch") touch = true;
+      else if (outside.current) outside.current();
     };
+    const cancel = () => { touch = false; };
+    const click = (e: MouseEvent) => {
+      if (!touch) return;
+      touch = false;
+      if (!within(e.target, [layer, inside]) && outside.current) outside.current();
+    };
+    const focus = (e: FocusEvent) => { if (focusOutside.current && !within(e.target, [layer, anchor, inside])) focusOutside.current(); };
     document.addEventListener("pointerdown", down, true);
-    return () => document.removeEventListener("pointerdown", down, true);
-  }, [open, layer, inside]);
+    document.addEventListener("pointercancel", cancel, true);
+    document.addEventListener("click", click, true);
+    document.addEventListener("focusin", focus, true);
+    return () => {
+      document.removeEventListener("pointerdown", down, true); document.removeEventListener("pointercancel", cancel, true);
+      document.removeEventListener("click", click, true); document.removeEventListener("focusin", focus, true);
+    };
+  }, [open, layer, anchor, inside]);
 }

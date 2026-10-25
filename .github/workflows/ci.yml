@@ -7,8 +7,15 @@ on:
   push:
     branches: [main]
   # The Release workflow starts this on the Release pull request's branch: GitHub doesn't run CI for a pull
-  # request that a workflow opened or updated, and main needs these checks to merge it.
+  # request that a workflow opened or updated, and main needs these checks to merge it. The Update baselines
+  # workflow starts it too, after committing new pictures, with "since" set to where the pull request started, so
+  # that run tests only what the pull request changes, as its own run would.
   workflow_dispatch:
+    inputs:
+      since:
+        description: Test only the components changed since this commit (empty tests everything)
+        required: false
+        default: ''
 
 # A new push to a pull request cancels the run for the push before it, which nothing would read; runs on main
 # all finish, so every commit there keeps its result.
@@ -63,6 +70,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci --ignore-scripts
+      # Every installed package's registry signature and provenance attestation checks out, so a tampered
+      # tarball in the lockfile or the cache fails here.
+      - name: Dependencies are signed by the registry
+        run: npm audit signatures
       - name: Every file carries the same version
         run: node tools/release.mjs --check
       - name: Type check
@@ -76,7 +87,9 @@ jobs:
     name: suite (${{ matrix.group }}${{ matrix.shard && format(' {0}', matrix.shard) || '' }})
     needs: build
     strategy:
-      fail-fast: false
+      # On a pull request, the first failing group cancels the others, so the runners go to the next run sooner
+      # (the failure is already enough to fix). Main runs every group to the end, so each failure there shows.
+      fail-fast: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.since != '') }}
       matrix:
         # The visual snapshots and Storybook's check (every preview or story in six themes) are the slowest, so
         # they run as shards (SERUPA_SHARD).
@@ -97,8 +110,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          # A pull request's merge commit and the base it merges into (HEAD^1), to see what it changes.
-          fetch-depth: 2
+          # A pull request's merge commit and the base it merges into (HEAD^1), to see what it changes; a run started
+          # with "since" needs the history back to that commit.
+          fetch-depth: ${{ github.event_name == 'workflow_dispatch' && inputs.since != '' && '0' || '2' }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
@@ -116,7 +130,7 @@ jobs:
           SERUPA_COVERAGE: ${{ matrix.group == 'components' && '1' || '' }}
           # On a pull request, a change inside component folders tests only those components and the ones that use
           # them (run.mjs --since); main runs everything after the merge.
-          SINCE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}
+          SINCE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || inputs.since }}
         run: |
           set -o pipefail
           node tools/test/run.mjs --group ${{ matrix.group }} ${SINCE:+--since "$SINCE"} 2>&1 | tee test-output.txt

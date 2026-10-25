@@ -68,8 +68,11 @@ describe('RelativeTime', () => {
     host.innerHTML = renderToString(ui);
     document.body.appendChild(host);
     const errors: string[] = [];
-    await React.act(async () => { hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    await React.act(async () => { root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
     expect([errors, host.querySelector('time')!.textContent]).toEqual([[], '5 minutes ago']);
+    // Unmounted, not only removed: a mounted RelativeTime keeps the shared clock running into the next test.
+    React.act(() => root!.unmount());
     host.remove();
   });
 });
