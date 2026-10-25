@@ -25,7 +25,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   /** The earliest and latest times, as "HH:mm". */
   min?: string;
   max?: string;
-  /** Minutes between the times in the list. Default: 30. Typed times don't have to fall on a step. */
+  /** Minutes between the times in the list (not seconds, as <input type="time"> counts its step: 15, not 900). Default: 30. Typed times don't have to fall on a step. */
   step?: number;
   /** A BCP 47 locale for how times are written. Default: the nearest SerupaProvider's locale, else the browser's. */
   locale?: string;

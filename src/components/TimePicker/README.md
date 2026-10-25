@@ -50,7 +50,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 | `onValueChange` | `(value: string \| null) => void` | | Called with `"HH:mm"`, or `null` when the field is cleared. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a time) or `"unavailable"` (outside `min`..`max`). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
 | `min`, `max` | `string` | `"00:00"`, `"23:59"` | The earliest and latest times, typed or picked. |
-| `step` | `number` | `30` | Minutes between the times in the list, counted from `min` (or midnight), like `<input type="time">`. Under 1, it's 30. Typed times don't have to fall on a step. |
+| `step` | `number` | `30` | **Minutes** between the times in the list, counted from `min` (or midnight). Under 1, it's 30. Typed times don't have to fall on a step. `<input type="time">` counts its `step` in seconds, so a native `step={900}` (15 minutes) becomes `step={15}` here; `step={900}` would list a time every 15 hours. |
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | How times are written. |
 | `hour12` | `boolean` | the locale's | 12-hour (2:30 PM) or 24-hour (14:30). |
 | `size`, `invalid` | | `'md'`, `false` | Like Input. |
