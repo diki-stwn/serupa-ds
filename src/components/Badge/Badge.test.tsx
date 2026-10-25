@@ -528,3 +528,36 @@ describe('Badge', () => {
     } finally { restore(); }
   });
 });
+
+describe('focus after removing a tag (179)', () => {
+  function Tags({ onGone }: { onGone?: (name: string) => void }) {
+    const [tags, setTags] = React.useState(['Design', 'Code', 'Docs']);
+    return <><input id="add" aria-label="Add a tag" />
+      <ul>{tags.map((t) => <li key={t}><Badge onRemove={() => { setTags((l) => l.filter((x) => x !== t)); onGone?.(t); }}>{t}</Badge></li>)}</ul></>;
+  }
+  const focused = () => document.activeElement?.getAttribute('aria-label') || document.activeElement?.id || document.activeElement?.tagName;
+
+  test('moves to the next tag\'s ×, or the one before at the end of the list, instead of dropping to the page', async () => {
+    await render(<Tags />);
+    (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(focused).toBe('Remove Docs');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(focused).toBe('Remove Design');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.querySelectorAll('[data-component="badge"]').length).toBe(0);
+    expect(focused()).toBe('BODY');   // nothing left to go to: the app moves focus (to the input that adds tags)
+  });
+
+  test('leaves focus alone when the handler moves it, or keeps the badge', async () => {
+    await render(<><Tags onGone={() => (document.getElementById('add') as HTMLElement).focus()} /><Badge id="kept" onRemove={() => {}}>Kept</Badge></>);
+    (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(focused()).toBe('Add a tag');
+    (document.querySelector('[aria-label="Remove Kept"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(focused()).toBe('Remove Kept');
+  });
+});
