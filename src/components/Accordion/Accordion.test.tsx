@@ -10,9 +10,9 @@ import { Accordion, AccordionItem } from './Accordion';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > .dk-accordion__item')];
 const state = (id: string) => items(id).map((i) => (i.dataset.state === 'open' ? 1 : 0)).join('');
-const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('.dk-accordion__trigger') as HTMLButtonElement;
-const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('.dk-accordion__panel') as HTMLElement;
-const focused = () => document.activeElement!.querySelector('.dk-accordion__title')?.textContent;
+const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('button[aria-expanded]') as HTMLButtonElement;
+const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[role=region]') as HTMLElement;
+const focused = () => (document.activeElement!.matches('button[aria-expanded]') ? document.activeElement!.textContent : undefined);
 // The open and close animation finished (the panel and the chevron).
 const settled = (id: string) => Promise.all(el(id).getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
 
@@ -78,7 +78,7 @@ describe('Accordion', () => {
       <SerupaProvider labels={idLabels}><Accordion id="aid" type="multiple" showExpandAll><AccordionItem title="A">1</AccordionItem></Accordion></SerupaProvider>
       <Accordion id="asingle" showExpandAll><AccordionItem title="A">1</AccordionItem></Accordion>
     </div>);
-    const all = (id: string) => el(id).querySelector<HTMLButtonElement>('.dk-accordion__all');
+    const all = (id: string) => el(id).querySelector<HTMLButtonElement>('button:not([aria-expanded])');
     expect([all('aall')!.textContent, all('aall')!.type, all('aid')!.textContent, all('asingle')]).toEqual(['Expand all', 'button', 'Buka semua', null]);
     await userEvent.click(all('aall')!);
     expect([state('aall'), onChange.mock.lastCall?.[0], all('aall')!.textContent]).toEqual(['101', ['a', '2'], 'Collapse all']);
@@ -145,7 +145,7 @@ describe('Accordion', () => {
     </Accordion>);
     const a = el('amulti'), s = css(a);
     expect(state('amulti')).toBe('110');
-    expect([a.querySelector('.dk-accordion__heading')!.tagName, a.className, s.borderTopWidth, s.borderTopLeftRadius, css(a.querySelector('.dk-accordion__trigger')).paddingLeft, css(a.lastElementChild).borderBottomWidth])
+    expect([a.querySelector('h1, h2, h3, h4, h5, h6')!.tagName, a.className, s.borderTopWidth, s.borderTopLeftRadius, css(a.querySelector('button[aria-expanded]')).paddingLeft, css(a.lastElementChild).borderBottomWidth])
       .toEqual(['H2', 'dk-accordion dk-accordion--card', '1px', '8px', '16px', '0px']);
     await userEvent.click(trigger('amulti', 3));
     await userEvent.click(trigger('amulti', 1));
@@ -180,7 +180,7 @@ describe('Accordion', () => {
       <Accordion id="abad" variant="boxed" headingLevel={9}><AccordionItem title="Bad">b</AccordionItem></Accordion>
       <Accordion id="atok" style={{ '--accordion-title-color': 'rgb(1, 2, 3)', '--accordion-padding-y': '7px' } as React.CSSProperties}><AccordionItem title="T">t</AccordionItem></Accordion>
     </>);
-    expect([el('abad').className, el('abad').querySelector('.dk-accordion__heading')!.tagName]).toEqual(['dk-accordion', 'H3']);
+    expect([el('abad').className, el('abad').querySelector('h1, h2, h3, h4, h5, h6')!.tagName]).toEqual(['dk-accordion', 'H3']);
     expect([css(trigger('atok', 1)).color, css(trigger('atok', 1)).paddingTop]).toEqual(['rgb(1, 2, 3)', '7px']);
   });
 
@@ -209,7 +209,7 @@ describe('Accordion', () => {
   test('items inside a Fragment are items of their own: unique ids, and each opens alone', async () => {
     const admin = true;
     await render(<Accordion id="afrag"><AccordionItem title="One">1</AccordionItem>{admin && <><AccordionItem title="Two">2</AccordionItem><AccordionItem title="Three">3</AccordionItem></>}</Accordion>);
-    const ids = items('afrag').map((i) => i.querySelector('.dk-accordion__trigger')!.id);
+    const ids = items('afrag').map((i) => i.querySelector('button[aria-expanded]')!.id);
     expect(new Set(ids).size).toBe(3);
     await userEvent.click(trigger('afrag', 2));
     expect(state('afrag')).toBe('010');

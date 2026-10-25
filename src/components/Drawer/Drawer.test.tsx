@@ -14,6 +14,8 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const drw = () => el('drw') as HTMLDialogElement;
 const panel = (id = 'drw') => el(id).querySelector('.dk-drawer__panel') as HTMLElement;
 const isOpen = () => drw().open;
+// The title is the element that names the dialog (aria-labelledby).
+const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 const box = () => { const r = panel().getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); };
 // The panel slides in: read positions once every finite animation has ended (headless WebKit can start it late).
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
@@ -81,6 +83,39 @@ describe('Drawer', () => {
     expect([d.open, asks.length]).toEqual([true, 0]);
     await userEvent.click(d, { position: { x: 20, y: 20 } });
     await expect.poll(() => asks.join()).toBe('false');
+  });
+
+  test('modal={false}: a side panel beside a usable page: not :modal or aria-modal, off the modal stack, the page still clicks and scrolls; Escape inside and the × close it; Escape on the page doesn\'t', async () => {
+    const why: string[] = [], clicks: string[] = [];
+    function Side() {
+      const [open, setOpen] = React.useState(false);
+      return <div style={{ height: '2000px' }}>
+        <Button id="nmopen" onClick={() => setOpen(true)}>Details</Button>
+        <button id="nmpage" onClick={() => clicks.push('page')}>On the page</button>
+        <Drawer id="nm" modal={false} open={open} onOpenChange={(v, d) => { why.push(d.reason); setOpen(v); }} title="Details"><Input id="nmin" aria-label="Note" /></Drawer>
+      </div>;
+    }
+    await render(<Side />);
+    await userEvent.click(el('nmopen'));
+    const d = el('nm') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    expect([d.matches(':modal'), d.getAttribute('aria-modal'), topModal() === d, d.contains(document.activeElement)]).toEqual([false, null, false, true]);
+    const r = panel('nm').getBoundingClientRect();
+    expect([Math.round(r.right), Math.round(r.width)]).toEqual([window.innerWidth, 384]);
+    expect(getComputedStyle(document.documentElement).overflow).not.toBe('hidden');
+    await userEvent.click(el('nmpage'));
+    expect([clicks.join(), d.open, document.activeElement!.id]).toEqual(['page', true, 'nmpage']);
+    await userEvent.keyboard('{Escape}');
+    expect(d.open).toBe(true);
+    el('nmin').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => d.open).toBe(false);
+    expect(document.activeElement!.id).toBe('nmopen');
+    await userEvent.click(el('nmopen'));
+    await expect.poll(() => d.open).toBe(true);
+    await userEvent.click(d.querySelector('button[aria-label="Close"]')!);
+    await expect.poll(() => d.open).toBe(false);
+    expect(why).toEqual(['escape', 'close']);
   });
 
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
@@ -189,7 +224,7 @@ describe('Drawer', () => {
     const asks: boolean[] = [], why: string[] = [];
     await render(<App asks={asks} why={why} ctl={{}} />);
     await openDrw();
-    const title = el('drw').querySelector('.dk-drawer__title') as HTMLElement;
+    const title = titleOf('drw');
     await userEvent.click(title);
     expect(isOpen()).toBe(true);
     // The press goes down on the title and up on the backdrop, which the browser reports as a click on the <dialog>.
@@ -266,7 +301,7 @@ describe('Drawer', () => {
     const ctl: Partial<Ctl> = {};
     await render(<App asks={[]} ctl={ctl} />);
     await reopen(ctl, () => {});
-    const s = getComputedStyle(panel()), ti = getComputedStyle(el('drw').querySelector('.dk-drawer__title')!);
+    const s = getComputedStyle(panel()), ti = getComputedStyle(titleOf('drw'));
     expect([s.paddingTop, s.rowGap, ti.fontSize, ti.fontWeight, withMotion(() => getComputedStyle(panel()).animationDuration)]).toEqual(['24px', '16px', '18px', '600', '0.3s']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);

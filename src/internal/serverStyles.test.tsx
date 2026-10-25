@@ -35,7 +35,7 @@ describe('server HTML under a strict Content Security Policy', () => {
     flushSync(() => { root = hydrateRoot(host, ui); });
     await new Promise((r) => setTimeout(r, 50));
     expect([share(), Math.round(px('#m .dk-meter__fill', 'width') / track('#m .dk-meter__track') * 100)]).toEqual([40, 70]);
-    const thumb = document.querySelector('#s .dk-slider__thumb') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
+    const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
     root?.unmount(); host.remove();
   });
