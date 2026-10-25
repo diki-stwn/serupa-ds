@@ -8,7 +8,7 @@ const meta = {
   title: 'Components/Forms/SegmentedControl',
   component: SegmentedControl,
   args: { 'aria-label': 'Period', options: PERIODS, defaultValue: 'week', size: 'md', fullWidth: false, disabled: false, invalid: false, readOnly: false },
-  argTypes: { size: { control: 'inline-radio', options: ['sm', 'md'] } },
+  argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
 } satisfies Meta<typeof SegmentedControl>;
 export default meta;
 type Story = StoryObj<typeof meta>;
