@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Input } from './Input';
+import { NumberInput } from '../NumberInput/NumberInput';
 import { iconArg } from '../../../.storybook/icon-arg';
 
 const meta = {
@@ -28,6 +29,17 @@ export const Icons: Story = {
   render: () => <Col>
     <Input leftIcon="search" aria-label="Search" placeholder="Search" />
     <Input type="url" rightIcon="link" aria-label="Website" placeholder="https://" />
+  </Col>,
+};
+
+/** Fixed text around what's typed. It's added to the field's description, so screen readers hear it too. */
+export const PrefixAndSuffix: Story = {
+  name: 'Prefix and suffix',
+  render: () => <Col>
+    <Input type="url" prefix="https://" aria-label="Website" placeholder="example.com" />
+    <Input prefix="@" aria-label="Username" placeholder="ana" />
+    <Input suffix=".serupa.app" aria-label="Workspace address" placeholder="atlas" />
+    <NumberInput suffix="kg" aria-label="Weight (kg)" defaultValue={12} />
   </Col>,
 };
 

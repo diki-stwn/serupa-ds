@@ -9,7 +9,7 @@ import { Switch } from './Switch';
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 // The input (track), its label and thumb, measured.
 const box = (id: string) => {
-  const i = el(id), w = i.closest('.dk-switch') as HTMLElement, c = css(i), lc = css(w), ir = i.getBoundingClientRect(), th = w.querySelector('.dk-switch__thumb')!, tr = th.getBoundingClientRect(), tx = w.querySelector('.dk-switch__label'), xr = tx && tx.getBoundingClientRect();
+  const i = el(id), w = i.closest('label') as HTMLElement, c = css(i), lc = css(w), ir = i.getBoundingClientRect(), th = w.querySelector('.dk-switch__thumb')!, tr = th.getBoundingClientRect(), tx = w.querySelector('.dk-switch__label'), xr = tx && tx.getBoundingClientRect();
   return {
     tag: i.tagName + ':' + i.type + ':' + i.getAttribute('role'), root: w.tagName, wrap: w.className, w: ir.width, h: ir.height, app: c.appearance, bg: c.backgroundColor, r: c.borderTopLeftRadius, bs: c.boxShadow,
     fs: lc.fontSize, op: lc.opacity, cur: lc.cursor, size: w.dataset.size, comp: w.dataset.component, checked: i.checked, disabled: i.matches(':disabled'), thumb: tr.width, thumbBg: css(th).backgroundColor,
@@ -161,7 +161,7 @@ describe('Switch', () => {
   test('readOnly: focusable with aria-readonly; a click on the label or track and Space leave it as it was, onClick still runs, onChange doesn\'t, and an on switch is submitted', async () => {
     const onChange = vi.fn(), onClick = vi.fn();
     await render(<form id="ro-form"><Switch id="ro" name="wifi" readOnly defaultChecked onChange={onChange} onClick={onClick}>Wi-Fi</Switch><Switch id="ro2" readOnly>Bluetooth</Switch></form>);
-    const lab = (id: string) => el(id).closest('.dk-switch') as HTMLElement;
+    const lab = (id: string) => el(id).closest('label') as HTMLElement;
     expect([el('ro').getAttribute('aria-readonly'), lab('ro').className.includes('dk-switch--readonly'), css(lab('ro')).cursor]).toEqual(['true', true, 'default']);
     await userEvent.click(lab('ro'));
     await userEvent.click(el('ro2'));
@@ -182,7 +182,7 @@ describe('Switch', () => {
       </form>;
     }
     await render(<Saving />);
-    const lab = (id: string) => el(id).closest('.dk-switch') as HTMLElement;
+    const lab = (id: string) => el(id).closest('label') as HTMLElement;
     expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('.dk-switch__spinner')]).toEqual([false, null]);
     await userEvent.click(lab('pd'));
     expect([el('pd').checked, el('pd').getAttribute('aria-busy'), el('pd').hasAttribute('aria-readonly'), css(lab('pd')).cursor, el('pd').tabIndex]).toEqual([true, 'true', false, 'progress', 0]);
@@ -217,7 +217,7 @@ describe('Switch', () => {
     const warned: unknown[] = [], warn = console.error;
     console.error = (...a: unknown[]) => { warned.push(a[0]); };
     try { await render(<Switch id="roc" checked readOnly>Locked</Switch>); } finally { console.error = warn; }
-    await userEvent.click(el('roc').closest('.dk-switch') as HTMLElement);
+    await userEvent.click(el('roc').closest('label') as HTMLElement);
     expect([el('roc').checked, warned]).toEqual([true, []]);
   });
 

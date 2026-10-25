@@ -50,7 +50,7 @@ describe('Image', () => {
   });
 
   test('ratio auto with width and height: the frame has their shape while the picture loads, so the text under it doesn\'t move; it shrinks to a narrower container', async () => {
-    const slow = `/__slow-picture__.svg?${Date.now()}`;
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
     await render(<div style={{ width: '300px' }}>
       <Image src={slow} alt="Slow" width={800} height={600} frameProps={{ 'data-testid': 'sized' } as React.HTMLAttributes<HTMLSpanElement>} />
       <p id="after-pic">Below</p>
@@ -74,7 +74,7 @@ describe('Image', () => {
 
   test('while loading: the picture is hidden and the frame shows the placeholder fill; then it appears', async () => {
     // The test server sends this picture after a second (vitest.config.ts), so it is still loading at first.
-    await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${Date.now()}`} />);
+    await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('slow');
     expect([f.dataset.state, css(f.querySelector('img')).opacity, css(f).backgroundColor]).toEqual(['loading', '0', color('var(--surface-muted)')]);
     await expect.poll(() => box('slow').state, { timeout: 5000 }).toBe('loaded');

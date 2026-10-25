@@ -31,6 +31,7 @@ jobs:
   # Builds the package and Storybook once; every test job downloads them instead of building its own.
   build:
     name: build
+    if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
     # The commit it built. A pull request's merge commit is made again whenever main moves, so a test job that checked
     # out the pull request by name could get a newer one than the build it downloads (reproducible.mjs then fails).
@@ -66,6 +67,7 @@ jobs:
   # The checks that need neither the build nor a browser, beside the build so they don't wait for it.
   static:
     name: types and lint
+    if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -216,4 +218,5 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success
+      - if: github.head_ref != 'changeset-release/main'
+        run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success

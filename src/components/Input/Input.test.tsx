@@ -14,6 +14,22 @@ const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLE
 const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 
 describe('Input', () => {
+  test('prefix and suffix: muted text in the box around the field, heard after the field\'s own description; a press on one focuses the field; NumberInput takes them too', async () => {
+    await render(<><span id="site-hint">Your shop</span>
+      <Input id="site" aria-label="Website" prefix="https://" suffix=".com" aria-describedby="site-hint" />
+      <NumberInput id="kg" aria-label="Weight" suffix="kg" defaultValue={12} />
+      <Input id="none" aria-label="Plain" /></>);
+    const said = (id: string) => (field(id).getAttribute('aria-describedby') || '').split(' ').map((x) => document.getElementById(x)!.textContent).join(' | ');
+    const parts = [...box('site').children].map((c) => c.tagName === 'INPUT' ? 'field' : c.textContent);
+    expect([parts, said('site'), said('kg'), field('none').hasAttribute('aria-describedby')]).toEqual([['https://', 'field', '.com'], 'Your shop | https:// | .com', 'kg', false]);
+    const suffix = field('site').nextElementSibling as HTMLElement;
+    expect([css(suffix).whiteSpace, css(suffix).color]).toEqual(['nowrap', color('var(--text-muted)')]);
+    await userEvent.click(suffix);
+    expect(document.activeElement).toBe(field('site'));
+    await userEvent.click(field('kg').nextElementSibling as HTMLElement);
+    expect(document.activeElement).toBe(field('kg'));
+  });
+
   test('a native <input type="text"> in a .dk-input box; md is 32px, text-sm, 12px padding, a 1px border and 6px corners', async () => {
     await render(<Input id="md" aria-label="Name" />);
     const s = css(box('md'));
@@ -136,10 +152,11 @@ describe('Input', () => {
     expect(css(l).pointerEvents).toBe('none');
   });
 
-  test('contrast in all six themes: text and placeholder 4.5:1 on the field; border, focus ring and invalid border 3:1', () => {
+  test('contrast in all six themes: text, placeholder, prefix and suffix 4.5:1 on the field; border, focus ring and invalid border 3:1', () => {
     expect(lowContrast([
       ['text', 'var(--text)', 'var(--field)', 4.5],
       ['placeholder', 'var(--placeholder)', 'var(--field)', 4.5],
+      ['prefix and suffix', 'var(--text-muted)', 'var(--field)', 4.5],
       ['border', 'var(--field-border)', 'var(--field)', 3],
       ['border on page', 'var(--field-border)', 'var(--surface)', 3],
       ['focus', 'var(--focus-ring)', 'var(--surface)', 3],

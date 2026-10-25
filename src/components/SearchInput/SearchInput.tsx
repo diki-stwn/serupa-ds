@@ -11,7 +11,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
-export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" | "leftIcon" | "rightIcon"> {
+export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "leftIcon" | "rightIcon"> {
   /** Called with the text when Enter is pressed. */
   onSearch?: (value: string) => void;
   /** Called after the field is cleared, by the × or Escape. The field's onChange also gets an empty value. */
