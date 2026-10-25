@@ -9,6 +9,11 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled]
   # The merge queue needs this check to pass too; the pull request's own run already checked its changeset.
   merge_group:
+  # The Release and Update baselines workflows start it on a branch they pushed to (a push made with the
+  # workflow's token starts no workflows), so the "changeset" check, which main requires, lands on that head
+  # commit. Like the merge queue it only reports: the Release pull request is the one that removes the
+  # changesets, and a commit of new pictures ships nothing. The pull request's own run checked the rest.
+  workflow_dispatch:
 
 permissions:
   contents: read

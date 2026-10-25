@@ -17,8 +17,9 @@
 .dk-btn.dk-fab--extended { width: auto; padding: var(--spacing-0) var(--fab-padding-x, var(--spacing-5)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 @media (hover: hover) { .dk-btn.dk-fab:hover:not(:disabled):not([aria-disabled="true"]) { --dk-btn-shadow: var(--fab-shadow-hover, var(--shadow-xl)); } }
 .dk-fab--bottom-end, .dk-fab--bottom-start, .dk-fab--top-end, .dk-fab--top-start { position: fixed; z-index: var(--fab-z-index, var(--z-30)); }
-.dk-fab--bottom-end { inset-block-end: var(--fab-offset, var(--spacing-6)); inset-inline-end: var(--fab-offset, var(--spacing-6)); }
-.dk-fab--bottom-start { inset-block-end: var(--fab-offset, var(--spacing-6)); inset-inline-start: var(--fab-offset, var(--spacing-6)); }
-.dk-fab--top-end { inset-block-start: var(--fab-offset, var(--spacing-6)); inset-inline-end: var(--fab-offset, var(--spacing-6)); }
-.dk-fab--top-start { inset-block-start: var(--fab-offset, var(--spacing-6)); inset-inline-start: var(--fab-offset, var(--spacing-6)); }
+/* --fab-offset from the corner of the safe area, so a phone's home bar or notch doesn't cover it (env() is 0 elsewhere). */
+.dk-fab--bottom-end { inset-block-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-bottom)); inset-inline-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-right)); }
+.dk-fab--bottom-start { inset-block-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-bottom)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
+.dk-fab--top-end { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-right)); }
+.dk-fab--top-start { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
 }

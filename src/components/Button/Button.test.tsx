@@ -236,7 +236,7 @@ describe('Button', () => {
     await expect.poll(() => el('pr').getAttribute('aria-busy')).toBe('true');
     await userEvent.click(el('pr'), { force: true });
     expect(onClick).toHaveBeenCalledTimes(1);
-    settle[0]![0]();
+    settle[0][0]();
     await expect.poll(() => el('pr').hasAttribute('data-success')).toBe(true);
     expect([el('pr').hasAttribute('aria-busy'), !!el('pr').querySelector('.dk-btn__success .dk-btn__check')]).toEqual([false, true]);
     await expect.poll(() => getComputedStyle(el('pr').querySelector('.dk-btn__label')!).opacity).toBe('0');
@@ -244,7 +244,7 @@ describe('Button', () => {
     await expect.poll(() => announcer().textContent).toMatch(/Saved$/);
     await expect.poll(() => el('pr').hasAttribute('data-success'), { timeout: 3000 }).toBe(false);
     await userEvent.click(el('pr2'));
-    settle[1]![1]();
+    settle[1][1]();
     await expect.poll(() => el('pr2').hasAttribute('aria-busy')).toBe(false);
     expect(el('pr2').hasAttribute('data-success')).toBe(false);
     settle = [];

@@ -57,6 +57,24 @@
 .dk-dialog__close { flex-shrink: 0; }
 .dk-dialog__body { min-height: var(--spacing-0); overflow-y: auto; overscroll-behavior: contain; }
 .dk-dialog__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--spacing-2); }
+/* fullScreen: the panel fills the screen with square corners, the body takes the room between header and footer,
+   and the padding clears a phone's notch and home bar. "mobile" does this only under 640px (the sm breakpoint). */
+.dk-dialog--full { padding: var(--spacing-0); }
+.dk-dialog--full .dk-dialog__panel {
+  width: var(--sizing-full); height: var(--sizing-full); border-radius: var(--spacing-0); box-shadow: none;
+  padding-top: max(var(--dialog-padding, var(--spacing-6)), env(safe-area-inset-top));
+  padding-bottom: max(var(--dialog-padding, var(--spacing-6)), env(safe-area-inset-bottom));
+}
+.dk-dialog--full .dk-dialog__body { flex: auto; }
+@media (max-width: 639.98px) {
+  .dk-dialog--full-mobile { padding: var(--spacing-0); }
+  .dk-dialog--full-mobile .dk-dialog__panel {
+    width: var(--sizing-full); height: var(--sizing-full); border-radius: var(--spacing-0); box-shadow: none;
+    padding-top: max(var(--dialog-padding, var(--spacing-6)), env(safe-area-inset-top));
+    padding-bottom: max(var(--dialog-padding, var(--spacing-6)), env(safe-area-inset-bottom));
+  }
+  .dk-dialog--full-mobile .dk-dialog__body { flex: auto; }
+}
 @media (prefers-reduced-motion: reduce) { .dk-dialog__panel, .dk-dialog[open]::backdrop { animation: none; } }
 @media (forced-colors: active) { .dk-dialog__panel { border: var(--border-width-1) solid CanvasText; } }
 }

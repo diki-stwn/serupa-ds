@@ -97,13 +97,13 @@ function axes(t, varying, line) {
   return css;
 }
 
-// Contrast and density (ADR-0011). A color token's contrastMore { light, dark } is its stronger pair, used for
-// data-contrast="more" and, unless the page says data-contrast="normal", when the system asks for more contrast.
+// Contrast and density (ADR-0011). A color token's contrastMore { light, dark } is its stronger pair (a size token's
+// is one value, like a thicker focus ring), used for data-contrast="more" and, unless the page says data-contrast="normal", when the system asks for more contrast.
 // The pairs are light-dark(), so data-theme sets color-scheme here too, not only in base.css. A token's compact
 // value is its size under data-density="compact"; data-density="comfortable" puts the defaults back in a section.
 function contrastAndDensity(all, line) {
   const more = all.filter((x) => x.contrastMore);
-  const pairs = more.map((x) => line(x.name, `light-dark(${x.contrastMore.light}, ${x.contrastMore.dark})`)).join('');
+  const pairs = more.map((x) => line(x.name, typeof x.contrastMore === 'string' ? x.contrastMore : `light-dark(${x.contrastMore.light}, ${x.contrastMore.dark})`)).join('');
   let css = `[data-theme$="-light"] { color-scheme: light; }\n[data-theme$="-dark"] { color-scheme: dark; }\n`;
   // Also on nested data-mode elements, which redeclare the normal colors.
   css += `[data-contrast="more"], [data-contrast="more"] [data-mode] {\n${pairs}}\n`;

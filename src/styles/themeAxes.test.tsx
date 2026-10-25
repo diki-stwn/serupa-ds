@@ -137,6 +137,36 @@ describe('Contrast axis', () => {
     expect(lowContrast(pairs)).toEqual([]);
   });
 
+  test('data-contrast="more": the focus ring is 3px instead of 2px, on any focused element', () => {
+    const b = document.createElement('button');
+    document.body.appendChild(b);
+    b.style.outline = 'var(--focus-ring-width) solid';
+    expect(getComputedStyle(b).outlineWidth).toBe('2px');
+    root.setAttribute('data-contrast', 'more');
+    expect(getComputedStyle(b).outlineWidth).toBe('3px');
+    b.remove();
+  });
+
+  test('base.css: bare native controls and the caret take the brand color, and a nested theme its own', () => {
+    const probe = (parent: HTMLElement) => {
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.style.color = 'var(--primary)';
+      parent.appendChild(box);
+      const st = getComputedStyle(box);
+      return [st.accentColor, st.caretColor, st.color];
+    };
+    const section = document.createElement('section');
+    section.setAttribute('data-theme', 'emerald-light');
+    document.body.appendChild(section);
+    const [outer, inner] = [probe(document.body), probe(section)];
+    expect(outer).toEqual([outer[2], outer[2], outer[2]]);
+    expect(inner).toEqual([inner[2], inner[2], inner[2]]);
+    expect(inner[0]).not.toBe(outer[0]);
+    document.querySelectorAll('input[type=checkbox]').forEach((x) => x.remove());
+    section.remove();
+  });
+
   test('works with the axes too, and outranks them', () => {
     for (const mode of ['light', 'dark']) {
       axes('violet', mode);
