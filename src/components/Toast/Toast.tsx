@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { cn, oneOf } from "../../internal/cn";
+import { cn, oneOf, useIsoLayoutEffect } from "../../internal/cn";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
@@ -100,7 +100,10 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const [list, setList] = React.useState<Item[]>(items);
   React.useEffect(() => { ensureAnnouncer(); hinted = false; listeners.add(setList); setList(items); return () => { listeners.delete(setList); }; }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
-  hint = sds.labels.toastShortcut(HOTKEY);
+  // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
+  // does nothing, so a toast doesn't mention it.
+  const shortcut = sds.labels.toastShortcut(HOTKEY);
+  React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
   const self = React.useRef<HTMLElement | null>(null);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
@@ -122,6 +125,31 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [pos]);
+  // A toast closing with focus in it (its ×, its action, toast.dismiss()) would drop focus on
+  // <body>: it goes back where F8 came from, else to the toast next to it. held is the focused toast; a blur to
+  // nowhere that leaves it in the page (a click on blank space) lets go of it, so a later close doesn't take focus.
+  const held = React.useRef<{ toast: HTMLElement; at: number } | null>(null);
+  const onFocus = (e: React.FocusEvent<HTMLElement>) => {
+    if (rest.onFocus) rest.onFocus(e);
+    const t = (e.target).closest<HTMLElement>(".dk-toast");
+    if (t && self.current) held.current = { toast: t, at: [...self.current.querySelectorAll(".dk-toast")].indexOf(t) };
+  };
+  const onBlur = (e: React.FocusEvent<HTMLElement>) => {
+    if (rest.onBlur) rest.onBlur(e);
+    const h = held.current, to = e.relatedTarget as Node | null;
+    if (to && self.current && !self.current.contains(to)) held.current = null;
+    else if (!to && h) window.setTimeout(() => { if (held.current === h && h.toast.isConnected && !h.toast.contains(document.activeElement)) held.current = null; }, 0);
+  };
+  useIsoLayoutEffect(() => {
+    const h = held.current, region = self.current;
+    if (!h || h.toast.isConnected || !region) return;
+    held.current = null;
+    const now = document.activeElement;
+    if (now && now !== document.body && now.isConnected) return;
+    const b = back.current, toasts = region.querySelectorAll<HTMLElement>(".dk-toast");
+    if (b && b.isConnected) { back.current = null; b.focus(); }
+    else if (toasts.length) toasts[Math.min(h.at, toasts.length - 1)].focus();
+  }, [list]);
   // The newest few show; the rest wait (their time hasn't started) and come back as those close. A burst can't
   // push the stack past the screen's edge.
   const max = Math.max(1, Math.floor(limit != null && limit > 0 ? limit : 3));
@@ -132,7 +160,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   // "Couldn't save, Retry" toast from inside a dialog can be seen and clicked.
   const modal = React.useSyncExternalStore(onModalChange, topModal, () => null);
   const region = (
-    <section {...rest} ref={self} aria-label={label || sds.labels.notifications} className={cn("dk-toaster", "dk-toaster--" + pos, className)} data-component="toaster" data-position={pos}>
+    <section {...rest} ref={self} onFocus={onFocus} onBlur={onBlur} aria-label={label || sds.labels.notifications} className={cn("dk-toaster", "dk-toaster--" + pos, className)} data-component="toaster" data-position={pos}>
       <ol className="dk-toaster__list">
         {pos.startsWith("top") ? null : more}
         {ordered.map((t) => <ToastView key={t.id} item={t} dismissLabel={dismissLabel || sds.labels.dismiss} />)}

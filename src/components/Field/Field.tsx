@@ -38,7 +38,7 @@ export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'chi
    invalid (with error), aria-required (with required) and disabled. group renders a <fieldset> with a <legend>
    instead, for a set of checkboxes or radios, and puts the hint and error on the fieldset. */
 /** The props Field reads from and hands to its control (a component like Input, or a DOM element). */
-type ControlProps = { id?: string; invalid?: boolean; disabled?: boolean; "aria-describedby"?: string; "aria-required"?: boolean | "true" | "false"; "aria-invalid"?: boolean };
+type ControlProps = { id?: string; invalid?: boolean; disabled?: boolean; "aria-describedby"?: string; "aria-errormessage"?: string; "aria-required"?: boolean | "true" | "false"; "aria-invalid"?: boolean };
 
 const OWN = { label: 1, hint: 1, error: 1, required: 1, optional: 1, disabled: 1, group: 1, id: 1, children: 1, className: 1 } as const;
 
@@ -68,12 +68,20 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
       warnOnce("field-control", "Field: no element has the id \"" + controlId + "\", so the label names nothing. Put the control inside the Field, or pass its id.");
     }
   });
+  /* A label only focuses a labelable element (an input, select, button). Slider, SegmentedControl and ColorPicker
+     have a <div> root, which hands focus to its thumb or checked option: clicking the label focuses that, as
+     clicking an input's label does. */
+  const focusControl = function (e: React.MouseEvent<HTMLLabelElement>) {
+    if (e.currentTarget.control) return;
+    const el = document.getElementById(controlId);
+    if (el) el.focus();
+  };
   const labelKids = [props.label,
     props.required ? <span className="dk-field__required" aria-hidden key="req">*</span> : null,
     !props.required && props.optional ? <span className="dk-field__optional" key="opt">{typeof props.optional === "string" ? props.optional : sds.labels.fieldOptional}</span> : null];
   const label = props.label == null ? null : group
     ? React.createElement("legend", { className: "dk-field__label", key: "label" }, ...labelKids)
-    : React.createElement("label", { className: "dk-field__label", htmlFor: controlId, id: base + "-label", key: "label" }, ...labelKids);
+    : React.createElement("label", { className: "dk-field__label", htmlFor: controlId, id: base + "-label", key: "label", onClick: focusControl }, ...labelKids);
   const hint = props.hint ? <div className="dk-field__hint" id={hintId as string} key="hint">{props.hint}</div> : null;
   const error = hasError ? <div className="dk-field__error" key="error"><Icon icon={icons.Error} className="dk-field__error-icon" /><span id={errorId as string} ref={errorRef}>{props.error}</span></div> : null;
   const described = cn(hintId, errorId);
@@ -87,6 +95,8 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
     if (isControl) {
       if (!p.id) add.id = controlId;
       if (described) add["aria-describedby"] = cn(p["aria-describedby"], described);
+      // The error stays in the description too: aria-errormessage alone isn't read by every screen reader yet.
+      if (errorId && p["aria-errormessage"] == null) add["aria-errormessage"] = errorId;
       if (props.required && p["aria-required"] == null) add["aria-required"] = true;
     }
     if (hasError) { if (dom) add["aria-invalid"] = true; else add.invalid = true; }
@@ -107,7 +117,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
     );
   }
   // The control can be any depth down (in a Tooltip, a wrapper component): it reads this.
-  const control: FieldControl = { id: controlId, labelId: props.label == null ? undefined : base + "-label", describedBy: described || undefined, required: props.required || undefined, invalid: hasError || undefined, disabled: props.disabled || undefined };
+  const control: FieldControl = { id: controlId, labelId: props.label == null ? undefined : base + "-label", describedBy: described || undefined, errorMessage: errorId || undefined, required: props.required || undefined, invalid: hasError || undefined, disabled: props.disabled || undefined };
   return (
     <div {...rest} className={cls} data-component="field">
       {label}

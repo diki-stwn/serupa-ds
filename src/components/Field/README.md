@@ -45,6 +45,8 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 
 - Screen readers read the label as the control's name and the hint and error as its description, so a person hears "Email, required, invalid entry, We only use it for receipts. Enter an email address like name@example.com."
 - Say what went wrong and how to fix it, not just "Invalid". The error icon is decorative; the words carry the meaning.
+- With an error, the control also points at it with `aria-errormessage`, at any depth. The error stays in the description too, because not every screen reader reads `aria-errormessage` yet.
+- Clicking the label focuses the control, as with an input, also for Slider, SegmentedControl and ColorPicker. Their root is a `<div>`, which a label can't focus by itself, so Field moves focus to their thumb or checked option.
 - The `*` is hidden from screen readers, which hear `aria-required` instead. Explain it once at the top of a long form ("Fields marked * are required"), or when most fields are required, mark the optional ones instead.
 - An error that appears or changes after the Field mounts (after a submit, for example) is announced politely, since focus is usually elsewhere and a description is only read on focus. An error already there on first render isn't announced.
 - If nothing on the page has the control's id (a control Field can't reach, with no `id` passed), Field warns once in the console: the label would name nothing.

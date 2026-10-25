@@ -1,9 +1,10 @@
 /* Micro-interactions that need the DOM (the CSS does the rest). Shared by Button and Badge. */
 type Handler<E extends React.SyntheticEvent> = (e: E) => void;
 
-export function block(e: { preventDefault(): void; stopPropagation(): void }): void {
+/** Stops a loading or disabled control's own action (a link, a form submit). The click still bubbles, so a parent's
+    handler, an analytics wrapper or a Card's stretched link still hears it. */
+export function block(e: { preventDefault(): void }): void {
   e.preventDefault();
-  e.stopPropagation();
 }
 
 /** a, then b unless a prevented the default. */

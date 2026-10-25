@@ -1,6 +1,7 @@
 // exports: type SortDirection, Table, TableBody, TableCell, type TableCellProps, TableFoot, TableHead, TableHeaderCell, type TableHeaderCellProps, type TableProps, TableRow, type TableRowProps, TableSelectCell, type TableSelectCellProps
 interface TableLabels {
     table: string;
+    tableSorted: (column: string, direction: "ascending" | "descending") => string;
 }
 interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
     size?: "md" | "sm";
