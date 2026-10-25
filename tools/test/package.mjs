@@ -18,6 +18,9 @@ const pkg = JSON.parse(read('package.json'));
 t('package.json is private and has no publishConfig, so npm publish refuses', pkg.private === true && !('publishConfig' in pkg), `private: ${pkg.private}, publishConfig: ${JSON.stringify(pkg.publishConfig)}`);
 // Every component is built by tools in devDependencies, so a project installs nothing else (J7).
 t('package.json has no dependencies (React is a peer dependency; everything else is bundled)', !Object.keys(pkg.dependencies || {}).length && !Object.keys(pkg.optionalDependencies || {}).length, JSON.stringify({ ...pkg.dependencies, ...pkg.optionalDependencies }));
+// npm runs the build as "prepare", so it reports on stderr: npm pack --json then prints only its JSON.
+const builder = read('tools/build/build.mjs');
+t('the build writes its progress to stderr, never stdout (npm pack --json stays JSON)', !/console\.log\(|stdio: 'inherit'/.test(builder));
 
 // 1. exports
 const targets = [];
