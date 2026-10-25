@@ -57,7 +57,7 @@ colors, WCAG contrast in all six themes) are in `tools/test/vitest/helpers.ts`.
 Every component has its own `<Name>.test.tsx`, and a new component needs one: the contract check fails
 without it. `npm run new-component -- <Name>` (`tools/new-component.mjs`) writes a starting test with the
 rest of the folder; `tools/test/new-component.mjs` checks that what it writes passes the contract. setup.ts turns transitions and animations off, so a test reads end states; a test about motion
-turns them back on with `withMotion()` (one read or one test) or `keepMotion()` (the whole file).
+turns them back on with `withMotion()` (one read or one test) or `keepMotion()` (the whole file). It also starts each test file at the stories' clock (`CLOCK` in `lib.mjs`, 12 March 2025, ticking from there), so a test of today's date or a relative time doesn't depend on the day the suite runs; `vi.useFakeTimers` still fakes `Date` on top of it.
 
 ### Suite scripts
 
