@@ -33,4 +33,23 @@ describe('typed dates', () => {
     expect(parseDate('۲۰۰۱/۱۱/۲۲', 'fa')?.toDateString()).toBe(new Date(2001, 10, 22).toDateString());
     expect(parseDate('২২/১১/২০০১', 'bn')?.toDateString()).toBe(new Date(2001, 10, 22).toDateString());
   });
+
+  test('a two-digit year is the one within 50 years of now: birth dates go back, deadlines go forward; four digits are kept', () => {
+    const y = (text: string, now: Date) => parseDate(text, 'en-US', now)?.getFullYear();
+    const in2026 = new Date(2026, 9, 25), in2081 = new Date(2081, 0, 1);
+    expect(['1/2/85', '1/2/30', '1/2/26', '1/2/75', '1/2/76', '1/2/77', '1/2/0', '1/2/5'].map((t) => y(t, in2026))).toEqual([1985, 2030, 2026, 2075, 1976, 1977, 2000, 2005]);
+    expect(['1/2/85', '1/2/30', '1/2/31', '1/2/32'].map((t) => y(t, in2081))).toEqual([2085, 2130, 2031, 2032]);
+    expect(parseDate('22.11.85', 'de-DE', in2026)?.toDateString()).toBe(new Date(1985, 10, 22).toDateString());
+    expect([y('1/2/2085', in2026), y('1/2/1930', in2026), y('1/2/0085', in2026)]).toEqual([2085, 1930, 85]);
+    expect(parseDate('2/29/00', 'en-US', in2026)?.toDateString()).toBe(new Date(2000, 1, 29).toDateString());   // 2000 is a leap year
+    expect(parseDate('2/29/01', 'en-US', in2026)).toBeNull();
+  });
+
+  test('digits alone, as typed on a keypad: 8 or 6 split in the locale\'s order, or ISO yyyymmdd when that order makes no date; other lengths aren\'t read', () => {
+    const now = new Date(2026, 9, 25), day = (text: string, locale: string) => parseDate(text, locale, now)?.toDateString() ?? null;
+    const nov22 = new Date(2001, 10, 22).toDateString();
+    expect([day('11222001', 'en-US'), day('112201', 'en-US'), day('22112001', 'de-DE'), day('221101', 'de-DE'), day('20011122', 'en-US'), day('20011122', 'de-DE')]).toEqual([nov22, nov22, nov22, nov22, nov22, nov22]);
+    expect([day('20011122', 'ja-JP'), day('٢٢١١٢٠٠١', 'ar-EG')]).toEqual([nov22, nov22]);
+    expect([day('13452001', 'en-US'), day('1122001', 'en-US'), day('2211', 'de-DE'), day('112220011', 'en-US')]).toEqual([null, null, null, null]);
+  });
 });

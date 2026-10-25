@@ -49,6 +49,14 @@ toast.dismiss(id);   // or toast.dismiss() for all
 - Each toast has a close button; the Toaster is a named region people can find.
 - Titles and descriptions keep 4.5:1 and icons 3:1 in all six themes (`Toast.test.tsx`). Toasts slide in over 200ms, and appear at once with `prefers-reduced-motion`.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| F8 | To the newest toast; pressed again in a toast, back to where focus was |
+| Escape | In a toast reached with F8, back to where focus was |
+| Tab | Within a toast, to its action and its close button |
+
 ## Props
 
 ### toast(options)

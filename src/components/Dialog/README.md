@@ -57,6 +57,14 @@ const [open, setOpen] = React.useState(false);
 - A press on the backdrop while a Menu, Popover or other popup is open inside only closes the popup. The next one closes the dialog.
 - The title and description keep 4.5:1 on the panel in all six themes (`Dialog.test.tsx`). In forced-colors mode the panel gets a border.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab / Shift+Tab | Between the controls in the dialog; the page behind is inert, so focus stays inside |
+| Escape | Asks to close it (`onOpenChange(false)`), in an `alert` dialog too; in stacked dialogs, only the top one |
+| Enter / Space | On the ×, the same as Escape |
+
 ## Props
 
 | Prop | Type | Default | What it does |
