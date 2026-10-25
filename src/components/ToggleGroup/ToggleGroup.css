@@ -1,0 +1,4 @@
+/* ---------------------------------------------------------------
+   ToggleGroup: a ButtonGroup of ToggleButtons, so it looks like one: its spacing, shared borders and corners come
+   from ButtonGroup's tokens, and each button's on and off colors from ToggleButton's. It adds no CSS of its own.
+   --------------------------------------------------------------- */
