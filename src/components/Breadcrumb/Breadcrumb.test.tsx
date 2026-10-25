@@ -9,7 +9,7 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 // The trail as written: each item's text, ">" for a separator.
 const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector('.dk-breadcrumb__separator') ? '> ' : '') + li.querySelector('.dk-breadcrumb__item')!.textContent).join(' ');
-const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('.dk-icon')].filter((i) => css(i).display !== 'none');
+const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('[data-icon]')].filter((i) => css(i).display !== 'none');
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
   return <a {...p} ref={ref} href={'#router' + to} data-router="" />;

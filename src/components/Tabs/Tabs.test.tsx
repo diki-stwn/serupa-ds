@@ -151,7 +151,7 @@ describe('Tabs', () => {
     await setup();
     const r = el('un'), sel = selected('un'), other = r.querySelector('[aria-selected="false"]')!, a = getComputedStyle(sel, '::after'), s = css(sel);
     expect([css(r.querySelector('[role="tablist"]')).borderBottomWidth, sel.getBoundingClientRect().height, a.height, a.backgroundColor]).toEqual(['1px', 36, '2px', color('var(--primary)')]);
-    expect([s.fontSize, s.fontWeight, s.paddingLeft, css(sel.querySelector('.dk-icon')).fontSize]).toEqual(['14px', '500', '12px', '16px']);
+    expect([s.fontSize, s.fontWeight, s.paddingLeft, css(sel.querySelector('[data-icon]')).fontSize]).toEqual(['14px', '500', '12px', '16px']);
     await expect.poll(() => css(sel).color).not.toBe(css(other).color);
   });
 

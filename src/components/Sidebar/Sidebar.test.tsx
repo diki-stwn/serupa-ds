@@ -60,7 +60,7 @@ describe('Sidebar', () => {
 
   test('items: links in list items, a 20px icon, text-sm font-medium, 8px by 12px padding; the current page has aria-current="page"', async () => {
     await render(<App />);
-    const a = el('ihome'), s = css(a), icon = a.querySelector<HTMLElement>('.dk-icon')!;
+    const a = el('ihome'), s = css(a), icon = a.querySelector<HTMLElement>('[data-icon]')!;
     expect([a.tagName, a.parentElement!.tagName, a.getAttribute('aria-current'), icon.dataset.icon, css(icon).fontSize]).toEqual(['A', 'LI', 'page', 'home', '20px']);
     expect([s.fontSize, s.fontWeight, s.paddingTop, s.paddingLeft]).toEqual(['14px', '500', '8px', '12px']);
   });
@@ -132,10 +132,10 @@ describe('Sidebar', () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    const a = el('ihome'), r = rect(a), i = rect(a.querySelector('.dk-icon')!);
+    const a = el('ihome'), r = rect(a), i = rect(a.querySelector('[data-icon]')!);
     expect(rect(a.querySelector('.dk-sidebar__label')!).width).toBeLessThanOrEqual(1);
     expect(Math.abs(Math.round((i.left + i.right) / 2 - (r.left + r.right) / 2))).toBeLessThanOrEqual(1);
-    const badge = el('iinbox').querySelector('.dk-sidebar__badge')!, dot = el('iinbox').querySelector('.dk-sidebar__dot')!, icon = rect(el('iinbox').querySelector('.dk-icon')!), d = rect(dot);
+    const badge = el('iinbox').querySelector('.dk-sidebar__badge')!, dot = el('iinbox').querySelector('.dk-sidebar__dot')!, icon = rect(el('iinbox').querySelector('[data-icon]')!), d = rect(dot);
     expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector('.dk-sidebar__dot')]).toEqual([true, '4', 'true', 8, null]);
     expect([Math.round(d.top - icon.top), Math.round(d.right - icon.right)]).toEqual([-2, 2]);   // on the icon's top end corner
     expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);

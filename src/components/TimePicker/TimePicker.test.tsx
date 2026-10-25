@@ -14,7 +14,7 @@ const time = (o: Element | undefined | null) => (o ? o.querySelector('.dk-time-p
 const st = (id: string) => {
   const i = el(id), l = listOf(id), act = i.getAttribute('aria-activedescendant');
   return { v: i.value, open: !l.hidden, exp: i.getAttribute('aria-expanded'), active: act ? time(document.getElementById(act)) : null, n: l.children.length, first: time(l.children[0]), last: time(l.children[l.children.length - 1]),
-    hidden: [...l.querySelectorAll('.dk-icon')].every((x) => x.closest('[aria-hidden=true]')), sel: [...l.querySelectorAll<HTMLElement>('[aria-selected=true]')].map((o) => o.dataset.value).join() };
+    hidden: [...l.querySelectorAll('[data-icon]')].every((x) => x.closest('[aria-hidden=true]')), sel: [...l.querySelectorAll<HTMLElement>('[aria-selected=true]')].map((o) => o.dataset.value).join() };
 };
 // Tab moves on to the "Next" button after each field: with nothing left to tab to, Firefox sends focus out of the
 // test frame without a blur, and the typed text is read on blur.

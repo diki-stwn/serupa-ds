@@ -42,7 +42,7 @@ describe('NumberInput', () => {
     expect(box.className).toMatch(/dk-input dk-number-input dk-input--size-md/);
     expect(box.className).toMatch(/extra/);
     expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0].textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
-    expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
+    expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
   });
 
   test('a form gets the number, not the shown text: "1500000" for "Rp 1.500.000", cents with minorUnits; the visible field has no name; form= works outside the form; disabled sends nothing', async () => {

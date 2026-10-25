@@ -78,7 +78,7 @@ describe('List', () => {
   test('href: the main area is a link; trailing actions stay outside it (no nested controls)', async () => {
     await render(<Card clicks={[]} />);
     const m = q('#ilink .dk-list__main');
-    expect([m.tagName, m.getAttribute('href'), m.contains(el('more')), m.textContent, m.querySelector<HTMLElement>('.dk-icon')?.dataset.icon]).toEqual(['A', '#files', false, 'FilesAll your files', 'folder']);
+    expect([m.tagName, m.getAttribute('href'), m.contains(el('more')), m.textContent, m.querySelector<HTMLElement>('[data-icon]')?.dataset.icon]).toEqual(['A', '#files', false, 'FilesAll your files', 'folder']);
   });
 
   test('link and button items shade on hover; static items don\'t', async () => {

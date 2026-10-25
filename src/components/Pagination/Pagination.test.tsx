@@ -134,7 +134,7 @@ describe('Pagination', () => {
 
   test('right to left: the arrows point the other way', async () => {
     await render(<div dir="rtl"><Pagination id="prtl" count={3} /></div>);
-    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => [...a.querySelectorAll<HTMLElement>('.dk-icon')]
+    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => [...a.querySelectorAll<HTMLElement>('[data-icon]')]
       .filter((i) => css(i).display !== 'none').map((i) => i.dataset.icon).join()).join()).toBe('chevron_right,chevron_left');
   });
 

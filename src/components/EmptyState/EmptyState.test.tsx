@@ -28,7 +28,7 @@ describe('EmptyState', () => {
   test('a 24px icon in a 48px circle, hidden from screen readers', async () => {
     await render(<Projects />);
     const i = part('edef', 'icon')!;
-    expect([i.getAttribute('aria-hidden'), i.offsetWidth, i.offsetHeight, css(i).borderRadius, css(i.querySelector('.dk-icon')).fontSize]).toEqual(['true', 48, 48, '9999px', '24px']);
+    expect([i.getAttribute('aria-hidden'), i.offsetWidth, i.offsetHeight, css(i).borderRadius, css(i.querySelector('[data-icon]')).fontSize]).toEqual(['true', 48, 48, '9999px', '24px']);
   });
 
   test('an <h3> title (text-base, semibold), a <p> description (text-sm, at most 384px), then the actions, stacked 16px apart', async () => {
