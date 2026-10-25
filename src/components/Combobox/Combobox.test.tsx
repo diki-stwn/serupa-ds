@@ -53,7 +53,8 @@ describe('Combobox', () => {
     expect(list().querySelectorAll('[role=option]').length).toBe(0);
     await open();
     const rows = () => [...list().querySelectorAll('[role=option]')];
-    const more = () => el('cb').parentElement!.querySelector('.dk-combobox__more')?.textContent;
+    // The "keep typing" line has no role, so it's found by its words.
+    const more = () => Array.from(el('cb').parentElement!.querySelectorAll('div')).find((d) => !d.children.length && /^Keep typing/.test(d.textContent || ''))?.textContent;
     expect([rows().length, st('cb').active, more()]).toEqual([100, 'Option 0', 'Keep typing to narrow 1900 more']);
     expect([rows()[99].getAttribute('aria-posinset'), rows()[99].getAttribute('aria-setsize')]).toEqual(['100', '2000']);
     await userEvent.keyboard('{ArrowDown}');
