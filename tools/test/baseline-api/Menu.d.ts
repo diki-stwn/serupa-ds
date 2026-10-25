@@ -1,4 +1,4 @@
-// exports: Menu, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuSeparator, MenuSub, type MenuSubProps
+// exports: ContextMenu, type ContextMenuProps, Menu, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuSeparator, MenuSub, type MenuSubProps
 interface MenuProps {
     trigger: React.ReactElement;
     children: React.ReactNode;
@@ -11,6 +11,19 @@ interface MenuProps {
     style?: React.CSSProperties;
 }
 declare const Menu: ((props: MenuProps) => React.ReactElement) & {
+    displayName: string;
+};
+interface ContextMenuProps {
+    target: React.ReactElement;
+    children: React.ReactNode;
+    "aria-label": string;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    disabled?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const ContextMenu: ((props: ContextMenuProps) => React.ReactElement) & {
     displayName: string;
 };
 interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {

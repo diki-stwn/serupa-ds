@@ -20,6 +20,7 @@ export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTim
 /* One clock for every RelativeTime on the page: it ticks every 15 seconds while any is mounted (and at once when
    the tab comes back into view), so a page of timestamps re-renders together rather than each on its own timer. */
 const TICK = 15000;
+// module state: the browser's one clock (subscribe starts it); a server render reads getServerNow instead.
 let now = Date.now();
 const listeners = new Set<() => void>();
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -42,6 +43,7 @@ const getNow = () => { if (!timer && Date.now() - now > TICK) now = Date.now(); 
 // takes over right after (useSyncExternalStore's server snapshot). It's the same moment for every render within a
 // second (one page's times agree, and React reads the snapshot twice), and a new one after that: a long-running
 // server would otherwise write the time it started for every request.
+// module state: the server's moment, renewed each second, so requests a second apart never share it.
 let serverNow = -Infinity;
 const getServerNow = () => { const t = Date.now(); if (t - serverNow > 1000 || t < serverNow) serverNow = t; return serverNow; };
 

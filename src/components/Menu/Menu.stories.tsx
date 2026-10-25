@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
+import { ContextMenu, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 
@@ -168,4 +168,17 @@ export const Submenus: Story = {
     </>,
   },
   decorators: [frame({ minHeight: 360, paddingInlineEnd: 480 })],
+};
+
+// Opened (controlled) it shows at the target's corner; in the page a right-click opens it at the pointer.
+export const Context: Story = {
+  render: function Render(_args, ctx) {
+    const open = ctx.viewMode === 'docs' ? undefined : true;
+    return <ContextMenu aria-label="File actions" open={open} target={<div tabIndex={0} style={{ width: 280, padding: 16, border: '1px dashed var(--border)', borderRadius: 8 }}>Right-click, or focus and press Shift+F10</div>}>
+      <MenuItem icon="open_in_new">Open</MenuItem>
+      <MenuItem icon="edit">Rename</MenuItem>
+      <MenuSeparator />
+      <MenuItem icon="delete" destructive>Delete</MenuItem>
+    </ContextMenu>;
+  },
 };

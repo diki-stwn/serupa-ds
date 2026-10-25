@@ -3,7 +3,7 @@
 A list of actions behind a button: a row's "More" menu, an "Actions" dropdown, a user menu. It follows the WAI-ARIA menu button pattern and opens next to its button in the browser's top layer.
 
 ```jsx
-const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.Serupa;
+const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton, Card } = window.Serupa;
 
 <Menu trigger={<Button variant="secondary" rightIcon="expand_more">Actions</Button>}>
   <MenuItem icon="edit" shortcut="⌘E" onSelect={edit}>Edit</MenuItem>
@@ -24,13 +24,22 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
     <MenuItem icon="link">Copy link</MenuItem>
   </MenuSub>
 </Menu>
+
+// a right-click (or Shift+F10) menu on an area
+<ContextMenu aria-label="File actions" target={<Card tabIndex={0}>Report.pdf</Card>}>
+  <MenuItem icon="open_in_new" onSelect={open}>Open</MenuItem>
+  <MenuItem icon="edit" onSelect={rename}>Rename</MenuItem>
+</ContextMenu>
 ```
+
+`ContextMenu` is the same menu opened from an area instead of a button: at the pointer on a right-click (or a long press on touch), or at the focused element on Shift+F10 or the Menu key.
 
 ## When to use
 
 - A set of actions on one item that would crowd the page as buttons, such as a table row's "More" menu.
 - Grouping related actions behind one "Actions" button in a toolbar.
 - A user or account menu with a few actions and links.
+- `ContextMenu`: shortcuts to actions on a thing people right-click, such as a file, a row or a spot on a canvas.
 
 ## When not to use
 
@@ -38,6 +47,7 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 - Navigation links: use a plain list of links instead, or [Navbar](../Navbar/README.md) or [Sidebar](../Sidebar/README.md) for an app's pages.
 - One or two actions: show them as [Button](../Button/README.md)s instead, so people don't have to open anything.
 - Content with fields or text: use [Popover](../Popover/README.md) instead.
+- A `ContextMenu` as the only way to an action: people rarely look for right-click menus, and many can't right-click. Put each of its actions on a button or a `Menu` too.
 
 ## Usage
 
@@ -45,6 +55,7 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 - Put the most used actions first, and destructive ones last, after a `MenuSeparator` or in their own `MenuGroup`.
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
 - Use a `MenuSub` for a set of related choices that would make the menu long ("Share", "Move to"). Keep it to one level where you can: each level is one more step for keyboard and screen reader users, and harder to reach with a pointer. Never put the only way to do something two levels down.
+- Give a `ContextMenu` target `tabIndex={0}` (or use a focusable element), so keyboard users can reach it and press Shift+F10, and say in its hint or a Tooltip that it has one. Leave the browser's own menu where people expect it, such as on text they edit or links: `disabled` does that.
 - `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work. Write it the way the platform does ("⌘K" on a Mac, "Ctrl+K" elsewhere).
 
 ## Accessibility
@@ -67,6 +78,8 @@ const { Menu, MenuItem, MenuGroup, MenuSeparator, Button, IconButton } = window.
 | → (← in rtl), Enter, Space | | On a `MenuSub`: opens its submenu on the first item |
 | ← (→ in rtl), Escape | | In a submenu: closes it, and focus goes back to the item that opened it |
 
+On a `ContextMenu`'s target, Shift+F10 or the Menu key opens it at the focused element, and a right-click opens it at the pointer. In it the keys are the same, and Escape or a choice puts focus back where it was.
+
 In a submenu, ↑ ↓ Home End and letters move among its own items only. Choosing an item in a submenu closes every level and focus goes back to the button.
 
 Hovering an item highlights it, and a press outside closes the menu. Hovering a `MenuSub` opens its submenu after 150ms, and it closes 150ms after the pointer settles on another item, so the pointer can cut across an item on the way into the submenu.
@@ -85,6 +98,18 @@ Hovering an item highlights it, and a press outside closes the menu. Hovering a 
 | `aria-label` | string | | The menu's name. Without it, the button's text names it |
 
 `id` isn't a prop. Put an id on the trigger, which keeps it; the menu panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
+
+### ContextMenu
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `target` | one element | required | The area it belongs to. A right-click, a long press, Shift+F10 or the Menu key in it opens the menu. It keeps its own handlers and ref, and its `onContextMenu` can call `preventDefault()` to stop it |
+| `children` | nodes | required | `MenuItem`, `MenuGroup`, `MenuSub` and `MenuSeparator` |
+| `aria-label` | string | required | The menu's name ("File actions"), since there's no button to take it from |
+| `open`, `onOpenChange` | boolean, function | | Control it yourself. Opened this way, it shows at the target's corner |
+| `disabled` | boolean | `false` | Leaves the browser's own menu in place |
+
+`id` isn't a prop: put an id on the target, which keeps it.
 
 ### MenuItem
 

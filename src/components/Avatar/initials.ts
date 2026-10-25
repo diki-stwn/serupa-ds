@@ -1,6 +1,7 @@
 // In its own module, without "use client", so a Server Component can call it (a function from a client module is
 // only a reference there). Avatar.tsx re-exports it.
 
+// module state: one locale-free segmenter, made on first use.
 let segmenter: { segment(s: string): Iterable<{ segment: string }> } | null | undefined;
 /** The characters a person sees: "👩🏽" or "é" written as e and an accent are one, where Intl.Segmenter exists. */
 function graphemes(s: string): string[] {

@@ -1,11 +1,12 @@
 /* ---------------------------------------------------------------
    Breadcrumb: a wrapping row of muted text-sm links with chevrons (or slashes) between them; a link turns
    text-colored and underlined on hover; the current page is text, font-medium. The "…" button looks like a link.
+   Each separator is the first thing in the item after it, the list's gap on both sides.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-breadcrumb { font-family: var(--font-sans); font-size: var(--breadcrumb-font-size, var(--text-sm)); line-height: var(--text-sm--line-height); }
 .dk-breadcrumb__list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--breadcrumb-gap, var(--spacing-1\.5)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
-.dk-breadcrumb__li { display: inline-flex; min-width: var(--spacing-0); }
+.dk-breadcrumb__li { display: inline-flex; align-items: center; gap: var(--breadcrumb-gap, var(--spacing-1\.5)); min-width: var(--spacing-0); }
 .dk-breadcrumb__item {
   display: inline-flex; align-items: center; gap: var(--spacing-1); min-width: var(--spacing-0);
   color: var(--breadcrumb-text, var(--text-muted)); text-decoration: none; border-radius: var(--breadcrumb-focus-radius, var(--rounded-sm));

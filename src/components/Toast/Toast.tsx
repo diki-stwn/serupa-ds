@@ -34,6 +34,8 @@ export interface ToastOptions {
 
 interface Item extends ToastOptions { id: string; tone: ToastTone; count: number }
 type Listener = (items: Item[]) => void;
+// module state: the browser's toast queue. toast() is for event handlers, and a Toaster starts empty on a server (its
+// list fills from the queue after mounting), so a toast() called during a server render never reaches another request's HTML.
 let items: Item[] = [];
 const listeners = new Set<Listener>();
 let next = 0;
@@ -43,9 +45,11 @@ const TONES: readonly ToastTone[] = ["neutral", "info", "success", "warning", "d
 // The key that moves focus to the newest toast and back (as in Radix), and the hint the first toast with an action
 // adds to what's announced, in the Toaster's words.
 const HOTKEY = "F8";
+// module state: browser only, set by the mounted Toaster.
 let hint = "", hinted = false;
 // A repeat is said once the burst stops (a second without another), with the count in the Toaster's words.
 const REPEAT_QUIET = 1000;
+// module state: browser only, set by the mounted Toaster, with the timers below.
 let repeated: ((count: number) => string) | null = null;
 const repeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const said = (o: ToastOptions) => (o.announcement != null ? o.announcement : [text(o.title), text(o.description)].filter(Boolean).join(". "));
@@ -111,7 +115,8 @@ const ICONS: Record<ToastTone, IconData | null> = { neutral: null, info: icons.I
 export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: ToasterProps): React.ReactElement {
   const sds = useSerupa();
   const { position, label, dismissLabel, limit, className, ...rest } = props;
-  const [list, setList] = React.useState<Item[]>(items);
+  // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
+  const [list, setList] = React.useState<Item[]>([]);
   React.useEffect(() => { ensureAnnouncer(); hinted = false; listeners.add(setList); setList(items); return () => { listeners.delete(setList); }; }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
   // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
