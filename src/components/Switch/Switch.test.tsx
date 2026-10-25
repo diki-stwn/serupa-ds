@@ -42,6 +42,21 @@ function App(props: { iref?: React.Ref<HTMLInputElement> }) {
 const setup = async (iref?: React.Ref<HTMLInputElement>) => { changes = []; await render(<App iref={iref} />); await document.fonts.ready; };
 
 describe('Switch', () => {
+  test('onCheckedChange gets the new state and the event after onChange; not while read-only or pending', async () => {
+    const calls: string[] = [];
+    await render(<div>
+      <Switch id="occ" onChange={() => calls.push('change')} onCheckedChange={(v, e) => calls.push(v + ' ' + e.type)}>Wi-Fi</Switch>
+      <Switch id="ocr" readOnly onCheckedChange={(v) => calls.push('ro ' + v)}>Locked</Switch>
+      <Switch id="ocp" pending onCheckedChange={(v) => calls.push('busy ' + v)}>Saving</Switch>
+    </div>);
+    const sw = (id: string) => document.getElementById(id) as HTMLInputElement;
+    await userEvent.click(sw('occ'));
+    await userEvent.click(sw('occ'));
+    await userEvent.click(sw('ocr'));
+    await userEvent.click(sw('ocp'));
+    expect(calls).toEqual(['change', 'true change', 'change', 'false change']);
+  });
+
   test('a native checkbox with role="switch" (type and role can\'t be changed; no system look) in a <label class="dk-switch">; md: a 36 by 20px round track in field-border, a 16px thumb in field 2px from the start, centered on the label\'s first line', async () => {
     await setup();
     const s = still(), md = box('md');
