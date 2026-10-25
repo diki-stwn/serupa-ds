@@ -308,4 +308,50 @@ describe('Combobox: autocomplete', () => {
     const a = document.getElementById('cbac') as HTMLInputElement, b = document.getElementById('cbcn') as HTMLInputElement;
     expect([a.getAttribute('autocomplete'), b.getAttribute('autocomplete')]).toEqual(['off', 'country-name']);
   });
+  test('a filter function decides the matches; ArrowUp opens on the last option and Alt+ArrowDown on the picked one; Enter on a typed exact label picks it, and with no match closes and puts the label back', async () => {
+    const picked: (string | null)[] = [];
+    const starts = (o: { label: string }, t: string) => o.label.toLowerCase().startsWith(t.trim().toLowerCase());
+    await render(<div style={{ width: '320px' }}><button id="before">Before</button>
+      <Combobox id="cb" aria-label="Country" options={COUNTRIES} filter={starts} defaultValue="Brazil" onValueChange={(v) => { picked.push(v); }} /></div>);
+    el('before').focus();
+    await userEvent.keyboard('{Tab}{ArrowUp}');
+    expect(st('cb').active).toBe('Brazil');
+    await userEvent.keyboard('{Escape}');
+    await selectAll();
+    await userEvent.keyboard('an');
+    expect(st('cb').opts).toEqual([]);
+    await selectAll();
+    await userEvent.keyboard('ca');
+    expect(st('cb').opts).toEqual(['Canada']);
+    await selectAll();
+    await userEvent.keyboard('egypt');
+    await userEvent.keyboard('{ArrowDown}{ArrowUp}{ArrowUp}');
+    await userEvent.keyboard('{Enter}');
+    expect([st('cb').text, picked.join()]).toEqual(['Egypt', 'Egypt']);
+    await selectAll();
+    await userEvent.keyboard('zz{Enter}');
+    expect([st('cb').open, st('cb').text]).toEqual(['false', 'Egypt']);
+    await userEvent.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    expect([st('cb').open, st('cb').active]).toEqual(['true', 'Egypt']);
+  });
+
+  test('form reset brings the default back; invalid marks the field; your onKeyDown can stop its keys; readOnly never opens', async () => {
+    await render(<form id="f" style={{ width: '320px' }}>
+      <Combobox id="cb" aria-label="Country" name="country" options={COUNTRIES} defaultValue="Canada" invalid />
+      <Combobox id="ks" aria-label="Keys" options={COUNTRIES} onKeyDown={(e) => { if (e.key === 'ArrowDown') e.preventDefault(); }} />
+      <Combobox id="ro" aria-label="Locked" options={COUNTRIES} readOnly defaultValue="France" />
+    </form>);
+    expect([el('cb').getAttribute('aria-invalid'), el('cb').parentElement!.className.includes('dk-input--invalid')]).toEqual(['true', true]);
+    await userEvent.click(el('cb'));
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+    expect(el('cb').value).not.toBe('Canada');
+    (document.getElementById('f') as HTMLFormElement).reset();
+    await expect.poll(() => el('cb').value).toBe('Canada');
+    el('ks').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(st('ks').open).toBe('false');
+    el('ro').focus();
+    await userEvent.keyboard('{ArrowDown}x');
+    expect([st('ro').open, st('ro').text]).toEqual(['false', 'France']);
+  });
 });
