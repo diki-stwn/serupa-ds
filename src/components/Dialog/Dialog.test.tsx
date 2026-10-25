@@ -13,6 +13,8 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const dlg = (id: string) => el(id) as HTMLDialogElement;
 const panel = (id: string) => el(id).querySelector('.dk-dialog__panel') as HTMLElement;
 const isOpen = (id: string) => dlg(id).open;
+// The title is the element that names the dialog (aria-labelledby).
+const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 // The panel scales in from 95%: measure once every finite animation has ended (headless WebKit can start it late).
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
@@ -274,7 +276,7 @@ describe('Dialog', () => {
     React.act(() => ctl.setOpen!(true));
     await expect.poll(() => isOpen('dlg')).toBe(true);
     await settled();
-    const s = getComputedStyle(panel('dlg')), ti = getComputedStyle(el('dlg').querySelector('.dk-dialog__title')!);
+    const s = getComputedStyle(panel('dlg')), ti = getComputedStyle(titleOf('dlg'));
     expect([s.paddingTop, s.borderTopLeftRadius, s.rowGap, ti.fontSize, ti.fontWeight, getComputedStyle(el('dlg').querySelector('.dk-dialog__footer')!).justifyContent]).toEqual(['24px', '12px', '16px', '18px', '600', 'flex-end']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);

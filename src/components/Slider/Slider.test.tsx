@@ -294,7 +294,7 @@ describe('Slider', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const page = css(document.body).backgroundColor, danger = css(el('bad').querySelector('.dk-slider__fill')).backgroundColor;
-      expect(css(el('bad').querySelector('.dk-slider__thumb')).borderTopColor).toBe(danger);
+      expect(css(el('bad').querySelector('[role=slider]')).borderTopColor).toBe(danger);
       const r = contrast(danger, page); if (r < 3) low.push(`${th}: ${r.toFixed(2)}`);
     }
     document.documentElement.removeAttribute('data-theme');
