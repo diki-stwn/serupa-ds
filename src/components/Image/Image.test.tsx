@@ -93,6 +93,21 @@ describe('Image', () => {
     expect(frame('custom').querySelector('.dk-image__fallback')!.textContent).toBe('No logo');
   });
 
+  test('a new src starts over: a broken picture given a good src loads it; a slow one replaced before it arrives shows the new one, and the old answer changes nothing', async () => {
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+    const r = await render(<Pic id="next" alt="Team photo" ratio="square" src={BROKEN} />);
+    await expect.poll(() => box('next').state).toBe('error');
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={PIC} />);
+    await expect.poll(() => [box('next').state, frame('next').querySelector('img')?.getAttribute('src')]).toEqual(['loaded', PIC]);
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={slow} />);
+    expect(box('next').state).toBe('loading');
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={BROKEN} />);
+    await expect.poll(() => box('next').state).toBe('error');
+    // The slow picture's answer comes after a second: by then nothing shows it, and the error stays.
+    await new Promise((done) => setTimeout(done, 1300));
+    expect([box('next').state, !!frame('next').querySelector('img')]).toEqual(['error', false]);
+  });
+
   test('viewable: the picture is a button named "View image: <alt>" with a zoom-in cursor; the remove button is "Remove image: <alt>"', async () => {
     await render(<Viewer removed={() => {}} />);
     const b = viewBtn();
