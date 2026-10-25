@@ -30,6 +30,25 @@ describe('Tooltip', () => {
     expect(asks.join()).toBe('false');
   });
 
+  test('onOpenChange says why: hover in and out, focus and blur from the keyboard, escape', async () => {
+    const why: string[] = [];
+    await render(<div style={{ padding: '80px' }}><button id="tbefore">Before</button><Tooltip content="Why" delay={0} onOpenChange={(v, d) => why.push((v ? 'show ' : 'hide ') + d.reason)}><button id="twhy">Why</button></Tooltip></div>);
+    await userEvent.hover(el('twhy'));
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await away();
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    el('tbefore').focus();
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    expect(why).toEqual(['show hover', 'hide hover', 'show focus', 'hide blur', 'show focus', 'hide escape']);
+  });
+
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
     await render(<>
       <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" noTitle aria-describedby="other" /></Tooltip>
