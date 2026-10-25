@@ -19,7 +19,8 @@
 .dk-combobox__popup {
   --dk-combobox-offset: var(--combobox-offset, var(--spacing-1));
   box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-50));
-  max-width: calc(var(--sizing-full) - var(--spacing-4));
+  /* At least as wide as the field (set by the script), at most 28rem, so one long label wraps instead of widening the list. */
+  max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--combobox-listbox-max-width, var(--container-md)));
   max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
   margin: var(--spacing-0); padding: var(--combobox-listbox-padding, var(--spacing-1));
   border: var(--border-width-1) solid var(--combobox-listbox-border, var(--border-overlay));
@@ -37,7 +38,7 @@
 .dk-combobox__option:dir(rtl) { --dk-bar: calc(var(--border-width-2) * -1); }
 .dk-combobox__option--active { background: var(--combobox-option-bg-active, var(--highlight)); box-shadow: inset var(--dk-bar) 0 0 var(--combobox-option-indicator, var(--primary)); }
 .dk-combobox__option[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-combobox__text { display: flex; flex-direction: column; flex: auto; min-width: var(--spacing-0); }
+.dk-combobox__text { display: flex; flex-direction: column; flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-combobox__description { color: var(--combobox-description-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-combobox__option--active .dk-combobox__description { color: var(--combobox-option-color, var(--text)); }   /* muted text is below 4.5:1 on highlight */
 .dk-combobox__check { flex-shrink: 0; color: var(--combobox-check, var(--primary)); font-size: var(--spacing-4); }

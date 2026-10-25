@@ -280,3 +280,25 @@ describe('Drawer', () => {
     expect(topModal()).toBe(el('smd'));
   });
 });
+
+describe('Drawer: a body that scrolls', () => {
+  test('a long body with nothing focusable takes Tab focus after the ×, as a region named by the title with a focus ring, and Page Down scrolls it; a short one stays out of the Tab order', async () => {
+    const text = []; for (let i = 0; i < 80; i++) text.push(<p key={i}>Line {i}</p>);
+    const screen = await render(<Drawer id="dsl" open onOpenChange={() => {}} title="Terms">{text}</Drawer>);
+    const d = el('dsl') as HTMLDialogElement;
+    await expect.poll(() => d.open).toBe(true);
+    await settled();
+    const body = d.querySelector('.dk-drawer__body') as HTMLElement;
+    await expect.poll(() => body.tabIndex).toBe(0);
+    expect([body.getAttribute('role'), document.getElementById(body.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['region', 'Terms']);
+    (d.querySelector('.dk-drawer__close') as HTMLElement).focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(body);
+    expect([getComputedStyle(body).outlineStyle, parseFloat(getComputedStyle(body).outlineWidth) >= 2]).toEqual(['solid', true]);
+    await userEvent.keyboard('{PageDown}');
+    await expect.poll(() => body.scrollTop).toBeGreaterThan(100);
+    await screen.rerender(<Drawer id="dsl" open onOpenChange={() => {}} title="Terms"><p>Short</p></Drawer>);
+    await expect.poll(() => body.hasAttribute('tabindex')).toBe(false);
+    expect(body.hasAttribute('role')).toBe(false);
+  });
+});

@@ -82,7 +82,6 @@ Each is an optional override: set it on the page, a container or one switch. The
 | `--switch-label-color` | `text` | The label |
 | `--switch-description-color` | `text-muted` | The description |
 | `--switch-focus-ring` | `focus-ring` | The focus ring |
-| `--switch-focus-gap-color` | `surface` | Deprecated, no effect: the focus ring is an outline now, so its gap is transparent on any background. Removed in 9.0.0. |
 | `--switch-invalid` | `danger` | The track's edge and the focus ring, when invalid |
 | `--switch-width-sm` / `-md` / `-lg` | `spacing-7` / `spacing-9` / `spacing-11` | Track widths (28, 36, 44px) |
 | `--switch-height-sm` / `-md` / `-lg` | `spacing-4` / `spacing-5` / `spacing-6` | Track heights (16, 20, 24px) |

@@ -148,6 +148,16 @@
           }
         }
       },
+      "listbox-max-width": {
+        "$type": "dimension",
+        "$value": "{sizing.container-md}",
+        "$description": "The list's widest, unless the field is wider (448px). Longer labels wrap.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--combobox-listbox-max-width"
+          }
+        }
+      },
       "option-height": {
         "$type": "dimension",
         "$value": "{sizing.control-height-md}",
