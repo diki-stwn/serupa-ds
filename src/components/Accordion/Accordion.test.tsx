@@ -215,4 +215,33 @@ describe('Accordion', () => {
     expect(state('afrag')).toBe('010');
     expect(document.getElementById(trigger('afrag', 2).getAttribute('aria-controls')!)!.textContent).toBe('2');
   });
+
+  test('keepMounted={false} renders the content only while open, keeping it through the closing animation, so its state starts over; by default closed content keeps its state', () => withMotion(async () => {
+    const mounts: string[] = [];
+    function Heavy({ name }: { name: string }) {
+      const [n, setN] = React.useState(0);
+      React.useEffect(() => { mounts.push(name); }, [name]);
+      return <button type="button" id={'count-' + name} onClick={() => setN(n + 1)}>{n}</button>;
+    }
+    await render(<Accordion id="akeep" type="multiple">
+      <AccordionItem title="Chart" keepMounted={false}><Heavy name="chart" /></AccordionItem>
+      <AccordionItem title="Form"><Heavy name="form" /></AccordionItem>
+    </Accordion>);
+    const count = (name: string) => document.getElementById('count-' + name);
+    expect([count('chart'), count('form')?.textContent, mounts]).toEqual([null, '0', ['form']]);
+    for (const n of [1, 2]) await userEvent.click(trigger('akeep', n));
+    await settled('akeep');
+    await userEvent.click(count('chart')!); await userEvent.click(count('form')!);
+    expect([count('chart')?.textContent, count('form')?.textContent]).toEqual(['1', '1']);
+    await userEvent.click(trigger('akeep', 2));
+    await settled('akeep');
+    trigger('akeep', 1).click();
+    await new Promise(requestAnimationFrame);
+    expect(count('chart')).not.toBeNull();   // still there while it shrinks
+    await settled('akeep');
+    await expect.poll(() => count('chart')).toBeNull();
+    expect(count('form')?.textContent).toBe('1');
+    await userEvent.click(trigger('akeep', 1));
+    expect([count('chart')?.textContent, mounts]).toEqual(['0', ['form', 'chart', 'chart']]);
+  }));
 });

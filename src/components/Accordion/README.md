@@ -37,6 +37,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 - Keep anything people must not miss out of a closed item: closed content is hidden from everyone.
 - With many items and `type="multiple"`, add `showExpandAll` so people can open everything at once (to read or print the whole page) and close it again.
 - The browser's find-in-page (Ctrl+F or ⌘F) searches closed items too, and opens the item a match is in.
+- Closed items keep their content, and its state (a half-filled form, a playing video's position). Set `keepMounted={false}` on an item whose content is heavy and doesn't need to, such as a chart or a long table, so it renders only while open. Find-in-page can't find content that isn't there, so keep the default for text people may search.
 
 ## Accessibility
 
@@ -72,6 +73,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 | `value` | string | its position (`"0"`, `"1"`…) | Identifies it in `value` |
 | `disabled` | boolean | `false` | Can't be opened or closed |
 | `children` | node | none | The content |
+| `keepMounted` | boolean | `true` | `false` renders the content only while the item is open (and while it closes), for heavy content. Its state is lost on close, and find-in-page can't find it |
 
 `className`, `ref` and everything else go to the item, which has `data-state="open"` or `"closed"`.
 
