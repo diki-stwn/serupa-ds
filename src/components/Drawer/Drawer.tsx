@@ -16,7 +16,7 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   open?: boolean;
   /** Open at first, then it closes itself (uncontrolled), for one shown on arrival. Default: false. */
   defaultOpen?: boolean;
-  /** Called with false when people ask to close it, and why: { reason: 'escape' | 'close' (the ×) | 'outside' (the backdrop) | 'api' (the browser closed it) }. */
+  /** Called with false when people ask to close it, and why: { reason: 'escape' | 'close' (the ×) | 'outside' (the backdrop) | 'swipe' | 'api' (the browser closed it) }. */
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** The edge it slides in from: 'right' (default), 'left', 'top' or 'bottom'. */
   side?: 'right' | 'left' | 'top' | 'bottom';
@@ -37,9 +37,12 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   /** false: a side panel next to the page instead of over it. No backdrop, the page stays usable and scrolls, and
       focus can leave it; Escape inside it and the × still close it. Default: true. */
   modal?: boolean;
+  /** A touch drag toward its edge closes it (onOpenChange(false, { reason: 'swipe' })). Top and bottom drawers
+      are dragged by the header or footer, so the body still scrolls. Default: true. */
+  swipeToClose?: boolean;
 }
 
-const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, className: 1, children: 1 } as const;
 
 /* Drawer: a modal panel that slides in from an edge of the screen, for navigation on small screens, filters,
    or details and edits without leaving the page. It's a native <dialog> (showModal) like Dialog: focus stays
@@ -124,6 +127,40 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   // press that starts and ends on the backdrop counts.
   const downOnBackdrop = React.useRef(false);
   const onPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => { if (rest.onPointerDown) rest.onPointerDown(e); downOnBackdrop.current = e.target === e.currentTarget && !wasDismissal(e.nativeEvent); };
+  // Swipe to close: a touch drag toward the drawer's edge moves the panel with the finger. Let go past a third of
+  // its size, or flick it, and it asks to close; otherwise it goes back. A drag across instead (a scroll, a
+  // carousel), or one that starts in a field, is left alone; top and bottom drawers start it outside the body.
+  const swipe = props.swipeToClose !== false;
+  const horiz = side === "left" || side === "right", away = side === "right" || side === "bottom" ? 1 : -1;
+  const drag = React.useRef<{ id: number; x: number; y: number; t: number; d: number; on: boolean } | null>(null);
+  const onSwipeDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const t = e.target as Element;
+    if (!swipe || e.pointerType !== "touch" || !e.isPrimary || t.closest("input, textarea, select, [contenteditable]")) return;
+    if (!horiz && t.closest(".dk-drawer__body")) return;
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, d: 0, on: false };
+  };
+  const onSwipeMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const g = drag.current;
+    if (!g || e.pointerId !== g.id) return;
+    const d = Math.max(0, (horiz ? e.clientX - g.x : e.clientY - g.y) * away), across = Math.abs(horiz ? e.clientY - g.y : e.clientX - g.x);
+    if (!g.on) {
+      if (across > 10 && across > d) { drag.current = null; return; }
+      if (d < 10) return;
+      g.on = true;
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
+    }
+    g.d = d;
+    e.currentTarget.style.translate = horiz ? d * away + "px 0" : "0 " + d * away + "px";
+  };
+  const onSwipeEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    const g = drag.current;
+    if (!g || e.pointerId !== g.id) return;
+    drag.current = null;
+    e.currentTarget.style.translate = "";
+    const size = horiz ? e.currentTarget.offsetWidth : e.currentTarget.offsetHeight;
+    const fast = g.d > 30 && g.d / Math.max(1, e.timeStamp - g.t) > 0.5;
+    if (g.on && e.type === "pointerup" && (g.d > size / 3 || fast)) close("swipe");
+  };
   const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close("outside"); downOnBackdrop.current = false; };
   // A body taller than the panel takes Tab focus, so it can be scrolled from the keyboard when nothing in it is
   // focusable (only Chromium scrolls it with focus on the ×). It's a region named like the drawer, as Table's frame is.
@@ -139,7 +176,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
       className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size}
       onKeyDown={onKeyDown} onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
-      <div className="dk-drawer__panel">
+      <div className="dk-drawer__panel" onPointerDown={onSwipeDown} onPointerMove={onSwipeMove} onPointerUp={onSwipeEnd} onPointerCancel={onSwipeEnd}>
         {has(props.title) || has(props.description) || showClose ? (
           <div className="dk-drawer__header">
             <div className="dk-drawer__heading">

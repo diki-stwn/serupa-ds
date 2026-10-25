@@ -12,5 +12,6 @@ interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>
     closeLabel?: string;
     closeOnBackdrop?: boolean;
     modal?: boolean;
+    swipeToClose?: boolean;
 }
 declare const Drawer: React.ForwardRefExoticComponent<DrawerProps & React.RefAttributes<HTMLDialogElement>>;
