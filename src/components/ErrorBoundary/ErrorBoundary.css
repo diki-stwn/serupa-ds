@@ -1,0 +1,9 @@
+/* ---------------------------------------------------------------
+   ErrorBoundary: the default fallback is a danger Alert in a box that takes focus when the crash left focus
+   nowhere; the box draws the shared focus ring (outline), at the Alert's radius.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-error-boundary { border-radius: var(--error-boundary-radius, var(--rounded-lg)); }
+.dk-error-boundary:focus { outline: none; }
+.dk-error-boundary:focus-visible { outline: var(--focus-ring-width) solid var(--error-boundary-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+}

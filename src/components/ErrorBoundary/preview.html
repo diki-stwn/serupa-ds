@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ErrorBoundary — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface); color: var(--text); font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var T = window.Serupa, h = React.createElement;
+  function Broken() { throw new Error('Preview: crashed on purpose'); }
+  var error = console.error.bind(console);
+  console.error = function () { if (![].some.call(arguments, function (a) { return String(a && a.message || a).indexOf('crashed on purpose') >= 0; })) error.apply(null, arguments); };
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { style: { maxWidth: 480 } }, h(T.ErrorBoundary, null, h(Broken))));
+</script>
+</body>
+</html>

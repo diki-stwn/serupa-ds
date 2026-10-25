@@ -23,6 +23,32 @@ function Controlled({ calls }: { calls: string[] }) {
 }
 
 describe('ColorPicker', () => {
+  test('in a required Field with a hint: the control id once, the radiogroup named by the label, described by the hint and required; the hex field stays its own field', async () => {
+    await render(<Field label="Accent" hint="Used for links" required><ColorPicker swatches={SW} /></Field>);
+    const g = group(), label = document.querySelector('.dk-field__label') as HTMLLabelElement, hint = document.querySelector('.dk-field__hint') as HTMLElement;
+    expect([document.querySelectorAll('#' + CSS.escape(label.htmlFor)).length, g.getAttribute('aria-labelledby') === label.id]).toEqual([1, true]);
+    expect([g.getAttribute('aria-describedby')?.split(' ').includes(hint.id), g.getAttribute('aria-required')]).toEqual([true, 'true']);
+    expect([hex().id === label.htmlFor, hex().getAttribute('aria-describedby'), hex().getAttribute('aria-label')]).toEqual([false, null, 'Hex code']);
+  });
+
+  test('required: a form with no color picked isn\'t valid; submitting marks the swatches invalid and focuses them; picking one clears it', async () => {
+    let sent = 0;
+    await render(<form id="cpf" onSubmit={(e) => { e.preventDefault(); sent++; }}><ColorPicker aria-label="Accent" swatches={SW} name="accent" required /><button id="cps">Save</button></form>);
+    const f = el('cpf') as HTMLFormElement;
+    expect([f.checkValidity(), group().getAttribute('aria-required')]).toEqual([false, 'true']);
+    await userEvent.click(el('cps'));
+    await expect.poll(() => group().getAttribute('aria-invalid')).toBe('true');
+    expect([sent, document.activeElement === radios()[0]]).toEqual([0, true]);
+    await userEvent.click(swatch('Yellow'));
+    expect([group().getAttribute('aria-invalid'), f.checkValidity()]).toEqual([null, true]);
+  });
+
+  test('invalid marks the swatches invalid; in a Field with an error, the radiogroup points to it', async () => {
+    await render(<Field label="Accent" error="Pick a brand color"><ColorPicker swatches={SW} /></Field>);
+    const err = document.querySelector('.dk-field__error span[id]') as HTMLElement;
+    expect([group().getAttribute('aria-invalid'), group().getAttribute('aria-errormessage') === err.id]).toEqual(['true', true]);
+  });
+
   test('a radiogroup of swatches named by their labels (a bare hex by a name from its color, with its code as the tooltip), the picked one checked with a check icon; one Tab stop', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<ColorPicker ref={ref} id="cp" className="extra" aria-label="Label color" swatches={SW} defaultValue="#1d4ed8" />);
@@ -203,4 +229,10 @@ describe('ColorPicker', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
   });
+  test('autoFocus focuses the checked swatch, not the wrapper', async () => {
+    await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#fde047" autoFocus />);
+    await expect.poll(() => document.activeElement).toBe(swatch('Yellow'));
+    expect(group().closest('.dk-color-picker')!.hasAttribute('autofocus')).toBe(false);
+  });
+
 });

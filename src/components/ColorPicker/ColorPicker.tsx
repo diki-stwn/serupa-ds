@@ -3,7 +3,8 @@ import * as React from "react";
 import { cn, domId, omit, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { colorName, contrastRatio, normalizeHex } from "../../internal/color";
-import { delegateFocus } from "../../internal/focus";
+import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { FieldContext } from "../../internal/field";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFormReset } from "../../internal/useFormReset";
 import { useLocale, useSerupa } from "../../internal/provider";
@@ -41,9 +42,13 @@ export interface ColorPickerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   name?: string;
   /** The id of the form the color submits with, when the picker sits outside it (like an input's form attribute). */
   form?: string;
+  /** A color must be picked: aria-required on the swatches, and a form isn't submitted without one. In a required Field, it's set for you. */
+  required?: boolean;
+  /** Marks the swatches invalid (aria-invalid). In a Field with an error, it's set for you. */
+  invalid?: boolean;
 }
 
-const OWN = { "aria-label": 1, "aria-labelledby": 1, swatches: 1, value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, custom: 1, contrastWith: 1, minContrast: 1, size: 1, disabled: 1, name: 1, className: 1, form: 1 } as const;
+const OWN = { "aria-label": 1, "aria-labelledby": 1, swatches: 1, value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, custom: 1, contrastWith: 1, minContrast: 1, size: 1, disabled: 1, name: 1, className: 1, form: 1, required: 1, invalid: 1, "aria-describedby": 1, "aria-errormessage": 1, "aria-required": 1, "aria-invalid": 1, autoFocus: 1 } as const;
 type Swatch = ColorSwatch & { named: boolean };
 // The check on a swatch: white or black, whichever stands out more on it.
 const ink = (hex: string) => ((contrastRatio(hex, "#ffffff") || 0) >= (contrastRatio(hex, "#000000") || 0) ? "#ffffff" : "#000000");
@@ -70,6 +75,12 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const [own, setOwn] = React.useState<string | null>(normalizeHex(props.defaultValue || "") );
   const value = controlled ? normalizeHex(props.value || "") : own;
   const disabled = !!props.disabled, custom = props.custom !== false;
+  const truthy = (v: unknown) => v === true || v === "true";
+  const required = !!props.required || truthy(props["aria-required"]);
+  // A form submitted with nothing picked: the swatches are marked invalid and take focus, until a color is picked.
+  const [missing, setMissing] = React.useState(false);
+  if (missing && value) setMissing(false);
+  const invalid = !!props.invalid || truthy(props["aria-invalid"]) || missing;
   const size = props.size === "sm" ? "sm" : "md";
   const [text, setText] = React.useState((value || "").replace("#", ""));
   const typing = React.useRef(false);
@@ -135,15 +146,28 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
     choose(swatches[(n + swatches.length) % swatches.length].value, true);
   };
 
+  const onInvalid = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setMissing(true);
+    // Only the form's first invalid field takes focus, as the browser would do.
+    const form = e.currentTarget.form;
+    const first = form ? Array.from(form.elements).find((x) => (x as HTMLInputElement).willValidate && !(x as HTMLInputElement).validity.valid) : e.currentTarget;
+    const b = root.current?.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop];
+    if (first === e.currentTarget && b) b.focus();
+  };
   const ratio = props.contrastWith && value ? contrastRatio(value, props.contrastWith) : null;
   const min = props.minContrast && props.minContrast > 1 ? props.minContrast : 4.5;
   // Rounded down, so 4.49 never shows as 4.5 and passes by eye.
   const fmt = (n: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.floor(n * 10) / 10);
   const low = ratio != null && ratio < min;
+  useAutoFocus(props.autoFocus, () => root.current && root.current.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]);
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); setRef(ref, n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
       data-component="color-picker" data-size={size}>
-      <div role="radiogroup" className="dk-color-picker__swatches" aria-label={props["aria-label"]} aria-labelledby={labelledBy} aria-disabled={disabled || undefined}>
+      {/* The description and states a Field hands the picker go on the radiogroup, the control screen readers reach.
+          The id stays on the outer div, so a label click focuses the picked swatch through it. */}
+      <div role="radiogroup" className="dk-color-picker__swatches" aria-label={props["aria-label"]} aria-labelledby={labelledBy} aria-disabled={disabled || undefined}
+        aria-describedby={props["aria-describedby"]} aria-required={required || undefined} aria-invalid={invalid || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}>
         {swatches.map((s, i) => {
           const on = s.value === value;
           // With contrastWith, every swatch says its ratio before it's picked, and one under minContrast is marked.
@@ -162,7 +186,8 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
         })}
       </div>
       {custom ? (
-        <div className="dk-color-picker__custom">
+        // The hex field is a second field of the picker, named "Hex code": not the control a Field labels.
+        <FieldContext.Provider value={null}><div className="dk-color-picker__custom">
           <input ref={native} type="color" className="dk-color-picker__native" aria-label={sds.labels.customColor} value={value || "#000000"} disabled={disabled}
             onChange={(e) => choose(e.target.value, false, false)} />
           <Input size="sm" className="dk-color-picker__hex" aria-label={sds.labels.hexCode} value={text} disabled={disabled} maxLength={7} spellCheck={false} autoComplete="off"
@@ -171,13 +196,16 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
             onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
             onBlur={() => { typing.current = false; const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
             onKeyDown={(e) => { if (e.key === "Enter") { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } } }} />
-        </div>
+        </div></FieldContext.Provider>
       ) : null}
       {props.contrastWith ? (
         <div className={cn("dk-color-picker__contrast", low && "dk-color-picker__contrast--low")} aria-live="polite">
           {ratio != null ? <>{low ? <Icon icon={icons.Warning} className="dk-color-picker__warning" /> : null}<span>{sds.labels.contrast(fmt(ratio))}{low ? ", " + sds.labels.lowContrast(fmt(min)) : ""}</span></> : null}
         </div>
       ) : null}
+      {/* required: a hidden-from-view field the form checks; no browser bubble on it, the swatches take focus instead. */}
+      {required ? <input className="dk-color-picker__validity" tabIndex={-1} aria-hidden required value={value || ""} onChange={() => {}} disabled={disabled} form={props.form}
+        onInvalid={onInvalid} /> : null}
       {props.name ? <input ref={hidden} type="hidden" name={props.name} form={props.form} value={value || ""} disabled={disabled} /> : null}
     </div>
   );

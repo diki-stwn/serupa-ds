@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, elementRef, setRef } from "../../internal/cn";
+import { cn, domId, elementRef, omit, setRef } from "../../internal/cn";
 import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
@@ -29,6 +29,8 @@ export interface TooltipProps {
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
 type Handler = (e: React.SyntheticEvent<HTMLElement>) => void;
+
+const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, ref: 1 } as const;
 
 /* Tooltip: a short hint about an element, shown while it's hovered (after a delay) or focused, and placed next to
    it in the top layer. Escape hides it; the pointer can move onto the tooltip without it closing (WCAG 1.4.13).
@@ -60,7 +62,18 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   }, [open, set]);
 
   const child = React.Children.only(props.children) as React.ReactElement<TriggerProps>;
-  const cp = child.props;
+  /* A Menu, Popover or other component that clones its trigger may be handed this Tooltip as the trigger: the
+     props and ref it adds land here, so they go on to the element, with handlers chained after the element's own. */
+  const passed = omit(props as TooltipProps & TriggerProps, OWN) as Record<string, unknown>;
+  const fwd: Record<string, unknown> = {};
+  for (const k in passed) {
+    const own = (child.props as Record<string, unknown>)[k], add = passed[k];
+    fwd[k] = typeof own === "function" && typeof add === "function" ? (e: React.SyntheticEvent<HTMLElement>) => { (own as Handler)(e); (add as Handler)(e); }
+      : k === "id" && own ? own   // the element's own id stays: other things may point at it
+      : (k === "aria-describedby" || k === "aria-labelledby") && typeof own === "string" && typeof add === "string" ? own + " " + add : add;
+  }
+  const cp: TriggerProps = { ...child.props, ...fwd };
+  const passedRef = (props as { ref?: React.Ref<HTMLElement> }).ref;
   const delay = props.delay == null ? 400 : props.delay;
   const touch = (e: React.SyntheticEvent) => "pointerType" in e && e.pointerType === "touch";
   const chain = (name: keyof TriggerProps, fn: Handler): Handler => (e) => { const own: unknown = cp[name]; if (typeof own === "function") (own as Handler)(e); fn(e); };
@@ -68,7 +81,8 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const aria = props.role === "label" ? "aria-labelledby" : "aria-describedby";
   const merged = [cp[aria], id].filter(Boolean).join(" ");
   const trigger = React.cloneElement(child, {
-    ref: (n: HTMLElement | null) => { anchorRef.current = n; if (childRef) setRef(childRef, n); },
+    ...fwd,
+    ref: (n: HTMLElement | null) => { anchorRef.current = n; if (childRef) setRef(childRef, n); if (passedRef) setRef(passedRef, n); },
     [aria]: merged,
     // Pointer events, not mouse events: a tap sends a mouseenter after its pointerdown and never a mouseleave, so the
     // tooltip opened 400ms after a tap and stayed. A touch pointer doesn't hover; focus still shows it from the keyboard.
