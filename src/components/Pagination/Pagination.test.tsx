@@ -113,6 +113,8 @@ describe('Pagination', () => {
 
   test('size md is 32px square, sm 24px; the current page is primary with on-primary text, semibold', async () => {
     await render(<><Pagination id="pdef" count={10} /><Pagination id="psm" count={3} size="sm" /></>);
+    // Measured in the page's font: "1" in a fallback font that's still swapping in is wider (24.36px in CI).
+    await document.fonts.ready;
     const sq = (id: string) => { const r = named(id, 'Page 1').getBoundingClientRect(); return r.width + 'x' + r.height; };
     expect([sq('pdef'), sq('psm')]).toEqual(['32x32', '24x24']);
     const cur = q('pdef', '[aria-current]');
