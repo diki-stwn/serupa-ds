@@ -11,6 +11,7 @@
 //   patch  fixes that don't change what correct code gets
 import fs from 'node:fs';
 import path from 'node:path';
+import { stampReadme } from './build/registry.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const V = '(\\d+\\.\\d+\\.\\d+)';
@@ -68,5 +69,6 @@ for (const [f, pats] of Object.entries(STAMPS)) {
   for (const pat of pats) s = s.replace(new RegExp(pat, 'g'), (x, v) => x.replace(v, next));
   write(f, s);
 }
+stampReadme(P);   // README.md's components index, from the component folders as released
 check();
 console.log(`Released ${next} (${cur} before). Run the tests, then publish.`);

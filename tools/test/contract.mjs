@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PROJECT, tokensCss, report, done } from './lib.mjs';
+import { componentIndex } from '../build/registry.mjs';
 
 const SKIP = [];
 // Parts a component doesn't need, and why. Keep the reason: an exemption without one is a gap.
@@ -77,6 +78,16 @@ t('focus rings are outlines (focus-ring-width, focus-ring-offset), not box-shado
 // means it isn't finished.
 const unfinished = comps.flatMap((c) => fs.readdirSync(path.join(COMP, c)).filter((f) => fs.readFileSync(path.join(COMP, c, f), 'utf8').includes('TODO(new-component)')).map((f) => `${c}/${f}`));
 t('no TODO(new-component) is left from the component generator', !unfinished.length, unfinished.join(', '));
+
+// README.md's components index (tools/build/registry.mjs, rewritten on each release): every guide opens with a sentence
+// it can show, and nothing it links to is gone, so a component renamed or removed since the release can't leave a
+// dead link.
+const index = componentIndex(PROJECT);
+const unsaid = comps.filter((c) => !new RegExp(`^\\| \\[${c}\\]\\([^)]+\\) \\| \\S`, 'm').test(index));
+t('every guide opens with a sentence for the README components index', !unsaid.length, `no first paragraph under the heading: ${unsaid.join(', ')}`);
+const readme = fs.readFileSync(path.join(PROJECT, 'README.md'), 'utf8');
+const dead = [...readme.matchAll(/\]\((src\/components\/[^)#]+)\)/g)].map((m) => m[1]).filter((f) => !fs.existsSync(path.join(PROJECT, f)));
+t('README.md links only to component files that exist', !dead.length, `${[...new Set(dead)].join(', ')}: run node tools/build/registry.mjs --readme`);
 
 console.log(`(${comps.length} components)`);
 done(report('Contract', R));
