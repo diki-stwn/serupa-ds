@@ -162,6 +162,16 @@ describe('SegmentedControl', () => {
     expect(items('icomd').map((x) => Math.round(x.getBoundingClientRect().width)).join()).toBe('26,26');
   });
 
+  test('lg: 44px tall like a lg Input or Button, 16px label padding, a base-size label and 38px-square icon-only segments', async () => {
+    await render(<Col>
+      <SegmentedControl id="lg" aria-label="Period" size="lg" options={PERIODS.slice(0, 2)} />
+      <SegmentedControl id="lgi" aria-label="Align" size="lg" options={[{ value: 'l', icon: 'format_align_left', 'aria-label': 'Left' }, { value: 'r', icon: 'format_align_right', 'aria-label': 'Right' }]} />
+    </Col>);
+    const it = items('lg')[0];
+    expect([el('lg').getBoundingClientRect().height, el('lg').dataset.size, css(it).paddingLeft, css(el('lg')).fontSize, items('lgi').map((x) => Math.round(x.getBoundingClientRect().width)).join()])
+      .toEqual([44, 'lg', '16px', '16px', '38,38']);
+  });
+
   test('fullWidth: fills its container with equal segments; disabled: every segment disabled and out of the Tab order, faded', async () => {
     await render(<Col>
       <div style={{ width: '300px' }}><SegmentedControl id="full" aria-label="Full" fullWidth options={PERIODS.slice(0, 3)} /></div>

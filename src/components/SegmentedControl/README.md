@@ -64,7 +64,7 @@ Your `onKeyDown` runs before the control's own keys, so `e.preventDefault()` in 
 | `value` | `string` | | Controlled. |
 | `defaultValue` | `string` | the first enabled option | Uncontrolled. |
 | `onValueChange` | `(value: string) => void` | | When a different segment is chosen. |
-| `size` | `'sm' \| 'md'` | `'md'` | 24 or 32px tall, like the control heights. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 24, 32 or 44px tall, like the control heights, so it lines up with an Input, Select or Button of the same size. |
 | `fullWidth` | `boolean` | `false` | Fills its container with equal segments. |
 | `disabled` | `boolean` | `false` | |
 | `invalid` | `boolean` | `false` | A danger outline and `aria-invalid`. Field's `error` sets it. |
@@ -95,8 +95,10 @@ Each is an optional override: set it on the page, a container or one control. Th
 | `--segmented-control-indicator-radius` | `rounded-sm` | The selected segment's corners (4px). |
 | `--segmented-control-height-sm` | `control-height-sm` | size="sm" (24px). |
 | `--segmented-control-height-md` | `control-height-md` | size="md", the default (32px). |
+| `--segmented-control-height-lg` | `control-height-lg` | size="lg" (44px). |
 | `--segmented-control-padding` | `spacing-0_5` | Space between the outline and the segments (2px). |
 | `--segmented-control-padding-x` | `spacing-3` | Space on each side of a segment's label (12px). |
+| `--segmented-control-padding-x-lg` | `spacing-4` | Space on each side of a segment's label, size="lg" (16px). |
 | `--segmented-control-gap` | `spacing-1_5` | Space between a segment's icon and label (6px). |
 | `--segmented-control-weight` | `font-medium` | The labels' weight (500). |
 | `--segmented-control-duration` | `duration-200` | How long the selection takes to slide to a new segment. |
