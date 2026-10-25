@@ -33,7 +33,7 @@ if (arg('--since')) {
 }
 const only = onlyComponents();
 // The tests that check every story against a baseline or a rule: a change to one component can break its line in them.
-const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime'].map((f) => `src/internal/${f}.test.tsx`);
+const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime', 'strictCsp'].map((f) => `src/internal/${f}.test.tsx`);
 const node = (g) => ([name, f, ...args]) => [name, 'node', [path.join(HERE, f), ...args], g];
 const vitest = (name, project, g, ...args) => [name, process.execPath, [path.join(PROJECT, 'node_modules', 'vitest', 'vitest.mjs'), 'run', '--project', project, ...args], g];
 const steps = [

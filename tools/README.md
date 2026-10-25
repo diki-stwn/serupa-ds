@@ -70,6 +70,8 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 `src/internal/mountTime.test.tsx` mounts every story five times under React's Profiler and keeps the fastest. A story that takes longer than 20 ms to mount fails. That's React's development build, where the slowest story takes about 9 ms and most take under 4. The PhoneInput stories that show four or six fields, each listing 244 countries, have budgets of their own in `OWN_BUDGET`. A component whose story is heavier on purpose gets its own line there, with the reason.
 
+`src/internal/strictCsp.test.tsx` shows every story on a page with the strict policy that the getting-started page promises works: `script-src 'self'; style-src 'self'; font-src 'self'`, with no `'unsafe-inline'` and no `'unsafe-eval'`. Any violation the browser reports fails the story, and so does an inline event handler or a `javascript:` URL in its markup, since those are only reported once they run. What a server render needs on top of this is covered by `serverStyles.test.tsx`.
+
 These five story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
 ### Suite scripts
