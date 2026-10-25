@@ -275,6 +275,30 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledTimes(2);
   });
 
+  // EB1: a promise ending at 320ms showed the spinner for 20ms, cut off mid fade-in, then snapped back to the label.
+  test('onClick with a promise ending just after 300ms: the spinner stays at least 500ms (until 800ms), and the success check follows it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let ok: () => void = () => {};
+      await render(<Button id="mn" onClick={() => new Promise<void>((r) => { ok = r; })} successText="Copied">Copy</Button>);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const state = () => el('mn').hasAttribute('aria-busy') ? 'busy' : el('mn').hasAttribute('data-success') ? 'success' : 'idle';
+      await React.act(async () => el('mn').click());
+      await step(300);
+      expect(state()).toBe('busy');
+      await step(20);
+      await React.act(async () => ok());
+      expect(state()).toBe('busy');      // resolved at 320ms: the spinner stays
+      await step(470);
+      expect(state()).toBe('busy');      // 790ms
+      await step(10);
+      expect(state()).toBe('success');   // 800ms: the spinner goes and the check follows
+    } finally {
+      await React.act(async () => { vi.advanceTimersByTime(5000); });   // the check's 2s and the announcer's timers run out
+      vi.useRealTimers();
+    }
+  });
+
   test('type="submit" in a <form action> is loading while the form is sent (useFormStatus) and stops after; loading={false} overrides it; a plain button there doesn\'t load', async () => {
     let finish: () => void = () => {};
     const sent: string[] = [];
