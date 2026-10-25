@@ -48,10 +48,21 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 - The contrast line is a polite live region, so a change is read out. The warning has an icon and words, not just a color.
 - With `contrastWith`, every swatch also says its ratio before it's picked, as its description ("Contrast 1.3:1, below 4.5:1, which can be hard to read"), and a swatch under `minContrast` is struck through with a diagonal line (`CanvasText` in forced-colors mode) and has `data-low-contrast`. The line goes away once it's picked, when the check and the contrast line take over.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the chosen swatch (the swatches are one Tab stop), then the hex field and the browser's color picker, with `custom` |
+| Right / Down | The next swatch, choosing it; Left and Right swap in right-to-left pages, and it wraps |
+| Left / Up | The previous swatch, the same way |
+| Home / End | The first or last swatch |
+| Enter | In the hex field, chooses the color typed |
+
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. A label click then focuses the picked swatch. |
 | `swatches` | `Array<{ value, label } \| string>` | | The colors, as hex. A bare hex is named from its color ("Dark blue"). |
 | `value` | `string \| null` | | Controlled, as hex. |
 | `defaultValue` | `string \| null` | | Uncontrolled. |

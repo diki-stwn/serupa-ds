@@ -6,5 +6,6 @@ interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
     labelPosition?: "end" | "start";
     invalid?: boolean;
     readOnly?: boolean;
+    pending?: boolean;
 }
 declare const Switch: React.ForwardRefExoticComponent<SwitchProps & React.RefAttributes<HTMLInputElement>>;

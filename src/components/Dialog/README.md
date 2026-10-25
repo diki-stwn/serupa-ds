@@ -69,6 +69,7 @@ const [open, setOpen] = React.useState(false);
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
 | `open` | boolean | required | Whether it's open |
 | `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open` |
 | `title` | node | | The heading (`text-lg`, `font-semibold`), which also names the dialog |

@@ -46,6 +46,7 @@ const { Stack, Button } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `direction` | `'column'` \| `'row'` | `'column'` | One under another, or side by side |
 | `gap` | a spacing step: `0` `0.5` `1` `1.5` `2` `2.5` `3` `3.5` `4` `5` `6` `7` `8` `9` `10` `11` `12` `14` `16` `20` `24` | `4` (16px) | The space between items: `gap={6}` is `spacing-6`, 24px |
 | `align` | `'stretch'` \| `'start'` \| `'center'` \| `'end'` \| `'baseline'` | `'stretch'` in a column, `'center'` in a row | Cross-axis alignment |

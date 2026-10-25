@@ -27,8 +27,8 @@ export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDiv
   defaultValue?: string;
   /** Called with the new value when a segment is chosen. */
   onValueChange?: (value: string) => void;
-  /** 'sm' (24px) or 'md' (32px, default): the control heights. */
-  size?: 'sm' | 'md';
+  /** 'sm' (24px), 'md' (32px, default) or 'lg' (44px): the control heights. */
+  size?: 'sm' | 'md' | 'lg';
   /** Stretches to its container, with equal segments. Default: false. */
   fullWidth?: boolean;
   disabled?: boolean;
@@ -68,7 +68,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? (options.find((o) => !o.disabled) || {}).value); }, props.form);
   const buttons = React.useRef<Record<string, HTMLButtonElement | null>>({});
   const [box, setBox] = React.useState<{ x: number; w: number } | null>(null);
-  const size = props.size === "sm" ? "sm" : "md";
+  const size = props.size === "sm" || props.size === "lg" ? props.size : "md";
   // In a Field, its label names the group (Field's <label for> can't reach a radiogroup); its own name wins.
   const fieldLabel = useFieldLabel(props.id);
   // ref.current.focus() and autoFocus land on the segment in the Tab order: the selected one, or else the first

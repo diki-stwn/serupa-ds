@@ -147,6 +147,16 @@
             "cssVar": "--segmented-control-height-md"
           }
         }
+      },
+      "height-lg": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-lg}",
+        "$description": "size=\"lg\" (44px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--segmented-control-height-lg"
+          }
+        }
       }
     },
     "spacing": {
@@ -167,6 +177,16 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--segmented-control-padding-x"
+          }
+        }
+      },
+      "padding-x-lg": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space on each side of a segment's label, size=\"lg\" (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--segmented-control-padding-x-lg"
           }
         }
       },

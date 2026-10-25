@@ -60,11 +60,12 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` / `defaultValue` | `Date \| null` | | The chosen day, controlled or not. |
 | `onValueChange` | `(date: Date \| null) => void` | | Called with the new day, or `null` when the field is cleared. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max` or disabled). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
 | `min`, `max`, `isDateDisabled` | | | Days that can't be chosen, typed or picked. |
-| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | The typed format and the calendar's names and first day. |
+| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | The typed format and the calendar's names and first day. When it differs from the provider's, the field and the calendar carry `lang`, so screen readers read them in that language. |
 | `weekStartsOn` | `0`–`6` | the locale's | |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Like Input. |
 | `invalid` | `boolean` | `false` | Like Input. |

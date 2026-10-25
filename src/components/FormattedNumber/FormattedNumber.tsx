@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
-import { useLocale } from "../../internal/provider";
+import { useLocale, useOwnLang } from "../../internal/provider";
 import { formatNumber, type NumberFormat } from "./formatNumber";
 
 export { formatNumber } from "./formatNumber";
@@ -29,11 +29,11 @@ export interface FormattedNumberProps extends Omit<React.DataHTMLAttributes<HTML
 /** A number written the way the reader's locale writes it: plain, compact, a percentage, money, a size or a unit. */
 export const FormattedNumber = /* @__PURE__ */ component<HTMLDataElement, FormattedNumberProps>("FormattedNumber", function FormattedNumber(props, ref) {
   const rest = omit(props, { value: 1, format: 1, currency: 1, unit: 1, options: 1, locale: 1, className: 1 });
-  const locale = useLocale(props.locale);
+  const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const format = props.format || "decimal";
   const text = formatNumber(props.value, locale, { format, currency: props.currency, unit: props.unit, ...props.options });
   // A compact number hides digits ("1.2K" for 1,234): the full one goes in its tooltip.
   const title = format === "compact" && text ? formatNumber(props.value, locale) : undefined;
-  return <data {...rest} ref={ref} value={String(props.value)} title={rest.title ?? title} className={cn("dk-formatted-number", props.className)}
+  return <data lang={lang} {...rest} ref={ref} value={String(props.value)} title={rest.title ?? title} className={cn("dk-formatted-number", props.className)}
     data-component="formatted-number" data-format={format}>{text}</data>;
 });

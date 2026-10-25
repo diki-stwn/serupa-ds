@@ -121,6 +121,7 @@ The same as Button's, each with a component token to tune it or turn it off. Onl
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `variant` | `'subtle'` \| `'solid'` \| `'outline'` | `'subtle'` | The style |
 | `tone` | `'neutral'` \| `'primary'` \| `'success'` \| `'warning'` \| `'danger'` \| `'info'` \| a palette family (`'red'` … `'rose'`) | `'neutral'` | The color |
 | `dot` | boolean | `false` | A 6px status dot before the label, in the text color. With no label, icon or count, a lone indicator dot (see Extras) |

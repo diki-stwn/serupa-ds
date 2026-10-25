@@ -75,6 +75,7 @@ The hover border fades in 150ms (`duration-150`, `ease-in-out`), at once with `p
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `variant` | `'outline'` \| `'elevated'` \| `'filled'` | `'outline'` | A border and a hairline shadow; a raised shadow (for content over the page); or `surface-muted` and flat (a panel inside another surface) |
 | `padding` | `'none'` \| `'sm'` \| `'md'` \| `'lg'` | `'md'` | 0, 12px, 20px or 24px inside, and the parts sit 16px apart |
 | `as` | `'div'` \| `'section'` \| `'article'` \| `'li'` | `'div'` | The element. Use `article` for a self-contained item, `li` inside a list |

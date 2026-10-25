@@ -49,6 +49,7 @@ A button can be a Menu's trigger or sit in a Tooltip, as in a split button (`<Me
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `attached` | boolean | `true` | Joins them: shared borders, only the outer corners rounded |
 | `orientation` | `'horizontal'` \| `'vertical'` | `'horizontal'` | A row or a column |
 | `aria-label` | string | none | What the group is for |

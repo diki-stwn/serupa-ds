@@ -51,6 +51,7 @@ const { PasswordInput, Field } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `visible` | boolean | none | Shows the password as text (controlled) |
 | `defaultVisible` | boolean | `false` | Shows it at first (uncontrolled) |
 | `onVisibleChange` | `(visible) => void` | none | Called when the button is pressed |
