@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { Dialog } from '../Dialog/Dialog';
 import { InlineEdit } from './InlineEdit';
@@ -10,6 +11,7 @@ import { InlineEdit } from './InlineEdit';
 const root = (id: string) => document.getElementById(id) as HTMLDivElement;
 const view = (id: string) => root(id).querySelector('.dk-inline-edit__view') as HTMLElement;
 const input = (id: string) => root(id).querySelector<HTMLInputElement>('input');
+const said = () => document.querySelector<HTMLElement>('[data-dk-announcer]')!.textContent;
 const Box = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'grid', gap: '12px', background: 'var(--surface)' }}>{children}</div>;
 
 function Controlled({ calls }: { calls: string[] }) {
@@ -76,6 +78,17 @@ describe('InlineEdit', () => {
     expect([i.hasAttribute('aria-invalid'), root('v').querySelector('.dk-inline-edit__error')]).toEqual([false, null]);
     await userEvent.keyboard('{Enter}');
     expect([input('v'), calls]).toEqual([null, ['apollo-plan']]);
+  });
+
+  test('a failed save is said, since focus stays in the field and its description isn\'t read again; each try is said, even with the same words', async () => {
+    await render(<Box><InlineEdit id="va" label="Slug" defaultValue="apollo" validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} /></Box>);
+    await userEvent.click(view('va'));
+    await userEvent.fill(input('va')!, 'apollo plan');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
+    document.querySelector<HTMLElement>('[data-dk-announcer]')!.textContent = '';
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
   });
 
   test('Escape inside a Dialog cancels the edit and leaves the dialog open', async () => {

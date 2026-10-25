@@ -56,6 +56,25 @@ describe('Menu', () => {
     expect([asks.join(), el('mdef').getAttribute('aria-expanded')]).toEqual(['false', 'false']);
   });
 
+  test('onOpenChange says why: trigger, select, escape, blur (Tab), outside', async () => {
+    const why: string[] = [];
+    await render(<div><button id="mafter">After</button><Menu onOpenChange={(v, d) => why.push((v ? 'open ' : 'shut ') + d.reason)} trigger={<Button id="mwhy">Actions</Button>}><MenuItem>Edit</MenuItem></Menu></div>);
+    const reopen = async () => { await userEvent.click(el('mwhy')); await expect.poll(() => !!openMenu()).toBe(true); };
+    await reopen();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.click(el('mafter'));
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(why).toEqual(['open trigger', 'shut select', 'open trigger', 'shut escape', 'open trigger', 'shut blur', 'open trigger', 'shut outside']);
+  });
+
   test('closed: the button has aria-haspopup="menu" and aria-expanded="false"; the menu is empty and hidden', async () => {
     await render(<Actions chosen={[]} />);
     const b = el('mb'), m = document.querySelector('[role="menu"]') as HTMLElement;
@@ -437,7 +456,7 @@ describe('Menu', () => {
 });
 
 describe('ContextMenu', () => {
-  function Area({ chosen, ...p }: { chosen: string[]; disabled?: boolean }) {
+  function Area({ chosen, ...p }: { chosen: string[]; disabled?: boolean; onOpenChange?: (open: boolean, d: { reason: string }) => void }) {
     return <>
       <button id="before">Before</button>
       <ContextMenu aria-label="File actions" {...p} target={<div id="area" tabIndex={0} style={{ width: '300px', height: '200px', margin: '40px' }}>Report.pdf</div>}>
@@ -493,6 +512,22 @@ describe('ContextMenu', () => {
     await userEvent.click(el('before'));
     await settle();
     expect(openMenu()).toBeUndefined();
+  });
+
+  test('ContextMenu onOpenChange says why: trigger (right-click or keys), select, escape, outside', async () => {
+    const why: string[] = [];
+    await render(<Area chosen={[]} onOpenChange={(v, d) => why.push((v ? 'open ' : 'shut ') + d.reason)} />);
+    const keysOpen = async () => { el('area').focus(); await userEvent.keyboard('{Shift>}{F10}{/Shift}'); await expect.poll(() => !!openMenu()).toBe(true); };
+    await keysOpen();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await keysOpen();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await keysOpen();
+    await userEvent.click(el('before'));
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(why).toEqual(['open trigger', 'shut select', 'open trigger', 'shut escape', 'open trigger', 'shut outside']);
   });
 
   test('disabled: the browser keeps its own menu and the keys do nothing; the target\'s own onContextMenu runs first and can stop it', async () => {

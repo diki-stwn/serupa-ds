@@ -5,7 +5,7 @@ An on/off setting that takes effect at once. It's a native checkbox with `role="
 ```jsx
 const { Switch } = window.Serupa;
 
-<Switch checked={wifi} onChange={(e) => setWifi(e.target.checked)}>Wi-Fi</Switch>
+<Switch checked={wifi} onCheckedChange={setWifi}>Wi-Fi</Switch>
 
 <Switch defaultChecked description="Pause notifications from 10 pm to 7 am.">Quiet hours</Switch>
 
@@ -77,6 +77,8 @@ The thumb slides in 150ms (`duration-150`, `ease-in-out`) and jumps with `prefer
 | `invalid` | boolean | `false` | A 2px danger edge on the track (on or off), a danger focus ring, and `aria-invalid` |
 | `readOnly` | boolean | `false` | Focusable and read out (`aria-readonly`), but clicks and Space don't flip it; an on switch is still submitted |
 | `pending` | boolean | `false` | While a change is saved: a ring on the thumb, `aria-busy`, and clicks and Space don't flip it |
+
+`onCheckedChange(checked, event)` runs after `onChange` with the new state, the same shape as ToggleButton's `onPressedChange`, so you needn't read `event.target.checked`. Not while read-only or pending.
 
 Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disabled`, `id`, `aria-*`) and `ref` go to the `<input type="checkbox" role="switch">` (`type` and `role` can't be changed). `className` and `style` go to the `<label>` around it, which has `data-component="switch"` and `data-size`.
 
