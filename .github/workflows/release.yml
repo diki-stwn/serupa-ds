@@ -6,7 +6,7 @@ name: Release
 # It runs only after CI has passed on a push to main, and works on the commit CI tested, so a red main
 # can't be tagged or released. If main has moved on since, it still releases a version that has no tag yet
 # (npm run release builds the commit that brought it), but leaves the Release pull request to the newer
-# commit's own run. The Release pull request merges itself once its required checks pass.
+# The Daily release workflow merges it once a day.
 on:
   workflow_run:
     workflows: [CI]
@@ -64,9 +64,3 @@ jobs:
           push-git-tags: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # The Release pull request merges itself once its required checks pass.
-      - if: steps.changesets.outputs.pullRequestNumber
-        run: gh pr merge --auto --merge "$PR"
-        env:
-          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-          PR: ${{ steps.changesets.outputs.pullRequestNumber }}
