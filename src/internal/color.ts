@@ -25,3 +25,25 @@ export function contrastRatio(a: string, b: string): number | null {
   const [hi, lo] = [luminance(x), luminance(y)].sort((p, q) => q - p);
   return (hi + 0.05) / (lo + 0.05);
 }
+
+export type ColorHue = 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'purple' | 'pink' | 'brown' | 'gray' | 'black' | 'white';
+export type ColorTone = 'light' | 'dark' | '';
+
+/** A rough name for a hex color, as a hue and a tone ("dark" "blue"), for colors that come without a name: from
+    hue, saturation and lightness, with black, white, gray and brown picked out. null if it isn't a hex color. */
+export function colorName(hex: string): { hue: ColorHue; tone: ColorTone } | null {
+  const x = normalizeHex(hex);
+  if (!x) return null;
+  const n = parseInt(x.slice(1), 16);
+  const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map((v) => v / 255);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  const tone: ColorTone = l < 0.36 ? "dark" : l > 0.75 ? "light" : "";
+  if (l < 0.1) return { hue: "black", tone: "" };
+  if (l > 0.94) return { hue: "white", tone: "" };
+  if (s < 0.12) return { hue: "gray", tone };
+  const h = d === 0 ? 0 : max === r ? ((g - b) / d + 6) % 6 * 60 : max === g ? ((b - r) / d + 2) * 60 : ((r - g) / d + 4) * 60;
+  const hue: ColorHue = h < 15 || h >= 345 ? "red" : h < 45 ? (l < 0.4 ? "brown" : "orange") : h < 66 ? (l < 0.35 ? "brown" : "yellow")
+    : h < 165 ? "green" : h < 195 ? "teal" : h < 255 ? "blue" : h < 290 ? "purple" : "pink";
+  return { hue, tone: hue === "brown" ? "" : tone };
+}
