@@ -64,6 +64,7 @@ const [open, setOpen] = React.useState(false);
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
 | `open` | `boolean` | | Controlled: close it yourself in `onOpenChange`. |
+| `defaultOpen` | `boolean` | `false` | Open at first, then it closes itself (uncontrolled). Escape, the × or the backdrop close it, and `onOpenChange(false)` still comes. |
 | `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. |
 | `side` | `'right' \| 'left' \| 'top' \| 'bottom'` | `'right'` | The edge it slides in from. These are physical edges, so they stay put in right-to-left pages. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | The width of a left or right drawer: 320, 384 or 512px, never wider than the screen. |
