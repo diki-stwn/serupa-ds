@@ -176,10 +176,11 @@ for (const [, prop, val] of comp.matchAll(/([a-z-]+)\s*:\s*([^;{}]+);/g)) {
 }
 check('components: Button and Icon use only tokens', !bad.size, [...bad].sort().slice(0, 10).join('; '));
 
-// 6. self-contained
+// 6. self-contained (a link the console warnings print isn't something the page loads: internal/warn.ts)
+const LINKS = ['https://github.com/diki-stwn/serupa-ds/blob/main/docs/warnings.md#'];
 let extra = '';
 for (const f of ['src/styles/base.css', 'src/theme.js']) if (fs.existsSync(path.join(P, f))) extra += read(f);
-const ext = [...(cssRaw + js + extra).matchAll(/(?:https?:)?\/\/[a-z0-9.-]+\.[a-z]{2,}\/[^\s"')]*/g)].map((m) => m[0]).filter((u) => !u.startsWith('//'));
+const ext = [...(cssRaw + js + extra).matchAll(/(?:https?:)?\/\/[a-z0-9.-]+\.[a-z]{2,}\/[^\s"')]*/g)].map((m) => m[0]).filter((u) => !u.startsWith('//') && !LINKS.some((l) => u.startsWith(l)));
 check('nothing loads from another server', !ext.length && !(cssRaw + extra).includes('@import'), ext.slice(0, 5).join(', '));
 
 // 8. contrast in every theme (WCAG 2.2: 4.5:1 text, 3:1 large text, icons, borders and focus)

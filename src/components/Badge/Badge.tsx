@@ -4,6 +4,7 @@ import { cn, oneOf, omit } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
+import { useShowAfter } from "../../internal/showAfter";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
@@ -95,7 +96,8 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const variant = oneOf(VARIANTS, props.variant, "subtle");
   const tone = oneOf(TONES, props.tone, "neutral");
   if (process.env.NODE_ENV !== "production" && props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
-  const loading = !!props.loading;
+  // Once it shows, the ring stays at least MIN_SHOWN, so loading that ends a moment later doesn't flash it (EB1).
+  const loading = useShowAfter(!!props.loading, 0);
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;
   // Hooks first: a count of 0 renders nothing below, and hooks must run on every render.
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared

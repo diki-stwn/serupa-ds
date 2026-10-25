@@ -45,7 +45,7 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
   // An icon with no text and no aria-label is a link (or page) a screen reader can only call "link".
   const named = (props.children != null && props.children !== false && props.children !== "") || !!props["aria-label"] || !!props["aria-labelledby"] || !!props.title;
   React.useEffect(function () {
-    if (process.env.NODE_ENV !== "production" && !named) warnOnce("name:BreadcrumbItem", "BreadcrumbItem has no accessible name, so a screen reader announces only its role. Give it text, or an aria-label.");
+    if (process.env.NODE_ENV !== "production" && !named) warnOnce("no-name", "BreadcrumbItem has no accessible name, so a screen reader announces only its role. Give it text, or an aria-label.", "name:BreadcrumbItem");
   }, [named]);
   const content = <>{props.icon ? <span className="dk-breadcrumb__icon">{asIcon(props.icon)}</span> : null}{props.children}</>;
   if (props.current) {

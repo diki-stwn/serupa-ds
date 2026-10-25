@@ -30,7 +30,7 @@
   min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0) var(--segmented-control-padding-x, var(--spacing-3));
   border: var(--spacing-0); border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: transparent;
   color: var(--segmented-control-text, var(--text-muted)); font: inherit; font-weight: var(--segmented-control-weight, var(--font-medium)); white-space: nowrap; cursor: pointer; touch-action: manipulation;
-  transition: color var(--duration-150) var(--ease-in-out);
+  transition: color var(--duration-150) var(--ease-in-out), scale var(--motion-press) var(--ease-out);
 }
 /* At least 24px wide, so in sm (18px inside a 24px box) the segments' centers are 24px apart: WCAG 2.5.8. */
 .dk-segmented__item--icon-only { width: max(var(--dk-seg-inner), var(--spacing-6)); padding: var(--spacing-0); }
@@ -44,13 +44,15 @@
 .dk-segmented__item:focus { outline: none; }
 .dk-segmented__item:focus-visible { outline: var(--focus-ring-width) solid var(--segmented-control-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
 .dk-segmented__item:disabled { cursor: not-allowed; opacity: var(--opacity-disabled); }
+/* Pressed: a held segment's label shrinks a little and springs back, like a Button. Not read-only or disabled. */
+.dk-segmented:not(.dk-segmented--readonly) .dk-segmented__item:active:not(:disabled) { scale: var(--segmented-control-press-scale, var(--scale-95)); }
 .dk-segmented--invalid { border-color: var(--segmented-control-invalid, var(--danger)); }
 .dk-segmented--readonly .dk-segmented__item { cursor: default; }
 /* Read-only: hovering an unselected segment doesn't brighten it, since a click won't choose it. */
 @media (hover: hover) { .dk-segmented--readonly .dk-segmented__item:not(.dk-segmented__item--selected):hover { color: var(--segmented-control-text, var(--text-muted)); } }
 .dk-segmented--disabled { opacity: var(--opacity-disabled); }
 .dk-segmented--disabled .dk-segmented__item:disabled { opacity: var(--opacity-100); }
-@media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } .dk-segmented .dk-segmented__item:active { scale: none; } }
 /* The selected label keeps HighlightText on hover too: the hover color, kept as is, was dark on the dark Highlight. */
 @media (forced-colors: active) { .dk-segmented__indicator { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when an option is shorter or narrower, a box behind

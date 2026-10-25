@@ -22,7 +22,7 @@ export function hasName(el: Element, group = false): boolean {
 export function useNameCheck<T extends Element>(component: string, how: string, ref?: React.ForwardedRef<T>): (node: T | null) => void {
   const node = React.useRef<Element | null>(null);
   React.useEffect(function () {
-    if (process.env.NODE_ENV !== "production" && node.current && !hasName(node.current, how === NAME_HOW.group)) warnOnce("name:" + component, `${component} has no accessible name, so a screen reader announces only its role. ${how}`);
+    if (process.env.NODE_ENV !== "production" && node.current && !hasName(node.current, how === NAME_HOW.group)) warnOnce("no-name", `${component} has no accessible name, so a screen reader announces only its role. ${how}`, "name:" + component);
   }, [component, how]);
   return React.useCallback(function (n: T | null) { node.current = n; if (ref) setRef(ref, n); }, [ref]);
 }

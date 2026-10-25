@@ -57,7 +57,7 @@ export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHT
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
-  /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
+  /** Opens, closes or toggles a [popover] element by id (native HTML). */
   popoverTarget?: string;
   popoverTargetAction?: 'show' | 'hide' | 'toggle';
   /** Invoker commands: the id of the element to act on, and the action ('show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'). */
@@ -101,7 +101,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const size = oneOf(SIZES, props.size, "md");
   let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, wrap: props.wrap, className: props.className });
   if (process.env.NODE_ENV !== "production" && iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
-    warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
+    warnOnce("button-icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
   // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading") and then for at least

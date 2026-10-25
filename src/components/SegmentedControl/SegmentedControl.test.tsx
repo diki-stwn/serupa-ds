@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { SegmentedControl, type SegmentedControlOption } from './SegmentedControl';
 
@@ -253,5 +253,17 @@ describe('SegmentedControl', () => {
     } finally { console.error = warn; }
     expect([el('fs').getAttribute('aria-invalid'), el('fs').getAttribute('aria-required'), el('fs').hasAttribute('invalid')]).toEqual(['true', 'true', false]);
     expect(warned.filter((w) => /invalid|required/i.test(String(w)))).toEqual([]);
+  });
+
+  test('pressed: a held segment shrinks to 95% and springs back; not when read-only (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<><SegmentedControl id="sp" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="a" />
+        <SegmentedControl id="sr" aria-label="Locked" readOnly options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="a" /></>);
+      const seg = (id: string) => el(id).querySelectorAll('button')[1];
+      expect(css(seg('sp')).transitionProperty).toContain('scale');
+      await press(seg('sp'), () => expect.poll(() => css(seg('sp')).scale).toBe('0.95'));
+      await expect.poll(() => css(seg('sp')).scale).toBe('none');
+      await press(seg('sr'), () => expect(css(seg('sr')).scale).toBe('none'));
+    });
   });
 });
