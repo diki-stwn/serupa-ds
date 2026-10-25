@@ -38,6 +38,9 @@ const TOTALS = {
 const LABELS = [2.6, 1.9];
 // Not made of component folders.
 const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
+// KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
+// comes along (512.7 on 25 Oct 2026). Icon's README and Getting started say so; this keeps the number in sight.
+const NO_SPLIT = 530;
 
 const DIR = path.join(HERE, 'baseline-size');
 const COMP = path.join(PROJECT, 'src', 'components');
@@ -47,7 +50,8 @@ const KEYS = ['alone', 'share', 'css'];
 const gz = (buf) => zlib.gzipSync(buf, { level: 9 }).length;
 // Icons drawn by name are a dynamic import(): a project loads them only when a page draws an icon by its name.
 const lazy = { name: 'lazy', setup(b) { b.onResolve({ filter: /.*/ }, (a) => a.kind === 'dynamic-import' ? { path: a.path, external: true } : undefined); } };
-const bundled = async (code) => gz((await esbuild.build({ stdin: { contents: code, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom'], plugins: [lazy], logLevel: 'silent' })).outputFiles[0].contents);
+const build = async (code, plugins) => (await esbuild.build({ stdin: { contents: code, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom'], plugins, logLevel: 'silent' })).outputFiles[0].contents;
+const bundled = async (code) => gz(await build(code, [lazy]));
 const file = (f) => gz(fs.readFileSync(path.join(PROJECT, 'dist', f)));
 
 // What each folder exports (its index.ts, as the package's index.js re-exports it), and its CSS in the build's order.
@@ -105,6 +109,11 @@ const totals = rows.map((r) => ({
   detail: r.now < 1024 ? 'not measured: its line in `size` must measure the build, not repeat the budget'
     : `${kib(r.now - r.budget * 1024)} KiB over; ${r.name in FIXED ? 'if the growth is worth it, raise its budget in tools/test/size.mjs' : 'the shared code grew (each component is held to its own budget): if that is worth it, raise its line in TOTALS in tools/test/size.mjs'}`,
 }));
+const noSplit = gz(await build(pick(['Button']), []));
+totals.push({ name: `Button in a build without code splitting (the icon set comes along): ${kib(noSplit)} KiB gzipped, within ${NO_SPLIT} KiB`,
+  ok: noSplit <= NO_SPLIT * 1024 && noSplit > 100 * 1024,
+  detail: noSplit <= 100 * 1024 ? 'the icon set no longer comes along: lower NO_SPLIT in tools/test/size.mjs and update Icon\'s README and Getting started'
+    : `${kib(noSplit - NO_SPLIT * 1024)} KiB over: the icons drawn by name grew; if that's worth it, raise NO_SPLIT in tools/test/size.mjs` });
 totals.push({ name: `Built-in label text (enLabels): ${kib(labels)} KiB gzipped, within ${LABELS[0]} KiB`, ok: labels <= LABELS[0] * 1024 && labels >= 512,
   detail: labels < 512 ? 'not measured: enLabels should bundle every folder\'s labels.ts' : `${kib(labels - LABELS[0] * 1024)} KiB over; if the words are worth it, raise LABELS in tools/test/size.mjs (and its second number to the size now)` });
 const LABEL = { alone: 'imported alone', share: 'adds to the whole package', css: 'adds to components.css' };
