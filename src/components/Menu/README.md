@@ -79,6 +79,7 @@ Hovering an item highlights it, and a press outside closes the menu.
 | `destructive` | boolean | `false` | Danger colors |
 | `disabled` | boolean | `false` | Still reachable with the keys (so people learn it exists), but can't be chosen |
 | `href` | string | | Makes it a link (the `configure({ link })` component) |
+| `as` | component | | Makes it a link with this component instead, such as a router's Link (pass its props, like `to`, on the item) |
 
 `MenuGroup` takes a `label` (a small heading that names the group); `MenuSeparator` is a line. Every part takes `className`, `style` and `ref`.
 

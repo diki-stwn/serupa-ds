@@ -105,6 +105,25 @@ describe('Navbar', () => {
       .toEqual([0, '40', 'Docs', '1024px']);
   });
 
+  test('sticky: Tab to a field above the screen scrolls it into view below the bar, not under it (WCAG 2.4.11); the page padding follows the bar and goes away with it', async () => {
+    const r = await render(<div>
+      <Navbar id="nfocus" sticky brand="Docs"><NavbarLink href="#a">A</NavbarLink></Navbar>
+      <div style={{ height: '900px' }} />
+      <input id="above" aria-label="Above" />
+      <div style={{ height: '2000px' }} />
+    </div>);
+    const field = el('above'), bar = el('nfocus');
+    expect(getComputedStyle(document.documentElement).scrollPaddingTop).toBe(Math.round(bar.getBoundingClientRect().height) + 'px');
+    // Scroll so the field sits just under the top edge, behind the bar, then focus it.
+    window.scrollTo(0, field.offsetTop - 20);
+    await expect.poll(() => Math.round(field.getBoundingClientRect().top)).toBe(20);
+    field.focus();
+    await expect.poll(() => field.getBoundingClientRect().top).toBeGreaterThanOrEqual(bar.getBoundingClientRect().bottom - 1);
+    await r.rerender(<div><Navbar id="nfocus" brand="Docs" /></div>);
+    expect(getComputedStyle(document.documentElement).scrollPaddingTop).toBe('auto');
+    expect(document.documentElement.style.getPropertyValue('--dk-navbar-offset')).toBe('');
+  });
+
   test('tokens (--navbar-height, --navbar-link-text) override one navbar', async () => {
     await render(<Navbar id="ntok" style={{ '--navbar-height': '48px', '--navbar-link-text': 'rgb(1, 2, 3)' } as React.CSSProperties}><NavbarLink href="#t">T</NavbarLink></Navbar>);
     expect([q('#ntok .dk-navbar__inner').getBoundingClientRect().height, css(q('#ntok .dk-navbar__link')).color]).toEqual([48, 'rgb(1, 2, 3)']);

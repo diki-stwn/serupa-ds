@@ -38,6 +38,13 @@ const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
 
+// A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
+// is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
+// matches "default", not "import".
+t('engines.node is ">=22" and devEngines asks for Node 26 to work on the repo', pkg.engines?.node === '>=22' && pkg.devEngines?.runtime?.version === '>=26', JSON.stringify({ engines: pkg.engines, devEngines: pkg.devEngines }));
+const noDefault = Object.entries(pkg.exports).filter(([, v]) => typeof v === 'object' && v.import && v.default !== v.import).map(([k]) => k);
+t('every export with an "import" condition has the same file as "default", so require(esm) finds it', !noDefault.length, noDefault.join(', '));
+
 // 2. server rendering: no window, document or navigator while importing and rendering
 for (const g of ['window', 'document']) t(`no ${g} in Node`, typeof globalThis[g] === 'undefined');
 let D = null, err = null;
