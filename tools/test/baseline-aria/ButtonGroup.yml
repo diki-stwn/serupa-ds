@@ -1,0 +1,21 @@
+# Playground
+- group "Clipboard":
+  - button "Copy"
+  - button "Cut"
+  - button "Paste"
+
+# Spaced
+- group:
+  - button "Cancel"
+  - button "Save"
+
+# SplitButton
+- group "Publish":
+  - button "Publish"
+  - button "More publish options"
+
+# Vertical
+- group "Zoom":
+  - button "Zoom in"
+  - button "Zoom out"
+

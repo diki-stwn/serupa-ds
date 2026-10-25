@@ -1,0 +1,48 @@
+# Disabled
+- textbox "Date" [disabled]:
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date" [disabled]
+
+# German
+- textbox "Date":
+  - /placeholder: dd.mm.yyyy
+  - text: 22.11.2025
+- button "Datum wählen"
+
+# InField
+- text: Due date mm/dd/yyyy, from today on
+- textbox "Due date":
+  - /placeholder: mm/dd/yyyy
+- button "Choose a date"
+
+# Invalid
+- textbox "Date" [invalid]:
+  - /placeholder: mm/dd/yyyy
+- button "Choose a date"
+
+# Playground
+- textbox "Date":
+  - /placeholder: mm/dd/yyyy
+- button "Choose a date"
+
+# Sizes
+- textbox "sm":
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date"
+- textbox "md":
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date"
+- textbox "lg":
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date"
+
+# WithValue
+- textbox "Date":
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date"
+

@@ -1,0 +1,28 @@
+# InASentence
+- paragraph:
+  - text: Edited by Ada
+  - time: 42 minutes ago
+  - text: . Next sync
+  - time: in 15 minutes
+  - text: .
+
+# Playground
+- time: 3 minutes ago
+
+# Range
+- list:
+  - listitem:
+    - time: now
+  - listitem:
+    - time: 3 minutes ago
+  - listitem:
+    - time: 1 hour ago
+  - listitem:
+    - time: yesterday
+  - listitem:
+    - time: 5 days ago
+  - listitem:
+    - time: last month
+  - listitem:
+    - time: in 2 hours
+

@@ -1,0 +1,30 @@
+# Dashed
+- heading "Drop files here" [level=3]
+- paragraph: PNG, JPG or PDF, up to 10 MB.
+- button "Choose files"
+
+# DashedSmall
+- heading "Add a cover image" [level=3]
+- button "Upload"
+
+# NoResults
+- heading "No results" [level=3]
+- paragraph: Nothing matches "quarterly".
+- button "Clear the search"
+
+# Playground
+- heading "No projects yet" [level=3]
+- paragraph: Create a project to start tracking your work.
+- button "New project"
+- button "Import"
+
+# Small
+- heading "No projects yet" [level=3]
+- paragraph: Create a project to start tracking your work.
+- button "New project"
+- button "Import"
+
+# TextOnly
+- heading "Nothing here" [level=3]
+- paragraph: Items you archive show up here.
+

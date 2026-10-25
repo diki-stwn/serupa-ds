@@ -1,0 +1,30 @@
+# Disabled
+- slider "Volume" [disabled]
+
+# EveryStep
+- slider "Rating"
+
+# Invalid
+- text: Volume
+- slider "Volume" [invalid]
+- text: Keep it under 80 for hearing safety
+
+# Marks
+- slider "Temperature"
+
+# Playground
+- slider "Volume"
+
+# Range
+- 'group "Price: $40 to $120"':
+  - text: "Price: $40 to $120"
+  - group "Price":
+    - slider "Minimum"
+    - slider "Maximum"
+
+# ReadOnly
+- slider "Volume"
+
+# Small
+- slider "Volume"
+

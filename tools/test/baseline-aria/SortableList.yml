@@ -1,0 +1,22 @@
+# Disabled
+- list "Launch tasks":
+  - listitem: Write the launch brief Ada
+  - listitem: Review the design tokens Grace
+  - listitem: Record the demo Alan
+  - listitem: Update the changelog Katherine
+
+# Playground
+- list "Launch tasks":
+  - listitem:
+    - button "Reorder Write the launch brief"
+    - text: Write the launch brief Ada
+  - listitem:
+    - button "Reorder Review the design tokens"
+    - text: Review the design tokens Grace
+  - listitem:
+    - button "Reorder Record the demo"
+    - text: Record the demo Alan
+  - listitem:
+    - button "Reorder Update the changelog"
+    - text: Update the changelog Katherine
+

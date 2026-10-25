@@ -62,6 +62,8 @@ turns them back on with `withMotion()` (one read or one test) or `keepMotion()` 
 
 Every story is also rendered to HTML in Node, as a server would (`tools/test/vitest/serverStories.ts`, on the same clock, standing still). `src/internal/hydrateStories.test.tsx` hydrates that HTML in the browser and fails on any mismatch, and `src/internal/serverHtml.test.tsx` compares it with `tools/test/baseline-server/<Component>.html`: each story under a comment with its name, one tag per line, so a change to what a server sends shows in the pull request as a diff of a few lines. When the change is intended, run `npm run test:server-html:update` and commit the new baselines with it. They're plain text from Node (the version in `.nvmrc`), so they're the same on every machine.
 
+`src/internal/ariaStories.test.tsx` draws every story in the browser and compares the page's accessibility tree (Playwright's `ariaSnapshot`: roles, names, states and nesting, as a screen reader gets them) with `tools/test/baseline-aria/<Component>.yml`. A lost name or a changed role shows as a short diff even when the picture looks the same. The shared live regions are left out, since what they hold depends on the stories before. The baselines are Chromium's in English, so Firefox, WebKit and locale runs skip it. When a change is intended, run `npm run test:aria:update` and commit the new baselines with it.
+
 ### Suite scripts
 
 Vitest runs every script in `tools/test/` as its checks project (vitest.config.ts), except the shared code, the

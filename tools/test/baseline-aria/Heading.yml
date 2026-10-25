@@ -1,0 +1,15 @@
+# LevelAndSize
+- heading "An h1 that looks lg" [level=1]
+- heading "An h3 that looks 4xl" [level=3]
+
+# Levels
+- heading "Level 1, text-3xl" [level=1]
+- heading "Level 2, text-2xl" [level=2]
+- heading "Level 3, text-xl" [level=3]
+- heading "Level 4, text-lg" [level=4]
+- heading "Level 5, text-base" [level=5]
+- heading "Level 6, text-sm" [level=6]
+
+# Playground
+- heading "Recent activity" [level=2]
+

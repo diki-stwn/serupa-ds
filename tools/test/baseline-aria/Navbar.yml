@@ -1,0 +1,63 @@
+# Playground
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+
+# SignedOut
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Sign in"
+  - button "Sign up"
+
+# SmallScreen
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+

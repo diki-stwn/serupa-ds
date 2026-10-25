@@ -1,0 +1,64 @@
+# AllShown
+- group "Assigned to":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "Linus Torvalds"
+  - img "Margaret Hamilton"
+
+# Playground
+- group "Assigned to":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+
+# Sizes
+- group "Assigned to, xs":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+- group "Assigned to, sm":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+- group "Assigned to, md":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+- group "Assigned to, lg":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+- group "Assigned to, xl":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "2 more"
+
+# Total
+- group "Members":
+  - img "Ada Lovelace"
+  - img "Grace Hopper"
+  - img "Alan Turing"
+  - img "Katherine Johnson"
+  - img "Linus Torvalds"
+  - img "115 more"
+
+# WithStatus
+- group "Assigned to":
+  - img "Ada Lovelace, online"
+  - img "Grace Hopper, away"
+  - img "Alan Turing, busy"
+
