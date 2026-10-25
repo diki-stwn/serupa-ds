@@ -37,7 +37,8 @@ export function ensureAnnouncer(): HTMLDivElement | null {
 function pump(ch: Channel): void {
   if (ch.timer || !ch.queue.length || !ch.el) return;
   const el = ch.el;
-  const wait = Math.max(0, ch.since + HOLD - Date.now());
+  // At most HOLD: if the clock went back (a system time change, a test's fake clock), the wait doesn't grow with it.
+  const wait = Math.min(HOLD, Math.max(0, ch.since + HOLD - Date.now()));
   ch.timer = setTimeout(function () {
     el.textContent = "";
     // Cleared first so the same text is announced again.
