@@ -4,7 +4,7 @@ import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../intern
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
-import { modalClosed, modalOpened, modalOpening } from "../../internal/layers";
+import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
@@ -61,6 +61,10 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       modalOpening();
       if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
       modalOpened(d);
+      // A child's autoFocus ran while the dialog was still hidden, and showModal() then focused the first focusable
+      // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it.
+      const own = d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
+      if (own && typeof own.focus === "function") own.focus();
     } else if (props.open) {
       // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.
       modalOpened(d);
@@ -91,8 +95,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   // A press that starts on the panel (selecting text, say) and ends on the backdrop clicks the <dialog> too: only a
   // press that starts and ends on the backdrop counts.
   const downOnBackdrop = React.useRef(false);
-  const onPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => { if (rest.onPointerDown) rest.onPointerDown(e); downOnBackdrop.current = e.target === e.currentTarget; };
-  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget) close(); downOnBackdrop.current = false; };
+  const onPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => { if (rest.onPointerDown) rest.onPointerDown(e); downOnBackdrop.current = e.target === e.currentTarget && !wasDismissal(e.nativeEvent); };
+  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close(); downOnBackdrop.current = false; };
   return (
     <dialog {...rest} ref={(n) => { el.current = n; setRef(ref, n); }}
       aria-modal="true"

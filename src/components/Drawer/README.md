@@ -34,7 +34,7 @@ const [open, setOpen] = React.useState(false);
 
 ## Behavior
 
-- It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was.
+- It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was. Focus goes to the first thing that takes it; put `data-autofocus` on another to choose. A backdrop press while a popup is open inside closes only the popup.
 - Left and right drawers are full height. Top and bottom drawers are full width, as tall as their content up to the screen less 64px, and rounded on the open side.
 - The body scrolls on its own, so the header and footer stay in view.
 - It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
