@@ -40,3 +40,8 @@ export const pointerUp: BrowserCommand<[]> = async (ctx) => { await playwright(c
 export const forcedColors: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ forcedColors: on ? 'active' : 'none' });
 };
+
+/** Lays the page out as for printing (@media print) or back for the screen. */
+export const printMedia: BrowserCommand<[on: boolean]> = async (ctx, on) => {
+  await playwright(ctx).page.emulateMedia({ media: on ? 'print' : 'screen' });
+};
