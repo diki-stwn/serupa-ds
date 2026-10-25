@@ -11,7 +11,7 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > .dk-accordion__item')];
 const state = (id: string) => items(id).map((i) => (i.dataset.state === 'open' ? 1 : 0)).join('');
 const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('button[aria-expanded]') as HTMLButtonElement;
-const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[role=region]') as HTMLElement;
+const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[aria-labelledby]') as HTMLElement;
 const focused = () => (document.activeElement!.matches('button[aria-expanded]') ? document.activeElement!.textContent : undefined);
 // The open and close animation finished (the panel and the chevron).
 const settled = (id: string) => Promise.all(el(id).getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
@@ -28,13 +28,13 @@ function Faq({ r, ir }: { r?: React.Ref<HTMLDivElement>; ir?: React.Ref<HTMLDivE
 }
 
 describe('Accordion', () => {
-  test('structure: an <h3> holding a button (aria-expanded, aria-controls) and a region labelled by it; refs and props reach the wrapper and item', async () => {
+  test('structure: an <h3> holding a button (aria-expanded, aria-controls) and a panel labelled by it (a region only while open, DP1); refs and props reach the wrapper and item', async () => {
     const r = React.createRef<HTMLDivElement>(), ir = React.createRef<HTMLDivElement>();
     await render(<Faq r={r} ir={ir} />);
     const a = el('adef'), i = a.firstElementChild as HTMLElement, hd = i.firstElementChild!, b = hd.firstElementChild as HTMLButtonElement, pn = i.lastElementChild!;
     expect([a.className, a.dataset.component, r.current === a, ir.current === i, a.dataset.x]).toEqual(['dk-accordion extra', 'accordion', true, true, 'y']);
     expect([hd.tagName, b.tagName, b.type, b.getAttribute('aria-expanded'), b.getAttribute('aria-controls') === pn.id, pn.getAttribute('role'), pn.getAttribute('aria-labelledby') === b.id])
-      .toEqual(['H3', 'BUTTON', 'button', 'false', true, 'region', true]);
+      .toEqual(['H3', 'BUTTON', 'button', 'false', true, null, true]);
   });
 
   test('uncontrolled with no defaultValue: everything closed; closed content is hidden="until-found" (no height, not rendered, out of the tab order) and a disabled item\'s is visibility hidden', async () => {
@@ -243,4 +243,18 @@ describe('Accordion', () => {
     await userEvent.click(trigger('akeep', 1));
     expect([count('chart')?.textContent, mounts]).toEqual(['0', ['form', 'chart', 'chart']]);
   }));
+
+  test('only open panels are region landmarks; past six items with type="multiple" none are; a controlled value of several under type="single" warns (DP1)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const many = (n: number) => Array.from({ length: n }, (_, i) => <AccordionItem key={i} value={'v' + i} title={'Item ' + i}>Body {i}</AccordionItem>);
+    await render(<>
+      <Accordion id="dp-few" type="multiple" defaultValue={['v0', 'v2']}>{many(6)}</Accordion>
+      <Accordion id="dp-many" type="multiple" defaultValue={['v0', 'v2']}>{many(8)}</Accordion>
+      <Accordion id="dp-one" value={['v0', 'v1']}>{many(3)}</Accordion>
+    </>);
+    const regions = (id: string) => el(id).querySelectorAll('[role="region"]').length;
+    expect([regions('dp-few'), regions('dp-many')]).toEqual([2, 0]);
+    expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.startsWith('Accordion: value has 2 items with type="single"'))).toHaveLength(1);
+    warn.mockRestore();
+  });
 });

@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import * as icons from "../../material/builtin";
 import { useSerupa } from "../../internal/provider";
+import { warnOnce } from "../../internal/warn";
 import { buttonClass } from "../Button/buttonClass";
 
 export interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
@@ -44,7 +45,7 @@ export interface AccordionItemProps extends Omit<React.HTMLAttributes<HTMLDivEle
 
 const toMs = (t: string) => (parseFloat(t) || 0) * (t.trim().endsWith("ms") ? 1 : 1000);
 
-interface Ctx { open: string[]; toggle: (v: string) => void; level: number; collapsible: boolean; single: boolean; }
+interface Ctx { open: string[]; toggle: (v: string) => void; level: number; collapsible: boolean; single: boolean; many: boolean; }
 const AccordionContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 
 /* Accordion: a stack of items whose content shows and hides under a heading button (the WAI-ARIA accordion
@@ -58,6 +59,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   const controlled = props.value !== undefined;
   const [inner, setInner] = React.useState<string[]>(() => (props.defaultValue || []).slice(0, single ? 1 : undefined));
   const open = controlled ? (props.value as string[]) : inner;
+  if (single && controlled && open.length > 1) warnOnce("accordion-single-value", `Accordion: value has ${open.length} items with type="single", so ${open.length} items show open; pass one value, or type="multiple".`);
   const collapsible = props.collapsible !== false;
   const onChange = React.useRef(props.onValueChange);
   onChange.current = props.onValueChange;
@@ -85,6 +87,9 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   }
   let n = 0;
   const items = flattenChildren(props.children).map((c) => React.isValidElement(c) ? React.cloneElement(c as React.ReactElement<{ "data-index"?: string }>, { "data-index": String(n++) }) : c);
+  // Each open panel is a region landmark (DP1). Past six that could be open at once, landmarks crowd the list screen
+  // readers offer, so the panels are plain groups of content under their headings (the APG's advice).
+  const many = !single && items.filter(React.isValidElement).length > 6;
   // Expand all / Collapse all acts on the items that can open and close (not disabled ones).
   let all: React.ReactNode = null;
   if (props.showExpandAll && !single) {
@@ -104,7 +109,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
     );
   }
   return (
-    <AccordionContext.Provider value={{ open, toggle, level, collapsible, single }}>
+    <AccordionContext.Provider value={{ open, toggle, level, collapsible, single, many }}>
       <div {...rest} ref={ref} onKeyDown={onKeyDown} data-component="accordion" className={cn("dk-accordion", variant === "card" && "dk-accordion--card", props.className)}>{all}{items}</div>
     </AccordionContext.Provider>
   );
@@ -164,7 +169,7 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
           <Icon icon={icons.ExpandMore} className="dk-accordion__icon" />
         </button>
       </H>
-      <div id={id + "-p"} role="region" aria-labelledby={id + "-t"} className="dk-accordion__panel">
+      <div id={id + "-p"} role={open && !(ctx && ctx.many) ? "region" : undefined} aria-labelledby={id + "-t"} className="dk-accordion__panel">
         <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content">{mounted ? props.children : null}</div></div>
       </div>
     </div>
