@@ -9,7 +9,7 @@ import { useFieldControl } from "../../internal/field";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
-export interface PasswordInputProps extends Omit<InputProps, "type" | "rightIcon"> {
+export interface PasswordInputProps extends Omit<InputProps, "type" | "showCount" | "rightIcon"> {
   /** Shows the password as text (controlled). Use with onVisibleChange. */
   visible?: boolean;
   /** Shows it as text at first (uncontrolled). Default: false. */

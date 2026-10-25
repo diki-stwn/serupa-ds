@@ -77,6 +77,9 @@ if (D) {
   try { first = ago(); Date.now = () => start + 2 * 3600e3; later = ago(); } finally { Date.now = realNow; }
   t('RelativeTime on the server: a request two hours later says "2 hours ago", not the first request\'s words', first === '5 minutes ago' && later === '2 hours ago', `${first} | ${later}`);
   t('version matches package.json', D.version === pkg.version, D.version);
+  // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
+  const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
+  t('dist/base.css and dist/theme.js carry package.json\'s version (stamped at build)', !unstamped.length && read('dist/theme.js').includes(`version = "${pkg.version}"`), unstamped.join(', '));
   // Icons: each component imports the icons it draws, so they draw on the server. A name drawn as a string loads in
   // the browser (the components' icons from a small chunk, the rest from the full set), so on the server it's an empty box.
   const iconHtml = (props) => renderToString(h(D.Icon, props));

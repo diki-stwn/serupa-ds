@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
@@ -9,7 +9,7 @@ import { Select } from './Select';
 const field = (id: string) => document.getElementById(id) as HTMLSelectElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 
-let errors: ReturnType<typeof vi.spyOn>, warnings: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>, warnings: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); warnings = vi.spyOn(console, 'warn'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); warnings.mockRestore(); });
 
@@ -50,7 +50,7 @@ describe('Select', () => {
     const ref = React.createRef<HTMLSelectElement>(), changes: string[] = [];
     await render(<Grid><Role changes={changes} sref={ref} /></Grid>);
     const i = field('md');
-    expect([ref.current === i, box('md').classList.contains('extra'), i.dataset.x, i.labels![0].textContent]).toEqual([true, true, 'y', 'Role']);
+    expect([ref.current === i, box('md').classList.contains('extra'), i.dataset.x, i.labels[0].textContent]).toEqual([true, true, 'y', 'Role']);
     expect([...i.options].map((o) => o.value + ':' + o.textContent + (o.disabled ? ':off' : '')).join()).toBe('a:a,b:Bee,c:Sea:off');
     await userEvent.selectOptions(i, 'a');
     await expect.poll(() => field('md').value).toBe('a');
@@ -68,12 +68,28 @@ describe('Select', () => {
     expect([field('ph').value, css(field('ph')).color]).toEqual(['Two', color('var(--text)')]);
   });
 
+  test('form reset: an uncontrolled select goes back to its placeholder (or its defaultValue) and looks it, and the form sends the default', async () => {
+    await render(<form id="f">
+      <Select id="ph" name="ph" aria-label="Size" placeholder="Choose a size" options={['S', 'M']} />
+      <Select id="dv" name="dv" aria-label="Fruit" defaultValue="b" options={[{ value: 'a', label: 'Apple' }, { value: 'b', label: 'Banana' }]} />
+    </form>);
+    await userEvent.selectOptions(field('ph'), 'M');
+    await userEvent.selectOptions(field('dv'), 'a');
+    expect([box('ph').classList.contains('dk-select--empty'), field('dv').value]).toEqual([false, 'a']);
+    (document.getElementById('f') as HTMLFormElement).reset();
+    await expect.poll(() => box('ph').classList.contains('dk-select--empty')).toBe(true);
+    const data = new FormData(document.getElementById('f') as HTMLFormElement);
+    expect([field('ph').value, field('dv').value, data.get('ph'), data.get('dv')]).toEqual(['', 'b', null, 'b']);
+    await userEvent.selectOptions(field('ph'), 'S');
+    expect(box('ph').classList.contains('dk-select--empty')).toBe(false);
+  });
+
   test('groups, plain options and <option> children together; the left icon and chevron are decorative and don\'t take clicks; the text starts after the icon', async () => {
     await render(<Grid><Select id="grp" leftIcon="schedule" aria-label="Groups" options={[{ label: 'Europe', options: ['London', 'Paris'] }, 'Tokyo']}><option value="kid">Child</option></Select></Grid>);
     const i = field('grp');
     expect([...i.querySelectorAll('optgroup')].map((g) => g.label + '=' + [...g.children].map((o) => (o as HTMLOptionElement).value).join('/')).join()).toBe('Europe=London/Paris');
     expect([...i.options].map((o) => o.value).join()).toBe('London,Paris,Tokyo,kid');
-    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector('.dk-icon') as HTMLElement | null)?.dataset.icon).join())
+    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).join())
       .toBe('true:none:schedule,true:none:expand_more');
     expect(css(i).paddingLeft).toBe('36px');
   });
@@ -114,7 +130,7 @@ describe('Select', () => {
   test('in a Field: labelled, described and invalid with the error', async () => {
     await render(<Grid><Field label="Country" error="Pick a country."><Select id="fld" placeholder="Choose" options={['DK']} /></Field></Grid>);
     const i = field('fld');
-    expect([i.labels![0].textContent, i.getAttribute('aria-invalid'), !!i.getAttribute('aria-describedby')]).toEqual(['Country', 'true', true]);
+    expect([i.labels[0].textContent, i.getAttribute('aria-invalid'), !!i.getAttribute('aria-describedby')]).toEqual(['Country', 'true', true]);
     expect(box('fld').className).toMatch(/dk-select--invalid/);
   });
 

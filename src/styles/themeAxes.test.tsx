@@ -10,7 +10,7 @@ import { contrast, lowContrast, THEMES } from '../../tools/test/vitest/helpers';
 // flat data-theme="<brand>-<mode>" themes, through light-dark() pairs that the element's color-scheme resolves.
 const root = document.documentElement;
 type Tok = { name: string; value: unknown };
-const varying = (tokens.color.tokens as Tok[]).filter((t) => t.value && typeof t.value === 'object' && new Set(Object.values(t.value as object)).size > 1).map((t) => t.name);
+const varying = (tokens.color.tokens as Tok[]).filter((t) => t.value && typeof t.value === 'object' && new Set(Object.values(t.value)).size > 1).map((t) => t.name);
 
 // The resolved color of every varying token on a probe inside `host`.
 function read(host: HTMLElement): Record<string, string> {

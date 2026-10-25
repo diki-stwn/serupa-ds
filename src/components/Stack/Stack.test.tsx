@@ -26,7 +26,7 @@ describe('Stack', () => {
     await render(<Wide><Stack id="sdef">{boxes(3)}</Stack></Wide>);
     const s = css(el('sdef')), k = kids('sdef');
     expect([s.display, s.flexDirection, s.rowGap, s.alignItems]).toEqual(['flex', 'column', '16px', 'stretch']);
-    expect([k[1]!.y - (k[0]!.y + k[0]!.h), k[0]!.w]).toEqual([16, 600]);
+    expect([k[1].y - (k[0].y + k[0].h), k[0].w]).toEqual([16, 600]);
   });
 
   test('gap={1.5}: 6px (spacing-1.5, the dot escaped)', async () => {
@@ -38,8 +38,8 @@ describe('Stack', () => {
     await render(<Wide><Stack id="srow" direction="row" gap={2} justify="between">{boxes(3, '20px')}</Stack></Wide>);
     const s = css(el('srow')), k = kids('srow');
     expect([s.flexDirection, s.columnGap, s.alignItems, s.justifyContent]).toEqual(['row', '8px', 'center', 'space-between']);
-    expect(k[2]!.x + k[2]!.w).toBe(600);
-    expect(k[0]!.y).toBeGreaterThan(k[2]!.y);
+    expect(k[2].x + k[2].w).toBe(600);
+    expect(k[0].y).toBeGreaterThan(k[2].y);
   });
 
   test('unknown as, gap, align, justify and direction fall back', async () => {
@@ -57,7 +57,7 @@ describe('Stack', () => {
   test('wrap: a row that wraps onto more lines', async () => {
     await render(<div style={{ width: '50px' }}><Stack id="swrap" direction="row" wrap gap={0}>{boxes(4, '20px')}</Stack></div>);
     const k = kids('swrap');
-    expect(k[2]!.y).toBeGreaterThan(k[0]!.y);
+    expect(k[2].y).toBeGreaterThan(k[0].y);
   });
 
   test('the --stack-gap token sets the default gap', async () => {

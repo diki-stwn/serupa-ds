@@ -3,6 +3,8 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Kbd } from './Kbd';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const caps = (id: string) => [...el(id).querySelectorAll<HTMLElement>('.dk-kbd__key')];
@@ -35,12 +37,17 @@ describe('Kbd', () => {
     windows();
     const r = React.createRef<HTMLElement>();
     await render(<><Kbd id="one" ref={r} className="extra">Esc</Kbd><Kbd id="k">k</Kbd></>);
-    const e = el('one'), k = caps('one')[0]!;
+    const e = el('one'), k = caps('one')[0];
     expect([e.tagName, k.tagName, e.textContent, spoken('one'), r.current === e, e.dataset.component]).toEqual(['KBD', 'KBD', 'EscEscape', 'Escape', true, 'kbd']);
     expect(e.className).toMatch(/extra/);
     expect([k.offsetHeight, k.offsetWidth >= 24]).toEqual([24, true]);
     expect(css(e).fontFamily).toMatch(/Inter/);
     expect(keys('k')).toBe('K');
+  });
+
+  test('key names are read in the provider\'s words: "Panah atas" and "Spasi" under id-ID', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Kbd id="kid" keys={['up', 'space']} /></SerupaProvider>);
+    expect(spoken('kid')).toBe('Panah atas + Spasi');
   });
 
   test('a combination: one keycap per key, with a hidden + between them', async () => {
@@ -57,7 +64,7 @@ describe('Kbd', () => {
     expect(keys('sm')).toMatch(/^Alt/);
     expect(spoken('arrows')).toBe('Up arrow + Enter');
     expect(keys('arrows')).toMatch(/^↑/);
-    expect(caps('sm')[0]!.offsetHeight).toBe(20);
+    expect(caps('sm')[0].offsetHeight).toBe(20);
   });
 
   test('on Apple devices: mod is ⌘ (read "Command"), shift ⇧, alt ⌥ (read "Option")', async () => {
@@ -72,14 +79,14 @@ describe('Kbd', () => {
     await render(<p id="para" style={{ margin: 0 }}>Press <Kbd id="inline">/</Kbd> to search.</p>);
     const r = document.createRange(), text = el('para').firstChild!;
     r.setStart(text, 0); r.setEnd(text, 5);
-    const word = r.getBoundingClientRect(), key = caps('inline')[0]!.getBoundingClientRect();
+    const word = r.getBoundingClientRect(), key = caps('inline')[0].getBoundingClientRect();
     expect(Math.abs((word.top + word.bottom) / 2 - (key.top + key.bottom) / 2)).toBeLessThanOrEqual(3);
   });
 
   test('contrast: labels and the + keep 4.5:1 in all six themes; --kbd-bg overrides one key', async () => {
     windows();
     await render(<><Keys /><Kbd id="tok" style={{ '--kbd-bg': 'rgb(1, 2, 3)' } as React.CSSProperties}>T</Kbd></>);
-    const k = caps('combo')[0]!, plus = el('combo').querySelector('.dk-kbd__plus')!, low: string[] = [];
+    const k = caps('combo')[0], plus = el('combo').querySelector('.dk-kbd__plus')!, low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       for (const [name, fg, bg] of [['label', css(k).color, css(k).backgroundColor], ['+', css(plus).color, 'var(--surface)']] as const) {
@@ -88,6 +95,6 @@ describe('Kbd', () => {
       }
     }
     expect(low).toEqual([]);
-    expect(css(caps('tok')[0]!).backgroundColor).toBe('rgb(1, 2, 3)');
+    expect(css(caps('tok')[0]).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 });

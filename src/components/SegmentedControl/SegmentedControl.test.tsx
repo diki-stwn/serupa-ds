@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
@@ -20,7 +20,7 @@ const off = (id: string) => {
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 
-let errors: ReturnType<typeof vi.spyOn>;
+let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
@@ -139,7 +139,7 @@ describe('SegmentedControl', () => {
     await userEvent.click(seg('ctl', 'board'));
     await userEvent.click(seg('ctl', 'board'));
     const hidden = el('ctl').querySelector<HTMLInputElement>('input[type=hidden]')!;
-    expect([calls.join(), api.view, hidden.name + '=' + hidden.value, (seg('ctl', 'board').querySelector('.dk-segmented__icon .dk-icon') as HTMLElement | null)?.dataset.icon])
+    expect([calls.join(), api.view, hidden.name + '=' + hidden.value, (seg('ctl', 'board').querySelector<HTMLElement>('.dk-segmented__icon .dk-icon'))?.dataset.icon])
       .toEqual(['board', 'board', 'view=board', 'view_kanban']);
     api.set!('list');
     await expect.poll(() => checked('ctl')).toBe('list');

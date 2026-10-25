@@ -60,8 +60,8 @@ describe('typing with an input method', () => {
     const calls: string[] = [];
     await render(<div>
       <TimePicker id="t" aria-label="Time" locale="en-US" onValueChange={(v) => calls.push('time ' + v)} />
-      <DatePicker id="d" aria-label="Date" locale="en-US" onValueChange={(v) => calls.push('date ' + v)} />
-      <DateRangePicker data-testid="r" aria-label="Stay" locale="en-US" onValueChange={(v) => calls.push('range ' + v.start)} />
+      <DatePicker id="d" aria-label="Date" locale="en-US" onValueChange={(v) => calls.push('date ' + String(v))} />
+      <DateRangePicker data-testid="r" aria-label="Stay" locale="en-US" onValueChange={(v) => calls.push('range ' + String(v.start))} />
       <NumberInput id="n" aria-label="Count" step={1} onValueChange={(v) => calls.push('number ' + v)} />
     </div>);
     const range = document.querySelector<HTMLInputElement>('[data-testid=r] .dk-date-range-picker__field')!;

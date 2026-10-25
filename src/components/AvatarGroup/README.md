@@ -61,7 +61,7 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 | `total` | `number` | the number of children | How many there are in all, when you pass only some. "+N" counts the ones not shown. |
 | `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | Every avatar's size, wrapped ones included. It wins over each avatar's own `size`. |
 | `label` | `string` | | The group's accessible name, such as "Assigned to". |
-| `moreLabel` | `(count) => string` | `"N more"` | What a screen reader hears for "+N". |
+| `moreLabel` | `(count) => string` | `"N more"` | What a screen reader hears for "+N". By default the `avatarMore` label ("N lainnya" in `idLabels`). |
 
 `ref`, `className` and other props go to the outer `<div>`.
 
