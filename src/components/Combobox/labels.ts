@@ -3,6 +3,8 @@
 export interface ComboboxLabels {
   /** Combobox while loading options. */
   loadingResults: string;
+  /** Combobox when loadOptions rejects. */
+  loadFailed: string;
   /** Combobox when nothing matches. */
   noResults: string;
   /** Combobox, said once typing stops: how many options match. */
@@ -20,6 +22,7 @@ export interface ComboboxLabels {
 }
 export const en: ComboboxLabels = {
   loadingResults: "Loading…",
+  loadFailed: "Couldn't load options. Type to try again.",
   noResults: "No results",
   resultsCount: (count) => count === 1 ? "1 result" : count + " results",
   moreResults: (count) => "Keep typing to narrow " + count + " more",
@@ -30,6 +33,7 @@ export const en: ComboboxLabels = {
 };
 export const id: ComboboxLabels = {
   loadingResults: "Memuat…",
+  loadFailed: "Gagal memuat pilihan. Ketik untuk mencoba lagi.",
   noResults: "Tidak ada hasil",
   resultsCount: (count) => count + " hasil",
   moreResults: (count) => "Ketik lagi untuk mempersempit " + count + " lainnya",

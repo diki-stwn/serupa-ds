@@ -467,3 +467,70 @@ describe('Combobox multiple (DF1)', () => {
     expect([box('d').textContent.includes('Egypt'), tags('d')]).toEqual([true, []]);
   });
 });
+
+describe('Combobox loadOptions (DG1)', () => {
+  // A loadOptions whose answers the test hands back one at a time, in any order.
+  function server() {
+    const calls: { text: string; signal: AbortSignal; ok: (o: ComboboxOption[]) => void; fail: () => void }[] = [];
+    const loadOptions = (text: string, { signal }: { signal: AbortSignal }) => new Promise<ComboboxOption[]>((ok, no) => { calls.push({ text, signal, ok, fail: () => no(new Error('offline')) }); });
+    return { calls, loadOptions };
+  }
+  const box = (id: string) => el(id).closest('[data-component=combobox]') as HTMLElement;
+  const status = (id: string) => [...box(id).querySelectorAll('[role=status]')].map((s) => s.textContent).join(' | ');
+
+  test('each new text aborts the request before it, and a late answer for older text is dropped ("ca" never replaces "can")', async () => {
+    const s = server();
+    await render(<div style={{ width: '320px' }}><Combobox id="l" aria-label="Country" loadOptions={s.loadOptions} debounce={0} /></div>);
+    el('l').focus();
+    await userEvent.keyboard('ca');
+    await userEvent.keyboard('n');
+    expect(s.calls.map((c) => [c.text, c.signal.aborted])).toEqual([['c', true], ['ca', true], ['can', false]]);
+    expect(status('l')).toBe('Loading…');
+    s.calls[2].ok(['Canada']);
+    await expect.poll(() => st('l').opts).toEqual(['Canada']);
+    s.calls[1].ok(['Cameroon', 'Canada']);   // too late: aborted, so dropped
+    await new Promise((r) => setTimeout(r, 30));
+    expect([st('l').opts, st('l').active, status('l')]).toEqual([['Canada'], 'Canada', '']);
+  });
+
+  test('typing waits for a pause (debounce) before loading; opening loads what "" finds; a rejected load says so and typing tries again', async () => {
+    const s = server();
+    await render(<div style={{ width: '320px' }}><Combobox id="d" aria-label="Country" loadOptions={s.loadOptions} debounce={150} /></div>);
+    el('d').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(s.calls.map((c) => c.text)).toEqual(['']);
+    s.calls[0].ok(['Argentina', 'Brazil']);
+    await expect.poll(() => st('d').opts).toEqual(['Argentina', 'Brazil']);
+    await userEvent.keyboard('per');
+    expect(s.calls.length).toBe(1);   // still typing
+    await expect.poll(() => s.calls.length).toBe(2);
+    expect(s.calls[1].text).toBe('per');
+    s.calls[1].fail();
+    await expect.poll(() => status('d')).toBe("Couldn't load options. Type to try again.");
+    await userEvent.keyboard('u');
+    await expect.poll(() => s.calls.length).toBe(3);
+    s.calls[2].ok(['Peru']);
+    await expect.poll(() => [st('d').opts, status('d')]).toEqual([['Peru'], '']);
+    expect(idLabels.loadFailed).toBe('Gagal memuat pilihan. Ketik untuk mencoba lagi.');
+  });
+
+  test('a picked option keeps its label when later answers leave it out; unmounting aborts the request in flight', async () => {
+    const s = server();
+    const { unmount } = await render(<div style={{ width: '320px' }}><Combobox id="p" aria-label="Country" loadOptions={s.loadOptions} debounce={0} /></div>);
+    el('p').focus();
+    await userEvent.keyboard('can');
+    s.calls.at(-1)!.ok([{ value: 'ca', label: 'Canada' }]);
+    await expect.poll(() => st('p').opts).toEqual(['Canada']);
+    await userEvent.keyboard('{Enter}');
+    expect(st('p').text).toBe('Canada');
+    await userEvent.keyboard('{Control>}a{/Control}xyz');
+    s.calls.at(-1)!.ok([]);
+    await expect.poll(() => status('p')).toBe('No results');
+    await userEvent.keyboard('{Escape}');
+    expect(st('p').text).toBe('Canada');
+    await userEvent.keyboard('{Control>}a{/Control}q');
+    const last = s.calls.at(-1)!;
+    await unmount();
+    expect([last.text, last.signal.aborted]).toEqual(['q', true]);
+  });
+});

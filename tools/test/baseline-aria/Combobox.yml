@@ -9,6 +9,11 @@
 - button "Show options"
 - text: Pick the country on your passport.
 
+# LoadOptions
+- text: Country
+- combobox "Country"
+- button "Show options"
+
 # Multiple
 - text: Reviewers Pick everyone who should review this. Ada Lovelace
 - button "Remove Ada Lovelace"

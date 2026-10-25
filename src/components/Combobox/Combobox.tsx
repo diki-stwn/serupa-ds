@@ -20,8 +20,16 @@ import { Badge } from "../Badge/Badge";
 
 export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
 interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
-  /** The choices: strings, or { value, label, description, disabled }. The label is what's typed to find it and shown once picked. */
-  options: ComboboxOption[];
+  /** The choices: strings, or { value, label, description, disabled }. The label is what's typed to find it and shown once picked.
+      With loadOptions, the ones shown before anything has loaded (or leave it out). */
+  options?: ComboboxOption[];
+  /** Loads the options for the typed text, such as from a server: called after typing pauses (debounce), and with ""
+      when the list first opens. The signal aborts when newer text is typed or the field goes away, so a slow answer
+      for "ca" never replaces the one for "can". The list shows the loading row while it waits and the loadFailed
+      message if it rejects; filtering is then yours (filter is ignored). */
+  loadOptions?: (text: string, context: { signal: AbortSignal }) => Promise<ComboboxOption[]>;
+  /** With loadOptions, how long typing must pause before loading, in ms. Default: 250. */
+  debounce?: number;
   /** Called with the text as it's typed: for loading options from a server (with filter={false} and loading). */
   onInputChange?: (text: string) => void;
   /** How typing narrows the list. Default: options whose label contains the text, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße"). false shows every option (filter them yourself). */
@@ -102,17 +110,55 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // names the listbox when a Field's <label for> names the field
   const sds = useSerupa();
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1, loadOptions: 1, debounce: 1 } as const);
   const multi = props.multiple === true;
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
   const base = domId("dk-cbx", React.useId());
   // Mapped, with each label folded for matching, once per options array rather than on every render and keystroke.
-  const opts: Opt[] = React.useMemo(() => (props.options || []).map((o, i) => {
+  // With loadOptions, the options are the latest answer (the options prop until one comes).
+  const [loaded, setLoaded] = React.useState<ComboboxOption[] | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
+  const source = props.loadOptions && loaded ? loaded : props.options;
+  const opts: Opt[] = React.useMemo(() => (source || []).map((o, i) => {
     const x = typeof o === "string" ? { value: o, label: o, i } : { value: String(o.value), label: String(o.label ?? o.value), description: o.description, disabled: !!o.disabled, i };
     return { ...x, folded: fold(x.label) };
-  }), [props.options]);
+  }), [source]);
+  // Every option seen, by value, so a picked one keeps its label when a later answer doesn't include it.
+  const seen = React.useRef(new Map<string, string>());
+  for (const o of opts) seen.current.set(o.value, o.label);
+  // loadOptions: one request at a time. A new one (after the debounce) aborts the one before, and an answer that
+  // isn't for the latest request is dropped, so a slow answer never overwrites a newer one.
+  const loader = React.useRef<{ timer: number; ctl: AbortController | null; n: number; q: string | null }>({ timer: 0, ctl: null, n: 0, q: null });
+  const loadFn = React.useRef(props.loadOptions);
+  loadFn.current = props.loadOptions;
+  const load = (q: string, wait: number) => {
+    const l = loader.current, fn = loadFn.current;
+    if (!fn) return;
+    window.clearTimeout(l.timer);
+    if (l.ctl) l.ctl.abort();
+    l.ctl = null; l.q = q;
+    setBusy(true); setFailed(false);
+    const go = () => {
+      const ctl = new AbortController(), n = ++l.n;
+      l.ctl = ctl;
+      let answer: Promise<ComboboxOption[]>;
+      try { answer = Promise.resolve(fn(q, { signal: ctl.signal })); } catch (err) { answer = Promise.reject(err instanceof Error ? err : new Error(String(err))); }
+      answer.then((list) => {
+        if (n !== l.n || ctl.signal.aborted) return;
+        const got = Array.isArray(list) ? list : [];
+        setLoaded(got); setBusy(false);
+        setActive(q.trim() ? got.findIndex((o) => typeof o === "string" || !o.disabled) : -1);   // the first match, as typing does
+      },
+        () => { if (n === l.n && !ctl.signal.aborted) { setFailed(true); setBusy(false); } });
+    };
+    if (wait > 0) l.timer = window.setTimeout(go, wait); else go();
+  };
+  React.useEffect(() => () => { const l = loader.current; window.clearTimeout(l.timer); if (l.ctl) l.ctl.abort(); }, []);
+  const pause = typeof props.debounce === "number" && props.debounce >= 0 ? props.debounce : 250;
+  const loading = !!props.loading || busy;
   const controlled = props.value !== undefined;
   const one = (v: string | string[] | null | undefined) => (multi || typeof v !== "string" ? null : v);
   const [ownValue, setOwnValue] = React.useState<string | null>(() => one(props.defaultValue));
@@ -121,7 +167,8 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const values = multi ? (controlled ? list(props.value) : ownValues) : [];
   const chosen = new Set(values);
   const selected = multi ? null : opts.find((o) => o.value === value) || null;
-  const [text, setText] = React.useState(selected ? selected.label : "");
+  const pickedLabel = selected ? selected.label : value != null ? seen.current.get(value) ?? "" : "";
+  const [text, setText] = React.useState(pickedLabel);
   const [typed, setTyped] = React.useState(false);   // false: show every option (just opened); true: filter by the text
   const [open, setOpen] = React.useState(false);
   const [active, setActive] = React.useState(-1);    // index into opts
@@ -140,14 +187,14 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
 
   // A new value (or a new label for it) puts its label in the field, unless the person is typing. Done while
   // rendering, not in an effect, so the field never shows the old label for a frame.
-  const label = selected ? selected.label : "";
+  const label = pickedLabel;
   const [shownFor, setShownFor] = React.useState<[string | null, string]>([value, label]);
   if (shownFor[0] !== value || shownFor[1] !== label) {
     setShownFor([value, label]);
     if (!open || !typed) setText(label);
   }
 
-  const filter = props.filter;
+  const filter = props.loadOptions ? false : props.filter;
   const shown = React.useMemo(() => {
     if (!typed || filter === false) return opts;
     if (typeof filter === "function") return opts.filter((o) => filter({ value: o.value, label: o.label }, text));
@@ -177,18 +224,19 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     if (changed) changed(next);
     if (said) announce(said);
   };
-  const labelOf = (v: string) => { const o = opts.find((x) => x.value === v); return o ? o.label : v; };
+  const labelOf = (v: string) => seen.current.get(v) ?? v;
   const remove = (v: string) => commitMany(values.filter((x) => x !== v), sds.labels.valueRemoved(labelOf(v)));
   const show = (to?: "first" | "last" | "selected") => {
     if (locked) return;
     setOpen(true);
+    if (loader.current.q !== "") load("", 0);   // opening lists what "" finds, unless that's what's loaded
     const list = (opts.length > CAP ? opts.slice(0, CAP) : opts).filter((o) => !o.disabled);
     const sel = selected && !selected.disabled ? selected.i : -1;
     setActive(to === "last" ? (sel >= 0 ? sel : list.length ? list[list.length - 1].i : -1) : to === "first" ? (sel >= 0 ? sel : list.length ? list[0].i : -1) : sel);
   };
   const hide = (revert = true) => {
     setOpen(false); setActive(-1); setTyped(false);
-    if (revert) setText(selected ? selected.label : "");
+    if (revert) setText(pickedLabel);
   };
   const pick = (o: Opt) => {
     if (o.disabled) return;
@@ -197,7 +245,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       if (chosen.has(o.value)) remove(o.value);
       else commitMany(values.concat(o.value), sds.labels.valueAdded(o.label));
       setActive(o.i); setTyped(false);
-      if (text) { setText(""); if (props.onInputChange) props.onInputChange(""); }
+      if (text) { setText(""); if (props.onInputChange) props.onInputChange(""); load("", 0); }
       return;
     }
     commit(o.value); setText(o.label); setOpen(false); setActive(-1); setTyped(false);
@@ -232,9 +280,10 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     setText(t); setTyped(true);
     if (!locked) setOpen(true);
     const q = fold(t.trim());
-    const first = opts.find((o) => !o.disabled && (props.filter === false || (typeof props.filter === "function" ? props.filter({ value: o.value, label: o.label }, t) : o.folded.includes(q))));
+    const first = opts.find((o) => !o.disabled && (filter === false || (typeof filter === "function" ? filter({ value: o.value, label: o.label }, t) : o.folded.includes(q))));
     setActive(t.trim() && first ? first.i : -1);
     if (props.onInputChange) props.onInputChange(t);
+    load(t, pause);
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (rest.onKeyDown) rest.onKeyDown(e);
@@ -264,10 +313,10 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   // While typing, how many options match is said once the typing stops (a role=status row already says "No results").
   const count = more ? shown.filter((o) => !o.disabled).length : usable.length;
   React.useEffect(() => {
-    if (!open || !typed || props.loading || !count) return;
+    if (!open || !typed || loading || !count) return;
     const t = setTimeout(() => announce(sds.labels.resultsCount(count)), 700);
     return () => clearTimeout(t);
-  }, [open, typed, props.loading, count, text, sds.labels]);
+  }, [open, typed, loading, count, text, sds.labels]);
 
   // Place the list under the field, in the top layer, as wide as the field at least.
   useAnchoredLayer(open, pop, box, { placement: "bottom-start", offsetVar: "--dk-combobox-offset", matchWidth: true });
@@ -316,13 +365,14 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         <Icon icon={icons.ExpandMore} />
       </button>
       <div ref={pop} className="dk-combobox__popup" {...{ popover: "manual" }} hidden={!open || undefined} onMouseDown={keep}>
-        {props.loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
+        {loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
         <div id={listId} role="listbox" className="dk-combobox__listbox" aria-multiselectable={multi || undefined} aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
           {/* Only while open: a closed Combobox with thousands of options keeps none of them in the page. */}
           {open ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
         </div>
         {open && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
-        {!props.loading && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
+        {!loading && failed ? <div className="dk-combobox__message" role="status">{sds.labels.loadFailed}</div> : null}
+        {!loading && !failed && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
       {props.name && multi ? values.map((v) => <input key={v} type="hidden" name={props.name} form={rest.form} value={v} disabled={rest.disabled} />) : null}
       {props.name && !multi ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}

@@ -1,6 +1,7 @@
 // exports: Combobox, type ComboboxMultipleProps, type ComboboxOption, type ComboboxProps, type ComboboxSingleProps
 interface ComboboxLabels {
     loadingResults: string;
+    loadFailed: string;
     noResults: string;
     resultsCount: (count: number) => string;
     moreResults: (count: number) => string;
@@ -16,7 +17,11 @@ type ComboboxOption = {
     disabled?: boolean;
 } | string;
 interface ComboboxBaseProps extends Omit<InputProps, "defaultValue" | "onChange" | "prefix" | "rightIcon" | "showCount" | "suffix" | "type" | "value"> {
-    options: ComboboxOption[];
+    options?: ComboboxOption[];
+    loadOptions?: (text: string, context: {
+        signal: AbortSignal;
+    }) => Promise<ComboboxOption[]>;
+    debounce?: number;
     onInputChange?: (text: string) => void;
     filter?: ((option: {
         value: string;

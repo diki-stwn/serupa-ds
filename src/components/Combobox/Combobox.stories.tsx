@@ -29,6 +29,15 @@ export const Multiple: Story = {
     </Field>;
   },
 };
+// A pretend server: answers after 400ms with the countries that contain the text.
+const search = (text: string, { signal }: { signal: AbortSignal }) => new Promise<string[]>((ok, no) => {
+  const t = setTimeout(() => ok(COUNTRIES.filter((c) => c.toLowerCase().includes(text.toLowerCase()))), 400);
+  signal.addEventListener('abort', () => { clearTimeout(t); no(new DOMException('Aborted', 'AbortError')); });
+});
+export const LoadOptions: Story = {
+  name: 'With loadOptions',
+  render: () => <Field label="Country"><Combobox placeholder="Search countries" loadOptions={search} clearable /></Field>,
+};
 export const WithDescriptions: Story = {
   render: function Render() {
     const [owner, setOwner] = React.useState<string | null>('grace');
