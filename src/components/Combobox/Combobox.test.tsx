@@ -46,19 +46,34 @@ describe('Combobox', () => {
     expect(names).toEqual(['Hapus Negara', 'Tampilkan pilihan']);
   });
 
-  test('long lists: closed, 2,000 options keep no option nodes in the page; open, they all show; typing narrows them', async () => {
+  test('long lists: closed, 2,000 options keep no option nodes in the page; open, the first 100 show with a "more" line and full counts; typing narrows them', async () => {
     const many = Array.from({ length: 2000 }, (_, i) => 'Option ' + i);
     await render(<div style={{ width: '320px' }}><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} /></div>);
     const list = () => el('cb').parentElement!.querySelector('[role=listbox]')!;
     expect(list().querySelectorAll('[role=option]').length).toBe(0);
     await open();
-    expect([list().querySelectorAll('[role=option]').length, st('cb').active]).toEqual([2000, 'Option 0']);
+    const rows = () => [...list().querySelectorAll('[role=option]')];
+    // The "keep typing" line has no role, so it's found by its words.
+    const more = () => Array.from(el('cb').parentElement!.querySelectorAll('div')).find((d) => !d.children.length && /^Keep typing/.test(d.textContent || ''))?.textContent;
+    expect([rows().length, st('cb').active, more()]).toEqual([100, 'Option 0', 'Keep typing to narrow 1900 more']);
+    expect([rows()[99].getAttribute('aria-posinset'), rows()[99].getAttribute('aria-setsize')]).toEqual(['100', '2000']);
     await userEvent.keyboard('{ArrowDown}');
     expect(st('cb').active).toBe('Option 1');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    expect(st('cb').active).toBe('Option 99');   // the arrows wrap through the rows that are there
     await userEvent.keyboard('1999');
     await expect.poll(() => st('cb').opts).toEqual(['Option 1999']);
+    expect([more(), rows()[0].getAttribute('aria-setsize')]).toEqual([undefined, '1']);
     await userEvent.keyboard('{Escape}');
     expect(list().querySelectorAll('[role=option]').length).toBe(0);
+  });
+
+  test('long lists: a picked option past the first 100 still shows, highlighted, when the list opens', async () => {
+    const many = Array.from({ length: 500 }, (_, i) => 'Option ' + i);
+    await render(<div><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} defaultValue="Option 400" /></div>);
+    await open();
+    const rows = [...el('cb').parentElement!.querySelectorAll('[role=option]')];
+    expect([rows.length, st('cb').active, rows[100].getAttribute('aria-posinset')]).toEqual([101, 'Option 400', '401']);
   });
 
   test('ArrowDown opens the list in the top layer with every option, the first highlighted, focus staying in the field', async () => {
