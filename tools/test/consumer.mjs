@@ -1,0 +1,75 @@
+// The package as a project installs it, on the Node it runs (EZ1): package.json allows Node 22 and later, while the
+// repository builds on Node 26, so CI runs this on Node 22 and 24 too. It packs the built package as a release ships
+// it, installs the tarball with React into an empty project, then from that project imports serupa-ds and
+// serupa-ds/icons, finds each CSS file, theme.js and the browser script by its export, and server-renders every case
+// in tools/test/ssr/. Needs the build (npm run build) and the network (npm install), so the checks project skips it.
+//   node tools/test/consumer.mjs
+// Only Node's own modules here: on Node 22 the repository's dependencies aren't installed (npm ci asks for Node 26).
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT = path.resolve(HERE, '..', '..');
+const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT, 'package.json'), 'utf8'));
+const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const run = (args, cwd) => {
+  const r = spawnSync(npm, args, { cwd, encoding: 'utf8', shell: process.platform === 'win32' });
+  if (r.status !== 0) { console.log(`FAIL  npm ${args.join(' ')}\n${r.stdout}${r.stderr}`); process.exit(1); }
+  return r.stdout;
+};
+if (!fs.existsSync(path.join(PROJECT, 'dist', 'index.js'))) { console.log('FAIL  nothing built: run npm run build first'); process.exit(1); }
+
+// The package exactly as a release ships it (as in package-lint.mjs): the files package.json lists, and a
+// package.json without scripts or devDependencies.
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-consumer-'));
+const dir = path.join(tmp, 'package');
+for (const f of pkg.files) if (fs.existsSync(path.join(PROJECT, f))) fs.cpSync(path.join(PROJECT, f), path.join(dir, f), { recursive: true });
+const shipped = { ...pkg };
+delete shipped.scripts;
+delete shipped.devDependencies;
+fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(shipped, null, 2) + '\n');
+const tarball = path.join(tmp, JSON.parse(run(['pack', '--json', '--pack-destination', tmp], dir))[0].filename);
+
+// An empty project with the tarball and the React the repository tests with.
+const app = path.join(tmp, 'app');
+fs.mkdirSync(app);
+fs.writeFileSync(path.join(app, 'package.json'), JSON.stringify({ name: 'consumer', private: true, type: 'module' }) + '\n');
+run(['install', '--no-audit', '--no-fund', '--ignore-scripts', tarball, `react@${pkg.devDependencies.react}`, `react-dom@${pkg.devDependencies['react-dom']}`], app);
+
+// Runs inside the project, so serupa-ds resolves from its node_modules as in any app.
+const SSR = path.join(HERE, 'ssr');
+const fixtures = fs.readdirSync(SSR).filter((f) => f.endsWith('.mjs')).sort().map((f) => pathToFileURL(path.join(SSR, f)).href);
+const FILES = ['serupa-ds/tokens.css', 'serupa-ds/base.css', 'serupa-ds/bundle.css', 'serupa-ds/components.css', 'serupa-ds/utilities.css', 'serupa-ds/theme.js', 'serupa-ds/serupa.iife.js', 'serupa-ds/package.json'];
+fs.writeFileSync(path.join(app, 'check.mjs'), `
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+const R = [], t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
+const React = (await import('react')).default;
+const { renderToString } = await import('react-dom/server');
+let D, icons;
+try { D = await import('serupa-ds'); t('import "serupa-ds"', Object.keys(D).length > 100, Object.keys(D).length + ' exports'); } catch (e) { t('import "serupa-ds"', false, e.stack); }
+try { icons = await import('serupa-ds/icons'); t('import "serupa-ds/icons"', Object.keys(icons).length > 100, Object.keys(icons).length + ' exports'); } catch (e) { t('import "serupa-ds/icons"', false, e.stack); }
+for (const f of ${JSON.stringify(FILES)}) {
+  let file; try { file = fileURLToPath(import.meta.resolve(f)); } catch (e) { t(f + ' resolves', false, e.message); continue; }
+  t(f + ' resolves to a file', fs.statSync(file).size > 0, file);
+}
+if (D) {
+  const h = React.createElement, cases = {};
+  for (const f of ${JSON.stringify(fixtures)}) Object.assign(cases, (await import(f)).default({ h, D }));
+  const failed = [];
+  for (const [name, el] of Object.entries(cases)) { try { if (!renderToString(el)) failed.push(name + ': empty'); } catch (e) { failed.push(name + ': ' + e.message); } }
+  t('every case in tools/test/ssr/ renders on the server (' + Object.keys(cases).length + ')', Object.keys(cases).length > 50 && !failed.length, failed.join('\\n      '));
+}
+process.stdout.write(JSON.stringify(R));
+`);
+const r = spawnSync(process.execPath, ['check.mjs'], { cwd: app, encoding: 'utf8' });
+let results;
+try { results = JSON.parse(r.stdout); } catch { console.log(`FAIL  the check in the project didn't finish\n${r.stdout}${r.stderr}`); process.exit(1); }
+fs.rmSync(tmp, { recursive: true, force: true });
+for (const x of results) console.log(`${x.ok ? 'PASS' : 'FAIL'}  ${x.name}${x.ok || !x.detail ? '' : '\n      ' + x.detail}`);
+const bad = results.filter((x) => !x.ok).length;
+console.log(`\nConsumer on Node ${process.versions.node}: ${results.length - bad}/${results.length} passed`);
+process.exit(bad ? 1 : 0);

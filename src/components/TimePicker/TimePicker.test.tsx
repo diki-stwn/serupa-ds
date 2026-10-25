@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 import { TimePicker } from './TimePicker';
@@ -223,5 +223,17 @@ describe('TimePicker: autocomplete', () => {
   test('off by default; a passed autoComplete reaches the field', async () => {
     await render(<><TimePicker id="tpac" aria-label="Start" /><TimePicker id="tpon" aria-label="Arrival" autoComplete="on" /></>);
     expect([document.getElementById('tpac')!.getAttribute('autocomplete'), document.getElementById('tpon')!.getAttribute('autocomplete')]).toEqual(['off', 'on']);
+  });
+
+  test('entry: the list fades in and grows from its top edge with a transition, not keyframes (EF1)', async () => {
+    await withMotion(async () => {
+      await render(<Meeting />);
+      await openTp();
+      const list = document.getElementById(el('tp').getAttribute('aria-controls')!) as HTMLElement;
+      const moves = list.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
+      expect([moves, list.getAnimations().some((a) => a instanceof CSSAnimation), list.dataset.side, css(list).transformOrigin.split(' ')[1]]).toEqual([['opacity', 'scale'], false, 'bottom', '0px']);
+      await Promise.all(list.getAnimations().map((a) => a.finished));
+      expect([css(list).opacity, css(list).scale]).toEqual(['1', 'none']);
+    });
   });
 });

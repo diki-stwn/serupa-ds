@@ -5,7 +5,7 @@ import { Icon } from "../Icon/Icon";
 import { named } from "../../internal/component";
 import { FieldContext, type FieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
-import { FieldLabelProvider } from "../../internal/fieldLabel";
+import { FieldLabel } from "../../internal/fieldLabel";
 import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { warnOnce } from "../../internal/warn";
@@ -127,7 +127,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
       {hint}
       <FieldContext.Provider value={control}>
         <div className="dk-field__control" key="control">
-          <FieldLabelProvider value={label ? { control: controlId, label: base + "-label" } : null}>{child ? pass(child, true) : props.children}</FieldLabelProvider>
+          <FieldLabel value={label ? { control: controlId, label: base + "-label" } : null}>{child ? pass(child, true) : props.children}</FieldLabel>
         </div>
       </FieldContext.Provider>
       {error}

@@ -48,9 +48,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-btn-loader-in': ['EE1: scales in', ['Button', 'IconButton', 'Fab']],
     'dk-badge-loader-in': ['EE1: scales in', ['Badge']],
   },
-  origin: {
-    'dk-popover-in': ['EO1: scales in from its centre', ['Popover']],
-  },
+  origin: {},
   'will-change': {},
 };
 // Keyframes that may run once: what appears and can't be taken back mid-way, so there is nothing to reverse.
@@ -114,6 +112,7 @@ const inside = (host: Element) => document.getAnimations().filter((a) => { const
 const $ = (host: Element, sel: string) => host.querySelector<HTMLElement>(sel);
 // What a person does to each part that moves when they use it.
 const INTERACT: Record<string, (host: HTMLElement) => Promise<void>> = {
+  TimePicker: async (h) => { await userEvent.click($(h, 'button[aria-expanded]')!); },
   Switch: async (h) => { await userEvent.click($(h, '[role=switch]')!); },
   Checkbox: async (h) => { await userEvent.click($(h, 'input[type=checkbox]')!); },
   Accordion: async (h) => { await userEvent.click($(h, 'button')!); },
