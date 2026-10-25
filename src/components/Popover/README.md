@@ -42,6 +42,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 ## Accessibility
 
 - The panel is a `role="dialog"` named by its title (or `aria-label`); the trigger has `aria-expanded` and `aria-controls`.
+- The title is an `<h2>`, as in Dialog, so screen reader users can jump to it by heading; set `headingLevel` to fit the page's outline.
 - Opening moves focus inside; Escape and `close()` return it to the trigger. It sits right after the trigger in the tab order, so Tab moves from the trigger into it.
 - A click outside or focus moving elsewhere closes it, without moving focus.
 - Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`). With reduced motion it appears without growing in.
@@ -53,6 +54,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `trigger` | element | required | One element that can take focus; it gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` |
 | `children` | node, or `(close) => node` | required | The content. The function form gets `close()` for a Done or Cancel button |
 | `title` | node | none | A heading at the top that names it |
+| `headingLevel` | `2`–`6` | `2` | The title's heading level, to fit the page outline |
 | `placement` | `'bottom'`, `'top'`, `'left'`, `'right'`, each with `-start` or `-end` | `'bottom'` | Where it goes; it flips and shifts to stay on screen, and with no room on either side it takes the roomier one and scrolls inside. On the left or right, a popover wider than the room beside its trigger gets that width and wraps |
 | `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled) |
 | `defaultOpen` | boolean | `false` | Open at first (uncontrolled) |

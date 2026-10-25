@@ -16,6 +16,8 @@ export interface PopoverProps {
   children: React.ReactNode | ((close: () => void) => React.ReactNode);
   /** A heading at the top that names the popover. */
   title?: React.ReactNode;
+  /** The title's heading level, to fit the page's outline. Default: 2, as in Dialog. */
+  headingLevel?: 2 | 3 | 4 | 5 | 6;
   /** Where it goes: 'bottom' (default), 'top', 'left', 'right', with '-start' or '-end'. It flips when there's no room. */
   placement?: Placement;
   /** Open it yourself (controlled), with onOpenChange. */
@@ -82,6 +84,7 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
     onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; set(!open); },
   });
   const titled = props.title != null && props.title !== false && props.title !== "";
+  const H = ("h" + ([2, 3, 4, 5, 6].indexOf(props.headingLevel as number) >= 0 ? props.headingLevel : 2)) as "h2";
   const content = typeof props.children === "function" ? (props.children as (c: () => void) => React.ReactNode)(() => close(true)) : props.children;
   return (
     <>
@@ -91,7 +94,7 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
         className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"}
         onKeyDown={onKeyDown} onBlur={onBlur}>
         {open ? <>
-          {titled ? <div id={id + "-title"} className="dk-popover__title">{props.title}</div> : null}
+          {titled ? <H id={id + "-title"} className="dk-popover__title">{props.title}</H> : null}
           <div className="dk-popover__body">{content}</div>
         </> : null}
       </div>
