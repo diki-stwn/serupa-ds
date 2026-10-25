@@ -109,7 +109,7 @@ describe('Dialog', () => {
   test('the × (a button named "Close") asks to close', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await openDlg();
-    const c = el('dlg').querySelector('.dk-dialog__close') as HTMLElement;
+    const c = el('dlg').querySelector('button[aria-label="Close"]') as HTMLElement;
     expect([c.getAttribute('aria-label'), c.tagName]).toEqual(['Close', 'BUTTON']);
     await userEvent.click(c);
     await expect.poll(() => isOpen('dlg')).toBe(false);
@@ -185,7 +185,7 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('alert')).toBe(true);
     await settled();
     const d = el('alert');
-    expect([d.getAttribute('role'), !!d.querySelector('.dk-dialog__close'), Math.round(panel('alert').getBoundingClientRect().width)]).toEqual(['alertdialog', false, 384]);
+    expect([d.getAttribute('role'), !!d.querySelector('button[aria-label="Close"]'), Math.round(panel('alert').getBoundingClientRect().width)]).toEqual(['alertdialog', false, 384]);
     await userEvent.click(d, { position: { x: 20, y: 20 } });
     expect(isOpen('alert')).toBe(true);
     await userEvent.keyboard('{Escape}');
@@ -210,7 +210,7 @@ describe('Dialog', () => {
       await settled();
       expect(dlg('inner').contains(document.activeElement)).toBe(true);
       if (how === 'escape') await userEvent.keyboard('{Escape}');
-      else if (how === 'close') await userEvent.click(el('inner').querySelector('.dk-dialog__close')!);
+      else if (how === 'close') await userEvent.click(el('inner').querySelector('button[aria-label="Close"]')!);
       else await userEvent.click(el('inner'), { position: { x: 5, y: 5 } });
       await expect.poll(() => isOpen('inner')).toBe(false);
       expect([how, isOpen('outer'), asks.join()]).toEqual([how, true, 'inner:false']);
@@ -290,7 +290,7 @@ describe('Dialog: a body that scrolls', () => {
     const body = d.querySelector('.dk-dialog__body') as HTMLElement;
     await expect.poll(() => body.tabIndex).toBe(0);
     expect([body.getAttribute('role'), document.getElementById(body.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['region', 'Terms']);
-    (d.querySelector('.dk-dialog__close') as HTMLElement).focus();
+    (d.querySelector('button[aria-label="Close"]') as HTMLElement).focus();
     await userEvent.keyboard('{Tab}');
     expect(document.activeElement).toBe(body);
     expect([getComputedStyle(body).outlineStyle, parseFloat(getComputedStyle(body).outlineWidth) >= 2]).toEqual(['solid', true]);

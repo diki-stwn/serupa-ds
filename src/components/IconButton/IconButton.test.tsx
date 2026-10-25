@@ -28,7 +28,7 @@ describe('IconButton', () => {
     const ref = React.createRef<HTMLButtonElement | HTMLAnchorElement>();
     await render(<Icons ibRef={ref} />);
     const e = el('ib') as HTMLButtonElement;
-    expect([e.tagName, e.type, e.getAttribute('aria-label'), e.title, e.dataset.variant, e.dataset.shape, e.hasAttribute('data-icon-only'), (e.querySelector('.dk-icon') as HTMLElement).dataset.icon]).toEqual(['BUTTON', 'button', 'More actions', 'More actions', 'ghost', 'square', true, 'more_vert']);
+    expect([e.tagName, e.type, e.getAttribute('aria-label'), e.title, e.dataset.variant, e.dataset.shape, e.hasAttribute('data-icon-only'), (e.querySelector('[data-icon]') as HTMLElement).dataset.icon]).toEqual(['BUTTON', 'button', 'More actions', 'More actions', 'ghost', 'square', true, 'more_vert']);
     expect(e.className).toMatch(/dk-icon-btn/);
     expect(e.className).toMatch(/extra/);
     expect(ref.current).toBe(e);

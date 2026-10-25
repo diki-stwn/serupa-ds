@@ -81,7 +81,7 @@ describe('Alert', () => {
     }
     await render(<App />);
     const b = el('dis').querySelector('button')!, r = b.getBoundingClientRect();
-    expect([b.getAttribute('aria-label'), b.type, (b.querySelector('.dk-icon') as HTMLElement).dataset.icon, r.width, r.height, el('dl').querySelector('button')!.getAttribute('aria-label')])
+    expect([b.getAttribute('aria-label'), b.type, (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, r.width, r.height, el('dl').querySelector('button')!.getAttribute('aria-label')])
       .toEqual(['Dismiss', 'button', 'close', 24, 24, 'Close notice']);
     await expect.element(page.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
     b.focus();

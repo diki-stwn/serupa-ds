@@ -33,7 +33,7 @@ describe('Fab', () => {
     const ref = React.createRef<HTMLButtonElement>();
     await render(<Fabs fabRef={ref} />);
     const e = el('fab'), s = css(e);
-    expect([e.getAttribute('aria-label'), e.title, e.dataset.variant, s.position, s.zIndex, css(e.querySelector('.dk-icon')).fontSize]).toEqual(['New project', 'New project', 'primary', 'fixed', '30', '24px']);
+    expect([e.getAttribute('aria-label'), e.title, e.dataset.variant, s.position, s.zIndex, css(e.querySelector('[data-icon]')).fontSize]).toEqual(['New project', 'New project', 'primary', 'fixed', '30', '24px']);
     expect(parseFloat(s.borderTopLeftRadius)).toBeGreaterThanOrEqual(28);
     expect(s.boxShadow).toMatch(/10px 15px -3px/);
     expect(ref.current).toBe(e);

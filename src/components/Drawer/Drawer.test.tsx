@@ -188,7 +188,7 @@ describe('Drawer', () => {
   test('the × (a button named "Close") asks to close', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await openDrw();
-    const c = el('drw').querySelector('.dk-drawer__close') as HTMLElement;
+    const c = el('drw').querySelector('button[aria-label="Close"]') as HTMLElement;
     expect(c.getAttribute('aria-label')).toBe('Close');
     await userEvent.click(c);
     await expect.poll(() => isOpen()).toBe(false);
@@ -291,7 +291,7 @@ describe('Drawer: a body that scrolls', () => {
     const body = d.querySelector('.dk-drawer__body') as HTMLElement;
     await expect.poll(() => body.tabIndex).toBe(0);
     expect([body.getAttribute('role'), document.getElementById(body.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['region', 'Terms']);
-    (d.querySelector('.dk-drawer__close') as HTMLElement).focus();
+    (d.querySelector('button[aria-label="Close"]') as HTMLElement).focus();
     await userEvent.keyboard('{Tab}');
     expect(document.activeElement).toBe(body);
     expect([getComputedStyle(body).outlineStyle, parseFloat(getComputedStyle(body).outlineWidth) >= 2]).toEqual(['solid', true]);

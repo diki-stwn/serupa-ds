@@ -29,7 +29,7 @@ describe('ToggleButton', () => {
     const ref = React.createRef<HTMLButtonElement>();
     await render(<Formatting boldRef={ref} />);
     const e = el('tbold') as HTMLButtonElement;
-    expect([e.tagName, e.type, pressed('tbold'), e.getAttribute('aria-label'), e.dataset.component, (e.querySelector<HTMLElement>('.dk-icon'))?.dataset.icon]).toEqual(['BUTTON', 'button', 'false', 'Bold', 'button', 'format_bold']);
+    expect([e.tagName, e.type, pressed('tbold'), e.getAttribute('aria-label'), e.dataset.component, (e.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon]).toEqual(['BUTTON', 'button', 'false', 'Bold', 'button', 'format_bold']);
     expect(e.className).toMatch(/dk-btn--outline/);
     expect(e.className).toMatch(/dk-toggle-button extra/);
     expect(ref.current).toBe(e);

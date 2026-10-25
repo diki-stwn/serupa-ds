@@ -134,7 +134,7 @@ describe('Navbar', () => {
     await resize(500);
     const b = toggle();
     expect(vis('#nav nav')).toBe(false);
-    expect([b.getAttribute('aria-label'), b.getAttribute('aria-expanded'), b.getAttribute('aria-controls') === q('#nav nav').id, b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(b.getBoundingClientRect().right)])
+    expect([b.getAttribute('aria-label'), b.getAttribute('aria-expanded'), b.getAttribute('aria-controls') === q('#nav nav').id, b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(b.getBoundingClientRect().right)])
       .toEqual(['Menu', 'false', true, 'menu', 484]);
     expect(q('#nsticky .dk-navbar__toggle').getAttribute('aria-label')).toBe('Open the menu');
   });
@@ -146,7 +146,7 @@ describe('Navbar', () => {
     await expect.poll(() => vis('#nav nav')).toBe(true);
     const n = el('nav'), nav = n.querySelector('nav')!, r = nav.getBoundingClientRect(), top = [...nav.querySelectorAll('a')].map((a) => Math.round(a.getBoundingClientRect().top));
     const gap = Math.round(r.top - n.getBoundingClientRect().bottom);
-    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(r.width), top[0] < top[1] && top[1] < top[2]]).toEqual(['true', 'close', 500, true]);
+    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(r.width), top[0] < top[1] && top[1] < top[2]]).toEqual(['true', 'close', 500, true]);
     expect(gap <= 0 && gap >= -1).toBe(true);
   });
 

@@ -204,7 +204,7 @@ describe('Badge', () => {
   test('leftIcon: a Material Symbols icon before the label at 12px, decorative; it replaces the dot', async () => {
     await show();
     const e = el('icon'), i = e.querySelector('.dk-badge__icon') as HTMLElement;
-    expect([(i.querySelector('.dk-icon') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('.dk-icon')).fontSize, !!e.querySelector('.dk-badge__dot')])
+    expect([(i.querySelector('[data-icon]') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('[data-icon]')).fontSize, !!e.querySelector('.dk-badge__dot')])
       .toEqual(['schedule', 'true', '12px', false]);
   });
 
@@ -249,7 +249,7 @@ describe('Badge', () => {
   test('removable: a real <button type="button"> named "Remove Design" (removeLabel changes the verb), with a close icon', async () => {
     await show();
     const b = q('#tags .dk-badge__remove') as HTMLButtonElement;
-    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('.dk-icon') as HTMLElement).dataset.icon, q('#rmlabel .dk-badge__remove').getAttribute('aria-label')])
+    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, q('#rmlabel .dk-badge__remove').getAttribute('aria-label')])
       .toEqual(['BUTTON', 'button', 'Remove Design', 'close', 'Clear filter Status: open']);
     await expect.element(page.getByRole('button', { name: 'Remove Design' })).toBeInTheDocument();
   });

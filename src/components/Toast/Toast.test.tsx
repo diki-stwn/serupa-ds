@@ -41,7 +41,7 @@ describe('Toast', () => {
     const x = toasts()[0], r = x.getBoundingClientRect();
     expect(typeof id).toBe('string');
     expect([document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent, document.getElementById(x.getAttribute('aria-describedby')!)!.textContent]).toEqual(['Changes saved', 'All files are up to date.']);
-    expect([x.querySelector<HTMLElement>('.dk-toast__icon .dk-icon')?.dataset.icon, x.querySelector('.dk-toast__close')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
+    expect([x.querySelector<HTMLElement>('.dk-toast__icon .dk-icon')?.dataset.icon, x.querySelector('button[aria-label="Dismiss"]')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
@@ -102,7 +102,7 @@ describe('Toast', () => {
     expect(document.activeElement!.classList.contains('dk-toast__close')).toBe(true);
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => document.activeElement!.id).toBe('before');
-    toasts()[0].querySelector<HTMLElement>('.dk-toast__close')!.focus();   // reached without F8
+    toasts()[0].querySelector<HTMLElement>('button[aria-label="Dismiss"]')!.focus();   // reached without F8
     React.act(() => { three = toast({ title: 'Three', duration: 0 }); });
     React.act(() => { toast.dismiss(one); });
     await expect.poll(() => document.activeElement!.querySelector('.dk-toast__title')?.textContent).toBe('Three');
@@ -187,7 +187,7 @@ describe('Toast', () => {
   test('keyboard: Space on Dismiss closes the toast', async () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Saved', duration: 0 }); });
-    q('.dk-toast__close').focus();
+    q('button[aria-label="Dismiss"]').focus();
     await userEvent.keyboard(' ');
     await expect.poll(() => titles().length).toBe(0);
   });
@@ -244,7 +244,7 @@ describe('Toast', () => {
     await landed();
     expect([titles(), q('.dk-toaster__more').textContent]).toEqual([['Upload 10 failed', 'Upload 11 failed', 'Upload 12 failed'], '+9 more']);
     expect(Math.min(...toasts().map((x) => x.getBoundingClientRect().top), q('.dk-toaster__more').getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
-    await userEvent.click(toasts()[2].querySelector('.dk-toast__close')!);
+    await userEvent.click(toasts()[2].querySelector('button[aria-label="Dismiss"]')!);
     await expect.poll(titles).toEqual(['Upload 9 failed', 'Upload 10 failed', 'Upload 11 failed']);
     expect(q('.dk-toaster__more').textContent).toBe('+8 more');
     setPos('top-center');

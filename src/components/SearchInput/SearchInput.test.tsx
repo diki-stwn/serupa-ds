@@ -40,7 +40,7 @@ describe('SearchInput', () => {
     const i = field('q'), b = box('q'), ic = b.querySelector('.dk-search-input__icon')!;
     expect([i.type, i.getAttribute('enterkeyhint'), ref.current === i, b.className, b.dataset.component, b.getBoundingClientRect().height, i.labels![0].textContent])
       .toEqual(['search', 'search', true, 'dk-input dk-search-input dk-input--size-md extra', 'search-input', 32, 'Search projects']);
-    expect([(ic.querySelector('.dk-icon') as HTMLElement).dataset.icon, ic.getAttribute('aria-hidden'), clearBtn('q')]).toEqual(['search', 'true', null]);
+    expect([(ic.querySelector('[data-icon]') as HTMLElement).dataset.icon, ic.getAttribute('aria-hidden'), clearBtn('q')]).toEqual(['search', 'true', null]);
   });
 
   test('typing shows a × named "Clear search" controlling the field; Enter calls onSearch; the × clears the field, hides itself and keeps focus; Escape clears it (uncontrolled)', async () => {

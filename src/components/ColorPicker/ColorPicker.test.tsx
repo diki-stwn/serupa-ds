@@ -54,7 +54,7 @@ describe('ColorPicker', () => {
     await render(<ColorPicker ref={ref} id="cp" className="extra" aria-label="Label color" swatches={SW} defaultValue="#1d4ed8" />);
     expect([group().getAttribute('aria-label'), radios().map((r) => r.getAttribute('aria-label')), radios().map((r) => r.getAttribute('aria-checked')), radios().map((r) => r.tabIndex)])
       .toEqual(['Label color', ['Blue', 'Yellow', 'White', 'Black'], ['true', 'false', 'false', 'false'], [0, -1, -1, -1]]);
-    expect([ref.current === document.getElementById('cp'), ref.current!.className, ref.current!.dataset.component, !!swatch('Blue').querySelector('.dk-icon'), css(swatch('Blue')).backgroundColor])
+    expect([ref.current === document.getElementById('cp'), ref.current!.className, ref.current!.dataset.component, !!swatch('Blue').querySelector('[data-icon]'), css(swatch('Blue')).backgroundColor])
       .toEqual([true, 'dk-color-picker dk-color-picker--size-md extra', 'color-picker', true, 'rgb(29, 78, 216)']);
   });
 
@@ -150,9 +150,9 @@ describe('ColorPicker', () => {
   test('contrastWith: the WCAG ratio, rounded down, in a polite live region; below minContrast it warns', async () => {
     const calls: string[] = [];
     await render(<Controlled calls={calls} />);
-    expect([line().getAttribute('aria-live'), line().textContent, line().querySelector('.dk-icon')]).toEqual(['polite', 'Contrast 6.7:1', null]);
+    expect([line().getAttribute('aria-live'), line().textContent, line().querySelector('[data-icon]')]).toEqual(['polite', 'Contrast 6.7:1', null]);
     await userEvent.click(swatch('Yellow'));
-    expect([line().textContent, line().classList.contains('dk-color-picker__contrast--low'), !!line().querySelector('.dk-icon')])
+    expect([line().textContent, line().classList.contains('dk-color-picker__contrast--low'), !!line().querySelector('[data-icon]')])
       .toEqual(['Contrast 1.3:1, below 4.5:1, which can be hard to read', true, true]);
   });
 
@@ -209,7 +209,7 @@ describe('ColorPicker', () => {
     for (const v of ['#1D4ED8', '#fde047', '#fff', '#18181b']) {
       await userEvent.click(radios()[SW.findIndex((s) => (typeof s === 'string' ? s : s.value) === v)]);
       const b = radios().find((r) => r.getAttribute('aria-checked') === 'true')!;
-      const r = contrast(css(b.querySelector('.dk-icon')).color, css(b).backgroundColor);
+      const r = contrast(css(b.querySelector('[data-icon]')).color, css(b).backgroundColor);
       if (r < 3) low.push(`${v} check ${r.toFixed(2)}`);
     }
     for (const th of THEMES) {
