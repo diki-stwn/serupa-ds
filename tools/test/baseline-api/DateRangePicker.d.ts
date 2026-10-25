@@ -1,4 +1,4 @@
-// exports: type DateRange, DateRangePicker, type DateRangePickerProps
+// exports: type DateRange, type DateRangeInput, DateRangePicker, type DateRangePickerProps
 interface DateRangePickerLabels {
     chooseDates: string;
     startDate: string;
@@ -10,13 +10,20 @@ interface DateRange {
     start: Date | null;
     end: Date | null;
 }
+interface DateRangeInput {
+    start: Date | null | string;
+    end: Date | null | string;
+}
 interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, "defaultValue" | "onChange"> {
-    value?: DateRange;
-    defaultValue?: DateRange;
-    onValueChange?: (value: DateRange) => void;
+    value?: DateRangeInput;
+    defaultValue?: DateRangeInput;
+    onValueChange?: (value: DateRange, iso: {
+        start: null | string;
+        end: null | string;
+    }) => void;
     onInvalidInput?: (text: string, reason: "unavailable" | "unreadable") => void;
-    min?: Date;
-    max?: Date;
+    min?: Date | string;
+    max?: Date | string;
     isDateDisabled?: (date: Date) => boolean;
     locale?: string;
     weekStartsOn?: number;

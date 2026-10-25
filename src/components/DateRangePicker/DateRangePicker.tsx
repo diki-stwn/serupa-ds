@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
-import { addMonths, compare, datePattern, day, formatDate, isoDate, isValid, parseDate, sameDay, startOfMonth } from "../../internal/dates";
+import { addMonths, compare, datePattern, formatDate, isoDate, parseDate, sameDay, startOfMonth, toDay } from "../../internal/dates";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Calendar } from "../Calendar/Calendar";
@@ -16,20 +16,22 @@ import { delegateFocus, useAutoFocus } from "../../internal/focus";
 
 /** A range of days; either end can be empty while it's being chosen. */
 export interface DateRange { start: Date | null; end: Date | null }
+/** A range as given to DateRangePicker: each end a Date, a plain "yyyy-mm-dd" string for that local day, or null. */
+export interface DateRangeInput { start: Date | string | null; end: Date | string | null }
 
 export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'defaultValue' | 'onChange'> {
-  /** The chosen range (controlled). Use with onValueChange. */
-  value?: DateRange;
+  /** The chosen range (controlled). Use with onValueChange. Each end a Date or a plain "yyyy-mm-dd" string. */
+  value?: DateRangeInput;
   /** The chosen range at first (uncontrolled). */
-  defaultValue?: DateRange;
-  /** Called with the new range whenever either end changes. */
-  onValueChange?: (value: DateRange) => void;
+  defaultValue?: DateRangeInput;
+  /** Called with the new range whenever either end changes (local midnights), and the same range as "yyyy-mm-dd" strings. */
+  onValueChange?: (value: DateRange, iso: { start: string | null; end: string | null }) => void;
   /** Called when typed text is put back on blur or Enter: "unreadable" when it isn't a date, "unavailable" when it
       is one that can't be chosen (outside min..max, or isDateDisabled). The field also says so to screen readers. */
   onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
-  /** The earliest and latest days that can be chosen. */
-  min?: Date;
-  max?: Date;
+  /** The earliest and latest days that can be chosen, as Dates or "yyyy-mm-dd". */
+  min?: Date | string;
+  max?: Date | string;
   /** Days that can't be the start or end, such as holidays. They can sit inside a range. */
   isDateDisabled?: (date: Date) => boolean;
   /** A BCP 47 locale for the typed format, names and first day of the week. Default: the nearest SerupaProvider's locale, else the browser's. */
@@ -59,7 +61,7 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpan
   months?: 1 | 2;
 }
 
-const norm = (r: DateRange | undefined): DateRange => ({ start: r && isValid(r.start) ? day(r.start) : null, end: r && isValid(r.end) ? day(r.end) : null });
+const norm = (r: DateRangeInput | undefined): DateRange => ({ start: r ? toDay(r.start, "DateRangePicker") : null, end: r ? toDay(r.end, "DateRangePicker") : null });
 const key = (d: Date | null) => (d ? d.getTime() : null);
 
 /* DateRangePicker: two date fields (start – end) in one box with a calendar button, for a stay, a report period
@@ -72,7 +74,7 @@ const key = (d: Date | null) => (d ? d.getTime() : null);
 export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRangePickerProps>("DateRangePicker", function DateRangePicker(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, disabled, readOnly, required: requiredProp, id, startLabel, endLabel, startName, endName, form, buttonLabel, months: _m, autoFocus, className, ...rest } = props;
+  const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min: minIn, max: maxIn, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, disabled, readOnly, required: requiredProp, id, startLabel, endLabel, startName, endName, form, buttonLabel, months: _m, autoFocus, className, ...rest } = props;
   const locale = useLocale(localeProp);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
@@ -82,6 +84,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState<DateRange>(norm(props.defaultValue));
   const value = controlled ? norm(props.value) : own;
+  const min = toDay(minIn, "DateRangePicker") || undefined, max = toDay(maxIn, "DateRangePicker") || undefined;
   const fmt = (d: Date | null) => (d ? formatDate(d, locale) : "");
   const [text, setText] = React.useState({ start: fmt(value.start), end: fmt(value.end) });
   const shown = React.useRef({ start: key(value.start), end: key(value.end) });
@@ -116,7 +119,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
     setText({ start: fmt(r.start), end: fmt(r.end) });
     if (key(r.start) === key(value.start) && key(r.end) === key(value.end)) return;
     if (!controlled) setOwn(r);
-    if (onValueChange) onValueChange(r);
+    if (onValueChange) onValueChange(r, { start: r.start ? isoDate(r.start) : null, end: r.end ? isoDate(r.end) : null });
   };
   const read = (which: "start" | "end") => {
     const raw = text[which].trim();

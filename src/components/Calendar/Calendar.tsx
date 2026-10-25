@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, omit } from "../../internal/cn";
-import { addDays, addMonths, compare, day, firstDayOfWeek, isValid, sameDay, sameMonth, startOfMonth, startOfWeek } from "../../internal/dates";
+import { addDays, addMonths, compare, day, firstDayOfWeek, isoDate, isValid, sameDay, sameMonth, startOfMonth, startOfWeek, toDay } from "../../internal/dates";
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
@@ -9,22 +9,22 @@ import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
-  /** The selected day (controlled), or null. Use with onValueChange. */
-  value?: Date | null;
-  /** The selected day at first (uncontrolled). */
-  defaultValue?: Date | null;
-  /** Called with the day people pick. */
-  onValueChange?: (value: Date) => void;
+  /** The selected day (controlled), or null. Use with onValueChange. A Date, or a plain "yyyy-mm-dd" string for that local day. */
+  value?: Date | string | null;
+  /** The selected day at first (uncontrolled), as a Date or "yyyy-mm-dd". */
+  defaultValue?: Date | string | null;
+  /** Called with the day people pick (local midnight), and the same day as "yyyy-mm-dd". */
+  onValueChange?: (value: Date, iso: string) => void;
   /** The month shown (controlled): any day in it. Use with onMonthChange. */
   month?: Date;
   /** The month shown at first. Default: the selected day's, or today's. */
   defaultMonth?: Date;
   /** Called when the shown month changes. */
   onMonthChange?: (month: Date) => void;
-  /** The earliest day that can be picked. */
-  min?: Date;
-  /** The latest day that can be picked. */
-  max?: Date;
+  /** The earliest day that can be picked, as a Date or "yyyy-mm-dd". */
+  min?: Date | string;
+  /** The latest day that can be picked, as a Date or "yyyy-mm-dd". */
+  max?: Date | string;
   /** Days that can't be picked, such as weekends. */
   isDateDisabled?: (date: Date) => boolean;
   /** A BCP 47 locale for month and weekday names and the first day of the week. Default: the nearest SerupaProvider's locale, else the browser's. */
@@ -81,8 +81,9 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const ws = props.weekStartsOn != null ? ((Math.floor(props.weekStartsOn) % 7) + 7) % 7 : firstDayOfWeek(locale);
   const controlledValue = props.value !== undefined;
-  const [ownValue, setOwnValue] = React.useState<Date | null>(isValid(props.defaultValue) ? day(props.defaultValue) : null);
-  const value = controlledValue ? (isValid(props.value) ? day(props.value) : null) : ownValue;
+  const [ownValue, setOwnValue] = React.useState<Date | null>(() => toDay(props.defaultValue, "Calendar"));
+  const value = controlledValue ? toDay(props.value, "Calendar") : ownValue;
+  const min = toDay(props.min, "Calendar"), max = toDay(props.max, "Calendar");
   const today = day(new Date());
   const controlledMonth = props.month !== undefined;
   const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || today));
@@ -91,7 +92,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const grid = React.useRef<HTMLTableElement | null>(null);
   const wantFocus = React.useRef(!!props.autoFocus);
 
-  const disabled = (d: Date) => (props.min && compare(d, props.min) < 0) || (props.max && compare(d, props.max) > 0) || (props.isDateDisabled ? props.isDateDisabled(d) : false);
+  const disabled = (d: Date) => (min && compare(d, min) < 0) || (max && compare(d, max) > 0) || (props.isDateDisabled ? props.isDateDisabled(d) : false);
   const showMonth = (m: Date) => { const s = startOfMonth(m); if (!controlledMonth) setOwnMonth(s); if (props.onMonthChange) props.onMonthChange(s); };
   // Keep the focused day inside the shown month when the month changes from outside or by the buttons
   // (adjusted during render, so the new month never draws without its Tab stop).
@@ -113,7 +114,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const pick = (d: Date) => {
     if (disabled(d)) return;
     if (!controlledValue) setOwnValue(d);
-    if (props.onValueChange) props.onValueChange(d);
+    if (props.onValueChange) props.onValueChange(d, isoDate(d));
     if (!sameMonth(d, month)) showMonth(d);
     setFocus(d);
   };
@@ -135,8 +136,8 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     e.preventDefault();
     // Keys stop at min and max, as the native date field does, so a PageDown near the end doesn't leave focus on a
     // day that can't be picked in a month the next button won't show.
-    if (props.min && compare(n, props.min) < 0) n = day(props.min);
-    if (props.max && compare(n, props.max) > 0) n = day(props.max);
+    if (min && compare(n, min) < 0) n = day(min);
+    if (max && compare(n, max) > 0) n = day(max);
     move(n);
   };
 
@@ -151,10 +152,10 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     <div {...rest} ref={ref} className={cn("dk-calendar", props.className)} data-component="calendar">
       <div className="dk-calendar__header">
         <IconButton icon={<><Icon icon={icons.ChevronLeft} className="dk-calendar__ltr" /><Icon icon={icons.ChevronRight} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
-          disabled={!!props.min && compare(addDays(month, -1), props.min) < 0} onClick={() => showMonth(addMonths(month, -1))} />
+          disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={() => showMonth(addMonths(month, -1))} />
         <h2 className="dk-calendar__title" id={titleId} lang={lang} aria-live="polite">{title}</h2>
         <IconButton icon={<><Icon icon={icons.ChevronRight} className="dk-calendar__ltr" /><Icon icon={icons.ChevronLeft} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
-          disabled={!!props.max && compare(addMonths(month, 1), props.max) > 0} onClick={() => showMonth(addMonths(month, 1))} />
+          disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={() => showMonth(addMonths(month, 1))} />
       </div>
       <table ref={grid} lang={lang} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
         <thead>

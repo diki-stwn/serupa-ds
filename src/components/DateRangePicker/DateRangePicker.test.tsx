@@ -55,6 +55,19 @@ describe('DateRangePicker', () => {
     expect(calls).toEqual(['10/10/2026:unavailable']);
   });
 
+  test('plain "yyyy-mm-dd" strings: value and max take them as those local days, and onValueChange also gets the range as "yyyy-mm-dd"', async () => {
+    const calls: string[] = [];
+    function Plain() {
+      const [v, setV] = React.useState<{ start: string | null; end: string | null }>({ start: '2026-10-05', end: '2026-10-09' });
+      return <DateRangePicker data-testid="drps" locale="en-US" value={v} max="2026-10-31" onValueChange={(r, iso) => { calls.push(str(r) + ' ' + iso.start + '..' + iso.end); setV(iso); }} />;
+    }
+    await render(<Plain />);
+    expect(vals('drps')).toBe('10/05/2026 – 10/09/2026');
+    await fill('drps', 1, '11/02/2026');   // after max: put back
+    await fill('drps', 1, '10/12/2026');
+    expect([calls, vals('drps')]).toEqual([['Mon Oct 05 2026..Mon Oct 12 2026 2026-10-05..2026-10-12'], '10/05/2026 – 10/12/2026']);
+  });
+
   test('a role="group" dk-input box with "Start date" and "End date" fields, a "Choose dates" button; Field labels the start field and describes both; ref and className; defaultValue fills both fields', async () => {
     const ref = React.createRef<HTMLSpanElement>();
     await render(<Trip tref={ref} />);
