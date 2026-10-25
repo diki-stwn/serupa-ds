@@ -17,6 +17,7 @@ import { Field } from '../components/Field/Field';
 import { InlineEdit } from '../components/InlineEdit/InlineEdit';
 import { Input } from '../components/Input/Input';
 import { Loader } from '../components/Loader/Loader';
+import { NumberInput } from '../components/NumberInput/NumberInput';
 import { Progress } from '../components/Progress/Progress';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { SortableList } from '../components/SortableList/SortableList';
@@ -62,6 +63,9 @@ const SITES: Record<string, Site> = {
   'InlineEdit: a failed save': {
     ui: () => <InlineEdit label="Slug" defaultValue="apollo" validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} />,
     act: async () => { await userEvent.click($('[data-component="inline-edit"] button')); await userEvent.fill($('[data-component="inline-edit"] input'), 'apollo plan'); await userEvent.keyboard('{Enter}'); }, says: /Use dashes instead of spaces/ },
+  'NumberInput: typed text that isn\'t a number': {
+    ui: () => <NumberInput id="qty" aria-label="Quantity" defaultValue={5} />,
+    act: async () => { await userEvent.fill($('#qty'), 'abc'); $('#qty').blur(); }, says: /"abc" wasn't accepted/, assertive: true },
   'SortableList: picking an item up with Space': {
     ui: () => <SortableList items={ITEMS} getKey={(t) => t.id} getLabel={(t) => t.name} renderItem={(t) => t.name} onReorder={() => {}} />,
     act: async () => { $('button[aria-label$=" Gemini"]').focus(); await userEvent.keyboard(' '); }, says: /Gemini.*2.*3/ },

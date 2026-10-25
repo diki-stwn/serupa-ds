@@ -13,6 +13,7 @@ import { gridPlaces, roundTo } from "../../internal/step";
 import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import { minorDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
+import { reject } from "../../internal/rejectInput";
 import * as icons from "../../material/builtin";
 
 export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
@@ -22,6 +23,10 @@ export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" 
   defaultValue?: number | null;
   /** Called with the new number, or null when emptied: as people type (numbers within min..max), on blur (clamped), and from the arrow keys and buttons. */
   onValueChange?: (value: number | null) => void;
+  /** Called when typed text isn't kept as it is, with the text and why: "range" when a number outside min..max is
+      brought back within them (on blur or Enter), so a form can say "Quantity was reduced to 100"; "unreadable" when
+      the text isn't a number and the previous one comes back, which is also said to screen readers. */
+  onInvalidInput?: (text: string, reason: "range" | "unreadable") => void;
   /** The smallest allowed number. The field snaps to it when it loses focus. */
   min?: number;
   /** The largest allowed number. */
@@ -60,7 +65,7 @@ const keyed = (key: string) => (key ? (JSON.parse(key) as Intl.NumberFormatOptio
 export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInputProps>("NumberInput", function NumberInput(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, onInvalidInput: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -148,11 +153,14 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     if (n === null || (n !== undefined && (min === undefined || n >= min) && (max === undefined || n <= max))) commit(n);
     if (rest.onChange) rest.onChange(e);
   };
+  const outside = (n: number) => (min !== undefined && n < min) || (max !== undefined && n > max);
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const n = parse(text);
+    const n = parse(text), typed = typing.current;
     const v = n == null ? null : fit(n === undefined ? (value ?? 0) : n);
     const out = n === undefined ? value : v;
     put(out);
+    if (n === undefined && typed) reject(text, "unreadable", props.onInvalidInput, sds.labels.inputNotAccepted);
+    else if (n != null && outside(n) && props.onInvalidInput) props.onInvalidInput(text.trim(), "range");
     if (rest.onBlur) rest.onBlur(e);
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -165,7 +173,11 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     else if (k === "PageDown") nudge(-large);
     else if (k === "Home" && min !== undefined && !locked) put(min);
     else if (k === "End" && max !== undefined && !locked) put(max);
-    else if (k === "Enter") { const n = parse(text); if (n != null) put(fit(n)); return; }
+    else if (k === "Enter") {
+      const n = parse(text);
+      if (n != null) { put(fit(n)); if (outside(n) && props.onInvalidInput) props.onInvalidInput(text.trim(), "range"); }
+      return;
+    }
     else return;
     e.preventDefault();
   };
@@ -173,7 +185,36 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const now = typeof current === "number" ? current : value;
   const left = asIcon(props.leftIcon);
   const affix = useAffixes(props.prefix, props.suffix, domId("dk-ni", React.useId()), el);
-  const press = (by: number) => () => { nudge(by); if (el.current && document.activeElement !== el.current) el.current.focus({ preventScroll: true }); };
+  const press = (by: number) => { nudge(by); if (el.current && document.activeElement !== el.current) el.current.focus({ preventScroll: true }); };
+  // Holding − or + repeats: one step on the press, then after 400ms one every 50ms, until the pointer goes up or
+  // leaves the button, Escape, or the end of the range. The press already stepped, so its click doesn't; a click with
+  // no press behind it (a screen reader's) is one step.
+  const latest = React.useRef(nudge); latest.current = nudge;
+  const hold = React.useRef<{ by: number; timer: number } | null>(null);
+  const stop = React.useCallback(() => { const h = hold.current; if (h) { window.clearTimeout(h.timer); window.clearInterval(h.timer); h.timer = 0; } }, []);
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") stop(); };
+    // The press's click comes right after pointerup, if at all (not when it ended off the button): forget the press after it.
+    const up = () => { stop(); window.setTimeout(() => { hold.current = null; }, 0); };
+    window.addEventListener("pointerup", up); window.addEventListener("pointercancel", stop); window.addEventListener("blur", stop); window.addEventListener("keydown", onKey);
+    return () => { stop(); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", stop); window.removeEventListener("blur", stop); window.removeEventListener("keydown", onKey); };
+  }, [stop]);
+  const atEnd = (by: number) => locked || (by < 0 ? min !== undefined && now != null && now <= min : max !== undefined && now != null && now >= max);
+  // every render: the end of the range disables the button, and a disabled button gets no pointerup, so a hold stops there.
+  React.useEffect(() => { const h = hold.current; if (h && h.timer && atEnd(h.by)) stop(); });
+  const stepper = (by: number) => ({
+    onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
+      e.preventDefault();   // focus stays in the field, for any button
+      if (e.button !== 0) return;
+      stop(); press(by);
+      const h = { by: by, timer: 0 };
+      h.timer = window.setTimeout(() => { if (hold.current === h) h.timer = window.setInterval(() => latest.current(by), 50); }, 400);
+      hold.current = h;
+    },
+    onPointerLeave: stop,
+    onContextMenu: (e: React.MouseEvent) => { if (hold.current && hold.current.timer) e.preventDefault(); },   // a long touch
+    onClick: () => { if (hold.current) hold.current = null; else press(by); },
+  });
   return (
     <span className={cn("dk-input dk-number-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.steppers !== false && "dk-number-input--steppers", props.className)}
       style={props.style} data-component="number-input" data-size={size}>
@@ -190,11 +231,11 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       {props.steppers !== false ? (
         <span className="dk-number-input__steppers">
           <button type="button" tabIndex={-1} className="dk-number-input__step" aria-label={props.decrementLabel || sds.labels.decrease} aria-controls={rest.id}
-            disabled={locked || (min !== undefined && now != null && now <= min)} onClick={press(-1)} onMouseDown={(e) => e.preventDefault()}>
+            disabled={atEnd(-1)} {...stepper(-1)}>
             <Icon icon={icons.Remove} />
           </button>
           <button type="button" tabIndex={-1} className="dk-number-input__step" aria-label={props.incrementLabel || sds.labels.increase} aria-controls={rest.id}
-            disabled={locked || (max !== undefined && now != null && now >= max)} onClick={press(1)} onMouseDown={(e) => e.preventDefault()}>
+            disabled={atEnd(1)} {...stepper(1)}>
             <Icon icon={icons.Add} />
           </button>
         </span>
