@@ -175,11 +175,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 
   return (
-<<<<<<< HEAD
-    <section {...rest} ref={restyle} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
-=======
-    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", props.className)} style={style}
->>>>>>> origin/main
+    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
       aria-roledescription={sds.labels.carouselRole} aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}
