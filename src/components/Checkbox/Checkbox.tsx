@@ -70,6 +70,16 @@ const GroupContext = /* @__PURE__ */ React.createContext<GroupContextValue | nul
    fieldset and legend), aria-label or aria-labelledby. */
 const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
 
+/** The value boxes among a group's children (inside plain elements too), with whether each is disabled. */
+function childBoxes(children: React.ReactNode, disabled: boolean, out = new Map<string, boolean>()): Map<string, boolean> {
+  React.Children.forEach(children, (c) => {
+    if (!React.isValidElement<CheckboxProps & { children?: React.ReactNode }>(c)) return;
+    if (c.type === Checkbox) { if (!c.props.selectAll && c.props.value != null && String(c.props.value) !== "") out.set(String(c.props.value), disabled || !!c.props.disabled); }
+    else childBoxes(c.props.children, disabled, out);
+  });
+  return out;
+}
+
 /** Any number of choices from a set of Checkboxes: a <div role="group"> that names them, holds the checked values and passes size, invalid, disabled and required down. A Checkbox with selectAll checks or clears the rest. */
 export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxGroupProps>("CheckboxGroup", function CheckboxGroup(props: CheckboxGroupProps, ref) {
   const rest = omit(props, GROUP_OWN);
@@ -94,8 +104,11 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
     if (!controlled) setOwn(out);
     if (props.onValueChange) props.onValueChange(out, e);
   };
+  // Until they have (on the server, and in the first render that hydrates it), the Checkboxes among the children
+  // stand in, so select-all is enabled, and checked or mixed, from the first paint.
+  const known = boxes.size ? boxes : childBoxes(props.children, !!props.disabled);
   const ctx: GroupContextValue = {
-    name: props.name || autoName, values: raw.map(String), size: props.size, invalid, disabled: !!props.disabled, required: !!props.required, boxes,
+    name: props.name || autoName, values: raw.map(String), size: props.size, invalid, disabled: !!props.disabled, required: !!props.required, boxes: known,
     register(v, dis) { const k = String(v); boxes.set(k, dis); typed.set(k, v); rerender((n) => n + 1); return () => { boxes.delete(k); rerender((n) => n + 1); }; },
     toggle(v, on, e) { const next = new Set(latest.current.map(String)); if (on) next.add(v); else next.delete(v); emit(next, e); },
     toggleAll(on, e) {

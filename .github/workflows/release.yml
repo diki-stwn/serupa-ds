@@ -4,8 +4,9 @@ name: Release
 # them into the next version (npm run version-packages). Once that pull request is merged, tags the version
 # and makes a GitHub release with the package attached (npm run release).
 # It runs only after CI has passed on a push to main, and works on the commit CI tested, so a red main
-# can't be tagged or released. If main has moved on since, it stops: the newer commit's own run takes over,
-# so two merges in a row can't leave a version behind.
+# can't be tagged or released. If main has moved on since, it still releases a version that has no tag yet
+# (npm run release builds the commit that brought it), but leaves the Release pull request to the newer
+# commit's own run. The Release pull request merges itself once its required checks pass.
 on:
   workflow_run:
     workflows: [CI]
@@ -33,22 +34,19 @@ jobs:
         run: |
           main=$(git ls-remote origin refs/heads/main | cut -f1)
           if [ "$main" = "$HEAD_SHA" ]; then echo "current=true" >> "$GITHUB_OUTPUT"
-          else echo "main is at $main now, not $HEAD_SHA: its own run releases it."; fi
+          else echo "main is at $main now, not $HEAD_SHA: its own run makes the Release pull request."; fi
         env:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-      - if: steps.head.outputs.current
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
       # --ignore-scripts: npm ci would otherwise run the "prepare" build, and npm run release builds again.
-      - if: steps.head.outputs.current
-        run: npm ci --ignore-scripts
+      - run: npm ci --ignore-scripts
       # Releases the version in package.json if it has no tag yet, before new changesets turn into the next
       # Release pull request. Otherwise a merge that lands right after a Release pull request would skip
       # straight to the next version and that one would never be released. Does nothing once it's tagged.
-      - if: steps.head.outputs.current
-        run: npm run release
+      - run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Pinned to a commit: this step runs with write access to the repository, so a moved tag can't change it.
@@ -66,4 +64,9 @@ jobs:
           push-git-tags: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+      # The Release pull request merges itself once its required checks pass.
+      - if: steps.changesets.outputs.pullRequestNumber
+        run: gh pr merge --auto --merge "$PR"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+          PR: ${{ steps.changesets.outputs.pullRequestNumber }}
