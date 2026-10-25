@@ -44,25 +44,39 @@ const TONES: readonly ToastTone[] = ["neutral", "info", "success", "warning", "d
 // adds to what's announced, in the Toaster's words.
 const HOTKEY = "F8";
 let hint = "", hinted = false;
+// A repeat is said once the burst stops (a second without another), with the count in the Toaster's words.
+const REPEAT_QUIET = 1000;
+let repeated: ((count: number) => string) | null = null;
+const repeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const said = (o: ToastOptions) => (o.announcement != null ? o.announcement : [text(o.title), text(o.description)].filter(Boolean).join(". "));
 
 /** Shows a toast in the page's <Toaster> and returns its id. */
 function show(options: ToastOptions | string): string {
   const o: ToastOptions = typeof options === "string" ? { title: options } : options;
   const tone = oneOf(TONES, o.tone, "neutral");
   // The same message again (same words and tone, no id, no action), such as "Network error" in a burst: one toast
-  // with a count ("×12") whose time starts over, said once.
+  // with a count ("×12") whose time starts over. It's said when it first shows, and once more with the count when
+  // the burst stops, so screen reader users hear that it happened again without hearing it twelve times.
   const same = o.id || o.action ? -1 : items.findIndex((x) => !x.action && x.tone === tone && text(x.title) !== "" && text(x.title) === text(o.title) && text(x.description) === text(o.description));
   if (same >= 0) {
     items = items.map((x, i) => (i === same ? Object.assign({}, x, { count: x.count + 1 }) : x));
     emit();
-    return items[same].id;
+    const rid = items[same].id;
+    const wait = repeatTimers.get(rid);
+    if (wait) clearTimeout(wait);
+    repeatTimers.set(rid, setTimeout(() => {
+      repeatTimers.delete(rid);
+      const now = items.find((x) => x.id === rid), say = now ? said(now) : "";
+      if (now && say && repeated) announce(say + ". " + repeated(now.count) + ".", { assertive: now.tone === "danger" });
+    }, REPEAT_QUIET));
+    return rid;
   }
   const id = o.id || "dk-toast-" + ++next;
   const item: Item = Object.assign({}, o, { id: id, tone: tone, count: 1 });
   const at = items.findIndex((x) => x.id === id);
   items = at >= 0 ? items.map((x, i) => (i === at ? item : x)) : items.concat(item);
   emit();
-  let say = o.announcement != null ? o.announcement : [text(o.title), text(o.description)].filter(Boolean).join(". ");
+  let say = said(o);
   if (say && o.action && hint && !hinted) { say += ". " + hint; hinted = true; }
   if (say) announce(say, { assertive: item.tone === "danger" });   // an error interrupts; the rest wait their turn
   return id;
@@ -104,6 +118,8 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   // does nothing, so a toast doesn't mention it.
   const shortcut = sds.labels.toastShortcut(HOTKEY);
   React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
+  const times = sds.labels.toastRepeated;
+  React.useEffect(() => { repeated = times; return () => { repeated = null; }; }, [times]);
   const self = React.useRef<HTMLElement | null>(null);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
@@ -173,6 +189,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
 
 function ToastView(props: { item: Item; dismissLabel: string }): React.ReactElement {
   const t = props.item;
+  const sds = useSerupa();
   const duration = t.duration == null ? (t.action ? 0 : 5000) : t.duration;
   // Each reason to stop the time is kept apart, so leaving with the mouse doesn't restart it while focus is still inside.
   const [hovered, setHovered] = React.useState(false);
@@ -200,7 +217,7 @@ function ToastView(props: { item: Item; dismissLabel: string }): React.ReactElem
       onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
       {icon ? <span className="dk-toast__icon" aria-hidden="true"><Icon icon={icon} /></span> : null}
       <div className="dk-toast__content">
-        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count">{"×" + t.count}</span> : null}</p>
+        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count"><span aria-hidden="true">{"×" + t.count}</span><span className="dk-visually-hidden">{", " + sds.labels.toastRepeated(t.count)}</span></span> : null}</p>
         {t.description != null ? <p className="dk-toast__description" id={descId}>{t.description}</p> : null}
       </div>
       {t.action ? <Button className="dk-toast__action" size="sm" variant="secondary" onClick={() => { t.action!.onClick(); toast.dismiss(t.id); }}>{t.action.label}</Button> : null}
