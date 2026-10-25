@@ -12,8 +12,10 @@ const file = (name: string, type: string, size: number) => new File([new Uint8Ar
 const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const many = '[data-testid=many]';
 const rootOf = (id: string) => document.getElementById(id)!.closest('[data-component=file-upload]') as HTMLElement;
-const list = (root: Element) => [...root.querySelectorAll('.dk-file-upload__item')].map((li) => li.querySelector('.dk-file-upload__name')!.textContent + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
-const errs = (root: Element) => { const e = root.querySelector('.dk-file-upload__errors'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
+// The chosen files are the items of the named list; rejections are the alert.
+const items = (root: Element) => [...root.querySelectorAll<HTMLElement>('ul[aria-label] > li')];
+const list = (root: Element) => items(root).map((li) => li.querySelector('.dk-file-upload__name')!.textContent + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
+const errs = (root: Element) => { const e = root.querySelector('[role=alert]'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
 const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.textContent).join();
 const input = (root: Element) => root.querySelector('input[type=file]') as HTMLInputElement;
 const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonElement;
@@ -105,8 +107,8 @@ describe('FileUpload', () => {
     const el = q(many);
     await userEvent.upload(input(el), [file('photo.png', 'image/png', 2048), file('report.pdf', 'application/pdf', 10), file('a.jpg', 'image/jpeg', 100), file('b.jpg', 'image/jpeg', 100)]);
     expect(errs(el)).not.toBeNull();
-    await userEvent.click(el.querySelector('.dk-file-upload__item:first-child button')!);
-    expect([names(el), document.activeElement!.textContent, el.querySelector('.dk-file-upload__item button')!.getAttribute('aria-label'), !!el.querySelector('.dk-file-upload__errors')]).toEqual(['report.pdf,a.jpg', 'Choose files', 'Remove report.pdf', false]);
+    await userEvent.click(items(el)[0].querySelector('button')!);
+    expect([names(el), document.activeElement!.textContent, items(el)[0].querySelector('button')!.getAttribute('aria-label'), !!el.querySelector('[role=alert]')]).toEqual(['report.pdf,a.jpg', 'Choose files', 'Remove report.pdf', false]);
   });
 
   test('dragging files over the area highlights it; dropping adds them and ends the highlight', async () => {
@@ -208,7 +210,7 @@ describe('FileUpload', () => {
     await render(<form id="rof"><FileUpload id="ro" name="doc" readOnly files={[file('a.pdf', 'application/pdf', 10)]} onFilesChange={(f) => { changes.push(f.map((x) => x.name).join()); }} /></form>);
     const el = rootOf('ro'), w = watchPicker(el), b = choose(el);
     await expect.poll(() => input(el).files?.length).toBe(1);
-    expect([names(el), el.querySelector('.dk-file-upload__item button'), b.disabled, b.getAttribute('aria-disabled'), input(el).disabled, el.className])
+    expect([names(el), el.querySelector('ul[aria-label] > li button'), b.disabled, b.getAttribute('aria-disabled'), input(el).disabled, el.className])
       .toEqual(['a.pdf', null, false, 'true', false, 'dk-file-upload dk-file-upload--readonly']);
     b.focus();
     expect(document.activeElement).toBe(b);
@@ -266,13 +268,13 @@ describe('FileUpload', () => {
     await userEvent.keyboard(' ');
     expect(w.opened).toBe(2);
     await userEvent.upload(input(el), [file('a.png', 'image/png', 10), file('b.pdf', 'application/pdf', 10)]);
-    await expect.poll(() => el.querySelectorAll('.dk-file-upload__item').length).toBe(2);
+    await expect.poll(() => items(el).length).toBe(2);
     choose(el).focus();
     const stops: Array<string | null> = [];
     for (let i = 0; i < 2; i++) { await userEvent.keyboard('{Tab}'); stops.push(document.activeElement!.getAttribute('aria-label')); }
     expect(stops).toEqual(['Remove a.png', 'Remove b.pdf']);
     await userEvent.keyboard('{Enter}');
-    await expect.poll(() => el.querySelectorAll('.dk-file-upload__item').length).toBe(1);
+    await expect.poll(() => items(el).length).toBe(1);
     expect(document.activeElement).toBe(choose(el));
   });
 
