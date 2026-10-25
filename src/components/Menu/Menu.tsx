@@ -5,10 +5,11 @@ import { config } from "../../internal/config";
 import { type Placement } from "../../internal/position";
 import { typeahead, type Typed } from "../../internal/typeahead";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
-import { type IconSource } from "../Icon/Icon";
+import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component, named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
+import * as icons from "../../material/builtin";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -32,11 +33,14 @@ export interface MenuProps {
 interface Ctx { close: (focusTrigger: boolean) => void }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"]';
+/** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
+const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
 
 /* Menu: a list of actions behind a button, following the WAI-ARIA menu button pattern. Enter, Space or ↓ on the
    button opens it on the first item (↑ on the last); ↑ ↓ move (wrapping), Home and End jump, typing goes to the
    next item starting with what was typed (internal/typeahead.ts), Enter or Space chooses, Escape closes, and focus
-   goes back to the button. Tab, a click outside or choosing an item closes it. It sits in the top layer next to the button. */
+   goes back to the button. Tab, a click outside or choosing an item closes it. It sits in the top layer next to the button.
+   A MenuSub's panel sits inside the menu's element, so the keys bubble here and work on the panel the focus is in. */
 /** A list of actions behind a button: MenuItem, MenuGroup and MenuSeparator inside. */
 export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps): React.ReactElement {
   const id = domId("dk-menu", React.useId());
@@ -51,7 +55,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   const set = React.useCallback((v: boolean) => { if (!controlled) setInner(v); if (ask.current) ask.current(v); }, [controlled]);
   const close = React.useCallback((focusTrigger: boolean) => { set(false); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const ctx = React.useMemo(() => ({ close }), [close]);
-  const items = () => menuRef.current ? Array.from(menuRef.current.querySelectorAll<HTMLElement>(ITEMS)) : [];
+  const items = () => itemsOf(menuRef.current);
 
   // A press outside the menu and its button closes it (focus stays where the press put it).
   useAnchoredLayer(open, menuRef, triggerRef, { placement: props.placement, fallback: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close(false), inside: triggerRef });
@@ -67,7 +71,8 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
 
   const onMenuKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (isComposing(e)) return;
-    const list = items(), i = list.indexOf(document.activeElement as HTMLElement);
+    const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
+    const list = itemsOf(panel || menuRef.current), i = list.indexOf(document.activeElement as HTMLElement);
     const go = (n: number) => { e.preventDefault(); if (list.length) list[(n + list.length) % list.length].focus(); };
     if (e.key === "ArrowDown") go(i + 1);
     else if (e.key === "ArrowUp") go(i < 0 ? list.length - 1 : i - 1);
@@ -132,11 +137,22 @@ export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, '
 
 const KEY_NAMES: Record<string, string> = { "⌘": "Meta", cmd: "Meta", command: "Meta", meta: "Meta", "⌥": "Alt", opt: "Alt", option: "Alt", alt: "Alt",
   "⇧": "Shift", shift: "Shift", "⌃": "Control", ctrl: "Control", control: "Control", "⏎": "Enter", "↵": "Enter", enter: "Enter", return: "Enter",
-  "⌫": "Backspace", del: "Delete", delete: "Delete", esc: "Escape", "⎋": "Escape", tab: "Tab", space: "Space", "↑": "ArrowUp", "↓": "ArrowDown", "←": "ArrowLeft", "→": "ArrowRight" };
-/** "⌘⇧K", "Ctrl+Shift+P" or "Alt F4" as aria-keyshortcuts wants it: "Meta+Shift+K", "Control+Shift+P", "Alt+F4". */
+  "⌫": "Backspace", del: "Delete", delete: "Delete", esc: "Escape", "⎋": "Escape", tab: "Tab", space: "Space", "↑": "ArrowUp", "↓": "ArrowDown", "←": "ArrowLeft", "→": "ArrowRight", "+": "Plus", plus: "Plus" };
+/** "⌘⇧K", "Ctrl+Shift+P", "Cmd-K" or "Alt F4" as aria-keyshortcuts wants it: "Meta+Shift+K", "Control+Shift+P",
+    "Meta+K", "Alt+F4". A + or - key at the end stays a key ("Ctrl++" is "Control+Plus"), and "G then I" is two
+    presses, space-separated: "G I". */
 export function keyShortcuts(shortcut: string): string {
+  return shortcut.trim().split(/\s+then\s+/i).map(chord).filter(Boolean).join(" ");
+}
+function chord(text: string): string {
   const parts: string[] = [];
-  for (const token of shortcut.trim().split(/\s*[+\s]\s*/).filter(Boolean)) {
+  // A last + or - after a separator (or alone) is the key itself, not a separator.
+  let last = "";
+  const end = /(^|[+\-\s⌘⌥⇧⌃])([+-])$/.exec(text);
+  if (end) { last = end[2]; text = text.slice(0, text.length - 1); }
+  const tokens = text.split(/\s*[+-]\s*|\s+/).filter(Boolean);
+  if (last) tokens.push(last);
+  for (const token of tokens) {
     // Mac symbols are written together ("⌘⇧K"): split off each modifier symbol.
     let rest = token;
     while (rest.length > 1 && KEY_NAMES[rest[0]] && /[⌘⌥⇧⌃]/.test(rest[0])) { parts.push(KEY_NAMES[rest[0]]); rest = rest.slice(1); }
@@ -176,6 +192,102 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
     <span className="dk-menu__label">{props.children}</span>,
     // Shown, but not part of the item's name ("Copy", not "Copy command K"): aria-keyshortcuts says it.
     props.shortcut ? <kbd className="dk-menu__shortcut" aria-hidden="true">{props.shortcut}</kbd> : null);
+});
+
+export interface MenuSubProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
+  /** The item's label, which also names the submenu. */
+  label: React.ReactNode;
+  /** MenuItem, MenuGroup, MenuSeparator, and MenuSub again. */
+  children: React.ReactNode;
+  /** An icon before the label: an icon name or any element. */
+  icon?: IconSource;
+  /** Still reachable with the keys, but doesn't open (aria-disabled). */
+  disabled?: boolean;
+}
+
+/* MenuSub: an item that opens a submenu at its end edge (to the right, or the left in rtl, flipping when there's
+   no room). → (← in rtl), Enter or Space opens it on its first item, ← (→ in rtl) or Escape closes it and goes back
+   to the item; ↑ ↓ Home End and letters work inside it alone. Hovering the item opens it after a moment, and the
+   pointer can cross the items in between on its way: it closes a moment after the focus settles on another item
+   of its menu. Choosing an item in it closes the whole menu. */
+const SUB_DELAY = 150;
+/** An item that opens a submenu of more items. */
+export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("MenuSub", function MenuSub(props, ref) {
+  const id = domId("dk-menu-sub", React.useId());
+  const rest = omit(props, { label: 1, icon: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1, onPointerLeave: 1 });
+  const [open, setOpen] = React.useState(false);
+  const itemRef = React.useRef<HTMLElement | null>(null);
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
+  const focusFirst = React.useRef(false);
+  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hover = React.useRef(false);   // the pointer is on the item and it opens in a moment
+  const stop = () => { clearTimeout(timer.current); hover.current = false; };
+  const later = (fn: () => void) => { stop(); timer.current = setTimeout(fn, SUB_DELAY); };
+  const rtl = () => !!itemRef.current && getComputedStyle(itemRef.current).direction === "rtl";
+  const show = (focus: boolean) => {
+    stop();
+    if (props.disabled) return;
+    if (open) { if (focus) { const first = itemsOf(panelRef.current)[0]; if (first) first.focus(); } return; }
+    focusFirst.current = focus; setOpen(true);
+  };
+  const hide = (focusItem: boolean) => { stop(); setOpen(false); if (focusItem && itemRef.current) itemRef.current.focus(); };
+  React.useEffect(() => stop, []);
+
+  useAnchoredLayer(open, panelRef, itemRef, { placement: open && rtl() ? "left-start" : "right-start", fallback: "right-start", offsetVar: "--dk-menu-sub-offset" });
+  useIsoLayoutEffect(() => {
+    if (!open || !focusFirst.current) return;
+    focusFirst.current = false;
+    const first = itemsOf(panelRef.current)[0];
+    if (first) first.focus(); else if (panelRef.current) panelRef.current.focus();
+  }, [open]);
+  // Focus settling on another item of this item's menu (by pointer or keys) closes it, after a moment.
+  React.useEffect(() => {
+    const item = itemRef.current, parent = item && item.closest<HTMLElement>('[role="menu"]');
+    if (!open || !item || !parent) return;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      clearTimeout(timer.current);
+      if (t !== item && !(panelRef.current && panelRef.current.contains(t)) && parent.contains(t)) timer.current = setTimeout(() => { setOpen(false); }, SUB_DELAY);
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => { document.removeEventListener("focusin", onFocus); };
+  }, [open]);
+
+  const opens = (key: string) => key === "Enter" || key === " " || key === (rtl() ? "ArrowLeft" : "ArrowRight");
+  const onPanelKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isComposing(e) || !(e.target instanceof HTMLElement) || e.target.closest('[role="menu"]') !== panelRef.current) return;
+    if (e.key === "Escape" || e.key === (rtl() ? "ArrowRight" : "ArrowLeft")) { e.preventDefault(); e.stopPropagation(); hide(true); }
+  };
+  return (
+    <>
+      {React.createElement("div", Object.assign(rest, {
+        ref: (n: HTMLElement | null) => { itemRef.current = n; setRef(ref, n); },
+        role: "menuitem", tabIndex: -1, "aria-haspopup": "menu", "aria-expanded": open, "aria-controls": open ? id : undefined,
+        "aria-disabled": props.disabled || undefined, "data-state": open ? "open" : "closed",
+        className: cn("dk-menu__item", "dk-menu__item--sub", props.className),
+        onClick: (e: React.MouseEvent<HTMLElement>) => { if (props.onClick) props.onClick(e); if (!e.defaultPrevented) show(true); },
+        onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+          if (props.onKeyDown) props.onKeyDown(e);
+          if (e.defaultPrevented || isComposing(e) || !opens(e.key)) return;
+          e.preventDefault(); e.stopPropagation(); show(true);
+        },
+        onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+          if (props.onPointerMove) props.onPointerMove(e);
+          if (document.activeElement !== e.currentTarget) e.currentTarget.focus();
+          if (!open && !props.disabled && !hover.current) { later(() => { show(false); }); hover.current = true; }
+        },
+        onPointerLeave: (e: React.PointerEvent<HTMLElement>) => { if (props.onPointerLeave) props.onPointerLeave(e); if (hover.current) stop(); },
+      }),
+        props.icon != null ? <span className="dk-menu__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null,
+        <span className="dk-menu__label" id={id + "-label"}>{props.label}</span>,
+        <span className="dk-menu__chevron" aria-hidden="true"><Icon icon={icons.ChevronRight} className="dk-menu__ltr" /><Icon icon={icons.ChevronLeft} className="dk-menu__rtl" /></span>)}
+      <div ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-labelledby={id + "-label"}
+        className="dk-menu dk-menu--sub" data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={onPanelKey}>
+        {open ? props.children : null}
+      </div>
+    </>
+  );
 });
 
 export interface MenuGroupProps extends React.HTMLAttributes<HTMLDivElement> {

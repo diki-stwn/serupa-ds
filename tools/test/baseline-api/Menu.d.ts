@@ -1,4 +1,4 @@
-// exports: Menu, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuSeparator
+// exports: Menu, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuSeparator, MenuSub, type MenuSubProps
 interface MenuProps {
     trigger: React.ReactElement;
     children: React.ReactNode;
@@ -24,6 +24,13 @@ interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, "onSelec
     rel?: string;
 }
 declare const MenuItem: React.ForwardRefExoticComponent<MenuItemProps & React.RefAttributes<HTMLElement>>;
+interface MenuSubProps extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
+    label: React.ReactNode;
+    children: React.ReactNode;
+    icon?: IconSource;
+    disabled?: boolean;
+}
+declare const MenuSub: React.ForwardRefExoticComponent<MenuSubProps & React.RefAttributes<HTMLElement>>;
 interface MenuGroupProps extends React.HTMLAttributes<HTMLDivElement> {
     label?: React.ReactNode;
 }
