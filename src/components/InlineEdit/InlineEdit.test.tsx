@@ -136,6 +136,16 @@ describe('InlineEdit', () => {
     expect([input('vp'), calls, view('vp').textContent]).toEqual([null, ['taken-2'], 'Slug: taken-2, Edit']);
   });
 
+  test('validate\'s Promise rejected: the field stays open with the text, not busy and with no message', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="vr" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={() => Promise.reject(new Error('offline'))} /></Box>);
+    await userEvent.click(view('vr'));
+    await userEvent.fill(input('vr')!, 'gemini');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => input('vr')!.hasAttribute('aria-busy')).toBe(false);
+    expect([input('vr')!.value, input('vr')!.hasAttribute('aria-invalid'), calls]).toEqual(['gemini', false, []]);
+  });
+
   test('Escape inside a Dialog cancels the edit and leaves the dialog open', async () => {
     const asks: boolean[] = [];
     await render(<Dialog open title="Rename" onOpenChange={(o) => asks.push(o)}><InlineEdit id="d" label="Name" defaultValue="Apollo" /></Dialog>);
