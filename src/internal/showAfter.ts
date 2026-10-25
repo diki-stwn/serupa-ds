@@ -16,5 +16,6 @@ export function useShowAfter(on: boolean, delay: number): boolean {
     const t = on ? setTimeout(show, delay) : setTimeout(function () { setShown(false); }, Math.max(0, since.current + MIN_SHOWN - Date.now()));
     return function () { clearTimeout(t); };
   }, [on, shown, delay]);
-  return shown;
+  // With no delay it shows in the same render that turns it on, not one frame later.
+  return shown || (on && delay <= 0);
 }

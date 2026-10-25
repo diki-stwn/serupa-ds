@@ -131,6 +131,29 @@ async function show() {
 afterEach(async () => { await userEvent.unhover(document.body).catch(() => {}); });
 
 describe('Badge', () => {
+  // EB1: loading that ended a moment after it started flashed the ring for a frame or two.
+  test('loading that ends after 20ms keeps the ring at least 500ms; it shows in the same render that turns it on', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let set: (v: boolean) => void = () => {};
+      function Wait() { const [on, s] = React.useState(false); set = s; return <Badge id="bl" loading={on}>Syncing</Badge>; }
+      await render(<Wait />);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const busy = () => document.getElementById('bl')!.hasAttribute('aria-busy');
+      await React.act(async () => set(true));
+      expect(busy()).toBe(true);
+      await step(20);
+      await React.act(async () => set(false));
+      await step(470);
+      expect(busy()).toBe(true);    // 490ms
+      await step(10);
+      expect(busy()).toBe(false);   // 500ms
+    } finally {
+      await React.act(async () => { vi.advanceTimersByTime(5000); });   // the announcer's timers run out
+      vi.useRealTimers();
+    }
+  });
+
   test('defaults: a <span> badge, subtle, neutral, with no size attribute or class; unknown variant and tone fall back to subtle and neutral', async () => {
     await show();
     const d = el('def');
