@@ -9,5 +9,7 @@ interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
     size?: AvatarSize;
     moreLabel?: (count: number) => string;
     label?: string;
+    showMore?: boolean;
+    onMore?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 declare const AvatarGroup: React.ForwardRefExoticComponent<AvatarGroupProps & React.RefAttributes<HTMLDivElement>>;
