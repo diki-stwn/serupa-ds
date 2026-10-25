@@ -79,7 +79,8 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const [ownValue, setOwnValue] = React.useState<number | null>(major(props.defaultValue) ?? null);
   const value = controlled ? (major(props.value) ?? null) : ownValue;
   // What the shown number is multiplied by: 100 for the percent style, 1 otherwise.
-  const scale = formatOptions ? parseNumber(formatNumber(1, locale, formatOptions), locale) || 1 : 1;
+  const scale = React.useMemo(() => (formatOptions ? parseNumber(formatNumber(1, locale, formatOptions), locale) || 1 : 1),
+    [locale, optionsKey]);   // eslint-disable-line react-hooks/exhaustive-deps -- formatOptions by value
   const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, formatOptions));
   const shown = show(value);
   const [text, setText] = React.useState(shown);

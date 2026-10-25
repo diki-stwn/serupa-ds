@@ -11,9 +11,14 @@ export function toMinutes(v: string | null | undefined): number | null {
 }
 /** 845 → "14:05". */
 export const toHHmm = (n: number) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
+// module state: a cache by locale.
+const twelve = new Map<string, boolean>();
 /** Whether the locale writes times with AM and PM. */
 export function uses12h(locale?: string): boolean {
-  return !!new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hour12;
+  const key = locale || "";
+  let h = twelve.get(key);
+  if (h === undefined) twelve.set(key, h = !!new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hour12);
+  return h;
 }
 // module state: a cache by locale.
 const formats = new Map<string, Intl.DateTimeFormat>();
