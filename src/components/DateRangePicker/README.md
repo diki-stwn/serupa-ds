@@ -58,10 +58,10 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `value` / `defaultValue` | `{ start: Date \| null; end: Date \| null }` | | The range, controlled or not. |
-| `onValueChange` | `(range: DateRange) => void` | | Called whenever either end changes, so also after the first pick (with `end: null`). |
+| `value` / `defaultValue` | `{ start: Date \| string \| null; end: Date \| string \| null }` | | The range, controlled or not. Each end a Date or a plain `"yyyy-mm-dd"` string for that local day (`new Date("2026-10-24")` is UTC midnight, the day before west of Greenwich, and gets a console warning there). |
+| `onValueChange` | `(range: DateRange, iso: { start, end }) => void` | | Called whenever either end changes, so also after the first pick (with `end: null`). `iso` is the same range as `"yyyy-mm-dd"` strings, to store or pass back as `value`. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when text typed in either field is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max`, disabled, or an end before the start). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
-| `min`, `max` | `Date` | | Days outside can't be either end. |
+| `min`, `max` | `Date \| string` | | Days outside can't be either end. A Date or `"yyyy-mm-dd"`. |
 | `isDateDisabled` | `(date: Date) => boolean` | | Days that can't be an end. They can sit inside a range. |
 | `months` | `1 \| 2` | `2` | Months side by side in the popup (stacked below 640px). |
 | `locale`, `weekStartsOn` | | the browser's | As in DatePicker. The calendars carry `lang` when it differs from the provider's; the two fields keep the page's, as their names do. |

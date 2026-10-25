@@ -19,6 +19,14 @@ function Cal(props: { picks?: string[]; months?: string[]; cref?: React.Ref<HTML
 }
 
 describe('Calendar', () => {
+  test('plain "yyyy-mm-dd" strings: value, min and max take them as those local days, and onValueChange also gets the day as "yyyy-mm-dd"', async () => {
+    const picks: string[] = [];
+    await render(<div data-testid="cal"><Calendar value="2026-10-14" min="2026-10-10" max="2026-10-20" onValueChange={(d, iso) => picks.push(d.getHours() + ':' + d.getDate() + ' ' + iso)} /></div>);
+    expect([cal<HTMLElement>('[aria-selected="true"] [data-date]').dataset.date, cal('[data-date="2026-10-09"]').getAttribute('aria-disabled'), cal('[data-date="2026-10-21"]').getAttribute('aria-disabled')]).toEqual(['2026-10-14', 'true', 'true']);
+    cal<HTMLElement>('[data-date="2026-10-16"]').click();
+    expect(picks).toEqual(['0:16 2026-10-16']);
+  });
+
   test('a grid named by the "March 2025" title (aria-live), six weeks of 7 days from Sun Feb 23, weekday headers with full names, one Tab stop on the selected day; ref and className', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Cal cref={ref} />);

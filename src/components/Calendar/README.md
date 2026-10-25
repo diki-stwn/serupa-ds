@@ -59,11 +59,11 @@ Moving past the shown month shows the next one. No key moves focus past `min` or
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<div>`. |
-| `value` / `defaultValue` | `Date \| null` | | The selected day, controlled or not. Times are ignored. |
-| `onValueChange` | `(date: Date) => void` | | Called with the picked day (local midnight). |
+| `value` / `defaultValue` | `Date \| string \| null` | | The selected day, controlled or not: a Date (its time is ignored) or a plain `"yyyy-mm-dd"` string for that local day. |
+| `onValueChange` | `(date: Date, iso: string) => void` | | Called with the picked day (local midnight) and the same day as `"yyyy-mm-dd"`. |
 | `month` / `defaultMonth` | `Date` | the selected day's month, or today's | The month shown: any day in it. |
 | `onMonthChange` | `(month: Date) => void` | | Called with the first of the newly shown month. |
-| `min`, `max` | `Date` | | Days outside can't be picked, and the month buttons stop there. |
+| `min`, `max` | `Date \| string` | | Days outside can't be picked, and the month buttons stop there. A Date or `"yyyy-mm-dd"`. |
 | `isDateDisabled` | `(date: Date) => boolean` | | Days to refuse, such as weekends or holidays. |
 | `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | Month and weekday names, and the first day of the week. When it differs from the provider's, the month title and the grid carry `lang`, so screen readers read the names in that language; the nav buttons keep the page's. |
 | `weekStartsOn` | `0`–`6` | the locale's | 0 is Sunday. |
