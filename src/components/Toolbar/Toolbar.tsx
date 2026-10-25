@@ -44,7 +44,7 @@ export const Toolbar = /* @__PURE__ */ component<HTMLDivElement, ToolbarProps>("
     if (!active.current || items.indexOf(active.current) < 0) active.current = items[0] || null;
     for (const it of itemsOf(r, true)) it.tabIndex = it === active.current ? 0 : -1;
   }, []);
-  useIsoLayoutEffect(sync);
+  useIsoLayoutEffect(sync);   // every render: new children may bring new controls, which need their tabIndex
   // Controls added, removed, disabled or hidden later (a Menu's trigger rendering, a button turning disabled).
   React.useEffect(function () {
     const r = root.current;
