@@ -231,7 +231,7 @@ describe('Switch', () => {
   test('the thumb slides in 150ms, and doesn\'t animate with reduced motion', async () => {
     await setup();
     const dur = () => withMotion(() => css(document.querySelector('.dk-switch__thumb')).transitionDuration + '|' + css(document.querySelector('.dk-switch__input')).transitionDuration);
-    expect(dur()).toBe('0.15s, 0.15s|0.15s');
+    expect(dur()).toBe('0.15s, 0.15s, 0.1s|0.15s');
     if (server.browser === 'chromium') {
       const session = cdp() as unknown as { send: (method: string, params: object) => Promise<unknown> };
       await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
