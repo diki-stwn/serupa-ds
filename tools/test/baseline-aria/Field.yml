@@ -1,0 +1,47 @@
+# Disabled
+- text: Email We'll send the receipt here.
+- textbox "Email" [disabled]:
+  - /placeholder: you@example.com
+
+# Group
+- group "Notifications":
+  - text: Notifications Pick any
+  - checkbox "Email" [checked]
+  - text: Email
+  - checkbox "SMS"
+  - text: SMS
+- group "Plan":
+  - text: Plan
+  - radiogroup [invalid]:
+    - radio "Free"
+    - text: Free
+    - radio "Pro"
+    - text: Pro
+  - text: Choose a plan
+
+# Optional
+- text: Company(optional)
+- textbox "Company(optional)":
+  - /placeholder: you@example.com
+
+# OtherControls
+- text: Message Up to 280 characters
+- textbox "Message"
+- text: 0 / 280 Country
+- combobox "Country":
+  - option "Choose a country" [disabled] [selected]
+  - option "Indonesia"
+  - option "Malaysia"
+  - option "Singapore"
+
+# Playground
+- text: Email We'll send the receipt here.
+- textbox "Email":
+  - /placeholder: you@example.com
+
+# WithError
+- text: Email We'll send the receipt here.
+- textbox "Email" [invalid]:
+  - /placeholder: you@example.com
+- text: Enter an email address like name@example.com
+

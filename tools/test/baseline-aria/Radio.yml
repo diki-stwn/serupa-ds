@@ -1,0 +1,48 @@
+# Controlled
+- radiogroup "Contact by":
+  - radio "Email" [checked]
+  - text: Email
+  - radio "Phone"
+  - text: Phone
+  - radio "Post"
+  - text: Post
+- paragraph:
+  - text: "Picked:"
+  - code: email
+
+# Disabled
+- radiogroup "Plan" [disabled]:
+  - radio "Free" [disabled]
+  - text: Free
+  - radio "Pro" [checked] [disabled]
+  - text: Pro Everything in Free, plus unlimited projects
+  - radio "Team" [disabled]
+  - text: Team
+
+# Horizontal
+- radiogroup "Plan":
+  - radio "Free"
+  - text: Free
+  - radio "Pro" [checked]
+  - text: Pro Everything in Free, plus unlimited projects
+  - radio "Team"
+  - text: Team
+
+# Invalid
+- radiogroup "Plan" [invalid]:
+  - radio "Free"
+  - text: Free
+  - radio "Pro"
+  - text: Pro Everything in Free, plus unlimited projects
+  - radio "Team"
+  - text: Team
+
+# Playground
+- radiogroup "Plan":
+  - radio "Free"
+  - text: Free
+  - radio "Pro" [checked]
+  - text: Pro Everything in Free, plus unlimited projects
+  - radio "Team"
+  - text: Team
+

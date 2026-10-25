@@ -1,0 +1,56 @@
+# Cards
+- region "Plans":
+  - group "1 of 3":
+    - strong: Starter
+    - paragraph: Everything in the plan before, and more.
+  - button "1 of 3"
+  - button "2 of 3"
+  - button "3 of 3"
+
+# Controlled
+- region "Landscape photos":
+  - group "3 of 4":
+    - img "Desert at sunset"
+  - button "Previous slide"
+  - button "Next slide"
+  - button "1 of 4"
+  - button "2 of 4"
+  - button "3 of 4"
+  - button "4 of 4"
+- paragraph: Showing Desert at sunset.
+
+# Loop
+- region "Landscape photos":
+  - group "1 of 4":
+    - img "Hills at dusk"
+  - button "Previous slide"
+  - button "Next slide"
+  - button "1 of 4"
+  - button "2 of 4"
+  - button "3 of 4"
+  - button "4 of 4"
+
+# PerView
+- region "Products":
+  - group "1 of 7":
+    - strong: Desk
+    - paragraph: Ships in two days.
+  - group "2 of 7":
+    - strong: Chair
+    - paragraph: Ships in two days.
+  - button "Next slide"
+  - button "1–2 of 7"
+  - button "3–4 of 7"
+  - button "5–6 of 7"
+  - button "6–7 of 7"
+
+# Playground
+- region "Landscape photos":
+  - group "1 of 4":
+    - img "Hills at dusk"
+  - button "Next slide"
+  - button "1 of 4"
+  - button "2 of 4"
+  - button "3 of 4"
+  - button "4 of 4"
+

@@ -1,0 +1,19 @@
+# AutoResize
+- textbox "Message":
+  - /placeholder: Grows as you type, up to 6 lines
+
+# Count
+- textbox "Message":
+  - /placeholder: Tell us more
+  - text: A short note
+- text: 12 / 280
+
+# Playground
+- textbox "Message":
+  - /placeholder: Tell us more
+
+# States
+- textbox "Invalid" [invalid]: Too short
+- textbox "Read-only"
+- textbox "Disabled" [disabled]
+

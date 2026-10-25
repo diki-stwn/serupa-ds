@@ -1,0 +1,24 @@
+# Contain
+- img "A hillside at dusk"
+
+# Fallback
+- img "A hillside at dusk"
+
+# Playground
+- img "A hillside at dusk"
+
+# Ratios
+- img "A hillside at dusk, auto"
+- img "A hillside at dusk, square"
+- img "A hillside at dusk, 4:3"
+- img "A hillside at dusk, video"
+
+# Removable
+- 'button "View image: A hillside at dusk"':
+  - img "A hillside at dusk"
+- 'button "Remove image: A hillside at dusk"'
+
+# Viewable
+- 'button "View image: A hillside at dusk"':
+  - img "A hillside at dusk"
+

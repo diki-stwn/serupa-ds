@@ -8,6 +8,9 @@ declare module 'vitest/browser' {
     pointerUp: () => Promise<void>;
     forcedColors: (on: boolean) => Promise<void>;
     printMedia: (on: boolean) => Promise<void>;
+    ariaSnapshot: (selector: string) => Promise<string>;
+    ariaMode: () => Promise<'check' | 'update' | 'off'>;
+    writeAriaBaseline: (name: string, text: string) => Promise<void>;
   }
 }
 
