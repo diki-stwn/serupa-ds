@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, elementRef, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { oneElement, useTriggerRef } from "../../internal/trigger";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
@@ -44,6 +45,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
    layer, right after the trigger in the tab order. For a hint, use Tooltip; for a list of actions, Menu. */
 /** A small non-modal dialog next to its trigger, for interactive content: a form, filters, details. */
 export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: PopoverProps): React.ReactElement {
+  const nameRef = useNameCheck("Popover", NAME_HOW.title);   // warns when it has no accessible name
   const id = domId("dk-pop", React.useId());
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
@@ -93,7 +95,7 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
   return (
     <>
       {trigger}
-      <div ref={panelRef} id={id} role="dialog" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
+      <div ref={(n) => { panelRef.current = n; if (!titled) nameRef(n); }} id={id} role="dialog" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-labelledby={titled ? id + "-title" : undefined} aria-label={titled ? undefined : props["aria-label"]}
         className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"}
         onKeyDown={onKeyDown} onBlur={onBlur}>

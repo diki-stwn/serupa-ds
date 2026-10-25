@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { useFormReset } from "../../internal/useFormReset";
@@ -36,6 +37,7 @@ const KEEP = { numeric: /[^0-9]/g, alphanumeric: /[^0-9A-Za-z]/g } as const;
    go to the <input>; its value is what the form submits. */
 /** A one-time code or PIN in one box per character, typed into one native field: paste, autofill and forms work as with an Input. */
 export const PinInput = /* @__PURE__ */ component<HTMLInputElement, PinInputProps>("PinInput", function PinInput(props, ref) {
+  const nameRef = useNameCheck("PinInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);
   const rest = omit(props, { length: 1, value: 1, defaultValue: 1, onValueChange: 1, onComplete: 1, type: 1, mask: 1, size: 1, invalid: 1, className: 1, style: 1 } as const);
   const length = Math.max(1, Math.floor(props.length || 6));
@@ -84,7 +86,7 @@ export const PinInput = /* @__PURE__ */ component<HTMLInputElement, PinInputProp
         onBlur={function (e) { setFocused(false); if (rest.onBlur) rest.onBlur(e); }}
         onKeyDown={function (e) { if (rest.onKeyDown) rest.onKeyDown(e); if (e.defaultPrevented) return; if (/^(Arrow(Left|Right|Up|Down)|Home|End|PageUp|PageDown)$/.test(e.key)) e.preventDefault(); else toEnd(e); }}
         onSelect={function (e) { toEnd(e); if (rest.onSelect) rest.onSelect(e); }}
-        ref={function (n) { input.current = n; setRef(ref, n); }} className="dk-pin-input__field" />
+        ref={function (n) { input.current = n; nameRef(n); setRef(ref, n); }} className="dk-pin-input__field" />
     </span>
   );
 });

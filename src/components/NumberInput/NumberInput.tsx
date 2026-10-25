@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { useAffixes } from "../../internal/affix";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -63,6 +64,7 @@ const keyed = (key: string) => (key ? (JSON.parse(key) as Intl.NumberFormatOptio
    every other prop to the <input> (type="text" with inputMode="decimal", so mobile keyboards show digits). */
 /** A number field with − and + buttons, arrow keys, min, max and step. */
 export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInputProps>("NumberInput", function NumberInput(props, ref) {
+  const nameRef = useNameCheck("NumberInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, onInvalidInput: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
@@ -220,7 +222,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       style={props.style} data-component="number-input" data-size={size}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       {affix.prefix}
-      <input {...rest} ref={(n) => { el.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+      <input {...rest} ref={(n) => { el.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         lang={rest.lang ?? lang} type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
         role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}

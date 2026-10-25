@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Icon } from "../Icon/Icon";
 import { Loader } from "../Loader/Loader";
 import type { InputProps } from "../Input/Input";
@@ -31,6 +32,7 @@ export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" 
    <input>. */
 /** A search field: a search icon, a clear button once something is typed, Escape to clear and Enter to search. */
 export const SearchInput = /* @__PURE__ */ component<HTMLInputElement, SearchInputProps>("SearchInput", function SearchInput(props, ref) {
+  const nameRef = useNameCheck("SearchInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const rest = omit(props, { size: 1, invalid: 1, className: 1, style: 1, onSearch: 1, onClear: 1, clearLabel: 1, loading: 1, loadingLabel: 1 } as const);
@@ -68,7 +70,7 @@ export const SearchInput = /* @__PURE__ */ component<HTMLInputElement, SearchInp
       <span className="dk-input__icon dk-input__icon--left dk-search-input__icon" aria-hidden={props.loading ? undefined : true}>
         {props.loading ? <Loader size="sm" delay={0} label={props.loadingLabel ?? sds.labels.searching} /> : <Icon icon={icons.Search} />}
       </span>
-      <input {...rest} ref={(n) => { el.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+      <input {...rest} ref={(n) => { el.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         type="search" enterKeyHint={rest.enterKeyHint || "search"} className="dk-input__field" onChange={onChange} onKeyDown={onKeyDown} />
       {text !== "" && !locked ? (
         <button type="button" className="dk-search-input__clear" aria-label={props.clearLabel || sds.labels.clearSearch} aria-controls={rest.id}
