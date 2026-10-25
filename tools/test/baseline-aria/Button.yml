@@ -28,6 +28,10 @@
 # Loading
 - button "Save"
 
+# LongLabel
+- button "Save every change to this document"
+- button "Save every change to this document"
+
 # Playground
 - button "Save changes"
 

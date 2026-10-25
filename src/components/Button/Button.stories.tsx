@@ -99,3 +99,13 @@ export const DisabledWithReason: Story = {
 export const AsyncSuccess: Story = {
   render: (args) => <Button {...args} successText="Saved" onClick={() => new Promise((ok) => setTimeout(ok, 1200))}>Save changes</Button>,
 };
+
+/** A long label in a narrow column: cut with an ellipsis (the full label shows as its title on hover), or with wrap, on as many lines as it needs. */
+export const LongLabel: Story = {
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '160px' }}>
+      <Button {...args}>Save every change to this document</Button>
+      <Button {...args} wrap>Save every change to this document</Button>
+    </div>
+  ),
+};

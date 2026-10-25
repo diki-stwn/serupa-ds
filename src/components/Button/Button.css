@@ -8,7 +8,7 @@
   justify-content: center;
   gap: var(--button-gap-md, var(--spacing-1\.5));
   white-space: nowrap;
-  max-inline-size: var(--sizing-full);   /* never wider than its container: a long label is cut with an ellipsis (below) */
+  max-inline-size: var(--sizing-full);   /* never wider than its container: a long label is cut with an ellipsis (below), or wraps with wrap */
   box-sizing: border-box;
   height: var(--button-height-md, var(--control-height-md));
   padding: var(--spacing-0) var(--button-padding-x-md, var(--spacing-3));
@@ -38,7 +38,7 @@
   --dk-btn-ring: var(--button-focus-ring, var(--focus-ring));
   box-shadow: var(--dk-btn-shadow);
 }
-/* A label longer than the room it has ends in an ellipsis; the whole label is still the button's name. */
+/* A label longer than the room it has ends in an ellipsis; the whole label is still the button's name, and a Tooltip shows it. */
 .dk-btn__label { display: block; min-width: var(--spacing-0); overflow: hidden; text-overflow: ellipsis; }
 .dk-btn:focus-visible {
   /* The focus ring: an outline, so the 2px gap is truly transparent on any background and forced-colors mode draws it. */
@@ -99,6 +99,12 @@
 .dk-btn--size-lg { height: var(--button-height-lg, var(--control-height-lg)); padding: var(--spacing-0) var(--button-padding-x-lg, var(--spacing-5)); gap: var(--button-gap-lg, var(--spacing-2)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
 .dk-btn--size-lg svg { width: var(--button-icon-size-lg, var(--spacing-5)); height: var(--button-icon-size-lg, var(--spacing-5)); }
 .dk-btn--size-lg .dk-icon { font-size: var(--button-icon-size-lg, var(--spacing-5)); }
+
+/* wrap: the label takes as many lines as it needs, and the height grows from each size's height (min-height) */
+.dk-btn--wrap { white-space: normal; text-align: center; height: auto; min-height: var(--button-height-md, var(--control-height-md)); padding-block: var(--button-padding-y-wrap, var(--spacing-1)); }
+.dk-btn--wrap.dk-btn--size-sm { height: auto; min-height: var(--button-height-sm, var(--control-height-sm)); padding-block: var(--button-padding-y-wrap-sm, var(--spacing-0\.5)); }
+.dk-btn--wrap.dk-btn--size-lg { height: auto; min-height: var(--button-height-lg, var(--control-height-lg)); padding-block: var(--button-padding-y-wrap, var(--spacing-1)); }
+.dk-btn--wrap .dk-btn__label { overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 
 /* Icon only: a square at each size's height */
 .dk-btn--icon-only { padding: var(--spacing-0); width: var(--button-height-md, var(--control-height-md)); }

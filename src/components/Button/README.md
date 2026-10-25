@@ -35,7 +35,7 @@ const { Button, buttonClass } = window.Serupa;
 
 ## Usage
 
-- A button is never wider than its container. A label that doesn't fit ends in an ellipsis, and the whole label is still its accessible name, so keep labels short enough to read in full.
+- A button is never wider than its container. A text label that doesn't fit ends in an ellipsis and shows in full as the button's `title` on hover (the same words as its name, so screen readers don't hear it twice). Keyboard focus and touch don't show a title, so where a label may not fit (a narrow column, a long translation, 400% zoom) pass `wrap`: the label takes as many lines as it needs and the button grows from its size's height. Short labels are still best.
 - One `primary` button per view or dialog; everything else is `secondary`, `outline` or `ghost`.
 - Label with a verb: "Save changes", not "OK".
 - Use `destructive` only for actions that delete or can't be undone, and only one solid (`primary`) destructive button per view, usually in the confirmation step.
@@ -222,7 +222,7 @@ Button's behaviour follows web standards; its look comes only from this design s
 
 ## Props
 
-Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading` (default: on while a `type="submit"` button's `<form action>` is being sent), `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it) and `successText` (shown with a check and announced after a promise from `onClick` resolves). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through, and `id` goes to the `<button>` or `<a>` itself. That includes the native popover and invoker attributes, typed here because React's types don't list them yet: `popoverTarget` with `popoverTargetAction` (`show`, `hide` or `toggle`) works a `[popover]` element by id, and `commandfor` with `command` (such as `show-modal` for a `<dialog>`) sends it an invoker command.
+Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading` (default: on while a `type="submit"` button's `<form action>` is being sent), `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it), `successText` (shown with a check and announced after a promise from `onClick` resolves) and `wrap` (a long label takes more lines instead of an ellipsis; default `false`). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through, and `id` goes to the `<button>` or `<a>` itself. That includes the native popover and invoker attributes, typed here because React's types don't list them yet: `popoverTarget` with `popoverTargetAction` (`show`, `hide` or `toggle`) works a `[popover]` element by id, and `commandfor` with `command` (such as `show-modal` for a `<dialog>`) sends it an invoker command.
 
 `buttonClass({ variant, size, destructive, iconOnly, iconPosition, className })` returns the class names, to style any other element as a button. `Serupa.configure({ link })` sets the component that renders link Buttons.
 
@@ -288,6 +288,8 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | `--button-padding-x-sm` | `spacing-2` | Side padding, sm (8px). |
 | `--button-padding-x-md` | `spacing-3` | Side padding, md (12px). |
 | `--button-padding-x-lg` | `spacing-5` | Side padding, lg (20px). |
+| `--button-padding-y-wrap` | `spacing-1` | Top and bottom padding of a `wrap` button, md and lg (4px). |
+| `--button-padding-y-wrap-sm` | `spacing-0.5` | Top and bottom padding of a `wrap` button, sm (2px). |
 | `--button-gap-sm` | `spacing-1` | Gap between icon and label, sm (4px). |
 | `--button-gap-md` | `spacing-1.5` | Gap between icon and label, md (6px). |
 | `--button-gap-lg` | `spacing-2` | Gap between icon and label, lg (8px). |

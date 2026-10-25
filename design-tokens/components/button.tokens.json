@@ -412,6 +412,26 @@
             "cssVar": "--button-icon-offset"
           }
         }
+      },
+      "padding-y-wrap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Top and bottom padding of a wrap button, md and lg, whose label can take more than one line (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--button-padding-y-wrap"
+          }
+        }
+      },
+      "padding-y-wrap-sm": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-0_5}",
+        "$description": "Top and bottom padding of a wrap button, sm (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--button-padding-y-wrap-sm"
+          }
+        }
       }
     },
     "sizing": {
