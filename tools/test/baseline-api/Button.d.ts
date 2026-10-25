@@ -21,8 +21,9 @@ interface ButtonOwnProps {
     disabledReason?: string;
     successText?: string;
 }
-interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "type"> {
     href?: undefined;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
     type?: "button" | "reset" | "submit";
     popoverTarget?: string;
     popoverTargetAction?: "hide" | "show" | "toggle";

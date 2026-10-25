@@ -45,8 +45,11 @@ interface ButtonOwnProps {
 }
 
 /** A Button without href: a native <button>. */
-export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {
   href?: undefined;
+  /** May return a promise: the button then takes no second click until it settles, shows loading if it takes a
+      moment, and successText once it resolves. */
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
   /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
