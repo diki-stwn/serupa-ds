@@ -38,6 +38,7 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 - Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways, and tabs out of view are easy to miss.
 - Set `activation="manual"` when a panel is slow to show, so arrowing past a tab doesn't select it.
 - Hidden panels keep their state. Set `keepMounted={false}` on a panel that doesn't need to, so it renders only while it's selected.
+- The browser's find-in-page searches kept panels too. They're `hidden="until-found"`, so a match on another tab selects that tab and shows it, as Accordion opens an item. A disabled tab's panel isn't searched.
 - Show a tab people can't use yet as `disabled` rather than leaving it out, when knowing it exists helps them.
 - Tabs that can be closed: when the selected tab is removed, uncontrolled Tabs select the next enabled tab (or else the previous one) and call `onValueChange`. With `value`, set it to another tab yourself when you remove the selected one; Tabs warns in the console otherwise.
 

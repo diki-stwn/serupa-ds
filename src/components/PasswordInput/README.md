@@ -38,6 +38,14 @@ const { PasswordInput, Field } = window.Serupa;
 - Pasting is never blocked, so a password manager or a copied password can fill the field (WCAG 3.3.8, accessible authentication). Don't add an `onPaste` that prevents it.
 - The text keeps 4.5:1 and the eye icon 3:1 on the field in all six themes (`PasswordInput.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the field, then to the show and hide button |
+| Enter, Space | On the button: show or hide the password; focus stays on the button |
+| Caps Lock | While the field has focus: shows and reads out "Caps Lock is on" |
+
 ## Props
 
 | Prop | Type | Default | What it does |

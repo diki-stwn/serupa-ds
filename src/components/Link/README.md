@@ -42,6 +42,13 @@ const { Link, Text } = window.Serupa;
 - The keyboard focus ring follows the text when a link wraps onto two lines.
 - `autoFocus` focuses the link once it mounts, also through `as` (React's own `autoFocus` works only on form controls). Use it sparingly, such as for the one way on from a confirmation page.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the link |
+| Enter | Follow it (Space scrolls the page, as on any link) |
+
 ## Props
 
 | Prop | Type | Default | What it does |

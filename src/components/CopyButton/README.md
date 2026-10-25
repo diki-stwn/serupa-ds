@@ -40,6 +40,13 @@ import { CopyButton } from "serupa-ds";
 - Only the current label is read out: the other is hidden from screen readers. An `iconOnly` button's name changes to "Copied" while it shows the check, and it has a tooltip (`title`).
 - The check keeps 3:1 on the button in all six themes (`CopyButton.test.tsx`). In forced-colors mode it uses the button's text color.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button |
+| Enter, Space | Copy; "Copied" is read out, or the failure, assertively |
+
 ## Props
 
 | Prop | Type | Default | Notes |

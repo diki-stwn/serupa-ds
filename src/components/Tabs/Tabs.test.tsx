@@ -234,4 +234,17 @@ describe('Tabs on the server', () => {
     expect(focused()).toBe('B');
   });
 
+  test('a kept panel of another tab is hidden="until-found" with no height; find-in-page\'s beforematch selects its tab (CN1)', async () => {
+    await setup();
+    const panels = [...el('un').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(panels.map((p) => p.getAttribute('hidden'))).toEqual([null, 'until-found', '']);   // three isn't kept: plainly hidden
+    expect(Math.round(panels[1].getBoundingClientRect().height)).toBe(0);
+    panels[1].dispatchEvent(new Event('beforematch'));
+    await expect.poll(() => selected('un').textContent).toBe('Two');
+    expect([changes, panels[1].hidden, panels[0].getAttribute('hidden')]).toEqual([['two'], false, 'until-found']);
+    // A disabled tab's panel stays plainly hidden, so a match can't pick it.
+    const dis = [...el('dis').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(dis.map((p) => p.getAttribute('hidden'))).toEqual([null, '', '']);
+  });
+
 });

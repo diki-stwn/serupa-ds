@@ -40,6 +40,14 @@ const [q, setQ] = React.useState("");
 - `type="search"` (a searchbox) with `enterkeyhint="search"`. Name it with a `<label>` or `aria-label`; a placeholder isn't a name.
 - The icon and × keep 3:1 and the text 4.5:1 on the field in all six themes (`SearchInput.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the field, then to the × when there's text |
+| Enter | Calls `onSearch` with the text, and submits the form it's in |
+| Escape | Clears the field (when it has text and isn't read-only); without text, Escape goes on to what's around it, such as a Dialog |
+
 ## Props
 
 Every Input prop works (`size`, `invalid`, `value`, `defaultValue`, `onChange`, `placeholder`, `disabled`…), except `type`, `leftIcon` and `rightIcon`.

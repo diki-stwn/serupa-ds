@@ -110,6 +110,13 @@ The same as Button's, each with a component token to tune it or turn it off. Onl
 - The remove button is reachable with Tab and pressed with Enter or Space. After a badge is removed, move focus somewhere sensible, such as the next tag or the input that adds tags.
 - In forced-colors (high-contrast) mode every badge gets a visible border.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To a clickable badge (a `<button>` or link), then to its remove button |
+| Enter, Space | Press a clickable badge (Enter only, on a link), or the remove button |
+
 ## Props
 
 | Prop | Type | Default | What it does |
