@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { config, configure } from '../../internal/config';
-import { userEvent } from 'vitest/browser';
+import { cdp, server, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
@@ -142,6 +142,40 @@ describe('Sidebar', () => {
     expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector('.dk-sidebar__dot')]).toEqual([true, '4', 'true', 8, null]);
     expect([Math.round(d.top - icon.top), Math.round(d.right - icon.right)]).toEqual([-2, 2]);   // on the icon's top end corner
     expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);
+  });
+
+  // EA1: the collapse animated width, so the page beside it laid out on every frame (225ms of layout in a 200ms
+  // collapse next to 3,000 rows). Now the width changes once and only a clip-path and a translate move.
+  test('collapsing and expanding with motion on: the width changes once, only clip-path and translate animate, the page lays out at most twice, and a reversal turns back', async () => {
+    const still = document.getElementById('serupa-still') as HTMLStyleElement | null;
+    if (still) still.disabled = true;
+    const session = server.browser === 'chromium' ? (cdp() as unknown as { send: (m: string, p?: object) => Promise<{ metrics: Array<{ name: string; value: number }> }> }) : null;
+    const layouts = async () => session ? (await session.send('Performance.getMetrics')).metrics.find((m) => m.name === 'LayoutCount')!.value : 0;
+    try {
+      await session?.send('Performance.enable');
+      await render(<div style={{ display: 'flex' }}><App /><div id="page" style={{ flex: 'auto' }}>{Array.from({ length: 3000 }, (_, i) => <p key={i} style={{ margin: 0 }}>Row {i}</p>)}</div></div>);
+      const n = el('sb'), page = el('page');
+      for (const [to, w] of [[true, 64], [false, 256]] as const) {
+        const before = await layouts();
+        React.act(() => setCollapsed(to));
+        const widths = new Set<number>(), props = new Set<string>();
+        const t0 = performance.now();
+        while (n.dataset.slide !== undefined && performance.now() - t0 < 1000) {
+          widths.add(Math.round(page.getBoundingClientRect().left));
+          for (const a of n.getAnimations({ subtree: true })) if (a instanceof CSSTransition && (a.effect as KeyframeEffect).target === n) props.add(a.transitionProperty);
+          await new Promise((r) => requestAnimationFrame(r));
+        }
+        // While it slides the page sits still: one position (expanding, the new one; collapsing, the old one).
+        expect([widths.size, [...props].sort(), Math.round(rect(n).width), n.dataset.slide]).toEqual([1, ['clip-path', 'translate'], w, undefined]);
+        // The class and clip changes at the start and end each lay out once; a width transition laid out on every frame.
+        if (session) expect((await layouts()) - before).toBeLessThanOrEqual(6);
+      }
+      React.act(() => setCollapsed(true));
+      await new Promise((r) => setTimeout(r, 60));
+      React.act(() => setCollapsed(false));
+      await expect.poll(() => n.dataset.slide).toBeUndefined();
+      expect([Math.round(rect(n).width), n.classList.contains('dk-sidebar--collapsed')]).toEqual([256, false]);
+    } finally { if (still) still.disabled = false; await session?.send('Performance.disable'); }
   });
 
   test('collapsed: focus shows the label as a tooltip to the right, and the tooltip names the link', async () => {

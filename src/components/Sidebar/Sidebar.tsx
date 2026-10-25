@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, omit } from "../../internal/cn";
+import { cn, domId, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -67,6 +67,35 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   const sds = useSerupa();
   const rest = omit(props, { header: 1, footer: 1, collapsed: 1, className: 1, children: 1, "aria-label": 1 });
   const collapsed = !!props.collapsed;
+  // The column's width changes once, not on every frame (EA1): expanding widens it at the start, collapsing narrows
+  // it at the end, and in between a clip-path (with a line for the edge) slides, which the compositor runs alone.
+  // shown is the layout (rail or full); slide is the clip: "rail" or "full" while it moves, "" at rest.
+  const [shown, setShown] = React.useState(collapsed);
+  const [slide, setSlide] = React.useState<"" | "rail" | "full">("");
+  const nav = React.useRef<HTMLElement | null>(null);
+  const want = React.useRef(collapsed);
+  const timer = React.useRef<{ raf?: number; end?: ReturnType<typeof setTimeout> }>({});
+  const settle = React.useCallback(() => {
+    clearTimeout(timer.current.end);
+    if (want.current) setShown(true);
+    setSlide("");
+  }, []);
+  useIsoLayoutEffect(() => {
+    if (want.current === collapsed) return;
+    want.current = collapsed;
+    const n = nav.current, t = timer.current;
+    cancelAnimationFrame(t.raf as number);
+    clearTimeout(t.end);
+    const ms = n ? Math.max(...getComputedStyle(n).transitionDuration.split(",").map((d) => parseFloat(d) * (/ms/.test(d) ? 1 : 1000))) : 0;
+    if (!ms) { setShown(collapsed); setSlide(""); return; }   // no motion (reduced motion): snap
+    // From rest, show the clip's start for a frame before it moves; mid-way, turn back from where it is.
+    const from = slide === "" ? (collapsed ? "full" : "rail") : null;
+    if (!collapsed) setShown(false);
+    const go = () => { setSlide(collapsed ? "rail" : "full"); t.end = setTimeout(settle, ms + 100); };
+    if (from) { setSlide(from); t.raf = requestAnimationFrame(() => { t.raf = requestAnimationFrame(go); }); } else go();
+  }, [collapsed]);
+  React.useEffect(() => () => { cancelAnimationFrame(timer.current.raf as number); clearTimeout(timer.current.end); }, []);
+  const onEnd = (e: React.TransitionEvent<HTMLElement>) => { if (e.target === e.currentTarget && e.propertyName === "clip-path" && (slide === "rail") === want.current) settle(); };
   // runs of loose items get their own list
   const body: React.ReactNode[] = [];
   let run: React.ReactNode[] = [];
@@ -74,9 +103,10 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   flattenChildren(props.children).forEach((c) => { if (isSection(c)) { flush(); body.push(c); } else run.push(c); });
   flush();
   return (
-    <SidebarContext.Provider value={{ collapsed, depth: 0 }}>
-      <nav {...rest} aria-label={props["aria-label"] || sds.labels.mainNavigation} ref={ref} data-component="sidebar" data-collapsed={collapsed ? "" : undefined}
-        className={cn("dk-sidebar", collapsed && "dk-sidebar--collapsed", props.className)}>
+    <SidebarContext.Provider value={{ collapsed: shown, depth: 0 }}>
+      <nav {...rest} aria-label={props["aria-label"] || sds.labels.mainNavigation} ref={(n) => { nav.current = n; setRef(ref, n); }} data-component="sidebar" data-collapsed={shown ? "" : undefined}
+        data-slide={slide || undefined} onTransitionEnd={(e) => { onEnd(e); if (props.onTransitionEnd) props.onTransitionEnd(e); }}
+        className={cn("dk-sidebar", shown && "dk-sidebar--collapsed", props.className)}>
         {props.header != null ? <div className="dk-sidebar__header">{props.header}</div> : null}
         <div className="dk-sidebar__body">{body}</div>
         {props.footer != null ? <div className="dk-sidebar__footer">{props.footer}</div> : null}
