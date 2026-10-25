@@ -53,6 +53,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 - Collapsed, an item's badge is hidden on screen like its label but still read: the tooltip names the item ("Inbox") and the badge describes it ("4"), and an 8px dot on the icon's corner shows there is one. The dot keeps 3:1 in all six themes, and is CanvasText in forced-colors mode.
 - In a collapsed rail, a group's menu keeps each item's link component (`as`, such as a router's Link, with its own props) and its link attributes, and marks the current page with `aria-current="page"` in medium weight.
 - Items, the current page, hovered items and section titles keep 4.5:1 in all six themes (`Sidebar.test.tsx`).
+- **Keyboard:** Tab moves through the items. Enter follows a link, and Enter or Space opens or closes a group. Collapsed, focus shows each label as a tooltip, and a group opens its items in a Menu, with the Menu's own keys.
 
 ## Props
 

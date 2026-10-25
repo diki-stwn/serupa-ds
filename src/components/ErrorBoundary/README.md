@@ -43,6 +43,7 @@ import { ErrorBoundary } from "serupa-ds";
 - When the crash took focus with it (focus fell to `<body>`), focus moves to the fallback, so keyboard users aren't sent back to the top of the page. Focus elsewhere on the page is left alone. The box shows the focus ring when focus came from the keyboard.
 - The words come from the `errorTitle`, `errorDescription` and `tryAgain` labels in `SerupaProvider` (English and Indonesian built in).
 - A fallback of your own should do the same: say what happened in words and offer a way on.
+- **Keyboard:** when a crash leaves focus nowhere, focus moves to the fallback, which isn't a Tab stop, so the next Tab reaches its Try again button. Enter or Space on that button renders the children again.
 
 ## Props
 
