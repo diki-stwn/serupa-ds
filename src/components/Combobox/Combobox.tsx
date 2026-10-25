@@ -16,17 +16,12 @@ import * as icons from "../../material/builtin";
 import { fold } from "../../internal/fold";
 import { announce } from "../../internal/announce";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { Badge } from "../Badge/Badge";
 
 export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
-export interface ComboboxProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
+interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
   /** The choices: strings, or { value, label, description, disabled }. The label is what's typed to find it and shown once picked. */
   options: ComboboxOption[];
-  /** The selected value (controlled), or null. Use with onValueChange. */
-  value?: string | null;
-  /** The value selected at first (uncontrolled). */
-  defaultValue?: string | null;
-  /** Called with the picked value, or null when the field is emptied or cleared. */
-  onValueChange?: (value: string | null) => void;
   /** Called with the text as it's typed: for loading options from a server (with filter={false} and loading). */
   onInputChange?: (text: string) => void;
   /** How typing narrows the list. Default: options whose label contains the text, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße"). false shows every option (filter them yourself). */
@@ -44,6 +39,31 @@ export interface ComboboxProps extends Omit<InputProps, "type" | "showCount" | "
   /** The × button's name. Default: the clearValue label, "Clear" and the field's label ("Clear Country"), or "Clear" when it has none. */
   clearLabel?: string;
 }
+/** Picks one option. */
+export interface ComboboxSingleProps extends ComboboxBaseProps {
+  multiple?: false;
+  /** The selected value (controlled), or null. Use with onValueChange. */
+  value?: string | null;
+  /** The value selected at first (uncontrolled). */
+  defaultValue?: string | null;
+  /** Called with the picked value, or null when the field is emptied or cleared. */
+  onValueChange?: (value: string | null) => void;
+}
+/** Picks any number of options, each shown as a tag in the field. */
+export interface ComboboxMultipleProps extends ComboboxBaseProps {
+  /** Picks any number of options: each shows as a removable tag before the text, picking toggles an option and keeps
+      the list open, and Backspace in the empty field removes the last tag. */
+  multiple: true;
+  /** The selected values in order (controlled). Use with onValueChange. */
+  value?: string[];
+  /** The values selected at first (uncontrolled). */
+  defaultValue?: string[];
+  /** Called with every selected value, in the order they were picked. */
+  onValueChange?: (value: string[]) => void;
+}
+export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
+type AnyProps = ComboboxBaseProps & { multiple?: boolean; value?: string | string[] | null; defaultValue?: string | string[] | null; onValueChange?: unknown };
+const list = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : []);
 
 const CAP = 100;   // the most option rows the list puts in the page at once
 
@@ -72,14 +92,18 @@ const Row = React.memo(function Row(p: { o: Opt; id: string; active: boolean; se
    top layer. Enter or a click picks, Escape closes and puts back the picked label, and leaving the field does
    the same (emptying it clears the selection). Text that is exactly one option's label (any case or accents)
    picks that option on leaving the field. Only listed options can be picked. It uses Input's box and
-   tokens: className and style go to the box; ref and every other prop to the <input>. */
+   tokens: className and style go to the box; ref and every other prop to the <input>. With multiple, the picked
+   options are tags (Badges with a remove button) before the text, the listbox is aria-multiselectable, and picking
+   toggles an option and keeps the list open; the text is only for searching, so leaving the field empties it. */
 /** A text field with a list of options that narrows as you type; picks one listed option. */
-export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProps>("Combobox", function Combobox(props, ref) {
+export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProps>("Combobox", function Combobox(given, ref) {
+  let props = given as AnyProps;
   const nameRef = useNameCheck("Combobox", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // names the listbox when a Field's <label for> names the field
   const sds = useSerupa();
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1 } as const);
+  const multi = props.multiple === true;
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -90,9 +114,13 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     return { ...x, folded: fold(x.label) };
   }), [props.options]);
   const controlled = props.value !== undefined;
-  const [ownValue, setOwnValue] = React.useState<string | null>(props.defaultValue ?? null);
-  const value = controlled ? (props.value ?? null) : ownValue;
-  const selected = opts.find((o) => o.value === value) || null;
+  const one = (v: unknown) => (multi || v == null ? null : String(v));
+  const [ownValue, setOwnValue] = React.useState<string | null>(() => one(props.defaultValue));
+  const [ownValues, setOwnValues] = React.useState<string[]>(() => (multi ? list(props.defaultValue) : []));
+  const value = multi ? null : controlled ? one(props.value) : ownValue;
+  const values = multi ? (controlled ? list(props.value) : ownValues) : [];
+  const chosen = new Set(values);
+  const selected = multi ? null : opts.find((o) => o.value === value) || null;
   const [text, setText] = React.useState(selected ? selected.label : "");
   const [typed, setTyped] = React.useState(false);   // false: show every option (just opened); true: filter by the text
   const [open, setOpen] = React.useState(false);
@@ -101,13 +129,13 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const input = React.useRef<HTMLInputElement | null>(null);
   const pop = React.useRef<HTMLDivElement | null>(null);
   const locked = !!rest.disabled || !!rest.readOnly;
-  const showClear = !!props.clearable && value != null && !locked;
+  const showClear = !!props.clearable && (multi ? values.length > 0 : value != null) && !locked;
   const [name, setName] = React.useState("");   // the field's label, read from the page once the × shows
   React.useEffect(() => { if (showClear) setName(fieldName(input.current)); }, [showClear]);
   useFormReset(input, () => {
     if (controlled) return;
-    const v = props.defaultValue ?? null, o = opts.find((x) => x.value === v);
-    setOwnValue(v); setText(o ? o.label : ""); setTyped(false); setOpen(false);
+    const v = one(props.defaultValue), o = opts.find((x) => x.value === v);
+    setOwnValue(v); setOwnValues(multi ? list(props.defaultValue) : []); setText(o ? o.label : ""); setTyped(false); setOpen(false);
   });
 
   // A new value (or a new label for it) puts its label in the field, unless the person is typing. Done while
@@ -137,10 +165,20 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const more = shown.length - visible.length;
   const usable = visible.filter((o) => !o.disabled);
 
+  const changed = props.onValueChange as ((v: string | null | string[]) => void) | undefined;
   const commit = (v: string | null) => {
     if (!controlled) setOwnValue(v);
-    if (v !== value && props.onValueChange) props.onValueChange(v);
+    if (v !== value && changed) changed(v);
   };
+  // With multiple: the new list of values, and what a screen reader hears (focus stays in the field, so it says
+  // which tag was added or removed).
+  const commitMany = (next: string[], said?: string) => {
+    if (!controlled) setOwnValues(next);
+    if (changed) changed(next);
+    if (said) announce(said);
+  };
+  const labelOf = (v: string) => { const o = opts.find((x) => x.value === v); return o ? o.label : v; };
+  const remove = (v: string) => commitMany(values.filter((x) => x !== v), sds.labels.valueRemoved(labelOf(v)));
   const show = (to?: "first" | "last" | "selected") => {
     if (locked) return;
     setOpen(true);
@@ -154,6 +192,14 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   };
   const pick = (o: Opt) => {
     if (o.disabled) return;
+    if (multi) {
+      // Toggles it and keeps the list open on it; the search text empties so the next pick starts from every option.
+      if (chosen.has(o.value)) remove(o.value);
+      else commitMany(values.concat(o.value), sds.labels.valueAdded(o.label));
+      setActive(o.i); setTyped(false);
+      if (text) { setText(""); if (props.onInputChange) props.onInputChange(""); }
+      return;
+    }
     commit(o.value); setText(o.label); setOpen(false); setActive(-1); setTyped(false);
     if (props.onInputChange && o.label !== text) props.onInputChange(o.label);
   };
@@ -198,16 +244,19 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     else if (e.key === "Enter" && open) { e.preventDefault(); const o = opts[active]; if (o && shown.includes(o)) pick(o); else { const x = exact(); if (x) pick(x); else hide(); } }
     else if (e.key === "Escape" && open) { e.preventDefault(); e.stopPropagation(); hide(); }
     else if ((e.key === "PageDown" || e.key === "PageUp") && open) { e.preventDefault(); page(e.key === "PageDown" ? 1 : -1); }
+    else if (e.key === "Backspace" && multi && text === "" && values.length) remove(values[values.length - 1]);
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (rest.onBlur) rest.onBlur(e);
+    if (multi) { hide(); if (text && props.onInputChange) props.onInputChange(""); return; }
     const x = exact();
     if (text.trim() === "" && value != null) { commit(null); setOpen(false); setActive(-1); setTyped(false); setText(""); }
     else if (x) pick(x);
     else hide();
   };
   const clear = () => {
-    commit(null); setText(""); setTyped(false); setActive(-1);
+    if (multi) commitMany([]); else commit(null);
+    setText(""); setTyped(false); setActive(-1);
     if (props.onInputChange) props.onInputChange("");
     if (input.current) input.current.focus();
   };
@@ -238,16 +287,25 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const onPick = React.useCallback((i: number) => { const l = latest.current; const o = l.opts[i]; if (o) l.pick(o); }, []);
   const activeShown = active >= 0 && visible.some((o) => o.i === active);
   const pos = new Map(shown.map((o, n) => [o, n + 1]));
-  return (
-    <span ref={box} className={cn("dk-input dk-combobox", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"}>
-      {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
+  const field = (
       <input {...rest} ref={(n) => { input.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         type="text" role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="list" aria-haspopup="listbox"
         aria-activedescendant={open && activeShown ? base + "-opt-" + active : undefined}
         autoComplete={rest.autoComplete || "off"} autoCorrect="off" spellCheck={false} className="dk-input__field" value={text}
         onChange={onChange} onKeyDown={onKeyDown} onBlur={onBlur}
         onClick={(e) => { if (rest.onClick) rest.onClick(e); if (!open) show("selected"); }} />
+  );
+  return (
+    <span ref={box} className={cn("dk-input dk-combobox", multi && "dk-combobox--multiple", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
+      style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"}>
+      {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
+      {multi ? <span className="dk-combobox__values">
+        {values.length ? <span className="dk-combobox__tags" onMouseDown={keep}>
+          {values.map((v) => <Badge key={v} className="dk-combobox__tag" removeLabel={sds.labels.remove}
+            onRemove={locked ? undefined : () => { remove(v); if (input.current) input.current.focus(); }}>{labelOf(v)}</Badge>)}
+        </span> : null}
+        {field}
+      </span> : field}
       {showClear ? (
         <button type="button" tabIndex={-1} className="dk-combobox__button dk-combobox__clear" aria-label={props.clearLabel || sds.labels.clearValue(name || "")} onMouseDown={keep} onClick={clear}>
           <Icon icon={icons.Close} />
@@ -259,14 +317,15 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       </button>
       <div ref={pop} className="dk-combobox__popup" {...{ popover: "manual" }} hidden={!open || undefined} onMouseDown={keep}>
         {props.loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
-        <div id={listId} role="listbox" className="dk-combobox__listbox" aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
+        <div id={listId} role="listbox" className="dk-combobox__listbox" aria-multiselectable={multi || undefined} aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
           {/* Only while open: a closed Combobox with thousands of options keeps none of them in the page. */}
-          {open ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
+          {open ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
         </div>
         {open && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
         {!props.loading && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
-      {props.name ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
+      {props.name && multi ? values.map((v) => <input key={v} type="hidden" name={props.name} form={rest.form} value={v} disabled={rest.disabled} />) : null}
+      {props.name && !multi ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
     </span>
   );
 });
