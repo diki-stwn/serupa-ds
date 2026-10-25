@@ -76,8 +76,6 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 These eight story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks, mount time, network, strict CSP) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
-These five story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
-
 ### Suite scripts
 
 Vitest runs every script in `tools/test/` as its checks project (vitest.config.ts), except the shared code, the
