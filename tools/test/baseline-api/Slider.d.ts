@@ -1,4 +1,4 @@
-// exports: Slider, type SliderProps, type SliderValue
+// exports: Slider, type SliderMark, type SliderProps, type SliderValue
 interface SliderLabels {
     sliderMinimum: string;
     sliderMaximum: string;

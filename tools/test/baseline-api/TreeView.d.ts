@@ -1,4 +1,4 @@
-// exports: TreeView, type TreeViewProps
+// exports: TreeView, type TreeViewItem, type TreeViewProps
 interface TreeViewItem {
     id: string;
     label: React.ReactNode;
