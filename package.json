@@ -39,6 +39,7 @@
     "./theme.js": "./dist/theme.js",
     "./components.json": "./dist/components.json",
     "./design-tokens/*": "./design-tokens/*",
+    "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
   },
