@@ -1,0 +1,18 @@
+import { Meta, Title, Description, Primary, Controls, Stories } from '@storybook/addon-docs/blocks';
+import { Guide } from '../../../docs/blocks';
+import * as StoriesTreeView from './TreeView.stories';
+import guide from './README.md?raw';
+
+<Meta of={StoriesTreeView} />
+
+<Title />
+
+<Primary />
+
+<Controls />
+
+<Guide source={guide} />
+
+## Examples
+
+<Stories title="" includePrimary={false} />
