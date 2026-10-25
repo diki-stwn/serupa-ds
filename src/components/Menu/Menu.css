@@ -53,6 +53,10 @@
 .dk-menu__item:focus-visible { box-shadow: inset var(--dk-bar) 0 0 var(--menu-item-indicator, var(--primary)); }
 .dk-menu__item:active:not([aria-disabled="true"], .dk-menu__item--destructive) { background: var(--menu-item-bg-pressed, var(--pressed)); }
 .dk-menu__item:focus-visible { outline: var(--focus-ring-width) solid transparent; }   /* shows in forced colors */
+/* MenuCheckboxItem and MenuRadioItem: a check before the label, its space kept while unchecked so labels line up. */
+.dk-menu__check { display: inline-flex; flex-shrink: 0; color: var(--menu-item-text, var(--text)); }
+.dk-menu__check .dk-icon { font-size: var(--spacing-4); }
+.dk-menu__item[aria-checked="false"] .dk-menu__check { visibility: hidden; }
 .dk-menu__icon { display: inline-flex; flex-shrink: 0; color: var(--menu-muted, var(--text-muted)); }
 .dk-menu__icon .dk-icon { font-size: var(--spacing-4); }
 .dk-menu__label { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
