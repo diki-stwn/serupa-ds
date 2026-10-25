@@ -4,6 +4,7 @@ import { cn, domId, omit } from "../../internal/cn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
+import { config } from "../../internal/config";
 import { Menu, MenuItem } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
@@ -43,7 +44,7 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAn
   children?: React.ReactNode;
   /** With children: open at first. Default: open when one of them is active. */
   defaultOpen?: boolean;
-  /** What renders the link: 'a' (default), or your router's link component. */
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
 }
 
@@ -99,7 +100,8 @@ const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(
 const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.props.children).some(activeWithin);
 
 /* SidebarItem: a link (icon, label, badge), or with nested items a button with aria-expanded that shows and
-   hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. */
+   hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. The ref
+   goes to the link or the group's button. */
 /** An item in a Sidebar: a link, or a group of nested items. */
 export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarItemProps>("SidebarItem", function SidebarItem(props, ref) {
   const ctx = React.useContext(SidebarContext);
@@ -124,7 +126,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
     return (
       <li className="dk-sidebar__li">
         <Menu placement="right-start" trigger={
-          <button type="button" {...btnProps} className={cls}>{inner(false)}</button>
+          typeof props.label === "string"
+            ? <Tooltip content={props.label} placement="right" role="label"><button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button></Tooltip>
+            : <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button>
         }>
           {/* Each item keeps its link component (as), its other link attributes and the current page. */}
           {kids.map((k, i) => <MenuItem key={k.key != null ? k.key : i} {...omit(k.props, ITEM_OWN) as object} onClick={undefined}
@@ -137,14 +141,14 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   if (group) {
     return (
       <li className="dk-sidebar__li" data-state={open ? "open" : "closed"}>
-        <button type="button" {...btnProps} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); setOpen(!open); }}>{inner(true)}</button>
+        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); setOpen(!open); }}>{inner(true)}</button>
         <SidebarContext.Provider value={{ collapsed: ctx.collapsed, depth: ctx.depth + 1 }}>
           <ul id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open}>{kids}</ul>
         </SidebarContext.Provider>
       </li>
     );
   }
-  const link = React.createElement(props.as || "a", Object.assign(rest, { ref: ref, className: cls, "aria-current": props.active ? "page" : undefined }), inner(false));
+  const link = React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cls, "aria-current": props.active ? "page" : undefined }), inner(false));
   return (
     <li className="dk-sidebar__li">
       {rail && typeof props.label === "string" ? <Tooltip content={props.label} placement="right" role="label">{link}</Tooltip> : link}
