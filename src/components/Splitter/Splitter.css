@@ -7,7 +7,7 @@
 @layer dk.components {
 .dk-splitter { display: flex; min-width: var(--spacing-0); min-height: var(--spacing-0); }
 .dk-splitter--vertical { flex-direction: column; }
-.dk-splitter__pane { box-sizing: border-box; min-width: var(--spacing-0); min-height: var(--spacing-0); overflow: auto; }
+.dk-splitter__pane { box-sizing: border-box; min-width: var(--spacing-0); min-height: var(--spacing-0); overflow: auto; overscroll-behavior: contain; }
 .dk-splitter__pane--first { flex: none; }
 .dk-splitter__pane--second { flex: auto; flex-basis: var(--spacing-0); }
 .dk-splitter__pane[hidden] { display: none; }
