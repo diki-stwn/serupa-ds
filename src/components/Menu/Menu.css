@@ -5,6 +5,8 @@
    also gets a 2px primary bar at its start. Groups have a muted text-xs heading; separators are 1px lines. A MenuSub item has a chevron and stays highlighted while its submenu is open. Every value goes through --menu-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+/* ContextMenu's anchor: a point at the pointer (or the focused element's corner) that the menu is placed from. */
+.dk-menu__point { position: fixed; width: var(--spacing-0); height: var(--spacing-0); pointer-events: none; }
 .dk-menu {
   --dk-menu-offset: var(--menu-offset, var(--spacing-1));
   box-sizing: border-box;
