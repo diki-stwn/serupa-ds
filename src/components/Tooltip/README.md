@@ -62,7 +62,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 | `content` | node | required | A short line of text. No links or buttons: people can't reach them |
 | `children` | one element | required | Something that takes focus: a Button, IconButton or link. It gets the events and the `aria-` wiring, and keeps its own handlers and ref |
 | `placement` | `'top'` \| `'bottom'` \| `'left'` \| `'right'`, each with `-start` or `-end` | `'top'` | Where it goes. It flips to the other side when there's no room and slides to stay on screen |
-| `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once |
+| `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once, and so does the pointer while another tooltip is open or closed less than 300ms ago (the warm-up) |
 | `role` | `'description'` \| `'label'` | `'description'` | Adds to the element's name (`aria-describedby`), or is its name (`aria-labelledby`) |
 | `open`, `onOpenChange` | boolean, function | | Control it yourself. onOpenChange(open, { reason }) says why: `'hover'`, `'focus'`, `'blur'`, `'trigger'` (a press on the element), `'escape'` or `'outside'` |
 | `defaultOpen` | boolean | `false` | Shown at first, without controlling it |
