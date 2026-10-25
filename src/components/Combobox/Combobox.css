@@ -47,7 +47,7 @@
 .dk-combobox--multiple { height: auto; min-height: var(--dk-input-h); }
 .dk-combobox__values { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); flex: auto; min-width: var(--spacing-0); padding-block: var(--spacing-0\.5); }
 .dk-combobox__tags { display: contents; }
-.dk-combobox--multiple .dk-input__field { flex: 1 0 var(--spacing-16); height: auto; min-height: var(--spacing-5); }
+.dk-combobox--multiple .dk-input__field { flex: auto; width: var(--spacing-16); height: auto; min-height: var(--spacing-5); }
 @media (prefers-reduced-motion: reduce) { .dk-combobox__button, .dk-combobox__button .dk-icon { transition: none; } }
 @media (forced-colors: active) { .dk-combobox__option--active { outline: var(--border-width-1) solid Highlight; } }
 }
