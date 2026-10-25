@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { PAGES, PROJECT, browser, inParallel, report, serve, onlyComponents } from './lib.mjs';
+import { PAGES, PROJECT, browser, fixClock, inParallel, report, serve, onlyComponents } from './lib.mjs';
 
 const DIR = path.join(PROJECT, 'storybook-static');
 if (!fs.existsSync(path.join(DIR, 'index.json'))) {
@@ -21,7 +21,9 @@ const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emera
 const b = await browser();
 // Several pages at once (PAGES), each in its own context, collecting its own page errors.
 const workers = await Promise.all(Array.from({ length: PAGES }, async () => {
-  const page = await (await b.newContext({ viewport: { width: 1000, height: 800 } })).newPage();
+  const context = await b.newContext({ viewport: { width: 1000, height: 800 } });
+  await fixClock(context);   // the same today as the screenshots (lib.mjs CLOCK)
+  const page = await context.newPage();
   const w = { page, errors: [] };
   page.on('pageerror', (e) => w.errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') w.errors.push(m.text()); });

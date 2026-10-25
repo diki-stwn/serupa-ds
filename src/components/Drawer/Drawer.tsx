@@ -8,14 +8,15 @@ import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../inte
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
   open?: boolean;
   /** Open at first, then it closes itself (uncontrolled), for one shown on arrival. Default: false. */
   defaultOpen?: boolean;
-  /** Called with false when people ask to close it: Escape, the close button, or a click on the backdrop. */
-  onOpenChange?: (open: boolean) => void;
+  /** Called with false when people ask to close it, and why: { reason: 'escape' | 'close' (the ×) | 'outside' (the backdrop) | 'api' (the browser closed it) }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** The edge it slides in from: 'right' (default), 'left', 'top' or 'bottom'. */
   side?: 'right' | 'left' | 'top' | 'bottom';
   /** The width of a left or right drawer: 'sm' 320px, 'md' 384px (default) or 'lg' 512px, at most the screen. Top and bottom drawers fit their content. */
@@ -56,7 +57,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
-  const close = React.useCallback(() => { if (!controlled) setInner(false); if (ask.current) ask.current(false); }, [controlled]);
+  const close = React.useCallback((reason: OpenChangeReason) => { if (!controlled) setInner(false); if (ask.current) ask.current(false, { reason }); }, [controlled]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
 
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
@@ -87,7 +88,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
 
   // React passes a nested dialog's cancel and close up to this one, though the browser doesn't bubble them: only
   // this dialog's own count, or Escape in a Dialog or Drawer opened from inside it would close this one too.
-  const onCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => { if (rest.onCancel) rest.onCancel(e); if (e.target !== e.currentTarget) return; e.preventDefault(); close(); };
+  const onCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => { if (rest.onCancel) rest.onCancel(e); if (e.target !== e.currentTarget) return; e.preventDefault(); close("escape"); };
   // The browser can close it on its own (dialog.close(), a form with method="dialog", an Escape it doesn't let us
   // cancel, such as Chromium's second Escape with no click in between): if open is still true, ask to close. A
   // parent that keeps open true gets it shown again, so open stays the truth.
@@ -97,14 +98,14 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     if (e.target !== e.currentTarget) return;
     if (!e.currentTarget.open) modalClosed(e.currentTarget);
     if (!openNow.current || e.currentTarget.open) return;
-    close();
+    close("api");
     reopen((n) => n + 1);
   };
   // A press that starts on the panel (selecting text, say) and ends on the backdrop clicks the <dialog> too: only a
   // press that starts and ends on the backdrop counts.
   const downOnBackdrop = React.useRef(false);
   const onPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => { if (rest.onPointerDown) rest.onPointerDown(e); downOnBackdrop.current = e.target === e.currentTarget && !wasDismissal(e.nativeEvent); };
-  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close(); downOnBackdrop.current = false; };
+  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close("outside"); downOnBackdrop.current = false; };
   // A body taller than the panel takes Tab focus, so it can be scrolled from the keyboard when nothing in it is
   // focusable (only Chromium scrolls it with focus on the ×). It's a region named like the drawer, as Table's frame is.
   const [body, setBody] = React.useState<HTMLDivElement | null>(null);
@@ -126,7 +127,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
               {has(props.title) ? <h2 className="dk-drawer__title" id={base + "-title"}>{props.title}</h2> : null}
               {has(props.description) ? <p className="dk-drawer__description" id={base + "-desc"}>{props.description}</p> : null}
             </div>
-            {showClose ? <IconButton className="dk-drawer__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" noTitle onClick={close} /> : null}
+            {showClose ? <IconButton className="dk-drawer__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" noTitle onClick={() => close("close")} /> : null}
           </div>
         ) : null}
         {has(props.children) ? <div {...region} ref={setBody} className="dk-drawer__body">{props.children}</div> : null}

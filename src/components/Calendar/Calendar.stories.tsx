@@ -11,6 +11,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+// The visual and Storybook checks run on a fixed clock (CLOCK in tools/test/lib.mjs), so there today is 12 March 2025.
 export const Today: Story = { args: { defaultValue: undefined, defaultMonth: undefined } };
 export const MinAndMax: Story = { args: { min: new Date(2025, 2, 5), max: new Date(2025, 2, 25) } };
 export const NoWeekends: Story = { args: { isDateDisabled: (d: Date) => d.getDay() === 0 || d.getDay() === 6 } };
