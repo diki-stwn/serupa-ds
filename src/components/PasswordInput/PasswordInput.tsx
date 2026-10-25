@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { announce } from "../../internal/announce";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { cn, domId, isInvalid, omit, oneOf, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -32,6 +33,7 @@ const SIZES = ["sm", "md", "lg"] as const;
    className and style go to the box; ref and every other prop to the <input>. */
 /** A password field with a button that shows and hides what was typed. */
 export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, PasswordInputProps>("PasswordInput", function PasswordInput(props, ref) {
+  const nameRef = useNameCheck("PasswordInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, visible: 1, defaultVisible: 1, onVisibleChange: 1, toggleLabel: 1, capsLockHint: 1 } as const);
@@ -60,7 +62,7 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
   // Switching the type puts the caret at the start: keep where it was, so typing goes on where it stopped.
   const field = React.useRef<HTMLInputElement | null>(null);
   const caret = React.useRef<[number, number, "forward" | "backward" | "none"] | null>(null);
-  const fieldRef = React.useCallback((n: HTMLInputElement | null) => { field.current = n; setRef(ref, n); }, [ref]);
+  const fieldRef = React.useCallback((n: HTMLInputElement | null) => { field.current = n; nameRef(n); setRef(ref, n); }, [ref, nameRef]);
   useIsoLayoutEffect(() => {
     const f = field.current, c = caret.current;
     caret.current = null;

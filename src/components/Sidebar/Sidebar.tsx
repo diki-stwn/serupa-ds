@@ -9,6 +9,7 @@ import { Menu, MenuItem } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
+import type { OpenChangeDetails } from "../../internal/openChange";
 import * as icons from "../../material/builtin";
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
@@ -44,6 +45,10 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAn
   children?: React.ReactNode;
   /** With children: open at first. Default: open when one of them is active. */
   defaultOpen?: boolean;
+  /** With children: whether the group is open, controlled. Pair it with onOpenChange. */
+  open?: boolean;
+  /** With children: called when the group's button asks to open or close it, with why: { reason: 'trigger' }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
 }
@@ -93,7 +98,7 @@ export const SidebarSection = /* @__PURE__ */ component<HTMLDivElement, SidebarS
   );
 });
 
-const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, as: 1, className: 1 } as const;
+const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, open: 1, onOpenChange: 1, as: 1, className: 1 } as const;
 type ItemElement = React.ReactElement<SidebarItemProps>;
 const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(React.isValidElement) as ItemElement[];
 /** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
@@ -109,7 +114,12 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   const kids = itemsOf(props.children);
   const group = kids.length > 0;
   const childActive = kids.some(activeWithin);
-  const [open, setOpen] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
+  const [own, setOwn] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
+  const open = props.open !== undefined ? !!props.open : own;
+  const toggle = () => {
+    if (props.open === undefined) setOwn(!open);
+    if (props.onOpenChange) props.onOpenChange(!open, { reason: "trigger" });
+  };
   const listId = domId("dk-sbi", React.useId());
   const rail = ctx.collapsed && ctx.depth === 0;
   // In the rail the badge is hidden on screen, like the label, and a dot on the icon says there is one.
@@ -147,7 +157,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   if (group) {
     return (
       <li className="dk-sidebar__li" data-state={open ? "open" : "closed"}>
-        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); setOpen(!open); }}>{inner(true)}</button>
+        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); toggle(); }}>{inner(true)}</button>
         <SidebarContext.Provider value={{ collapsed: ctx.collapsed, depth: ctx.depth + 1 }}>
           <ul id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open}>{kids}</ul>
         </SidebarContext.Provider>

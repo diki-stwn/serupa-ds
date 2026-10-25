@@ -1,0 +1,79 @@
+{
+  "rating": {
+    "$description": "Rating's component tokens. Each one is an optional override: set the CSS variable (--rating-<name>) on the page, a container or one Rating, and every Rating inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "fill": {
+        "$type": "color",
+        "$value": "{color.warning}",
+        "$description": "A star's filled part (3:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-fill"
+          }
+        }
+      },
+      "empty": {
+        "$type": "color",
+        "$value": "{color.field-border}",
+        "$description": "A star's empty part (3:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-empty"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The ring around the focused star.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-focus-ring"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "size-sm": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-5}",
+        "$description": "A star at size sm (20px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-size-sm"
+          }
+        }
+      },
+      "size-md": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "A star at size md (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-size-md"
+          }
+        }
+      },
+      "size-lg": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-8}",
+        "$description": "A star at size lg (32px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-size-lg"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-0_5}",
+        "$description": "The space between stars (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--rating-gap"
+          }
+        }
+      }
+    }
+  }
+}
