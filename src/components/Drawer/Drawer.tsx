@@ -59,6 +59,9 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       modalOpening();
       if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
       modalOpened(d);
+    } else if (props.open) {
+      // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.
+      modalOpened(d);
     } else if (!props.open && d.open) {
       if (typeof d.close === "function") d.close(); else d.removeAttribute("open");
       modalClosed(d);

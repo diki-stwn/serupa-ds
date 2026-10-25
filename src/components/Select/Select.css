@@ -28,7 +28,7 @@
   margin: var(--spacing-0); border: 0; border-radius: inherit; background: transparent; outline: none;
   padding-block: var(--spacing-0);
   padding-inline: var(--dk-select-px) calc(var(--dk-select-px) + var(--dk-select-icon) + var(--select-gap, var(--spacing-2)));
-  color: inherit; font: inherit; letter-spacing: inherit; text-overflow: ellipsis; cursor: pointer;
+  color: inherit; font: inherit; letter-spacing: inherit; text-overflow: ellipsis; cursor: pointer; touch-action: manipulation;
 }
 .dk-select--has-icon .dk-select__field { padding-inline-start: calc(var(--dk-select-px) + var(--dk-select-icon) + var(--select-gap, var(--spacing-2))); }
 .dk-select__field option, .dk-select__field optgroup { background-color: var(--select-bg, var(--field)); color: var(--select-text, var(--text)); }
