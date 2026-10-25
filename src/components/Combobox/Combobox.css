@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    Combobox: Input's box with a chevron button at the end (and a × when clearable), and a list in the top layer
    under it: surface, outline, 8px corners, shadow-lg, 4px inside, up to 240px tall before it scrolls, at least
-   as wide as the field. Options are 32px with an optional muted second line; the highlighted one gets
+   as wide as the field. With multiple, the picked options are tags that wrap with the text inside the box. Options are 32px with an optional muted second line; the highlighted one gets
    highlight with a 2px primary bar at its start, and the selected one has a primary check. Empty and loading messages are muted.
    --------------------------------------------------------------- */
 @layer dk.components {
@@ -43,6 +43,11 @@
 .dk-combobox__option--active .dk-combobox__description { color: var(--combobox-option-color, var(--text)); }   /* muted text is below 4.5:1 on highlight */
 .dk-combobox__check { flex-shrink: 0; color: var(--combobox-check, var(--primary)); font-size: var(--spacing-4); }
 .dk-combobox__message { display: flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2)); color: var(--combobox-description-color, var(--text-muted)); }
+/* multiple: the tags and the text wrap inside the box, which grows a row at a time; the buttons stay at the end. */
+.dk-combobox--multiple { height: auto; min-height: var(--dk-input-h); }
+.dk-combobox__values { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); flex: auto; min-width: var(--spacing-0); padding-block: var(--spacing-0\.5); }
+.dk-combobox__tags { display: contents; }
+.dk-combobox--multiple .dk-input__field { flex: auto; width: var(--spacing-16); height: auto; min-height: var(--spacing-5); }
 @media (prefers-reduced-motion: reduce) { .dk-combobox__button, .dk-combobox__button .dk-icon { transition: none; } }
 @media (forced-colors: active) { .dk-combobox__option--active { outline: var(--border-width-1) solid Highlight; } }
 }

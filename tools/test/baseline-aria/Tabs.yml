@@ -1,0 +1,52 @@
+# Controlled
+- tablist "Range":
+  - tab "Day"
+  - tab "Week" [selected]
+  - tab "Month"
+- paragraph: "Showing: week"
+
+# Overflow
+- tablist "Months":
+  - tab "Jan"
+  - tab "Feb"
+  - tab "Mar"
+  - tab "Apr"
+  - tab "May"
+  - tab "Jun"
+  - tab "Jul"
+  - tab "Aug"
+  - tab "Sep"
+  - tab "Oct"
+  - tab "Nov"
+  - tab "Dec" [selected]
+
+# Pill
+- tablist "Project":
+  - tab "Overview" [selected]
+  - tab "Activity"
+  - tab "Members"
+  - tab "Settings" [disabled]
+- tabpanel "Overview": Atlas is on track for the March release.
+- tabpanel "Activity": Ada updated the roadmap 2 hours ago.
+- tabpanel "Members": 6 members, 2 pending invites.
+
+# Playground
+- tablist "Project":
+  - tab "Overview" [selected]
+  - tab "Activity"
+  - tab "Members"
+  - tab "Settings" [disabled]
+- tabpanel "Overview": Atlas is on track for the March release.
+- tabpanel "Activity": Ada updated the roadmap 2 hours ago.
+- tabpanel "Members": 6 members, 2 pending invites.
+
+# Vertical
+- tablist "Project":
+  - tab "Overview" [selected]
+  - tab "Activity"
+  - tab "Members"
+  - tab "Settings" [disabled]
+- tabpanel "Overview": Atlas is on track for the March release.
+- tabpanel "Activity": Ada updated the roadmap 2 hours ago.
+- tabpanel "Members": 6 members, 2 pending invites.
+

@@ -1,0 +1,40 @@
+# ContrastCheck
+- text: Text color Checked for 7:1 (AAA) against the white card it goes on
+- radiogroup "Text color":
+  - radio "Blue"
+  - radio "Violet"
+  - radio "Emerald"
+  - radio "Red"
+  - radio "Amber" [checked]
+  - radio "Yellow"
+  - radio "Black"
+  - radio "White"
+- textbox "Custom color": "#b45309"
+- textbox "Hex code": b45309
+- text: Contrast 5.0:1, below 7.0:1, which can be hard to read
+- paragraph: The quick brown fox
+
+# Playground
+- radiogroup "Label color":
+  - radio "Blue" [checked]
+  - radio "Violet"
+  - radio "Emerald"
+  - radio "Red"
+  - radio "Amber"
+  - radio "Yellow"
+  - radio "Black"
+  - radio "White"
+- textbox "Custom color": "#1d4ed8"
+- textbox "Hex code": 1d4ed8
+
+# SwatchesOnly
+- radiogroup "Label color":
+  - radio "Blue" [checked]
+  - radio "Violet"
+  - radio "Emerald"
+  - radio "Red"
+  - radio "Amber"
+  - radio "Yellow"
+  - radio "Black"
+  - radio "White"
+

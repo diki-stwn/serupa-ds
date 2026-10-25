@@ -1,0 +1,26 @@
+# Actions
+- toolbar "Selected files":
+  - button "Download"
+  - button "Move"
+  - button "Delete"
+
+# Playground
+- toolbar "Text formatting":
+  - group "Style":
+    - button "Bold" [pressed]
+    - button "Italic"
+    - button "Underline"
+  - separator
+  - button "Insert link"
+  - button "Insert image" [disabled]
+  - separator
+  - button "More"
+
+# Vertical
+- toolbar "Drawing tools":
+  - button "Select" [pressed]
+  - button "Pen"
+  - button "Eraser"
+  - separator
+  - button "Undo"
+

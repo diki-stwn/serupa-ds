@@ -1,0 +1,59 @@
+# Interactive
+- navigation "Progress":
+  - list:
+    - listitem: Account Email and password
+    - listitem: Profile Optional
+    - listitem: Billing Card or invoice
+    - listitem: Review
+- button "Back" [disabled]
+- button "Next"
+
+# Narrow
+- navigation "Progress":
+  - list:
+    - listitem: Account , completed Email and password
+    - listitem: Profile Optional
+    - listitem: Billing Card or invoice
+    - listitem: Review
+
+# NonLinear
+- navigation "Progress":
+  - list:
+    - listitem:
+      - button "Account , completed Email and password"
+    - listitem: Profile Optional
+    - listitem:
+      - button "Billing Card or invoice"
+    - listitem:
+      - button "Review"
+
+# Playground
+- navigation "Progress":
+  - list:
+    - listitem: Account , completed Email and password
+    - listitem: Profile Optional
+    - listitem: Billing Card or invoice
+    - listitem: Review
+
+# Vertical
+- navigation "Progress":
+  - list:
+    - listitem: Account , completed Email and password
+    - listitem: Profile , completed Optional
+    - listitem: Billing Card or invoice
+    - listitem: Review
+
+# WithError
+- navigation "Progress":
+  - list:
+    - listitem: Upload , completed
+    - listitem: Check , has an error 3 rows need fixing
+    - listitem: Import
+
+# WithWarning
+- navigation "Progress":
+  - list:
+    - listitem: Details , completed
+    - listitem: Photos , needs attention Add at least one
+    - listitem: Publish
+

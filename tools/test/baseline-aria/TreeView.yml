@@ -1,0 +1,56 @@
+# Multiple
+- tree "Files":
+  - treeitem "src" [expanded] [level=1]:
+    - text: src
+    - group:
+      - treeitem "components" [expanded] [level=2]:
+        - text: components
+        - group:
+          - treeitem "Button.tsx" [level=3] [selected]
+          - treeitem "Menu.tsx" [level=3]
+      - treeitem "index.ts" [level=2] [selected]
+  - treeitem "docs" [expanded] [level=1]:
+    - text: docs
+    - group:
+      - treeitem "Introduction.mdx" [level=2] [selected]
+      - treeitem "Archive (read only)" [disabled] [level=2]
+  - treeitem "README.md" [level=1]
+
+# NoSelection
+- tree "Contents":
+  - treeitem "src" [level=1]
+  - treeitem "docs" [expanded] [level=1]:
+    - text: docs
+    - group:
+      - treeitem "Introduction.mdx" [level=2]
+      - treeitem "Archive (read only)" [disabled] [level=2]
+  - treeitem "README.md" [level=1]
+
+# Playground
+- tree "Files":
+  - treeitem "src" [expanded] [level=1]:
+    - text: src
+    - group:
+      - treeitem "components" [expanded] [level=2]:
+        - text: components
+        - group:
+          - treeitem "Button.tsx" [level=3]
+          - treeitem "Menu.tsx" [level=3] [selected]
+      - treeitem "index.ts" [level=2]
+  - treeitem "docs" [level=1]
+  - treeitem "README.md" [level=1]
+
+# RightToLeft
+- tree "Files":
+  - treeitem "src" [expanded] [level=1]:
+    - text: src
+    - group:
+      - treeitem "components" [expanded] [level=2]:
+        - text: components
+        - group:
+          - treeitem "Button.tsx" [level=3]
+          - treeitem "Menu.tsx" [level=3] [selected]
+      - treeitem "index.ts" [level=2]
+  - treeitem "docs" [level=1]
+  - treeitem "README.md" [level=1]
+
