@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
-  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, configure, enLabels, idLabels, useSerupa, version,
+  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, configure, enLabels, idLabels, useCollator, useSerupa, version,
   type ButtonProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
 import { type IconData } from 'serupa-ds/icons';
@@ -116,6 +116,7 @@ export const someLabels = <SerupaProvider labels={{}}><Input /></SerupaProvider>
 // @ts-expect-error: a word that no component uses
 export const unknownLabel = <SerupaProvider labels={{ notAWord: 'x' }} />;
 export const settings = () => useSerupa();
+export const order = (): number => useCollator({ locale: 'de-DE', sensitivity: 'base' }).compare('a', 'A');
 
 // The functions.
 is<Equal<ReturnType<typeof toast>, string>>();
