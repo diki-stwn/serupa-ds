@@ -28,6 +28,22 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const never = () => () => {}, yes = () => true, no = () => false;
 
+/* A custom icon's markup as React elements, so it's never written as HTML: a page with Trusted Types on
+   (require-trusted-types-for 'script') needs no policy for it. tools/icons/build.mjs writes the markup: <g> and shape
+   tags whose attributes are numbers, path data and keywords, in double quotes, with nothing to unescape. */
+function shapes(markup: string): React.ReactNode[] {
+  const kids: React.ReactNode[][] = [[]], open: Array<[string, object]> = [];
+  for (const [, close, tag, attrs, alone] of markup.matchAll(/<(\/?)(\w+)([^>]*?)(\/?)>/g)) {
+    const here = kids[kids.length - 1];
+    if (close) { const [t, p] = open.pop()!, inner = kids.pop()!; kids[kids.length - 1].push(React.createElement(t, p, ...inner)); continue; }
+    const p: Record<string, string> = { key: String(here.length) };
+    for (const [, k, v] of attrs.matchAll(/([\w-]+)="([^"]*)"/g)) p[k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())] = v;
+    if (alone) here.push(React.createElement(tag, p));
+    else { open.push([tag, p]); kids.push([]); }
+  }
+  return kids[0];
+}
+
 /* Icon: an inline SVG in a 1em box, drawn in the text color. Material Symbols Rounded, filled (src/material), or
    one of your custom icons (tools/icons/build.mjs). */
 /** An icon: Material Symbols Rounded (filled) or one of your custom SVG icons. Sized by font-size, drawn in the text color. Decorative by default (aria-hidden); pass aria-label to make it meaningful. */
@@ -63,7 +79,7 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   if (custom) {
     return (
       <span {...rest} ref={restyle} className={cn("dk-icon dk-icon--custom", props.className)} style={style}>
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false" dangerouslySetInnerHTML={{ __html: ICONS[props.name as string] }} />
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false">{shapes(ICONS[props.name as string])}</svg>
       </span>
     );
   }
