@@ -6,25 +6,43 @@
 // The tag is prebuilt: it points at a release commit made off main (never on it) that adds dist/ and drops the
 // scripts and devDependencies from package.json. Installing the tag from GitHub then copies files; nothing
 // builds on the project's machine.
+//
+// It releases the commit that brought this version (the Release pull request's merge), not the commit it runs
+// on. On a busy main the run that gets here can be several merges later, and those merges' code belongs to the
+// next version.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const run = (cmd, args, opts = {}) => (execFileSync(cmd, args, { cwd: P, encoding: 'utf8', ...opts }) ?? '').trim();   // null when stdio is inherited
-const pkg = JSON.parse(fs.readFileSync(path.join(P, 'package.json'), 'utf8'));
+let pkg = JSON.parse(fs.readFileSync(path.join(P, 'package.json'), 'utf8'));
 const tag = `v${pkg.version}`;
 
 const tagged = !!run('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`]);
 const released = () => { try { execFileSync('gh', ['release', 'view', tag], { cwd: P, stdio: 'ignore' }); return true; } catch { return false; } };
 if (tagged && released()) { console.log(`${tag} is already released.`); process.exit(0); }
+const back = run('git', ['rev-parse', 'HEAD']);
+// The first-parent commit whose package.json first said this version.
+const own = run('git', ['log', '--first-parent', '--format=%H', '-1', '-S', `"version": "${pkg.version}"`, 'HEAD', '--', 'package.json']);
+if (!tagged && own && own !== back) {
+  console.log(`${tag} came in with ${own.slice(0, 8)}: releasing that commit, not ${back.slice(0, 8)}.`);
+  const lock = run('git', ['diff', '--name-only', own, back, '--', 'package-lock.json']);
+  run('git', ['checkout', '--detach', '--quiet', own]);
+  if (lock) run('npm', ['ci', '--ignore-scripts'], { stdio: 'inherit' });
+  pkg = JSON.parse(fs.readFileSync(path.join(P, 'package.json'), 'utf8'));
+}
+// Back to the commit the workflow checked out, with its own dependencies, for the steps after this one.
+const home = () => {
+  run('git', ['checkout', '--quiet', back]);
+  if (own !== back && run('git', ['diff', '--name-only', own, back, '--', 'package-lock.json'])) run('npm', ['ci', '--ignore-scripts'], { stdio: 'inherit' });
+};
 const log = fs.readFileSync(path.join(P, 'CHANGELOG.md'), 'utf8');
 // Every regex character in the version escaped, not just the dots (a build suffix like 1.0.0+abc has a +).
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const m = new RegExp(`^## \\[${escape(pkg.version)}\\][^\\n]*\\n([\\s\\S]*?)(?=^## \\[)`, 'm').exec(log);
-if (!m) { console.log(`CHANGELOG.md has no ${pkg.version} section yet: nothing to release.`); process.exit(0); }
+if (!m) { console.log(`CHANGELOG.md has no ${pkg.version} section yet: nothing to release.`); home(); process.exit(0); }
 
-const back = run('git', ['rev-parse', 'HEAD']);
 if (tagged) {
   // The tag is already the prebuilt commit: pack the release from it, as the first run would have.
   console.log(`${tag} is tagged but has no GitHub release yet: making it from the tag.`);
@@ -53,7 +71,7 @@ if (!tagged) {
   run('git', ['tag', tag]);
   run('git', ['push', 'origin', tag], { stdio: 'inherit' });
 }
-run('git', ['checkout', '--quiet', back]);
+home();
 run('gh', ['release', 'create', tag, tarball, '--title', `${pkg.version}`, '--notes-file', notes, '--verify-tag'], { stdio: 'inherit' });
 fs.rmSync(notes);
 // Publishing to a registry comes later: GitHub Packages needs the package named after the account
