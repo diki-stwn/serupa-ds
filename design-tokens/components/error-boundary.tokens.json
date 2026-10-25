@@ -1,0 +1,29 @@
+{
+  "error-boundary": {
+    "$description": "ErrorBoundary's component tokens. Each one is an optional override: set the CSS variable (--error-boundary-<name>) on the page, a container or one boundary. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults. The fallback itself is an Alert: use the --alert-* tokens for its colors.",
+    "color": {
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The ring when the fallback takes focus.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-boundary-focus-ring"
+          }
+        }
+      }
+    },
+    "radius": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-lg}",
+        "$description": "The fallback box's corners, matching the Alert (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-boundary-radius"
+          }
+        }
+      }
+    }
+  }
+}

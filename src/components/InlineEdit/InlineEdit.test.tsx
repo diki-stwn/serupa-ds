@@ -136,4 +136,15 @@ describe('InlineEdit', () => {
     expect([error.mock.calls, warn.mock.calls]).toEqual([[], []]);
     error.mockRestore(); warn.mockRestore();
   });
+  test('autoFocus focuses the edit button, not the wrapper', async () => {
+    await render(<><InlineEdit id="ia" label="Name" defaultValue="Apollo" autoFocus /></>);
+    await expect.poll(() => document.activeElement).toBe(view('ia'));
+    expect(root('ia').hasAttribute('autofocus')).toBe(false);
+  });
+
+  test('autoFocus with editing: the field takes focus', async () => {
+    await render(<InlineEdit id="ib" label="Name" defaultValue="Apollo" editing autoFocus />);
+    await expect.poll(() => document.activeElement).toBe(input('ib'));
+  });
+
 });
