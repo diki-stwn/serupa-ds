@@ -12,7 +12,8 @@
   inset: auto;
   z-index: var(--menu-z-index, var(--z-50));
   min-width: var(--menu-min-width, var(--spacing-48));
-  max-width: calc(var(--sizing-full) - var(--spacing-4));
+  /* At most 20rem, so one long label wraps instead of stretching the menu across the window. */
+  max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--menu-max-width, var(--spacing-80)));
   max-height: calc(var(--sizing-dvh) - var(--spacing-4));
   margin: var(--spacing-0);
   padding: var(--menu-padding, var(--spacing-1));
@@ -36,7 +37,7 @@
   align-items: center;
   gap: var(--menu-item-gap, var(--spacing-2));
   min-height: var(--menu-item-height, var(--control-height-md));
-  padding: var(--spacing-0) var(--menu-item-padding-x, var(--spacing-2));
+  padding: var(--spacing-1) var(--menu-item-padding-x, var(--spacing-2));   /* the block padding only shows on a wrapped label */
   border-radius: var(--menu-item-radius, var(--rounded-md));
   color: var(--menu-item-text, var(--text));
   text-decoration: none;

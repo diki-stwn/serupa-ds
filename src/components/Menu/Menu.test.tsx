@@ -167,6 +167,15 @@ describe('Menu', () => {
     expect(getComputedStyle(it.querySelector('.dk-icon')!).fontSize).toBe('16px');
   });
 
+  test('a long label wraps inside a menu at most 320px wide (--menu-max-width), even under a narrow button (BH2)', async () => {
+    const long = 'Move this conversation to the archive and stop notifications about it from now on';
+    await render(<Menu trigger={<Button id="mw" size="sm">More</Button>}><MenuItem>Short</MenuItem><MenuItem id="ml">{long}</MenuItem></Menu>);
+    await userEvent.click(el('mw'));
+    await Promise.all(document.getAnimations().map((a) => a.finished));
+    const m = menuOf('mw'), short = m.querySelector<HTMLElement>('[role="menuitem"]')!, item = el('ml');
+    expect([near(rect(m).width, 320), short.offsetHeight, item.offsetHeight > 32, item.scrollWidth <= item.clientWidth]).toEqual([true, 32, true, true]);
+  });
+
   test('shortcut: shown as <kbd>, left out of the item\'s name, and given as aria-keyshortcuts; your own aria-keyshortcuts wins', async () => {
     await render(<Menu open trigger={<Button id="ks">More</Button>}>
       <MenuItem shortcut="⌘E">Edit</MenuItem>
