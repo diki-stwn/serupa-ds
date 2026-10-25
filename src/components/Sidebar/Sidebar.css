@@ -42,6 +42,9 @@
 .dk-sidebar--collapsed .dk-sidebar__label, .dk-sidebar--collapsed .dk-sidebar__section-title {
   position: absolute; width: var(--spacing-px); height: var(--spacing-px); margin: calc(var(--spacing-0) - var(--spacing-px)); padding: var(--spacing-0); overflow: hidden; clip-path: inset(var(--sizing-1-2)); white-space: nowrap;
 }
+/* The collapsed rail's menu: the current page is in medium weight and the active text color (the highlight is focus's). */
+.dk-sidebar__menu-item[aria-current="page"] { color: var(--sidebar-item-text-active, var(--text)); font-weight: var(--font-medium); }
+@media (forced-colors: active) { .dk-sidebar__menu-item[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; outline-offset: calc(var(--spacing-0) - var(--outline-width-2)); } }
 @media (forced-colors: active) { .dk-sidebar__item[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-sidebar, .dk-sidebar__item, .dk-sidebar__chevron.dk-icon { transition: none; } }
 }
