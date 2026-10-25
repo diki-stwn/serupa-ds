@@ -75,7 +75,7 @@ Set the brand and mode on `<html>` and load `theme.js` first in `<head>`, so the
 <html data-brand="blue" data-mode="auto">   <!-- brand: blue | violet | emerald; mode: auto | light | dark -->
 ```
 
-Or set one theme directly on any element: `data-theme="violet-dark"`. See Foundations › Themes in Storybook (`docs/foundations.md`).
+Or set one theme directly on any element: `data-theme="violet-dark"`. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
 
 ### 4. Ship it
 

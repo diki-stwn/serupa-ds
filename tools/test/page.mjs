@@ -55,6 +55,15 @@ for (const scheme of ['light', 'dark']) {
   await ctx.close();
 }
 {
+  // A page that sets data-theme itself keeps it, under a dark system too, and reset() goes back to it.
+  const ctx = await b.newContext({ colorScheme: 'light' });
+  const p = await ctx.newPage();
+  await p.goto(writePage('theme-own.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-theme="violet-dark"' }));
+  const own = await p.evaluate(() => [document.documentElement.getAttribute('data-theme'), Serupa.theme.get().mode, Serupa.theme.set({ mode: 'light' }).theme, Serupa.theme.reset().theme]);
+  t('theme.js: a page\'s own data-theme="violet-dark" is its default, not replaced by blue', own.join() === 'violet-dark,dark,violet-light,violet-dark', own.join());
+  await ctx.close();
+}
+{
   const ctx = await b.newContext({ colorScheme: 'light' });
   const p = await ctx.newPage();
   const url = writePage('theme.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="auto"' });
