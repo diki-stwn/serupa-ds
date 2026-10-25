@@ -36,6 +36,7 @@ const [open, setOpen] = React.useState(false);
 ## Behavior
 
 - It's a native `<dialog>` opened with `showModal()`, like Dialog. Focus moves inside and stays there, the page behind can't be reached and doesn't scroll (or shift sideways when a classic scrollbar goes away), and closing moves focus back to where it was. Focus goes to the first thing that takes it; put `data-autofocus` on another to choose. A backdrop press while a popup is open inside closes only the popup.
+- On a touch screen, dragging it toward its edge closes it (`reason: 'swipe'`): past a third of its size, or with a flick; a shorter drag springs back. Left and right drawers can be dragged anywhere outside a field, and top and bottom ones by the header or footer, so the body still scrolls. `swipeToClose={false}` turns it off.
 - With `modal={false}` it's opened with `show()` instead: no backdrop, the page stays usable and scrolls, focus moves inside but can leave it, and it isn't on the modal stack. Escape with focus inside it and the × close it; closing moves focus back only if focus was still inside.
 - Left and right drawers are full height. Top and bottom drawers are full width, as tall as their content up to the screen less 64px, and rounded on the open side.
 - The body scrolls on its own, so the header and footer stay in view. While it scrolls it takes Tab focus (with a focus ring), so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
@@ -76,6 +77,7 @@ const [open, setOpen] = React.useState(false);
 | `closeButton` | `boolean` | `true` | The × in the corner. |
 | `closeLabel` | `string` | `'Close'` | The ×'s name. |
 | `closeOnBackdrop` | `boolean` | `true` | Whether a click on the backdrop closes it. Turn it off when closing would lose work. |
+| `swipeToClose` | `boolean` | `true` | A touch drag toward its edge closes it, with `reason: 'swipe'`. |
 | `modal` | `boolean` | `true` | `false`: a side panel beside a usable page, with no backdrop, opened with `show()`. |
 
 Every other prop, `className` and `ref` go to the native `<dialog>`.

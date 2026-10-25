@@ -116,6 +116,42 @@ describe('Drawer', () => {
     expect(why).toEqual(['escape', 'close']);
   });
 
+  test('swipe to close: a touch drag toward the edge past a third closes it (reason "swipe"); a short slow one, a drag across, a mouse drag or swipeToClose={false} leave it open', async () => {
+    const why: string[] = [];
+    const one = (k: string, p: Partial<DrawerProps> = {}) => <Drawer key={k} id="sw" defaultOpen onOpenChange={(v, d) => why.push(d.reason)} title="Filters" {...p}><p id="swb">Body</p></Drawer>;
+    // Events at real times, 100ms apart: a drag's speed comes from their time stamps.
+    const swipe = async (dx: number, dy: number, o: { type?: string; from?: Element } = {}) => {
+      const p = o.from || panel('sw'), r = p.getBoundingClientRect(), x = r.left + 40, y = r.top + 40;
+      const ev = (name: string, cx: number, cy: number) => p.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 7, isPrimary: true, pointerType: o.type || 'touch', clientX: cx, clientY: cy }));
+      ev('pointerdown', x, y);
+      for (let i = 1; i <= 4; i++) { await new Promise((f) => setTimeout(f, 100)); ev('pointermove', x + dx * i / 4, y + dy * i / 4); }
+      ev('pointerup', x + dx, y + dy);
+    };
+    const d = () => el('sw') as HTMLDialogElement;
+    const screen = await render(one('a'));
+    await expect.poll(() => d().open).toBe(true);
+    await swipe(60, 0);
+    await swipe(0, 200);
+    await swipe(200, 0, { type: 'mouse' });
+    expect([d().open, panel('sw').style.translate, why.join()]).toEqual([true, '', '']);
+    await swipe(200, 0);
+    await expect.poll(() => d().open).toBe(false);
+    await screen.rerender(one('b', { swipeToClose: false }));
+    await expect.poll(() => d().open).toBe(true);
+    await swipe(300, 0);
+    expect(d().open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => d().open).toBe(false);
+    // Bottom: dragged by the header (here its title), not the body (which scrolls).
+    await screen.rerender(one('c', { side: 'bottom' }));
+    await expect.poll(() => d().open).toBe(true);
+    await swipe(0, 300, { from: el('swb') });
+    expect(d().open).toBe(true);
+    await swipe(0, 300, { from: d().querySelector('h2')! });
+    await expect.poll(() => d().open).toBe(false);
+    expect(why).toEqual(['swipe', 'escape', 'swipe']);
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     await render(<Drawer id="daf" open title="Filters"><Input id="dafq" aria-label="Search" data-autofocus /></Drawer>);
     await expect.poll(() => (el('daf') as HTMLDialogElement).open).toBe(true);
