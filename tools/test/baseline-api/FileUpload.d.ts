@@ -31,6 +31,7 @@ interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "de
     required?: boolean;
     readOnly?: boolean;
     name?: string;
+    form?: string;
     title?: React.ReactNode;
     buttonLabel?: string;
     hint?: React.ReactNode;

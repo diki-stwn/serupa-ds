@@ -66,7 +66,7 @@ describe('FileUpload', () => {
     const root = rootOf('rq');
     await userEvent.click(document.getElementById('go')!);
     await expect.poll(() => document.activeElement).toBe(choose(root));
-    expect([submitted, errs(root), choose(root).getAttribute('aria-invalid'), choose(root).getAttribute('aria-describedby')!.split(' ').map((i) => document.getElementById(i)!.textContent!.replace(/^error/, '')).join(' | ')])
+    expect([submitted, errs(root), choose(root).getAttribute('aria-invalid'), choose(root).getAttribute('aria-describedby')!.split(' ').map((i) => document.getElementById(i)!.textContent.replace(/^error/, '')).join(' | ')])
       .toEqual([0, 'alert: Choose a file.', 'true', 'Required | Choose a file.']);
     await userEvent.upload(input(root), [file('a.pdf', 'application/pdf', 10)]);
     await expect.poll(() => errs(root)).toBe(null);
