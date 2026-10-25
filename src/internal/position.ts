@@ -62,6 +62,7 @@ export function place(anchor: DOMRect, floating: { width: number; height: number
     while it's taller than the room it has. It's measured at its own height each time, so it grows back when there's
     room again, and it keeps its scroll position. */
 // The max-width the layer had before placeLayer first set one (a style prop's, or none), put back on each call.
+// module state: browser elements, weakly held.
 const ownMaxWidth = new WeakMap<HTMLElement, string>();
 
 export function placeLayer(layer: HTMLElement, anchor: Element, placement: string | undefined, offset: number, fallback?: Placement): void {
