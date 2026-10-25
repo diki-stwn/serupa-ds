@@ -30,6 +30,7 @@ npm test                                  # builds, then runs everything (about 
 node tools/test/run.mjs                   # everything, against the dist/ you built last
 node tools/test/run.mjs --update          # accept intended changes as the new baselines
 node tools/test/run.mjs --browser webkit  # the suite in WebKit (or firefox); baselines are kept per engine
+node tools/test/run.mjs --locale id-ID    # the suite with the browser in another language (CI's full runs add one)
 node tools/test/run.mjs --compat safari   # add the cross-browser comparison (safari, firefox or webkitgtk)
 node tools/test/run.mjs --list            # the steps it would run (with --group, of one group)
 node tools/test/run.mjs --since main      # only the components changed since main, and the ones that use them
