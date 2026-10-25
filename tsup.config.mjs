@@ -5,7 +5,9 @@ import fs from 'node:fs';
 import { defineConfig } from 'tsup';
 
 const { version } = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
-const define = { __VERSION__: JSON.stringify(version) };
+// The browser script keeps the development warnings (warnOnce): a plain page has no build step that could turn them
+// back on, and no process to read. React comes from the page, so this doesn't change which React runs.
+const define = { __VERSION__: JSON.stringify(version), 'process.env.NODE_ENV': '"development"' };
 
 // In the browser script, react and react-dom come from the page: window.React and window.ReactDOM.
 const windowReact = {

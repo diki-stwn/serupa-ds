@@ -70,7 +70,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const w = Number(props.width), h = Number(props.height);
   const sized = ratio === "auto" && w > 0 && h > 0;
   React.useEffect(() => {   // in the browser only, once per page
-    if (ratio === "auto" && !sized) warnOnce("image-size", 'Image: with ratio "auto" and no width and height, the frame has no height until the picture loads, so the page jumps. Pass the picture\'s width and height, or a ratio.');
+    if (process.env.NODE_ENV !== "production" && ratio === "auto" && !sized) warnOnce("image-size", 'Image: with ratio "auto" and no width and height, the frame has no height until the picture loads, so the page jumps. Pass the picture\'s width and height, or a ratio.');
   }, [ratio, sized]);
   const shape = typeof ratio === "number" ? { "--dk-image-ratio": String(ratio) } : sized ? { "--dk-image-ratio": w + " / " + h, width: w } : null;
   const frameStyle = shape ? { ...shape, ...(frameProps && frameProps.style) } as React.CSSProperties : frameProps && frameProps.style;

@@ -49,7 +49,7 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
     loadIcon(props.name as string).then((found) => {
       if (!live) return;
       if (found) loadedAll();
-      else warnOnce("icon:" + props.name, `Icon: "${props.name}" isn't a Material Symbol or one of your icons. Check the name on the Icons page (Foundations/Icons).`);
+      else if (process.env.NODE_ENV !== "production") warnOnce("icon:" + props.name, `Icon: "${props.name}" isn't a Material Symbol or one of your icons. Check the name on the Icons page (Foundations/Icons).`);
     }, () => { /* the chunk failed to load: the box stays empty */ });
     return () => { live = false; };
   }, [missing, props.name]);

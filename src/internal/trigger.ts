@@ -14,6 +14,6 @@ export function oneElement<P>(node: React.ReactNode, who: string, where: string)
  *  panel can't be placed next to it or give focus back to it. */
 export function useTriggerRef(ref: React.RefObject<HTMLElement | null>, who: string): void {
   React.useEffect(function () {
-    if (!ref.current) warnOnce("ref" + who, `Serupa: ${who}'s trigger doesn't forward its ref to an element.`);
+    if (process.env.NODE_ENV !== "production" && !ref.current) warnOnce("ref" + who, `Serupa: ${who}'s trigger doesn't forward its ref to an element.`);
   }, [ref, who]);
 }

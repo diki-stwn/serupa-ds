@@ -1,7 +1,8 @@
 // module state: which warnings were given; on a server each is given once per process, which is all a warning needs.
 const warned: Record<string, 1> = {};
 
-/** A console warning, once per key for the page's lifetime. */
+/** A console warning, once per key for the page's lifetime. Call it inside `if (process.env.NODE_ENV !== "production" && …)`,
+ *  so a production build drops the call and its message (tools/test/dev-warnings.mjs checks every one is). */
 export function warnOnce(key: string, msg: string): void {
   if (!warned[key] && typeof console !== "undefined") {
     warned[key] = 1;
