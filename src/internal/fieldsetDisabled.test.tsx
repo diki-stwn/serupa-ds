@@ -34,6 +34,6 @@ describe('in a <fieldset disabled>', () => {
     expect(css(ta).getPropertyValue('--dk-ta-bd')).toBe(before);
     const view = q('#fs .dk-inline-edit__view') as HTMLButtonElement;
     await userEvent.hover(view, { force: true });
-    expect([view.matches(':disabled'), css(view).cursor, css(view).backgroundColor, css(view.querySelector('.dk-inline-edit__icon')!).display]).toEqual([true, 'auto', 'rgba(0, 0, 0, 0)', 'none']);
+    expect([view.matches(':disabled'), css(view).cursor, css(view).backgroundColor, css(view.querySelector('.dk-inline-edit__icon')).display]).toEqual([true, 'auto', 'rgba(0, 0, 0, 0)', 'none']);
   });
 });
