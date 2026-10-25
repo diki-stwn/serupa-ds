@@ -530,7 +530,7 @@ describe('Combobox loadOptions (DG1)', () => {
     expect(st('p').text).toBe('Canada');
     await userEvent.keyboard('{Control>}a{/Control}q');
     const last = s.calls.at(-1)!;
-    unmount();
+    await unmount();
     expect([last.text, last.signal.aborted]).toEqual(['q', true]);
   });
 });
