@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { cn, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
+import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
+import { useAffixes } from "../../internal/affix";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import type { InputProps } from "../Input/Input";
@@ -59,7 +60,7 @@ const keyed = (key: string) => (key ? (JSON.parse(key) as Intl.NumberFormatOptio
 export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInputProps>("NumberInput", function NumberInput(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSerupa();
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -171,16 +172,20 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const current = parse(text);
   const now = typeof current === "number" ? current : value;
   const left = asIcon(props.leftIcon);
+  const affix = useAffixes(props.prefix, props.suffix, domId("dk-ni", React.useId()), el);
   const press = (by: number) => () => { nudge(by); if (el.current && document.activeElement !== el.current) el.current.focus({ preventScroll: true }); };
   return (
     <span className={cn("dk-input dk-number-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.steppers !== false && "dk-number-input--steppers", props.className)}
       style={props.style} data-component="number-input" data-size={size}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
+      {affix.prefix}
       <input {...rest} ref={(n) => { el.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         lang={rest.lang ?? lang} type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
         role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}
+        aria-describedby={cn(rest["aria-describedby"], affix.ids) || undefined}
         onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={rest.onFocus} />
+      {affix.suffix}
       {name ? <input type="hidden" ref={raw} name={name} form={rest.form} disabled={rest.disabled} value={value == null ? "" : String(factor === 1 ? value : Math.round(value * factor))} /> : null}
       {props.steppers !== false ? (
         <span className="dk-number-input__steppers">

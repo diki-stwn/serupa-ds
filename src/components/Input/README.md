@@ -37,6 +37,7 @@ const { Input } = window.Serupa;
 - Keep labels above the field, short and specific; use the placeholder only for an example of the format.
 - Show errors after someone leaves the field or submits, not on every keystroke.
 - Show a count only when there's a limit people need to plan around, such as a short title.
+- Use `prefix` and `suffix` for fixed text people shouldn't type, such as "https://", "@" or "kg". Keep it short, and keep the unit in the label too ("Weight (kg)") when the field makes no sense without it.
 
 ## States
 
@@ -52,6 +53,7 @@ const { Input } = window.Serupa;
 ## Accessibility
 
 - On iOS the field's text is 16px at every size, so Safari doesn't zoom the page when it takes focus; the box keeps its height.
+- A `prefix` or `suffix` is added to the field's `aria-describedby` (after your own), so screen readers say "https://" or "kg" too. A press on it focuses the field. Its `text-muted` keeps 4.5:1 on the field in all six themes (`Input.test.tsx`).
 - Every input needs a name: a visible `<label htmlFor>` (best) or `aria-label`. A placeholder isn't a label: it disappears as soon as someone types.
 - `invalid` sets `aria-invalid`, but color alone doesn't explain the problem: put the message in text and link it with `aria-describedby`.
 - Icons are decorative (`aria-hidden`) and don't take clicks, so clicking one focuses nothing; keep meaning in the label.
@@ -77,6 +79,8 @@ const { Input } = window.Serupa;
 | `invalid` | boolean | `false` | A danger border and focus ring, and `aria-invalid` |
 | `leftIcon` | icon name or element | | A decorative icon before the text (14, 16 or 20px, in `text-muted`) |
 | `rightIcon` | icon name or element | | A decorative icon after the text |
+| `prefix` | node | | Text in the box before the field, in `text-muted`, such as "https://". Added to the field's description |
+| `suffix` | node | | Text in the box after the field, such as "kg" or ".com". Added to the field's description |
 | `showCount` | boolean | `false` | A character count at the end of the field, in characters as people see them: "12 / 30" with `maxLength`, "12" without. It turns from `text-muted` to `text` once `maxLength` is reached, in the locale's digits |
 | `maxLength` | number | | The most characters, counted as people see them (an emoji is one), applied by Input |
 
@@ -95,6 +99,7 @@ Each is an optional override: set it on the page, a container or one input. The 
 | `--input-border-hover` | `field-border-hover` | Border on hover |
 | `--input-placeholder` | `placeholder` | Placeholder text |
 | `--input-icon-color` | `text-muted` | Left and right icons |
+| `--input-affix` | `text-muted` | The `prefix` and `suffix` text |
 | `--input-count` | `text-muted` | The character count |
 | `--input-count-full` | `text` | The count once `maxLength` is reached |
 | `--input-focus-ring` | `focus-ring` | Border and ring while focused |

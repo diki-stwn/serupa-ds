@@ -72,6 +72,16 @@
           }
         }
       },
+      "affix": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The prefix and suffix text, 4.5:1 on the field.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--input-affix"
+          }
+        }
+      },
       "count": {
         "$type": "color",
         "$value": "{color.text-muted}",
