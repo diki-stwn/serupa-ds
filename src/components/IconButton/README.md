@@ -36,6 +36,13 @@ const { IconButton } = window.Serupa;
 - Every size is at least 24×24px, the WCAG 2.2 target size.
 - The rest is Button's: focus ring, contrast, forced colors and reduced motion (checked in Button's tests); IconButton's own checks are in `IconButton.test.tsx`.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button |
+| Enter, Space | Press it |
+
 ## Props
 
 | Prop | Type | Default | What it does |

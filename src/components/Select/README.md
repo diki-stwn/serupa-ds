@@ -58,6 +58,15 @@ const { Select, Field } = window.Serupa;
 - The chevron and left icon are decorative and don't take clicks: a click anywhere in the box opens the select.
 - Text and placeholder keep 4.5:1 on `field`; the chevron, border, focus ring and invalid border 3:1, in all six themes (`Select.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the select |
+| ↑ ↓ | The previous or next option (on macOS, opens the list) |
+| Alt+↓, Space | Opens the browser's list |
+| A letter | The next option that starts with it |
+
 ## Props
 
 | Prop | Type | Default | What it does |

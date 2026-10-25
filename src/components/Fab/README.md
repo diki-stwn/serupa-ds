@@ -37,6 +37,13 @@ const { Fab } = window.Serupa;
 - While it's fixed to a corner, the page gets that much scroll padding at that edge (the FAB's size and twice its offset, 104px by default), so what the keyboard focuses scrolls into view clear of it, not under it (WCAG 2.4.11). With a sticky Navbar at the top, the larger padding wins.
 - It isn't printed: fixed to the viewport, it would repeat on every page.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button, in its place in the source order (not where it floats) |
+| Enter, Space | Press it |
+
 ## Props
 
 | Prop | Type | Default | What it does |
