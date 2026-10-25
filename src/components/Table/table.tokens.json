@@ -91,6 +91,16 @@
             "cssVar": "--table-focus-ring"
           }
         }
+      },
+      "sort-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A sortable header's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-sort-bg-pressed"
+          }
+        }
       }
     },
     "typography": {

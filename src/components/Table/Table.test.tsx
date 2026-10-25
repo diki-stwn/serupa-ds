@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
@@ -271,5 +271,12 @@ describe('Table: stickyHeader and focus', () => {
       if (document.activeElement!.getBoundingClientRect().top < head.querySelector('th')!.getBoundingClientRect().bottom - 1) covered.push(i);
     }
     expect(covered).toEqual([]);
+  });
+
+  test('pressed: a sortable header held down fills with pressed at once (ED1)', async () => {
+    await render(<Sortable />);
+    const b = el('hsort').querySelector('button') as HTMLButtonElement;
+    expect(css(b).backgroundColor).not.toBe(color('var(--pressed)'));
+    await press(b, () => expect.poll(() => css(b).backgroundColor).toBe(color('var(--pressed)')));
   });
 });
