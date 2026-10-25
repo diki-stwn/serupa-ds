@@ -21,6 +21,7 @@ dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
+dist/serupa.iife.js.map
 dist/theme.js
 dist/utilities.css
 fonts/InterVariable-Italic.woff2

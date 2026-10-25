@@ -1,4 +1,4 @@
-/*! Serupa · React components (needs React 18+) · CHANGELOG.md */
+/*! Serupa · React components (needs React 19) · CHANGELOG.md */
 export type { Space } from "./internal/space";
 export type { Placement } from "./internal/position";
 export type { OpenChangeDetails, OpenChangeReason } from "./internal/openChange";
