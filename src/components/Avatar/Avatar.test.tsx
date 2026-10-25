@@ -59,6 +59,24 @@ describe('Avatar', () => {
     expect([el('alt').getAttribute('aria-hidden'), el('alt').getAttribute('role'), el('alt2').getAttribute('aria-label')]).toEqual(['true', null, 'Atlas project']);
   });
 
+  test('a name of only spaces counts as none: the icon, hidden, no aria-label of spaces (AU1)', async () => {
+    await render(<Row><Avatar id="blank" name="   " /></Row>);
+    expect([el('blank').getAttribute('aria-hidden'), el('blank').getAttribute('aria-label'), el('blank').getAttribute('role'), !!el('blank').querySelector('.dk-icon')]).toEqual(['true', null, null, true]);
+  });
+
+  test('the <img> loads lazily and decodes async by default; imgProps reach it, can make it eager, and its onError still falls back (BJ1)', async () => {
+    const err = vi.fn();
+    await render(<Row>
+      <Avatar id="lazy" src={IMG} name="Ada Lovelace" />
+      <Avatar id="eager" src={IMG} name="Grace Hopper" imgProps={{ loading: 'eager', referrerPolicy: 'no-referrer', className: 'mine' }} />
+      <Avatar id="bad" src="data:image/png;base64,broken" name="Linus T" imgProps={{ onError: err }} />
+    </Row>);
+    const img = (id: string) => el(id).querySelector('img')!;
+    expect([img('lazy').loading, img('lazy').decoding, img('eager').loading, img('eager').referrerPolicy, img('eager').className]).toEqual(['lazy', 'async', 'eager', 'no-referrer', 'dk-avatar__img mine']);
+    await expect.poll(() => el('bad').querySelector('.dk-avatar__initials')?.textContent).toBe('LT');
+    expect(err).toHaveBeenCalledTimes(1);
+  });
+
   test('sizes: 24/12, 32/12, 40/14, 48/16 and 64/20 (box/initials, px); the person icon scales with the size (14 to 40px); shape square: 8px corners', async () => {
     await render(<Row>
       {SIZES.map((s) => <Avatar key={s} data-s={s} size={s} name="Ada Lovelace" />)}

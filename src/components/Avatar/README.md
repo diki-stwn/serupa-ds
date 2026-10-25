@@ -50,6 +50,7 @@ const { Avatar } = window.Serupa;
 | `shape` | `'circle'` \| `'square'` | `'circle'` | Circles for people, squares (8px corners) for everything else |
 | `status` | `'online'` \| `'busy'` \| `'away'` \| `'offline'` | | A dot at the bottom end, also added to the accessible name ("Grace Hopper, online") |
 | `statusLabel` | string | the status | What the status says to screen readers, such as "in a meeting" |
+| `imgProps` | `<img>` props | `loading="lazy"`, `decoding="async"` | For the picture: `loading="eager"` for one above the fold, `referrerPolicy`, `crossOrigin` |
 
 `className`, `style`, `ref` and everything else go to the outer `<span>`, which has `data-component="avatar"`, `data-size` and `data-shape`. `initials(name)` is exported too.
 
