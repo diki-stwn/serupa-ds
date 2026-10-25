@@ -218,6 +218,18 @@
           }
         }
       }
+    },
+    "motion": {
+      "press-scale": {
+        "$type": "number",
+        "$value": "{transforms.scale-90}",
+        "$description": "Size of the circle while the radio is held down (90%). 1 turns press feedback off.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--radio-press-scale"
+          }
+        }
+      }
     }
   }
 }

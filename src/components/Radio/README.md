@@ -119,3 +119,4 @@ Each is an optional override: set it on the page, a container or one radio. The 
 | `--radio-group-gap` | `spacing-2` | Between radios in a stack, and between rows (8px) |
 | `--radio-group-gap-horizontal` | `spacing-4` | Between radios in a row (16px) |
 | `--radio-border-width` | `border-width-1` | Border width (1px) |
+| `--radio-press-scale` | `scale-90` | Size of the circle while it's held down (90%). 1 turns it off |
