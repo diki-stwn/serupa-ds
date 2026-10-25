@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
-  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, configure, enLabels, idLabels, useCollator, useSerupa, version,
+  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, useCollator, useLocale, useSerupa, version,
   type ButtonProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
 import { type IconData } from 'serupa-ds/icons';
@@ -117,6 +117,12 @@ export const someLabels = <SerupaProvider labels={{}}><Input /></SerupaProvider>
 // @ts-expect-error: a word that no component uses
 export const unknownLabel = <SerupaProvider labels={{ notAWord: 'x' }} />;
 export const settings = () => useSerupa();
+is<Equal<Parameters<typeof useLocale>, [own?: string]>>();
+is<Equal<ReturnType<typeof useLocale>, string>>();
+announce('Saved');
+announce('Upload failed', { assertive: true });
+// @ts-expect-error: assertive is a boolean
+announce('Saved', { assertive: 'yes' });
 export const order = (): number => useCollator({ locale: 'de-DE', sensitivity: 'base' }).compare('a', 'A');
 
 // The functions.
@@ -133,6 +139,7 @@ is<Equal<typeof version, string>>();
 // Plain pages: window.Serupa has every component, and theme only when theme.js is loaded.
 is<Equal<typeof window.Serupa.Button, typeof Button>>();
 is<Equal<typeof window.Serupa.version, string>>();
+is<Equal<typeof window.Serupa.useLocale, typeof useLocale>>();
 // @ts-expect-error: theme may be missing
 window.Serupa.theme.set({ mode: 'dark' });
 window.Serupa.theme?.set({ brand: 'violet' });
