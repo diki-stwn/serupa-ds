@@ -91,6 +91,51 @@ describe('InlineEdit', () => {
     await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
   });
 
+  test('leaving the field with a failing text keeps it open with the message, says it, and leaves focus where it went', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="vb" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} /><button id="vb-next">Next</button></Box>);
+    await userEvent.click(view('vb'));
+    await userEvent.fill(input('vb')!, 'apollo plan');
+    await userEvent.click(document.getElementById('vb-next')!);
+    const i = input('vb')!;
+    expect([document.activeElement?.id, i.value, i.getAttribute('aria-invalid'), document.getElementById(i.getAttribute('aria-describedby')!)!.textContent, calls])
+      .toEqual(['vb-next', 'apollo plan', 'true', 'Use dashes instead of spaces.', []]);
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
+  });
+
+  test('validate can return a Promise: busy until it settles, only the latest check counts, Escape drops it', async () => {
+    const calls: string[] = [];
+    const pending: Array<(m: string | null) => void> = [];
+    const check = () => new Promise<string | null>((res) => { pending.push(res); });
+    await render(<Box><InlineEdit id="vp" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={check} /></Box>);
+    await userEvent.click(view('vp'));
+    await userEvent.fill(input('vp')!, 'taken');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => input('vp')!.getAttribute('aria-busy')).toBe('true');
+    pending[0]('That slug is taken.');
+    await expect.poll(() => input('vp')!.getAttribute('aria-invalid')).toBe('true');
+    expect([input('vp')!.hasAttribute('aria-busy'), document.getElementById(input('vp')!.getAttribute('aria-describedby')!)!.textContent, calls]).toEqual([false, 'That slug is taken.', []]);
+    await expect.poll(() => announcerIdle() && said()).toBe('That slug is taken.');
+    // A check whose text was edited since doesn't count.
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('-2');
+    pending[1](null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([input('vp')!.value, input('vp')!.hasAttribute('aria-busy'), calls]).toEqual(['taken-2', false, []]);
+    await userEvent.keyboard('{Enter}');
+    pending[2](null);
+    await expect.poll(() => input('vp')).toBe(null);
+    expect([calls, document.activeElement === view('vp'), view('vp').textContent]).toEqual([['taken-2'], true, 'Slug: taken-2, Edit']);
+    // Escape while a check runs puts the text back, and its answer is ignored.
+    await userEvent.keyboard(' ');
+    await userEvent.fill(input('vp')!, 'later');
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Escape}');
+    pending[3](null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([input('vp'), calls, view('vp').textContent]).toEqual([null, ['taken-2'], 'Slug: taken-2, Edit']);
+  });
+
   test('Escape inside a Dialog cancels the edit and leaves the dialog open', async () => {
     const asks: boolean[] = [];
     await render(<Dialog open title="Rename" onOpenChange={(o) => asks.push(o)}><InlineEdit id="d" label="Name" defaultValue="Apollo" /></Dialog>);
