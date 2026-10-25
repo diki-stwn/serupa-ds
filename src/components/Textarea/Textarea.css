@@ -29,6 +29,15 @@
 .dk-textarea__field::placeholder { color: var(--textarea-placeholder, var(--placeholder)); opacity: var(--opacity-100); }
 .dk-textarea--resize-none .dk-textarea__field, .dk-textarea--disabled .dk-textarea__field, .dk-textarea__field:where(:disabled), .dk-textarea--readonly .dk-textarea__field { resize: none; }
 .dk-textarea--auto .dk-textarea__field { overflow-y: hidden; }
+/* autoResize where the browser sizes a field to its content: rows lines at least, maxRows at most (unset: no limit,
+   since the max-height is then invalid and falls back to none), scrolling past that. Textarea.tsx measures elsewhere. */
+@supports (field-sizing: content) {
+  .dk-textarea--auto .dk-textarea__field {
+    --dk-ta-min: calc(var(--dk-ta-rows) * 1lh + 2 * var(--dk-ta-py));
+    --dk-ta-max: calc(var(--dk-ta-max-rows) * 1lh + 2 * var(--dk-ta-py));
+    field-sizing: content; min-height: var(--dk-ta-min); max-height: var(--dk-ta-max); overflow-y: auto; overscroll-behavior: contain;
+  }
+}
 /* The count sits under the text, at the end, in text-xs with tabular digits; it turns text-colored at maxLength. */
 .dk-textarea__count {
   align-self: flex-end; padding: var(--spacing-0) var(--dk-ta-px) var(--dk-ta-py);
