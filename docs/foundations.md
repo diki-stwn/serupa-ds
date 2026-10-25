@@ -478,7 +478,7 @@ Rules of thumb:
 
 - Frosted glass: that translucent `surface` with `backdrop-blur-md backdrop-saturate-150` for sticky headers, `backdrop-blur-sm` for menus and `backdrop-blur-lg` behind dialogs.
 - Text over a photo: `brightness-50` or a gradient on the image, then check contrast at the lightest point.
-- `grayscale` for disabled or inactive images and logo walls (add `hover:grayscale-0` in your own CSS).
+- `grayscale` for disabled or inactive images and logo walls (and `filter: none` on hover, in your own CSS).
 - Blur is expensive on large areas and on scroll. Keep `blur-*` and `backdrop-blur-*` on small or fixed elements, and give text a solid fallback for browsers that skip backdrop filters.
 - Use `shadow-*` for cards and panels; save `drop-shadow-*` for icons, illustrations and cut-out images.
 
@@ -525,7 +525,12 @@ Transforms move how an element is drawn, not where it sits in the layout, so nei
 
 Rules of thumb:
 
-- Micro-interactions: `hover:scale-105` on cards, `active:scale-95` on pressed controls, with `transition-transform duration-150`.
+- Micro-interactions: in your own CSS, scale a card up a little on hover and a control down while it's pressed, with `transition-transform duration-150` on the element (utilities have no `hover:` or `active:` prefix):
+
+  ```css
+  @media (hover: hover) { .card-link:hover { scale: var(--scale-105); } }
+  .pressable:active { scale: var(--scale-95); }
+  ```
 - Menus and dialogs enter from `scale-95 opacity-0` to `scale-100 opacity-100`, with `origin-top` for menus that drop down.
 - Centre an absolutely positioned element with `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`.
 - Rotate disclosure chevrons with `rotate-180` (or `-rotate-90`) instead of swapping icons.
@@ -615,7 +620,7 @@ Layout scales as tokens, and layout utilities as classes in `bundle.css` (`.cont
 | `screen-xl` | 1280px | Desktops |
 | `screen-2xl` | 1536px | Large desktops |
 
-**Responsive classes** — put a breakpoint in front of a layout class to apply it from that width up: `sm:` `md:` `lg:` `xl:` `2xl:`. Start with the phone layout and add what changes on wider screens:
+**Responsive classes** — put a breakpoint in front of a layout class to apply it from that width up: `sm:` `md:` `lg:` `xl:`. These four are the only prefixes: there are no `hover:`, `focus:`, `active:` or `dark:` classes, so write those states in your own CSS (the themes already handle dark). Start with the phone layout and add what changes on wider screens:
 
 ```html
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">…</div>
@@ -992,4 +997,4 @@ Accessibility utilities, as classes in `bundle.css`. They add no tokens.
 - Shadows and fills disappear, so anything that is only separated by a shadow or background needs a border too (`border` with a `transparent` color still draws in forced colors).
 - Focus: use outlines (`outline-2 outline-focus-ring`) or `outline-hidden`, never `outline-none` alone — rings and shadows vanish in forced colors. Button keeps its ring and adds a transparent 2px outline on focus, which only shows in forced colors; its transparent border shows there too.
 
-**Screen-reader text.** Give icon-only controls a name: an `aria-label`, or a `sr-only` span inside the button. For a "Skip to content" link, combine `sr-only` with `focus:not-sr-only` in your own CSS so it appears when tabbed to.
+**Screen-reader text.** Give icon-only controls a name: an `aria-label`, or a `sr-only` span inside the button. For a "Skip to content" link, wrap it in `<VisuallyHidden focusable>`, which hides it until it's tabbed to and then shows it.
