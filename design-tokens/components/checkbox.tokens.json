@@ -185,6 +185,26 @@
             "cssVar": "--checkbox-gap"
           }
         }
+      },
+      "group-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Gap between boxes in a vertical CheckboxGroup, and between rows of a horizontal one (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--checkbox-group-gap"
+          }
+        }
+      },
+      "group-gap-horizontal": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Gap between boxes in a horizontal CheckboxGroup (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--checkbox-group-gap-horizontal"
+          }
+        }
       }
     },
     "border": {
