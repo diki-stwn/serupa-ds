@@ -38,7 +38,7 @@ import { PinInput, Field } from "serupa-ds";
 ## Accessibility
 
 - **Role and name:** one `<input>` with a text role (a password field with `mask`). Name it with Field's label, `<label htmlFor>`, `aria-label` or `aria-labelledby`. Screen readers read the code, not the boxes, which are `aria-hidden`.
-- **Keyboard:** it's one Tab stop. The caret stays at the end, and the box it's in gets the focus color, border and ring, which stay visible in forced colors.
+- **Keyboard:** it's one Tab stop. The caret stays at the end, and the box it's in gets the focus color, border and ring, which stay visible in forced colors. Forced colors don't paint the selected code over the boxes either: each box shows only its own digit.
 
 | Key | Does |
 | --- | --- |
