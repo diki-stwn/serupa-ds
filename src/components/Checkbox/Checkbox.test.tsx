@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, css, lowContrast, settle } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Checkbox, CheckboxGroup } from './Checkbox';
 
@@ -297,5 +297,17 @@ describe('CheckboxGroup', () => {
     await expect.element(page.getByRole('group', { name: 'Notify me about' })).toBeInTheDocument();
     await expect.element(page.getByRole('checkbox', { name: 'Replies' })).toBeInTheDocument();
     await expect.element(page.getByRole('checkbox', { name: 'Mentions' })).toBeInTheDocument();
+  });
+
+  test('pressed: the box shrinks to 90% while the row is held, on scale alone, and springs back; not when disabled (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<><Checkbox id="pc" label="Press me" /><Checkbox id="pd" label="Off" disabled /></>);
+      const el = (id: string) => document.getElementById(id) as HTMLElement;
+      const box = (id: string) => el(id).parentElement as HTMLElement;   // the control around the input
+      expect(css(box('pc')).transitionProperty).toBe('scale');
+      await press(el('pc').closest('label')!, () => expect.poll(() => css(box('pc')).scale).toBe('0.9'));
+      await expect.poll(() => css(box('pc')).scale).toBe('none');
+      await press(el('pd').closest('label')!, () => expect(css(box('pd')).scale).toBe('none'));
+    });
   });
 });

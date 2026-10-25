@@ -140,3 +140,4 @@ Each is an optional override: set it on the page, a container or one checkbox. T
 | `--checkbox-radius` | `rounded-sm` | Corner radius (4px) |
 | `--checkbox-group-gap` | `spacing-2` | Between boxes in a CheckboxGroup stack, and between rows (8px) |
 | `--checkbox-group-gap-horizontal` | `spacing-4` | Between boxes in a CheckboxGroup row (16px) |
+| `--checkbox-press-scale` | `scale-90` | Size of the box while it's held down (90%). 1 turns it off |
