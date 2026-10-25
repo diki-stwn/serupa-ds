@@ -45,6 +45,7 @@ const [open, setOpen] = React.useState(false);
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
 - On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
+- To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 - Under `<React.StrictMode>`, a Dialog that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 
 ## Accessibility
