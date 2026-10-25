@@ -133,7 +133,7 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttri
     return () => { el.removeEventListener("scroll", measure); if (ro) ro.disconnect(); };
   }, [measure]);
   // The selected tab, scrolled into view inside the list only (the page doesn't move), with the fade's room to spare.
-  useIsoLayoutEffect(() => {
+  const reveal = React.useCallback(() => {
     const el = list.current;
     const tab = el && ctx.value != null ? el.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]') : null;
     if (!el || !tab) return;
@@ -146,6 +146,16 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttri
     else if (t.right > box.right - room) el.scrollLeft += t.right - (box.right - room);
     measure();
   }, [ctx.value, ctx.vertical, measure]);
+  useIsoLayoutEffect(reveal, [reveal]);
+  // Again once the web fonts have loaded: tabs drawn first in a fallback font change width when the real one
+  // arrives, which can leave the selected tab part way past the end.
+  React.useEffect(() => {
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
+    if (!fonts || fonts.status === "loaded") return;
+    let live = true;
+    fonts.ready.then(() => { if (live) reveal(); }, () => {});
+    return () => { live = false; };
+  }, [reveal]);
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (props.onKeyDown) props.onKeyDown(e);
     if (e.defaultPrevented) return;
