@@ -78,7 +78,7 @@ const CAP = 100;   // the most option rows the list puts in the page at once
 interface Opt { value: string; label: string; description?: React.ReactNode; disabled?: boolean; i: number; folded: string }
 
 /* One option row. Memoised, so moving the active option re-renders the two rows that change, not the whole list. */
-const Row = React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; pos: number; size: number; onMove: (i: number) => void; onPick: (i: number) => void }) {
+const Row = /* @__PURE__ */ React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; pos: number; size: number; onMove: (i: number) => void; onPick: (i: number) => void }) {
   const o = p.o;
   return (
     <div id={p.id} role="option" aria-selected={p.selected} aria-posinset={p.pos} aria-setsize={p.size} aria-disabled={o.disabled || undefined}
