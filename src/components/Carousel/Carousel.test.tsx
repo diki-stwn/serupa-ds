@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, keepMotion } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
@@ -263,6 +263,36 @@ describe('Carousel', () => {
       expect(fc).not.toContain('rgba(0, 0, 0, 0)');
       expect(fc).toEqual([color('CanvasText'), color('Highlight')]);
     } finally { restore(); }
+  });
+
+  test('perView={3}: three slides share the width, 16px apart, all three reachable; next moves one slide and stops when the last is in view; the dots count pages, named "1–3 of 7"', async () => {
+    await render(<div style={{ width: '432px' }}><Carousel id="pv" label="Products" perView={3}>{slides(7, 'p')}</Carousel></div>);
+    const sl = [...el('pv').querySelectorAll('.dk-carousel__slide')].map((s) => s.getBoundingClientRect());
+    expect([Math.round(sl[0].width), Math.round(sl[1].left - sl[0].right)]).toEqual([133, 16]);
+    expect(state('pv')).toMatchObject({ index: 0, inert: '0001111', hidden: '0001111', dots: 'C0 --1 --1', prev: true, next: false });
+    expect([...el('pv').querySelectorAll('.dk-carousel__dot')].map((d) => d.getAttribute('aria-label'))).toEqual(['1–3 of 7', '4–6 of 7', '5–7 of 7']);
+    await userEvent.click(arrow('pv', 'next'));
+    expect(state('pv')).toMatchObject({ index: 1, shown: 1, inert: '1000111', dots: 'C0 --1 --1' });
+    await userEvent.click(dot('pv', 2));
+    expect(state('pv')).toMatchObject({ index: 4, shown: 4, inert: '1111000', dots: '--1 --1 C0', next: true });
+    dot('pv', 2).focus();
+    await userEvent.keyboard('{Home}');
+    expect(state('pv')).toMatchObject({ index: 0, dots: 'C0 --1 --1' });
+    await userEvent.keyboard('{ArrowRight}');
+    expect([state('pv').index, document.activeElement === dot('pv', 1)]).toEqual([3, true]);
+  });
+
+  test('perView as { base, md }: one slide on a phone, two from 768px up, following the width as it changes; as many slides as fit or fewer: no buttons, no dots', async () => {
+    const w = window.innerWidth, h = window.innerHeight;
+    try {
+      await page.viewport(500, 700);
+      await render(<><Carousel id="rv" label="Reviews" perView={{ base: 1, md: 2 }}>{slides(4, 'v')}</Carousel><Carousel id="few" label="Few" perView={3}>{slides(2, 'w')}</Carousel></>);
+      expect(state('rv').dots.split(' ').length).toBe(4);
+      await page.viewport(900, 700);
+      await expect.poll(() => state('rv').dots.split(' ').length).toBe(2);
+      expect(state('rv').inert).toBe('0011');
+      expect([el('few').querySelectorAll('.dk-carousel__arrow, .dk-carousel__dot').length, state('few').inert]).toEqual([0, '00']);
+    } finally { await page.viewport(w, h); }
   });
 
   test('no errors on the page', () => {

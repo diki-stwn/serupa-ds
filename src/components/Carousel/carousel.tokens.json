@@ -88,6 +88,16 @@
           }
         }
       },
+      "slide-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space between slides shown side by side, with perView (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--carousel-slide-gap"
+          }
+        }
+      },
       "arrow-offset": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
