@@ -17,6 +17,7 @@ const ARGS: Record<string, unknown[]> = {
   fileTooLarge: ['cat.png', '2 MB'],
   fileTooMany: ['cat.png', 3],
   fileWrongType: ['cat.txt', ['image', 'PDF']],
+  formatHint: ['dd/mm/yyyy'],
   inputNotAccepted: ['abc'],
   keyName: ['Up arrow'],
   lowContrast: ['4.5'],
@@ -42,8 +43,8 @@ function said(set: Record<string, unknown>): Record<string, string> {
     return [k, text];
   }));
 }
-// Words that are the same in both languages. "Slide" is the usual loanword in Indonesian.
-const SAME = new Set(['menu', 'ok', 'hexCode', 'sliderMinimum', 'slideRole']);
+// Words that are the same in both languages. "Slide" and "Format" are the usual loanwords in Indonesian.
+const SAME = new Set(['menu', 'ok', 'hexCode', 'sliderMinimum', 'slideRole', 'formatHint']);
 
 describe('labels', () => {
   const en = said(DEFAULT_LABELS as unknown as Record<string, unknown>), id = said(idLabels as unknown as Record<string, unknown>);

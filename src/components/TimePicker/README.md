@@ -39,6 +39,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 ## Accessibility
 
 - The field is an ARIA combobox (`aria-haspopup="listbox"`, `aria-expanded`, `aria-activedescendant`) and the list a `role="listbox"` with `aria-selected` on the chosen time. The check is decorative.
+- The placeholder and the format in the field's description ("Format: hh:mm AM/PM", after a Field hint) follow the locale's order, separator and AM/PM words: "hh.mm" in id-ID, "오전/오후 hh:mm" in ko. The words come from the `formatHint` label.
 - The clock button is out of the tab order, since ↓ in the field does the same.
 - Times keep 4.5:1 (also highlighted), and the check and clock icon 3:1, in all six themes (`TimePicker.test.tsx`).
 
@@ -67,7 +68,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 | `hour12` | `boolean` | the locale's | 12-hour (2:30 PM) or 24-hour (14:30). |
 | `size`, `invalid` | | `'md'`, `false` | Like Input. |
 | `name` | `string` | | Adds a hidden input that sends `"HH:mm"`. With `form`, the hidden input belongs to that form too. |
-| `placeholder` | `string` | `"hh:mm am"` or `"hh:mm"` | |
+| `placeholder` | `string` | the locale's format: `"hh:mm AM/PM"` (en-US), `"hh:mm"` (en-GB), "hh.mm" (id-ID) | |
 | `listLabel` | `string` | `"Choose a time"` | The list's name, and the clock button's. |
 
 `disabled`, `readOnly`, `id`, `aria-*`, `onBlur`, `onKeyDown` and `ref` go to the text field; `className` and `style` to the box.

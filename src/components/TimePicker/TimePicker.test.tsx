@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
+const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 import { TimePicker } from './TimePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
@@ -31,6 +32,13 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('the placeholder and the format in the description come from the locale: hh:mm AM/PM (en-US), hh.mm (id-ID), 오전/오후 hh:mm (ko), after a Field hint', async () => {
+    await render(<><Field label="Start" hint="Office hours"><TimePicker id="tus" locale="en-US" /></Field><TimePicker id="tid" aria-label="Mulai" locale="id-ID" /><TimePicker id="tko" aria-label="시작" locale="ko" /></>);
+    const f = (id: string) => document.getElementById(id) as HTMLInputElement;
+    expect(['tus', 'tid', 'tko'].map((id) => f(id).placeholder)).toEqual(['hh:mm AM/PM', 'hh.mm', '오전/오후 hh:mm']);
+    expect([described(f('tus')), described(f('tid'))]).toEqual(['Office hours | Format: hh:mm AM/PM', 'Format: hh.mm']);
+  });
+
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
     await render(<TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
@@ -46,7 +54,7 @@ describe('TimePicker', () => {
     const i = el('tp'), l = listOf('tp'), b = button('tp');
     expect(ref.current).toBe(i);
     expect(i.parentElement!.className).toMatch(/dk-input.*extra/);
-    expect([i.getAttribute('role'), i.getAttribute('aria-haspopup'), i.getAttribute('aria-expanded'), i.placeholder]).toEqual(['combobox', 'listbox', 'false', 'hh:mm am']);
+    expect([i.getAttribute('role'), i.getAttribute('aria-haspopup'), i.getAttribute('aria-expanded'), i.placeholder]).toEqual(['combobox', 'listbox', 'false', 'hh:mm AM/PM']);
     expect([l.getAttribute('role'), l.getAttribute('aria-label'), b.getAttribute('aria-label'), b.tabIndex]).toEqual(['listbox', 'Choose a time', 'Choose a time', -1]);
     expect(document.querySelector('label')!.htmlFor).toBe('tp');
   });

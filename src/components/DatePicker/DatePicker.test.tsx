@@ -4,7 +4,10 @@ import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Calendar } from '../Calendar/Calendar';
+import { Field } from '../Field/Field';
 import { DatePicker } from './DatePicker';
+
+const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
@@ -20,6 +23,13 @@ function Ctl(props: { calls: string[]; setRef?: { set?: (d: Date | null) => void
 }
 
 describe('DatePicker', () => {
+  test('the format to type is part of the field\'s description, after a Field hint, in the locale\'s order: it stays when the placeholder is gone', async () => {
+    await render(<><Field label="Due" hint="The last working day"><DatePicker id="fh" locale="en-US" /></Field><DatePicker id="fg" aria-label="Start" locale="de-DE" /></>);
+    expect([described(el('fh')), described(el('fg'))]).toEqual(['The last working day | Format: mm/dd/yyyy', 'Format: dd.mm.yyyy']);
+    await userEvent.fill(el('fh'), '3/4/2026');
+    expect(described(el('fh'))).toBe('The last working day | Format: mm/dd/yyyy');
+  });
+
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
     await render(<DatePicker id="dpi" locale="en-US" defaultValue={new Date(2026, 4, 10)} min={new Date(2026, 0, 1)} max={new Date(2026, 11, 31)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
