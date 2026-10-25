@@ -14,8 +14,8 @@
       },
       "swatch-border": {
         "$type": "color",
-        "$value": "{color.border}",
-        "$description": "The thin inset border on every swatch, so a white one shows on a white page.",
+        "$value": "{color.field-border}",
+        "$description": "The thin inset border on every swatch and round the native color well (3:1 on the page), so a white swatch shows on a white page and a black one on a dark page.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-swatch-border"
