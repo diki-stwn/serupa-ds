@@ -44,4 +44,12 @@ describe('typed dates', () => {
     expect(parseDate('2/29/00', 'en-US', in2026)?.toDateString()).toBe(new Date(2000, 1, 29).toDateString());   // 2000 is a leap year
     expect(parseDate('2/29/01', 'en-US', in2026)).toBeNull();
   });
+
+  test('digits alone, as typed on a keypad: 8 or 6 split in the locale\'s order, or ISO yyyymmdd when that order makes no date; other lengths aren\'t read', () => {
+    const now = new Date(2026, 9, 25), day = (text: string, locale: string) => parseDate(text, locale, now)?.toDateString() ?? null;
+    const nov22 = new Date(2001, 10, 22).toDateString();
+    expect([day('11222001', 'en-US'), day('112201', 'en-US'), day('22112001', 'de-DE'), day('221101', 'de-DE'), day('20011122', 'en-US'), day('20011122', 'de-DE')]).toEqual([nov22, nov22, nov22, nov22, nov22, nov22]);
+    expect([day('20011122', 'ja-JP'), day('٢٢١١٢٠٠١', 'ar-EG')]).toEqual([nov22, nov22]);
+    expect([day('13452001', 'en-US'), day('1122001', 'en-US'), day('2211', 'de-DE'), day('112220011', 'en-US')]).toEqual([null, null, null, null]);
+  });
 });
