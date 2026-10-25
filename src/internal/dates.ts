@@ -1,4 +1,5 @@
 import { latinDigits } from "./digits";
+import { warnOnce } from "./warn";
 
 // Calendar dates without times: local midnight, so days compare and step reliably across daylight saving.
 
@@ -18,6 +19,21 @@ export const compare = (a: Date, b: Date) => day(a).getTime() - day(b).getTime()
 export const isValid = (d: unknown): d is Date => d instanceof Date && !isNaN(d.getTime());
 /** yyyy-mm-dd, for forms and APIs. */
 export const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+/** A day given as a Date or a plain "yyyy-mm-dd" string (read as that local day, not UTC midnight), or null when
+ *  it's neither. With who, warns once about a Date at UTC midnight west of Greenwich: new Date("2026-10-24") is
+ *  23 Oct there, so pass the string instead. */
+export function toDay(v: unknown, who?: string): Date | null {
+  if (typeof v === "string") {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v.trim());
+    if (!m) return null;
+    const d = new Date(2000, +m[2] - 1, +m[3]); d.setFullYear(+m[1]);
+    return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null;
+  }
+  if (!isValid(v)) return null;
+  if (who && v.getTimezoneOffset() > 0 && v.getUTCHours() + v.getUTCMinutes() + v.getUTCSeconds() + v.getUTCMilliseconds() === 0)
+    warnOnce(who + ":utc", `${who}: a Date at UTC midnight (${v.toISOString()}) is ${isoDate(v)} here, the day before. A Date made from "yyyy-mm-dd" is UTC; pass the "yyyy-mm-dd" string itself instead.`);
+  return day(v);
+}
 
 /** The locale's first day of the week (0 Sunday … 6 Saturday), where the browser knows it; otherwise Sunday. */
 // Regions whose week starts on Sunday or Saturday (CLDR weekData; the Maldives starts on Friday, the rest on

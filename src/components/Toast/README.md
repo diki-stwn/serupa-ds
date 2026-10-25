@@ -45,7 +45,7 @@ toast.dismiss(id);   // or toast.dismiss() for all
 - Keep the title short and say what happened, in a few words: "Changes saved", not "Your changes have been saved successfully."
 - Use one `action` at most, for something quick such as Undo; the toast may go before people reach it.
 - For work that takes a while, show a toast with `duration: 0` and replace it by `id` when the work is done, as above, or hand the work to `toast.promise`.
-- Render one `<Toaster>` for the whole app, and keep its `position` the same on every page.
+- Render one `<Toaster>` for the whole app, and keep its `position` the same on every page. If two are mounted at once (one in a layout and one in a page), only the newer shows toasts, so none appears twice, and a development warning says so; when it unmounts, the older one takes over.
 - A burst can't bury the page: at most `limit` toasts show (3), and the same message again (same words and tone, with no `id` or `action`) adds a count to the toast that's showing ("Network error ×12") and starts its time over, rather than stacking. The stack stays clear of a phone's notch and home indicator.
 
 ## Accessibility

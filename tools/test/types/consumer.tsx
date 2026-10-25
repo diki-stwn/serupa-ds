@@ -13,7 +13,7 @@ import { type IconData } from 'serupa-ds/icons';
 // Equal<A, B> is true only when A and B are the same type (not merely assignable either way).
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
 const is = <T extends true>(): T | void => undefined;
-type ParamOf<F> = F extends (value: infer V) => unknown ? V : never;
+type ParamOf<F> = F extends (value: infer V, ...more: never[]) => unknown ? V : never;
 type RefOf<C> = C extends React.ForwardRefExoticComponent<infer P> ? (P extends React.RefAttributes<infer E> ? E : never) : never;
 
 // Refs reach the element each component documents.
@@ -69,6 +69,7 @@ export const voids = [
 // Value callbacks get the value's own type.
 is<Equal<ParamOf<React.ComponentProps<typeof Combobox>['onValueChange']>, string | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof DatePicker>['onValueChange']>, Date | null>>();
+is<Equal<Parameters<NonNullable<React.ComponentProps<typeof DatePicker>['onValueChange']>>[1], string | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof DateRangePicker>['onValueChange']>, DateRange>>();
 is<Equal<ParamOf<React.ComponentProps<typeof NumberInput>['onValueChange']>, number | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof SegmentedControl>['onValueChange']>, string>>();
