@@ -332,4 +332,36 @@ describe('Menu', () => {
     expect(openMenu()!.getAttribute('aria-labelledby')).toBe(b.id);
   });
 
+  test('your onClick and onKeyDown run first, on the button, the items and a submenu, and preventDefault stops the menu; a menu with no items takes focus itself', async () => {
+    const calls: string[] = [];
+    const stop = (n: string) => (e: React.SyntheticEvent) => { calls.push(n); e.preventDefault(); };
+    const note = (n: string) => () => { calls.push(n); };
+    await render(<div>
+      <Menu trigger={<Button id="sb" onClick={stop('btn-click')} onKeyDown={stop('btn-key')}>Stopped</Button>}><MenuItem>One</MenuItem></Menu>
+      <Menu trigger={<Button id="hb">Handlers</Button>}>
+        <MenuItem id="it" onClick={note('it-click')} onKeyDown={stop('it-key')} onSelect={note('it-select')}>Item</MenuItem>
+        <MenuSub id="sub" label="More" onClick={stop('sub-click')} onKeyDown={stop('sub-key')}><MenuItem>Inner</MenuItem></MenuSub>
+      </Menu>
+      <Menu trigger={<Button id="eb">Empty</Button>}>{null}</Menu>
+    </div>);
+    await userEvent.click(el('sb'));
+    el('sb').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect([el('sb').getAttribute('aria-expanded'), calls.join()]).toEqual(['false', 'btn-click,btn-key']);
+    calls.length = 0;
+    await userEvent.click(el('hb'));
+    await expect.poll(() => focus()).toBe('Item');
+    await userEvent.keyboard('{Enter}');
+    expect([el('hb').getAttribute('aria-expanded'), calls.join()]).toEqual(['true', 'it-key']);
+    el('sub').focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.click(el('sub'));
+    expect(el('sub').getAttribute('aria-expanded')).toBe('false');
+    expect(calls).toEqual(expect.arrayContaining(['sub-key', 'sub-click']));
+    await userEvent.click(el('it'));
+    expect(calls).toEqual(expect.arrayContaining(['it-click', 'it-select']));
+    await expect.poll(() => el('hb').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(el('eb'));
+    await expect.poll(() => document.activeElement).toBe(menuOf('eb'));
+  });
 });
