@@ -47,9 +47,22 @@
   border-radius: var(--rounded-full);
   box-shadow: 0 0 0 var(--avatar-ring-width, var(--border-width-2)) var(--avatar-ring, var(--surface));
 }
+/* Each status has its own shape, so it isn't told by color alone (and survives forced colors): online is a
+   filled dot, busy a dot with a bar across, away a ring with a dot inside, offline an empty ring. */
+.dk-avatar__status { --dk-avatar-bar: calc(var(--dk-avatar-dot) * 0.6); --dk-avatar-bar-h: calc(var(--dk-avatar-dot) / 4); --dk-avatar-inner: calc(var(--dk-avatar-dot) / 3); }
+.dk-avatar__status::after { content: ""; position: absolute; inset: 0; margin: auto; border-radius: inherit; }
 .dk-avatar__status--online { background: var(--avatar-status-online, var(--success)); }
 .dk-avatar__status--busy { background: var(--avatar-status-busy, var(--danger)); }
-.dk-avatar__status--away { background: var(--avatar-status-away, var(--warning)); }
-.dk-avatar__status--offline { background: var(--avatar-status-offline, var(--field-border)); }
-@media (forced-colors: active) { .dk-avatar__frame { border: var(--border-width-1) solid CanvasText; } .dk-avatar__status { background: CanvasText; } }
+.dk-avatar__status--busy::after { width: var(--dk-avatar-bar); height: var(--dk-avatar-bar-h); background: var(--avatar-ring, var(--surface)); }
+.dk-avatar__status--away, .dk-avatar__status--offline { background: var(--avatar-ring, var(--surface)); border: var(--avatar-ring-width, var(--border-width-2)) solid var(--dk-avatar-st); }
+.dk-avatar__status--away { --dk-avatar-st: var(--avatar-status-away, var(--warning)); }
+.dk-avatar__status--away::after { width: var(--dk-avatar-inner); height: var(--dk-avatar-inner); background: var(--dk-avatar-st); }
+.dk-avatar__status--offline { --dk-avatar-st: var(--avatar-status-offline, var(--field-border)); }
+@media (forced-colors: active) {
+  .dk-avatar__frame { border: var(--border-width-1) solid CanvasText; }
+  .dk-avatar__status { background: CanvasText; }
+  .dk-avatar__status--away, .dk-avatar__status--offline { background: Canvas; border-color: CanvasText; }
+  .dk-avatar__status--busy::after { background: Canvas; }
+  .dk-avatar__status--away::after { background: CanvasText; }
+}
 }

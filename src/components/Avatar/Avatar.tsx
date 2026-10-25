@@ -32,7 +32,7 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 /* Avatar: a picture of a person (circle) or a team or project (square), with initials or a person icon when
-   there's no picture or it fails to load. Sizes xs to xl (24 to 64px). status adds a colored dot. The name
+   there's no picture or it fails to load. Sizes xs to xl (24 to 64px). status adds a dot with a shape per status. The name
    (or alt) is the accessible name; alt="" hides it from screen readers. className and every other prop go to
    the outer <span>. */
 const OWN = { src: 1, name: 1, alt: 1, size: 1, shape: 1, status: 1, statusLabel: 1, imgProps: 1, className: 1, children: 1 } as const;
@@ -56,7 +56,8 @@ export const Avatar = /* @__PURE__ */ component<HTMLSpanElement, AvatarProps>("A
   const failed = failedSrc != null && failedSrc === props.src;
   // A name of only spaces counts as no name: no "   " for a screen reader to say.
   const label = (props.alt != null ? props.alt : props.name || "").trim();
-  const full = label && status ? label + ", " + (props.statusLabel || sds.labels.avatarStatus(status)) : label;
+  const said = status ? props.statusLabel || sds.labels.avatarStatus(status) : "";
+  const full = label && said ? label + ", " + said : label;
   const showImg = !!props.src && !failed;
   const text = initials(props.name);
   const body = showImg
@@ -65,12 +66,13 @@ export const Avatar = /* @__PURE__ */ component<HTMLSpanElement, AvatarProps>("A
         onError={(e) => { if (props.imgProps && props.imgProps.onError) props.imgProps.onError(e); setFailedSrc(props.src as string); }} />
     : text ? <span className="dk-avatar__initials" aria-hidden="true">{text}</span>
     : <Icon className="dk-avatar__icon" icon={icons.Person} />;
-  if (full) { rest.role = "img"; rest["aria-label"] = full; } else rest["aria-hidden"] = true;
+  // With alt="" the name is written next to it, but the status isn't: then only the dot is read ("online").
+  if (full) { rest.role = "img"; rest["aria-label"] = full; } else if (!status) rest["aria-hidden"] = true;
   return (
     <span {...rest} ref={ref} className={cn("dk-avatar", "dk-avatar--" + size, square && "dk-avatar--square", props.className)}
       data-component="avatar" data-size={size} data-shape={square ? "square" : "circle"}>
       <span className="dk-avatar__frame">{body}</span>
-      {status ? <span className={"dk-avatar__status dk-avatar__status--" + status} aria-hidden="true" /> : null}
+      {status ? <span className={"dk-avatar__status dk-avatar__status--" + status} {...(full ? { "aria-hidden": true } : { role: "img", "aria-label": said })} /> : null}
     </span>
   );
 });
