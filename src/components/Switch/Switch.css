@@ -48,7 +48,7 @@
 /* Invalid: a 2px danger edge inside the track, on or off, like Checkbox's danger border; the track keeps its
    color, so an off switch still reads as off. Focused, the focus ring outside it turns danger too. */
 .dk-switch--invalid .dk-switch__input { --dk-switch-ring: var(--switch-invalid, var(--danger)); box-shadow: inset 0 0 0 var(--border-width-2) var(--switch-invalid, var(--danger)); }
-.dk-switch__text { display: flex; flex-direction: column; min-width: var(--spacing-0); }
+.dk-switch__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-switch__description { color: var(--switch-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't flip it. */
 .dk-switch--readonly { cursor: default; }
