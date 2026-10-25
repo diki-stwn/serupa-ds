@@ -4,6 +4,7 @@ import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { warnOnce } from "../../internal/warn";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onValueChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -60,6 +61,7 @@ const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, onChan
 
 /** One choice from a set of Radios: a <div role="radiogroup"> that names them, holds the value and passes size, invalid, disabled and required down. Label it with Field group, aria-label or aria-labelledby. */
 export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupProps>("RadioGroup", function RadioGroup(props: RadioGroupProps, ref) {
+  const nameRef = useNameCheck("RadioGroup", NAME_HOW.group);   // warns when it has no accessible name
   const rest = omit(props, GROUP_OWN);
   const autoName = domId("dk-rg", React.useId());
   const controlled = props.value !== undefined;
@@ -75,7 +77,7 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
     select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onValueChange) onValueChange(v as string | number, e); if (onChange) onChange(v as string | number, e); } };
   return (
-    <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) { root.current = n; nameRef(n); setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
       className={cn("dk-radio-group", "dk-radio-group--" + orientation, invalid && "dk-radio-group--invalid", props.className)} data-component="radio-group" data-orientation={orientation}>
       <RadioContext.Provider value={ctx}>{props.children}</RadioContext.Provider>
     </div>

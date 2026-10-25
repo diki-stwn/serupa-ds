@@ -9,6 +9,7 @@ import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { useSerupa } from "../../internal/provider";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export type SliderValue = number | [number, number];
 /** A mark on a Slider's track: a value, and optional text shown under it. */
@@ -72,6 +73,7 @@ function markList(marks: SliderProps["marks"], min: number, max: number, step: n
    onValueChange fires as it moves, onValueCommit once when a drag or key press ends. */
 /** Picks a number, or a range with two thumbs, on a track. */
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
+  const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSerupa();
@@ -191,7 +193,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
           </span>
         ))}
         {vals.map((v, i) => (
-          <span key={i} ref={(n) => { thumbs.current[i] = n; }} className="dk-slider__thumb" style={{ insetInlineStart: pct(v) + "%" }}
+          <span key={i} ref={(n) => { thumbs.current[i] = n; if (!isRange) nameRef(n); }} className="dk-slider__thumb" style={{ insetInlineStart: pct(v) + "%" }}
             role="slider" tabIndex={disabled ? -1 : 0} aria-valuenow={v} aria-valuemin={isRange && i === 1 ? vals[0] : min} aria-valuemax={isRange && i === 0 ? vals[1] : max}
             aria-valuetext={props.formatValue ? text(v) : undefined} aria-orientation="horizontal" aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} aria-invalid={invalid || undefined}
             aria-label={isRange ? names[i] : props["aria-label"]} aria-labelledby={isRange ? undefined : labelledBy}
