@@ -3,6 +3,7 @@ import * as React from "react";
 import type { IconData } from "../material/types";
 import { isIconData } from "../icons";
 import { DEFAULT_LABELS, type SerupaLabels } from "./labels";
+import { warnOnce } from "./warn";
 
 export interface SerupaProviderProps {
   /** A BCP 47 locale (such as "id-ID") for Calendar, DatePicker, DateRangePicker, TimePicker and NumberInput: how dates, times and numbers
@@ -93,6 +94,8 @@ const onLanguageChange = (cb: () => void) => { window.addEventListener("language
 export function useLocale(own?: string): string {
   const fromProvider = React.useContext(Context).locale;
   const browser = React.useSyncExternalStore(onLanguageChange, browserLocale, () => SERVER_LOCALE);
+  // Said on the server, where the switch after hydration can't be seen yet; once per process.
+  if (!own && !fromProvider && typeof window === "undefined") warnOnce("server-locale", `Serupa: rendered on the server without a locale, so dates and numbers are ${SERVER_LOCALE} until hydration, then the browser's. Set <SerupaProvider locale> from the request.`);
   return own || fromProvider || browser;
 }
 /** The lang for text a component writes in its own locale prop, when that differs from the locale it would use
