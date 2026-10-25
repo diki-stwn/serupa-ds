@@ -47,6 +47,13 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 - A disabled `<button>` can't take focus or hover events, so a tooltip on it never shows. For a Serupa [Button](../Button/README.md), pass `disabledReason` with `disabled`: it stays focusable, and a Tooltip with the same words shows on hover and focus. For other elements, use `aria-disabled` instead of `disabled`.
 - The text keeps 4.5:1 on the tooltip in all six themes (`Tooltip.test.tsx`). In forced-colors mode it gets a border.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the element: the tooltip shows with its focus ring |
+| Escape | Hides it, from anywhere, without closing a Dialog or Menu around it |
+
 ## Props
 
 | Prop | Type | Default | What it does |
