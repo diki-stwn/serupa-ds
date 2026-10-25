@@ -5,6 +5,7 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
+import noLiteralWords from './tools/lint/no-literal-words.mjs';
 
 export default tseslint.config(
   { ignores: ['dist/', 'storybook-static/', 'node_modules/', '.test-tmp/', 'tools/test/baseline-api/', '.claude/'] },
@@ -41,6 +42,13 @@ export default tseslint.config(
     languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
     // IconName's `(string & {})` keeps editors offering the icon names while taking any string, on purpose.
     rules: { '@typescript-eslint/no-redundant-type-constituents': 'off' },
+  },
+  {
+    // A component's words come from its labels.ts (English and Indonesian), never written into its JSX (T1).
+    files: ['src/components/**/*.tsx'],
+    ignores: ['src/components/**/*.{test,stories}.tsx'],
+    plugins: { serupa: { rules: { 'no-literal-words': noLiteralWords } } },
+    rules: { 'serupa/no-literal-words': 'error' },
   },
   {
     // A test body is async whether it awaits or not, and expect(obj.method) reads a spy without calling it.
