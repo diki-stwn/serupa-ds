@@ -6,7 +6,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-tree-view {
-  --dk-tree-closed: 0deg; --dk-tree-open: 90deg;   /* the chevron points to the start's far side, then down */
+  --dk-tree-closed: 0deg; --dk-tree-open: 90deg;   /* the chevron points along the row (left right to left), then down once open */
   --dk-bar: var(--border-width-2);
   margin: var(--spacing-0); list-style: none;
   padding: var(--tree-view-padding, var(--spacing-1));
