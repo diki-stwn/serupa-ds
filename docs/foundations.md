@@ -940,7 +940,7 @@ Say what happened and how to fix it, in that order, next to the thing that needs
 
 **The words the components say**
 
-Close buttons, loading text, pagination and the other built-in words come from one set, below. `<SerupaProvider labels>` replaces any of them for a subtree, and each component's own prop (`closeLabel`, `dismissLabel`, `loadingText`, …) still wins for one instance. `idLabels` is the full Indonesian set.
+Close buttons, loading text, pagination and the other built-in words come from one set, below. `<SerupaProvider labels>` replaces any of them for a subtree, and each component's own prop (`closeLabel`, `dismissLabel`, `loadingText`, …) still wins for one instance. `idLabels` is the full Indonesian set. `labels` and `icons` can be written inline (`labels={{ close: "Tutup" }}`): a re-render with the same contents doesn't re-render the components under the provider.
 
 - Overlays close with "Close" (Dialog, Drawer); notices go away with "Dismiss" (Alert, Toast).
 - Loading is "Loading…" everywhere; give a specific one when you can: `loadingText="Saving…"`.
