@@ -34,6 +34,8 @@ export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDiv
   disabled?: boolean;
   /** Submits the value with a form, in a hidden input. */
   name?: string;
+  /** The id of a form to submit and reset with, when it isn't inside one, as the form attribute of an input. */
+  form?: string;
   /** A danger outline, and aria-invalid on the group. Say what's wrong in text next to it (Field's error does). */
   invalid?: boolean;
   /** Sets aria-required on the group. */
@@ -42,7 +44,7 @@ export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDiv
   readOnly?: boolean;
 }
 
-const OWN = { options: 1, value: 1, defaultValue: 1, onValueChange: 1, size: 1, fullWidth: 1, disabled: 1, name: 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1, autoFocus: 1, className: 1 } as const;
+const OWN = { options: 1, value: 1, defaultValue: 1, onValueChange: 1, size: 1, fullWidth: 1, disabled: 1, name: 1, form: 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1, autoFocus: 1, className: 1 } as const;
 
 /* SegmentedControl: picks one of a few options shown side by side, such as a view (List, Board) or a period
    (Day, Week, Month). It's a radio group: one Tab stop, arrow keys move and select (Home and End too), and
@@ -63,7 +65,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   const [own, setOwn] = React.useState<string | undefined>(props.defaultValue ?? (options.find((o) => !o.disabled) || {}).value);
   const value = controlled ? props.value : own;
   const root = React.useRef<HTMLDivElement | null>(null);
-  useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? (options.find((o) => !o.disabled) || {}).value); });
+  useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? (options.find((o) => !o.disabled) || {}).value); }, props.form);
   const buttons = React.useRef<Record<string, HTMLButtonElement | null>>({});
   const [box, setBox] = React.useState<{ x: number; w: number } | null>(null);
   const size = props.size === "sm" ? "sm" : "md";
@@ -144,7 +146,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
           </button>
         );
       })}
-      {props.name ? <input type="hidden" name={props.name} value={value ?? ""} disabled={disabled} /> : null}
+      {props.name ? <input type="hidden" name={props.name} form={props.form} value={value ?? ""} disabled={disabled} /> : null}
     </div>
   );
 });

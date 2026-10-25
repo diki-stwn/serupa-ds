@@ -17,7 +17,7 @@
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   width: var(--dk-cp-size); height: var(--dk-cp-size); margin: var(--spacing-0); padding: var(--spacing-0);
   background: var(--dk-swatch); color: var(--dk-swatch-ink);
-  border: 0; border-radius: var(--color-picker-swatch-radius, var(--rounded-full)); cursor: pointer;
+  border: 0; border-radius: var(--color-picker-swatch-radius, var(--rounded-full)); cursor: pointer; touch-action: manipulation;
   box-shadow: inset 0 0 0 var(--border-width-1) var(--color-picker-swatch-border, var(--border));
 }
 .dk-color-picker__swatch--checked { outline: var(--border-width-2) solid var(--color-picker-ring, var(--primary)); outline-offset: var(--border-width-2); }
@@ -35,7 +35,7 @@
 .dk-color-picker__native {
   inline-size: var(--dk-cp-size); block-size: var(--dk-cp-size); margin: var(--spacing-0); padding: var(--spacing-0);
   border: var(--border-width-1) solid var(--color-picker-swatch-border, var(--border)); border-radius: var(--rounded-md);
-  background: transparent; cursor: pointer;
+  background: transparent; cursor: pointer; touch-action: manipulation;
 }
 .dk-color-picker__native:focus-visible { outline: var(--focus-ring-width) solid var(--color-picker-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-color-picker__native::-webkit-color-swatch-wrapper { padding: var(--spacing-0\.5); }

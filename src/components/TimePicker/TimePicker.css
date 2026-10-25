@@ -8,7 +8,7 @@
 .dk-time-picker__button {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;
   width: var(--control-height-sm); height: var(--control-height-sm); margin: var(--spacing-0); padding: var(--spacing-0);
-  border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent; color: var(--time-picker-button, var(--text-muted)); cursor: pointer;
+  border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent; color: var(--time-picker-button, var(--text-muted)); cursor: pointer; touch-action: manipulation;
 }
 .dk-time-picker__button .dk-icon { font-size: var(--dk-input-icon); }
 @media (hover: hover) { .dk-time-picker__button:hover:not(:disabled) { background: var(--time-picker-button-bg-hover, var(--surface-muted)); color: var(--time-picker-button-hover, var(--text)); } }
@@ -26,7 +26,7 @@
 .dk-time-picker__option {
   display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); box-sizing: border-box;
   min-height: var(--time-picker-option-height, var(--control-height-md)); padding: var(--spacing-0) var(--spacing-2);
-  border-radius: var(--rounded-md); font-variant-numeric: tabular-nums; cursor: pointer; user-select: none;
+  border-radius: var(--rounded-md); font-variant-numeric: tabular-nums; cursor: pointer; touch-action: manipulation; user-select: none;
 }
 .dk-time-picker__option { --dk-bar: var(--border-width-2); }   /* the bar sits at the start: right in rtl */
 .dk-time-picker__option:dir(rtl) { --dk-bar: calc(var(--border-width-2) * -1); }

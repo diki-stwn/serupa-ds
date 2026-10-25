@@ -39,6 +39,9 @@ const [open, setOpen] = React.useState(false);
 - The body scrolls on its own, so the header and footer stay in view.
 - It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
 
+- On a phone with a notch or a home bar, the panel's padding and the footer clear them. This needs `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`; without `viewport-fit=cover` the browser keeps the page out of those areas itself.
+- Scrolling to the end of the body doesn't scroll the page behind it (`overscroll-behavior: contain`).
+
 ## Accessibility
 
 - `aria-modal`, named by the title (`aria-labelledby`) and described by the description.

@@ -7,7 +7,7 @@ import { Field } from '../Field/Field';
 import { TimePicker } from './TimePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
-const announcerA = () => document.querySelector('[data-dk-announcer-assertive]') as HTMLElement | null;
+const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
 const listOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls')!) as HTMLUListElement;
 const button = (id: string) => document.querySelector(`#${id} ~ button`) as HTMLButtonElement;
 const time = (o: Element | undefined | null) => (o ? o.querySelector('.dk-time-picker__time')!.textContent : undefined);
