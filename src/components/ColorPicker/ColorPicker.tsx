@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { cn, domId, omit, setRef } from "../../internal/cn";
+import { cn, domId, omit } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { colorName, contrastRatio, normalizeHex } from "../../internal/color";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
@@ -59,6 +60,7 @@ const ink = (hex: string) => ((contrastRatio(hex, "#ffffff") || 0) >= (contrastR
    Colors go in and come out as lowercase #rrggbb. className and other props go to the outer <div>. */
 /** Swatches to pick a color from, a hex field for any other, and a contrast check against a background. */
 export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPickerProps>("ColorPicker", function ColorPicker(props, ref) {
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSerupa(), locale = useLocale();
   // A swatch without a name (a hex string, or an empty label) is named from its color: "Dark blue", not "#1e3a8a".
@@ -162,7 +164,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const low = ratio != null && ratio < min;
   useAutoFocus(props.autoFocus, () => root.current && root.current.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]);
   return (
-    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); setRef(ref, n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
+    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); restyle(n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
       data-component="color-picker" data-size={size}>
       {/* The description and states a Field hands the picker go on the radiogroup, the control screen readers reach.
           The id stays on the outer div, so a label click focuses the picked swatch through it. */}

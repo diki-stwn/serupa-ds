@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
@@ -62,6 +63,7 @@ const TONE: Record<MeterState, string | null> = { optimum: "success", suboptimal
    role="meter" with aria-valuenow / min / max and aria-valuetext, and data-state with the zone. */
 /** A measurement within a known range (storage used, strength, a level): a bar with role="meter", colored by the low, high and optimum zones. */
 export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Meter", function Meter(props, ref) {
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const locale = useLocale();
   const base = domId("dk-mtr", React.useId());
@@ -80,7 +82,7 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
   const showValue = !!props.showValue;
   const outer = omit(rest, { "aria-label": 1, "aria-labelledby": 1 } as const);
   return (
-    <div {...outer} ref={ref} className={cn("dk-meter", "dk-meter--size-" + size, tone && "dk-meter--" + tone, props.className)}
+    <div {...outer} ref={restyle} className={cn("dk-meter", "dk-meter--size-" + size, tone && "dk-meter--" + tone, props.className)}
       data-component="meter" data-size={size} data-state={state}>
       {hasLabel || showValue ? (
         <div className="dk-meter__header">
