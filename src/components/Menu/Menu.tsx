@@ -34,7 +34,7 @@ export interface MenuProps {
 
 interface Ctx { close: (focusTrigger: boolean) => void }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
-const ITEMS = '[role="menuitem"]';
+const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
 const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
 
@@ -281,15 +281,69 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
   if (!isLink) delete rest.href;
   if (props.shortcut && rest["aria-keyshortcuts"] == null) rest["aria-keyshortcuts"] = keyShortcuts(props.shortcut);
   if (isLink && rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
+  // MenuCheckboxItem and MenuRadioItem pass their role and aria-checked: a check slot goes before the label.
+  const checkable = !isLink && (rest.role === "menuitemcheckbox" || rest.role === "menuitemradio");
   return React.createElement(isLink ? props.as || config.link : "div", Object.assign(rest, {
-    ref: ref, role: "menuitem", tabIndex: -1, "aria-disabled": props.disabled || undefined,
+    ref: ref, role: checkable ? rest.role : "menuitem", tabIndex: -1, "aria-disabled": props.disabled || undefined,
     className: cn("dk-menu__item", props.destructive && "dk-menu__item--destructive", props.className),
     onClick: onClick, onKeyDown: onKeyDown, onPointerMove: (e: React.PointerEvent<HTMLElement>) => { if (own.onPointerMove) own.onPointerMove(e); if (document.activeElement !== e.currentTarget) e.currentTarget.focus(); },
   }),
+    checkable ? <span className="dk-menu__check" aria-hidden="true"><Icon icon={icons.Check} /></span> : null,
     props.icon != null ? <span className="dk-menu__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null,
     <span className="dk-menu__label">{props.children}</span>,
     // Shown, but not part of the item's name ("Copy", not "Copy command K"): aria-keyshortcuts says it.
     props.shortcut ? <kbd className="dk-menu__shortcut" aria-hidden="true">{props.shortcut}</kbd> : null);
+});
+
+type CheckableProps = Omit<MenuItemProps, 'href' | 'as' | 'target' | 'rel' | 'destructive' | 'role' | 'aria-checked'>;
+export interface MenuCheckboxItemProps extends CheckableProps {
+  /** Whether it's on. The menu's items unmount while it's closed, so the state lives with you: set it in onCheckedChange. */
+  checked: boolean;
+  /** Called with the new state when it's chosen (click, Enter or Space). */
+  onCheckedChange?: (checked: boolean) => void;
+}
+
+/* MenuCheckboxItem: an on/off setting in a Menu (role menuitemcheckbox, aria-checked), with a check before the
+   label while it's on. Choosing it asks for the other state and closes the menu, as MenuItem does; call
+   event.preventDefault() in onSelect to keep the menu open. */
+/** A setting in a Menu that's on or off, such as "Show grid". */
+export const MenuCheckboxItem = /* @__PURE__ */ component<HTMLElement, MenuCheckboxItemProps>("MenuCheckboxItem", function MenuCheckboxItem(props, ref) {
+  const rest = omit(props, { checked: 1, onCheckedChange: 1, onSelect: 1, icon: 1, shortcut: 1 });
+  const onSelect = (e: React.SyntheticEvent) => { if (props.onCheckedChange) props.onCheckedChange(!props.checked); if (props.onSelect) props.onSelect(e); };
+  return <MenuItem {...rest} ref={ref} icon={props.icon} shortcut={props.shortcut} {...{ role: "menuitemcheckbox", "aria-checked": !!props.checked }} onSelect={onSelect} />;
+});
+
+interface RadioCtx { value: string | undefined; choose: (value: string) => void }
+const RadioContext = /* @__PURE__ */ React.createContext<RadioCtx | null>(null);
+
+export interface MenuRadioGroupProps extends Omit<MenuGroupProps, 'defaultValue' | 'onChange'> {
+  /** The chosen item's value. The menu's items unmount while it's closed, so the state lives with you: set it in onValueChange. */
+  value: string | undefined;
+  /** Called with the item's value when one is chosen. */
+  onValueChange?: (value: string) => void;
+}
+
+/* MenuRadioGroup: MenuRadioItems of which one is chosen (role menuitemradio, aria-checked), such as a sort order.
+   It's a MenuGroup, so label gives it a heading that names it. */
+/** A group of MenuRadioItems, one of them chosen. */
+export const MenuRadioGroup = /* @__PURE__ */ component<HTMLDivElement, MenuRadioGroupProps>("MenuRadioGroup", function MenuRadioGroup(props, ref) {
+  const rest = omit(props, { value: 1, onValueChange: 1 });
+  const ask = React.useRef(props.onValueChange); ask.current = props.onValueChange;
+  const ctx = React.useMemo<RadioCtx>(() => ({ value: props.value, choose: (v) => { if (ask.current) ask.current(v); } }), [props.value]);
+  return <RadioContext.Provider value={ctx}><MenuGroup {...rest} ref={ref} /></RadioContext.Provider>;
+});
+
+export interface MenuRadioItemProps extends CheckableProps {
+  /** The value MenuRadioGroup chooses with this item. */
+  value: string;
+}
+
+/** One choice in a MenuRadioGroup. */
+export const MenuRadioItem = /* @__PURE__ */ component<HTMLElement, MenuRadioItemProps>("MenuRadioItem", function MenuRadioItem(props, ref) {
+  const group = React.useContext(RadioContext);
+  const rest = omit(props, { value: 1, onSelect: 1, icon: 1, shortcut: 1 });
+  const onSelect = (e: React.SyntheticEvent) => { if (group) group.choose(props.value); if (props.onSelect) props.onSelect(e); };
+  return <MenuItem {...rest} ref={ref} icon={props.icon} shortcut={props.shortcut} {...{ role: "menuitemradio", "aria-checked": !!group && group.value === props.value }} onSelect={onSelect} />;
 });
 
 export interface MenuSubProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {

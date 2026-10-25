@@ -6,7 +6,7 @@ import { THEMES, color, contrast, press, settle } from '../../../tools/test/vite
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { ContextMenu, keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from './Menu';
+import { ContextMenu, keyShortcuts, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -374,6 +374,65 @@ describe('Menu', () => {
     await expect.poll(() => el('hb').getAttribute('aria-expanded')).toBe('false');
     await userEvent.click(el('eb'));
     await expect.poll(() => document.activeElement).toBe(menuOf('eb'));
+  });
+
+  test('MenuCheckboxItem: role menuitemcheckbox with aria-checked and a check before the label while on; choosing flips it, tells onCheckedChange and closes the menu; ↓ reaches it; the state is the parent\'s (checked), so one the parent doesn\'t change stays', async () => {
+    const asks: boolean[] = [];
+    function View() {
+      const [grid, setGrid] = React.useState(false), [rulers, setRulers] = React.useState(true);
+      return <Menu trigger={<Button id="vb">View</Button>}>
+        <MenuItem>Zoom in</MenuItem>
+        <MenuCheckboxItem checked={grid} onCheckedChange={(v) => { asks.push(v); setGrid(v); }}>Show grid</MenuCheckboxItem>
+        <MenuCheckboxItem checked={rulers} onCheckedChange={setRulers} shortcut="⌘R">Rulers</MenuCheckboxItem>
+        <MenuCheckboxItem checked={false} onSelect={(e) => e.preventDefault()}>Locked</MenuCheckboxItem>
+      </Menu>;
+    }
+    await render(<View />);
+    const items = () => [...menuOf('vb').querySelectorAll<HTMLElement>('[role^="menuitem"]')];
+    const state = () => items().map((x) => x.getAttribute('role')!.replace('menuitem', '') + ':' + x.getAttribute('aria-checked'));
+    const ticks = () => items().map((x) => { const c = x.querySelector('[data-icon="check"]'); return c ? getComputedStyle(c).visibility : '-'; });
+    await userEvent.click(el('vb'));
+    expect(state()).toEqual([':null', 'checkbox:false', 'checkbox:true', 'checkbox:false']);
+    expect(ticks()).toEqual(['-', 'hidden', 'visible', 'hidden']);
+    expect(items()[2].getAttribute('aria-keyshortcuts')).toBe('Meta+R');
+    await userEvent.keyboard('{ArrowDown}');
+    expect(document.activeElement!.textContent).toBe('Show grid');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(asks).toEqual([true]);
+    await userEvent.click(el('vb'));
+    expect(state()).toEqual([':null', 'checkbox:true', 'checkbox:true', 'checkbox:false']);
+    await userEvent.click(items()[2]);
+    await userEvent.click(el('vb'));
+    expect(state()[2]).toBe('checkbox:false');
+    await userEvent.click(items()[3]);
+    expect([!!openMenu(), state()[3]]).toEqual([true, 'checkbox:false']);
+  });
+
+  test('MenuRadioGroup: a group named by its label, MenuRadioItems with role menuitemradio and aria-checked on the chosen one; choosing one tells onValueChange and moves the check', async () => {
+    const asks: string[] = [];
+    function Sort() {
+      const [by, setBy] = React.useState('name');
+      return <Menu trigger={<Button id="sb">Sort</Button>}>
+        <MenuRadioGroup label="Sort by" value={by} onValueChange={(v) => { asks.push(v); setBy(v); }}>
+          <MenuRadioItem value="name">Name</MenuRadioItem>
+          <MenuRadioItem value="date">Date</MenuRadioItem>
+          <MenuRadioItem value="size" disabled>Size</MenuRadioItem>
+        </MenuRadioGroup>
+      </Menu>;
+    }
+    await render(<Sort />);
+    const radios = () => [...menuOf('sb').querySelectorAll<HTMLElement>('[role="menuitemradio"]')];
+    await userEvent.click(el('sb'));
+    const g = menuOf('sb').querySelector('[role="group"]')!;
+    expect(document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).toBe('Sort by');
+    expect(radios().map((x) => x.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false']);
+    expect(document.activeElement!.textContent).toBe('Name');
+    await userEvent.click(radios()[1]);
+    await userEvent.click(el('sb'));
+    expect(radios().map((x) => x.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
+    radios()[2].click();
+    expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
   });
 });
 
