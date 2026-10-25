@@ -154,6 +154,17 @@ describe('NumberInput', () => {
     expect([up, field('dec').value, field('dec').inputMode]).toEqual(['1.75', '2.33', 'decimal']);
   });
 
+  test('from a typed value off the grid, the first step lands on the grid point that way: 0.1 ↑ is 0.25, 0.1 ↓ is 0, 0.6 PageUp is 3; on the grid it steps as before (CC1)', async () => {
+    await render(<NumberInput id="snap" aria-label="Amount" step={0.25} largeStep={10} />);
+    const seen: string[] = [];
+    for (const [typed, key] of [['0.1', '{ArrowUp}'], ['0.1', '{ArrowDown}'], ['0.6', '{PageUp}'], ['0.5', '{ArrowUp}'], ['-0.1', '{ArrowUp}']]) {
+      await fill('snap', typed);
+      await userEvent.keyboard(key);
+      seen.push(field('snap').value);
+    }
+    expect(seen).toEqual(['0.25', '0', '3', '0.75', '0']);
+  });
+
   test('locale: 1.500 is 1500 in id-ID and 1,500 is 1500 in en-US; "9,5" shows as 9,5 in de-DE and 9.5 in en-US after blur; 1 000 is read in fr-FR', async () => {
     const calls: string[] = [];
     await render(<Col>{(['id-ID', 'en-US', 'de-DE', 'fr-FR'] as const).map((l) => <NumberInput key={l} id={l} aria-label={l} locale={l} step={0.1} onValueChange={(n) => calls.push(l + ' ' + n)} />)}</Col>);
