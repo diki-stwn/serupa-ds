@@ -18,7 +18,7 @@ Node 26 (`.nvmrc`), which the package also requires (`engines`). TypeScript 7 ty
 ```sh
 npm run build       # src/ → dist/ (tools/build/build.mjs: tsup for the JavaScript and types, then the CSS)
 npm run typecheck   # tsc over src/ (strict), then tools/ and bin/ (JavaScript, checked from JSDoc)
-npm run lint        # ESLint (TypeScript with type information for src/, React hooks rules, Vitest rules for the tests, the tools) and Stylelint (the CSS)
+npm run lint        # ESLint (TypeScript with type information for src/, React hooks rules, Vitest rules for the tests, no English words written into a component: tools/lint/, the tools) and Stylelint (the CSS)
 ```
 
 `dist/` is build output: never edit it, and it isn't committed. The utility classes come from `src/styles/utilities.template.css`: `tools/utilities/build.mjs` expands its `@each` loops over the tokens in `tokens.json` (so a new color or spacing token gets its classes) and its `@responsive` list into the `sm:` … `2xl:` variants, writing `src/styles/utilities.css` (not committed). The build, `npm run lint`, Storybook and Vitest run it first; `tools/utilities/template.mjs` describes the syntax. `tools/build/registry.mjs` writes `src/generated/` (not committed) from the component folders: the package's export list (each folder's `index.ts`), the CSS imports (in the order of `src/styles/cascade.txt`, then any other component A to Z) and the label sets (each folder's `labels.ts`). The build, `npm run lint`, `npm run typecheck`, Storybook and Vitest run it first.

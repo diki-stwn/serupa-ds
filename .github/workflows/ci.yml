@@ -157,6 +157,51 @@ jobs:
             tools/test/baseline-visual/**/*.actual.png
           if-no-files-found: ignore
 
+  # On a pull request, the first failed job stops the whole run: it can't pass any more, so its runners go to the next
+  # pull request. The suite's fail-fast stops the suite's own jobs; these stop everything else (types and lint while
+  # the suite fails, or the other way round). One per job, since each waits only on its own. Main runs everything.
+  stop-build:
+    needs: build
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Cancel this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: gh run cancel "$RUN_ID"
+
+  stop-static:
+    needs: static
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Cancel this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: gh run cancel "$RUN_ID"
+
+  stop-suite:
+    needs: suite
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Cancel this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: gh run cancel "$RUN_ID"
+
   # One check that passes only when every group passed, under the name the single job used to have.
   test:
     needs: [build, static, suite]
