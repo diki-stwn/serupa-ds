@@ -70,7 +70,9 @@ Every story is also rendered to HTML in Node, as a server would (`tools/test/vit
 
 `src/internal/mountTime.test.tsx` mounts every story five times under React's Profiler and keeps the fastest. A story that takes longer than 20 ms to mount fails. That's React's development build, where the slowest story takes about 9 ms and most take under 4. The PhoneInput stories that show four or six fields, each listing 244 countries, have budgets of their own in `OWN_BUDGET`. A component whose story is heavier on purpose gets its own line there, with the reason.
 
-These five story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
+`src/internal/network.test.tsx` shows every story and fails on any network request the story makes of its own: a `fetch`, an `XMLHttpRequest`, a `sendBeacon`, a `WebSocket` or an `EventSource`, or markup that loads from another origin (an `src`, `srcset`, `poster`, a stylesheet or preload `<link>`, a `url()` in a style attribute). The page's own files and `data:` URLs are fine. An app with a strict CSP, an offline page or a privacy review shouldn't find the design system calling out.
+
+These seven story-wide tests (hydration, server HTML, accessibility tree, keyboard walk, leaks, mount time, network) also run on a pull request that only touches component folders, on those components' stories (`SERUPA_ONLY`, through `storiesToRun()` in `tools/test/vitest/stories.tsx`). A component's baseline is checked before it reaches main, not after.
 
 ### Suite scripts
 
