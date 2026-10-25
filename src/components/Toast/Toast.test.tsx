@@ -10,7 +10,8 @@ import { toast, Toaster, type ToasterPosition } from './Toast';
 import { idLabels } from '../../internal/labels';
 
 const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
-const titles = () => toasts().map((x) => x.querySelector('.dk-toast__title')!.textContent);
+// Each toast is named by its title (aria-labelledby).
+const titles = () => toasts().map((x) => document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent);
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const away = () => userEvent.hover(document.body, { position: { x: 5, y: 5 } });
@@ -125,7 +126,7 @@ describe('Toast', () => {
     toasts()[0].querySelector<HTMLElement>('button[aria-label="Dismiss"]')!.focus();   // reached without F8
     React.act(() => { three = toast({ title: 'Three', duration: 0 }); });
     React.act(() => { toast.dismiss(one); });
-    await expect.poll(() => document.activeElement!.querySelector('.dk-toast__title')?.textContent).toBe('Three');
+    await expect.poll(() => document.getElementById(document.activeElement!.getAttribute('aria-labelledby') ?? '')?.textContent).toBe('Three');
     (document.activeElement as HTMLElement).blur();
     await new Promise((r) => setTimeout(r, 20));
     React.act(() => { toast.dismiss(three); });
