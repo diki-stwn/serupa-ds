@@ -63,7 +63,7 @@ Hovering an item highlights it, and a press outside closes the menu.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `trigger` | one element | required | The button that opens it. It gets `aria-haspopup`, `aria-expanded`, `aria-controls` and the keys, and keeps its own handlers and ref |
+| `trigger` | one element | required | The button that opens it. It gets `aria-haspopup`, `aria-expanded`, `aria-controls` and the keys, and keeps its own handlers and ref. It can be wrapped in a [Tooltip](../Tooltip/README.md) |
 | `children` | nodes | required | `MenuItem`, `MenuGroup` and `MenuSeparator` |
 | `placement` | as Tooltip | `'bottom-start'` | Where it opens; it flips when there's no room and slides to stay on screen. With no room on either side it opens on the roomier one and scrolls inside, so every item can be reached |
 | `open`, `onOpenChange` | boolean, function | | Control it yourself |
