@@ -2,6 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, test } from 'vitest';
 import tokens from '../../tokens.json';
 import { render } from 'vitest-browser-react';
+import { commands } from 'vitest/browser';
 import { Button } from '../components/Button/Button';
 import { Input } from '../components/Input/Input';
 import { contrast, lowContrast, THEMES } from '../../tools/test/vitest/helpers';
@@ -197,4 +198,30 @@ describe('Density axis', () => {
     expect([h('b-sm'), h('b-md'), h('b-lg'), h('b-back')]).toEqual([24, 28, 36, 32]);
     expect(document.getElementById('i-md')!.closest('.dk-input')!.getBoundingClientRect().height).toBe(28);
   });
+  test('a nested data-mode section has its own text color and surface, not the page\'s; a class background still wins', async () => {
+    axes('blue', 'light');
+    await render(<div><p id="np-out">Outside</p><section id="np" data-mode="dark"><p id="np-in">Inside</p></section>
+      <section id="np2" data-mode="dark" style={{ backgroundColor: 'rgb(1, 2, 3)' }} /></div>);
+    const cs = (id: string) => getComputedStyle(document.getElementById(id)!);
+    const dark = read(document.getElementById('np')!);
+    expect(cs('np-in').color).toBe(dark.text);
+    expect(cs('np-in').color).not.toBe(cs('np-out').color);
+    expect(cs('np').backgroundColor).toBe(dark.surface);
+    expect(cs('np2').backgroundColor).toBe('rgb(1, 2, 3)');
+  });
+
+  test('printing: a data-mode="dark" page prints its light colors; a flat dark theme keeps its backgrounds', async () => {
+    axes('blue', 'dark');
+    const screen = read(root);
+    await commands.printMedia(true);
+    try {
+      axes('blue', 'dark');
+      expect(getComputedStyle(root).colorScheme).toBe('light');
+      expect(read(root).text).not.toBe(screen.text);
+      axes();
+      root.setAttribute('data-theme', 'blue-dark');
+      expect([getComputedStyle(root).colorScheme, getComputedStyle(document.body).printColorAdjust]).toEqual(['dark', 'exact']);
+    } finally { await commands.printMedia(false); }
+  });
+
 });

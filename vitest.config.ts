@@ -9,7 +9,7 @@ import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { buildUtilities } from './tools/utilities/build.mjs';
 import { buildRegistry } from './tools/build/registry.mjs';
-import { forcedColors, pointerDown, pointerDrag, pointerUp } from './tools/test/vitest/commands.ts';
+import { forcedColors, pointerDown, pointerDrag, pointerUp, printMedia } from './tools/test/vitest/commands.ts';
 
 const { version } = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 // src/styles/index.css imports the generated utilities.css; make it from the template and tokens first.
@@ -58,7 +58,7 @@ export default defineConfig({
           // SERUPA_BROWSER=firefox|webkit runs them in that engine, like the rest of the suite (run.mjs --browser).
           instances: [{ browser: (process.env.SERUPA_BROWSER as 'chromium' | 'firefox' | 'webkit') || 'chromium' }],
           viewport: { width: 900, height: 700 },
-          commands: { pointerDrag, pointerDown, pointerUp, forcedColors },
+          commands: { pointerDrag, pointerDown, pointerUp, forcedColors, printMedia },
         },
       },
     }, {

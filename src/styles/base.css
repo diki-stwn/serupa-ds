@@ -13,6 +13,11 @@
 :where(:root:not([data-brand], [data-mode])), :where([data-theme$="-light"]) { color-scheme: light; }
 :where([data-theme$="-dark"]) { color-scheme: dark; }
 
+/* A section with its own data-mode, data-brand or data-theme: color is inherited as the parent's resolved value, so
+   its plain text would keep the page's color on a transparent background. It takes its own text and surface (no
+   specificity: a class on the section still sets its background). <html> and <body> are left to the rule below. */
+:where([data-mode], [data-brand], [data-theme]):where(:not(html, body)) { color: var(--text); background-color: var(--surface); }
+
 :where(html) {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -74,6 +79,11 @@
   :where(.dk-btn, .dk-badge, .dk-progress, .dk-switch, .dk-checkbox__input, .dk-radio__input, .dk-avatar, .dk-stepper__indicator, .dk-segmented, .dk-alert, .dk-slider, .dk-calendar, .dk-pagination, .dk-tabs) { print-color-adjust: exact; }
   :where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-fab) { display: none !important; }
   :where([data-print-urls] a[href^="http"])::after { content: " (" attr(href) ")"; font-size: var(--text-xs); overflow-wrap: anywhere; }
+  /* Printers drop backgrounds, so a dark page would print light text on white paper. A data-mode page or section
+     prints its light colors (its light-dark() pairs follow color-scheme); a flat *-dark theme has no light values
+     to fall back on, so it keeps its backgrounds instead. */
+  :where(:root, [data-mode]) { color-scheme: light; }
+  :where([data-theme$="-dark"]) { color-scheme: dark; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 
 /* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. */
