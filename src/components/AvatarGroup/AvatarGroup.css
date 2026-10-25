@@ -16,5 +16,11 @@
 .dk-avatar-group__item + .dk-avatar-group__item { margin-inline-start: calc(var(--spacing-0) - var(--dk-avatar-group-overlap)); }
 .dk-avatar-group .dk-avatar__frame { box-shadow: 0 0 0 var(--avatar-group-ring-width, var(--border-width-2)) var(--avatar-group-ring, var(--surface)); }
 .dk-avatar-group__more > .dk-avatar__frame { background: var(--avatar-group-more-bg, var(--secondary)); color: var(--avatar-group-more-color, var(--text)); letter-spacing: var(--tracking-tight); }
+/* With showMore or onMore, "+N" is a button: no button chrome, a pointer, and the focus ring round the circle. */
+button.dk-avatar-group__more { padding: var(--spacing-0); border: var(--spacing-0); border-radius: var(--rounded-full); background: none; font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+@media (hover: hover) { button.dk-avatar-group__more:hover > .dk-avatar__frame { background: var(--avatar-group-more-hover-bg, var(--secondary-hover)); } }
+button.dk-avatar-group__more:focus-visible { outline: var(--focus-ring-width) solid var(--avatar-group-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-avatar-group__list { display: flex; flex-direction: column; gap: var(--spacing-2); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; font-size: var(--text-sm); }
+.dk-avatar-group__list > li { display: flex; align-items: center; gap: var(--spacing-2); }
 @media (forced-colors: active) { .dk-avatar-group .dk-avatar__frame { box-shadow: none; } }
 }

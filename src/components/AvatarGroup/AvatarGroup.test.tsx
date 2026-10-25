@@ -141,6 +141,42 @@ describe('AvatarGroup', () => {
     expect([low, n]).toEqual([[], 6]);
   });
 
+  // DS1: "+N" was a span, so keyboard and touch users could never see who's behind it.
+  test('showMore: "+2" is a button with the same name that Tab reaches; it opens a popover listing the hidden people by name, then "N more" for the unloaded ones', async () => {
+    await render(<><button>before</button><AvatarGroup id="sm" label="Team" max={3} total={7} showMore>{av(5)}</AvatarGroup></>);
+    const b = more('sm')!;
+    expect([b.tagName, b.getAttribute('aria-label'), b.getAttribute('aria-expanded')]).toEqual(['BUTTON', '4 more', 'false']);
+    await userEvent.click(document.querySelector('button')!);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(b);
+    expect(css(b).outlineStyle).toBe('solid');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => b.getAttribute('aria-expanded')).toBe('true');
+    const pop = document.getElementById(b.getAttribute('aria-controls')!)!;
+    expect([pop.getAttribute('aria-label'), [...pop.querySelectorAll('li')].map((li) => li.lastChild!.textContent)]).toEqual(['4 more', ['Katherine Johnson', 'Linus Torvalds', '2 more']]);
+    // The list's avatars have alt="", so each name is read once.
+    expect(pop.querySelectorAll('[role="img"]').length).toBe(0);
+  });
+
+  test('onMore: "+N" is a button that calls it (and wins over showMore); without either it stays one image', async () => {
+    const onMore = vi.fn();
+    await render(<><AvatarGroup id="om" max={3} onMore={onMore} showMore>{av(5)}</AvatarGroup><AvatarGroup id="st" max={3}>{av(5)}</AvatarGroup></>);
+    await userEvent.click(more('om')!);
+    expect([onMore.mock.calls.length, more('om')!.getAttribute('aria-expanded'), more('st')!.tagName, more('st')!.getAttribute('role')]).toEqual([1, null, 'SPAN', 'img']);
+  });
+
+  test('contrast: the "+N" button keeps 4.5:1 on hover in all six themes', async () => {
+    await render(<AvatarGroup id="hv" max={3} onMore={() => {}}>{av(5)}</AvatarGroup>);
+    await userEvent.hover(more('hv')!);
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const f = css(more('hv')!.firstElementChild), r = contrast(f.color, f.backgroundColor);
+      if (r < 4.5) low.push(`${th}: ${r.toFixed(2)}`);
+    }
+    expect(low).toEqual([]);
+  });
+
   test('forced colors: no ring, each avatar keeps its border', async () => {
     const restore = forcedColors();
     try {
