@@ -61,6 +61,16 @@
             "cssVar": "--drawer-border"
           }
         }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The keyboard focus ring of a body that scrolls.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--drawer-focus-ring"
+          }
+        }
       }
     },
     "shadow": {

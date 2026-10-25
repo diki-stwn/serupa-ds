@@ -289,17 +289,6 @@
             "cssVar": "--badge-focus-ring"
           }
         }
-      },
-      "focus-gap-color": {
-        "$type": "color",
-        "$value": "{color.surface}",
-        "$description": "Deprecated: no effect. The focus ring is an outline now, so its gap is transparent on any background. Removed in 9.0.0.",
-        "$deprecated": "The focus ring's gap is transparent; nothing to set. Removed in 9.0.0.",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--badge-focus-gap-color"
-          }
-        }
       }
     },
     "motion": {
