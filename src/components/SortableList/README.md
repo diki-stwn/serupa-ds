@@ -60,7 +60,7 @@ const [tasks, setTasks] = React.useState(initialTasks);
 | `disabled` | `boolean` | `false` | No handles. |
 | `reorderLabel` | `string` | `'Reorder'` | The word before the item's name on its handle. |
 
-Every other prop, `className` and `ref` go to the `<ul>`, which has `data-component="sortable-list"`. A row has `data-state="dragging"` while it moves.
+Every other prop, `className` and `ref` go to the `<ul>`, which has `data-component="sortable-list"`. `autoFocus` focuses the first handle. A row has `data-state="dragging"` while it moves.
 
 ## Component tokens
 

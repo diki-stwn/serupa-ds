@@ -5,6 +5,8 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { FileUpload, formatFileSize } from './FileUpload';
+import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const file = (name: string, type: string, size: number) => new File([new Uint8Array(size).fill(1)], name, { type });
 const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -37,6 +39,45 @@ describe('FileUpload', () => {
     expect(el.className).toMatch(/extra/);
     expect([el.dataset.component, el.querySelector('.dk-file-upload__title')!.textContent, btn.textContent, document.getElementById(btn.getAttribute('aria-describedby')!)!.textContent]).toEqual(['file-upload', 'Drag files here', 'Choose files', 'Images or PDF, up to 1 MB']);
     expect([inp.accept, inp.multiple, inp.name, inp.id, inp.getAttribute('aria-hidden'), inp.tabIndex]).toEqual(['image/*,.pdf', true, 'docs', 'many', 'true', -1]);
+  });
+
+  test('form: a FileUpload outside its form submits with it (the native input carries the form attribute)', async () => {
+    await render(<><form id="fu-f" /><FileUpload data-testid="fuf" name="docs" form="fu-f" /></>);
+    const input = q<HTMLInputElement>('[data-testid=fuf] input[type=file]');
+    expect([input.form?.id, new FormData(document.getElementById('fu-f') as HTMLFormElement).has('docs')]).toEqual(['fu-f', true]);
+  });
+
+  test('a drag that carries no files (text, a link) doesn\'t light the area up or allow a drop; a file drag does', async () => {
+    await render(<Many />);
+    const zone = q(many).querySelector('.dk-file-upload__zone') as HTMLElement;
+    const text = new DataTransfer(); text.setData('text/plain', 'hello');
+    const enterText = new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: text });
+    zone.dispatchEvent(enterText);
+    await new Promise((ok) => setTimeout(ok, 50));
+    expect([zone.hasAttribute('data-dragging'), enterText.defaultPrevented]).toEqual([false, false]);
+    const files = new DataTransfer(); files.items.add(file('a.png', 'image/png', 10));
+    zone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: files }));
+    await expect.poll(() => zone.hasAttribute('data-dragging')).toBe(true);
+  });
+
+  test('submitted without a required file: no browser bubble on the hidden input; the choose button takes focus, is invalid and described by "Choose a file."; a file clears it', async () => {
+    let submitted = 0;
+    await render(<form id="req" onSubmit={(e) => { e.preventDefault(); submitted++; }}><FileUpload id="rq" name="doc" required /><button id="go">Send</button></form>);
+    const root = rootOf('rq');
+    await userEvent.click(document.getElementById('go')!);
+    await expect.poll(() => document.activeElement).toBe(choose(root));
+    expect([submitted, errs(root), choose(root).getAttribute('aria-invalid'), choose(root).getAttribute('aria-describedby')!.split(' ').map((i) => document.getElementById(i)!.textContent.replace(/^error/, '')).join(' | ')])
+      .toEqual([0, 'alert: Choose a file.', 'true', 'Required | Choose a file.']);
+    await userEvent.upload(input(root), [file('a.pdf', 'application/pdf', 10)]);
+    await expect.poll(() => errs(root)).toBe(null);
+    expect(choose(root).hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test('refusal messages in the provider\'s words: Indonesian under id-ID, the types joined with "atau"', async () => {
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><FileUpload id="fid" multiple accept="image/*,.pdf" maxSize={1024} maxFiles={1} /></SerupaProvider>);
+    const root = rootOf('fid');
+    await userEvent.upload(input(root), [file('catatan.txt', 'text/plain', 10), file('besar.png', 'image/png', 4096), file('a.png', 'image/png', 10), file('b.png', 'image/png', 10)]);
+    expect(errs(root)).toBe('alert: catatan.txt bukan gambar atau PDF. / besar.png lebih besar dari 1 KB. / b.png tidak ditambahkan: maksimal 1 file.');
   });
 
   test('the button opens the file picker (it clicks the native input, which allows several files)', async () => {
@@ -82,6 +123,7 @@ describe('FileUpload', () => {
   test('forced colors: the drag-over area keeps a Highlight border, unlike the resting one', async () => {
     await render(<Many />);
     const zone = q(`${many} .dk-file-upload__zone`), dt = new DataTransfer();
+    dt.items.add(new File(['x'], 'a.txt', { type: 'text/plain' }));   // only a drag of files highlights the area
     const r = await forcedColors(async (active) => {
       if (!active) return null;
       const rest = css(zone).borderTopColor;

@@ -229,4 +229,10 @@ describe('ColorPicker', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
   });
+  test('autoFocus focuses the checked swatch, not the wrapper', async () => {
+    await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#fde047" autoFocus />);
+    await expect.poll(() => document.activeElement).toBe(swatch('Yellow'));
+    expect(group().closest('.dk-color-picker')!.hasAttribute('autofocus')).toBe(false);
+  });
+
 });
