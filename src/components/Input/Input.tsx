@@ -9,13 +9,14 @@ import { displayNumber } from "../../internal/numbers";
 import { useLocale } from "../../internal/provider";
 import { useTextLimit } from "../../internal/textLimit";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { useAffixes } from "../../internal/affix";
 
 const PLAIN = { useGrouping: false } as const;
 // Fields whose text isn't words: the phone keyboard shouldn't capitalize, correct or underline it.
 const VERBATIM = /^(email|url)$/;
 const VERBATIM_AUTOCOMPLETE = /\b(username|email|url|one-time-code)\b/;
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'children'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'children' | 'prefix'> {
   /** 'sm' (24px, text-xs), 'md' (32px, text-sm, default) or 'lg' (44px, text-base): the control heights, like Button. */
   size?: 'sm' | 'md' | 'lg';
   /** A danger border and focus ring, and aria-invalid. Say what's wrong in text next to it, linked with aria-describedby. */
@@ -24,13 +25,17 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   leftIcon?: IconSource;
   /** A decorative icon inside the field, after the text. */
   rightIcon?: IconSource;
+  /** Text inside the field, before what's typed, such as "https://" or "@". It's added to the field's description, so it's heard too. */
+  prefix?: React.ReactNode;
+  /** Text inside the field, after what's typed, such as "kg" or ".com". It's added to the field's description too. */
+  suffix?: React.ReactNode;
   /** A character count at the end of the field, "12 / 50" with maxLength (text-colored once it's reached), read out
       only when few characters are left and at the limit. Linked to the field with aria-describedby. Default: false. */
   showCount?: boolean;
 }
 
 /* Input: a single-line text field. size "sm", "md" (default) or "lg" (24, 32, 44px: the control heights, like
-   Button); invalid (a danger border and aria-invalid); leftIcon / rightIcon (decorative, inside the field);
+   Button); invalid (a danger border and aria-invalid); leftIcon / rightIcon (decorative, inside the field); prefix / suffix (text inside the field, heard as its description);
    showCount (a character count at the end, "12 / 50" with maxLength); maxLength (in characters as people see them,
    applied by Input). Email, URL, username and one-time-code fields get autocapitalize, autocorrect and spellcheck off.
    Renders <span class="dk-input"> around a native <input>: className and style go to the wrapper, every other
@@ -39,7 +44,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("Input", function Input(props, ref) {
   const nameRef = useNameCheck("Input", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, showCount: 1, className: 1, style: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, prefix: 1, suffix: 1, showCount: 1, className: 1, style: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -59,7 +64,8 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
     nameRef(node);
     setRef(ref, node);
   }, [ref, nameRef]);
-  if (props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], countId);
+  const affix = useAffixes(props.prefix, props.suffix, countId, own);
+  if (affix.ids || props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], affix.ids, props.showCount && countId);
   const icon = function (source: IconSource, side: string) {
     const node = asIcon(source);
     return node == null || node === false ? null : <span className={"dk-input__icon dk-input__icon--" + side} aria-hidden key={side}>{node}</span>;
@@ -67,7 +73,9 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
   return (
     <span className={cn("dk-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)} style={props.style} data-component="input" data-size={size}>
       {icon(props.leftIcon, "left")}
+      {affix.prefix}
       <input {...rest} ref={setRefs} className="dk-input__field" key="field" />
+      {affix.suffix}
       {props.showCount ? <span className={cn("dk-input__count", max != null && length >= max && "dk-input__count--full")} id={countId} key="count">{max != null ? num(length) + " / " + num(max) : num(length)}</span> : null}
       {icon(props.rightIcon, "right")}
     </span>

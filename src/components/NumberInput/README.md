@@ -59,7 +59,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 
 ## Props
 
-Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`, `readOnly`…), except `type` and `rightIcon`.
+Every Input prop works (`size`, `invalid`, `leftIcon`, `prefix`, `suffix`, `placeholder`, `disabled`, `readOnly`…), except `type` and `rightIcon`. A `suffix` such as "kg" or "%" sits before the steppers.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

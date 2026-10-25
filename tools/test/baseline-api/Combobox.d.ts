@@ -13,7 +13,7 @@ type ComboboxOption = {
     description?: React.ReactNode;
     disabled?: boolean;
 } | string;
-interface ComboboxProps extends Omit<InputProps, "defaultValue" | "onChange" | "rightIcon" | "showCount" | "type" | "value"> {
+interface ComboboxProps extends Omit<InputProps, "defaultValue" | "onChange" | "prefix" | "rightIcon" | "showCount" | "suffix" | "type" | "value"> {
     options: ComboboxOption[];
     value?: null | string;
     defaultValue?: null | string;
