@@ -39,3 +39,10 @@ export const Cards: Story = {
     {['Starter', 'Team', 'Business'].map((n) => <Card key={n}><CardBody><strong>{n}</strong><p>Everything in the plan before, and more.</p></CardBody></Card>)}
   </Carousel></div>,
 };
+/** perView: three cards side by side from 1024px up, two from 768px, one on a phone; the dots count pages. */
+export const PerView: Story = {
+  args: { label: 'Products', perView: { base: 1, md: 2, lg: 3 } },
+  render: (args) => <Carousel {...args}>
+    {['Desk', 'Chair', 'Lamp', 'Shelf', 'Rug', 'Plant', 'Clock'].map((n) => <Card key={n}><CardBody><strong>{n}</strong><p>Ships in two days.</p></CardBody></Card>)}
+  </Carousel>,
+};

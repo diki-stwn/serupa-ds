@@ -5,7 +5,7 @@ import { DEFAULT_LABELS, idLabels } from './labels';
 // empty, none has doubled or stray punctuation or spacing, and none is left in English in the Indonesian set.
 // Sample arguments for each label that's a function. A new one needs a line here, so its words are checked too.
 const ARGS: Record<string, unknown[]> = {
-  page: [3], stepOf: [2, 5], slideOf: [2, 5], moreToasts: [9], toastShortcut: ['F8'],
+  page: [3], stepOf: [2, 5], slideOf: [2, 5], slidesOf: [1, 3, 7], moreToasts: [9], toastShortcut: ['F8'],
   contrast: ['4.5'], lowContrast: ['4.5'], meterZone: ['92%', 'high'], colorName: ['blue', 'dark'],
   reorderGrabbed: ['Apollo', 2, 5], reorderMoved: ['Apollo', 2, 5], reorderDropped: ['Apollo', 2, 5], reorderCancelled: ['Apollo', 2, 5],
   avatarMore: [3], avatarStatus: ['online'], charactersLeft: [12], clearValue: ['Email'], inputNotAccepted: ['abc'],

@@ -2,19 +2,25 @@
    Carousel: one slide at a time across the full width, with 12px corners. Round secondary previous and next
    buttons sit over the sides, 8px in, with shadow-sm; the dots sit centered 12px below: 8px circles in
    field-border, the current one primary and 24px wide, each in a 24px target. Slides move in 300ms (at once
-   with reduced motion) and follow a swipe. Every value goes through --carousel-* tokens.
+   with reduced motion) and follow a swipe. With perView, the slides share the width, 16px apart. Every value
+   goes through --carousel-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-carousel { display: flex; flex-direction: column; gap: var(--carousel-gap, var(--spacing-3)); min-width: var(--spacing-0); }
 .dk-carousel__viewport { position: relative; overflow: hidden; border-radius: var(--carousel-radius, var(--rounded-xl)); touch-action: pan-y; }
+.dk-carousel {
+  --dk-carousel-space: var(--spacing-0);
+  --dk-carousel-step: calc((var(--sizing-full) + var(--dk-carousel-space)) / var(--dk-carousel-per, 1));
+}
+.dk-carousel--multi { --dk-carousel-space: var(--carousel-slide-gap, var(--spacing-4)); }
 .dk-carousel__track {
-  display: flex;
-  transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--sizing-full) + var(--dk-carousel-drag, 0px)));
+  display: flex; gap: var(--dk-carousel-space);
+  transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px)));
   transition: transform var(--duration-300) var(--ease-out);
 }
-.dk-carousel[data-dir="rtl"] .dk-carousel__track { transform: translateX(calc(var(--dk-carousel-index) * var(--sizing-full) + var(--dk-carousel-drag, 0px))); }
+.dk-carousel[data-dir="rtl"] .dk-carousel__track { transform: translateX(calc(var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px))); }
 .dk-carousel__viewport[data-dragging] .dk-carousel__track { transition: none; user-select: none; }
-.dk-carousel__slide { flex: 0 0 var(--sizing-full); min-width: var(--spacing-0); }
+.dk-carousel__slide { flex: 0 0 calc(var(--dk-carousel-step) - var(--dk-carousel-space)); min-width: var(--spacing-0); }
 .dk-carousel__arrow { position: absolute; inset-block-start: var(--sizing-1-2); translate: 0 calc(var(--spacing-0) - var(--sizing-1-2)); box-shadow: var(--carousel-arrow-shadow, var(--shadow-sm)); }
 .dk-carousel__arrow--prev { inset-inline-start: var(--carousel-arrow-offset, var(--spacing-2)); }
 .dk-carousel__arrow--next { inset-inline-end: var(--carousel-arrow-offset, var(--spacing-2)); }
