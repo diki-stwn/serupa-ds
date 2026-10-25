@@ -6,6 +6,7 @@ import { color, css, lowContrast, settle } from '../../../tools/test/vitest/help
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
+import { NumberInput } from '../NumberInput/NumberInput';
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
@@ -102,6 +103,26 @@ describe('Input', () => {
     expect(css(box('dis')).opacity).toBe('0.5');
     expect(box('dis').className).toMatch(/disabled/);
     expect(css(field('dis')).cursor).toBe('not-allowed');
+  });
+
+  test('in a <fieldset disabled>: the same look as disabled (surface-muted, 50%, not-allowed), with no hover border; fields built on Input follow (NumberInput\'s steppers aren\'t dimmed twice)', async () => {
+    await render(<>
+      <Input id="fdref" disabled aria-label="Disabled" />
+      <fieldset disabled><legend>Billing</legend>
+        <Input id="fdin" aria-label="Company" />
+        <NumberInput id="fdnum" aria-label="Seats" defaultValue={3} />
+      </fieldset>
+    </>);
+    await settle(300);
+    const ref = css(box('fdref')), b = css(box('fdin'));
+    expect(field('fdin').matches(':disabled')).toBe(true);
+    expect([b.opacity, b.backgroundColor, b.cursor, css(field('fdin')).cursor]).toEqual(['0.5', ref.backgroundColor, 'not-allowed', 'not-allowed']);
+    const border = css(box('fdin')).getPropertyValue('--dk-input-bd');
+    await userEvent.hover(box('fdin'), { force: true });
+    expect(css(box('fdin')).getPropertyValue('--dk-input-bd')).toBe(border);
+    const num = field('fdnum').parentElement as HTMLElement;
+    expect(css(num).opacity).toBe('0.5');
+    expect([...num.querySelectorAll('.dk-number-input__step')].map((s) => css(s).opacity)).toEqual(['1', '1']);
   });
 
   test('icons: decorative, 16px at md, before and after the field, and they don\'t take clicks', async () => {
