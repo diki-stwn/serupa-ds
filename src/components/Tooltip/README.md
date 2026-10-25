@@ -51,6 +51,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Not a prop of its own: an id given here goes to the trigger, unless the trigger has one, which stays. The tooltip's id is made for you. |
 | `content` | node | required | A short line of text. No links or buttons: people can't reach them |
 | `children` | one element | required | Something that takes focus: a Button, IconButton or link. It gets the events and the `aria-` wiring, and keeps its own handlers and ref |
 | `placement` | `'top'` \| `'bottom'` \| `'left'` \| `'right'`, each with `-start` or `-end` | `'top'` | Where it goes. It flips to the other side when there's no room and slides to stay on screen |

@@ -52,6 +52,7 @@ const [tasks, setTasks] = React.useState(initialTasks);
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<ul>`. |
 | `items` | `T[]` | | The items, in order. |
 | `getKey` | `(item: T) => string \| number` | | A stable id. |
 | `getLabel` | `(item: T) => string` | | The item's name, for its handle and announcements. |

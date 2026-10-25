@@ -47,6 +47,7 @@ import { Image } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the `<img>`, not the frame around it. |
 | `src` | `string` | | The picture's address. |
 | `alt` | `string` | | Required. What the picture shows; `""` only for a decorative picture. |
 | `ratio` | `'auto' \| 'square' \| '4:3' \| 'video' \| number` | `'auto'` | The frame's shape. A number is width / height. `auto` keeps the picture's own shape. |

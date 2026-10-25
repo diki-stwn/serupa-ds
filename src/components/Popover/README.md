@@ -51,6 +51,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Not a prop. Put an id on the trigger, which keeps it; the panel's id is made for you, and the trigger's `aria-controls` points at it while it's open. |
 | `trigger` | element | required | One element that can take focus; it gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` |
 | `children` | node, or `(close) => node` | required | The content. The function form gets `close()` for a Done or Cancel button |
 | `title` | node | none | A heading at the top that names it |

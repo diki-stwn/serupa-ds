@@ -55,6 +55,7 @@ Your `onKeyDown` runs before the control's own keys, so `e.preventDefault()` in 
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div role="radiogroup">`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. |
 | `options` | `{ value, label?, icon?, 'aria-label'?, disabled? }[]` | | The segments, in order. An icon-only segment needs `aria-label`. |
 | `value` | `string` | | Controlled. |
 | `defaultValue` | `string` | the first enabled option | Uncontrolled. |

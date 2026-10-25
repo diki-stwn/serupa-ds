@@ -48,6 +48,7 @@ const { ToggleButton, ButtonGroup } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `pressed` | boolean | none | Whether it's on (controlled) |
 | `defaultPressed` | boolean | `false` | Whether it starts on (uncontrolled) |
 | `onPressedChange` | `(pressed) => void` | none | Called with the new state |

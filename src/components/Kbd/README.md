@@ -60,6 +60,7 @@ Use `mod` for shortcuts that follow the platform. Any other text shows as it is,
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<kbd>`. |
 | `keys` | `string[]` | | A combination, one key each. Or pass a single key as children. |
 | `size` | `'sm' \| 'md'` | `'md'` | 20 or 24px keycaps. |
 

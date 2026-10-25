@@ -47,6 +47,7 @@ const { IconButton } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element |
 | `label` | string | required | Its `aria-label`, and a `title` tooltip |
 | `shape` | `'square'` \| `'round'` | `'square'` | The Button's corners, or a circle |

@@ -48,6 +48,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<header>`. |
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |

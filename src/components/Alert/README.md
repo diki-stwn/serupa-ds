@@ -47,6 +47,7 @@ const { Alert, Button } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `tone` | `'info'` \| `'success'` \| `'warning'` \| `'danger'` \| `'neutral'` | `'info'` | The background (each tone's `-subtle` color, `surface-muted` for neutral), the border tint and the icon |
 | `title` | node | | A short first line in `font-semibold` |
 | `children` | node | | The message |

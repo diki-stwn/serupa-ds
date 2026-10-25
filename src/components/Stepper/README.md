@@ -55,6 +55,7 @@ import { Stepper } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `steps` | `{ title, description?, optional?, status? }[]` | | `status: 'error'` marks a step with a problem. |
 | `current` | `number` | | The current step's index, from 0. Steps before it are complete; `steps.length` marks them all complete. |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | |

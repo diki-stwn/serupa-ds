@@ -48,6 +48,7 @@ import { ErrorBoundary } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Not a prop. Put an id on what you pass as `fallback`, or on an element inside. |
 | `children` | `ReactNode` | | The part of the page to guard. |
 | `fallback` | `ReactNode \| ({ error, reset }) => ReactNode` | a danger Alert with Try again | What to show instead. |
 | `title` | `ReactNode` | "Something went wrong" | The default fallback's title. |
