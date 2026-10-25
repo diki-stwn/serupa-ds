@@ -65,6 +65,7 @@ The hover border fades in 150ms (`duration-150`, `ease-in-out`), at once with `p
 - The card itself stays a `<div>` (or `as`), so buttons and links inside are never nested in a link, which is invalid HTML.
 - In forced-colors mode every card gets a visible border.
 - The title, description and body text keep 4.5:1 on every variant, in all six themes (`Card.test.tsx`).
+- In print, a card isn't split across two pages.
 
 ## Props
 

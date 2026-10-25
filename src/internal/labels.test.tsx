@@ -8,6 +8,8 @@ const ARGS: Record<string, unknown[]> = {
   page: [3], stepOf: [2, 5], slideOf: [2, 5], moreToasts: [9], toastShortcut: ['F8'],
   contrast: ['4.5'], lowContrast: ['4.5'], meterZone: ['92%', 'high'], colorName: ['blue', 'dark'],
   reorderGrabbed: ['Apollo', 2, 5], reorderMoved: ['Apollo', 2, 5], reorderDropped: ['Apollo', 2, 5], reorderCancelled: ['Apollo', 2, 5],
+  avatarMore: [3], avatarStatus: ['online'], charactersLeft: [12], clearValue: ['Email'], inputNotAccepted: ['abc'],
+  keyName: ['Up arrow'], tableSorted: ['Amount', 'ascending'],
 };
 function said(set: Record<string, unknown>): Record<string, string> {
   return Object.fromEntries(Object.entries(set).map(([k, v]) => {
@@ -16,8 +18,8 @@ function said(set: Record<string, unknown>): Record<string, string> {
     return [k, String((v as (...a: unknown[]) => unknown)(...ARGS[k]))];
   }));
 }
-// Words that are the same in both languages.
-const SAME = new Set(['menu', 'ok', 'hexCode']);
+// Words that are the same in both languages. "Slide" is the usual loanword in Indonesian.
+const SAME = new Set(['menu', 'ok', 'hexCode', 'sliderMinimum', 'slideRole']);
 
 describe('labels', () => {
   const en = said(DEFAULT_LABELS as unknown as Record<string, unknown>), id = said(idLabels as unknown as Record<string, unknown>);

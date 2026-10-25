@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { announce } from "../../internal/announce";
 import { cn, domId, oneOf, omit } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
@@ -133,11 +134,21 @@ export const TableHeaderCell = /* @__PURE__ */ component<HTMLTableCellElement, T
   const rest = omit(props, { align: 1, sort: 1, onSort: 1, className: 1, children: 1 });
   const align = oneOf(ALIGN, props.align, "start");
   const sort = props.sort !== undefined ? oneOf(["ascending", "descending", "none"] as const, props.sort, "none") : null;
+  // A new order is read out ("Sorted by Amount, ascending"): aria-sort alone is only heard when focus reaches the
+  // header again, and the button keeps focus. Not on the first render.
+  const labels = useSerupa().labels;
+  const button = React.useRef<HTMLButtonElement | null>(null);
+  const was = React.useRef(sort);
+  React.useEffect(function () {
+    if (sort === was.current) return;
+    was.current = sort;
+    if ((sort === "ascending" || sort === "descending") && button.current) announce(labels.tableSorted((button.current.textContent || "").trim(), sort));
+  }, [sort, labels]);
   return (
     <th scope="col" {...rest} ref={ref} aria-sort={sort && sort !== "none" ? sort : undefined}
       className={cn("dk-table__cell dk-table__header", align !== "start" && "dk-table__cell--" + align, sort && "dk-table__header--sortable", props.className)}>
       {sort ? (
-        <button type="button" className="dk-table__sort" onClick={props.onSort}>
+        <button type="button" ref={button} className="dk-table__sort" onClick={props.onSort}>
           <span>{props.children}</span>
           <Icon icon={NEXT_ICON[sort]} className={cn("dk-table__sort-icon", sort === "none" && "dk-table__sort-icon--idle")} />
         </button>
