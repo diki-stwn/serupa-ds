@@ -39,6 +39,8 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   readOnly?: boolean;
   /** Submits the files with a form, through the native file input. */
   name?: string;
+  /** The id of the form the files submit with, when the FileUpload sits outside it (like an input's form attribute). */
+  form?: string;
   /** The drop area's title. Default: "Drag files here" ("Drag a file here" without multiple). */
   title?: React.ReactNode;
   /** The button's text. Default: "Choose files" ("Choose a file"). */
@@ -49,7 +51,7 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   removeLabel?: (name: string) => string;
 }
 
-const OWN = { files: 1, onFilesChange: 1, onReject: 1, accept: 1, multiple: 1, maxSize: 1, maxFiles: 1, disabled: 1, name: 1, title: 1, buttonLabel: 1, hint: 1, removeLabel: 1, autoFocus: 1, className: 1, id: 1, "aria-describedby": 1, "aria-errormessage": 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1 } as const;
+const OWN = { files: 1, onFilesChange: 1, onReject: 1, accept: 1, multiple: 1, maxSize: 1, maxFiles: 1, disabled: 1, name: 1, form: 1, title: 1, buttonLabel: 1, hint: 1, removeLabel: 1, autoFocus: 1, className: 1, id: 1, "aria-describedby": 1, "aria-errormessage": 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1 } as const;
 
 function accepts(file: File, accept?: string) {
   if (!accept) return true;
@@ -57,11 +59,11 @@ function accepts(file: File, accept?: string) {
   return accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).some((a) =>
     a.startsWith(".") ? name.endsWith(a) : a.endsWith("/*") ? type.startsWith(a.slice(0, -1)) : type === a);
 }
-// accept in words, for the message on a refused file: "image/*,.pdf" is "an image or PDF", ".png,.jpg,.jpeg"
-// is "a PNG or JPG". null when a type has no short name (application/vnd.ms-excel), so the message stays general.
+// accept in short names, for the message on a refused file: "image/*,.pdf" is ["image", "PDF"] ("an image or PDF"),
+// ".png,.jpg,.jpeg" is ["PNG", "JPG"]. null when a type has no short name (application/vnd.ms-excel), so the message stays general.
 const KINDS: Record<string, string> = { image: "image", video: "video", audio: "audio file", text: "text file" };
 const SUBTYPES: Record<string, string> = { jpeg: "JPG", "svg+xml": "SVG", plain: "TXT", "x-icon": "ICO" };
-function acceptedTypes(accept: string): string | null {
+function acceptedTypes(accept: string): string[] | null {
   const names: string[] = [];
   for (const a of accept.split(",").map((x) => x.trim().toLowerCase()).filter(Boolean)) {
     const [main, sub] = a.split("/");
@@ -70,11 +72,7 @@ function acceptedTypes(accept: string): string | null {
     if (!name) return null;
     if (!names.includes(name)) names.push(name);
   }
-  if (!names.length) return null;
-  const first = names[0];   // "an" before a vowel sound: "an image", "an SVG" (said "ess"), "an MP4"
-  const an = first === first.toUpperCase() ? /^[AEFHILMNORSX]/.test(first) : /^[aeiou]/.test(first);
-  const list = names.length === 1 ? first : names.slice(0, -1).join(", ") + " or " + names[names.length - 1];
-  return (an ? "an " : "a ") + list;
+  return names.length ? names : null;
 }
 const iconFor = (f: File) => /^image\//.test(f.type) ? icons.Image : f.type === "application/pdf" ? icons.PictureAsPdf : /^video\//.test(f.type) ? icons.Movie : /^audio\//.test(f.type) ? icons.AudioFile : /zip|compressed|tar/.test(f.type) ? icons.FolderZip : icons.Draft;
 const same = (a: File, b: File) => a.name === b.name && a.size === b.size && a.type === b.type;   // the same file picked again
@@ -110,17 +108,26 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
   const required = props["aria-required"] != null ? props["aria-required"] === true || props["aria-required"] === "true" : !!props.required;
   const removeLabel = props.removeLabel || ((n: string) => sds.labels.remove + " " + n);
 
-  const set = (next: File[]) => { if (!controlled) setOwn(next); if (props.onFilesChange) props.onFilesChange(next); };
+  const L = sds.labels;
+  // Submitted without a required file: the browser would focus the hidden input and point its bubble at nothing,
+  // so FileUpload says it in its own message and focuses the choose button instead.
+  const [missing, setMissing] = React.useState(false);
+  const onInvalid = (e: React.FormEvent<HTMLInputElement>) => {
+    if (!e.currentTarget.validity.valueMissing) return;
+    e.preventDefault();
+    setMissing(true);
+    const form = e.currentTarget.form;
+    const first = form ? Array.from(form.elements).find((x) => (x as HTMLInputElement).willValidate && !(x as HTMLInputElement).validity.valid) : null;
+    if ((!first || first === e.currentTarget) && chooser.current) chooser.current.focus();
+  };
+  const set = (next: File[]) => { if (next.length) setMissing(false); if (!controlled) setOwn(next); if (props.onFilesChange) props.onFilesChange(next); };
   const add = (list: FileList | File[] | null) => {
     if (!list || still) return;
     const incoming = Array.from(list), ok: File[] = [], bad: FileRejection[] = [];
     const limit = props.maxSize != null ? formatFileSize(props.maxSize) : "";
     for (const f of incoming) {
-      if (!accepts(f, props.accept)) {
-        const types = acceptedTypes(props.accept || "");
-        bad.push({ file: f, reason: "type", message: types ? `${f.name} isn't ${types}.` : `${f.name}: this type of file isn't accepted.` });
-      }
-      else if (props.maxSize != null && f.size > props.maxSize) bad.push({ file: f, reason: "size", message: `${f.name} is larger than ${limit}.` });
+      if (!accepts(f, props.accept)) bad.push({ file: f, reason: "type", message: L.fileWrongType(f.name, acceptedTypes(props.accept || "")) });
+      else if (props.maxSize != null && f.size > props.maxSize) bad.push({ file: f, reason: "size", message: L.fileTooLarge(f.name, limit) });
       else ok.push(f);
     }
     let next: File[];
@@ -129,11 +136,11 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
       next = files.slice();
       for (const f of ok) {
         if (next.some((g) => same(f, g))) continue;
-        if (props.maxFiles != null && next.length >= props.maxFiles) { bad.push({ file: f, reason: "count", message: `${f.name} wasn't added: up to ${props.maxFiles} ${props.maxFiles === 1 ? "file" : "files"}.` }); continue; }
+        if (props.maxFiles != null && next.length >= props.maxFiles) { bad.push({ file: f, reason: "count", message: L.fileTooMany(f.name, props.maxFiles) }); continue; }
         next.push(f);
       }
     }
-    if (!multiple && ok.length > 1) for (const f of ok.slice(1)) bad.push({ file: f, reason: "count", message: `${f.name} wasn't added: one file only.` });
+    if (!multiple && ok.length > 1) for (const f of ok.slice(1)) bad.push({ file: f, reason: "count", message: L.fileOnlyOne(f.name) });
     setRejected(bad);
     if (bad.length && props.onReject) props.onReject(bad);
     if (next !== files) set(next);
@@ -147,34 +154,37 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     try { const dt = new DataTransfer(); files.forEach((f) => dt.items.add(f)); i.files = dt.files; } catch { /* older browsers: the input keeps what was picked */ }
   }, [files]);
 
+  // Only a drag that carries files lights the area up and can be dropped (not text or a link dragged across it).
+  const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types || []).includes("Files");
   const drag = {
-    onDragEnter: (e: React.DragEvent) => { if (still) return; e.preventDefault(); depth.current++; setOver(true); },
-    onDragOver: (e: React.DragEvent) => { if (still) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; },
-    onDragLeave: () => { if (still) return; depth.current = Math.max(0, depth.current - 1); if (!depth.current) setOver(false); },
-    onDrop: (e: React.DragEvent) => { if (still) return; e.preventDefault(); depth.current = 0; setOver(false); add(e.dataTransfer.files); },
+    onDragEnter: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); depth.current++; setOver(true); },
+    onDragOver: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; },
+    onDragLeave: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; depth.current = Math.max(0, depth.current - 1); if (!depth.current) setOver(false); },
+    onDrop: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); depth.current = 0; setOver(false); add(e.dataTransfer.files); },
   };
   const hasHint = props.hint != null && props.hint !== "";
   // In a Field (whose <label for> reaches only the hidden input), the button is named "Due date, Choose a file" and
   // described by the Field's hint and error, then its own hint.
   const fieldLabel = useFieldLabel(inputId);
   return (
-    <div {...rest} ref={(n) => { delegateFocus(n, choose); setRef(ref, n); }} className={cn("dk-file-upload", disabled && "dk-file-upload--disabled", readOnly && "dk-file-upload--readonly", invalid && "dk-file-upload--invalid", props.className)} data-component="file-upload">
+    <div {...rest} ref={(n) => { delegateFocus(n, choose); setRef(ref, n); }} className={cn("dk-file-upload", disabled && "dk-file-upload--disabled", readOnly && "dk-file-upload--readonly", (invalid || missing) && "dk-file-upload--invalid", props.className)} data-component="file-upload">
       <div className={cn("dk-file-upload__zone", over && "dk-file-upload__zone--over")} data-dragging={over ? "" : undefined} aria-disabled={disabled || undefined} {...drag}
         onClick={(e) => { if (!still && e.target === e.currentTarget && input.current) input.current.click(); }}>
         <Icon icon={icons.UploadFile} className="dk-file-upload__icon" />
         <p className="dk-file-upload__title">{props.title ?? (multiple ? sds.labels.dragFiles : sds.labels.dragFile)}</p>
         <Button ref={chooser} variant="outline" size="sm" disabled={disabled} onClick={() => { if (!readOnly && input.current) input.current.click(); }}
-          aria-disabled={readOnly || undefined} aria-invalid={invalid || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
-          aria-labelledby={fieldLabel ? fieldLabel + " " + base + "-choose" : undefined} aria-describedby={cn(required && base + "-req", props["aria-describedby"], hasHint && base + "-hint") || undefined}>
+          aria-disabled={readOnly || undefined} aria-invalid={invalid || missing || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
+          aria-labelledby={fieldLabel ? fieldLabel + " " + base + "-choose" : undefined} aria-describedby={cn(required && base + "-req", props["aria-describedby"], hasHint && base + "-hint", missing && base + "-missing") || undefined}>
           <span id={base + "-choose"}>{props.buttonLabel || (multiple ? sds.labels.chooseFiles : sds.labels.chooseFile)}</span>
         </Button>
         {required ? <span className="dk-file-upload__required" id={base + "-req"}>{sds.labels.required}</span> : null}
         {hasHint ? <p className="dk-file-upload__hint" id={base + "-hint"}>{props.hint}</p> : null}
-        <input ref={input} id={inputId} type="file" className="dk-file-upload__input" tabIndex={-1} aria-hidden name={props.name} accept={props.accept} multiple={multiple} disabled={disabled} required={props.required}
-          onChange={(e) => { add(e.target.files); }} />
+        <input ref={input} id={inputId} type="file" className="dk-file-upload__input" tabIndex={-1} aria-hidden name={props.name} form={props.form} accept={props.accept} multiple={multiple} disabled={disabled} required={props.required}
+          onChange={(e) => { add(e.target.files); }} onInvalid={onInvalid} />
       </div>
-      {rejected.length ? (
+      {rejected.length || missing ? (
         <div className="dk-file-upload__errors" role="alert">
+          {missing ? <p className="dk-file-upload__error" id={base + "-missing"}><Icon icon={icons.Error} />{L.fileMissing(multiple)}</p> : null}
           {rejected.map((r, i) => <p key={i} className="dk-file-upload__error"><Icon icon={icons.Error} />{r.message}</p>)}
         </div>
       ) : null}

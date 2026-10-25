@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, omit, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { colorName, contrastRatio, normalizeHex } from "../../internal/color";
-import { delegateFocus } from "../../internal/focus";
+import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { FieldContext } from "../../internal/field";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFormReset } from "../../internal/useFormReset";
@@ -48,7 +48,7 @@ export interface ColorPickerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   invalid?: boolean;
 }
 
-const OWN = { "aria-label": 1, "aria-labelledby": 1, swatches: 1, value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, custom: 1, contrastWith: 1, minContrast: 1, size: 1, disabled: 1, name: 1, className: 1, form: 1, required: 1, invalid: 1, "aria-describedby": 1, "aria-errormessage": 1, "aria-required": 1, "aria-invalid": 1 } as const;
+const OWN = { "aria-label": 1, "aria-labelledby": 1, swatches: 1, value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, custom: 1, contrastWith: 1, minContrast: 1, size: 1, disabled: 1, name: 1, className: 1, form: 1, required: 1, invalid: 1, "aria-describedby": 1, "aria-errormessage": 1, "aria-required": 1, "aria-invalid": 1, autoFocus: 1 } as const;
 type Swatch = ColorSwatch & { named: boolean };
 // The check on a swatch: white or black, whichever stands out more on it.
 const ink = (hex: string) => ((contrastRatio(hex, "#ffffff") || 0) >= (contrastRatio(hex, "#000000") || 0) ? "#ffffff" : "#000000");
@@ -160,6 +160,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   // Rounded down, so 4.49 never shows as 4.5 and passes by eye.
   const fmt = (n: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.floor(n * 10) / 10);
   const low = ratio != null && ratio < min;
+  useAutoFocus(props.autoFocus, () => root.current && root.current.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]);
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); setRef(ref, n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
       data-component="color-picker" data-size={size}>

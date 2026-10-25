@@ -32,7 +32,7 @@ import { FileUpload } from "serupa-ds";
 
 ## Behavior
 
-- The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it.
+- The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it. Text or a link dragged across it doesn't highlight it.
 - Files that don't fit are listed under the area in danger text and passed to `onReject`; the same file picked twice is skipped quietly.
 - Removing a file moves focus to the Choose button, since the row is gone.
 - The native input always holds the listed files, including dropped ones, so a form sends exactly what's shown.
@@ -40,7 +40,8 @@ import { FileUpload } from "serupa-ds";
 
 ## Accessibility
 
-- The button is the keyboard and screen-reader way in; dragging is an extra. Messages about refused files are `role="alert"`, so they're announced.
+- The button is the keyboard and screen-reader way in; dragging is an extra. Messages about refused files are `role="alert"`, so they're announced. They come from labels (`fileWrongType`, `fileTooLarge`, `fileTooMany`, `fileOnlyOne`), Indonesian in `idLabels`, and `onReject` gets the same text.
+- Submitted without a required file, FileUpload doesn't let the browser point its bubble at the hidden input: it shows "Choose a file." (`fileMissing`) in the same alert area, makes the button invalid and described by it, and focuses the button when it's the first invalid field. Choosing a file clears it.
 - In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. With the Field's `error` the button gets `aria-invalid`; with `required` it's described by "Required" first (`labels.required`), since a button can't carry `aria-required`.
 - Text keeps 4.5:1 (also while dragging), and the icons and dashed outline 3:1, in all six themes (`FileUpload.test.tsx`).
 - In forced colors (Windows High Contrast), the drag-over area turns its border solid and `Highlight`, so the state still shows without the primary fill.
@@ -61,6 +62,7 @@ import { FileUpload } from "serupa-ds";
 | `required` | `boolean` | `false` | `required` on the native input (the form's check) and a hidden "Required" in the button's description. A required Field adds the description for you. |
 | `readOnly` | `boolean` | `false` | The files are listed and submitted but can't change: the button stays focusable with `aria-disabled` and opens no picker, drops are ignored, and there are no remove buttons. |
 | `name` | `string` | | Sends the files with a form. |
+| `form` | `string` | | The id of the form the files submit with, when the FileUpload sits outside it. |
 | `id` | `string` | | Goes to the native input, so a `<label htmlFor>` or Field can point at it. |
 | `title` | `ReactNode` | `'Drag files here'` or `'Drag a file here'` | |
 | `buttonLabel` | `string` | `'Choose files'` or `'Choose a file'` | |

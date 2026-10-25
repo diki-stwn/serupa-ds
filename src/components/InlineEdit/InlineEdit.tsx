@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { useAutoFocus } from "../../internal/focus";
 import { isComposing } from "../../internal/ime";
 import { useSerupa } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
@@ -47,7 +48,7 @@ export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 /** Text people can click to edit in place: Enter or leaving saves, Escape cancels. */
 export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditProps>("InlineEdit", function InlineEdit(props, ref) {
   const rest = omit(props, { label: 1, value: 1, defaultValue: 1, onValueChange: 1, onCancel: 1, validate: 1, placeholder: 1, size: 1, editing: 1,
-    onEditingChange: 1, disabled: 1, readOnly: 1, editLabel: 1, inputProps: 1, className: 1 } as const);
+    onEditingChange: 1, disabled: 1, readOnly: 1, editLabel: 1, inputProps: 1, className: 1, autoFocus: 1 } as const);
   const sds = useSerupa();
   const size = oneOf(SIZES, props.size, "md");
   const controlled = props.value !== undefined;
@@ -71,6 +72,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   const open = () => { if (locked) return; closing.current = false; setDraft(value); setError(null); setEditing(true); };
   // Opening (by a click, a key or the editing prop) focuses the field with its text selected.
   React.useEffect(() => { if (editing && field.current) { closing.current = false; field.current.focus(); field.current.select(); } }, [editing]);
+  useAutoFocus(props.autoFocus, () => field.current || view.current);
   React.useEffect(() => { if (!editing && refocus.current) { refocus.current = false; if (view.current) view.current.focus(); } }, [editing]);
 
   const save = (keyboard: boolean) => {

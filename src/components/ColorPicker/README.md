@@ -67,7 +67,7 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 | `required` | `boolean` | `false` | A color must be picked: `aria-required` on the swatches, and the form won't submit without one (the swatches are marked invalid and take focus). Set for you in a required Field. |
 | `invalid` | `boolean` | `false` | Marks the swatches invalid. Set for you in a Field with an error. |
 
-Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it focuses the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
+Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it and `autoFocus` focus the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
 
 ## Component tokens
 
