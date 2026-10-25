@@ -9,7 +9,7 @@ import { useTextLimit } from "../../internal/textLimit";
 
 const PLAIN = { useGrouping: false } as const;
 
-export interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'rows'> {
+export interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'rows' | 'children'> {
   /** 'sm' (text-xs), 'md' (text-sm, default) or 'lg' (text-base): Input's text sizes and side padding. */
   size?: 'sm' | 'md' | 'lg';
   /** Visible lines of text: the starting height, and the smallest one with autoResize. Default: 3. */
