@@ -4,6 +4,19 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [9.4.0] - 2026-10-25
+
+### Added
+
+- `perView` on Carousel, to show two or three slides side by side, 16px apart (`--carousel-slide-gap`). It takes a number or one per screen width, `{ base, sm, md, lg }`. The buttons and swipe still move one slide and stop when the last one is in view, and the dots count pages, named "1–3 of 7" (new `slidesOf` label, in English and Indonesian). All the slides in view are reachable; the rest stay inert (R5).
+- `orientation="vertical"` on Tabs. The tabs form a column at the start of the panels, with `aria-orientation="vertical"` and ↑ ↓ between them, and the line variant's line on the column's end side (O4).
+- ToggleGroup, a set of ToggleButtons that share one value. With `type="single"` (the default) one is on at a time, and `required` keeps one on. With `"multiple"` any number can be on. `value`, `defaultValue` and `onValueChange` hold the values of the buttons that are on. `size`, `variant` and `disabled` reach every button that doesn't set its own. It looks like a ButtonGroup and has its `attached` and `orientation` props.
+- TreeView, nested items that open and close, such as folders and files. It follows the WAI-ARIA tree pattern: one Tab stop, the arrow keys, Home and End, `*`, and typeahead. `selectionMode` is 'single', 'multiple' (with Shift ranges and Ctrl+A) or 'none'. `value` and `expanded` can be controlled or uncontrolled, closed items' children aren't in the page, and every value has its own token.
+
+### Fixed
+
+- A tab row with more tabs than fit gave no sign of the rest, and a selected tab past the edge stayed out of sight. The edge with more tabs past it now fades out over 32px (new `--tabs-fade-size` token), and the selected tab is scrolled into view whenever it changes, without scrolling the page.
+
 ## [9.3.0] - 2026-10-25
 
 ### Added
