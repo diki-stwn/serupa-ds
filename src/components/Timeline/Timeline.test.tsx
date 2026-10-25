@@ -36,7 +36,7 @@ describe('Timeline', () => {
     expect([el('a').textContent, q(el('a'), '.dk-timeline__rail').getAttribute('aria-hidden')]).toEqual(['Order placed12 MarTwo items.', 'true']);
     // Without children there is no content box; without time, no <time>.
     await render(<Timeline><TimelineItem id="bare" title="Bare" /></Timeline>);
-    expect([el('bare').querySelector('time'), el('bare').querySelector('.dk-timeline__content')]).toEqual([null, null]);
+    expect([el('bare').querySelector('time'), q(el('bare'), '.dk-timeline__content')]).toEqual([null, null]);
   });
 
   test('the line joins each marker to the next, and the last has none; the title\'s first line sits level with the marker', async () => {
@@ -55,7 +55,7 @@ describe('Timeline', () => {
     expect([el('s').classList.contains('dk-timeline__item--danger'), el('n').classList.contains('dk-timeline__item--neutral')]).toEqual([true, true]);
     expect(dot('s')).not.toBe(dot('n'));
     const ic = q(el('ic'), '.dk-timeline__marker');
-    expect([getComputedStyle(ic, '::before').content, ic.querySelector('.dk-icon') !== null, css(ic).backgroundColor !== 'rgba(0, 0, 0, 0)']).toEqual(['none', true, true]);
+    expect([getComputedStyle(ic, '::before').content, q(ic, '.dk-icon') !== null, css(ic).backgroundColor !== 'rgba(0, 0, 0, 0)']).toEqual(['none', true, true]);
   });
 
   test('align="alternate": from 768px up the rail is centered and bodies take turns; narrower they stay on one side', async () => {
@@ -83,6 +83,15 @@ describe('Timeline', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bg = css(document.body).backgroundColor;
       for (const sel of ['.dk-timeline__title', '.dk-timeline__time', '.dk-timeline__content']) expect(contrast(css(q(el('a'), sel)).color, bg), th + sel).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  test('an icon reads 3:1 on its circle, for every status in all six themes', async () => {
+    const all = ['neutral', 'primary', 'success', 'warning', 'danger', 'info'] as const;
+    await render(<Timeline>{all.map((st) => <TimelineItem key={st} id={'i-' + st} title={st} icon="check" status={st} />)}</Timeline>);
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      for (const st of all) { const m = q(el('i-' + st), '.dk-timeline__marker'); expect(contrast(css(m).color, css(m).backgroundColor), th + ' ' + st).toBeGreaterThanOrEqual(3); }
     }
   });
 });

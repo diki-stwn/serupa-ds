@@ -41,6 +41,186 @@
             "cssVar": "--timeline-line"
           }
         }
+      },
+      "dot-neutral": {
+        "$type": "color",
+        "$value": "{color.border-strong}",
+        "$description": "The dot of a neutral event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-neutral"
+          }
+        }
+      },
+      "icon-neutral": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The icon of a neutral event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-neutral"
+          }
+        }
+      },
+      "icon-bg-neutral": {
+        "$type": "color",
+        "$value": "{color.surface-muted}",
+        "$description": "The circle behind a neutral event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-neutral"
+          }
+        }
+      },
+      "dot-primary": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The dot of a primary event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-primary"
+          }
+        }
+      },
+      "icon-primary": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The icon of a primary event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-primary"
+          }
+        }
+      },
+      "icon-bg-primary": {
+        "$type": "color",
+        "$value": "{color.primary-subtle}",
+        "$description": "The circle behind a primary event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-primary"
+          }
+        }
+      },
+      "dot-success": {
+        "$type": "color",
+        "$value": "{color.success}",
+        "$description": "The dot of a success event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-success"
+          }
+        }
+      },
+      "icon-success": {
+        "$type": "color",
+        "$value": "{color.success-text}",
+        "$description": "The icon of a success event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-success"
+          }
+        }
+      },
+      "icon-bg-success": {
+        "$type": "color",
+        "$value": "{color.success-subtle}",
+        "$description": "The circle behind a success event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-success"
+          }
+        }
+      },
+      "dot-warning": {
+        "$type": "color",
+        "$value": "{color.warning}",
+        "$description": "The dot of a warning event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-warning"
+          }
+        }
+      },
+      "icon-warning": {
+        "$type": "color",
+        "$value": "{color.warning-text}",
+        "$description": "The icon of a warning event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-warning"
+          }
+        }
+      },
+      "icon-bg-warning": {
+        "$type": "color",
+        "$value": "{color.warning-subtle}",
+        "$description": "The circle behind a warning event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-warning"
+          }
+        }
+      },
+      "dot-danger": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "The dot of a danger event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-danger"
+          }
+        }
+      },
+      "icon-danger": {
+        "$type": "color",
+        "$value": "{color.danger-text}",
+        "$description": "The icon of a danger event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-danger"
+          }
+        }
+      },
+      "icon-bg-danger": {
+        "$type": "color",
+        "$value": "{color.danger-subtle}",
+        "$description": "The circle behind a danger event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-danger"
+          }
+        }
+      },
+      "dot-info": {
+        "$type": "color",
+        "$value": "{color.info}",
+        "$description": "The dot of a info event.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-dot-info"
+          }
+        }
+      },
+      "icon-info": {
+        "$type": "color",
+        "$value": "{color.info-text}",
+        "$description": "The icon of a info event (3:1 on its circle).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-info"
+          }
+        }
+      },
+      "icon-bg-info": {
+        "$type": "color",
+        "$value": "{color.info-subtle}",
+        "$description": "The circle behind a info event's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--timeline-icon-bg-info"
+          }
+        }
       }
     },
     "border": {

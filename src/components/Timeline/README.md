@@ -82,3 +82,6 @@ Each is an optional override: set it on the page, a container or one Timeline. T
 | `--timeline-icon-size` | `spacing-4` | An icon in the marker (16px). |
 | `--timeline-gap` | `spacing-3` | Between the marker and the body (12px). |
 | `--timeline-item-gap` | `spacing-6` | Between one event and the next (24px). |
+| `--timeline-dot-<status>` | `border-strong`, `primary`, `success`, `warning`, `danger`, `info` | The dot, per status. |
+| `--timeline-icon-<status>` | `text-muted`, `primary`, `success-text`, `warning-text`, `danger-text`, `info-text` | An icon, per status. |
+| `--timeline-icon-bg-<status>` | `surface-muted`, `primary-subtle`, then each status's `-subtle` | The circle behind an icon, per status. |
