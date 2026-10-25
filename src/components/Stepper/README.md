@@ -51,6 +51,13 @@ import { Stepper } from "serupa-ds";
 - When it's too narrow and shows only the current step, the other titles stay in the list, clipped, so screen readers still read every step. The "Step 2 of 4" line is hidden from them, since the list already says it. This keeps it within reflow (WCAG 1.4.10) at 320px.
 - In forced colors (Windows high contrast) the current and completed circles are Highlight with HighlightText, exactly as set, so the browser's text backplate can't hide the number or check.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | With `onStepClick`, to each completed step; otherwise nothing in it takes focus |
+| Enter / Space | On a completed step, goes back to it |
+
 ## Props
 
 | Prop | Type | Default | Notes |

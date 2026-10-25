@@ -42,6 +42,17 @@ const [start, setStart] = React.useState<string | null>("09:00");
 - The clock button is out of the tab order, since ↓ in the field does the same.
 - Times keep 4.5:1 (also highlighted), and the check and clock icon 3:1, in all six themes (`TimePicker.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Down / Up | In the field, opens the list; in the list, the next or previous time |
+| PageDown / PageUp | Four times down or up the list |
+| Ctrl+Home / Ctrl+End | The first or last time (Alt works too) |
+| Enter | Picks the highlighted time, or reads what was typed; with the list closed, reads what was typed |
+| Escape | Closes the list |
+| Tab | Closes the list and moves on; the clock button isn't a Tab stop |
+
 ## Props
 
 | Prop | Type | Default | Notes |

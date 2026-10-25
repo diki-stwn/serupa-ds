@@ -48,6 +48,16 @@ const [tasks, setTasks] = React.useState(initialTasks);
 - Screen reader users in browse mode activate the handle with Enter, which picks the row up the same way.
 - The handle is at least 24 by 24px, and it keeps 3:1 (the text 4.5:1) on the row in all six themes (`SortableList.test.tsx`). In forced-colors mode the moving row gets a Highlight outline.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each row's handle |
+| Space / Enter | On a handle, picks the row up; again, drops it where it is |
+| Up / Left, Down / Right | Moves the picked-up row one place, announcing where it is |
+| Home / End | Moves it to the top or the bottom |
+| Escape / Tab | Puts it back where it was |
+
 ## Props
 
 | Prop | Type | Default | Notes |

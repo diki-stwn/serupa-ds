@@ -50,6 +50,14 @@ const [open, setOpen] = React.useState(false);
 - On Android, the system back gesture asks to close it, like Escape. Under `<React.StrictMode>`, a Drawer that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 - To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab / Shift+Tab | Between the controls in the drawer; the page behind is inert, so focus stays inside |
+| Escape | Asks to close it (`onOpenChange(false)`); with a Dialog open from it, the Dialog first |
+| Enter / Space | On the ×, the same as Escape |
+
 ## Props
 
 | Prop | Type | Default | Notes |

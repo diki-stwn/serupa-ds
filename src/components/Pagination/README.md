@@ -44,6 +44,13 @@ const [page, setPage] = React.useState(1);
 - The arrows point the other way in right-to-left pages.
 - After a page change, move focus to the top of the new results (or announce them) so keyboard and screen reader users know the list changed.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each page, the arrows and any link or button in it; a disabled arrow is skipped |
+| Enter | Goes to that page (Space too, when the pages are buttons) |
+
 ## Props
 
 | Prop | Type | Default | What it does |

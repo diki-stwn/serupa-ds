@@ -48,6 +48,15 @@ const { Accordion, AccordionItem } = window.Serupa;
 - With `collapsible={false}` the open item's button has `aria-disabled`, since pressing it does nothing.
 - Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). With reduced motion it opens without animating.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | Through the titles and anything focusable in open items; closed content is skipped. With `showExpandAll`, its button comes first |
+| Enter / Space | Opens or closes the focused item |
+| Down / Up | The next or previous title, wrapping, skipping disabled ones |
+| Home / End | The first or last title |
+
 ## Props
 
 ### Accordion

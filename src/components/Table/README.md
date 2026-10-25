@@ -57,6 +57,14 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - In print, the frame shows the whole table instead of its scrolled window, the header row repeats on every page, and a row isn't split across pages.
 - Text and muted text keep 4.5:1 on plain, hovered, striped and selected rows, and the header text on its background; the selected bar keeps 3:1 (all six themes, `Table.test.tsx`). Selection isn't shown by color alone: the bar shows it, and a `TableSelectCell`'s checkbox ("Select Ada, checked") says it to screen readers. Browsers ignore `aria-selected` on a plain table's rows, so `selected` doesn't set it; give selectable rows a `TableSelectCell`. The checkbox outline keeps 3:1 on a shaded row.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each sortable header's button, and to the frame when the table is too wide and scrolls |
+| Enter / Space | On a sortable header, sorts by it; the new order is announced |
+| Arrow keys | With focus on the scrolling frame, scroll the table |
+
 ## Props
 
 ### Table

@@ -47,6 +47,14 @@ const { Popover, Button, Field, Input } = window.Serupa;
 - A click outside or focus moving elsewhere closes it, without moving focus.
 - Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`). With reduced motion it appears without growing in.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Enter / Space | On the trigger, opens it and moves focus inside |
+| Tab | From the trigger into the panel, which sits right after it; out of the panel, closes it |
+| Escape | Closes it and returns focus to the trigger |
+
 ## Props
 
 | Prop | Type | Default | What it does |
