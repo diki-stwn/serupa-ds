@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Stepper/labels.ts"],
+  "sourcesContent": ["// Stepper's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface StepperLabels {\n  /** Stepper: its name, and the words read out or shown for a step. */\n  completed: string;\n  hasError: string;\n  /** Stepper: read after the title of a step with status \"warning\". */\n  hasWarning: string;\n  /** Stepper, when the steps don't fit side by side and it shows only the current step's title: \"Step 2 of 4\". */\n  stepOf: (step: number, total: number) => string;\n}\nexport const en: StepperLabels = {\n  completed: \"completed\",\n  hasError: \"has an error\",\n  hasWarning: \"needs attention\",\n  stepOf: (step, total) => \"Step \" + step + \" of \" + total,\n};\nexport const id: StepperLabels = {\n  completed: \"selesai\",\n  hasError: \"ada kesalahan\",\n  hasWarning: \"perlu diperhatikan\",\n  stepOf: (step, total) => \"Langkah \" + step + \" dari \" + total,\n};\n"],
+  "mappings": ";AAWO,IAAM,KAAoB;AAAA,EAC/B,WAAW;AAAA,EACX,UAAU;AAAA,EACV,YAAY;AAAA,EACZ,QAAQ,CAAC,MAAM,UAAU,UAAU,OAAO,SAAS;AACrD;AACO,IAAM,KAAoB;AAAA,EAC/B,WAAW;AAAA,EACX,UAAU;AAAA,EACV,YAAY;AAAA,EACZ,QAAQ,CAAC,MAAM,UAAU,aAAa,OAAO,WAAW;AAC1D;",
+  "names": []
+}

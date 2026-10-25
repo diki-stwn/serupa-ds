@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/PhoneInput/labels.ts"],
+  "sourcesContent": ["// PhoneInput's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface PhoneInputLabels {\n  /** PhoneInput's country menu. */\n  country: string;\n}\nexport const en: PhoneInputLabels = { country: \"Country\" };\nexport const id: PhoneInputLabels = { country: \"Negara\" };\n"],
+  "mappings": ";AAMO,IAAM,KAAuB,EAAE,SAAS,UAAU;AAClD,IAAM,KAAuB,EAAE,SAAS,SAAS;",
+  "names": []
+}
