@@ -28,6 +28,10 @@
    full-screen box lets presses through, and only the panel takes them. */
 .dk-drawer--nonmodal { z-index: var(--z-overlay); pointer-events: none; }
 .dk-drawer--nonmodal .dk-drawer__panel { pointer-events: auto; }
+/* Swipe to close: a left or right panel leaves vertical panning to the browser and hands horizontal drags to the
+   drawer; a top or bottom one is dragged by its header and footer, so its body still scrolls. */
+.dk-drawer--left .dk-drawer__panel, .dk-drawer--right .dk-drawer__panel { touch-action: pan-y; }
+.dk-drawer--top .dk-drawer__header, .dk-drawer--top .dk-drawer__footer, .dk-drawer--bottom .dk-drawer__header, .dk-drawer--bottom .dk-drawer__footer { touch-action: none; }
 .dk-drawer__panel {
   box-sizing: border-box; display: flex; flex-direction: column; gap: var(--drawer-gap, var(--spacing-4));
   width: var(--dk-drawer-width); max-width: var(--sizing-full); height: var(--sizing-full);

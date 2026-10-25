@@ -248,15 +248,15 @@ describe('Badge', () => {
 
   test('removable: a real <button type="button"> named "Remove Design" (removeLabel changes the verb), with a close icon', async () => {
     await show();
-    const b = q('#tags .dk-badge__remove') as HTMLButtonElement;
-    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, q('#rmlabel .dk-badge__remove').getAttribute('aria-label')])
+    const b = q('#tags button') as HTMLButtonElement;
+    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, q('#rmlabel button').getAttribute('aria-label')])
       .toEqual(['BUTTON', 'button', 'Remove Design', 'close', 'Clear filter Status: open']);
     await expect.element(page.getByRole('button', { name: 'Remove Design' })).toBeInTheDocument();
   });
 
   test('removable: the × mirrors a leading icon (a 12px box, --badge-gap less 2px from the label, the badge padding at the end, less 2px; a × with no leading icon adds the 2px offset at the start), and keeps a 24×24 target', async () => {
     await show();
-    const e = q('#tags .dk-badge'), l = e.querySelector('.dk-badge__label')!.getBoundingClientRect(), btn = e.querySelector('.dk-badge__remove')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
+    const e = q('#tags .dk-badge'), l = e.querySelector('.dk-badge__label')!.getBoundingClientRect(), btn = e.querySelector('button')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
     const ring = getComputedStyle(btn, '::after');
     expect([b.width, b.height]).toEqual([12, 20]);
     expect(Math.round((b.left - l.right) * 10) / 10).toBe(2);
@@ -270,12 +270,12 @@ describe('Badge', () => {
 
   test('removable: the focus ring goes round the whole 24×24 target; click and keyboard (Enter) call onRemove', async () => {
     await show();
-    (q('#tags .dk-badge__remove')).focus();
+    (q('#tags button')).focus();
     const a = getComputedStyle(document.activeElement!, '::after');
     expect([a.outlineWidth, a.outlineStyle, css(document.activeElement).outlineStyle]).toEqual(['2px', 'solid', 'none']);
-    await userEvent.click(q('#tags .dk-badge__remove'));
+    await userEvent.click(q('#tags button'));
     await expect.poll(() => removed).toEqual(['Design']);
-    q('#tags .dk-badge__remove').focus();
+    q('#tags button').focus();
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => removed.join()).toBe('Design,Research');
     expect(document.querySelectorAll('#tags .dk-badge').length).toBe(0);
@@ -379,7 +379,7 @@ describe('Badge', () => {
 
   test('onClick with onRemove: the badge is the button, no nested × button, and a warning', async () => {
     await show();
-    expect([el('both').tagName, !!q('#both .dk-badge__remove')]).toEqual(['BUTTON', false]);
+    expect([el('both').tagName, !!q('#both button')]).toEqual(['BUTTON', false]);
     expect(warns.some((m) => /onRemove is ignored/.test(m))).toBe(true);
   });
 
