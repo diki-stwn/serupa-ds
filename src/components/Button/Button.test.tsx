@@ -195,6 +195,16 @@ describe('Button', () => {
     });
   });
 
+  test('a loading or disabled-with-reason button does nothing itself, but its click still reaches a parent\'s handler', async () => {
+    const heard: string[] = [];
+    await render(<div onClick={(e) => heard.push((e.target as HTMLElement).closest('[id^="b"]')?.id || '')}>
+      <Button id="bl" loading onClick={() => heard.push('own')}>Save</Button>
+      <Button id="bd" disabled disabledReason="Fill in the form first" onClick={() => heard.push('own')}>Send</Button>
+    </div>);
+    for (const id of ['bl', 'bd']) await userEvent.click(el(id), { force: true });
+    expect(heard).toEqual(['bl', 'bd']);
+  });
+
   test('disabledReason: with disabled it stays in the tab order (aria-disabled, no disabled attribute), the reason is its description and not its name, clicks and form submission do nothing; without disabled it is ignored; a disabled link with a reason is focusable too', async () => {
     const onClick = vi.fn(), onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
     await render(<form onSubmit={onSubmit}>
