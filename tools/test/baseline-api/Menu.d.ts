@@ -5,7 +5,7 @@ interface MenuProps {
     placement?: Placement;
     open?: boolean;
     defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     "aria-label"?: string;
     className?: string;
     style?: React.CSSProperties;
@@ -18,7 +18,7 @@ interface ContextMenuProps {
     children: React.ReactNode;
     "aria-label": string;
     open?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     disabled?: boolean;
     className?: string;
     style?: React.CSSProperties;

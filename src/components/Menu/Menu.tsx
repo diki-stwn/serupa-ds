@@ -10,6 +10,7 @@ import { asIcon } from "../Icon/asIcon";
 import { component, named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import * as icons from "../../material/builtin";
+import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -25,14 +26,15 @@ export interface MenuProps {
   open?: boolean;
   /** Open at first (uncontrolled), such as a menu a page returns to. Default: false. */
   defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Called when it asks to open or close, with why: { reason: 'trigger' | 'escape' | 'outside' | 'blur' (Tab) | 'select' (an item chosen) }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** The menu's name for screen readers. Default: the trigger's text, by aria-labelledby. */
   'aria-label'?: string;
   className?: string;
   style?: React.CSSProperties;
 }
 
-interface Ctx { close: (focusTrigger: boolean) => void }
+interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
@@ -41,7 +43,7 @@ const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from
 /* The keys inside an open menu (or a submenu's panel, whose keys bubble to the menu's element): ↑ ↓ move,
    wrapping, Home and End jump, typing goes to the next item starting with what was typed, Escape closes and puts
    focus back, Tab closes. Shared by Menu and ContextMenu. */
-function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.RefObject<Typed>, close: (focusBack: boolean) => void) {
+function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.RefObject<Typed>, close: (reason: OpenChangeReason, focusBack: boolean) => void) {
   return (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (isComposing(e)) return;
     const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
@@ -51,8 +53,8 @@ function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.
     else if (e.key === "ArrowUp") go(i < 0 ? list.length - 1 : i - 1);
     else if (e.key === "Home") go(0);
     else if (e.key === "End") go(list.length - 1);
-    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); }
-    else if (e.key === "Tab") close(false);
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close("escape", true); }
+    else if (e.key === "Tab") close("blur", false);
     else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
       const n = typeahead(typed.current, e.key, list.map((it) => (it.querySelector(".dk-menu__label") || it).textContent || ""), i);
       if (n >= 0) list[n].focus();
@@ -76,13 +78,13 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   const focusOn = React.useRef<"first" | "last" | null>(null);
   const typed = React.useRef<Typed>({ text: "", at: 0 });
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean) => { if (!controlled) setInner(v); if (ask.current) ask.current(v); }, [controlled]);
-  const close = React.useCallback((focusTrigger: boolean) => { set(false); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
+  const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const ctx = React.useMemo(() => ({ close }), [close]);
   const items = () => itemsOf(menuRef.current);
 
   // A press outside the menu and its button closes it (focus stays where the press put it).
-  useAnchoredLayer(open, menuRef, triggerRef, { placement: props.placement, fallback: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close(false), inside: triggerRef });
+  useAnchoredLayer(open, menuRef, triggerRef, { placement: props.placement, fallback: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), inside: triggerRef });
   // On open, focus goes to the first item (or the last, opened with ↑).
   useIsoLayoutEffect(() => {
     const menu = menuRef.current;
@@ -104,11 +106,11 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
     "aria-haspopup": "menu",
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
-    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; if (!open) focusOn.current = "first"; set(!open); },
+    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; if (!open) focusOn.current = "first"; set(!open, "trigger"); },
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
       if (cp.onKeyDown) cp.onKeyDown(e);
       if (e.defaultPrevented) return;
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); focusOn.current = e.key === "ArrowUp" ? "last" : "first"; set(true); }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); focusOn.current = e.key === "ArrowUp" ? "last" : "first"; set(true, "trigger"); }
     },
   });
   return (
@@ -133,7 +135,8 @@ export interface ContextMenuProps {
   'aria-label': string;
   /** Open it yourself (controlled), with onOpenChange. It opens where it was last asked for, or at the target. */
   open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Called when it asks to open or close, with why: { reason: 'trigger' | 'escape' | 'outside' | 'blur' (Tab) | 'select' (an item chosen) }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Leaves the browser's own menu in place: the target's right-click and keys do nothing. Default: false. */
   disabled?: boolean;
   className?: string;
@@ -156,9 +159,9 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
   const back = React.useRef<HTMLElement | null>(null);
   const typed = React.useRef<Typed>({ text: "", at: 0 });
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean) => { if (!controlled) setInner(v); if (ask.current) ask.current(v); }, [controlled]);
-  const close = React.useCallback((focusBack: boolean) => {
-    set(false);
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
+  const close = React.useCallback((reason: OpenChangeReason, focusBack: boolean) => {
+    set(false, reason);
     const to = back.current || targetRef.current;
     if (focusBack && to) to.focus();
   }, [set]);
@@ -166,7 +169,7 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
   // Opened from outside (controlled) before any right-click: at the target's corner.
   const spot = at || (open && targetRef.current ? (() => { const r = targetRef.current.getBoundingClientRect(); return { x: r.left, y: r.top }; })() : null);
 
-  useAnchoredLayer(open && !!spot, menuRef, point, { placement: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close(false), watch: spot && spot.x + "," + spot.y });
+  useAnchoredLayer(open && !!spot, menuRef, point, { placement: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), watch: spot && spot.x + "," + spot.y });
   useIsoLayoutEffect(() => {
     const menu = menuRef.current;
     if (!open || !menu) return;
@@ -177,7 +180,7 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
   const show = (x: number, y: number) => {
     if (!open) back.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
     setAt({ x: x, y: y });
-    if (!open) set(true);
+    if (!open) set(true, "trigger");
   };
   // From the keyboard, at the focused element's lower start corner.
   const fromElement = (el: EventTarget) => { const r = (el instanceof Element ? el : targetRef.current || document.body).getBoundingClientRect(); show(r.left, r.bottom); };
@@ -269,9 +272,9 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
   const choose = (e: React.SyntheticEvent) => {
     if (props.disabled) { e.preventDefault(); return; }
     if (props.onSelect) props.onSelect(e);
-    if (!e.defaultPrevented && ctx) ctx.close(true);
+    if (!e.defaultPrevented && ctx) ctx.close("select", true);
   };
-  const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close(false); return; } choose(e); };
+  const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close("select", false); return; } choose(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (own.onKeyDown) own.onKeyDown(e);
     if (e.defaultPrevented) return;
