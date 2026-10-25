@@ -15,15 +15,15 @@ const [owner, setOwner] = React.useState<string | null>(null);
 const [reviewers, setReviewers] = React.useState<string[]>([]);
 <Combobox aria-label="Reviewers" multiple value={reviewers} onValueChange={setReviewers} options={people} name="reviewers" />
 
-// options from a server: filter them yourself
-<Combobox aria-label="Person" options={results} filter={false} loading={fetching} onInputChange={search} />
+// options from a server: loaded after typing pauses, each older request aborted
+<Combobox aria-label="Person" loadOptions={(text, { signal }) => fetch("/api/people?q=" + encodeURIComponent(text), { signal }).then((r) => r.json())} />
 ```
 
 ## When to use
 
 - One choice from a long list people know the name of: a country, an assignee, a project.
 - Several choices from a long list, such as reviewers or tags (`multiple`).
-- Options that come from a server as people type (`filter={false}`, `onInputChange` and `loading`).
+- Options that come from a server as people type (`loadOptions`).
 
 ## When not to use
 
@@ -37,7 +37,8 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 - Add a `description` when options look alike, such as people with the same name (their email).
 - Set `clearable` when no selection is a valid answer, so people can clear it in one click.
 - Write an `emptyText` that says what to try next, and match the `size` to the fields beside it.
-- Long lists are fine: the options are in the page only while the list is open, each label is prepared for matching once per `options` array, and moving the highlight redraws two rows. At most 100 rows are drawn at once, with a muted "Keep typing to narrow N more" line under them (the `moreResults` label); each row's `aria-posinset` and `aria-setsize` still count every match, and the picked option is drawn even when it's further down. Keep `options` the same array between renders (state, a constant or `useMemo`), so that work isn't redone. For tens of thousands of options, fetch the matches as people type (`onInputChange`) and pass only those.
+- Long lists are fine: the options are in the page only while the list is open, each label is prepared for matching once per `options` array, and moving the highlight redraws two rows. At most 100 rows are drawn at once, with a muted "Keep typing to narrow N more" line under them (the `moreResults` label); each row's `aria-posinset` and `aria-setsize` still count every match, and the picked option is drawn even when it's further down. Keep `options` the same array between renders (state, a constant or `useMemo`), so that work isn't redone. For tens of thousands of options, load the matches as people type with `loadOptions`.
+- With `loadOptions`, Combobox runs the requests: it waits for typing to pause (`debounce`, 250ms), passes an `AbortSignal` that aborts when newer text is typed (hand it to `fetch`), drops any answer that isn't for the latest text, and shows the loading row while it waits and "Couldn't load options. Type to try again." (the `loadFailed` label) when the promise rejects. Opening the list loads what `""` finds. The picked option keeps its label when later answers leave it out. Filter on the server: `filter` is ignored. To run the requests yourself instead, use `filter={false}`, `onInputChange` and `loading`.
 
 ## Behavior
 
@@ -75,7 +76,9 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
-| `options` | `string[]` or `{ value, label, description?, disabled? }[]` | | The label is what's typed to find an option and shown once it's picked. |
+| `options` | `string[]` or `{ value, label, description?, disabled? }[]` | | The label is what's typed to find an option and shown once it's picked. With `loadOptions`, what shows before the first answer (or leave it out). |
+| `loadOptions` | `(text, { signal }) => Promise<options>` | | Loads the options for the typed text (and `""` on opening), after `debounce`; older requests are aborted and their answers dropped. |
+| `debounce` | `number` | `250` | With `loadOptions`, how long typing must pause before loading, in ms. |
 | `multiple` | `boolean` | `false` | Picks any number of options, shown as tags. `value`, `defaultValue` and `onValueChange` then use `string[]`. |
 | `value` | `string \| null` (`string[]` with `multiple`) | | Controlled. |
 | `defaultValue` | `string \| null` (`string[]` with `multiple`) | | Uncontrolled. |
