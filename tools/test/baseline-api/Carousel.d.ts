@@ -3,6 +3,8 @@ interface CarouselLabels {
     previousSlide: string;
     nextSlide: string;
     slideOf: (slide: number, total: number) => string;
+    carouselRole: string;
+    slideRole: string;
 }
 interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
     children?: React.ReactNode;

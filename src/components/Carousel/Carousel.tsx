@@ -133,7 +133,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
 
   return (
     <section {...rest} ref={ref} className={cn("dk-carousel", props.className)} style={style}
-      aria-roledescription="carousel" aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
+      aria-roledescription={sds.labels.carouselRole} aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}
         onDragStart={(e) => e.preventDefault()}   // a picture's own drag would end the swipe
@@ -141,7 +141,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
         data-dragging={offset ? "" : undefined}>
         <div className="dk-carousel__track" ref={track} aria-live="polite">
           {slides.map((s, i) => (
-            <div key={(s as React.ReactElement).key ?? i} className="dk-carousel__slide" role="group" aria-roledescription="slide" aria-label={name(i, count)}
+            <div key={(s as React.ReactElement).key ?? i} className="dk-carousel__slide" role="group" aria-roledescription={sds.labels.slideRole} aria-label={name(i, count)}
               aria-hidden={i === index ? undefined : true} data-active={i === index ? "" : undefined}>
               {s}
             </div>
