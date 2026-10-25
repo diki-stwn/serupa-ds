@@ -166,7 +166,6 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-active-layer` | `opacity-15` | Clickable badges: the layer while pressed (15%) |
 | `--badge-state-text` | `opacity-30` | Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%) |
 | `--badge-focus-ring` | `focus-ring` | Clickable badges: the keyboard focus ring |
-| `--badge-focus-gap-color` | `surface` | Deprecated, no effect: the focus ring is an outline now, so its gap is transparent on any background. Removed in 9.0.0. |
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
 | `--badge-press-duration` | `duration-100` | How fast the press scales (100ms) |
 | `--badge-ripple-opacity` | `opacity-20` | Ripple strength, in the text color (20%); `0` turns it off |
