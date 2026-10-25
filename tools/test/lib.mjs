@@ -80,7 +80,7 @@ export async function fixClock(context) {
     FixedDate.prototype = Real.prototype;
     Object.setPrototypeOf(FixedDate, Real);
     FixedDate.now = () => Real.now() + shift;
-    globalThis.Date = FixedDate;
+    Object.defineProperty(globalThis, 'Date', { value: FixedDate, writable: true, configurable: true });
   }, CLOCK);
 }
 export const PAGES = Math.max(1, Number(process.env.SERUPA_PAGES) || Math.min(4, os.availableParallelism()));
