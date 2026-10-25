@@ -37,12 +37,15 @@ const [open, setOpen] = React.useState(false);
 - Name the buttons in `footer` after what they do ("Delete", "Keep"), not "OK" and "Cancel" alone, and put the main action last.
 - Use `alert` only for decisions people must make. It hides the × and stops a backdrop click from closing it.
 - Keep the body short. Pick `size="sm"` for a confirmation and `lg` only when the content needs the width.
+- For a long form on a phone, use `fullScreen="mobile"`. Under 640px the panel fills the screen with square corners, and the footer sits at the bottom, clear of the home bar.
 
 ## Behavior
 
 - Opening moves focus to the first thing in it that takes focus (put `autoFocus` on another to choose); closing moves it back to where it was.
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
+- On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
+- Under `<React.StrictMode>`, a Dialog that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 
 ## Accessibility
 
@@ -65,6 +68,7 @@ const [open, setOpen] = React.useState(false);
 | `closeButton` | boolean | `true` (`false` for alert) | The × in the corner |
 | `closeLabel` | string | `'Close'` | The ×'s name |
 | `closeOnBackdrop` | boolean | `true` (`false` for alert) | Whether a click on the dimmed page closes it |
+| `fullScreen` | boolean \| `'mobile'` | `false` | Fills the screen: `true` always, or `'mobile'` under 640px wide. Square corners, no shadow, the body takes the free height, and the padding clears the notch and home bar |
 
 `children` is the body, which scrolls when it's taller than the screen. `className`, `style`, `ref` and everything else go to the `<dialog>`, which has `data-component="dialog"` and `data-size`.
 

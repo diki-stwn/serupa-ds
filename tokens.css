@@ -675,7 +675,7 @@
   --outline-offset-2: 2px; /* `outline-offset-2`. Gap between an element and its focus outline. */
   --outline-offset-4: 4px; /* `outline-offset-4`. */
   --outline-offset-8: 8px; /* `outline-offset-8`. */
-  --focus-ring-width: var(--outline-width-2); /* The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. */
+  --focus-ring-width: var(--outline-width-2); /* The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. A third thicker (3px) with more contrast. */
   --focus-ring-offset: var(--outline-offset-2); /* The transparent gap between an element and its focus ring (`outline-offset`). Inset rings, where an outline would be clipped, use 0. */
   --stroke-width-0: 0; /* `stroke-0`. No stroke. */
   --stroke-width-1: 1; /* `stroke-1`. Hairline outlines and dividers in illustrations. */
@@ -1055,6 +1055,7 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
 }
 @media (prefers-contrast: more) {
 :root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {
@@ -1065,6 +1066,7 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
 }
 }
 [data-density="compact"] {

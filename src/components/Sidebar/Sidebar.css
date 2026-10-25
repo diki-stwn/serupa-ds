@@ -13,7 +13,7 @@
 .dk-sidebar--collapsed { width: var(--sidebar-width-collapsed, var(--spacing-16)); }
 .dk-sidebar__header, .dk-sidebar__footer { flex-shrink: 0; padding: var(--sidebar-padding, var(--spacing-3)); }
 .dk-sidebar__footer { border-top: var(--sidebar-border-width, var(--border-width-1)) solid var(--sidebar-border, var(--border)); }
-.dk-sidebar__body { display: flex; flex-direction: column; gap: var(--sidebar-section-gap, var(--spacing-6)); flex: auto; min-height: var(--spacing-0); overflow-y: auto; padding: var(--sidebar-padding, var(--spacing-3)); }
+.dk-sidebar__body { display: flex; flex-direction: column; gap: var(--sidebar-section-gap, var(--spacing-6)); flex: auto; min-height: var(--spacing-0); overflow-y: auto; overscroll-behavior-y: contain; padding: var(--sidebar-padding, var(--spacing-3)); }
 .dk-sidebar__section-title { padding: var(--spacing-0) var(--sidebar-item-padding-x, var(--spacing-3)) var(--spacing-2); color: var(--sidebar-section-title-color, var(--text-muted)); font-size: var(--sidebar-section-title-size, var(--text-xs)); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
 .dk-sidebar__list { display: flex; flex-direction: column; gap: var(--spacing-0\.5); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-sidebar__list--nested { margin-top: var(--spacing-0\.5); }
@@ -22,7 +22,7 @@
   box-sizing: border-box; display: flex; align-items: center; gap: var(--sidebar-item-gap, var(--spacing-3)); width: var(--sizing-full);
   padding: var(--sidebar-item-padding-y, var(--spacing-2)) var(--sidebar-item-padding-x, var(--spacing-3)); border: var(--spacing-0); border-radius: var(--sidebar-item-radius, var(--rounded-md));
   background: transparent; color: var(--sidebar-item-text, var(--text-muted)); font-family: inherit; font-size: var(--sidebar-item-size, var(--text-sm)); line-height: var(--text-sm--line-height); font-weight: var(--sidebar-item-weight, var(--font-medium));
-  text-align: start; text-decoration: none; cursor: pointer;
+  text-align: start; text-decoration: none; cursor: pointer; touch-action: manipulation;
   transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
 }
 @media (hover: hover) { .dk-sidebar__item:hover { background: var(--sidebar-item-bg-hover, var(--highlight)); color: var(--sidebar-item-text-hover, var(--text)); } }
