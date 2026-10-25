@@ -275,6 +275,30 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledTimes(2);
   });
 
+  test('type="submit" in a <form action> is loading while the form is sent (useFormStatus) and stops after; loading={false} overrides it; a plain button there doesn\'t load', async () => {
+    let finish: () => void = () => {};
+    const sent: string[] = [];
+    const save = async (data: FormData) => { sent.push(data.get('title') as string); await new Promise<void>((r) => { finish = r; }); };
+    await render(<>
+      <form action={save}><input name="title" defaultValue="A" /><Button id="fsave" type="submit">Save</Button><Button id="fother">Other</Button></form>
+      <form action={save}><input name="title" defaultValue="B" /><Button id="fown" type="submit" loading={false}>Save</Button></form>
+    </>);
+    const busy = (id: string) => document.getElementById(id)!.getAttribute('aria-busy');
+    expect([busy('fsave'), busy('fother')]).toEqual([null, null]);
+    await userEvent.click(document.getElementById('fsave')!);
+    await expect.poll(() => busy('fsave')).toBe('true');
+    expect([busy('fother'), sent]).toEqual([null, ['A']]);
+    document.getElementById('fsave')!.click();   // loading: a second click doesn't send it again
+    await new Promise((r) => setTimeout(r, 50));
+    expect(sent).toEqual(['A']);
+    React.act(() => finish());
+    await expect.poll(() => busy('fsave')).toBe(null);
+    await userEvent.click(document.getElementById('fown')!);
+    await expect.poll(() => sent).toEqual(['A', 'B']);
+    expect(busy('fown')).toBe(null);
+    React.act(() => finish());
+  });
+
   test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: turning, its arc growing and shrinking)', async () => {
     await withRouter(async () => {
       setLoading(true);
