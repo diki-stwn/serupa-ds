@@ -22,6 +22,7 @@ import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { PhoneInput } from '../components/PhoneInput/PhoneInput';
 import { PinInput } from '../components/PinInput/PinInput';
 import { Radio, RadioGroup } from '../components/Radio/Radio';
+import { Rating } from '../components/Rating/Rating';
 import { SearchInput } from '../components/SearchInput/SearchInput';
 import { SegmentedControl } from '../components/SegmentedControl/SegmentedControl';
 import { Select } from '../components/Select/Select';
@@ -86,6 +87,8 @@ const CONTROLS: { [K in Named]: Control | string } = {
     change: async (r) => { await userEvent.click($(r, 'input[value="m"]')); }, changed: { size: 'm' } },
   TableSelectCell: { el: (form) => <table><tbody><tr><TableSelectCell label="Select Alpha" name="rows" value="alpha" form={form} defaultChecked /><td>Alpha</td></tr></tbody></table>, initial: { rows: 'alpha' },
     change: async (r) => { await userEvent.click($(r, 'input')); }, changed: {} },
+  Rating: { el: (form) => <Rating aria-label="Stars" name="stars" form={form} defaultValue={2} />, initial: { stars: '2' },
+    change: async (r) => { await userEvent.click($(r, 'input[value="4"]')); }, changed: { stars: '4' } },
   Slider: { el: (form) => <Slider aria-label="Volume" name="volume" form={form} defaultValue={30} />, initial: { volume: '30' },
     change: async (r) => { $(r, '[role="slider"]').focus(); await userEvent.keyboard('{End}'); }, changed: { volume: '100' } },
   SegmentedControl: { el: (form) => <SegmentedControl aria-label="View" name="view" form={form} options={[{ value: 'list', label: 'List' }, { value: 'grid', label: 'Grid' }]} defaultValue="list" />, initial: { view: 'list' },
