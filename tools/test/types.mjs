@@ -41,4 +41,15 @@ for (const f of docs) for (const m of fs.readFileSync(f, 'utf8').matchAll(/impor
   for (const n of m[1].split(',')) { const x = n.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0]; if (x && !exported.has(x)) unknown.push(`${path.relative(PROJECT, f)}: ${x}`); }
 }
 R.push({ name: 'every name a README or guide imports from serupa-ds is exported', ok: built && !unknown.length, detail: unknown.join(', ') });
+// What the package costs a project's type check (E10), counted by tsc for consumer.tsx: types and instantiations are
+// the same on every run and machine (the time isn't). Measured on 25 Oct 2026 at 92,126 and 197,269, about 15,000 of
+// the types being the Material Symbol names in IconName, which cost about 10 ms and 2.5 MB and give autocomplete, so
+// they stay. The budgets are about 10% over; a TypeScript upgrade that moves the counts may raise them.
+const BUDGET = { Types: 101000, Instantiations: 217000 };
+const diag = built && spawnSync(process.execPath, [tsc, '-p', path.join(HERE, 'types'), '--extendedDiagnostics'], { cwd: PROJECT, encoding: 'utf8' });
+for (const [what, budget] of Object.entries(BUDGET)) {
+  const n = diag ? Number((diag.stdout.match(new RegExp(`^${what}:\\s+(\\d+)`, 'm')) || [])[1]) : NaN;
+  R.push({ name: `a project's type check of consumer.tsx makes ${n.toLocaleString('en')} ${what.toLowerCase()}, within ${budget.toLocaleString('en')}`, ok: n > 0 && n <= budget,
+    detail: Number.isNaN(n) ? 'tsc printed no count: npm run build first' : `${(n - budget).toLocaleString('en')} over: a type that grew this much slows every project's editor; raise BUDGET in tools/test/types.mjs only if it's worth it` });
+}
 done(report('Types', R));
