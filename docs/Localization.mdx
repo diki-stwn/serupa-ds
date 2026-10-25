@@ -31,7 +31,7 @@ What wins, in order: the component's own prop (`dismissLabel`, `locale`, …), t
 
 ## Server-rendered pages
 
-A server can't know the visitor's locale. Without a `locale`, the date and time components and NumberInput render the server HTML in `en-US`, hydrate in `en-US` too so React sees no mismatch, and switch to the browser's locale right after. To show the visitor's format from the first paint, set the provider's `locale` from the request, for example from the `Accept-Language` header or the user's saved setting:
+A server can't know the visitor's locale. Without a `locale`, the date and time components and NumberInput render the server HTML in `en-US`, hydrate in `en-US` too so React sees no mismatch, and switch to the browser's locale right after. To show the visitor's format from the first paint, set the provider's `locale` from the request, for example from the `Accept-Language` header or the user's saved setting. Without one, the server logs a warning once ("Serupa: rendered on the server without a locale…") so the change after hydration doesn't go unnoticed:
 
 ```tsx
 import { headers } from 'next/headers';
