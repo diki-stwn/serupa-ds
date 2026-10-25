@@ -47,6 +47,7 @@ const { Textarea } = window.Serupa;
 
 ## Accessibility
 
+- On iOS the field's text is 16px at every size, so Safari doesn't zoom the page when it takes focus; the box keeps its height.
 - Every textarea needs a name: a visible `<label htmlFor>` (best) or `aria-label`. A placeholder isn't a label: it disappears as soon as someone types.
 - `invalid` sets `aria-invalid`, but color alone doesn't explain the problem: put the message in text and link it with `aria-describedby`.
 - The count is linked with `aria-describedby` (after any ids you pass), so screen readers read it when the field gets focus. It isn't announced on every keystroke, which would drown out the typing: with `maxLength` it's read out once when a few characters are left (10, or a fifth of a short limit) and once when the limit is reached, in the `charactersLeft` label's words. A form reset puts it back to the default text's count.

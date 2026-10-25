@@ -46,4 +46,7 @@
 .dk-select--disabled { background: var(--select-bg-disabled, var(--surface-muted)); opacity: var(--opacity-disabled); }
 .dk-select--disabled .dk-select__field { cursor: not-allowed; }
 @media (forced-colors: active) { .dk-select__icon { color: CanvasText; } }
+/* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's
+   own text is 16px; the box keeps its height. (maximum-scale=1 would stop the zoom but also pinch zoom: WCAG 1.4.4.) */
+@supports (-webkit-touch-callout: none) { .dk-select:not(.dk-select--size-lg) .dk-select__field { font-size: var(--text-base); } }
 }
