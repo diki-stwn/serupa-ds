@@ -81,6 +81,7 @@
     "lint": "node tools/utilities/build.mjs && node tools/build/registry.mjs && eslint . && stylelint \"src/**/*.css\" \".storybook/**/*.css\"",
     "test:coverage": "vitest run --project components --coverage",
     "test:unit": "vitest run --project components",
+    "test:server-html:update": "SERUPA_UPDATE_SERVER_HTML=1 vitest run --project components src/internal/serverHtml.test.tsx",
     "test:checks": "vitest run --project checks",
     "test:watch": "vitest --project components"
   },

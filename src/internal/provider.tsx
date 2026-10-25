@@ -34,11 +34,14 @@ const Context = React.createContext<SerupaSettings>(NONE);
 
 /* SerupaProvider: settings for every component inside it (ADR-0010), as React context rather than module state, so
    they reach client components from a server layout, differ between concurrent server requests, and can change for
-   one part of a page. Nested providers merge: an inner one changes only what it sets. It keeps no state. */
+   one part of a page. Nested providers merge: an inner one changes only what it sets. labels and icons written
+   inline (a new object each render, with the same contents) keep the settings as they were, so a parent's render
+   doesn't re-render every component under it. */
 /** Locale, built-in words and extra icons for every component inside it. A component's own prop still wins. */
 export function SerupaProvider(props: SerupaProviderProps): React.ReactElement {
   const outer = React.useContext(Context);
-  const { locale, labels, icons, platform } = props;
+  const { locale, platform } = props;
+  const labels = useSameAsBefore(props.labels, 0), icons = useSameAsBefore(props.icons, 1);   // icons={[{ Star }]}: one level deeper
   const value = React.useMemo<SerupaSettings>(() => {
     const merged: SerupaLabels = { ...outer.labels };
     if (labels) for (const k of Object.keys(labels) as (keyof SerupaLabels)[]) {
@@ -59,6 +62,22 @@ export function SerupaProvider(props: SerupaProviderProps): React.ReactElement {
   return <Context.Provider value={value}>{props.children}</Context.Provider>;
 }
 SerupaProvider.displayName = "SerupaProvider";
+
+// The same keys holding the same values (===, or compared the same way depth levels further down): an object or
+// array written inline again with the same contents. A key missing on one side and undefined on the other counts as
+// the same, as it does when the settings are merged.
+function same(a: unknown, b: unknown, depth: number): boolean {
+  if (a === b) return true;
+  if (!a || !b || typeof a != "object" || typeof b != "object") return false;
+  const x = a as Record<string, unknown>, y = b as Record<string, unknown>, keys = Object.keys(x);
+  return keys.length == Object.keys(y).length && keys.every((k) => (depth ? same(x[k], y[k], depth - 1) : x[k] === y[k]));
+}
+/** The value from the render before while the new one has the same contents, so a memo that depends on it holds. */
+function useSameAsBefore<T>(v: T, depth: number): T {
+  const kept = React.useRef(v);
+  if (!same(kept.current, v, depth)) kept.current = v;
+  return kept.current;
+}
 
 /** The nearest SerupaProvider's settings, or the defaults (browser locale, English words) without one. */
 export function useSerupa(): SerupaSettings {

@@ -46,6 +46,10 @@ export default async function RootLayout({ children }) {
 
 <Canvas of={Stories.Nested} />
 
+## In your own components
+
+`useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's. Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
+
 ## Accessibility
 
 Set `lang` on `<html>` (or on the element around a provider with another language) to match the words, so screen readers pronounce them correctly. The provider doesn't set it, because it renders no element.
