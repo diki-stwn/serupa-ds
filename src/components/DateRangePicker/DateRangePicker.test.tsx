@@ -7,9 +7,9 @@ import { Field } from '../Field/Field';
 import { DateRangePicker, type DateRange } from './DateRangePicker';
 
 const box = (tid: string) => document.querySelector(`[data-testid=${tid}]`) as HTMLElement;
-const fields = (tid: string) => [...box(tid).querySelectorAll<HTMLInputElement>('.dk-date-range-picker__field')];
+const fields = (tid: string) => [...box(tid).querySelectorAll<HTMLInputElement>('input[type=text]')];
 const vals = (tid: string) => fields(tid).map((x) => x.value).join(' – ');
-const pop = (tid: string) => box(tid).querySelector('.dk-date-range-picker__popup') as HTMLElement;
+const pop = (tid: string) => box(tid).querySelector('[role=dialog]') as HTMLElement;
 const isOpen = (tid: string) => !pop(tid).hidden;
 const day = (tid: string, d: string) => pop(tid).querySelector(`[data-date="${d}"]`) as HTMLElement;
 const inRange = (tid: string) => [...pop(tid).querySelectorAll<HTMLElement>('.dk-calendar__day--in-range')].map((b) => b.dataset.date!.slice(5)).join();
@@ -84,7 +84,7 @@ describe('DateRangePicker', () => {
     await userEvent.click(btn('trip'));
     const d = pop('trip'), vis = (sel: string) => [...d.querySelectorAll(sel)].map((x) => getComputedStyle(x).visibility).join();
     expect([d.getAttribute('role'), d.matches(':popover-open')]).toEqual(['dialog', true]);
-    expect([...d.querySelectorAll('.dk-calendar')].map((c) => c.querySelector('.dk-calendar__title')!.textContent).join()).toBe('March 2025,April 2025');
+    expect([...d.querySelectorAll('[role=grid]')].map((g) => document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).join()).toBe('March 2025,April 2025');
     expect([d.querySelectorAll('.dk-calendar__blank').length > 0, !!d.querySelector('.dk-calendar__day--outside')]).toEqual([true, false]);
     expect([vis('.dk-calendar__nav--prev'), vis('.dk-calendar__nav--next')]).toEqual(['visible,hidden', 'hidden,visible']);
     expect([focused(), d.querySelector('.dk-date-range-picker__status')!.textContent]).toEqual(['2025-03-10', 'Choose the start date']);
@@ -122,9 +122,9 @@ describe('DateRangePicker', () => {
 
   test('Tab past the popup closes it, leaving focus on the next control', async () => {
     await render(<><DateRangePicker id="tab" aria-label="Stay" locale="en-US" /><button id="after">After</button></>);
-    const btn = document.querySelector('.dk-date-range-picker__button') as HTMLButtonElement;
+    const btn = document.querySelector('button[aria-haspopup=dialog]') as HTMLButtonElement;
     await userEvent.click(btn);
-    const pop = document.querySelector('.dk-date-range-picker__popup') as HTMLElement;
+    const pop = document.querySelector('[role=dialog]') as HTMLElement;
     expect(pop.hidden).toBe(false);
     for (let i = 0; i < 12 && document.activeElement !== document.getElementById('after'); i++) await userEvent.keyboard('{Tab}');
     expect([(document.activeElement as HTMLElement).id, pop.hidden]).toEqual(['after', true]);
@@ -149,7 +149,7 @@ describe('DateRangePicker', () => {
     expect([vals('ctl'), changes.length]).toEqual(['06/02/2025 – 06/06/2025', 0]);
     await userEvent.click(btn('ctl'));
     const d = pop('ctl');
-    expect([d.querySelector<HTMLButtonElement>('.dk-calendar__nav--prev')!.disabled, d.querySelector('[data-date="2025-05-31"]'), d.querySelector('[data-date="2025-06-01"]')!.getAttribute('aria-disabled')]).toEqual([true, null, null]);
+    expect([d.querySelector<HTMLButtonElement>('button[aria-label="Previous month"]')!.disabled, d.querySelector('[data-date="2025-05-31"]'), d.querySelector('[data-date="2025-06-01"]')!.getAttribute('aria-disabled')]).toEqual([true, null, null]);
     await userEvent.click(day('ctl', '2025-06-10'));
     await userEvent.click(day('ctl', '2025-07-04'));
     expect([changes.join('|'), hid()]).toEqual(['Tue Jun 10 2025..-|Tue Jun 10 2025..Fri Jul 04 2025', '2025-06-10 2025-07-04']);
@@ -160,7 +160,7 @@ describe('DateRangePicker', () => {
   test('months={1}: one month, with other months\' days shown', async () => {
     await render(<DateRangePicker data-testid="one" aria-label="One" months={1} locale="en-US" weekStartsOn={0} />);
     await userEvent.click(btn('one'));
-    expect(pop('one').querySelectorAll('.dk-calendar').length).toBe(1);
+    expect(pop('one').querySelectorAll('[role=grid]').length).toBe(1);
     expect(pop('one').querySelectorAll('.dk-calendar__day--outside').length).toBeGreaterThan(0);
   });
 
