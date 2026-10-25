@@ -5,6 +5,7 @@ import { type Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
+import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 
 export interface TooltipProps {
   /** What the tooltip says: a short line of text. Keep links and buttons out (people can't reach them). */
@@ -21,7 +22,8 @@ export interface TooltipProps {
   open?: boolean;
   /** Open at first (uncontrolled). Default: false. */
   defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Called when it asks to show or hide, with why: { reason: 'hover' | 'focus' | 'blur' | 'trigger' (a press on the element) | 'escape' | 'outside' }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Never shows it, for example while the element is disabled. */
   disabled?: boolean;
   className?: string;
@@ -47,18 +49,18 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const anchorRef = React.useRef<HTMLElement | null>(null);
   const timer = React.useRef<number | undefined>(undefined);
   const onOpenChange = React.useRef(props.onOpenChange); onOpenChange.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean) => { window.clearTimeout(timer.current); if (!controlled) setInner(v); if (onOpenChange.current) onOpenChange.current(v); }, [controlled]);
-  const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v), ms); };
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { window.clearTimeout(timer.current); if (!controlled) setInner(v); if (onOpenChange.current) onOpenChange.current(v, { reason }); }, [controlled]);
+  const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, "hover"), ms); };
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
 
   // Place it while open, and keep it placed as the page scrolls or resizes, or its text changes. A press outside hides it.
-  useAnchoredLayer(open, tipRef, anchorRef, { placement: props.placement, fallback: "top", offsetVar: "--dk-tooltip-offset", watch: props.content, onOutside: () => set(false) });
+  useAnchoredLayer(open, tipRef, anchorRef, { placement: props.placement, fallback: "top", offsetVar: "--dk-tooltip-offset", watch: props.content, onOutside: () => set(false, "outside") });
 
   // Escape hides it from anywhere while it's open (the element may not have focus when hovered). It's the top
   // layer, so it takes that Escape: caught first (capture) and stopped, so a Dialog or Menu around it stays open.
   React.useEffect(() => {
     if (!open) return;
-    const esc = (e: KeyboardEvent) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); set(false); } };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); set(false, "escape"); } };
     document.addEventListener("keydown", esc, true);
     return () => document.removeEventListener("keydown", esc, true);
   }, [open, set]);
@@ -90,9 +92,9 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     // tooltip opened 400ms after a tap and stayed. A touch pointer doesn't hover; focus still shows it from the keyboard.
     onPointerEnter: chain("onPointerEnter", (e) => { if (!touch(e)) later(true, delay); }),
     onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) later(false, 100); }),
-    onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (!t.matches || t.matches(":focus-visible")) set(true); }),
-    onBlur: chain("onBlur", () => set(false)),
-    onPointerDown: chain("onPointerDown", () => set(false)),
+    onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (!t.matches || t.matches(":focus-visible")) set(true, "focus"); }),
+    onBlur: chain("onBlur", () => set(false, "blur")),
+    onPointerDown: chain("onPointerDown", () => set(false, "trigger")),
   });
   return (
     <>

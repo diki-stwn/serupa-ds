@@ -63,7 +63,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 | `placement` | `'top'` \| `'bottom'` \| `'left'` \| `'right'`, each with `-start` or `-end` | `'top'` | Where it goes. It flips to the other side when there's no room and slides to stay on screen |
 | `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once |
 | `role` | `'description'` \| `'label'` | `'description'` | Adds to the element's name (`aria-describedby`), or is its name (`aria-labelledby`) |
-| `open`, `onOpenChange` | boolean, function | | Control it yourself |
+| `open`, `onOpenChange` | boolean, function | | Control it yourself. onOpenChange(open, { reason }) says why: `'hover'`, `'focus'`, `'blur'`, `'trigger'` (a press on the element), `'escape'` or `'outside'` |
 | `defaultOpen` | boolean | `false` | Shown at first, without controlling it |
 | `disabled` | boolean | `false` | Never shows |
 
