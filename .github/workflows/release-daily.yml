@@ -1,0 +1,23 @@
+name: Daily release
+
+# Once a day (00:00 UTC, 07:00 in Jakarta), merges the open "Release: next version" pull request, which has gathered
+# every changeset merged since the last release. It merges once its required checks pass, and the Release workflow
+# then tags the version and makes the GitHub release. To release sooner, run this from the Actions tab.
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  merge:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head changeset-release/main --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --auto --merge
+          else echo "No Release pull request is open: nothing to release today."; fi
+        env:
+          # BOT_TOKEN, so the merge starts CI on main and the Release workflow after it.
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
