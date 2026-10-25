@@ -222,4 +222,16 @@ describe('Tabs on the server', () => {
     await press(t, () => expect.poll(() => css(t).backgroundColor).toBe(color('var(--pressed)')));
   });
 
+  test('controlled with a value no tab has: the first enabled tab takes the Tab stop, so the list is still reachable', async () => {
+    await render(<><button id="tb4">Before</button><Tabs id="tf" value="missing" onValueChange={() => undefined}>
+      <TabList aria-label="Views"><Tab value="a" disabled>A</Tab><Tab value="b">B</Tab><Tab value="c">C</Tab></TabList>
+      <TabPanel value="b">Panel B</TabPanel></Tabs><button id="ta4">After</button></>);
+    const tabs = [...el('tf').querySelectorAll<HTMLElement>('[role="tab"]')];
+    await expect.poll(() => tabs.map((t) => t.tabIndex).join()).toBe('-1,0,-1');
+    expect(tabs.some((t) => t.getAttribute('aria-selected') === 'true')).toBe(false);
+    el('tb4').focus();
+    await userEvent.tab();
+    expect(focused()).toBe('B');
+  });
+
 });
