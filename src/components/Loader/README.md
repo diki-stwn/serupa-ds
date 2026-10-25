@@ -169,6 +169,14 @@ Don't use it on `surface-inverse`, which turns light in dark themes; there, leav
 
 By default a loader waits 300ms before it appears. Most requests finish sooner, so people never see a loader flash on and off. While it waits it keeps its space (nothing jumps when it appears), shows nothing, and isn't announced. If the content arrives first and you remove the loader, it never shows at all. Use `delay={0}` where the wait is certain to be long, or when the loader replaces something the person just clicked.
 
+### Minimum time
+
+Once it shows, a loader stays at least 500ms. Without that, work ending at 320ms would show a spinner for 20ms, cut off in the middle of its fade-in, which reads as a glitch. For the minimum to work, keep the Loader mounted and pass `loading={false}` when the work ends, rather than removing it. It then stays until the 500ms are up, and renders nothing after that. If the work ends within the delay, it never shows.
+
+```tsx
+<Loader loading={isFetching} />
+```
+
 ## Accessibility
 
 - A loader with a label is a `role="progressbar"` without a value, which is how ARIA says "busy, progress unknown". Its name is `label` ("Loading…").
@@ -195,6 +203,7 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 | `tone` | `'neutral'` \| `'primary'` \| `'muted'` \| `'inverse'` | `'neutral'` | `neutral` takes the text color, so it fits any surface (white on a primary button, `text` on a page). `primary` and `muted` color the ring, dots or pixel grid with those aliases (`text` and `skeleton` stay in the text color). `inverse` makes it white in every theme, for dark scrims, overlays and media |
 | `label` | string | `'Loading…'` | Its accessible name, announced when it appears, and the words `text` shows. `''` makes it decorative |
 | `delay` | number (ms) | `300` | Waits this long before showing. `0` shows it at once |
+| `loading` | boolean | `true` | Pass `false` when the work ends. Once shown, it stays at least 500ms, then renders nothing |
 
 `tone="current"`, the old name of `neutral`, was removed in 4.0.0; like any unknown tone it falls back to `neutral`, with no warning.
 
