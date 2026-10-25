@@ -2,7 +2,7 @@ import * as React from 'react';
 import { hydrateRoot, type Root } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { describe, expect, inject, test } from 'vitest';
-import { stories } from '../../tools/test/vitest/stories';
+import { storiesToRun } from '../../tools/test/vitest/stories';
 
 // Every story is rendered to HTML as a server would, then hydrated: React must find the same markup, with no
 // mismatch and no recoverable error (F3). A mismatch makes React throw the server HTML away and render again in the
@@ -29,7 +29,7 @@ async function hydrate(ui: React.ReactElement, serverHtml: string) {
   return errors;
 }
 
-for (const [name, list] of stories) {
+for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate`, () => {
     for (const [exportName, ui] of list) {
       test(`${exportName}`, async () => {

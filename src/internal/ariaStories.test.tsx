@@ -21,7 +21,7 @@ StillDate.prototype = RealDate.prototype;
 Object.setPrototypeOf(StillDate, RealDate);
 StillDate.now = () => now;
 Object.defineProperty(globalThis, 'Date', { value: StillDate, writable: true, configurable: true });
-const { stories } = await import('../../tools/test/vitest/stories');
+const { stories, storiesToRun } = await import('../../tools/test/vitest/stories');
 
 const files = import.meta.glob<string>('../../tools/test/baseline-aria/*.yml', { eager: true, query: '?raw', import: 'default' });
 const baseline = Object.fromEntries(Object.entries(files).map(([f, text]) => [f.split('/').at(-1)!.replace(/\.yml$/, ''), text]));
@@ -49,7 +49,7 @@ async function tree(ui: React.ReactElement) {
 }
 
 describe.skipIf(mode === 'off')('accessibility tree', () => {
-  for (const [name, list] of stories) {
+  for (const [name, list] of storiesToRun()) {
     test(`${name} matches tools/test/baseline-aria/${name}.yml`, async () => {
       let text = '';
       for (const [exportName, ui] of [...list].sort(([a], [b]) => (a < b ? -1 : 1))) text += `# ${exportName}\n${await tree(ui)}\n\n`;

@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { describe, expect, inject, test } from 'vitest';
-import { serverBaseline, stories } from '../../tools/test/vitest/stories';
+import { serverBaseline, stories, storiesToRun } from '../../tools/test/vitest/stories';
 
 // Every component's server HTML, story by story, against its baseline (E4): a change to what a server sends, a lost
 // attribute, a moved id, a new wrapper, shows up as a diff of a few lines in the PR, intended or not. When the change
@@ -12,7 +12,7 @@ const baseline = Object.fromEntries(Object.entries(files).map(([f, text]) => [f.
 const update = 'run npm run test:server-html:update and commit tools/test/baseline-server/ if the change is intended';
 
 describe('server HTML', () => {
-  for (const [name] of stories) {
+  for (const [name] of storiesToRun()) {
     test(`${name} matches tools/test/baseline-server/${name}.html`, () => {
       expect(baseline[name], `no baseline yet: ${update}`).toBeDefined();
       expect(serverBaseline(name, html), update).toBe(baseline[name]);
