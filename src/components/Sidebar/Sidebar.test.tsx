@@ -275,4 +275,20 @@ describe('Sidebar', () => {
     const group = [...el('sfrag').querySelectorAll<HTMLElement>('[aria-expanded]')].find((b) => b.textContent.includes('Teams'))!;
     expect(group.getAttribute('aria-expanded')).toBe('true');
   });
+  test('open with onOpenChange: the app controls a group; the button asks with reason trigger and the group follows only the prop (DO1)', async () => {
+    const calls: Array<[boolean, string]> = [];
+    function Ctl() {
+      const [open, setOpen] = React.useState(false);
+      return <Sidebar id="sctl"><I label="Teams" icon="group" id="gctl" open={open} onOpenChange={(o, d) => { calls.push([o, d.reason]); setOpen(o); }}><I href="/t1" label="One" active /></I>
+        <I label="Fixed" icon="lock" id="gfix" open onOpenChange={(o, d) => calls.push([o, d.reason])}><I href="/t2" label="Two" /></I></Sidebar>;
+    }
+    await render(<Ctl />);
+    // The active child doesn't open a controlled group.
+    expect(el('gctl').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(el('gctl'));
+    expect([el('gctl').getAttribute('aria-expanded'), (el('gctl').nextElementSibling as HTMLElement).hidden]).toEqual(['true', false]);
+    await userEvent.click(el('gfix'));
+    expect(el('gfix').getAttribute('aria-expanded')).toBe('true');
+    expect(calls).toEqual([[true, 'trigger'], [false, 'trigger']]);
+  });
 });

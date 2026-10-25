@@ -17,6 +17,8 @@ interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorEle
     badge?: React.ReactNode;
     children?: React.ReactNode;
     defaultOpen?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     as?: React.ElementType;
 }
 declare const Sidebar: React.ForwardRefExoticComponent<SidebarProps & React.RefAttributes<HTMLElement>>;
