@@ -7,6 +7,8 @@ export interface ComboboxLabels {
   noResults: string;
   /** Combobox, said once typing stops: how many options match. */
   resultsCount: (count: number) => string;
+  /** Combobox, under the list when more options match than it shows: how many more. */
+  moreResults: (count: number) => string;
   /** Combobox chevron button. */
   showOptions: string;
   /** Combobox × button, with the field's label when it has one ("Clear Country"). */
@@ -16,6 +18,7 @@ export const en: ComboboxLabels = {
   loadingResults: "Loading…",
   noResults: "No results",
   resultsCount: (count) => count === 1 ? "1 result" : count + " results",
+  moreResults: (count) => "Keep typing to narrow " + count + " more",
   showOptions: "Show options",
   clearValue: (label) => label ? "Clear " + label : "Clear",
 };
@@ -23,6 +26,7 @@ export const id: ComboboxLabels = {
   loadingResults: "Memuat…",
   noResults: "Tidak ada hasil",
   resultsCount: (count) => count + " hasil",
+  moreResults: (count) => "Ketik lagi untuk mempersempit " + count + " lainnya",
   showOptions: "Tampilkan pilihan",
   clearValue: (label) => label ? "Hapus " + label : "Hapus",
 };
