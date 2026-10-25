@@ -36,6 +36,8 @@ const { ButtonGroup, Button, IconButton, ToggleButton } = window.Serupa;
 
 Size and variant stay on each button: give them all the same ones.
 
+A button can be a Menu's trigger or sit in a Tooltip, as in a split button (`<Menu trigger={<IconButton … />}>` last): the outer corners go to the first and last buttons, whatever popup follows them.
+
 ## Accessibility
 
 - It's a `role="group"`: name it with `aria-label` when the buttons share a purpose ("Text formatting"), so screen readers announce it on the way in.
