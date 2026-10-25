@@ -77,6 +77,7 @@ It returns the toast's id. `toast.dismiss(id)` closes one, `toast.dismiss()` all
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the Toaster's root `<section>`, the region toasts show in. |
 | `position` | `'bottom-end'` \| `'bottom-start'` \| `'bottom-center'` \| `'top-start'` \| `'top-center'` \| `'top-end'` | `'bottom-end'` | Where toasts appear, 16px from the edges; start and end follow the text direction. The newest is nearest the edge |
 | `label` | string | `'Notifications'` | The region's name |
 | `dismissLabel` | string | `'Dismiss'` | The close buttons' name |

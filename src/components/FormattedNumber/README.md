@@ -48,6 +48,7 @@ formatNumber(1234, "id-ID", { format: "compact" })                  // "1,2 rb",
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<data>`. |
 | `value` | `number \| bigint` | | The number. `NaN` renders an empty `<data>`. |
 | `format` | `'decimal' \| 'compact' \| 'percent' \| 'currency' \| 'bytes' \| 'unit'` | `'decimal'` | How to write it. |
 | `currency` | `string` | | With `currency`: the ISO 4217 code, `"IDR"`, `"USD"`. |

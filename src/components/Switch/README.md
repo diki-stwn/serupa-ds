@@ -66,6 +66,7 @@ The thumb slides in 150ms (`duration-150`, `ease-in-out`) and jumps with `prefer
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input role="switch">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `children` | node | | The label. Without one, give the switch an `aria-label` |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | A 28×16px track and 12px thumb with `text-xs`; 36×20 and 16 with `text-sm`; 44×24 and 20 with `text-base` |
 | `description` | node | | A muted second line under the label, linked with `aria-describedby` (and kept out of the name) |

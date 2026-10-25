@@ -40,6 +40,7 @@ const { Grid, Card } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `columns` | `1` to `12` \| `'auto'` | `'auto'` | A number of equal columns, or as many as fit |
 | `minColumnWidth` | a CSS length, or a sizing token name such as `'container-3xs'` | `container-3xs` (256px) | With `columns="auto"`: the narrowest a column gets. On a grid narrower than that, the one column takes the whole width |
 | `gap` | a spacing step: `0` `0.5` `1` `1.5` `2` `2.5` `3` `3.5` `4` `5` `6` `7` `8` `9` `10` `11` `12` `14` `16` `20` `24` | `4` (16px) | The space between cells |

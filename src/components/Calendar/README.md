@@ -58,6 +58,7 @@ Moving past the shown month shows the next one. No key moves focus past `min` or
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `value` / `defaultValue` | `Date \| null` | | The selected day, controlled or not. Times are ignored. |
 | `onValueChange` | `(date: Date) => void` | | Called with the picked day (local midnight). |
 | `month` / `defaultMonth` | `Date` | the selected day's month, or today's | The month shown: any day in it. |

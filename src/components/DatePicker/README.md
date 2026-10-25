@@ -60,6 +60,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` / `defaultValue` | `Date \| null` | | The chosen day, controlled or not. |
 | `onValueChange` | `(date: Date \| null) => void` | | Called with the new day, or `null` when the field is cleared. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max` or disabled). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
