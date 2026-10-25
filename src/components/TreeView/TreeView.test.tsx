@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { TreeView, type TreeViewItem } from './TreeView';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -250,5 +250,11 @@ describe('TreeView', () => {
     await userEvent.keyboard('{ArrowLeft}');
     expect(item('f1').getAttribute('aria-expanded')).toBe('false');
     expect([...draws.keys()].sort()).toEqual(['0-0', 'f1']);
+  });
+
+  test('pressed: a row held down fills with pressed at once; a disabled row doesn\'t (ED1)', async () => {
+    await render(<Tree />);
+    await press(row('c'), () => expect.poll(() => css(row('c')).backgroundColor).toBe(color('var(--pressed)')));
+    await press(row('b'), () => expect(css(row('b')).backgroundColor).not.toBe(color('var(--pressed)')));
   });
 });
