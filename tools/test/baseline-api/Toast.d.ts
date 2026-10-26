@@ -16,6 +16,7 @@ interface ToastOptions {
         onClick: () => void;
     };
     duration?: number;
+    autoDismiss?: boolean;
     announcement?: string;
     id?: string;
 }
@@ -37,6 +38,8 @@ interface ToasterProps extends React.HTMLAttributes<HTMLElement> {
     label?: string;
     dismissLabel?: string;
     limit?: number;
+    duration?: number;
+    autoDismiss?: boolean;
 }
 declare const Toaster: ((props: ToasterProps) => React.ReactElement) & {
     displayName: string;

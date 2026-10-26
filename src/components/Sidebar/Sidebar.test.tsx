@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
 import { cdp, server, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const rect = (e: Element) => e.getBoundingClientRect();
@@ -80,7 +84,7 @@ describe('Sidebar', () => {
   });
 
   test('a badge sits at the end, 12px in', async () => {
-    await render(<App />);
+    await render(<App />, { wrapper: EnUS });
     const b = el('iinbox').querySelector('.dk-sidebar__badge')!;
     expect([b.textContent, Math.round(rect(el('iinbox')).right - rect(b).right)]).toEqual(['4', 12]);
   });
@@ -132,7 +136,7 @@ describe('Sidebar', () => {
   });
 
   test('collapsed: a 64px rail of centered icons; labels, section titles and badges hidden on screen (still read); a dot on the icon of an item with a badge', async () => {
-    await render(<App />);
+    await render(<App />, { wrapper: EnUS });
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
     const a = el('ihome'), r = rect(a), i = rect(a.querySelector('[data-icon]')!);
@@ -190,7 +194,7 @@ describe('Sidebar', () => {
   });
 
   test('collapsed: an item with a badge is named by its label and described by the badge, so "4" is still read (CP1)', async () => {
-    await render(<App />);
+    await render(<App />, { wrapper: EnUS });
     const text = (attr: string) => (el('iinbox').getAttribute(attr) || '').split(' ').filter(Boolean).map((id) => document.getElementById(id)?.textContent).join(' ');
     expect(el('iinbox').hasAttribute('aria-describedby')).toBe(false);   // expanded, the badge is in the link's own text
     React.act(() => setCollapsed(true));
