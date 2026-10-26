@@ -76,16 +76,30 @@ function autoSizes(lazy: boolean, srcSet: string | undefined, sizes: string | un
   return sizes ? "auto, " + sizes : "auto";
 }
 
-// The largest candidate in a srcSet ("a.jpg 400w, b.jpg 1600w" or "a.jpg 1x, b.jpg 2x"), for the viewer when there's no fullSrc.
-function largest(srcSet: string | undefined): string | undefined {
+// The largest candidate in a srcSet ("a.jpg 400w, b.jpg 1600w" or "a.jpg 1x, b.jpg 2x"), for the viewer when there's
+// no fullSrc, or with least, the smallest, for a reader saving data.
+function largest(srcSet: string | undefined, least?: boolean): string | undefined {
   let best: string | undefined, most = 0;
-  for (const m of (srcSet || "").matchAll(/(?:^|,)\s*(\S+?)\s+(\d+(?:\.\d+)?)[wx]\s*(?=,|$)/g)) if (+m[2] > most) { most = +m[2]; best = m[1]; }
+  for (const m of (srcSet || "").matchAll(/(?:^|,)\s*(\S+?)\s+(\d+(?:\.\d+)?)[wx]\s*(?=,|$)/g)) if (!best || (least ? +m[2] < most : +m[2] > most)) { most = +m[2]; best = m[1]; }
   return best;
 }
 
 // The dark version, when that's the one the <img> shows, for the viewer.
 function shownDark(i: HTMLImageElement | null, darkSrc: string | undefined): string | undefined {
   return i && darkSrc && i.currentSrc && i.currentSrc === new URL(darkSrc, document.baseURI).href ? darkSrc : undefined;
+}
+
+/* Saving data: the reader turned on Data Saver (navigator.connection.saveData) or prefers-reduced-data. A server
+   doesn't know, so it's false until the page's script runs. */
+type Connection = EventTarget & { saveData?: boolean };
+const REDUCED = "(prefers-reduced-data: reduce)";
+const connection = () => (navigator as Navigator & { connection?: Connection }).connection;
+const savingData = () => !!(connection() || {}).saveData || matchMedia(REDUCED).matches;
+function onSaveData(f: () => void) {
+  const c = connection(), m = matchMedia(REDUCED);
+  if (c) c.addEventListener("change", f);
+  m.addEventListener("change", f);
+  return () => { if (c) c.removeEventListener("change", f); m.removeEventListener("change", f); };
 }
 
 /* The viewer's picture: the frame's placeholder (and its sweep) while it loads, the frame's fallback if it fails. The
@@ -119,7 +133,13 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const restyle = useServerStyles<HTMLSpanElement>(frame);
   const sds = useSerupa();
   const { src, alt, ratio: _r, fit: _f, rounded, fallback, viewable, fullSrc, viewLabel, onRemove, removeLabel, frameProps, className, onLoad, onError, loading, priority, decoding, fetchPriority, sources, sizes, darkSrc, dim, ...rest } = props;
-  const lazy = (loading || (priority ? "eager" : "lazy")) === "lazy";
+  // Saving data, only a priority picture loads at once, and each loads the smallest version its srcSet lists.
+  const thrifty = React.useSyncExternalStore(onSaveData, savingData, no);
+  const load = thrifty && !priority ? "lazy" : loading || (priority ? "eager" : "lazy");
+  const lazy = load === "lazy";
+  const small = (srcSet: string | undefined) => (thrifty ? largest(srcSet, true) : undefined);
+  const least = (srcSet: string | undefined) => small(srcSet) || srcSet;
+  const sizing = (srcSet: string | undefined, given: string | undefined) => (small(srcSet) ? undefined : autoSizes(lazy, srcSet, given));
   const ratio = typeof props.ratio === "number" && props.ratio > 0 ? props.ratio : oneOf(RATIOS, props.ratio as string, "auto");
   const fit = oneOf(["cover", "contain"] as const, props.fit, "cover");
   const [state, setState] = React.useState<"loading" | "loaded" | "error">("loading");
@@ -162,14 +182,14 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const frameStyle = shape ? { ...shape, ...(frameProps && frameProps.style) } as React.CSSProperties : frameProps && frameProps.style;
   const picture = state === "error"
     ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
-    : <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={loading || (priority ? "eager" : "lazy")}
-        sizes={autoSizes(lazy, rest.srcSet, sizes)} decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
+    : <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={load} srcSet={least(rest.srcSet)}
+        sizes={sizing(rest.srcSet, sizes)} decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
         className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setLive(false); setState("error"); if (onError) onError(e); }} />;
   // With sources, a <picture> (display: contents, so the <img> lays out as before) offers them ahead of src.
   const shown = ((sources && sources.length) || darkSrc) && state !== "error"
     ? <picture className="dk-image__picture">
         {darkSrc ? <source srcSet={darkSrc} media={scheme === "dark" ? "all" : scheme === "light" ? "not all" : "(prefers-color-scheme: dark)"} /> : null}
-        {(sources || []).map((o, k) => <source key={k} srcSet={o.srcSet} media={o.media} type={o.type} sizes={autoSizes(lazy, o.srcSet, o.sizes)} width={o.width} height={o.height} />)}
+        {(sources || []).map((o, k) => <source key={k} srcSet={least(o.srcSet)} media={o.media} type={o.type} sizes={sizing(o.srcSet, o.sizes)} width={o.width} height={o.height} />)}
         {picture}
       </picture>
     : picture;
