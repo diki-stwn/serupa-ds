@@ -41,7 +41,7 @@ const [page, setPage] = React.useState(1);
 - It's a `<nav>` landmark named "Pagination" with a list. The current page has `aria-current="page"`; the ellipses are hidden from screen readers.
 - At the first or last page the arrow is disabled (a link loses its `href` and gets `aria-disabled`).
 - Pages, also on hover, the current page and the ellipsis keep 4.5:1 in all six themes (`Pagination.test.tsx`).
-- The arrows point the other way in right-to-left pages.
+- The arrows point the other way in right-to-left text. They follow the nearest `dir`, so a `dir="ltr"` block on a right-to-left page keeps left-to-right arrows.
 - After a page change, move focus to the top of the new results (or announce them) so keyboard and screen reader users know the list changed.
 
 ### Keyboard
