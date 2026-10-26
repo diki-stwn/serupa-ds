@@ -320,3 +320,50 @@ describe('Input and Textarea: constraint messages in the provider\'s words (216)
     await expect.poll(() => field('v-ctl').validity.valid).toBe(true);
   });
 });
+
+describe('Input mask', () => {
+  const caret = (id: string) => [field(id).selectionStart, field(id).selectionEnd];
+
+  test('typing fills the pattern: digits only where it takes digits, its own text shown between them, nothing past its end; the number keyboard for digits only', async () => {
+    const seen: string[] = [];
+    await render(<Input id="card" aria-label="Card number" mask="9999 9999 9999 9999" onChange={(e) => seen.push(e.target.value)} />);
+    await userEvent.click(field('card'));
+    await userEvent.keyboard('4242x42424242424242429');
+    expect([field('card').value, caret('card'), field('card').inputMode]).toEqual(['4242 4242 4242 4242', [19, 19], 'numeric']);
+    expect(seen.slice(0, 6)).toEqual(['4', '42', '424', '4242', '4242', '4242 4']);
+  });
+
+  test('an edit in the middle keeps the caret after the same character; Backspace and Delete next to the pattern\'s text remove the typed character beyond it', async () => {
+    await render(<Input id="d" aria-label="Date" mask="99/99/9999" defaultValue="01022024" />);
+    expect(field('d').value).toBe('01/02/2024');
+    await userEvent.click(field('d'));
+    field('d').setSelectionRange(1, 1);
+    await userEvent.keyboard('9');   // 0 9 | 1 / 0 2 …: everything after moves along one slot
+    expect([field('d').value, caret('d')]).toEqual(['09/10/2202', [2, 2]]);
+    field('d').setSelectionRange(3, 3);   // just after the first "/"
+    await userEvent.keyboard('{Backspace}');
+    expect([field('d').value, caret('d')]).toEqual(['01/02/202', [1, 1]]);
+    field('d').setSelectionRange(2, 2);   // just before the first "/"
+    await userEvent.keyboard('{Delete}');
+    expect([field('d').value, caret('d')]).toEqual(['01/22/02', [2, 2]]);
+  });
+
+  test('text set at once (a paste, autofill) is laid into the pattern; A makes letters capitals; plain text at the start stays; \\ makes a pattern character plain; value and defaultValue show masked', async () => {
+    function Iban() {
+      const [v, setV] = React.useState('');
+      return <><Input id="iban" aria-label="IBAN" mask="AA99 **** **** ****" value={v} onChange={(e) => setV(e.target.value)} /><output id="held">{v}</output></>;
+    }
+    await render(<>
+      <Iban />
+      <Input id="phone" aria-label="Phone" mask="+62 999-9999-9999" defaultValue="81234567890" />
+      <Input id="plain" aria-label="Code" mask={'\\9-999'} value="12" onChange={() => {}} />
+    </>);
+    await userEvent.fill(field('iban'), 'de89 3704-0044.0532');   // all at once, as a paste or autofill comes
+    expect([field('iban').value, document.getElementById('held')!.textContent, field('iban').inputMode]).toEqual(['DE89 3704 0044 0532', 'DE89 3704 0044 0532', '']);
+    expect([field('phone').value, field('plain').value]).toEqual(['+62 812-3456-7890', '9-12']);
+    await userEvent.click(field('phone'));
+    field('phone').setSelectionRange(17, 17);
+    await userEvent.keyboard('{Backspace}');
+    expect(field('phone').value).toBe('+62 812-3456-789');
+  });
+});

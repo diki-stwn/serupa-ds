@@ -42,7 +42,7 @@
 .dk-textarea__count {
   align-self: flex-end; padding: var(--spacing-0) var(--dk-ta-px) var(--dk-ta-py);
   color: var(--textarea-count, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height);
-  font-variant-numeric: tabular-nums; pointer-events: none; user-select: none;
+  font-variant-numeric: tabular-nums; pointer-events: none; -webkit-user-select: none; user-select: none;
 }
 .dk-textarea__count--full { color: var(--textarea-count-full, var(--text)); }
 @media (hover: hover) { .dk-textarea:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-border-hover, var(--field-border-hover)); } }

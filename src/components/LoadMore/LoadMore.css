@@ -1,0 +1,10 @@
+/* ---------------------------------------------------------------
+   LoadMore: a centered column at the end of a list: a muted text-sm "Showing 20 of 134" over an outline Load more
+   button, 12px apart, 16px above and below; once there's nothing more, the same muted line says so. Every value
+   reads one of its own tokens (load-more.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-load-more { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: var(--load-more-gap, var(--spacing-3)); padding-block: var(--load-more-padding, var(--spacing-4)); font-family: var(--font-sans); text-align: center; }
+.dk-load-more__summary, .dk-load-more__end { margin: var(--spacing-0); color: var(--load-more-text, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); overflow-wrap: anywhere; }
+.dk-load-more__end:focus:not(:focus-visible) { outline: none; }   /* focused by script after the last page, not a stop people reach */
+}

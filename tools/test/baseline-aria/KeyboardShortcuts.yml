@@ -1,0 +1,56 @@
+# LongText
+- paragraph: Press a shortcut, or ? for the list. Press ? to see them all.
+- button "Keyboard shortcuts"
+- dialog "Keyboard shortcuts for the Donaudampfschifffahrtsgesellschaft workspace":
+  - heading "Keyboard shortcuts for the Donaudampfschifffahrtsgesellschaft workspace" [level=2]
+  - button "Close"
+  - heading "Organizing very long conversation lists" [level=3]
+  - term: Move the selected conversation to the next Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung folder
+  - definition: Control Shift Alt Page Down
+  - heading "Navigation" [level=3]
+  - term: Search
+  - definition: Control K
+  - term: Go to inbox
+  - definition: G
+  - heading "Messages" [level=3]
+  - term: New message
+  - definition: C
+  - term: Send
+  - definition: Control Enter
+  - term: Archive
+  - definition: E
+  - heading "General" [level=3]
+  - term: Show keyboard shortcuts
+  - definition: "?"
+
+# Playground
+- paragraph: Press a shortcut, or ? for the list. Press ? to see them all.
+- button "Keyboard shortcuts"
+
+# WithListedShortcuts
+- paragraph: Press a shortcut, or ? for the list. Press ? to see them all.
+- button "Keyboard shortcuts"
+- dialog "Keyboard shortcuts":
+  - heading "Keyboard shortcuts" [level=2]
+  - button "Close"
+  - heading "Editor" [level=3]
+  - term: Bold
+  - definition: Control B
+  - term: Italic
+  - definition: Control I
+  - heading "Navigation" [level=3]
+  - term: Search
+  - definition: Control K
+  - term: Go to inbox
+  - definition: G
+  - heading "Messages" [level=3]
+  - term: New message
+  - definition: C
+  - term: Send
+  - definition: Control Enter
+  - term: Archive
+  - definition: E
+  - heading "General" [level=3]
+  - term: Show keyboard shortcuts
+  - definition: "?"
+

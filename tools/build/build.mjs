@@ -51,8 +51,9 @@ const utilities = buildUtilities(P);
 // so page styles outside the layers win over them whatever loads first.
 const banner = (what) => `/*! Serupa v${version} by Diki · ${what} · CHANGELOG.md */\n@layer dk.tokens, dk.base, dk.components, dk.utilities;\n`;
 // Shipped without the source comments (the explained copy is src/), which are about 40% of components.css
-// gzipped; the /*! banner lines stay. The rules keep their layout, so a stack trace or devtools still reads well.
-const bare = (css) => css.replace(/\/\*(?!!)[\s\S]*?\*\//g, '').replace(/[ \t]+$/gm, '').replace(/\n{2,}/g, '\n');
+// gzipped, and without indentation (7 KB of bundle.css); the /*! banner lines stay. Each rule keeps its own line, so
+// devtools still reads well.
+const bare = (css) => css.replace(/\/\*(?!!)[\s\S]*?\*\//g, '').replace(/^[ \t]+|[ \t]+$/gm, '').replace(/\n{2,}/g, '\n');
 fs.writeFileSync(path.join(D, 'components.css'), banner('components') + bare(components));
 fs.writeFileSync(path.join(D, 'utilities.css'), banner('utilities') + bare(utilities));
 fs.writeFileSync(path.join(D, 'bundle.css'), banner('utilities and components') + bare(components) + bare(utilities));

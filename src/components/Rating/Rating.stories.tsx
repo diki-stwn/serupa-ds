@@ -44,3 +44,9 @@ export const Overflow: Story = {
   args: { max: 10, defaultValue: 7 },
   render: (args) => <div style={{ width: 160 }}><Rating {...args} /></div>,
 };
+/** Ten large stars in a 288px grid column, as in a form on a phone: they shrink alike to fit. */
+export const InAGrid: Story = {
+  name: 'In a grid',
+  args: { max: 10, size: 'lg', defaultValue: 7 },
+  render: (args) => <div style={{ display: 'grid', width: 288 }}><div><Rating {...args} /></div></div>,
+};
