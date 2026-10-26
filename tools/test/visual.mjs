@@ -70,14 +70,16 @@ async function diff(page, a, bb) {   // share of differing pixels and the box th
     const c = (i) => { const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height; const g = cv.getContext('2d'); g.drawImage(i, 0, 0); return g.getImageData(0, 0, i.width, i.height).data; };
     const d1 = c(x), d2 = c(y); let n = 0;
     // Where they differ too, so a failure in a log says which part of the picture changed.
-    let x0 = x.width, y0 = x.height, x1 = -1, y1 = -1;
+    let x0 = x.width, y0 = x.height, x1 = -1, y1 = -1, first = '';
+    const rgb = (d, k) => `rgb(${d[k]} ${d[k + 1]} ${d[k + 2]})`;
     for (let k = 0; k < d1.length; k += 4) {
       if (Math.abs(d1[k] - d2[k]) + Math.abs(d1[k + 1] - d2[k + 1]) + Math.abs(d1[k + 2] - d2[k + 2]) <= 24) continue;
       n++;
       const px = (k / 4) % x.width, py = Math.floor(k / 4 / x.width);
+      if (!first) first = `; at ${px},${py} ${rgb(d1, k)} is now ${rgb(d2, k)}`;
       x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
     }
-    return { share: n / (d1.length / 4), box: n ? `x ${x0}–${x1}, y ${y0}–${y1}` : '' };
+    return { share: n / (d1.length / 4), box: n ? `x ${x0}–${x1}, y ${y0}–${y1}${first}` : '' };
   }, [a, bb]);
 }
 
