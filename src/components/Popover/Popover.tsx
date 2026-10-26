@@ -34,7 +34,9 @@ export interface PopoverProps {
   "aria-label"?: string;
   /** Where focus goes when it opens: 'first' (default: the first control inside, or the panel) or 'panel'. */
   initialFocus?: 'first' | 'panel';
+  /** Classes on the panel. */
   className?: string;
+  /** Styles on the panel. */
   style?: React.CSSProperties;
 }
 

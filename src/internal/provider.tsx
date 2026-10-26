@@ -20,6 +20,7 @@ export interface SerupaProviderProps {
    *  User-Agent or Sec-CH-UA-Platform header) so the server writes the right keys and nothing changes on hydration.
    *  Default: found on the device after it mounts. */
   platform?: 'apple' | 'other';
+  /** The part of the page these settings apply to. */
   children?: React.ReactNode;
 }
 

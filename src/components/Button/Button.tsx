@@ -52,6 +52,7 @@ interface ButtonOwnProps {
 
 /** A Button without href: a native <button>. */
 export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {
+  /** Without href it's a <button>; give it href to make it a link. */
   href?: undefined;
   /** Can return a promise: the button then takes no second click until it settles, shows loading if it takes a while, and shows successText once it resolves. */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
@@ -59,9 +60,11 @@ export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHT
   type?: 'button' | 'submit' | 'reset';
   /** Opens, closes or toggles a [popover] element by id (native HTML). */
   popoverTarget?: string;
+  /** What a press does to the popoverTarget element: 'show', 'hide' or 'toggle' (default). */
   popoverTargetAction?: 'show' | 'hide' | 'toggle';
   /** Invoker commands: the id of the element to act on, and the action ('show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'). */
   commandfor?: string;
+  /** The action for the commandfor element: 'show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'. */
   command?: string;
 }
 

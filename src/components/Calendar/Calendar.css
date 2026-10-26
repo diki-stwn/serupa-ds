@@ -12,8 +12,6 @@
 }
 .dk-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
 .dk-calendar__title { flex: auto; margin: var(--spacing-0); text-align: center; color: var(--calendar-title-color, var(--text)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--calendar-title-weight, var(--font-semibold)); }
-.dk-calendar__rtl, .dk-calendar__ltr:dir(rtl) { display: none; }
-.dk-calendar__rtl:dir(rtl) { display: inline-block; }
 .dk-calendar__grid { border-collapse: collapse; border-spacing: var(--spacing-0); }
 .dk-calendar__grid th { width: var(--dk-cal-day); height: var(--dk-cal-day); padding: var(--spacing-0); color: var(--calendar-weekday-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); text-align: center; }
 .dk-calendar__grid td { padding: var(--spacing-0); text-align: center; }

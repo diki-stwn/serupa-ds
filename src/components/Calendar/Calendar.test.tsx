@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { color, css, forcedColors, press } from '../../../tools/test/vitest/helpers';
+import { color, css, forcedColors, iconPoints, press } from '../../../tools/test/vitest/helpers';
 import { Calendar, type CalendarProps } from './Calendar';
 
 const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -55,6 +55,11 @@ describe('Calendar', () => {
     const d = cal('[data-date="2025-03-10"]'), other = cal('[data-date="2025-03-11"]');
     const r = await forcedColors((active) => active && [css(d).forcedColorAdjust, css(other).forcedColorAdjust, css(d).color !== css(d).backgroundColor]);
     if (r) expect(r).toEqual(['none', 'auto', true]);
+  });
+
+  test('right to left: the previous-month chevron points right and the next one left', async () => {
+    await render(<div dir="rtl"><Calendar data-testid="cal" defaultValue={new Date(2025, 2, 15)} /></div>);
+    expect([cal('.dk-calendar__nav--prev [data-icon]'), cal('.dk-calendar__nav--next [data-icon]')].map(iconPoints)).toEqual(['right', 'left']);
   });
 
   test('de-DE: German names and weeks starting on Monday', async () => {

@@ -1,7 +1,8 @@
 /* ---------------------------------------------------------------
    Image: a picture in an inline-block frame. A fixed ratio (square, 4:3, 16:9 or custom) sizes the frame and the
    picture covers or fits it; 'auto' keeps the picture's own shape. Rounded corners come from --image-radius.
-   While loading, the frame shows the placeholder fill; on error, a muted broken-image icon centered in it. A
+   While loading, the frame shows the placeholder fill (server HTML shows the picture as it arrives; once the script
+   runs, a lazy one fades in); on error, a muted broken-image icon centered in it. A
    viewable picture is a button with a focus ring and a zoom-in cursor; the remove button sits in the top end
    corner. The viewer is a large Dialog with the picture fitted to the screen.
    --------------------------------------------------------------- */
@@ -17,13 +18,17 @@
 .dk-image--ratio-auto { min-width: var(--image-min-size, var(--spacing-12)); min-height: var(--image-min-size, var(--spacing-12)); }
 .dk-image--ratio-auto.dk-image--loaded { min-width: var(--spacing-0); min-height: var(--spacing-0); background: transparent; }
 .dk-image--rounded { border-radius: var(--image-radius, var(--rounded-lg)); }
-.dk-image__img { display: block; width: var(--sizing-full); height: auto; max-width: var(--sizing-full); }
+/* The picture sits above the loading sweep (::before), so one that arrives before the page's script runs covers it. */
+.dk-image__img { position: relative; display: block; width: var(--sizing-full); height: auto; max-width: var(--sizing-full); }
 .dk-image:not(.dk-image--ratio-auto) .dk-image__img, .dk-image:not(.dk-image--ratio-auto) .dk-image__view, .dk-image--sized .dk-image__img, .dk-image--sized .dk-image__view { height: var(--sizing-full); }
 /* ratio auto with width and height: the frame keeps their shape (and is at most as wide as its container) before and after the picture loads. */
 .dk-image--sized.dk-image--ratio-auto { min-width: var(--spacing-0); min-height: var(--spacing-0); }
 .dk-image--cover .dk-image__img { object-fit: cover; }
 .dk-image--contain .dk-image__img { object-fit: contain; }
-.dk-image--loading .dk-image__img { opacity: var(--opacity-0); }
+/* Server HTML shows the picture as it arrives. Once the script runs, a lazy picture still loading is hidden and fades in
+   when it arrives (dk-image--fades); a priority one (a hero) is never hidden, so it paints as soon as it can. */
+.dk-image--fades.dk-image--loading .dk-image__img { opacity: var(--opacity-0); }
+.dk-image--fades.dk-image--loaded .dk-image__img { transition: opacity var(--motion-enter-md) var(--ease-enter); }   /* hides at once, fades in */
 /* While loading, a lighter band sweeps through the placeholder fill every 2s (ease-in-out), like Loader's skeleton: a layer
    three frames wide slides on translate (the compositor) from its last third on the frame to its first. Right to left, it
    sweeps from the right. It's ::before, so the remove button stays above it. */
@@ -52,6 +57,6 @@
 .dk-image__viewer { --dk-image-full-max: calc(var(--sizing-dvh) - var(--spacing-40)); }
 .dk-image__viewer .dk-dialog__body { display: flex; justify-content: center; }
 .dk-image__full { display: block; max-width: var(--sizing-full); max-height: var(--dk-image-full-max); height: auto; object-fit: contain; border-radius: var(--image-radius, var(--rounded-lg)); }
-@media (prefers-reduced-motion: reduce) { .dk-image--loading::before { display: none; } }   /* a still fill */
+@media (prefers-reduced-motion: reduce) { .dk-image--loading::before { display: none; } .dk-image--fades.dk-image--loaded .dk-image__img { transition: none; } }   /* a still fill; the picture appears at once */
 @media (forced-colors: active) { .dk-image { border: var(--border-width-1) solid CanvasText; } .dk-image--loading::before { display: none; } }
 }

@@ -7,6 +7,7 @@ import { List, ListItem } from '../components/List/List';
 import { Pagination } from '../components/Pagination/Pagination';
 import { Progress } from '../components/Progress/Progress';
 import { Table, TableBody, TableCell, TableRow } from '../components/Table/Table';
+import { iconPoints } from '../../tools/test/vitest/helpers';
 
 // Six components that turn with the text direction, in one block.
 function Six() {
@@ -21,15 +22,16 @@ function Six() {
 }
 
 const picked = (root: HTMLElement, tag: string) => [...root.querySelectorAll(tag)].find((e) => e.textContent === 'Picked')!;
-const shown = (e: Element) => getComputedStyle(e).display !== 'none';
 // Which way each part of a block points: its chevrons (the ones that show), the indeterminate bar's start, and the
 // selected List item's and Table row's bar (a positive inset shadow is on the left).
 function sides(root: HTMLElement) {
-  const ltr = [...root.querySelectorAll('[class*="__ltr"]')], rtl = [...root.querySelectorAll('[class*="__rtl"]')];
+  // Breadcrumb's separator, Pagination's previous and next, Calendar's previous and next month: as drawn left to right,
+  // they point right, left, right, left, right.
+  const ways = [...root.querySelectorAll('[data-icon^="chevron_"]')].map(iconPoints).join();
   const fill = [...root.querySelector('[role="progressbar"]')!.querySelectorAll('*')].find((e) => getComputedStyle(e).getPropertyValue('--dk-progress-from'))!;
   const bar = (e: Element) => { const s = getComputedStyle(e).boxShadow; return s === 'none' ? 'none' : /\) -\d/.test(s) ? 'right' : 'left'; };
   return {
-    chevrons: [ltr.length > 0 && ltr.every(shown) && !rtl.some(shown) ? 'ltr' : rtl.length > 0 && rtl.every(shown) && !ltr.some(shown) ? 'rtl' : 'mixed'],
+    chevrons: [ways === 'right,left,right,left,right' ? 'ltr' : ways === 'left,right,left,right,left' ? 'rtl' : 'mixed ' + ways],
     progressFrom: getComputedStyle(fill).getPropertyValue('--dk-progress-from').trim(),
     listBar: bar(picked(root, 'li')),
     tableBar: bar(picked(root, 'td')),
