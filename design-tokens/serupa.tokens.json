@@ -8451,7 +8451,7 @@
     "motion-loop-spinner": {
       "$type": "duration",
       "$value": "{transitions.duration-1000}",
-      "$description": "One turn of a spinner: Button, Switch and the circular Progress while they load.",
+      "$description": "One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--motion-loop-spinner"
