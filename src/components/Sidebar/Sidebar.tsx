@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
+import { useExit } from "../../internal/useExit";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -151,6 +152,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
     if (props.onOpenChange) props.onOpenChange(!open, { reason: "trigger" });
   };
   const listId = domId("dk-sbi", React.useId());
+  // A group's nested list unfolds and folds as Accordion's panel does (GM4): it stays (inert) while it folds away.
+  const nested = React.useRef<HTMLUListElement | null>(null);
+  const exit = useExit(open, nested);
   const rail = ctx.collapsed && ctx.depth === 0;
   // In the rail the badge is hidden on screen, like the label, and a dot on the icon says there is one.
   const dot = rail && props.badge != null && props.badge !== false;
@@ -189,7 +193,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
       <li className="dk-sidebar__li" data-state={open ? "open" : "closed"}>
         <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); toggle(); }}>{inner(true)}</button>
         <SidebarContext.Provider value={{ collapsed: ctx.collapsed, depth: ctx.depth + 1 }}>
-          <ul id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open}>{kids}</ul>
+          <ul ref={nested} id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open && !exit.leaving} inert={!open || undefined}>{kids}</ul>
         </SidebarContext.Provider>
       </li>
     );

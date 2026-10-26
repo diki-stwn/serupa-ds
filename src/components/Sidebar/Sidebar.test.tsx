@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-react';
 import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
 import { cdp, server, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press, tabTo } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, tabTo, withMotion } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
 
@@ -103,6 +103,24 @@ describe('Sidebar', () => {
     expect([b.getAttribute('aria-expanded'), rect(el('iweb')).height > 0]).toEqual(['true', true]);
     await expect.poll(() => css(b.querySelector('.dk-sidebar__chevron')).rotate).toBe('180deg');
     expect(Math.round(rect(b.querySelector('.dk-sidebar__label')!).left - rect(el('iweb').querySelector('.dk-sidebar__label')!).left)).toBe(0);
+  });
+
+  test('a group\'s items unfold and fold as an Accordion panel does: a fade and a clip from the top, kept (inert) while they fold, then hidden (GM4)', async () => {
+    await withMotion(async () => {
+      const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition).map((x) => (x as CSSTransition).transitionProperty).sort();
+      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
+      await render(<App />);
+      const b = el('gproj'), list = el(b.getAttribute('aria-controls')!);
+      await userEvent.click(b);
+      expect([list.hidden, list.inert, runs(list), list.getAnimations().some((x) => x instanceof CSSAnimation)]).toEqual([false, false, ['clip-path', 'opacity'], false]);
+      await settled(list);
+      expect([css(list).opacity, css(list).clipPath]).toEqual(['1', 'inset(0px)']);
+      await userEvent.click(b);
+      expect([b.getAttribute('aria-expanded'), list.hidden, list.inert, runs(list), rect(list).height > 0]).toEqual(['false', false, true, ['clip-path', 'opacity'], true]);
+      await settled(list);
+      await expect.poll(() => list.hidden).toBe(true);
+      expect(rect(list).height).toBe(0);
+    });
   });
 
   test('defaultOpen={false} keeps a group with the active page closed; the group is still text-colored', async () => {
