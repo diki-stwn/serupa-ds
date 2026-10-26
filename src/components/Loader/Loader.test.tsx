@@ -148,7 +148,7 @@ describe('Loader', () => {
       const svg = el(id).querySelector('svg')!.getBoundingClientRect(), r = [...el(id).querySelectorAll('rect[width="8"]')].find((x) => getComputedStyle(x).animationName === 'dk-loader-pixel' && getComputedStyle(x).animationDelay === '0s')!.getBoundingClientRect();
       return [r.left + r.width / 2 > svg.left + svg.width / 2 ? 'right' : 'left', Math.round(r.top - svg.top)];
     };
-    expect([start('ltr'), start('rtl'), css(el('rtl').querySelector('svg')!).maxWidth]).toEqual([['left', 0], ['right', 0], 'none']);
+    expect([start('ltr'), start('rtl'), css(el('rtl').querySelector('svg')).maxWidth]).toEqual([['left', 0], ['right', 0], 'none']);
   });
 
   test('pixel: a square rests at 15% (pixel-dim), is full at the crest and fades back', async () => {
