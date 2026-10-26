@@ -4,12 +4,19 @@ export interface CalendarLabels {
   /** Calendar month buttons. */
   previousMonth: string;
   nextMonth: string;
+  /** Calendar monthYearPicker menus. */
+  month: string;
+  year: string;
 }
 export const en: CalendarLabels = {
   previousMonth: "Previous month",
   nextMonth: "Next month",
+  month: "Month",
+  year: "Year",
 };
 export const id: CalendarLabels = {
   previousMonth: "Bulan sebelumnya",
   nextMonth: "Bulan berikutnya",
+  month: "Bulan",
+  year: "Tahun",
 };

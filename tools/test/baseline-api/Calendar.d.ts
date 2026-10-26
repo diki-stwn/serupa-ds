@@ -2,6 +2,8 @@
 interface CalendarLabels {
     previousMonth: string;
     nextMonth: string;
+    month: string;
+    year: string;
 }
 interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
     value?: Date | null | string;
@@ -18,5 +20,6 @@ interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defa
     autoFocus?: boolean;
     previousLabel?: string;
     nextLabel?: string;
+    monthYearPicker?: boolean;
 }
 declare const Calendar: React.ForwardRefExoticComponent<CalendarProps & React.RefAttributes<HTMLDivElement>>;

@@ -30,6 +30,7 @@ export const Masked: Story = { args: { 'aria-label': 'PIN', length: 4, mask: tru
 export const Alphanumeric: Story = { args: { 'aria-label': 'Invite code', type: 'alphanumeric', length: 5, defaultValue: 'K7Q', size: 'sm' } };
 
 export const Disabled: Story = { args: { disabled: true, defaultValue: '1234' } };
+export const ReadOnly: Story = { name: 'Read-only', args: { readOnly: true, defaultValue: '1234' } };
 
 export const Overflow: Story = {
   args: { length: 12, defaultValue: '492817' },

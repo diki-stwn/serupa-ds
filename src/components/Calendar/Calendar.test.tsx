@@ -175,3 +175,52 @@ describe('Calendar', () => {
   });
 
 });
+
+describe('Calendar: long jumps and midnight (EM1)', () => {
+  const menus = () => [...document.querySelectorAll<HTMLSelectElement>('[data-testid=cal] select')];
+  const pickOption = async (s: HTMLSelectElement, value: string) => { await userEvent.selectOptions(s, value); };
+
+  test('monthYearPicker: Month and Year menus jump 18 months in two picks; the title stays for screen readers; the header fits the grid', async () => {
+    const seen: string[] = [];
+    await render(<Calendar data-testid="cal" monthYearPicker defaultMonth={new Date(2026, 9, 1)} locale="en-US" onMonthChange={(m) => seen.push(m.toISOString().slice(0, 7))} />);
+    const [m, y] = menus();
+    expect([m.getAttribute('aria-label'), y.getAttribute('aria-label'), m.selectedOptions[0].text, y.value]).toEqual(['Month', 'Year', 'October', '2026']);
+    const now = new Date().getFullYear();
+    expect([+y.options[0].value, +y.options[y.options.length - 1].value]).toEqual([now - 100, now + 10]);
+    await pickOption(y, '2028');
+    await pickOption(m, '3');
+    expect(title()).toBe('April 2028');
+    expect(seen.length).toBe(2);
+    expect(cal('.dk-calendar__title').getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    expect(cal('.dk-calendar__header').getBoundingClientRect().width).toBeLessThanOrEqual(cal('.dk-calendar__grid').getBoundingClientRect().width + 1);
+    expect(cal('.dk-calendar__header').scrollWidth).toBeLessThanOrEqual(cal('.dk-calendar__header').clientWidth);
+  });
+
+  test('monthYearPicker with min and max: only their years, months outside are disabled, and a year that lands outside clamps', async () => {
+    await render(<Calendar data-testid="cal" monthYearPicker min="2025-03-10" max="2027-08-20" defaultMonth={new Date(2026, 0, 1)} locale="en-US" />);
+    const [m, y] = menus();
+    expect([...y.options].map((o) => o.value)).toEqual(['2025', '2026', '2027']);
+    await pickOption(y, '2025');
+    expect(title()).toBe('March 2025');
+    expect([...menus()[0].options].filter((o) => o.disabled).map((o) => o.text)).toEqual(['January', 'February']);
+    await pickOption(menus()[1], '2027');
+    await pickOption(menus()[0], '7');
+    expect(title()).toBe('August 2027');
+    expect([...menus()[0].options].filter((o) => o.disabled).map((o) => o.text)).toEqual(['September', 'October', 'November', 'December']);
+    void m;
+  });
+
+  test('today moves at midnight while the calendar stays open', async () => {
+    const { vi } = await import('vitest');
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 26, 23, 59, 59));
+      await render(<Calendar data-testid="cal" locale="en-US" />);
+      expect(cal('[aria-current="date"]').dataset.date).toBe('2026-10-26');
+      await React.act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+      expect(cal('[aria-current="date"]').dataset.date).toBe('2026-10-27');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

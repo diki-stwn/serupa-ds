@@ -62,6 +62,16 @@ describe('place', () => {
     anchor.remove(); layer.remove();
   });
 
+  test('placeLayer: an anchor shrunk by its press (scale) is placed against at rest, so the layer still lines up once it lets go (FW1)', () => {
+    const anchor = document.createElement('button'), layer = document.createElement('div');
+    anchor.style.cssText = 'position: fixed; left: 120px; top: 100px; height: 40px; width: 200px; scale: 0.9';
+    layer.style.cssText = 'position: fixed; width: 100px; height: 80px';
+    document.body.append(anchor, layer);
+    placeLayer(layer, anchor, 'bottom-start', 4);
+    expect([layer.style.left, layer.style.top]).toEqual(['120px', '144px']);
+    anchor.remove(); layer.remove();
+  });
+
   test('placeLayer: a max width of its own (a style prop) is kept, and combined with the room beside the anchor', () => {
     const anchor = document.createElement('button'), layer = document.createElement('div');
     anchor.style.cssText = 'position: fixed; left: 20px; top: 100px; height: 26px; width: 100px';

@@ -20,6 +20,7 @@
 .dk-image--rounded { border-radius: var(--image-radius, var(--rounded-lg)); }
 /* The picture sits above the loading sweep (::before), so one that arrives before the page's script runs covers it. */
 .dk-image__img { position: relative; display: block; width: var(--sizing-full); height: auto; max-width: var(--sizing-full); }
+.dk-image__picture { display: contents; }   /* sources: the <img> inside lays out as if the <picture> weren't there */
 .dk-image:not(.dk-image--ratio-auto) .dk-image__img, .dk-image:not(.dk-image--ratio-auto) .dk-image__view, .dk-image--sized .dk-image__img, .dk-image--sized .dk-image__view { height: var(--sizing-full); }
 /* ratio auto with width and height: the frame keeps their shape (and is at most as wide as its container) before and after the picture loads. */
 .dk-image--sized.dk-image--ratio-auto { min-width: var(--spacing-0); min-height: var(--spacing-0); }
