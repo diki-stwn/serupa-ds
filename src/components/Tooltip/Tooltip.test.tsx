@@ -66,10 +66,12 @@ describe('Tooltip', () => {
 
   test('hover: shows after the 400ms delay, above and centered, 6px away, in the top layer; leaving hides it after a short grace', async () => {
     await render(<div style={{ padding: '120px 200px' }}><Tooltip content="Edit the file"><button id="a">Edit</button></Tooltip></div>);
+    // Timed from before the hover, so a slow machine only makes it later: never early (a fixed wait then a check
+    // isn't, as a busy runner can stretch the wait past the delay).
+    const t0 = performance.now();
     await userEvent.hover(el('a'));
-    await settle(200);
-    expect(isOpen('a')).toBe(false);
     await expect.poll(() => isOpen('a')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);
     const t = tipOf('a'), a = el('a');
     expect([t.dataset.side, t.matches(':popover-open')]).toEqual(['top', true]);
     expect(near(rect(a).top - rect(t).bottom, 6)).toBe(true);
@@ -209,10 +211,10 @@ describe('Tooltip warm-up (EC1)', () => {
   test('once one has shown, the next opens at once without a fade and the first closes; after 300ms off them all, the delay is back', async () => {
     await render(<Bar />);
     await away(); await wait(400);
+    let t0 = performance.now();
     await userEvent.hover(el('wa'));
-    await wait(150);
-    expect(isOpen('wa')).toBe(false);   // a cold start waits for the delay
     await expect.poll(() => isOpen('wa')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);   // a cold start waits for the delay
     expect(tipOf('wa').hasAttribute('data-warm')).toBe(false);
     await userEvent.hover(el('wb'));
     expect([isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), tipOf('wb').getAnimations().length]).toEqual([true, false, true, 0]);
@@ -222,10 +224,10 @@ describe('Tooltip warm-up (EC1)', () => {
     expect(isOpen('wc')).toBe(true);
     // Off them all for longer: cold again.
     await away(); await wait(500);
+    t0 = performance.now();
     await userEvent.hover(el('wa'));
-    await wait(150);
-    expect(isOpen('wa')).toBe(false);
     await expect.poll(() => isOpen('wa')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);
     await away();
   });
   test('entry: fades in and slides 4px away from its trigger with a transition, not keyframes (EO1)', async () => {

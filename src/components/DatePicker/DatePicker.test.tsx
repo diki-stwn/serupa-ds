@@ -222,4 +222,14 @@ describe('DatePicker: autocomplete', () => {
     b.blur();
     await expect.poll(() => got.at(-1)).toBe('Sat May 12 1990');
   });
+  test('the calendar scales in from the point on its edge facing the field, level with the field\'s centre (EO1)', async () => {
+    await render(<div style={{ padding: '0 40px' }}><DatePicker id="dpo" aria-label="Start" /></div>);
+    await userEvent.click(button('dpo'));
+    await expect.poll(() => popup('dpo') && !popup('dpo').hidden).toBe(true);
+    // The anchor is the whole field (input and button), so the origin sits under its centre, held inside the calendar.
+    const p = popup('dpo'), f = (el('dpo').parentElement as HTMLElement).getBoundingClientRect(), r = p.getBoundingClientRect();
+    const [x, y] = getComputedStyle(p).transformOrigin.split(' ').map(parseFloat);
+    const want = Math.min(Math.max(f.left + f.width / 2 - r.left, 0), r.width);
+    expect([p.dataset.side, Math.round(y), Math.abs(x - want) <= 1]).toEqual(['bottom', 0, true]);
+  });
 });
