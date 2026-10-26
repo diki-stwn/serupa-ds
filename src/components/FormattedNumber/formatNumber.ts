@@ -10,6 +10,8 @@ export interface FormatNumberOptions extends Intl.NumberFormatOptions {
   format?: NumberFormat;
 }
 
+import { pinCurrencyDigits } from "../../internal/currency";
+
 const BYTES = ["byte", "kilobyte", "megabyte", "gigabyte", "terabyte", "petabyte"];
 
 /** The Intl.NumberFormat options for a format; your own options win. Bytes also give the number to format. */
@@ -22,7 +24,7 @@ function resolve(value: number | bigint, o: FormatNumberOptions): [number | bigi
     case "compact": return [value, { notation: "compact", ...own }];
     case "percent": return [value, { style: "percent", ...own }];
     // Without a currency (or a unit) there's nothing to write it in, so it falls back to a plain number.
-    case "currency": return [value, own.currency ? { style: "currency", ...own } : own];
+    case "currency": return [value, own.currency ? pinCurrencyDigits({ style: "currency", ...own }) : own];
     case "unit": return [value, own.unit ? { style: "unit", unitDisplay: "short", ...own } : own];
     case "bytes": {
       // Steps of 1024 with the short names (kB, MB), like formatFileSize, so a size reads the same in both;
