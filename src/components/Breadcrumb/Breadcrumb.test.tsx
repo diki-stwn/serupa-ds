@@ -24,7 +24,7 @@ function Home({ r }: { r?: React.Ref<HTMLElement> }) {
 }
 const Slash = () => <Breadcrumb id="bslash" separator="slash" aria-label="You are here">
   <BreadcrumbItem href="#a">A</BreadcrumbItem>
-  <BreadcrumbItem as={RouterLink} {...{ to: '/b' }}>B</BreadcrumbItem>
+  <BreadcrumbItem as={RouterLink} to="/b">B</BreadcrumbItem>
   <BreadcrumbItem>C</BreadcrumbItem>
 </Breadcrumb>;
 
@@ -63,6 +63,17 @@ describe('Breadcrumb', () => {
     await userEvent.unhover(a);
     const c = css(q('#bdef [aria-current]'));
     expect([c.color, c.fontWeight]).toEqual([text, '500']);
+  });
+
+  test('as is typed (G10): an item takes the props of the element as names (RouterLink needs to), an <a>\'s by default', () => {
+    const typed = [
+      <BreadcrumbItem key="1" as={RouterLink} to="/b">B</BreadcrumbItem>,
+      // @ts-expect-error RouterLink needs to
+      <BreadcrumbItem key="2" as={RouterLink}>B</BreadcrumbItem>,
+      // @ts-expect-error an <a> has no to
+      <BreadcrumbItem key="3" href="#b" to="/b">B</BreadcrumbItem>,
+    ];
+    expect(typed.length).toBe(3);
   });
 
   test('separator="slash", a custom aria-label, and a router link through as', async () => {

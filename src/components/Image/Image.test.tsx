@@ -234,10 +234,10 @@ describe('Image loading motion', () => {
     expect(frame('late').classList.contains('dk-image--fades')).toBe(false);
   });
 
-  test('while loading: a lighter band sweeps through the fill every 2s (ease-in-out, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
+  test('while loading: a lighter band sweeps through the fill every 2s (ease-move, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
     await render(<Pic id="sweep" alt="Slow" ratio="square" onRemove={() => {}} src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('sweep'), s = getComputedStyle(f, '::before');
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-image-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-image-sweep 2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
     expect([Math.round(parseFloat(s.width) / f.getBoundingClientRect().width), s.pointerEvents, css(f).opacity, css(f).animationName]).toEqual([3, 'none', '1', 'none']);
     const run = f.getAnimations({ subtree: true }).find((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-image-sweep')!;
     // read the band where the sweep ends (Firefox hands back the keyframe's var() unresolved): two frames on,
