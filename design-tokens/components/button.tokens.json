@@ -551,7 +551,7 @@
       },
       "icon-nudge-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-150}",
+        "$value": "{transitions.motion-change-sm}",
         "$description": "How fast the right icon slides (150ms).",
         "$extensions": {
           "com.serupa": {
@@ -581,7 +581,7 @@
       },
       "ripple-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-500}",
+        "$value": "{transitions.motion-ripple}",
         "$description": "How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave.",
         "$extensions": {
           "com.serupa": {
@@ -591,7 +591,7 @@
       },
       "ripple-fade-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-300}",
+        "$value": "{transitions.motion-ripple-fade}",
         "$description": "How long the ripple takes to fade after release (300ms).",
         "$extensions": {
           "com.serupa": {

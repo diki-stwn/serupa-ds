@@ -8,7 +8,7 @@
 .dk-sidebar {
   box-sizing: border-box; display: flex; flex-direction: column; width: var(--sidebar-width, var(--container-3xs)); height: var(--sizing-full); flex-shrink: 0;
   background: var(--sidebar-bg, var(--surface)); border-inline-end: var(--sidebar-border-width, var(--border-width-1)) solid var(--sidebar-border, var(--border)); font-family: var(--font-sans);
-  transition: clip-path var(--duration-200) var(--ease-in-out);
+  transition: clip-path var(--motion-change-md) var(--ease-move);
 }
 /* Collapsing and expanding (EA1): the width changes once and the clip-path slides between the rail and the full
    column, with a line for the moving edge, so every frame is paint-free. Sidebar.tsx sets data-slide. */
@@ -18,7 +18,7 @@
 .dk-sidebar[data-slide="rail"]:dir(rtl) { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--spacing-0) calc(var(--sizing-full) - var(--dk-sidebar-rail))); }
 .dk-sidebar[data-slide]::after {
   content: ""; position: absolute; inset-block: var(--spacing-0); inset-inline-start: calc(var(--dk-sidebar-rail) - var(--sidebar-border-width, var(--border-width-1)));
-  width: var(--sidebar-border-width, var(--border-width-1)); background: var(--sidebar-border, var(--border)); transition: translate var(--duration-200) var(--ease-in-out);
+  width: var(--sidebar-border-width, var(--border-width-1)); background: var(--sidebar-border, var(--border)); transition: translate var(--motion-change-md) var(--ease-move);
 }
 .dk-sidebar[data-slide="full"]::after { translate: var(--dk-sidebar-travel); }
 .dk-sidebar[data-slide="full"]:dir(rtl)::after { translate: calc(var(--spacing-0) - var(--dk-sidebar-travel)); }
@@ -55,7 +55,7 @@
 .dk-sidebar__icon .dk-icon { font-size: var(--sidebar-icon-size, var(--spacing-5)); }
 .dk-sidebar__label { flex: auto; min-width: var(--spacing-0); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dk-sidebar__badge { display: inline-flex; flex-shrink: 0; }
-.dk-sidebar__chevron.dk-icon { --dk-sidebar-turn: 180deg; flex-shrink: 0; font-size: var(--spacing-4); transition: rotate var(--duration-200) var(--ease-in-out); }
+.dk-sidebar__chevron.dk-icon { --dk-sidebar-turn: 180deg; flex-shrink: 0; font-size: var(--spacing-4); transition: rotate var(--motion-change-md) var(--ease-move); }
 .dk-sidebar__li[data-state="open"] > .dk-sidebar__item .dk-sidebar__chevron { rotate: var(--dk-sidebar-turn); }
 /* collapsed: icons only, centered; labels stay for screen readers */
 .dk-sidebar--collapsed .dk-sidebar__item { justify-content: center; padding-inline: var(--spacing-0); }

@@ -5,6 +5,7 @@ import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import type { Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
@@ -57,6 +58,8 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
   const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const focusFirst = props.initialFocus !== "panel";
 
+  // Closing: the content stays (inert) while the panel fades out (DZ1); one open on arrival doesn't fade in.
+  const exit = useExit(open, panelRef);
   useAnchoredLayer(open, panelRef, triggerRef, { placement: props.placement, offsetVar: "--dk-popover-offset", onOutside: () => close("outside", false), inside: triggerRef });
   // On open, focus moves inside (a press outside the panel and its trigger closes it; focus stays where the press put it).
   useIsoLayoutEffect(() => {
@@ -97,9 +100,9 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
       {trigger}
       <div ref={(n) => { panelRef.current = n; if (!titled) nameRef(n); }} id={id} role="dialog" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-labelledby={titled ? id + "-title" : undefined} aria-label={titled ? undefined : props["aria-label"]}
-        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"}
-        onKeyDown={onKeyDown} onBlur={onBlur}>
-        {open ? <>
+        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        inert={!open || undefined} onKeyDown={onKeyDown} onBlur={onBlur}>
+        {open || exit.leaving ? <>
           {titled ? <H id={id + "-title"} className="dk-popover__title">{props.title}</H> : null}
           <div className="dk-popover__body">{content}</div>
         </> : null}
