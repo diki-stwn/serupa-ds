@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/rejectInput.ts"],
+  "sourcesContent": ["import { announce } from \"./announce\";\n\n/* DatePicker, DateRangePicker, TimePicker and NumberInput put back typed text they don't take. This tells the app why\n   (onInvalidInput) and says so to screen readers, who would otherwise hear the old value come back without a word. */\nexport function reject<R extends string>(text: string, reason: R, onInvalidInput: ((text: string, reason: R) => void) | undefined, say: (text: string) => string): void {\n  const t = text.trim();\n  if (onInvalidInput) onInvalidInput(t, reason);\n  announce(say(t), { assertive: true });\n}\n"],
+  "mappings": ";AAAA,SAAS,gBAAgB;AAIlB,SAAS,OAAyB,MAAc,QAAW,gBAAiE,KAAqC;AACtK,QAAM,IAAI,KAAK,KAAK;AACpB,MAAI,eAAgB,gBAAe,GAAG,MAAM;AAC5C,WAAS,IAAI,CAAC,GAAG,EAAE,WAAW,KAAK,CAAC;AACtC;",
+  "names": []
+}

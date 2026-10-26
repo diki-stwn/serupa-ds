@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Grid/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Grid } from \"./Grid\";\nexport type { GridProps } from \"./Grid\";\n"],
+  "mappings": ";AACA,SAAS,YAAY;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Splitter/labels.ts"],
+  "sourcesContent": ["// Splitter's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface SplitterLabels {\n  /** Splitter's handle, when it has no separatorLabel. */\n  resizePanes: string;\n}\nexport const en: SplitterLabels = {\n  resizePanes: \"Resize panes\",\n};\nexport const id: SplitterLabels = {\n  resizePanes: \"Ubah ukuran panel\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAqB;AAAA,EAChC,aAAa;AACf;AACO,IAAM,KAAqB;AAAA,EAChC,aAAa;AACf;",
+  "names": []
+}

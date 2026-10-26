@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Splitter/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Splitter } from \"./Splitter\";\nexport type { SplitterProps } from \"./Splitter\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}
