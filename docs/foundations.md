@@ -780,13 +780,20 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |
 | `motion-enter-lg` | `duration-300` | A large surface appearing: drawers, sheets. |
 | `motion-exit-sm` / `-md` / `-lg` | `duration-100` / `150` / `200` | The same surfaces leaving. |
+| `motion-change-sm` | `duration-150` | A small part changing in place: a chevron turning, a slider thumb growing, a row gliding to its place. |
+| `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl, Tabs. |
+| `motion-change-lg` | `duration-300` | Something travelling far: a progress or meter fill moving to its value, a carousel slide. |
 | `motion-loop-spinner` | `duration-1000` | One turn of a spinner: Button, Switch and the circular Progress while they load. |
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
+| `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
+| `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
+| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
 | `ease-enter` | `ease-out` | Something appearing: fast at first, settling at the end. |
 | `ease-exit` | `ease-in` | Something leaving: slow at first, then out of the way. |
 | `ease-move` | `ease-in-out` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
+| `ease-settle` | `ease-out` | Something answering the hand or arriving at a new value: a press, a fill, a slide let go. |
 
-`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
+`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token, and component CSS that takes the scale itself (`var(--duration-150)`, `var(--ease-in-out)`) instead of a role; `duration-0` and `ease-linear` are allowed, and what hasn't moved to a role yet is listed in the check. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
 
 **Timing**
 
@@ -795,7 +802,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 - Feedback for an action (a press, a toggle, a check) starts within a frame and takes 100ms or less, so the control feels like it answered the hand.
 - Nothing over 300ms answers a click. `duration-500` and longer are for loops and large page-level changes only.
 
-**Easing.** Enter with `ease-enter`, leave with `ease-exit`, and change in place with `ease-move`. Spinners and progress bars turn at constant speed (`ease-linear`). Steps (`steps()`, `step-end`) are for ticking spinners.
+**Easing.** Enter with `ease-enter`, leave with `ease-exit`, change in place with `ease-move`, and answer a press or arrive at a new value with `ease-settle`. Spinners and progress bars turn at constant speed (`ease-linear`). Steps (`steps()`, `step-end`) are for ticking spinners.
 
 **Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a list's items or a loader's dots, stagger them by `delay-75` or `delay-150`, keep the whole group within 300ms, and don't stagger more than a handful. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
 

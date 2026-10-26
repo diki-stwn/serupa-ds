@@ -24,7 +24,7 @@
   width: var(--dk-pin-box); height: var(--dk-pin-box);
   border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
   background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-pin-input__field {
   position: absolute; inset: var(--spacing-0); box-sizing: border-box; width: var(--sizing-full); height: var(--sizing-full);
@@ -39,7 +39,7 @@
 .dk-pin-input__box--active { --dk-pin-bd: var(--dk-pin-ring); box-shadow: 0 0 0 var(--pin-input-border-width, var(--border-width-1)) var(--dk-pin-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-pin-input__box--caret::after {
   content: ""; width: var(--border-width-1); height: var(--spacing-4); background: var(--pin-input-text, var(--text));
-  animation: dk-pin-caret var(--duration-1000) var(--ease-in-out) infinite alternate;
+  animation: dk-pin-caret var(--motion-loop-blink) var(--ease-move) infinite alternate;
 }
 @keyframes dk-pin-caret { to { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: reduce) { .dk-pin-input__box--caret::after { animation: none; } }

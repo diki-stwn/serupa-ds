@@ -11,7 +11,7 @@
 .dk-breadcrumb__item {
   display: inline-flex; align-items: center; gap: var(--spacing-1); min-width: var(--spacing-0); overflow-wrap: anywhere;
   color: var(--breadcrumb-text, var(--text-muted)); text-decoration: none; border-radius: var(--breadcrumb-focus-radius, var(--rounded-sm));
-  transition: color var(--duration-150) var(--ease-in-out);
+  transition: color var(--motion-hover) var(--ease-move);
 }
 @media (hover: hover) { .dk-breadcrumb__link:hover, .dk-breadcrumb__more:hover { color: var(--breadcrumb-text-hover, var(--text)); text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
 .dk-breadcrumb__item:focus-visible { outline: var(--focus-ring-width) solid var(--breadcrumb-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }

@@ -23,7 +23,7 @@
 .dk-checkbox--bare .dk-checkbox__control { height: var(--dk-checkbox-box); }
 /* Pressed: the box shrinks a little while the row is held (pointer, or Space on the box) and springs back. Only
    scale moves; not when read-only or disabled, and not under reduced motion. */
-.dk-checkbox__control { transition: scale var(--motion-press) var(--ease-out); }
+.dk-checkbox__control { transition: scale var(--motion-press) var(--ease-settle); }
 .dk-checkbox:active:not(.dk-checkbox--readonly, :has(.dk-checkbox__input:disabled)) .dk-checkbox__control { scale: var(--checkbox-press-scale, var(--scale-90)); }
 @media (prefers-reduced-motion: reduce) { .dk-checkbox__control { transition: none; } .dk-checkbox:active .dk-checkbox__control { scale: none; } }
 .dk-checkbox__input {
@@ -36,7 +36,7 @@
   border: var(--checkbox-border-width, var(--border-width-1)) solid var(--dk-checkbox-bd);
   border-radius: var(--checkbox-radius, var(--rounded-sm));
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-border-hover, var(--field-border-hover)); --dk-checkbox-fill: var(--checkbox-bg-checked-hover, var(--primary-hover)); } }
 .dk-checkbox__input:checked, .dk-checkbox__input:indeterminate { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }

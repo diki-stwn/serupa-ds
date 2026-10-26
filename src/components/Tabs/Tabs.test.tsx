@@ -3,7 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Tab, TabList, TabPanel, Tabs } from './Tabs';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -165,7 +165,7 @@ describe('Tabs', () => {
   test('pill, size sm: 32px tabs, the selected one filled in primary with 6px corners, no row border or line', async () => {
     await setup();
     const sel = selected('dv'), s = css(sel);
-    await expect.poll(() => css(sel).backgroundColor).toBe(color('var(--primary)'));
+    await expect.poll(() => getComputedStyle(sel, '::before').backgroundColor).toBe(color('var(--primary)'));
     expect([sel.getBoundingClientRect().height, css(el('dv').querySelector('[role="tablist"]')).borderBottomStyle, s.borderTopLeftRadius, getComputedStyle(sel, '::after').content]).toEqual([32, 'none', '6px', 'none']);
   });
 
@@ -192,7 +192,7 @@ describe('Tabs', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const un = el('un').querySelector('[aria-selected="false"]')!, sel = selected('un'), pill = selected('dv');
-      const checks: Array<[string, string, string, number]> = [['tab', css(un).color, 'var(--surface)', 4.5], ['selected', css(sel).color, 'var(--surface)', 4.5], ['line', getComputedStyle(sel, '::after').backgroundColor, 'var(--surface)', 3], ['pill', css(pill).color, css(pill).backgroundColor, 4.5], ['pill fill', css(pill).backgroundColor, 'var(--surface)', 3]];
+      const checks: Array<[string, string, string, number]> = [['tab', css(un).color, 'var(--surface)', 4.5], ['selected', css(sel).color, 'var(--surface)', 4.5], ['line', getComputedStyle(sel, '::after').backgroundColor, 'var(--surface)', 3], ['pill', css(pill).color, getComputedStyle(pill, '::before').backgroundColor, 4.5], ['pill fill', getComputedStyle(pill, '::before').backgroundColor, 'var(--surface)', 3]];
       for (const [k, a, c, min] of checks) { const r = contrast(a, c); n++; if (r < min) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
     still.remove();
@@ -305,5 +305,21 @@ describe('Tabs on the server', () => {
     expect(focused()).toBe('Two');
     await userEvent.keyboard('{ArrowUp}{ArrowUp}');
     expect([focused(), selected('ver').textContent]).toEqual(['Three', 'Three']);
+  });
+
+  test('the line and the pill fill slide from the tab selected before (EG1): they start where it was, on translate and scale, and come to rest in place', async () => {
+    await withMotion(async () => {
+      await setup();
+      for (const [id, pseudo] of [['un', '::after'], ['dv', '::before']] as const) {
+        const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
+        const [from, to] = id === 'un' ? [tabs[0], tabs[2]] : [tabs[2], tabs[0]];
+        await userEvent.click(to);
+        const moves = to.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
+        const start = moves.find((a) => a.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
+        expect([moves.map((a) => a.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(from.offsetLeft - to.offsetLeft)]);
+        await Promise.all(moves.map((a) => a.finished));
+        expect([getComputedStyle(to, pseudo).translate, getComputedStyle(to, pseudo).scale]).toEqual(['none', 'none']);
+      }
+    });
   });
 });

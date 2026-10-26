@@ -242,4 +242,35 @@ describe('Tooltip warm-up (EC1)', () => {
       expect([css(t).opacity, css(t).translate]).toEqual(['1', 'none']);
     });
   });
+
+  test('exit: fades and slides back out faster than it came, kept shown until it has gone; handed over to the next one, it goes at once (DZ1)', async () => {
+    await withMotion(async () => {
+      const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+      const runs = (t: Element) => t.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|translate)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
+      await render(<div style={{ padding: '80px', display: 'flex', gap: '40px' }}>
+        <Tooltip content="Bold" placement="bottom"><button id="xa">B</button></Tooltip><Tooltip content="Italic" placement="bottom"><button id="xb">I</button></Tooltip>
+      </div>);
+      const a = tipOf('xa'), b = tipOf('xb');
+      await userEvent.hover(el('xa'));
+      await expect.poll(() => a.hidden).toBe(false);
+      expect(runs(a)).toEqual([['opacity', 150], ['translate', 150]]);
+      await Promise.all(a.getAnimations().map((x) => x.finished));
+      await userEvent.keyboard('{Escape}');
+      expect(a.hidden).toBe(true);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it hides at once.
+      if (!CSS.supports('overlay', 'auto')) { expect(css(a).display).toBe('none'); return; }
+      expect([css(a).display, runs(a)]).toEqual(['block', [['opacity', 100], ['translate', 100]]]);
+      await Promise.all(a.getAnimations().map((x) => x.finished.catch(() => {})));
+      expect(css(a).display).toBe('none');
+
+      await away();
+      await userEvent.hover(el('xa'));
+      await expect.poll(() => a.hidden).toBe(false);
+      await Promise.all(a.getAnimations().map((x) => x.finished));
+      await userEvent.hover(el('xb'));
+      await expect.poll(() => b.hidden).toBe(false);
+      expect([a.hidden, css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual([true, 'none', 0, 0]);
+      await away();
+    });
+  });
 });

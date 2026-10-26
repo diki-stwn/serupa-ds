@@ -66,11 +66,14 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   // Opened warm: no fade, so moving along a toolbar swaps one tooltip for the next without a flicker. One open on
   // arrival is there from the start, so it doesn't fade in either.
   const [instant, setInstant] = React.useState(open);
+  // Handed over to the next tooltip: it goes at once too, rather than fade out beside the one taking its place.
+  const [handed, setHanded] = React.useState(false);
+  if (open && handed) setHanded(false);
   React.useEffect(() => {
     if (!open) return;
     const me = self.current;
     if (warm.close && warm.owner !== me) warm.close();
-    warm.owner = me; warm.close = () => set(false, "hover");
+    warm.owner = me; warm.close = () => { setHanded(true); set(false, "hover"); };
     return () => {
       if (warm.owner === me) { warm.owner = null; warm.close = null; }
       warm.until = Date.now() + WARM_MS;
@@ -125,7 +128,7 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     <>
       {trigger}
       <div ref={tipRef} id={id} role="tooltip" {...{ popover: "manual" }} hidden={!open || undefined}
-        className={cn("dk-tooltip", props.className)} style={props.style} data-component="tooltip" data-state={open ? "open" : "closed"} data-warm={open && instant ? "" : undefined}
+        className={cn("dk-tooltip", props.className)} style={props.style} data-component="tooltip" data-state={open ? "open" : "closed"} data-warm={(open && instant) || (!open && handed) ? "" : undefined}
         onMouseEnter={() => window.clearTimeout(timer.current)} onMouseLeave={() => later(false, 100)}>
         {props.content}
       </div>
