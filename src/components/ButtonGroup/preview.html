@@ -9,11 +9,11 @@
 <body>
 <div id="root"></div>
 <script>
-  var D = window.Serupa, h = React.createElement, B = D.Button, T = D.ToggleButton;
+  var D = window.Serupa, h = React.createElement, B = D.Button;
   ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
     h(D.ButtonGroup, { 'aria-label': 'Clipboard' }, h(B, { variant: 'outline', leftIcon: 'content_copy' }, 'Copy'), h(B, { variant: 'outline', leftIcon: 'content_cut' }, 'Cut'), h(B, { variant: 'outline', leftIcon: 'content_paste' }, 'Paste')),
     h(D.ButtonGroup, { attached: false }, h(B, { variant: 'outline' }, 'Cancel'), h(B, null, 'Save')),
-    h(D.ButtonGroup, { 'aria-label': 'Text formatting' }, h(T, { icon: 'format_bold', 'aria-label': 'Bold', defaultPressed: true }), h(T, { icon: 'format_italic', 'aria-label': 'Italic' }), h(T, { icon: 'format_underlined', 'aria-label': 'Underline' }))
+    h(D.ButtonGroup, { 'aria-label': 'Publish' }, h(B, null, 'Publish'), h(D.IconButton, { variant: 'primary', icon: 'expand_more', label: 'More publish options' }))
   ));
 </script>
 </body>

@@ -32,6 +32,19 @@ async function write(text: string): Promise<void> {
   }
   if (!fallback(text)) throw new Error("Copying isn't available here.");
 }
+// A value that's fetched goes to the clipboard as a promise, written within the press: Safari refuses a write once the
+// press's user activation has run out, as it may have by the time a fetch ends. Without ClipboardItem (or if the
+// browser turns the promise down), it's written once it's there, as before.
+function writeLater(text: Promise<string>): Promise<string> {
+  const clip = typeof navigator !== "undefined" ? navigator.clipboard : undefined;
+  const after = () => text.then((t) => write(t).then(() => t));
+  if (typeof ClipboardItem === "undefined" || !clip || !clip.write) return after();
+  const blob = text.then((t) => new Blob([t], { type: "text/plain" }));
+  blob.catch(() => {});   // a value that fails is reported through the write below, not again as unhandled
+  let item: ClipboardItem;
+  try { item = new ClipboardItem({ "text/plain": blob }); } catch { return after(); }
+  return clip.write([item]).then(() => text, after);
+}
 function fallback(text: string): boolean {
   if (typeof document === "undefined") return false;
   const ta = document.createElement("textarea");
@@ -63,8 +76,10 @@ export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButto
     if (props.onClick) props.onClick(e);
     if (e.defaultPrevented) return;
     try {
-      const text = typeof value === "function" ? await value() : value;
-      await write(text);
+      // Nothing awaited before the write starts, so it's still inside the press.
+      const got = typeof value === "function" ? value() : value;
+      let text: string;
+      if (typeof got === "string") { text = got; await write(text); } else text = await writeLater(Promise.resolve(got));
       setCopied(true);
       announce(done);
       if (timer.current) clearTimeout(timer.current);
