@@ -8,6 +8,7 @@ declare module 'vitest/browser' {
     pointerUp: () => Promise<void>;
     forcedColors: (on: boolean) => Promise<void>;
     printMedia: (on: boolean) => Promise<void>;
+    coarsePointer: (on: boolean) => Promise<void>;
     ariaSnapshot: (selector: string) => Promise<string>;
     ariaMode: () => Promise<'check' | 'update' | 'off'>;
     writeAriaBaseline: (name: string, text: string) => Promise<void>;
@@ -129,6 +130,18 @@ export async function forcedColors<T>(during: (active: boolean) => Promise<T> | 
     return await during(matchMedia('(forced-colors: active)').matches && CSS.supports('forced-color-adjust', 'none'));
   } finally {
     await commands.forcedColors(false);
+  }
+}
+
+/** Runs `during` on a touch screen ((pointer: coarse), as on a phone), then turns it off. `active` is false where
+ *  the engine can't emulate one, so a test can skip its touch checks there. */
+export async function coarsePointer<T>(during: (active: boolean) => Promise<T> | T): Promise<T> {
+  let on = true;
+  try { await commands.coarsePointer(true); } catch { on = false; }
+  try {
+    return await during(on && matchMedia('(pointer: coarse)').matches);
+  } finally {
+    if (on) await commands.coarsePointer(false);
   }
 }
 

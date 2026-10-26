@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { EmptyState } from './EmptyState';
+import { announcerIdle } from '../../internal/announce';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const part = (id: string, name: string) => el(id).querySelector<HTMLElement>(`.dk-empty-state__${name}`);
@@ -65,6 +66,29 @@ describe('EmptyState', () => {
     expect([part('etok', 'icon')!.offsetWidth, css(part('etok', 'title')).color]).toEqual([64, 'rgb(1, 2, 3)']);
     el('act').focus();
     expect(document.activeElement).toBe(el('act'));
+  });
+
+  test('announce: the title and description are said politely as it appears, once; without announce nothing is said (FK1)', async () => {
+    await expect.poll(announcerIdle, { timeout: 3000 }).toBe(true);
+    const heard: string[] = [];
+    const watch = new MutationObserver(() => { const a = document.querySelector('[data-dk-announcer]'); if (a && a.textContent !== heard[heard.length - 1]) heard.push(a.textContent || ''); });
+    watch.observe(document.body, { childList: true, characterData: true, subtree: true });
+    try {
+      const Results = ({ q, found }: { q: string; found: boolean }) => found ? <p>3 projects</p>
+        : <EmptyState id="none" announce icon="search_off" title={`No results for “${q}”`} description="Try another word or clear the filters" />;
+      const r = await render(<Results q="m" found />);
+      await r.rerender(<Results q="mars" found={false} />);
+      await expect.poll(() => heard.filter(Boolean).join(' | '), { timeout: 3000 }).toBe('No results for “mars”. Try another word or clear the filters.');
+      const region = document.querySelector('[data-dk-announcer]')!;
+      expect([region.getAttribute('role'), region.getAttribute('aria-live')]).toEqual(['status', 'polite']);
+      await r.rerender(<Results q="marsx" found={false} />);
+      await r.rerender(<EmptyState title="Nothing here" />);
+      await new Promise((res) => setTimeout(res, 700));
+      expect(heard.filter(Boolean)).toEqual(['No results for “mars”. Try another word or clear the filters.']);
+      expect(el('none')).toBeNull();
+    } finally {
+      watch.disconnect();
+    }
   });
 
   test('contrast: title and description 4.5:1 on surface, the icon 3:1 on its circle, in all six themes', async () => {

@@ -45,6 +45,7 @@ import { Splitter } from "serupa-ds";
 
 - **Role and name:** the WAI-ARIA window splitter pattern. The handle is a focusable `role="separator"` with `aria-orientation`, `aria-valuenow` (the first pane's size in percent), `aria-valuemin`, `aria-valuemax` and `aria-controls` pointing at the first pane. It's named by `separatorLabel`, or "Resize panes" (the `resizePanes` label, "Ubah ukuran panel" in `idLabels`).
 - **Keyboard:** Tab reaches the handle; the table below says what each key does there.
+- **Touch:** on a touch screen the 8px handle takes a press over 24px, reaching 8px into each pane without moving anything, so a finger can grab it.
 - **Contrast:** the handle's line is 3:1 on the page in all six themes, and the focus ring shows around the handle (`Splitter.test.tsx`). In forced colors the line uses the system's text and highlight colors.
 - **What's still yours:** a name for each pane's content (a heading, or `nav` and `main` landmarks inside), and a layout that still works when a pane is at `min`.
 
