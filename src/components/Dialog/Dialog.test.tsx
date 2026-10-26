@@ -416,4 +416,20 @@ describe('Dialog: motion (DZ1)', () => {
       expect(pn.getAnimations().map(ms)).toEqual([200, 200]);
     });
   });
+
+  test('closing, the panel shrinks where it stands: its centre stays put every frame of the fade, not jumping to the corner (FM1)', async () => {
+    if (!CSS.supports('overlay', 'auto')) return;
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      await openDlg();
+      const pn = panel('dlg'), centre = (r: DOMRect) => [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)];
+      const at = centre(pn.getBoundingClientRect());
+      flushSync(() => ctl.setOpen!(false));
+      const seen: number[][] = [];
+      while (pn.getAnimations().length) { seen.push(centre(pn.getBoundingClientRect())); await new Promise(requestAnimationFrame); }
+      expect(seen.length).toBeGreaterThan(1);
+      expect(seen.filter(([x, y]) => Math.abs(x - at[0]) > 1 || Math.abs(y - at[1]) > 1)).toEqual([]);
+    });
+  });
 });
