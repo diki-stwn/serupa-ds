@@ -42,6 +42,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 ## Accessibility
 
+- The calendar fades and grows in out of the field over 150ms, and fades and shrinks back over 100ms when it closes; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. The calendar stays while it fades out, inert, and focus goes back to the field at once. Firefox and Safari can't keep a closing popup in the top layer yet, so there it closes at once.
 - **Role and name:** the field is a text input; label it with Field, `<label htmlFor>` or `aria-label`. The calendar button is named by `buttonLabel` ("Choose a date").
 - **Format:** the format to type ("Format: mm/dd/yyyy", in the locale's order) is part of the field's description, after a Field hint, so screen readers say it even once the placeholder is gone. The words come from the `formatHint` label.
 - **Keyboard:**
