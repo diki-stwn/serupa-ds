@@ -22,7 +22,6 @@ const SHOWN = {
 const KNOWN = {
   Badge: ['disabled'],
   ColorPicker: ['disabled', 'invalid'],
-  Combobox: ['readOnly'],
   DatePicker: ['readOnly'],
   DateRangePicker: ['invalid', 'readOnly'],
   NumberInput: ['disabled', 'invalid', 'readOnly'],
