@@ -90,6 +90,26 @@ describe('Splitter', () => {
     expect([now('s'), document.activeElement]).toEqual([20, h]);
   });
 
+  test('a press on the handle without dragging, then a press elsewhere in the Splitter, puts the handle there (2.5.7, FG1); that press doesn\'t reach what\'s under it; the handle again or Escape cancels', async () => {
+    const clicks: string[] = [];
+    await render(<div onClick={(e) => clicks.push((e.target as HTMLElement).textContent || '')}><Two /></div>);
+    const box = el('s').getBoundingClientRect(), reply = el('main').querySelector('button')!;
+    await userEvent.click(handle('s'));
+    await expect.poll(() => document.querySelector('[data-dk-announcer]')?.textContent).toBe('Press where the handle should go, or press the handle again to cancel.');
+    expect([el('s').hasAttribute('data-placing'), now('s')]).toEqual([true, 50]);
+    const r = reply.getBoundingClientRect(), want = Math.round((r.left + 4 - box.left) / box.width * 100);
+    await userEvent.click(reply, { position: { x: 4, y: 4 } });
+    expect([el('s').hasAttribute('data-placing'), now('s'), clicks.filter((c) => c === 'Reply'), document.activeElement === handle('s')]).toEqual([false, want, [], true]);
+    await userEvent.click(reply);
+    expect(clicks.filter((c) => c === 'Reply')).toEqual(['Reply']);   // placed once; the next press is the button's
+    await userEvent.click(handle('s'));
+    await userEvent.click(handle('s'));
+    expect(el('s').hasAttribute('data-placing')).toBe(false);
+    await userEvent.click(handle('s'));
+    await userEvent.keyboard('{Escape}');
+    expect([el('s').hasAttribute('data-placing'), now('s')]).toEqual([false, want]);
+  });
+
   test('controlled size; storageKey keeps an uncontrolled size for the next visit; outside min..max is pulled in', async () => {
     function Ctl() {
       const [n, setN] = React.useState(40);
