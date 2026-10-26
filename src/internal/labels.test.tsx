@@ -22,6 +22,8 @@ const ARGS: Record<string, unknown[]> = {
   inputNotAccepted: ['abc'],
   invalidValue: [{ reason: 'tooShort', type: 'text', length: 3, minLength: 8 }],
   keyName: ['Up arrow'],
+  loadedMore: ['20'],
+  showingOf: ['20', '134'],
   lowContrast: ['4.5'],
   meterZone: ['92%', 'high'],
   moreResults: [1900],
