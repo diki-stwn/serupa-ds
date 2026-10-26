@@ -30,7 +30,6 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
   },
   'paint loop': {
-    'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
   keyframes: {},
   'on mount': {},
