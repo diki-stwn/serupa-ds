@@ -36,7 +36,7 @@
   border: var(--checkbox-border-width, var(--border-width-1)) solid var(--dk-checkbox-bd);
   border-radius: var(--checkbox-radius, var(--rounded-sm));
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-border-hover, var(--field-border-hover)); --dk-checkbox-fill: var(--checkbox-bg-checked-hover, var(--primary-hover)); } }
 .dk-checkbox__input:checked, .dk-checkbox__input:indeterminate { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }

@@ -20,7 +20,7 @@
 .dk-table__header { background: var(--table-header-bg, var(--surface-muted)); color: var(--table-header-text, var(--text-muted)); font-weight: var(--table-header-weight, var(--font-medium)); white-space: nowrap; }
 .dk-table__cell--center { text-align: center; }
 .dk-table__cell--end { text-align: end; font-variant-numeric: tabular-nums; }
-.dk-table__body .dk-table__row { transition: background-color var(--duration-150) var(--ease-in-out); }
+.dk-table__body .dk-table__row { transition: background-color var(--motion-hover) var(--ease-move); }
 .dk-table--striped .dk-table__body .dk-table__row:nth-child(even) { background: var(--table-row-bg-hover, var(--surface-muted)); }
 @media (hover: hover) {
   .dk-table:not(.dk-table--striped) .dk-table__body .dk-table__row:hover { background: var(--table-row-bg-hover, var(--surface-muted)); }

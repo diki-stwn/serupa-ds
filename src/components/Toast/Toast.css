@@ -35,7 +35,7 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   pointer-events: auto;
-  animation: dk-toast-up var(--duration-200) var(--ease-out);
+  animation: dk-toast-up var(--motion-enter-md) var(--ease-enter);
 }
 /* F8 moves focus to the newest toast itself, so a screen reader reads it and Tab reaches its buttons next. */
 .dk-toast:focus { outline: none; }

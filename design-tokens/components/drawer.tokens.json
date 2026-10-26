@@ -176,7 +176,7 @@
     "motion": {
       "duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-300}",
+        "$value": "{transitions.motion-enter-lg}",
         "$description": "Sliding in (300ms).",
         "$extensions": {
           "com.serupa": {

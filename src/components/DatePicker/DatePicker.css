@@ -21,7 +21,7 @@
   border: var(--border-width-1) solid var(--date-picker-popup-border, var(--border-overlay)); border-radius: var(--date-picker-popup-radius, var(--rounded-lg));
   background: var(--date-picker-popup-bg, var(--surface-overlay)); color: var(--date-picker-popup-text, var(--text));
   box-shadow: var(--date-picker-popup-shadow, var(--shadow-lg));
-  cursor: default; animation: dk-dp-in var(--duration-150) var(--ease-out);
+  cursor: default; animation: dk-dp-in var(--motion-enter-sm) var(--ease-enter);
   transform-origin: var(--dk-layer-origin, top);
 }
 .dk-date-picker__popup[hidden] { display: none; }
