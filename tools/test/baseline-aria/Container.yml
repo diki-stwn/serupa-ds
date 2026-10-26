@@ -1,6 +1,9 @@
 # FullWidth
 - text: size="full" spans the page, keeping only the side padding.
 
+# LongText
+- text: A long paragraph keeps to the container's width and wraps, and an unbroken word like DonaudampfschifffahrtsgesellschaftskapitänskajüteDonaudampfschifffahrtsgesellschaftskapitänskajüte breaks rather than pushing the page sideways.
+
 # NotPadded
 - text: "padded={false}: no padding at the sides, for content that brings its own."
 
