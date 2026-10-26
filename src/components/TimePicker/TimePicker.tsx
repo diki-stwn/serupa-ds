@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { pressFocuses } from "../../internal/affix";
 import { cn, domId, isInvalid, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { formatTime, parseTime, timePattern, toHHmm, toMinutes, uses12h } from "../../internal/times";
@@ -146,7 +147,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   };
   const label = listLabel || sds.labels.chooseTime;
   return (
-    <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size}>
+    <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-time-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="time-picker" data-size={size} onMouseDown={pressFocuses(field)}>
       <input {...rest} ref={(n) => { field.current = n; nameRef(n); setRef(ref, n); }}
         lang={rest.lang ?? lang} type="text" role="combobox" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : timePattern(locale, h12)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}

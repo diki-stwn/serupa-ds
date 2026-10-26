@@ -15,6 +15,7 @@
 @media (hover: hover) { .dk-link--neutral:hover { color: inherit; } }
 @media (hover: hover) { .dk-link--hover-underline:not(:hover, :focus-visible) { text-decoration-line: none; } }
 .dk-link:focus-visible { outline: var(--focus-ring-width) solid var(--link-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-link__last { white-space: nowrap; }
 .dk-link__icon.dk-icon { margin-inline-start: var(--link-icon-gap, var(--spacing-0\.5)); font-size: 1em; vertical-align: text-bottom; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) { .dk-link { transition: none; } }
 }

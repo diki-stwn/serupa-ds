@@ -29,7 +29,6 @@ const KNOWN = {
   PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
   PinInput: ['readOnly'],
-  Rating: ['invalid'],
   SegmentedControl: ['disabled'],
   TimePicker: ['readOnly'],
 };
