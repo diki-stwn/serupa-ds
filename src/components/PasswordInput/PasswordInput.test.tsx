@@ -52,10 +52,11 @@ describe('PasswordInput', () => {
     const order = [document.activeElement === field('kc')];
     // The key itself, as a browser reports it: the keydown that turns Caps Lock on already has it on, the one that turns it off has it off.
     const caps = (on: boolean) => field('kc').dispatchEvent(new KeyboardEvent('keydown', { key: 'CapsLock', bubbles: true, modifierCapsLock: on }));
+    const hint = () => { const d = field('kc').getAttribute('aria-describedby'); return d ? document.getElementById(d)!.textContent : null; };
     caps(true);
-    await expect.poll(() => box('kc').querySelector('.dk-password-input__caps')?.textContent).toBe('Caps Lock is on');
+    await expect.poll(hint).toBe('Caps Lock is on');
     caps(false);
-    await expect.poll(() => box('kc').querySelector('.dk-password-input__caps')).toBe(null);
+    await expect.poll(hint).toBe(null);
     await userEvent.tab();
     order.push(document.activeElement === toggle('kc'));
     expect(order).toEqual([true, true]);
