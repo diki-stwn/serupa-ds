@@ -30,7 +30,7 @@
   var page = own && BRANDS.indexOf(own[1]) >= 0 ? { brand: own[1], mode: own[2] }
     : { brand: pick(root.getAttribute("data-brand"), BRANDS, "blue"), mode: pick(root.getAttribute("data-mode"), MODES, "auto") };
   var media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-  var listeners = [], switches = 0;
+  var listeners = [];
   var state = Object.assign({}, page, load());
 
   function pick(v, list, fallback) { return list.indexOf(v) >= 0 ? v : fallback; }
@@ -56,10 +56,8 @@
   function apply(always) {
     var i = info();
     if (root.getAttribute("data-theme") === i.theme && !always) return;
-    var n = ++switches, A = "data-theme-switching", raf = requestAnimationFrame;
-    root.setAttribute(A, n);
     root.setAttribute("data-theme", i.theme);
-    raf(function () { raf(function () { if (root.getAttribute(A) == n) root.removeAttribute(A); }); });
+    root.getAnimations({ subtree: true }).forEach(function (a) { if (/color|shadow|fill|stroke/.test(a.transitionProperty)) a.finish(); });
     listeners.slice().forEach(function (fn) { try { fn(i); } catch (e) { if (window.console) console.error(e); } });
   }
 

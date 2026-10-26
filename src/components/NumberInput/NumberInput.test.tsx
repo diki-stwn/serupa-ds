@@ -46,6 +46,18 @@ describe('NumberInput', () => {
     expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
   });
 
+  test('a press on the box (the icon, the side padding) focuses the field with the caret at the end; a press on + still steps (GE1)', async () => {
+    await render(<Col><NumberInput id="nb" size="lg" leftIcon="search" aria-label="Qty" defaultValue={12} locale="en-US" /><button id="nb-away">away</button></Col>);
+    const b = field('nb').parentElement!, y = b.getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('nb-away') as HTMLElement).focus();
+      await userEvent.click(b, { position: { x, y } });
+      expect([x, document.activeElement === field('nb'), field('nb').selectionStart]).toEqual([x, true, 2]);
+    }
+    await userEvent.click(plus('nb'));
+    expect(field('nb').value).toBe('13');
+  });
+
   test('a form gets the number, not the shown text: "1500000" for "Rp 1.500.000", cents with minorUnits; the visible field has no name; form= works outside the form; disabled sends nothing', async () => {
     await render(<>
       <form id="nf">

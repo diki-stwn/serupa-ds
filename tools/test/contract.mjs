@@ -64,18 +64,8 @@ const unshakeable = comps.flatMap((c) => fs.readdirSync(path.join(COMP, c)).filt
   .filter((f) => /^\w+\.displayName = |= React\.forwardRef\b/m.test(fs.readFileSync(path.join(COMP, c, f), 'utf8'))).map((f) => `${c}/${f}`));
 t('components are made with component() or named() (internal/component.ts), so unused ones drop out of a bundle', !unshakeable.length, unshakeable.join(', '));
 
-// One focus-ring recipe (outline + outline-offset, tokens focus-ring-width and focus-ring-offset): a box-shadow ring
-// outside the element paints its gap in one color, which shows as a band on tinted backgrounds. Inset rings, for
-// elements whose scrolling container would clip an outline (Tabs), are allowed.
-const haloRings = comps.flatMap((c) => {
-  const f = path.join(COMP, c, `${c}.css`);
-  if (!fs.existsSync(f)) return [];
-  const css = fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-  return [...css.matchAll(/([^{}]*:focus(?:-visible)?[^{}]*)\{([^{}]*)\}/g)]
-    .filter((m) => /box-shadow:[^;]*ring/.test(m[2]) && !/box-shadow:\s*inset/.test(m[2]) && !/:focus-within/.test(m[1]))
-    .map((m) => `${c}: ${m[1].trim()}`);
-});
-t('focus rings are outlines (focus-ring-width, focus-ring-offset), not box-shadow rings with a painted gap', !haloRings.length, haloRings.join('; '));
+// One focus-ring recipe (outline + outline-offset) is the Stylelint rule serupa/focus-ring-outline
+// (tools/lint/stylelint-serupa.mjs), with the layer, raw-value and color rules.
 
 // npm run new-component writes TODO(new-component) wherever a new component still needs its author's words; one left
 // means it isn't finished.

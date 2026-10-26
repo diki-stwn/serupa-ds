@@ -17,9 +17,16 @@ export function useServerStyles<T extends Element>(ref?: React.ForwardedRef<T>):
       pending.current = false;
       for (const el of [node, ...node.querySelectorAll("[style]")]) {
         const text = el.getAttribute("style");
-        if (text && "style" in el) (el as HTMLElement).style.cssText = text;
+        if (!text || !("style" in el)) continue;
+        // One declaration at a time: Firefox ignores a cssText written over the attribute it blocked. React writes
+        // these attributes, so no !important; a ; inside parentheses (url(data:…;base64,…)) doesn't end one.
+        for (const d of text.split(/;(?![^(]*\))/)) {
+          const at = d.indexOf(":");
+          if (at > 0) (el as HTMLElement).style.setProperty(d.slice(0, at).trim(), d.slice(at + 1).trim());
+        }
       }
     }
     if (ref) setRef(ref, node);
   }, [ref]);
 }
+

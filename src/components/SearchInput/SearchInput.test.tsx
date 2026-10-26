@@ -34,6 +34,18 @@ function Controlled({ calls, now }: { calls: string[]; now: { value: string } })
 }
 
 describe('SearchInput', () => {
+  test('a press on the box (the search icon, the side padding) focuses the field with the caret at the end; a press on clear still clears (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}><SearchInput id="sp" size="lg" aria-label="Find" defaultValue="cats" /><button id="sp-away">away</button></div>);
+    const y = box('sp').getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('sp-away') as HTMLElement).focus();
+      await userEvent.click(box('sp'), { position: { x, y } });
+      expect([x, document.activeElement === field('sp'), field('sp').selectionStart]).toEqual([x, true, 4]);
+    }
+    await userEvent.click(clearBtn('sp')!);
+    expect(field('sp').value).toBe('');
+  });
+
   test('Input\'s box (32px) around a type="search" field with a search icon at the start and no clear button yet; ref to the input, className to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><Main calls={[]} sref={ref} /></Wrap>);

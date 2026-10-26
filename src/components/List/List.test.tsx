@@ -101,6 +101,22 @@ describe('List', () => {
     expect([clicks.join(), location.hash]).toEqual(['more', '#files']);
   });
 
+  test('the whole row works where it lights up: a press on trailing meta ("3 days ago") follows the link or presses the button; a trailing action stays its own (GF2)', async () => {
+    const clicks: string[] = [];
+    await render(<div style={{ width: '420px' }}><List>
+      <ListItem id="mlink" href="#doc" title="Doc" trailing={<span id="mmeta">3 days ago</span>} />
+      <ListItem id="mbtn" title="Settings" onClick={() => clicks.push('row')} trailing={<span id="bmeta">Edited</span>} />
+      <ListItem id="mboth" href="#both" title="Both" trailing={<><span id="cmeta">Today</span><IconButton icon="more_horiz" label="More" id="more2" onClick={() => clicks.push('more')} /></>} />
+    </List></div>);
+    const at = (id: string) => { const r = el(id).getBoundingClientRect(); return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)!; };
+    expect([at('mmeta').closest('a')?.getAttribute('href'), at('bmeta').closest('button')?.textContent, at('cmeta').closest('a')?.getAttribute('href'), at('more2').closest('button')?.id])
+      .toEqual(['#doc', 'Settings', '#both', 'more2']);
+    await userEvent.click(el('bmeta'), { force: true });
+    await userEvent.click(el('more2'));
+    await userEvent.click(el('mmeta'), { force: true });
+    expect([clicks.join(), location.hash]).toEqual(['row,more', '#doc']);
+  });
+
   test('onClick: the main area is a button (aria-pressed with selected), and Enter presses it', async () => {
     const clicks: string[] = [];
     await render(<Card clicks={clicks} />);
