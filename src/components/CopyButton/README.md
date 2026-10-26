@@ -25,7 +25,7 @@ import { CopyButton } from "serupa-ds";
 
 - Show the text next to the button too, so people can see what they copy and select it themselves if copying fails.
 - Name what's copied when there are several on a page: "Copy link", "Copy the API key". With `iconOnly`, `children` is the button's name.
-- `value` can be a function, called when the button is pressed, for text that's costly to build or changes.
+- `value` can be a function, called when the button is pressed, for text that's costly to build or changes. It can return a promise, such as a fetch: the copy is handed to the clipboard within the press and filled in when the text arrives, so Safari, which refuses a copy once the press is over, still takes it. While it's fetched the button takes no second press, and shows loading if it takes a while.
 
 ## Behavior
 
