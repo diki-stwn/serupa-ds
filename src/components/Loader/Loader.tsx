@@ -126,7 +126,8 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
         <circle className="dk-loader__arc" cx={12} cy={12} r={10} pathLength={100} strokeDasharray="25 150" />
       </svg>;
   // The visible label repeats the accessible name, so it's hidden from assistive tech (no double reading).
-  const text = isText ? <span className="dk-loader__label" aria-hidden key="label">{words}</span> : null;
+  // The glint holds a full-color copy of the words in its ::after (from data-words, so the text isn't read twice).
+  const text = isText ? <span className="dk-loader__label" aria-hidden key="label">{words}<span className="dk-loader__glint" data-words={words} /></span> : null;
   const cls = cn("dk-loader", "dk-loader--" + variant, isSkeleton && "dk-loader--shape-" + shape, variant === "pixel" && pattern !== "wave" && "dk-loader--pattern-" + pattern, variant === "pixel" && props.glow && "dk-loader--glow", "dk-loader--size-" + size, tone !== "neutral" && "dk-loader--" + tone, !shown && "dk-loader--waiting", props.className);
   if (!loading && !shown) return null;   // done, and shown long enough (or never shown)
   if (isSkeleton) {   // the shapes are drawn even while waiting, so the space they keep is the content's
