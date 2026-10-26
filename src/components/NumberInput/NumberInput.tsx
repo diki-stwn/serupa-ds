@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
-import { useAffixes } from "../../internal/affix";
+import { pressFocuses, useAffixes } from "../../internal/affix";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import type { InputProps } from "../Input/Input";
@@ -222,7 +222,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   });
   return (
     <span className={cn("dk-input dk-number-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.steppers !== false && "dk-number-input--steppers", props.className)}
-      style={props.style} data-component="number-input" data-size={size}>
+      style={props.style} data-component="number-input" data-size={size} onMouseDown={pressFocuses(el)}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       {affix.prefix}
       <input {...rest} ref={(n) => { el.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
