@@ -65,6 +65,8 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   const open = controlled ? !!props.open : inner;
   const close = React.useCallback((reason: OpenChangeReason) => { if (!controlled) setInner(false); if (ask.current) ask.current(false, { reason }); }, [controlled]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
+  // Open on arrival: there from the first frame, so it doesn't fade in; it closes, and opens again, with motion.
+  const arrived = React.useRef(open); if (!open) arrived.current = false;
 
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
   const [reopened, reopen] = React.useState(0);
@@ -129,7 +131,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
       role={alert ? "alertdialog" : undefined} aria-modal="true"
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-dialog", "dk-dialog--" + size, props.fullScreen === true && "dk-dialog--full", props.fullScreen === "mobile" && "dk-dialog--full-mobile", props.className)} data-component="dialog" data-size={size}
+      className={cn("dk-dialog", "dk-dialog--" + size, props.fullScreen === true && "dk-dialog--full", props.fullScreen === "mobile" && "dk-dialog--full-mobile", props.className)} data-component="dialog" data-size={size} data-instant={arrived.current ? "" : undefined}
       onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-dialog__panel">
         {has(props.title) || has(props.description) || showClose ? (

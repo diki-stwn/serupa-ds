@@ -128,14 +128,27 @@ describe('SortableList', () => {
     expect(moves.length === 1 && moves[0].from === 0 && moves[0].to > 0).toBe(true);
   });
 
-  test('a press without moving does nothing; a drag back to where it started reports nothing', async () => {
+  test('a press without moving picks the row up (2.5.7, FG1); a press on another row\'s handle drops it in that row\'s place, on its own handle where it is; each is announced', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
-    await userEvent.click(handle('Gemini'));
-    expect([handle('Gemini').getAttribute('aria-pressed'), names()]).toEqual(['false', ['Apollo', 'Gemini', 'Mercury', 'Artemis']]);
+    await userEvent.click(handle('Apollo'));
+    await said('Picked up Apollo, position 1 of 4.');
+    expect([handle('Apollo').getAttribute('aria-pressed'), document.activeElement === handle('Apollo')]).toEqual(['true', true]);
+    await userEvent.click(handle('Mercury'));
+    await said('Dropped Apollo at position 3 of 4.');
+    expect([names(), moves, handle('Apollo').getAttribute('aria-pressed')]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], [{ from: 0, to: 2 }], 'false']);
+    await userEvent.click(handle('Artemis'));
+    await userEvent.click(handle('Artemis'));
+    await said('Dropped Artemis at position 4 of 4.');
+    expect([names(), moves.length]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], 1]);
+  });
+
+  test('a drag back to where it started reports nothing, and the press that ends a drag doesn\'t pick the row up', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
     const h = handle('Gemini'), c = { x: h.offsetWidth / 2, y: h.offsetHeight / 2 };
     await drag(h, c, { x: c.x, y: c.y + 6 }, 4);
-    expect([names(), moves]).toEqual([['Apollo', 'Gemini', 'Mercury', 'Artemis'], []]);
+    expect([names(), moves, handle('Gemini').getAttribute('aria-pressed')]).toEqual([['Apollo', 'Gemini', 'Mercury', 'Artemis'], [], 'false']);
   });
 
   test('disabled: no handles and no instructions; the rows stay', async () => {

@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { topModal } from '../../internal/layers';
@@ -362,5 +363,57 @@ describe('Dialog: a body that scrolls', () => {
     await screen.rerender(<Dialog id="dsl" open onOpenChange={() => {}} title="Terms"><p>Short</p></Dialog>);
     await expect.poll(() => body.hasAttribute('tabindex')).toBe(false);
     expect(body.hasAttribute('role')).toBe(false);
+  });
+});
+
+describe('Dialog: motion (DZ1)', () => {
+  const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && a.effect.pseudoElement === '::backdrop');
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  test('opens with transitions (fade and scale, backdrop fading with it) and closes faster, shown until the fade ends while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      const d = dlg('dlg'), pn = panel('dlg');
+      await userEvent.click(el('opener'));
+      const enter = pn.getAnimations();
+      expect([enter.filter((a) => a instanceof CSSTransition).map((a) => (a).transitionProperty).sort(), enter.some((a) => a instanceof CSSAnimation), enter.map(ms)]).toEqual([['opacity', 'scale'], false, [200, 200]]);
+      expect(backdropOf(d).map((a) => [(a as CSSTransition).transitionProperty, ms(a)])).toEqual([['opacity', 200]]);
+      await settled();
+      expect([getComputedStyle(pn).opacity, getComputedStyle(pn).scale]).toEqual(['1', 'none']);
+
+      await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      const holds = CSS.supports('overlay', 'auto');
+      expect([isOpen('dlg'), document.activeElement, getComputedStyle(d).display]).toEqual([false, el('opener'), holds ? 'flex' : 'none']);
+      if (!holds) return;
+      expect([getComputedStyle(d).pointerEvents, pn.getAnimations().map(ms), backdropOf(d).map(ms)]).toEqual(['none', [150, 150], [150]]);
+      await new Promise((ok) => setTimeout(ok, 60));
+      const mid = Number(getComputedStyle(pn).opacity);
+      expect(mid).toBeGreaterThan(0.05);
+      flushSync(() => ctl.setOpen!(true));
+      expect(isOpen('dlg')).toBe(true);
+      expect(Math.abs(Number(getComputedStyle(pn).opacity) - mid)).toBeLessThan(0.3);
+      await settled();
+      expect(getComputedStyle(pn).opacity).toBe('1');
+
+      await userEvent.keyboard('{Escape}');
+      await settled();
+      expect([isOpen('dlg'), getComputedStyle(d).display]).toEqual([false, 'none']);
+    });
+  });
+
+  test('open on arrival (defaultOpen): there from the first frame, not faded in; closing it, and opening it again, move as usual', async () => {
+    await withMotion(async () => {
+      const screen = await render(<Dialog id="arr" defaultOpen title="Welcome" />);
+      const d = dlg('arr'), pn = panel('arr');
+      await expect.poll(() => d.open).toBe(true);
+      expect([pn.getAnimations().length, backdropOf(d).length, getComputedStyle(pn).opacity]).toEqual([0, 0, '1']);
+      await screen.rerender(<Dialog id="arr" open={false} title="Welcome" />);
+      expect([d.open, d.hasAttribute('data-instant')]).toEqual([false, false]);
+      if (CSS.supports('overlay', 'auto')) expect(pn.getAnimations().length).toBe(2);
+      await settled();
+      await screen.rerender(<Dialog id="arr" open title="Welcome" onOpenChange={() => {}} />);
+      expect(pn.getAnimations().map(ms)).toEqual([200, 200]);
+    });
   });
 });

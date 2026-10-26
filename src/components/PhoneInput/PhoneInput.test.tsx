@@ -53,6 +53,25 @@ describe('PhoneInput', () => {
     expect(field('p').value.replace(/\D/g, '').length).toBe(12);
   });
 
+  test('keyboard table: Tab goes to the country select, then the number; ArrowDown and ArrowUp there pick a country; Delete before a separator removes the digit beyond it (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><PhoneInput id="kp" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const order = [document.activeElement === menu('kp')];
+    const start = menu('kp').value;
+    await userEvent.keyboard('{ArrowDown}');
+    const down = menu('kp').value;
+    await userEvent.keyboard('{ArrowUp}');
+    // Passing through a country with shorter numbers keeps every digit typed.
+    expect([down !== start, menu('kp').value, field('kp').value]).toEqual([true, start, '(201) 555-0123']);
+    await userEvent.tab();
+    order.push(document.activeElement === field('kp'));
+    const i = field('kp');
+    i.setSelectionRange(9, 9);   // before the "-" of "(201) 555-0123"
+    await userEvent.keyboard('{Delete}');
+    expect([order, i.value]).toEqual([[true, true], '(201) 555-123']);
+  });
+
   test('Backspace after a separator removes the digit before it; typing in the middle keeps the caret after the new digit', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
     const i = field('p');

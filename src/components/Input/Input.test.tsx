@@ -30,6 +30,18 @@ describe('Input', () => {
     expect(document.activeElement).toBe(field('kg'));
   });
 
+  test('keyboard table: Tab reaches the field; Enter submits the form it\'s in (FH1)', async () => {
+    const sent: string[] = [];
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent.push(new FormData(e.currentTarget).get('who') as string); }}>
+      <button type="button" id="kb-before">before</button><Input id="kb-in" name="who" aria-label="Who" /><button>Send</button>
+    </form>);
+    field('kb-before').focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id;
+    await userEvent.keyboard('Dana{Enter}');
+    expect([at, sent]).toEqual(['kb-in', ['Dana']]);
+  });
+
   test('a native <input type="text"> in a .dk-input box; md is 32px, text-sm, 12px padding, a 1px border and 6px corners', async () => {
     await render(<Input id="md" aria-label="Name" />);
     const s = css(box('md'));

@@ -100,6 +100,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const [ownCountry, setOwnCountry] = React.useState<string>(() => (start ? start.country.code : fallback.code));
   const country = find(props.country) || find(ownCountry) || fallback;
   const [national, setNational] = React.useState(() => (start ? start.national : ""));
+  // The digits as last typed, pasted or set: a new country cuts the number to its length from these, so arrowing
+  // through the menu (a change per arrow) doesn't leave it cut to the shortest country passed on the way.
+  const typed = React.useRef(national);
   // A controlled value that changed from outside (not the one this field just reported) is read again.
   const reported = React.useRef(start ? toE164(start.national, start.country) : "");
   let shown = national;
@@ -107,7 +110,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     const p = parsePhone(props.value, country.code, table);
     shown = p ? p.national : "";
     reported.current = props.value;
-    if (shown !== national) setNational(shown);
+    if (shown !== national) { setNational(shown); typed.current = shown; }
     if (p && p.country.code !== country.code && props.country === undefined) setOwnCountry(p.country.code);
   }
 
@@ -124,6 +127,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     if (props.value === undefined) {
       const d = parsePhone(props.defaultValue ?? "", props.defaultCountry, table);
       setNational(d ? d.national : "");
+      typed.current = d ? d.national : "";
       if (props.country === undefined) setOwnCountry(d ? d.country.code : fallback.code);
       reported.current = d ? toE164(d.national, d.country) : "";
     }
@@ -138,8 +142,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     caret.current = null;
   });
 
-  const commit = function (digits: string, c: PhoneCountry) {
+  const commit = function (digits: string, c: PhoneCountry, picked?: boolean) {
     digits = digits.slice(0, c.max);
+    if (!picked) typed.current = digits;
     setNational(digits);
     if (c.code !== country.code) {
       if (props.country === undefined) setOwnCountry(c.code);
@@ -189,7 +194,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
 
   const onCountry = function (e: React.ChangeEvent<HTMLSelectElement>) {
     const c = find(e.target.value);
-    if (c) commit(shown, c);
+    if (c) commit(typed.current, c, true);
   };
 
   // The 244 options as elements made once per list, so typing (a render per key) doesn't rebuild and compare them all.
