@@ -70,7 +70,7 @@ export function placeLayer(layer: HTMLElement, anchor: Element, placement: strin
   if (!ownMaxWidth.has(layer)) ownMaxWidth.set(layer, layer.style.maxWidth);
   const own = ownMaxWidth.get(layer)!;
   layer.style.maxHeight = ""; layer.style.overflowY = ""; layer.style.maxWidth = own;
-  const a = anchor.getBoundingClientRect();
+  const a = restingRect(anchor);
   const r = place(a, { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback);
   layer.style.left = r.x + "px"; layer.style.top = r.y + "px"; layer.dataset.side = r.side;
   if (r.maxHeight !== undefined) { layer.style.maxHeight = r.maxHeight + "px"; layer.style.overflowY = "auto"; }
@@ -82,6 +82,15 @@ export function placeLayer(layer: HTMLElement, anchor: Element, placement: strin
   const ox = r.side === "left" ? w : r.side === "right" ? 0 : clamp(a.left + a.width / 2 - r.x, w);
   const oy = r.side === "top" ? h : r.side === "bottom" ? 0 : clamp(a.top + a.height / 2 - r.y, h);
   layer.style.setProperty("--dk-layer-origin", ox + "px " + oy + "px");
+}
+
+/** The anchor's box without its own scale: a Button shrinks while it's pressed, which is when a Menu opens (and
+    Firefox has it pressed already when the press's handlers run), so the layer lines up with it at rest. */
+function restingRect(el: Element): DOMRect {
+  const r = el.getBoundingClientRect(), s = parseFloat(getComputedStyle(el).scale);
+  if (!(s > 0) || s === 1) return r;
+  const w = r.width / s, h = r.height / s;
+  return new DOMRect(r.left - (w - r.width) / 2, r.top - (h - r.height) / 2, w, h);
 }
 
 /** Shows an element in the top layer when the browser supports popover="manual", so nothing can cover or clip it. */
