@@ -49,6 +49,7 @@ interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "pre
 }
 /** Picks one option. */
 export interface ComboboxSingleProps extends ComboboxBaseProps {
+  /** Picks one option (default); true picks any number, as tags. */
   multiple?: false;
   /** The selected value (controlled), or null. Use with onValueChange. */
   value?: string | null;

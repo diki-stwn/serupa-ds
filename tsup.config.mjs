@@ -25,7 +25,8 @@ export default defineConfig([
   ...(only === 'iife' ? [] : [{
     entry: { index: 'src/index.ts', icons: 'src/material/index.ts' },
     format: ['esm'],
-    dts: { only: true },
+    // stripInternal: a prop tagged @internal (Calendar's hooks for DateRangePicker) stays out of the public types.
+    dts: { only: true, compilerOptions: { stripInternal: true } },
     clean: false,
     external: ['react', 'react-dom'],
   }]),

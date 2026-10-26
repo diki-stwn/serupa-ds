@@ -35,6 +35,7 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   autoFocus?: boolean;
   /** Names for the month buttons. Default: "Previous month" and "Next month". */
   previousLabel?: string;
+  /** The next month button's name. Default: "Next month". */
   nextLabel?: string;
   /** @internal Extra classes per day, for DateRangePicker. */
   dayClassName?: (date: Date) => string | undefined;

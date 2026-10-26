@@ -40,6 +40,7 @@ export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" 
   steppers?: boolean;
   /** The buttons' names. Default: "Decrease" and "Increase". */
   decrementLabel?: string;
+  /** The increase button's name. Default: "Increase". */
   incrementLabel?: string;
   /** The locale whose decimal and group marks are read and written ("1.500,25" in id-ID). Default: the nearest SerupaProvider's locale, else the browser's. */
   locale?: string;

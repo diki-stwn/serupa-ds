@@ -32,6 +32,7 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpan
   onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
   /** The earliest and latest days that can be chosen, as Dates or "yyyy-mm-dd". */
   min?: Date | string;
+  /** The latest day that can be chosen, as a Date or "yyyy-mm-dd". */
   max?: Date | string;
   /** Days that can't be the start or end, such as holidays. They can sit inside a range. */
   isDateDisabled?: (date: Date) => boolean;
@@ -41,8 +42,11 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpan
   weekStartsOn?: number;
   /** 'sm', 'md' (default) or 'lg', like Input. */
   size?: 'sm' | 'md' | 'lg';
+  /** Marks both fields invalid (aria-invalid and the error border), as on Input. */
   invalid?: boolean;
+  /** Turns both fields and the calendar button off, as a disabled native control. */
   disabled?: boolean;
+  /** Shows the dates without letting them change, as a read-only <input>. */
   readOnly?: boolean;
   /** Both fields are required: a form won't submit until each end has a date, as with a required <input>. */
   required?: boolean;
@@ -50,9 +54,11 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLSpan
   id?: string;
   /** Names for the two fields. Default: "Start date" and "End date". */
   startLabel?: string;
+  /** The end field's name. Default: "End date". */
   endLabel?: string;
   /** Form names: hidden inputs send each end as yyyy-mm-dd. */
   startName?: string;
+  /** The form name the end date is sent under, as yyyy-mm-dd. */
   endName?: string;
   /** The id of a form to submit and reset with, when it isn't inside one, as the form attribute of an input. */
   form?: string;
