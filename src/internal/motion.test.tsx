@@ -29,7 +29,6 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
     'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
-    'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
   },
   'paint loop': {
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
