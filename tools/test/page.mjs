@@ -114,6 +114,25 @@ for (const scheme of ['light', 'dark']) {
   await ctx.close();
 }
 
+{
+  // GD5: a theme switch starts no transitions (every control's colors change at once with the page's), and transitions
+  // are back two frames later.
+  const p = await b.newPage();
+  const rows = '<p class="row" style="transition: background-color 150ms, color 150ms; background: var(--surface-muted); color: var(--text)">Row</p>'.repeat(20);
+  await p.goto(writePage('theme-switch.html', rows, { theme: true, htmlAttrs: 'data-brand="blue" data-mode="light"', extraHead: '<link rel="stylesheet" href="../tokens.css">' }));
+  // theme.js applies the theme at load too, so wait for that switch's two frames before reading the rows.
+  await p.waitForFunction(() => !document.documentElement.hasAttribute('data-theme-switching'));
+  const before = await p.evaluate(() => getComputedStyle(document.querySelector('.row')).transitionDuration);
+  const r = await p.evaluate(async () => {
+    Serupa.theme.set({ mode: 'dark' });
+    const during = [document.getAnimations().length, document.documentElement.hasAttribute('data-theme-switching')];
+    await new Promise((f) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(f))));
+    return [...during, document.getAnimations().length, document.documentElement.hasAttribute('data-theme-switching'), getComputedStyle(document.querySelector('.row')).transitionDuration];
+  });
+  t('theme.js: switching theme starts no transitions on the page\'s controls, and they\'re back two frames later', before !== '0s' && r.join() === `0,true,0,false,${before}`, `${before} ${r.join()}`);
+  await p.close();
+}
+
 // 4. serupa-purge keeps exactly what a page needs
 {
   const dir = path.join(PROJECT, '.test-tmp');

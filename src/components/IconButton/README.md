@@ -26,7 +26,7 @@ const { IconButton } = window.Serupa;
 ## Usage
 
 - Write the `label` as the action ("Delete file"); it's also the `title` tooltip people see on hover.
-- With a [Tooltip](../Tooltip/README.md) on the button, set `noTitle` so the label doesn't show twice.
+- With a [Tooltip](../Tooltip/README.md) on the button, the `title` is left out by itself (the button has `aria-describedby` or `aria-labelledby`), so the label doesn't show twice. If the Tooltip says the same as the label, give it `role="label"`: it then names the button instead of describing it, so the name isn't read twice ("Settings, button", not "Settings, button, Settings").
 - Give icon buttons in one row the same `size` and `variant`, and match the size of the buttons and fields beside them.
 - Use `shape="round"` only where round buttons are the pattern; square follows Button's corners.
 
@@ -51,7 +51,7 @@ const { IconButton } = window.Serupa;
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element |
 | `label` | string | required | Its `aria-label`, and a `title` tooltip |
 | `shape` | `'square'` \| `'round'` | `'square'` | The Button's corners, or a circle |
-| `noTitle` | boolean | `false` | Leaves out the `title`, when a Tooltip already shows the label |
+| `noTitle` | boolean | `false` | Leaves out the `title`, when visible text already shows the label (a wrapping Tooltip leaves it out by itself) |
 | `variant` | as Button | `'ghost'` | Ghost by default, the usual look for an icon on its own |
 
 Every other Button prop works the same: `size` (24, 32 or 44px square), `destructive`, `loading`, `disabled`, `href`, `onClick`, `ref`. A given `title` wins over the label.
