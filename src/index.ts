@@ -1,11 +1,15 @@
-/*! Serupa · React components (needs React 18+) · CHANGELOG.md */
+/*! Serupa · React components (needs React 19) · CHANGELOG.md */
 export type { Space } from "./internal/space";
 export type { Placement } from "./internal/position";
+export type { OpenChangeDetails, OpenChangeReason } from "./internal/openChange";
 import { configure } from "./internal/config";
 export type { SerupaConfig } from "./internal/config";
 import { idLabels, DEFAULT_LABELS as enLabels } from "./internal/labels";
 export type { SerupaLabels } from "./internal/labels";
-import { SerupaProvider, useSerupa } from "./internal/provider";
+import { SerupaProvider, useLocale, useSerupa } from "./internal/provider";
+import { announce } from "./internal/announce";
+import { useCollator } from "./internal/collator";
+import { withoutTransitions } from "./internal/withoutTransitions";
 export type { SerupaProviderProps, SerupaSettings } from "./internal/provider";
 import { customIcons, getIcon, registerIcons } from "./icons";
 export type { CustomIconName } from "./icons";
@@ -13,7 +17,7 @@ export type { IconData } from "./material/types";
 export type { MaterialIconName } from "./material/icons";
 export type { SerupaTheme, ThemeBrand, ThemeInfo, ThemeMode } from "./theme-types";
 
-export { configure, customIcons, enLabels, getIcon, idLabels, registerIcons, SerupaProvider, useSerupa };
+export { announce, configure, customIcons, enLabels, getIcon, idLabels, registerIcons, SerupaProvider, useCollator, useLocale, useSerupa, withoutTransitions };
 // Every component folder's index.ts (generated: tools/build/registry.mjs).
 export * from "./generated/components";
 import type { ComponentGlobals } from "./generated/globals";
@@ -27,8 +31,9 @@ declare global {
     /** The components on plain pages (serupa.iife.js): everything the package exports, and theme when theme.js is loaded. */
     Serupa: ComponentGlobals & {
       /** The system's version, e.g. "4.8.0" (semver). */ version: string;
-      configure: typeof configure; customIcons: typeof customIcons; enLabels: typeof enLabels; getIcon: typeof getIcon; idLabels: typeof idLabels;
-      registerIcons: typeof registerIcons; SerupaProvider: typeof SerupaProvider; useSerupa: typeof useSerupa;
+      announce: typeof announce; configure: typeof configure; customIcons: typeof customIcons; enLabels: typeof enLabels; getIcon: typeof getIcon; idLabels: typeof idLabels;
+      registerIcons: typeof registerIcons; SerupaProvider: typeof SerupaProvider; useCollator: typeof useCollator; useLocale: typeof useLocale; useSerupa: typeof useSerupa;
+      withoutTransitions: typeof withoutTransitions;
       /** Present when theme.js is loaded. */ theme?: ThemeApi;
     };
   }

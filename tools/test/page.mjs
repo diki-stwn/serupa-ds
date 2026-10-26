@@ -97,6 +97,44 @@ for (const scheme of ['light', 'dark']) {
   await ctx.close();
 }
 
+{
+  // DX1: loaded twice (an inline copy and the file), the second copy returns early, so the first's onChange still
+  // hears set(); and another tab's localStorage.clear() (a storage event with key null) is followed like a reset.
+  const ctx = await b.newContext({ colorScheme: 'light' });
+  const p = await ctx.newPage();
+  await p.goto(writePage('theme-twice.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="auto"', extraHead: '<script>window.__first = Serupa.theme; window.__heard = []; Serupa.theme.onChange(function (i) { window.__heard.push(i.theme); });</script><script src="../dist/theme.js"></script>' }));
+  const twice = await p.evaluate(() => { Serupa.theme.set({ brand: 'violet', mode: 'dark' }); return [Serupa.theme === window.__first, window.__heard.join(), window.__first.get().theme]; });
+  t('theme.js: loaded twice, the first copy keeps running the page and its onChange hears set()', twice.join() === 'true,violet-dark,violet-dark', twice.join());
+  const other = await ctx.newPage();
+  await other.goto(writePage('theme-twice.html', '<p>x</p>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="auto"' }));
+  await other.evaluate(() => localStorage.clear());
+  await p.waitForTimeout(100);
+  const cleared = await p.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  t('theme.js: another tab clearing storage brings this tab back to the page default', cleared === 'blue-light', cleared);
+  await ctx.close();
+}
+
+{
+  // GD5, GF4: a theme switch changes every control's colors at once (each one's color transition finishes at once),
+  // while motion started in the same tick runs on: a menu fading out as "Dark" is picked, a switch thumb sliding.
+  const p = await b.newPage();
+  const rows = '<p class="row" style="transition: background-color 150ms, color 150ms; background: var(--surface-muted); color: var(--text)">Row</p>'.repeat(20)
+    + '<div class="menu" style="transition: opacity 150ms, scale 150ms; background: var(--surface)">Menu</div>'
+    + '<div class="thumb" style="width: 16px; transition: translate 150ms, background-color 150ms; background: var(--surface-muted)"></div>'
+    + '<p class="still" style="background: var(--surface-muted)">Row</p>';
+  await p.goto(writePage('theme-switch.html', rows, { theme: true, htmlAttrs: 'data-brand="blue" data-mode="light"', extraHead: '<link rel="stylesheet" href="../tokens.css">' }));
+  const r = await p.evaluate(() => {
+    document.querySelector('.menu').style.cssText += ';opacity: 0; scale: 0.95';   // closing as "Dark" is picked
+    void getComputedStyle(document.querySelector('.menu')).opacity;   // its fade has started
+    Serupa.theme.set({ mode: 'dark' });
+    document.querySelector('.thumb').style.translate = '16px';
+    const bg = (s) => getComputedStyle(document.querySelector(s)).backgroundColor;
+    return [document.getAnimations().map((a) => a.transitionProperty).sort().join(' '), bg('.row') === bg('.still')];
+  });
+  t('theme.js: switching theme changes every color at once, while a menu fading and a switch sliding in the same tick run on', r.join() === 'opacity scale translate,true', r.join());
+  await p.close();
+}
+
 // 4. serupa-purge keeps exactly what a page needs
 {
   const dir = path.join(PROJECT, '.test-tmp');

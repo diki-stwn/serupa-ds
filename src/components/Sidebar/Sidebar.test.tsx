@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
-import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { cdp, server, userEvent } from 'vitest/browser';
+import { THEMES, color, contrast, css, press, tabTo } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const rect = (e: Element) => e.getBoundingClientRect();
@@ -41,6 +45,9 @@ function App(props: { sref?: React.Ref<HTMLElement>; iref?: React.Ref<HTMLAnchor
   </div>;
 }
 
+// A section's list, found by the name its title gives it (aria-labelledby).
+const listNamed = (name: string) => [...document.querySelectorAll<HTMLElement>('ul[aria-labelledby]')].find((u) => document.getElementById(u.getAttribute('aria-labelledby')!)?.textContent === name)!;
+
 describe('Sidebar', () => {
   test('a <nav aria-label="Main">, 256px wide, the parent\'s height, a 1px inner edge; refs and props reach it', async () => {
     const sref = React.createRef<HTMLElement>(), iref = React.createRef<HTMLAnchorElement>();
@@ -60,7 +67,7 @@ describe('Sidebar', () => {
 
   test('items: links in list items, a 20px icon, text-sm font-medium, 8px by 12px padding; the current page has aria-current="page"', async () => {
     await render(<App />);
-    const a = el('ihome'), s = css(a), icon = a.querySelector<HTMLElement>('.dk-icon')!;
+    const a = el('ihome'), s = css(a), icon = a.querySelector<HTMLElement>('[data-icon]')!;
     expect([a.tagName, a.parentElement!.tagName, a.getAttribute('aria-current'), icon.dataset.icon, css(icon).fontSize]).toEqual(['A', 'LI', 'page', 'home', '20px']);
     expect([s.fontSize, s.fontWeight, s.paddingTop, s.paddingLeft]).toEqual(['14px', '500', '8px', '12px']);
   });
@@ -77,14 +84,14 @@ describe('Sidebar', () => {
   });
 
   test('a badge sits at the end, 12px in', async () => {
-    await render(<App />);
+    await render(<App />, { wrapper: EnUS });
     const b = el('iinbox').querySelector('.dk-sidebar__badge')!;
     expect([b.textContent, Math.round(rect(el('iinbox')).right - rect(b).right)]).toEqual(['4', 12]);
   });
 
   test('a section title: muted text-xs, naming its list', async () => {
     await render(<App />);
-    const s = el('sb').querySelectorAll('.dk-sidebar__section')[1], ti = s.querySelector('.dk-sidebar__section-title')!, ul = s.querySelector('ul')!;
+    const ul = listNamed('Workspace'), ti = document.getElementById(ul.getAttribute('aria-labelledby')!)!;
     expect([ti.textContent, css(ti).fontSize, ul.getAttribute('aria-labelledby') === ti.id]).toEqual(['Workspace', '12px', true]);
   });
 
@@ -128,33 +135,79 @@ describe('Sidebar', () => {
     expect(css(n.querySelector('a')).color).toBe('rgb(1, 2, 3)');
   });
 
-  test('collapsed: a 64px rail of centered icons; labels and section titles hidden on screen; no badges', async () => {
-    await render(<App />);
+  test('collapsed: a 64px rail of centered icons; labels, section titles and badges hidden on screen (still read); a dot on the icon of an item with a badge', async () => {
+    await render(<App />, { wrapper: EnUS });
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    const a = el('ihome'), r = rect(a), i = rect(a.querySelector('.dk-icon')!);
+    const a = el('ihome'), r = rect(a), i = rect(a.querySelector('[data-icon]')!);
     expect(rect(a.querySelector('.dk-sidebar__label')!).width).toBeLessThanOrEqual(1);
     expect(Math.abs(Math.round((i.left + i.right) / 2 - (r.left + r.right) / 2))).toBeLessThanOrEqual(1);
-    expect(el('iinbox').querySelector('.dk-sidebar__badge')).toBeNull();
+    const badge = el('iinbox').querySelector('.dk-sidebar__badge')!, dot = el('iinbox').querySelector('.dk-sidebar__dot')!, icon = rect(el('iinbox').querySelector('[data-icon]')!), d = rect(dot);
+    expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector('.dk-sidebar__dot')]).toEqual([true, '4', 'true', 8, null]);
+    expect([Math.round(d.top - icon.top), Math.round(d.right - icon.right)]).toEqual([-2, 2]);   // on the icon's top end corner
     expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);
+  });
+
+  // EA1: the collapse animated width, so the page beside it laid out on every frame (225ms of layout in a 200ms
+  // collapse next to 3,000 rows). Now the width changes once and only a clip-path and a translate move.
+  test('collapsing and expanding with motion on: the width changes once, only clip-path and translate animate, the page lays out at most twice, and a reversal turns back', async () => {
+    const still = document.getElementById('serupa-still') as HTMLStyleElement | null;
+    if (still) still.disabled = true;
+    const session = server.browser === 'chromium' ? (cdp() as unknown as { send: (m: string, p?: object) => Promise<{ metrics: Array<{ name: string; value: number }> }> }) : null;
+    const layouts = async () => session ? (await session.send('Performance.getMetrics')).metrics.find((m) => m.name === 'LayoutCount')!.value : 0;
+    try {
+      await session?.send('Performance.enable');
+      await render(<div style={{ display: 'flex' }}><App /><div id="page" style={{ flex: 'auto' }}>{Array.from({ length: 3000 }, (_, i) => <p key={i} style={{ margin: 0 }}>Row {i}</p>)}</div></div>);
+      const n = el('sb'), page = el('page');
+      for (const [to, w] of [[true, 64], [false, 256]] as const) {
+        const before = await layouts();
+        React.act(() => setCollapsed(to));
+        const widths = new Set<number>(), props = new Set<string>();
+        const t0 = performance.now();
+        while (n.dataset.slide !== undefined && performance.now() - t0 < 1000) {
+          widths.add(Math.round(page.getBoundingClientRect().left));
+          for (const a of n.getAnimations({ subtree: true })) if (a instanceof CSSTransition && (a.effect as KeyframeEffect).target === n) props.add(a.transitionProperty);
+          await new Promise((r) => requestAnimationFrame(r));
+        }
+        // While it slides the page sits still: one position (expanding, the new one; collapsing, the old one).
+        expect([widths.size, [...props].sort(), Math.round(rect(n).width), n.dataset.slide]).toEqual([1, ['clip-path', 'translate'], w, undefined]);
+        // The class and clip changes at the start and end each lay out once; a width transition laid out on every frame.
+        if (session) expect((await layouts()) - before).toBeLessThanOrEqual(6);
+      }
+      React.act(() => setCollapsed(true));
+      await new Promise((r) => setTimeout(r, 60));
+      React.act(() => setCollapsed(false));
+      await expect.poll(() => n.dataset.slide).toBeUndefined();
+      expect([Math.round(rect(n).width), n.classList.contains('dk-sidebar--collapsed')]).toEqual([256, false]);
+    } finally { if (still) still.disabled = false; await session?.send('Performance.disable'); }
   });
 
   test('collapsed: focus shows the label as a tooltip to the right, and the tooltip names the link', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    el('ihome').focus();
+    await tabTo(el('ihome'));   // keyboard focus: the tooltip shows on :focus-visible
     const tip = () => document.getElementById(el('ihome').getAttribute('aria-labelledby') || '');
     await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
     expect(tip()!.textContent).toBe('Home');
     expect(Math.round(rect(tip()!).left - rect(el('ihome')).right)).toBeGreaterThan(0);
   });
 
+  test('collapsed: an item with a badge is named by its label and described by the badge, so "4" is still read (CP1)', async () => {
+    await render(<App />, { wrapper: EnUS });
+    const text = (attr: string) => (el('iinbox').getAttribute(attr) || '').split(' ').filter(Boolean).map((id) => document.getElementById(id)?.textContent).join(' ');
+    expect(el('iinbox').hasAttribute('aria-describedby')).toBe(false);   // expanded, the badge is in the link's own text
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
+    expect([text('aria-labelledby'), text('aria-describedby')]).toEqual(['Inbox', '4']);
+    expect(el('ihome').hasAttribute('aria-describedby')).toBe(false);
+  });
+
   test('collapsed: a group opens its items in a menu', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    await userEvent.click(el('sb').querySelector('.dk-sidebar__section:nth-child(2) li:first-child button')!);
+    await userEvent.click(listNamed('Workspace').querySelector('li:first-child button')!);
     const menu = () => [...document.querySelectorAll('[role="menu"]')].find((x) => x.matches(':popover-open'));
     await expect.poll(() => !!menu()).toBe(true);
     expect([...menu()!.querySelectorAll('[role="menuitem"]')].map((i) => [i.tagName, i.getAttribute('href'), i.textContent].join(':'))).toEqual(['A:#web:Website', 'A:#app:Mobile app']);
@@ -165,7 +218,7 @@ describe('Sidebar', () => {
     await render(<Sidebar id="stip" collapsed>
       <I icon="folder" label="Docs" id="gtip"><I href="#intro" label="Intro" /></I>
     </Sidebar>);
-    el('gtip').focus();
+    await tabTo(el('gtip'));
     const tip = () => document.getElementById((el('gtip').getAttribute('aria-labelledby') || '').split(' ').pop() || '');
     await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
     expect([tip()!.textContent, el('gtip').getAttribute('aria-haspopup')]).toEqual(['Docs', 'menu']);
@@ -233,6 +286,21 @@ describe('Sidebar', () => {
     expect([low, n]).toEqual([[], 18]);
   });
 
+  test('contrast: the collapsed rail\'s badge dot keeps 3:1 on the sidebar and on the current page\'s highlight in all six themes', async () => {
+    await render(<App />);
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => el('iinbox').querySelector('.dk-sidebar__dot')).not.toBeNull();
+    const low: string[] = []; let n = 0;
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const dot = css(el('iinbox').querySelector('.dk-sidebar__dot')).backgroundColor;
+      for (const [name, on] of [['sidebar', css(el('sb')).backgroundColor], ['highlight', color('var(--sidebar-item-bg-active, var(--highlight))')]]) {
+        const r = contrast(dot, on); n++; if (r < 3) low.push(`${th} on ${name}: ${r.toFixed(2)}`);
+      }
+    }
+    expect([low, n]).toEqual([[], 12]);
+  });
+
   test('pressed: an item held down fills with pressed, one step past hover', async () => {
     await render(<App />);
     const i = el('iinbox');
@@ -244,5 +312,21 @@ describe('Sidebar', () => {
     await render(<Sidebar id="sfrag"><I href="/" icon="home" label="Home" /><I label="Teams" icon="group"><><I href="/t1" label="One" /><I href="/t2" label="Two" active /></></I></Sidebar>);
     const group = [...el('sfrag').querySelectorAll<HTMLElement>('[aria-expanded]')].find((b) => b.textContent.includes('Teams'))!;
     expect(group.getAttribute('aria-expanded')).toBe('true');
+  });
+  test('open with onOpenChange: the app controls a group; the button asks with reason trigger and the group follows only the prop (DO1)', async () => {
+    const calls: Array<[boolean, string]> = [];
+    function Ctl() {
+      const [open, setOpen] = React.useState(false);
+      return <Sidebar id="sctl"><I label="Teams" icon="group" id="gctl" open={open} onOpenChange={(o, d) => { calls.push([o, d.reason]); setOpen(o); }}><I href="/t1" label="One" active /></I>
+        <I label="Fixed" icon="lock" id="gfix" open onOpenChange={(o, d) => calls.push([o, d.reason])}><I href="/t2" label="Two" /></I></Sidebar>;
+    }
+    await render(<Ctl />);
+    // The active child doesn't open a controlled group.
+    expect(el('gctl').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(el('gctl'));
+    expect([el('gctl').getAttribute('aria-expanded'), (el('gctl').nextElementSibling as HTMLElement).hidden]).toEqual(['true', false]);
+    await userEvent.click(el('gfix'));
+    expect(el('gfix').getAttribute('aria-expanded')).toBe('true');
+    expect(calls).toEqual([[true, 'trigger'], [false, 'trigger']]);
   });
 });

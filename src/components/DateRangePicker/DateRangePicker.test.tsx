@@ -7,9 +7,9 @@ import { Field } from '../Field/Field';
 import { DateRangePicker, type DateRange } from './DateRangePicker';
 
 const box = (tid: string) => document.querySelector(`[data-testid=${tid}]`) as HTMLElement;
-const fields = (tid: string) => [...box(tid).querySelectorAll<HTMLInputElement>('.dk-date-range-picker__field')];
+const fields = (tid: string) => [...box(tid).querySelectorAll<HTMLInputElement>('input[type=text]')];
 const vals = (tid: string) => fields(tid).map((x) => x.value).join(' – ');
-const pop = (tid: string) => box(tid).querySelector('.dk-date-range-picker__popup') as HTMLElement;
+const pop = (tid: string) => box(tid).querySelector('[role=dialog]') as HTMLElement;
 const isOpen = (tid: string) => !pop(tid).hidden;
 const day = (tid: string, d: string) => pop(tid).querySelector(`[data-date="${d}"]`) as HTMLElement;
 const inRange = (tid: string) => [...pop(tid).querySelectorAll<HTMLElement>('.dk-calendar__day--in-range')].map((b) => b.dataset.date!.slice(5)).join();
@@ -30,6 +30,11 @@ function Ctl(props: { changes: string[]; setRef: { set?: (r: DateRange) => void 
 }
 
 describe('DateRangePicker', () => {
+  test('both fields are described by the Field hint and the format to type', async () => {
+    await render(<Trip />);
+    expect(fields('trip').map((f) => (f.getAttribute('aria-describedby') || '').split(' ').map((i) => document.getElementById(i)!.textContent).join(' | '))).toEqual(['mm/dd/yyyy | Format: mm/dd/yyyy', 'mm/dd/yyyy | Format: mm/dd/yyyy']);
+  });
+
   test('text typed in either field and put back is reported through onInvalidInput', async () => {
     const calls: string[] = [];
     await render(<DateRangePicker data-testid="drpi" locale="en-US" min={new Date(2026, 0, 1)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
@@ -48,6 +53,19 @@ describe('DateRangePicker', () => {
     await userEvent.fill(fields('drpo')[1], '10/10/2026');
     await userEvent.keyboard('{Enter}');
     expect(calls).toEqual(['10/10/2026:unavailable']);
+  });
+
+  test('plain "yyyy-mm-dd" strings: value and max take them as those local days, and onValueChange also gets the range as "yyyy-mm-dd"', async () => {
+    const calls: string[] = [];
+    function Plain() {
+      const [v, setV] = React.useState<{ start: string | null; end: string | null }>({ start: '2026-10-05', end: '2026-10-09' });
+      return <DateRangePicker data-testid="drps" locale="en-US" value={v} max="2026-10-31" onValueChange={(r, iso) => { calls.push(str(r) + ' ' + iso.start + '..' + iso.end); setV(iso); }} />;
+    }
+    await render(<Plain />);
+    expect(vals('drps')).toBe('10/05/2026 – 10/09/2026');
+    await fill('drps', 1, '11/02/2026');   // after max: put back
+    await fill('drps', 1, '10/12/2026');
+    expect([calls, vals('drps')]).toEqual([['Mon Oct 05 2026..Mon Oct 12 2026 2026-10-05..2026-10-12'], '10/05/2026 – 10/12/2026']);
   });
 
   test('a role="group" dk-input box with "Start date" and "End date" fields, a "Choose dates" button; Field labels the start field and describes both; ref and className; defaultValue fills both fields', async () => {
@@ -79,7 +97,7 @@ describe('DateRangePicker', () => {
     await userEvent.click(btn('trip'));
     const d = pop('trip'), vis = (sel: string) => [...d.querySelectorAll(sel)].map((x) => getComputedStyle(x).visibility).join();
     expect([d.getAttribute('role'), d.matches(':popover-open')]).toEqual(['dialog', true]);
-    expect([...d.querySelectorAll('.dk-calendar')].map((c) => c.querySelector('.dk-calendar__title')!.textContent).join()).toBe('March 2025,April 2025');
+    expect([...d.querySelectorAll('[role=grid]')].map((g) => document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).join()).toBe('March 2025,April 2025');
     expect([d.querySelectorAll('.dk-calendar__blank').length > 0, !!d.querySelector('.dk-calendar__day--outside')]).toEqual([true, false]);
     expect([vis('.dk-calendar__nav--prev'), vis('.dk-calendar__nav--next')]).toEqual(['visible,hidden', 'hidden,visible']);
     expect([focused(), d.querySelector('.dk-date-range-picker__status')!.textContent]).toEqual(['2025-03-10', 'Choose the start date']);
@@ -100,6 +118,16 @@ describe('DateRangePicker', () => {
     expect([vals('trip'), isOpen('trip'), focused()]).toEqual(['03/18/2025 – 04/02/2025', false, 'Start date']);
   });
 
+  test('keyboard table: Space on the calendar button opens the calendar, and Space in it picks the start, then the end (FH1)', async () => {
+    await render(<Trip value={{ start: new Date(2025, 2, 18), end: new Date(2025, 3, 2) }} />);
+    btn('trip').focus();
+    await userEvent.keyboard(' ');
+    await expect.poll(() => isOpen('trip')).toBe(true);
+    expect(focused()).toBe('2025-03-18');
+    await userEvent.keyboard('{ArrowRight}[Space]{ArrowDown}[Space]');
+    expect([vals('trip'), isOpen('trip')]).toEqual(['03/19/2025 – 03/26/2025', false]);
+  });
+
   test('Alt+ArrowDown opens it and the keyboard picks both ends; Escape closes it and returns focus; a click outside closes it', async () => {
     await render(<Trip value={{ start: new Date(2025, 2, 18), end: new Date(2025, 3, 2) }} />);
     fields('trip')[0].focus();
@@ -117,9 +145,9 @@ describe('DateRangePicker', () => {
 
   test('Tab past the popup closes it, leaving focus on the next control', async () => {
     await render(<><DateRangePicker id="tab" aria-label="Stay" locale="en-US" /><button id="after">After</button></>);
-    const btn = document.querySelector('.dk-date-range-picker__button') as HTMLButtonElement;
+    const btn = document.querySelector('button[aria-haspopup=dialog]') as HTMLButtonElement;
     await userEvent.click(btn);
-    const pop = document.querySelector('.dk-date-range-picker__popup') as HTMLElement;
+    const pop = document.querySelector('[role=dialog]') as HTMLElement;
     expect(pop.hidden).toBe(false);
     for (let i = 0; i < 12 && document.activeElement !== document.getElementById('after'); i++) await userEvent.keyboard('{Tab}');
     expect([(document.activeElement as HTMLElement).id, pop.hidden]).toEqual(['after', true]);
@@ -144,7 +172,7 @@ describe('DateRangePicker', () => {
     expect([vals('ctl'), changes.length]).toEqual(['06/02/2025 – 06/06/2025', 0]);
     await userEvent.click(btn('ctl'));
     const d = pop('ctl');
-    expect([d.querySelector<HTMLButtonElement>('.dk-calendar__nav--prev')!.disabled, d.querySelector('[data-date="2025-05-31"]'), d.querySelector('[data-date="2025-06-01"]')!.getAttribute('aria-disabled')]).toEqual([true, null, null]);
+    expect([d.querySelector<HTMLButtonElement>('button[aria-label="Previous month"]')!.disabled, d.querySelector('[data-date="2025-05-31"]'), d.querySelector('[data-date="2025-06-01"]')!.getAttribute('aria-disabled')]).toEqual([true, null, null]);
     await userEvent.click(day('ctl', '2025-06-10'));
     await userEvent.click(day('ctl', '2025-07-04'));
     expect([changes.join('|'), hid()]).toEqual(['Tue Jun 10 2025..-|Tue Jun 10 2025..Fri Jul 04 2025', '2025-06-10 2025-07-04']);
@@ -155,7 +183,7 @@ describe('DateRangePicker', () => {
   test('months={1}: one month, with other months\' days shown', async () => {
     await render(<DateRangePicker data-testid="one" aria-label="One" months={1} locale="en-US" weekStartsOn={0} />);
     await userEvent.click(btn('one'));
-    expect(pop('one').querySelectorAll('.dk-calendar').length).toBe(1);
+    expect(pop('one').querySelectorAll('[role=grid]').length).toBe(1);
     expect(pop('one').querySelectorAll('.dk-calendar__day--outside').length).toBeGreaterThan(0);
   });
 

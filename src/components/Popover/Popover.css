@@ -1,24 +1,38 @@
 /* ---------------------------------------------------------------
    Popover: a 256px surface panel (never wider than the screen) with a 1px border, 8px corners, shadow-lg and
    16px padding, 8px from its trigger, in the top layer. An optional text-sm semibold title sits over the body.
-   It fades and grows in from 95%.
+   It fades and grows in from 95% out of its trigger, and fades and shrinks back faster when it closes.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-popover {
   --dk-popover-offset: var(--popover-offset, var(--spacing-2));
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--popover-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--popover-z-index, var(--z-popover));
   width: var(--popover-width, var(--container-3xs)); max-width: calc(var(--sizing-full) - var(--spacing-4)); max-height: calc(var(--sizing-dvh) - var(--spacing-4));
   margin: var(--spacing-0); padding: var(--popover-padding, var(--spacing-4)); overflow-y: auto; overscroll-behavior: contain;
   border: var(--popover-border-width, var(--border-width-1)) solid var(--popover-border, var(--border-overlay)); border-radius: var(--popover-radius, var(--rounded-lg));
   background: var(--popover-bg, var(--surface-overlay)); color: var(--popover-text, var(--text));
   box-shadow: var(--popover-shadow, var(--shadow-lg));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
-  animation: dk-popover-in var(--duration-150) var(--ease-out);
+  transform-origin: var(--dk-layer-origin, top);
 }
 .dk-popover[hidden] { display: none; }
+/* Motion (DZ1): transitions, not keyframes, so closing while it opens turns back from where it is. In from
+   @starting-style over motion-enter-sm; out over motion-exit-sm, kept shown and in the top layer (display and overlay,
+   allow-discrete) until it has faded, inert meanwhile so presses and focus go past it. A browser that can't keep it
+   in the top layer (no overlay) closes it at once. Open on arrival (data-instant), no starting style. Reduced
+   motion: the fade alone. */
+.dk-popover { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit); }
+.dk-popover:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-popover[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-popover[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+@starting-style { .dk-popover:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-popover[hidden] { scale: var(--scale-95); }
+  @starting-style { .dk-popover:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
+}
 .dk-popover:focus { outline: none; }
 .dk-popover:focus-visible { outline: var(--focus-ring-width) solid var(--popover-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
-@keyframes dk-popover-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
-.dk-popover__title { margin-bottom: var(--popover-gap, var(--spacing-2)); color: var(--popover-title-color, var(--text)); font-size: var(--popover-title-size, var(--text-sm)); font-weight: var(--popover-title-weight, var(--font-semibold)); }
-@media (prefers-reduced-motion: reduce) { .dk-popover { animation: none; } }
+.dk-popover__title { margin: var(--spacing-0) var(--spacing-0) var(--popover-gap, var(--spacing-2)); color: var(--popover-title-color, var(--text)); font-size: var(--popover-title-size, var(--text-sm)); font-weight: var(--popover-title-weight, var(--font-semibold)); }
 }

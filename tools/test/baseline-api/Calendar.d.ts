@@ -2,25 +2,24 @@
 interface CalendarLabels {
     previousMonth: string;
     nextMonth: string;
+    month: string;
+    year: string;
 }
 interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
-    value?: Date | null;
-    defaultValue?: Date | null;
-    onValueChange?: (value: Date) => void;
+    value?: Date | null | string;
+    defaultValue?: Date | null | string;
+    onValueChange?: (value: Date, iso: string) => void;
     month?: Date;
     defaultMonth?: Date;
     onMonthChange?: (month: Date) => void;
-    min?: Date;
-    max?: Date;
+    min?: Date | string;
+    max?: Date | string;
     isDateDisabled?: (date: Date) => boolean;
     locale?: string;
     weekStartsOn?: number;
     autoFocus?: boolean;
     previousLabel?: string;
     nextLabel?: string;
-    dayClassName?: (date: Date) => string | undefined;
-    isDateSelected?: (date: Date) => boolean;
-    onDayHover?: (date: Date) => void;
-    hideOutside?: boolean;
+    monthYearPicker?: boolean;
 }
 declare const Calendar: React.ForwardRefExoticComponent<CalendarProps & React.RefAttributes<HTMLDivElement>>;

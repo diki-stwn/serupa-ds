@@ -19,7 +19,7 @@
   border-radius: var(--input-radius, var(--rounded-md));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
   cursor: text; vertical-align: middle;
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-input--size-sm { --dk-input-h: var(--input-height-sm, var(--control-height-sm)); --dk-input-px: var(--input-padding-x-sm, var(--spacing-2)); --dk-input-icon: var(--input-icon-size-sm, var(--spacing-3\.5)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-input--size-lg { --dk-input-h: var(--input-height-lg, var(--control-height-lg)); --dk-input-px: var(--input-padding-x-lg, var(--spacing-4)); --dk-input-icon: var(--input-icon-size-lg, var(--spacing-5)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
@@ -29,6 +29,8 @@
   color: inherit; font: inherit; letter-spacing: inherit;
 }
 .dk-input__field::placeholder { color: var(--input-placeholder, var(--placeholder)); opacity: var(--opacity-100); }
+/* prefix and suffix: text in the box, muted, kept whole; a press on it focuses the field (Input's handler). */
+.dk-input__affix { flex-shrink: 0; color: var(--input-affix, var(--text-muted)); white-space: nowrap; user-select: none; cursor: text; }
 .dk-input__icon { display: inline-flex; flex-shrink: 0; color: var(--input-icon-color, var(--text-muted)); pointer-events: none; }
 .dk-input__icon .dk-icon { font-size: var(--dk-input-icon); }
 /* The count sits at the end of the field, in text-xs with tabular digits, like Textarea's; text-colored at maxLength. */
@@ -37,15 +39,21 @@
   font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; user-select: none;
 }
 .dk-input__count--full { color: var(--input-count-full, var(--text)); }
-@media (hover: hover) { .dk-input:hover:not(.dk-input--disabled, .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-border-hover, var(--field-border-hover)); } }
+@media (hover: hover) { .dk-input:hover:not(.dk-input--disabled, :has(.dk-input__field:disabled), .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-border-hover, var(--field-border-hover)); } }
 /* Focus: the border and a ring hugging it take the focus color (2px in all), and a transparent outline that
-   forced-colors mode draws, since box-shadow rings disappear there. */
-.dk-input:focus-within { --dk-input-bd: var(--dk-input-ring); box-shadow: 0 0 0 var(--input-border-width, var(--border-width-1)) var(--dk-input-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
+   forced-colors mode draws, since box-shadow rings disappear there. The ring shows at once (it fades only on the
+   way out), so focus is never late, and a field a popup focuses as it opens doesn't animate on its first frame. */
+.dk-input:focus-within { transition-duration: var(--duration-0); --dk-input-bd: var(--dk-input-ring); box-shadow: 0 0 0 var(--input-border-width, var(--border-width-1)) var(--dk-input-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-input--invalid { --dk-input-bd: var(--input-invalid, var(--danger)); --dk-input-ring: var(--input-invalid, var(--danger)); }
-@media (hover: hover) { .dk-input--invalid:hover:not(.dk-input--disabled, .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
+@media (hover: hover) { .dk-input--invalid:hover:not(.dk-input--disabled, :has(.dk-input__field:disabled), .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
+/* A native constraint (required, type="email", pattern, min…) that fails after people edit the field or try to send the
+   form takes the invalid look too (:user-invalid, never on first paint). Separate rules, so a browser without it skips only these. */
+.dk-input:has(.dk-input__field:user-invalid) { --dk-input-bd: var(--input-invalid, var(--danger)); --dk-input-ring: var(--input-invalid, var(--danger)); }
+@media (hover: hover) { .dk-input:has(.dk-input__field:user-invalid):hover:not(:focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
 .dk-input--readonly { background: var(--input-bg-readonly, var(--surface-muted)); }
-.dk-input--disabled { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-input--disabled .dk-input__field { cursor: not-allowed; }
+/* Disabled by the prop, or by a <fieldset disabled> around it (the native field follows that on its own). */
+.dk-input--disabled, .dk-input:where(:has(.dk-input__field:disabled)) { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
+.dk-input--disabled .dk-input__field, .dk-input__field:where(:disabled) { cursor: not-allowed; }
 /* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's
    own text is 16px; the box keeps its height. (maximum-scale=1 would stop the zoom but also pinch zoom: WCAG 1.4.4.) */
 @supports (-webkit-touch-callout: none) { .dk-input:not(.dk-input--size-lg) .dk-input__field { font-size: var(--text-base); } }

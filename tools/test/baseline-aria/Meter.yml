@@ -1,0 +1,33 @@
+# CustomValue
+- text: Storage
+- meter "Storage"
+
+# HighIsGood
+- text: Battery
+- meter "Battery"
+- text: Battery
+- meter "Battery"
+- text: Battery
+- meter "Battery"
+
+# LongLabel
+- text: Storage used by photos, videos and shared documents
+- meter "Storage used by photos, videos and shared documents"
+
+# LowIsGood
+- text: Storage
+- meter "Storage"
+- text: Storage
+- meter "Storage"
+- text: Storage
+- meter "Storage"
+
+# Playground
+- text: Storage
+- meter "Storage"
+
+# Sizes
+- meter "Small"
+- meter "Medium"
+- meter "Large"
+

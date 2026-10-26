@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
 import { Card, CardBody, CardFooter, CardHeader } from './Card';
@@ -163,6 +163,35 @@ describe('Card', () => {
     history.replaceState(null, '', location.pathname + location.search);
   });
 
+  test('a linked card\'s body text and description sit above the link, so they can be selected; a plain click on them still follows the link, a click ending a selection doesn\'t (BO1)', async () => {
+    await render(<Col><Card id="sel" href="#sel"><CardHeader title="Beacon" description="Status pages" /><CardBody><p id="selp">Copy this order number: 4417-22</p></CardBody></Card></Col>);
+    const p = el('selp'), r = p.getBoundingClientRect();
+    expect(document.elementFromPoint(r.left + 4, r.top + r.height / 2)).toBe(p);   // the text, not the link's area
+    await userEvent.click(p);
+    expect(location.hash).toBe('#sel');
+    history.replaceState(null, '', location.pathname + location.search);
+    const range = document.createRange(); range.selectNodeContents(p);
+    getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
+    p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect([location.hash, getSelection()!.toString()]).toEqual(['', 'Copy this order number: 4417-22']);
+    getSelection()!.removeAllRanges();
+  });
+
+  test('a Ctrl, Cmd or Shift click, or a middle click, on the body text opens the link in another tab and leaves this one; a plain click follows it here (ER1)', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    const aux: number[] = [];
+    await render(<Card id="mod" href="#mod" onAuxClick={(e) => aux.push(e.button)}><CardHeader title="Beacon" /><CardBody><p id="modp">Status pages</p></CardBody></Card>);
+    const p = el('modp'), href = new URL('#mod', location.href).href;
+    for (const key of ['ctrlKey', 'metaKey', 'shiftKey']) p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, [key]: true }));
+    p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+    p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 2 }));   // a right click: nothing
+    expect([location.hash, open.mock.calls, aux]).toEqual(['', Array(4).fill([href, '_blank', 'noopener']), [1, 2]]);
+    await userEvent.click(p);   // a real click: Firefox doesn't follow a link from a click inside a synthetic one
+    expect([location.hash, open.mock.calls.length]).toEqual(['#mod', 4]);
+    history.replaceState(null, '', location.pathname + location.search);
+    open.mockRestore();
+  });
+
   test('hover: a border-strong border', async () => {
     await render(<Card id="lnk" href="#here"><CardHeader title="Atlas" description="Updated" /></Card>);
     const before = css(el('lnk')).borderTopColor, strong = color('var(--border-strong)');
@@ -222,7 +251,7 @@ describe('Card', () => {
     const restore = emulate('prefers-reduced-motion');
     try {
       await render(<Card id="lnk" href="#here">Atlas</Card>);   // the cover link
-      expect(`${css(el('lnk')).transitionProperty}/${css(el('lnk')).transitionDuration}`).toMatch(/^(all\/0s|none\/0s)$/);
+      expect(`${css(el('lnk')).transitionProperty}/${css(el('lnk')).transitionDuration}`).toMatch(/^(all|none|opacity, display, overlay, content-visibility)\/0s$/);   // base.css may limit a component to its fades
     } finally { restore(); }
   });
 
@@ -231,5 +260,16 @@ describe('Card', () => {
     await render(<Col><Variants /><Card href="#x" target="_blank">Out</Card><Card href="#y"><CardHeader title="T" /><CardFooter><Button>Save</Button></CardFooter></Card></Col>);
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();
+  });
+
+  test('pressed: a card with href shrinks to 97% while held and springs back; not while a button inside it is pressed (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<Card id="pc" href="#pc"><CardHeader title="Atlas" /><CardFooter><Button id="pb">Save</Button></CardFooter></Card>);
+      expect(css(el('pc')).transitionProperty).toContain('scale');
+      await press(el('pc'), () => expect.poll(() => css(el('pc')).scale).toBe('0.97'), { x: 8, y: 8 });
+      await expect.poll(() => css(el('pc')).scale).toBe('none');
+      await press(el('pb'), () => expect(css(el('pc')).scale).toBe('none'));
+    });
+    history.replaceState(null, '', location.pathname + location.search);   // the press followed #pc; the next pass starts clean
   });
 });

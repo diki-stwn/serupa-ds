@@ -35,11 +35,22 @@ const NAMED: Record<string, [string, string, string, string]> = {
   down: ["↓", "Down arrow", "↓", "Down arrow"],
   left: ["←", "Left arrow", "←", "Left arrow"],
   right: ["→", "Right arrow", "→", "Right arrow"],
+  home: ["↖", "Home", "Home", "Home"],
+  end: ["↘", "End", "End", "End"],
+  pageup: ["⇞", "Page Up", "PgUp", "Page Up"],
+  pgup: ["⇞", "Page Up", "PgUp", "Page Up"],
+  pagedown: ["⇟", "Page Down", "PgDn", "Page Down"],
+  pgdn: ["⇟", "Page Down", "PgDn", "Page Down"],
+  capslock: ["⇪", "Caps Lock", "Caps Lock", "Caps Lock"],
+  insert: ["Ins", "Insert", "Ins", "Insert"],
+  ins: ["Ins", "Insert", "Ins", "Insert"],
+  fn: ["fn", "Function", "Fn", "Function"],
 };
 const isApple = () => typeof navigator !== "undefined" && [(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform, navigator.platform, navigator.userAgent].some((s) => /Mac|iPhone|iPad|iPod/.test(s || ""));
 
 function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string) => string }) {
-  const n = NAMED[k.toLowerCase()];
+  // "page_up", "Page Up" and "page-up" all find pageup.
+  const n = NAMED[k.length > 1 ? k.toLowerCase().replace(/[\s_-]/g, "") : k.toLowerCase()];
   if (!n) return <kbd className="dk-kbd__key">{k.length === 1 ? k.toUpperCase() : k}</kbd>;
   const shown = apple ? n[0] : n[2], name = say(apple ? n[1] : n[3]);
   return <kbd className="dk-kbd__key" title={shown === name ? undefined : name}>{shown === name ? shown : <><span aria-hidden>{shown}</span><VisuallyHidden>{name}</VisuallyHidden></>}</kbd>;
@@ -52,9 +63,12 @@ function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string)
 /** A keyboard key or shortcut, drawn as keycaps; "mod" follows the platform (⌘ or Ctrl). */
 export const Kbd = /* @__PURE__ */ component<HTMLElement, KbdProps>("Kbd", function Kbd(props, ref) {
   const rest = omit(props, { keys: 1, size: 1, className: 1, children: 1 } as const);
-  const say = useSerupa().labels.keyName;
-  const [apple, setApple] = React.useState(false);   // false on the server; the device decides after mount
-  React.useEffect(() => { setApple(isApple()); }, []);
+  const sds = useSerupa(), say = sds.labels.keyName;
+  // A SerupaProvider's platform decides from the first render (the server's too); without one, Ctrl on the server
+  // and the device decides after mount.
+  const [found, setFound] = React.useState(false);
+  React.useEffect(() => { if (!sds.platform) setFound(isApple()); }, [sds.platform]);
+  const apple = sds.platform ? sds.platform === "apple" : found;
   const size = props.size === "sm" ? "sm" : "md";
   const keys = props.keys && props.keys.length ? props.keys : typeof props.children === "string" ? [props.children] : null;
   const cls = cn("dk-kbd", "dk-kbd--size-" + size, props.className);

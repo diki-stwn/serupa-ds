@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { Dialog } from '../Dialog/Dialog';
 import { InlineEdit } from './InlineEdit';
@@ -10,6 +11,7 @@ import { InlineEdit } from './InlineEdit';
 const root = (id: string) => document.getElementById(id) as HTMLDivElement;
 const view = (id: string) => root(id).querySelector('.dk-inline-edit__view') as HTMLElement;
 const input = (id: string) => root(id).querySelector<HTMLInputElement>('input');
+const said = () => document.querySelector<HTMLElement>('[data-dk-announcer]')!.textContent;
 const Box = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'grid', gap: '12px', background: 'var(--surface)' }}>{children}</div>;
 
 function Controlled({ calls }: { calls: string[] }) {
@@ -55,6 +57,15 @@ describe('InlineEdit', () => {
     expect(calls).toEqual(['Apollo 11']);
   });
 
+  test('keyboard table: Tab leaves the field, which saves (FH1)', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="kt" label="Name" defaultValue="Apollo" onValueChange={(v) => calls.push(v)} /><button id="kt-next">Next</button></Box>);
+    view('kt').focus();
+    await userEvent.keyboard('{Enter}{Control>}a{/Control}Orion');
+    await userEvent.tab();
+    expect([input('kt'), document.activeElement?.id, view('kt').textContent, calls]).toEqual([null, 'kt-next', 'Name: Orion, Edit', ['Orion']]);
+  });
+
   test('controlled: value and onValueChange', async () => {
     const calls: string[] = [];
     await render(<Controlled calls={calls} />);
@@ -76,6 +87,94 @@ describe('InlineEdit', () => {
     expect([i.hasAttribute('aria-invalid'), root('v').querySelector('.dk-inline-edit__error')]).toEqual([false, null]);
     await userEvent.keyboard('{Enter}');
     expect([input('v'), calls]).toEqual([null, ['apollo-plan']]);
+  });
+
+  test('a failed save is said, since focus stays in the field and its description isn\'t read again; each try is said, even with the same words', async () => {
+    await render(<Box><InlineEdit id="va" label="Slug" defaultValue="apollo" validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} /></Box>);
+    await userEvent.click(view('va'));
+    await userEvent.fill(input('va')!, 'apollo plan');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
+    document.querySelector<HTMLElement>('[data-dk-announcer]')!.textContent = '';
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
+  });
+
+  test('leaving the field with a failing text keeps it open with the message, says it, and leaves focus where it went', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="vb" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} /><button id="vb-next">Next</button></Box>);
+    await userEvent.click(view('vb'));
+    await userEvent.fill(input('vb')!, 'apollo plan');
+    await userEvent.click(document.getElementById('vb-next')!);
+    const i = input('vb')!;
+    expect([document.activeElement?.id, i.value, i.getAttribute('aria-invalid'), document.getElementById(i.getAttribute('aria-describedby')!)!.textContent, calls])
+      .toEqual(['vb-next', 'apollo plan', 'true', 'Use dashes instead of spaces.', []]);
+    await expect.poll(() => announcerIdle() && said()).toBe('Use dashes instead of spaces.');
+  });
+
+  test('validate can return a Promise: busy until it settles, only the latest check counts, Escape drops it', async () => {
+    const calls: string[] = [];
+    const pending: Array<(m: string | null) => void> = [];
+    const check = () => new Promise<string | null>((res) => { pending.push(res); });
+    await render(<Box><InlineEdit id="vp" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={check} /></Box>);
+    await userEvent.click(view('vp'));
+    await userEvent.fill(input('vp')!, 'taken');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => input('vp')!.getAttribute('aria-busy')).toBe('true');
+    pending[0]('That slug is taken.');
+    await expect.poll(() => input('vp')!.getAttribute('aria-invalid')).toBe('true');
+    expect([input('vp')!.hasAttribute('aria-busy'), document.getElementById(input('vp')!.getAttribute('aria-describedby')!)!.textContent, calls]).toEqual([false, 'That slug is taken.', []]);
+    await expect.poll(() => announcerIdle() && said()).toBe('That slug is taken.');
+    // A check whose text was edited since doesn't count.
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('-2');
+    pending[1](null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([input('vp')!.value, input('vp')!.hasAttribute('aria-busy'), calls]).toEqual(['taken-2', false, []]);
+    await userEvent.keyboard('{Enter}');
+    pending[2](null);
+    await expect.poll(() => input('vp')).toBe(null);
+    expect([calls, document.activeElement === view('vp'), view('vp').textContent]).toEqual([['taken-2'], true, 'Slug: taken-2, Edit']);
+    // Escape while a check runs puts the text back, and its answer is ignored.
+    await userEvent.keyboard(' ');
+    await userEvent.fill(input('vp')!, 'later');
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Escape}');
+    pending[3](null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([input('vp'), calls, view('vp').textContent]).toEqual([null, ['taken-2'], 'Slug: taken-2, Edit']);
+  });
+
+  test('Enter with an async validate, then Tab away while it runs: the save goes through and focus stays where the person went (GD3)', async () => {
+    const calls: string[] = [];
+    let done: (m: string | null) => void = () => {};
+    await render(<Box><InlineEdit id="vt" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={() => new Promise<string | null>((res) => { done = res; })} /><button id="vt-next">Next</button></Box>);
+    await userEvent.click(view('vt'));
+    await userEvent.fill(input('vt')!, 'apollo-2');
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement?.id).toBe('vt-next');
+    done(null);
+    await expect.poll(() => input('vt')).toBe(null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([calls, document.activeElement?.id]).toEqual([['apollo-2'], 'vt-next']);
+  });
+
+  test('an empty value with no placeholder shows its pencil, so the button can be found (GD4); with text or a placeholder the pencil waits for hover or focus', async () => {
+    await render(<Box><InlineEdit id="eb" label="Notes" defaultValue="" /><InlineEdit id="ep" label="Notes" defaultValue="" placeholder="Add notes" /><InlineEdit id="et" label="Notes" defaultValue="Ready" /></Box>);
+    // The pencil is the button's last child.
+    const pencil = (id: string) => css(view(id).lastElementChild).opacity;
+    expect([pencil('eb'), pencil('ep'), pencil('et')]).toEqual(['1', '0', '0']);
+  });
+
+  test('validate\'s Promise rejected: the field stays open with the text, not busy and with no message', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="vr" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={() => Promise.reject(new Error('offline'))} /></Box>);
+    await userEvent.click(view('vr'));
+    await userEvent.fill(input('vr')!, 'gemini');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => input('vr')!.hasAttribute('aria-busy')).toBe(false);
+    expect([input('vr')!.value, input('vr')!.hasAttribute('aria-invalid'), calls]).toEqual(['gemini', false, []]);
   });
 
   test('Escape inside a Dialog cancels the edit and leaves the dialog open', async () => {

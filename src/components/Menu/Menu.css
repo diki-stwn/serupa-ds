@@ -5,12 +5,14 @@
    also gets a 2px primary bar at its start. Groups have a muted text-xs heading; separators are 1px lines. A MenuSub item has a chevron and stays highlighted while its submenu is open. Every value goes through --menu-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+/* ContextMenu's anchor: a point at the pointer (or the focused element's corner) that the menu is placed from. */
+.dk-menu__point { position: fixed; width: var(--spacing-0); height: var(--spacing-0); pointer-events: none; }
 .dk-menu {
   --dk-menu-offset: var(--menu-offset, var(--spacing-1));
   box-sizing: border-box;
   position: fixed;
   inset: auto;
-  z-index: var(--menu-z-index, var(--z-50));
+  z-index: var(--menu-z-index, var(--z-popover));
   min-width: var(--menu-min-width, var(--spacing-48));
   /* At most 20rem, so one long label wraps instead of stretching the menu across the window. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--menu-max-width, var(--spacing-80)));
@@ -27,11 +29,36 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   text-align: start;
-  animation: dk-menu-in var(--duration-150) var(--ease-out);
+  transform-origin: var(--dk-layer-origin, top);   /* grows out of its trigger (placeLayer sets the point) */
 }
 .dk-menu[hidden] { display: none; }
 .dk-menu:focus { outline: none; }
-@keyframes dk-menu-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
+/* Motion (DZ1): transitions, not keyframes, so closing while it opens turns back from where it is. In from
+   @starting-style over motion-enter-sm; out over motion-exit-sm, kept shown and in the top layer (display and overlay,
+   allow-discrete) until it has faded, inert meanwhile (Menu.tsx) so presses and focus go past it. A submenu open
+   when its menu closes closes and fades with it (Menu.tsx). A browser that can't keep it in the top layer (no overlay) closes it at once.
+   Open on arrival (data-instant), no starting style. Reduced motion: the fade alone. */
+.dk-menu { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit); }
+.dk-menu:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-menu[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-menu[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+@starting-style { .dk-menu:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-menu[hidden] { scale: var(--scale-95); }
+  @starting-style { .dk-menu:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
+}
+/* Items arrive one after another as the menu opens (stagger): each fades and drops 4px into place, motion-stagger
+   after the one before (its place, --dk-menu-i, comes from Menu.tsx), the whole menu in within twice motion-enter-sm.
+   Only on opening (closing fades the menu as one), and not under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .dk-menu:not([hidden]):not([data-instant]) .dk-menu__item {
+    --dk-menu-item-delay: min(calc(var(--motion-stagger) * var(--dk-menu-i, 0)), var(--motion-enter-sm));
+    transition: opacity var(--motion-enter-sm) var(--ease-enter) var(--dk-menu-item-delay), translate var(--motion-enter-sm) var(--ease-enter) var(--dk-menu-item-delay);
+  }
+  @starting-style { .dk-menu:not([hidden]):not([data-instant]) .dk-menu__item { opacity: var(--opacity-0); translate: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-1)); } }
+}
 .dk-menu__item {
   display: flex;
   align-items: center;
@@ -51,6 +78,10 @@
 .dk-menu__item:focus-visible { box-shadow: inset var(--dk-bar) 0 0 var(--menu-item-indicator, var(--primary)); }
 .dk-menu__item:active:not([aria-disabled="true"], .dk-menu__item--destructive) { background: var(--menu-item-bg-pressed, var(--pressed)); }
 .dk-menu__item:focus-visible { outline: var(--focus-ring-width) solid transparent; }   /* shows in forced colors */
+/* MenuCheckboxItem and MenuRadioItem: a check before the label, its space kept while unchecked so labels line up. */
+.dk-menu__check { display: inline-flex; flex-shrink: 0; color: var(--menu-item-text, var(--text)); }
+.dk-menu__check .dk-icon { font-size: var(--spacing-4); }
+.dk-menu__item[aria-checked="false"] .dk-menu__check { visibility: hidden; }
 .dk-menu__icon { display: inline-flex; flex-shrink: 0; color: var(--menu-muted, var(--text-muted)); }
 .dk-menu__icon .dk-icon { font-size: var(--spacing-4); }
 .dk-menu__label { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
@@ -67,10 +98,7 @@
 .dk-menu__chevron .dk-icon { font-size: var(--spacing-4); }
 .dk-menu__item:focus .dk-menu__chevron, .dk-menu__item--sub[aria-expanded="true"] .dk-menu__chevron { color: var(--menu-item-text, var(--text)); }
 .dk-menu__item--sub[aria-expanded="true"]:not(:focus) { background: var(--menu-item-bg-active, var(--highlight)); }
-.dk-menu__rtl, .dk-menu__item:dir(rtl) .dk-menu__ltr { display: none; }
-.dk-menu__item:dir(rtl) .dk-menu__rtl { display: inline-block; }
 .dk-menu__group-label { padding: var(--spacing-1\.5) var(--menu-item-padding-x, var(--spacing-2)) var(--spacing-1); color: var(--menu-muted, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
 .dk-menu__separator { height: var(--border-width-1); margin: var(--spacing-1) var(--spacing-0); background: var(--menu-separator, var(--border)); }
-@media (prefers-reduced-motion: reduce) { .dk-menu { animation: none; } }
 @media (forced-colors: active) { .dk-menu__item:focus { outline-color: Highlight; } }
 }

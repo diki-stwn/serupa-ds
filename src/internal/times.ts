@@ -11,10 +11,16 @@ export function toMinutes(v: string | null | undefined): number | null {
 }
 /** 845 → "14:05". */
 export const toHHmm = (n: number) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
+// module state: a cache by locale.
+const twelve = new Map<string, boolean>();
 /** Whether the locale writes times with AM and PM. */
 export function uses12h(locale?: string): boolean {
-  return !!new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hour12;
+  const key = locale || "";
+  let h = twelve.get(key);
+  if (h === undefined) twelve.set(key, h = !!new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hour12);
+  return h;
 }
+// module state: a cache by locale.
 const formats = new Map<string, Intl.DateTimeFormat>();
 /** A time as the locale writes it: "2:05 PM", "14:05". */
 export function formatTime(n: number, locale?: string, hour12?: boolean): string {
@@ -24,8 +30,24 @@ export function formatTime(n: number, locale?: string, hour12?: boolean): string
   if (!f) formats.set(key, f = new Intl.DateTimeFormat(locale, { hour: h12 ? "numeric" : "2-digit", minute: "2-digit", hour12: h12 }));
   return f.format(new Date(2000, 0, 1, Math.floor(n / 60), n % 60));
 }
+// module state: a cache by locale and hour cycle.
+const patterns = new Map<string, string>();
+/** What to type, in the locale's own order and separators: "hh:mm AM/PM" (en-US), "hh:mm" (en-GB), "오전/오후 hh:mm" (ko). */
+export function timePattern(locale?: string, hour12?: boolean): string {
+  const h12 = hour12 ?? uses12h(locale);
+  const key = (locale || "") + "|" + h12;
+  let p = patterns.get(key);
+  if (p === undefined) {
+    const f = new Intl.DateTimeFormat(locale, { hour: h12 ? "numeric" : "2-digit", minute: "2-digit", hour12: h12 });
+    const period = (h: number) => f.formatToParts(new Date(2000, 0, 1, h, 5)).find((x) => x.type === "dayPeriod")?.value || "";
+    const am = period(9), pm = period(14), both = am === pm ? am : am + "/" + pm;
+    patterns.set(key, p = f.formatToParts(new Date(2000, 0, 1, 9, 5)).map((x) => (x.type === "hour" ? "hh" : x.type === "minute" ? "mm" : x.type === "dayPeriod" ? both : x.value.replace(/[\u200e\u200f\u061c]/g, ""))).join("").replace(/\s+/g, " ").trim());
+  }
+  return p;
+}
 // The locale's own words for morning and afternoon ("오전" "오후" in ko, "ص" "م" in ar), and the other words it writes
 // around a time ("ч." in bg, "ཆུ་ཚོད་" hour and "སྐར་མ་" minute in dz), lowercased without spaces, as typed text is.
+// module state: a cache by locale.
 const words = new Map<string, { am: string; pm: string; other: string[] }>();
 const squash = (x: string) => x.toLowerCase().replace(/\s+/g, "");
 function wordsOf(locale?: string): { am: string; pm: string; other: string[] } {

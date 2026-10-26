@@ -29,7 +29,7 @@ describe('ToggleButton', () => {
     const ref = React.createRef<HTMLButtonElement>();
     await render(<Formatting boldRef={ref} />);
     const e = el('tbold') as HTMLButtonElement;
-    expect([e.tagName, e.type, pressed('tbold'), e.getAttribute('aria-label'), e.dataset.component, (e.querySelector<HTMLElement>('.dk-icon'))?.dataset.icon]).toEqual(['BUTTON', 'button', 'false', 'Bold', 'button', 'format_bold']);
+    expect([e.tagName, e.type, pressed('tbold'), e.getAttribute('aria-label'), e.dataset.component, (e.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon]).toEqual(['BUTTON', 'button', 'false', 'Bold', 'button', 'format_bold']);
     expect(e.className).toMatch(/dk-btn--outline/);
     expect(e.className).toMatch(/dk-toggle-button extra/);
     expect(ref.current).toBe(e);
@@ -46,6 +46,15 @@ describe('ToggleButton', () => {
     el('tbold').focus();
     await userEvent.keyboard(' ');
     expect(pressed('tbold')).toBe('false');
+  });
+
+  test('keyboard table: Tab reaches the button; Enter and Space each turn it on or off (FH1)', async () => {
+    await render(<div><button id="tb-before">before</button><Formatting /></div>);
+    el('tb-before').focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id, seen: Array<string | null> = [];
+    for (const k of ['{Enter}', '{Enter}', ' ', ' ']) { await userEvent.keyboard(k); seen.push(pressed('tbold')); }
+    expect([at, seen]).toEqual(['tbold', ['true', 'false', 'true', 'false']]);
   });
 
   test('defaultPressed starts on; variant="ghost"; an unknown variant falls back to outline', async () => {

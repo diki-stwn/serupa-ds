@@ -1,15 +1,17 @@
 /* ---------------------------------------------------------------
    Breadcrumb: a wrapping row of muted text-sm links with chevrons (or slashes) between them; a link turns
    text-colored and underlined on hover; the current page is text, font-medium. The "…" button looks like a link.
+   Each separator is the first thing in the item after it, the list's gap on both sides. A long unbroken label
+   (a file name, a slug) breaks anywhere, so the trail never runs past a 320px screen (WCAG 1.4.10).
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-breadcrumb { font-family: var(--font-sans); font-size: var(--breadcrumb-font-size, var(--text-sm)); line-height: var(--text-sm--line-height); }
 .dk-breadcrumb__list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--breadcrumb-gap, var(--spacing-1\.5)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
-.dk-breadcrumb__li { display: inline-flex; min-width: var(--spacing-0); }
+.dk-breadcrumb__li { display: inline-flex; align-items: center; gap: var(--breadcrumb-gap, var(--spacing-1\.5)); min-width: var(--spacing-0); }
 .dk-breadcrumb__item {
-  display: inline-flex; align-items: center; gap: var(--spacing-1); min-width: var(--spacing-0);
+  display: inline-flex; align-items: center; gap: var(--spacing-1); min-width: var(--spacing-0); overflow-wrap: anywhere;
   color: var(--breadcrumb-text, var(--text-muted)); text-decoration: none; border-radius: var(--breadcrumb-focus-radius, var(--rounded-sm));
-  transition: color var(--duration-150) var(--ease-in-out);
+  transition: color var(--motion-hover) var(--ease-move);
 }
 @media (hover: hover) { .dk-breadcrumb__link:hover, .dk-breadcrumb__more:hover { color: var(--breadcrumb-text-hover, var(--text)); text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
 .dk-breadcrumb__item:focus-visible { outline: var(--focus-ring-width) solid var(--breadcrumb-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
@@ -19,7 +21,11 @@
 .dk-breadcrumb__icon .dk-icon { font-size: var(--breadcrumb-icon-size, var(--spacing-4)); }
 .dk-breadcrumb__separator { display: inline-flex; color: var(--breadcrumb-separator, var(--text-muted)); user-select: none; }
 .dk-breadcrumb__separator .dk-icon { font-size: var(--breadcrumb-separator-size, var(--spacing-4)); }
-.dk-breadcrumb__rtl, [dir="rtl"] .dk-breadcrumb__ltr { display: none; }
-[dir="rtl"] .dk-breadcrumb__rtl { display: inline-block; }
 @media (prefers-reduced-motion: reduce) { .dk-breadcrumb__item { transition: none; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when a link is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-breadcrumb__link, .dk-breadcrumb__more { position: relative; isolation: isolate; }
+.dk-breadcrumb__link::after, .dk-breadcrumb__more::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px high to press, as Apple and Material ask; the width stays, so links in a row never overlap. */
+@media (pointer: coarse) { .dk-breadcrumb__link::after, .dk-breadcrumb__more::after { --dk-reach-block: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); inset-block: var(--dk-reach-block); } }
 }

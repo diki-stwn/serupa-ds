@@ -2,9 +2,12 @@
    Checkbox: a native checkbox (appearance: none, drawn from tokens) and its label. The box sits centered on the
    label's first line, and a click anywhere on the label toggles it. Structure: .dk-checkbox (a <label>) >
    .dk-checkbox__control (.dk-checkbox__input, .dk-checkbox__icon), .dk-checkbox__text (.dk-checkbox__label,
-   .dk-checkbox__description). Every value goes through --checkbox-* tokens.
+   .dk-checkbox__description). CheckboxGroup (.dk-checkbox-group) stacks a set, or wraps it in a row, like RadioGroup.
+   Every value goes through --checkbox-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+.dk-checkbox-group { display: flex; flex-direction: column; align-items: flex-start; gap: var(--checkbox-group-gap, var(--spacing-2)); }
+.dk-checkbox-group--horizontal { flex-direction: row; flex-wrap: wrap; column-gap: var(--checkbox-group-gap-horizontal, var(--spacing-4)); }
 .dk-checkbox {
   --dk-checkbox-box: var(--checkbox-size-md, var(--spacing-4));
   --dk-checkbox-icon: var(--checkbox-icon-size-md, var(--spacing-3\.5));
@@ -18,6 +21,11 @@
 .dk-checkbox--size-lg { --dk-checkbox-box: var(--checkbox-size-lg, var(--spacing-5)); --dk-checkbox-icon: var(--checkbox-icon-size-lg, var(--spacing-4)); --dk-checkbox-lh: var(--text-base--line-height); font-size: var(--text-base); }
 .dk-checkbox__control { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; height: var(--dk-checkbox-lh); }
 .dk-checkbox--bare .dk-checkbox__control { height: var(--dk-checkbox-box); }
+/* Pressed: the box shrinks a little while the row is held (pointer, or Space on the box) and springs back. Only
+   scale moves; not when read-only or disabled, and not under reduced motion. */
+.dk-checkbox__control { transition: scale var(--motion-release) var(--ease-spring); }
+.dk-checkbox:active:not(.dk-checkbox--readonly, :has(.dk-checkbox__input:disabled)) .dk-checkbox__control { scale: var(--checkbox-press-scale, var(--scale-90)); transition: scale var(--motion-press) var(--ease-settle); }
+@media (prefers-reduced-motion: reduce) { .dk-checkbox__control { transition: none; } .dk-checkbox:active .dk-checkbox__control { scale: none; } }
 .dk-checkbox__input {
   --dk-checkbox-bd: var(--checkbox-border, var(--field-border));
   --dk-checkbox-fill: var(--checkbox-bg-checked, var(--primary));
@@ -28,13 +36,13 @@
   border: var(--checkbox-border-width, var(--border-width-1)) solid var(--dk-checkbox-bd);
   border-radius: var(--checkbox-radius, var(--rounded-sm));
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-border-hover, var(--field-border-hover)); --dk-checkbox-fill: var(--checkbox-bg-checked-hover, var(--primary-hover)); } }
-.dk-checkbox__input:checked, .dk-checkbox__input:indeterminate { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }
+.dk-checkbox__input:checked, .dk-checkbox__input:indeterminate, .dk-checkbox__input[data-indeterminate] { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }
 .dk-checkbox__icon { position: absolute; inset: var(--spacing-0); display: flex; align-items: center; justify-content: center; color: var(--checkbox-icon-color, var(--on-primary)); pointer-events: none; visibility: hidden; }
 .dk-checkbox__icon .dk-icon { font-size: var(--dk-checkbox-icon); }
-.dk-checkbox__input:checked + .dk-checkbox__icon, .dk-checkbox__input:indeterminate + .dk-checkbox__icon { visibility: visible; }
+.dk-checkbox__input:checked + .dk-checkbox__icon, .dk-checkbox__input:indeterminate + .dk-checkbox__icon, .dk-checkbox__input[data-indeterminate] + .dk-checkbox__icon { visibility: visible; }
 /* Focus: the 2px focus-ring outline, 2px out, like Button. The gap is transparent, so it works on tinted backgrounds. */
 .dk-checkbox__input:focus-visible {
   outline: var(--focus-ring-width) solid var(--dk-checkbox-ring); outline-offset: var(--focus-ring-offset);
@@ -42,12 +50,29 @@
 /* Invalid: a danger border while unchecked, and a danger focus ring. A checked box keeps its fill. */
 .dk-checkbox--invalid .dk-checkbox__input { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
 @media (hover: hover) { .dk-checkbox--invalid:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
-.dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); }
+/* A required box left unticked after people untick it or try to send the form: as Input (:user-invalid). */
+.dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
+@media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
+.dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-checkbox__description { color: var(--checkbox-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't change it. */
 .dk-checkbox--readonly { cursor: default; }
 /* Disabled, by its own prop or a disabled fieldset (Field group). */
 .dk-checkbox:has(.dk-checkbox__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-checkbox__input:disabled:not(:checked, :indeterminate) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
+.dk-checkbox__input:disabled:not(:checked, :indeterminate, [data-indeterminate]) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
 @media (forced-colors: active) { .dk-checkbox__icon { color: CanvasText; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-checkbox { position: relative; isolation: isolate; }
+.dk-checkbox::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px to press, as Apple and Material ask. In a group it stops halfway into the gap
+   to a neighbour, so two never overlap. */
+@media (pointer: coarse) {
+  .dk-checkbox::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); --dk-half-gap: calc(var(--spacing-0) - var(--checkbox-group-gap, var(--spacing-2)) / 2); }
+  .dk-checkbox-group--horizontal > .dk-checkbox::after { --dk-half-gap: calc(var(--spacing-0) - var(--checkbox-group-gap-horizontal, var(--spacing-4)) / 2); }
+  .dk-checkbox-group--vertical > .dk-checkbox:not(:first-child)::after { inset-block-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--vertical > .dk-checkbox:not(:last-child)::after { inset-block-end: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--horizontal > .dk-checkbox:not(:first-child)::after { inset-inline-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--horizontal > .dk-checkbox:not(:last-child)::after { inset-inline-end: max(var(--dk-reach), var(--dk-half-gap)); }
+}
 }

@@ -101,6 +101,16 @@
             "cssVar": "--switch-invalid"
           }
         }
+      },
+      "pending": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "pending's ring on the thumb (3:1 on the thumb, on or off).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--switch-pending"
+          }
+        }
       }
     },
     "sizing": {
@@ -213,6 +223,18 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-gap"
+          }
+        }
+      }
+    },
+    "motion": {
+      "press-scale": {
+        "$type": "number",
+        "$value": "{transforms.scale-90}",
+        "$description": "Size of the thumb while the switch is held down (90%). 1 turns press feedback off.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--switch-press-scale"
           }
         }
       }

@@ -20,17 +20,20 @@
 .dk-table__header { background: var(--table-header-bg, var(--surface-muted)); color: var(--table-header-text, var(--text-muted)); font-weight: var(--table-header-weight, var(--font-medium)); white-space: nowrap; }
 .dk-table__cell--center { text-align: center; }
 .dk-table__cell--end { text-align: end; font-variant-numeric: tabular-nums; }
-.dk-table__body .dk-table__row { transition: background-color var(--duration-150) var(--ease-in-out); }
+.dk-table__body .dk-table__row { transition: background-color var(--motion-hover) var(--ease-move); }
 .dk-table--striped .dk-table__body .dk-table__row:nth-child(even) { background: var(--table-row-bg-hover, var(--surface-muted)); }
 @media (hover: hover) {
   .dk-table:not(.dk-table--striped) .dk-table__body .dk-table__row:hover { background: var(--table-row-bg-hover, var(--surface-muted)); }
 }
 .dk-table__row--selected, .dk-table .dk-table__body .dk-table__row--selected, .dk-table .dk-table__body .dk-table__row:has(> .dk-table__select :checked) { background: var(--table-row-bg-selected, var(--surface-muted)); }
 .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { box-shadow: inset var(--table-indicator-width, var(--border-width-2)) 0 0 var(--table-row-indicator-selected, var(--primary)); }
-[dir="rtl"] .dk-table__row--selected > :first-child, [dir="rtl"] .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { box-shadow: inset calc(var(--spacing-0) - var(--table-indicator-width, var(--border-width-2))) 0 0 var(--table-row-indicator-selected, var(--primary)); }
+.dk-table__row--selected:dir(rtl) > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked):dir(rtl) > :first-child { box-shadow: inset calc(var(--spacing-0) - var(--table-indicator-width, var(--border-width-2))) 0 0 var(--table-row-indicator-selected, var(--primary)); }
 .dk-table__select { width: var(--spacing-px); padding-inline-end: var(--spacing-0); }
 .dk-table__select .dk-checkbox { vertical-align: middle; }
 .dk-table--sticky .dk-table__head .dk-table__cell { position: sticky; top: 0; z-index: var(--z-10); }
+/* What the keyboard focuses in the frame scrolls into view below the sticky header, not under it (WCAG 2.4.11).
+   Table measures the header into --dk-table-head; until then, one md header row (40px). */
+.dk-table--sticky { scroll-padding-top: var(--dk-table-head, var(--spacing-10)); }
 /* sortable headers: the whole label is a button */
 .dk-table__header--sortable { padding: var(--spacing-0); }
 .dk-table__sort {
@@ -42,6 +45,7 @@
 .dk-table__cell--center .dk-table__sort { justify-content: center; }
 .dk-table__cell--end .dk-table__sort { justify-content: flex-end; }
 @media (hover: hover) { .dk-table__sort:hover { color: var(--table-text, var(--text)); } }
+.dk-table__sort:active { background: var(--table-sort-bg-pressed, var(--pressed)); }   /* held: the pressed fill, at once */
 .dk-table__sort:focus-visible { outline: var(--focus-ring-width) solid var(--table-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-table__sort-icon.dk-icon { font-size: var(--spacing-4); }
 .dk-table__sort-icon--idle { opacity: var(--opacity-50); }

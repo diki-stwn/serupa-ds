@@ -17,7 +17,7 @@
   border-radius: var(--textarea-radius, var(--rounded-md));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
   cursor: text; vertical-align: middle;
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-textarea--size-sm { --dk-ta-px: var(--textarea-padding-x-sm, var(--spacing-2)); --dk-ta-py: var(--textarea-padding-y-sm, var(--spacing-1)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-textarea--size-lg { --dk-ta-px: var(--textarea-padding-x-lg, var(--spacing-4)); --dk-ta-py: var(--textarea-padding-y-lg, var(--spacing-2\.5)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
@@ -27,8 +27,17 @@
   color: inherit; font: inherit; letter-spacing: inherit; resize: vertical;
 }
 .dk-textarea__field::placeholder { color: var(--textarea-placeholder, var(--placeholder)); opacity: var(--opacity-100); }
-.dk-textarea--resize-none .dk-textarea__field, .dk-textarea--disabled .dk-textarea__field, .dk-textarea--readonly .dk-textarea__field { resize: none; }
+.dk-textarea--resize-none .dk-textarea__field, .dk-textarea--disabled .dk-textarea__field, .dk-textarea__field:where(:disabled), .dk-textarea--readonly .dk-textarea__field { resize: none; }
 .dk-textarea--auto .dk-textarea__field { overflow-y: hidden; }
+/* autoResize where the browser sizes a field to its content: rows lines at least, maxRows at most (unset: no limit,
+   since the max-height is then invalid and falls back to none), scrolling past that. Textarea.tsx measures elsewhere. */
+@supports (field-sizing: content) {
+  .dk-textarea--auto .dk-textarea__field {
+    --dk-ta-min: calc(var(--dk-ta-rows) * 1lh + 2 * var(--dk-ta-py));
+    --dk-ta-max: calc(var(--dk-ta-max-rows) * 1lh + 2 * var(--dk-ta-py));
+    field-sizing: content; min-height: var(--dk-ta-min); max-height: var(--dk-ta-max); overflow-y: auto; overscroll-behavior: contain;
+  }
+}
 /* The count sits under the text, at the end, in text-xs with tabular digits; it turns text-colored at maxLength. */
 .dk-textarea__count {
   align-self: flex-end; padding: var(--spacing-0) var(--dk-ta-px) var(--dk-ta-py);
@@ -36,15 +45,19 @@
   font-variant-numeric: tabular-nums; pointer-events: none; user-select: none;
 }
 .dk-textarea__count--full { color: var(--textarea-count-full, var(--text)); }
-@media (hover: hover) { .dk-textarea:hover:not(.dk-textarea--disabled, .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-border-hover, var(--field-border-hover)); } }
+@media (hover: hover) { .dk-textarea:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-border-hover, var(--field-border-hover)); } }
 /* Focus: like Input, the border and a ring hugging it take the focus color (2px in all), and a transparent outline
    that forced-colors mode draws, since box-shadow rings disappear there. */
-.dk-textarea:focus-within { --dk-ta-bd: var(--dk-ta-ring); box-shadow: 0 0 0 var(--textarea-border-width, var(--border-width-1)) var(--dk-ta-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
+.dk-textarea:focus-within { transition-duration: var(--duration-0); --dk-ta-bd: var(--dk-ta-ring); box-shadow: 0 0 0 var(--textarea-border-width, var(--border-width-1)) var(--dk-ta-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-textarea--invalid { --dk-ta-bd: var(--textarea-invalid, var(--danger)); --dk-ta-ring: var(--textarea-invalid, var(--danger)); }
-@media (hover: hover) { .dk-textarea--invalid:hover:not(.dk-textarea--disabled, .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
+@media (hover: hover) { .dk-textarea--invalid:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
+/* A native constraint that fails after people edit it or try to send the form: as Input (:user-invalid). */
+.dk-textarea:has(.dk-textarea__field:user-invalid) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); --dk-ta-ring: var(--textarea-invalid, var(--danger)); }
+@media (hover: hover) { .dk-textarea:has(.dk-textarea__field:user-invalid):hover:not(:focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
 .dk-textarea--readonly { background: var(--textarea-bg-readonly, var(--surface-muted)); }
-.dk-textarea--disabled { background: var(--textarea-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-textarea--disabled .dk-textarea__field { cursor: not-allowed; }
+/* Disabled by the prop, or by a <fieldset disabled> around it (the native field follows that on its own). */
+.dk-textarea--disabled, .dk-textarea:where(:has(.dk-textarea__field:disabled)) { background: var(--textarea-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }
+.dk-textarea--disabled .dk-textarea__field, .dk-textarea__field:where(:disabled) { cursor: not-allowed; }
 /* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's
    own text is 16px; the box keeps its height. (maximum-scale=1 would stop the zoom but also pinch zoom: WCAG 1.4.4.) */
 @supports (-webkit-touch-callout: none) { .dk-textarea:not(.dk-textarea--size-lg) .dk-textarea__field { font-size: var(--text-base); } }

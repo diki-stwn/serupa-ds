@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { topModal } from '../../internal/layers';
@@ -13,14 +14,16 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const dlg = (id: string) => el(id) as HTMLDialogElement;
 const panel = (id: string) => el(id).querySelector('.dk-dialog__panel') as HTMLElement;
 const isOpen = (id: string) => dlg(id).open;
+// The title is the element that names the dialog (aria-labelledby).
+const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 // The panel scales in from 95%: measure once every finite animation has ended (headless WebKit can start it late).
 const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 type Ctl = { setOpen: (v: boolean) => void; setAlert: (v: boolean) => void; setSize: (s: 'sm' | 'md' | 'lg') => void };
-function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement> }) {
+function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement>; why?: string[] }) {
   const [open, setOpen] = React.useState(false), [al, setAlert] = React.useState(false), [size, setSize] = React.useState<'sm' | 'md' | 'lg'>('md');
   Object.assign(props.ctl, { setOpen, setAlert, setSize });
-  const ask = (k: string, set: (v: boolean) => void) => (v: boolean) => { props.asks.push(k + ':' + v); set(v); };
+  const ask = (k: string, set: (v: boolean) => void) => (v: boolean, d?: { reason: string }) => { props.asks.push(k + ':' + v); if (props.why && d) props.why.push(d.reason); set(v); };
   return <div style={{ height: '2000px' }}>
     <Button id="opener" onClick={() => setOpen(true)}>Open</Button>
     <Button id="aopener" onClick={() => setAlert(true)}>Delete</Button>
@@ -76,9 +79,9 @@ describe('Dialog', () => {
     expect([asks.join(), document.activeElement!.id]).toEqual(['dlg:false', 'opener']);
   });
 
-  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop (selecting text); a click on the backdrop asks to close', async () => {
-    const asks: string[] = [];
-    await render(<App asks={asks} ctl={{}} />);
+  test('a click inside the panel doesn\'t close it; nor does a press that starts on the panel and ends on the backdrop (selecting text); a click on the backdrop asks to close, with reason "outside"', async () => {
+    const asks: string[] = [], why: string[] = [];
+    await render(<App asks={asks} why={why} ctl={{}} />);
     await openDlg();
     await userEvent.click(panel('dlg'), { position: { x: 30, y: 120 } });
     expect(isOpen('dlg')).toBe(true);
@@ -90,7 +93,7 @@ describe('Dialog', () => {
     expect([isOpen('dlg'), asks.join(), clicks]).toEqual([true, '', 1]);
     await userEvent.click(el('dlg'), { position: { x: 20, y: 20 } });
     await expect.poll(() => isOpen('dlg')).toBe(false);
-    expect(asks.join()).toBe('dlg:false');
+    expect([asks.join(), why.join()]).toEqual(['dlg:false', 'outside']);
   });
 
   test('a backdrop press with a Popover open inside closes only the Popover; the next one asks to close the Dialog', async () => {
@@ -109,10 +112,23 @@ describe('Dialog', () => {
   test('the × (a button named "Close") asks to close', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await openDlg();
-    const c = el('dlg').querySelector('.dk-dialog__close') as HTMLElement;
+    const c = el('dlg').querySelector('button[aria-label="Close"]') as HTMLElement;
     expect([c.getAttribute('aria-label'), c.tagName]).toEqual(['Close', 'BUTTON']);
     await userEvent.click(c);
     await expect.poll(() => isOpen('dlg')).toBe(false);
+  });
+
+  test('keyboard table: Enter or Space on the × closes it, the same as Escape (FH1)', async () => {
+    await render(<App asks={[]} ctl={{}} />);
+    const closedBy: string[] = [];
+    for (const k of ['{Enter}', '[Space]']) {
+      await openDlg();
+      (el('dlg').querySelector('button[aria-label="Close"]') as HTMLElement).focus();
+      await userEvent.keyboard(k);
+      await expect.poll(() => isOpen('dlg')).toBe(false);
+      closedBy.push(document.activeElement!.id);
+    }
+    expect(closedBy).toEqual(['opener', 'opener']);
   });
 
   test('closed by the browser (dialog.close(), form method="dialog"): asks to close, and opens again next time', async () => {
@@ -129,6 +145,25 @@ describe('Dialog', () => {
     f.remove();
     await openDlg();
     expect(isOpen('dlg')).toBe(true);
+  });
+
+  test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves, tell onOpenChange(false) with why, and it stays closed', async () => {
+    const asks: string[] = [];
+    const one = (k: string) => <Dialog key={k} id="dd" defaultOpen onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)} title="Welcome"><Input aria-label="Name" /></Dialog>;
+    const screen = await render(one('a'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    expect(dlg('dd').matches(':modal')).toBe(true);
+    await userEvent.click(el('dd').querySelector('button[aria-label="Close"]')!);
+    await expect.poll(() => isOpen('dd')).toBe(false);
+    await screen.rerender(one('b'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('dd')).toBe(false);
+    await screen.rerender(one('c'));
+    await expect.poll(() => isOpen('dd')).toBe(true);
+    dlg('dd').close();
+    await expect.poll(() => asks.join()).toBe('false close,false escape,false api');
+    await expect.poll(() => [isOpen('dd'), getComputedStyle(el('dd')).display]).toEqual([false, 'none']);
   });
 
   test('lg: 672px; on a small screen it keeps 16px from each edge and fits the height', async () => {
@@ -162,6 +197,32 @@ describe('Dialog', () => {
     expect(document.activeElement!.id).toBe('afname');
   });
 
+  function Confirm({ inside }: { inside: boolean }) {
+    const [open, setOpen] = React.useState(false);
+    const cancel = React.useRef<HTMLButtonElement>(null), outside = React.useRef<HTMLButtonElement>(null);
+    return <><Button id="ifopen" ref={outside} onClick={() => setOpen(true)}>Delete</Button>
+      <Dialog id="if" open={open} onOpenChange={setOpen} title="Delete the file?" initialFocus={inside ? cancel : outside}
+        footer={<><Button id="ifcancel" ref={cancel} variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button id="ifdelete" destructive data-autofocus>Delete</Button></>} /></>;
+  }
+
+  test('initialFocus picks where focus lands when it opens, over data-autofocus', async () => {
+    await render(<Confirm inside />);
+    await userEvent.click(el('ifopen'));
+    await expect.poll(() => isOpen('if')).toBe(true);
+    expect(document.activeElement!.id).toBe('ifcancel');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('if')).toBe(false);
+  });
+
+  test('initialFocus pointing outside the dialog is ignored, so focus stays in the modal', async () => {
+    await render(<Confirm inside={false} />);
+    await userEvent.click(el('ifopen'));
+    await expect.poll(() => isOpen('if')).toBe(true);
+    expect(document.activeElement!.id).toBe('ifdelete');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('if')).toBe(false);
+  });
+
   test('a parent that keeps open true: Escape asks each time and it stays open, even when the browser force-closes it on a second Escape', async () => {
     const asks: boolean[] = [];
     function Keep() {
@@ -185,7 +246,7 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('alert')).toBe(true);
     await settled();
     const d = el('alert');
-    expect([d.getAttribute('role'), !!d.querySelector('.dk-dialog__close'), Math.round(panel('alert').getBoundingClientRect().width)]).toEqual(['alertdialog', false, 384]);
+    expect([d.getAttribute('role'), !!d.querySelector('button[aria-label="Close"]'), Math.round(panel('alert').getBoundingClientRect().width)]).toEqual(['alertdialog', false, 384]);
     await userEvent.click(d, { position: { x: 20, y: 20 } });
     expect(isOpen('alert')).toBe(true);
     await userEvent.keyboard('{Escape}');
@@ -210,7 +271,7 @@ describe('Dialog', () => {
       await settled();
       expect(dlg('inner').contains(document.activeElement)).toBe(true);
       if (how === 'escape') await userEvent.keyboard('{Escape}');
-      else if (how === 'close') await userEvent.click(el('inner').querySelector('.dk-dialog__close')!);
+      else if (how === 'close') await userEvent.click(el('inner').querySelector('button[aria-label="Close"]')!);
       else await userEvent.click(el('inner'), { position: { x: 5, y: 5 } });
       await expect.poll(() => isOpen('inner')).toBe(false);
       expect([how, isOpen('outer'), asks.join()]).toEqual([how, true, 'inner:false']);
@@ -228,7 +289,7 @@ describe('Dialog', () => {
     React.act(() => ctl.setOpen!(true));
     await expect.poll(() => isOpen('dlg')).toBe(true);
     await settled();
-    const s = getComputedStyle(panel('dlg')), ti = getComputedStyle(el('dlg').querySelector('.dk-dialog__title')!);
+    const s = getComputedStyle(panel('dlg')), ti = getComputedStyle(titleOf('dlg'));
     expect([s.paddingTop, s.borderTopLeftRadius, s.rowGap, ti.fontSize, ti.fontWeight, getComputedStyle(el('dlg').querySelector('.dk-dialog__footer')!).justifyContent]).toEqual(['24px', '12px', '16px', '18px', '600', 'flex-end']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
@@ -290,7 +351,7 @@ describe('Dialog: a body that scrolls', () => {
     const body = d.querySelector('.dk-dialog__body') as HTMLElement;
     await expect.poll(() => body.tabIndex).toBe(0);
     expect([body.getAttribute('role'), document.getElementById(body.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['region', 'Terms']);
-    (d.querySelector('.dk-dialog__close') as HTMLElement).focus();
+    (d.querySelector('button[aria-label="Close"]') as HTMLElement).focus();
     await userEvent.keyboard('{Tab}');
     expect(document.activeElement).toBe(body);
     expect([getComputedStyle(body).outlineStyle, parseFloat(getComputedStyle(body).outlineWidth) >= 2]).toEqual(['solid', true]);
@@ -302,5 +363,77 @@ describe('Dialog: a body that scrolls', () => {
     await screen.rerender(<Dialog id="dsl" open onOpenChange={() => {}} title="Terms"><p>Short</p></Dialog>);
     await expect.poll(() => body.hasAttribute('tabindex')).toBe(false);
     expect(body.hasAttribute('role')).toBe(false);
+  });
+});
+
+describe('Dialog: motion (DZ1)', () => {
+  // WebKit reports a ::backdrop transition with no pseudoElement, on the dialog itself; the dialog has no opacity transition of its own.
+  const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && (a.effect.pseudoElement === '::backdrop' || (!a.effect.pseudoElement && a instanceof CSSTransition && a.transitionProperty === 'opacity')));
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  test('opens with transitions (the backdrop fading in, the panel fading and scaling in 50ms after it) and closes faster, shown until the fade ends while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      const d = dlg('dlg'), pn = panel('dlg');
+      await userEvent.click(el('opener'));
+      const enter = pn.getAnimations();
+      expect([enter.filter((a) => a instanceof CSSTransition).map((a) => (a).transitionProperty).sort(), enter.some((a) => a instanceof CSSAnimation), enter.map(ms)]).toEqual([['opacity', 'scale'], false, [200, 200]]);
+      expect(backdropOf(d).map((a) => [(a as CSSTransition).transitionProperty, ms(a)])).toEqual([['opacity', 200]]);
+      // A sequence: the backdrop starts at once, the panel motion-sequence (50ms) later.
+      const delay = (a: Animation) => Number(a.effect!.getTiming().delay);
+      expect([enter.map(delay), backdropOf(d).map(delay)]).toEqual([[50, 50], [0]]);
+      await settled();
+      expect([getComputedStyle(pn).opacity, getComputedStyle(pn).scale]).toEqual(['1', 'none']);
+
+      await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      const holds = CSS.supports('overlay', 'auto');
+      expect([isOpen('dlg'), document.activeElement, getComputedStyle(d).display]).toEqual([false, el('opener'), holds ? 'flex' : 'none']);
+      if (!holds) return;
+      expect([getComputedStyle(d).pointerEvents, pn.getAnimations().map(ms), backdropOf(d).map(ms)]).toEqual(['none', [150, 150], [150]]);
+      await new Promise((ok) => setTimeout(ok, 60));
+      const mid = Number(getComputedStyle(pn).opacity);
+      expect(mid).toBeGreaterThan(0.05);
+      flushSync(() => ctl.setOpen!(true));
+      expect(isOpen('dlg')).toBe(true);
+      expect(Math.abs(Number(getComputedStyle(pn).opacity) - mid)).toBeLessThan(0.3);
+      await settled();
+      expect(getComputedStyle(pn).opacity).toBe('1');
+
+      await userEvent.keyboard('{Escape}');
+      await settled();
+      expect([isOpen('dlg'), getComputedStyle(d).display]).toEqual([false, 'none']);
+    });
+  });
+
+  test('open on arrival (defaultOpen): there from the first frame, not faded in; closing it, and opening it again, move as usual', async () => {
+    await withMotion(async () => {
+      const screen = await render(<Dialog id="arr" defaultOpen title="Welcome" />);
+      const d = dlg('arr'), pn = panel('arr');
+      await expect.poll(() => d.open).toBe(true);
+      expect([pn.getAnimations().length, backdropOf(d).length, getComputedStyle(pn).opacity]).toEqual([0, 0, '1']);
+      await screen.rerender(<Dialog id="arr" open={false} title="Welcome" />);
+      expect([d.open, d.hasAttribute('data-instant')]).toEqual([false, false]);
+      if (CSS.supports('overlay', 'auto')) expect(pn.getAnimations().length).toBe(2);
+      await settled();
+      await screen.rerender(<Dialog id="arr" open title="Welcome" onOpenChange={() => {}} />);
+      expect(pn.getAnimations().map(ms)).toEqual([200, 200]);
+    });
+  });
+
+  test('closing, the panel shrinks where it stands: its centre stays put every frame of the fade, not jumping to the corner (FM1)', async () => {
+    if (!CSS.supports('overlay', 'auto')) return;
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      await openDlg();
+      const pn = panel('dlg'), centre = (r: DOMRect) => [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)];
+      const at = centre(pn.getBoundingClientRect());
+      flushSync(() => ctl.setOpen!(false));
+      const seen: number[][] = [];
+      while (pn.getAnimations().length) { seen.push(centre(pn.getBoundingClientRect())); await new Promise(requestAnimationFrame); }
+      expect(seen.length).toBeGreaterThan(1);
+      expect(seen.filter(([x, y]) => Math.abs(x - at[0]) > 1 || Math.abs(y - at[1]) > 1)).toEqual([]);
+    });
   });
 });

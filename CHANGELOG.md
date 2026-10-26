@@ -4,6 +4,369 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [9.7.0] - 2026-10-25
+
+### Added
+
+- Accordion: a title held down fills with the `pressed` color, as rows, tabs and days do, so a press registers at once. New token `--accordion-trigger-bg-pressed`.
+- A development warning when a controlled `value` holds several items under `type="single"`.
+- AvatarGroup `showMore` makes "+N" a button that opens a popover listing the people not shown, and `onMore` makes it a button that calls your handler. Before, "+N" couldn't be reached by keyboard or touch, so those users could never see who was behind it.
+- The `--avatar-group-more-hover-bg` and `--avatar-group-focus-ring` component tokens, for the "+N" button's hover background and focus ring.
+- An icon-only BreadcrumbItem with no `aria-label` warns once in development.
+- Button: a new `wrap` prop lets a long label take more than one line, and the button grows from its size's height instead of cutting the label with an ellipsis. Without `wrap`, a text label that's cut now shows in full as the button's `title` on hover. Two new tokens, `--button-padding-y-wrap` and `--button-padding-y-wrap-sm`.
+- Card: a card with `href` shrinks to 97% while held and springs back (scale, `motion-press` with ease-out), like a Button, so a press registers at once. Not while a button or link inside it is the thing pressed, and off under reduced motion. New token `--card-press-scale`.
+- Checkbox: `onCheckedChange(checked, event)`, called after `onChange` with the new state, so an on/off setting has the same shape as ToggleButton's `onPressedChange` and MenuCheckboxItem's `onCheckedChange`. `onChange` stays as it was.
+- Checkbox: while the row is held down (pointer, or Space on the box), the box shrinks to 90% and springs back (scale only, `motion-press` with ease-out), so a press registers at once. Not when read-only or disabled, and off under reduced motion. New token `--checkbox-press-scale`.
+- Combobox: the list now enters like Menu and Popover. It fades in and grows from the edge facing the field over `motion-enter-sm`, as a transition from `@starting-style` (not keyframes), so closing it mid-way never restarts the motion. Under reduced motion it only fades. The motion gate now opens a Combobox too.
+- Combobox: `loadOptions(text, { signal })` loads options from a server as people type. It waits for typing to pause (`debounce`, 250ms by default), aborts the request before each new one and drops any answer that isn't for the latest text, so a slow answer for "ca" can't replace the one for "can". The list shows the loading row while it waits and the new `loadFailed` label when the promise rejects. A picked option keeps its label when later answers leave it out. `options` is now optional.
+- Combobox: `multiple` picks any number of options. Each picked option is a removable tag (a Badge) before the text, the listbox is `aria-multiselectable`, picking toggles an option and keeps the list open, Backspace in the empty field removes the last tag, each pick and removal is read out (the new `valueAdded` and `valueRemoved` labels), and `name` sends one hidden input per value. `value`, `defaultValue` and `onValueChange` use `string[]` with `multiple`. `ComboboxProps` is now `ComboboxSingleProps | ComboboxMultipleProps`; for Storybook's `Meta`, type the component as `ComboboxSingleProps` (as Button's stories do).
+- DatePicker's `value`, `defaultValue`, `min` and `max` take plain `"yyyy-mm-dd"` strings as that local day, and `onValueChange` gets the day as `"yyyy-mm-dd"` too, as its second argument. A Date at UTC midnight west of Greenwich, such as `new Date("2026-10-24")`, which shows the day before there, gives a console warning to pass the string instead.
+- DatePicker, DateRangePicker and TimePicker describe their fields with the format to type ("Format: mm/dd/yyyy"), after a Field hint, so screen readers say it even once the placeholder is gone. The words are a new `formatHint` label, in English and Indonesian.
+- Dialog: onOpenChange gets `{ reason }` as its second argument: `'escape'`, `'close'` (the ×), `'outside'` (the backdrop) or `'api'` (the browser closed it, as `dialog.close()` or a `method="dialog"` form do). `OpenChangeReason` gains `'api'`.
+- Drawer: `modal={false}` opens it as a side panel beside the page (`show()` instead of `showModal()`): no backdrop, the page stays usable and scrolls, and focus can leave it. Escape inside it and the × still close it.
+- Drawer: onOpenChange gets `{ reason }` as its second argument, as Dialog's does: `'escape'`, `'close'` (the ×), `'outside'` (the backdrop) or `'api'` (the browser closed it).
+- Drawer: swipe to close. On a touch screen, dragging it toward its edge past a third of its size (or flicking it) asks to close with `reason: 'swipe'`; a shorter drag springs back. Top and bottom drawers are dragged by the header or footer so the body still scrolls. `swipeToClose={false}` turns it off. `OpenChangeReason` gains `'swipe'`.
+- Editor autocomplete: the package now carries VS Code custom data, `serupa-ds/vscode/serupa.html-data.json` and `serupa-ds/vscode/serupa.css-data.json`. Point `html.customData` and `css.customData` at them, and VS Code offers every utility class in `class="…"` with what it sets, the themes in `data-theme`, and every token where a stylesheet sets one. The README's "Editor autocomplete" section has the settings.
+- `TreeViewItem`, `SliderMark` and `CarouselPerView`, the types of TreeView's `items`, Slider's `marks` and Carousel's `perView`, are exported from the package (TreeView's README already imported `TreeViewItem` from it).
+- InlineEdit's `validate` can return a Promise, for a check on the server. The field stays open and `aria-busy` until it settles, and only the latest check counts: typing or Escape drops the one running.
+- `prefix` and `suffix` on Input and NumberInput, for fixed text around what's typed ("https://", "@", "kg"). The text sits in the box in `text-muted`, is added to the field's `aria-describedby` so screen readers say it, and a press on it focuses the field.
+- SerupaProvider: `platform` (`"apple"` or `"other"`). Set it on the server from the User-Agent or `Sec-CH-UA-Platform` and Kbd shows ⌘ or Ctrl from the first render, so server-rendered pages no longer flash the wrong keys. Without it, Kbd still reads the device after mount.
+- Loader `loading`. Keep the Loader mounted and pass `loading={false}` when the work ends. Once shown, it now stays at least 500ms, then renders nothing.
+- Menu and ContextMenu: onOpenChange gets `{ reason }` as its second argument: `'trigger'` (the button, its arrow keys, a right-click, Shift+F10 or the Menu key), `'select'` (an item chosen), `'escape'`, `'blur'` (Tab) or `'outside'`. `OpenChangeReason` gains `'select'`.
+- Textarea, NumberInput, PasswordInput, SearchInput, PhoneInput, PinInput, TimePicker, Popover (without a `title`) and TreeView warn once in the console when they mount with no accessible name, as Input, Slider and Dialog already do.
+- Motion role tokens. They name what moves rather than how long it takes: `--motion-press`, `--motion-hover`, `--motion-enter-sm`/`-md`/`-lg`, `--motion-exit-sm`/`-md`/`-lg`, `--motion-loop-spinner` and `--motion-loop-placeholder`, plus the easings `--ease-enter`, `--ease-exit` and `--ease-move`. Each points at a step of the duration or easing scale and starts at the values the components use today. They're also in the W3C Design Tokens export, as references.
+- Navbar: a link held down fills with the `pressed` color at once, one step past hover, so a press registers within a frame; letting go fades back. New token `--navbar-link-bg-pressed`.
+- NumberInput's − and + repeat while held (one step, then after 400ms one every 50ms), stopping on release, on leaving the button, on Escape or at the limit.
+- NumberInput `onInvalidInput(text, reason)`: "range" when a typed number is brought back within min and max, "unreadable" when typed text isn't a number.
+- `useLocale(own?)` and `announce(text, { assertive })` are exported, so your own components use the same locale and live regions as Serupa's. README has a "For your own components" section for them and `useSerupa`.
+- Radio: while the row is held down (pointer, or Space on it), the circle shrinks to 90% and springs back (scale only, `motion-press` with ease-out), as Checkbox's box does. Not when disabled, and off under reduced motion. New token `--radio-press-scale`.
+- DateRangePicker and Calendar take plain `"yyyy-mm-dd"` strings for their value, default value, min and max, as DatePicker does. `onValueChange` also gets the day or range as `"yyyy-mm-dd"` in its second argument. A new type, `DateRangeInput`, is the range they take.
+- Rating, stars to pick a score or to show one. Interactive, it's a `role="radiogroup"` of native radios (one per star, or two with `allowHalf`) named "3 stars", so arrow keys, forms and screen readers work as in any radio group. `clearable` clears on a second pick, Backspace or Delete. `readOnly` draws any fraction as one image named "4.3 out of 5". It takes `value`/`defaultValue`/`onValueChange`, `max`, `size`, `name`, `required`, `disabled`, `invalid`, works in a Field, and supports right to left. New labels: `ratingStars` and `ratingValue`.
+- SegmentedControl: a held segment shrinks to 95% and springs back (scale, `motion-press` with ease-out), like a Button, so a press registers at once. Not when read-only or disabled, and off under reduced motion. New token `--segmented-control-press-scale`.
+- A warning, once on the server, when a component that writes dates, times or numbers renders without a locale from its prop or a `SerupaProvider`: its HTML is en-US and changes to the browser's locale after hydration.
+- SidebarItem: a group's open state can be controlled with `open` and `onOpenChange(open, { reason })`, like every other component that opens and closes. `defaultOpen` still works, and a group holding the active page still starts open.
+- Splitter, two panes with a handle between them that resizes the first, following the WAI-ARIA window splitter pattern (a focusable `role="separator"` with `aria-valuenow`, arrow keys, Home and End, and Enter to collapse with `collapsible`). Sizes are percent, with `min`, `max`, `step`, `size`/`defaultSize`/`onSizeChange`, `direction="vertical"`, right-to-left support and an optional `storageKey` that keeps the layout for the next visit. New label: `resizePanes`.
+- Stepper: while a clickable step's head is held down, its indicator shrinks to 95% (scale only, `motion-press` with ease-out) and springs back, so a press registers at once; off under reduced motion. New token `--stepper-press-scale`.
+- Switch: `onCheckedChange(checked, event)`, called after `onChange` with the new state, as Checkbox's is. Not while read-only or pending. `onChange` stays as it was.
+- Switch: while the row is held down (pointer, or Space on the switch), the thumb shrinks to 90% and springs back (scale, `motion-press` with ease-out), so a press registers at once. Not when read-only, pending or disabled, and off under reduced motion. New token `--switch-press-scale`.
+- Table: a sortable header held down fills with the `pressed` color, so a press registers at once. New token `--table-sort-bg-pressed`.
+- Timeline and TimelineItem, an ordered list of events (a dot or icon marker on a joining line, a title, a `<time>` and content) for activity feeds and order history. `align="alternate"` puts events on both sides of a centered line from 768px up.
+- `toast.promise(work, { loading, success, error })` shows a loading toast while the work runs and replaces it with the success or error message when it settles, each a title, options, or a function of the result or error.
+- Tooltip: onOpenChange gets `{ reason }` as its second argument: `'hover'`, `'focus'`, `'blur'`, `'trigger'` (a press on the element), `'escape'` or `'outside'`. `OpenChangeReason` gains `'hover'` and `'focus'`.
+- Tooltip: a shared warm-up. Once a tooltip has shown, the next one opens at once and without a fade, and the open one closes, until the pointer has been off every tooltip for 300ms. Scanning a toolbar of icon buttons no longer waits 400ms per button. The `delay` prop still sets the cold start.
+- TreeView: a row held down fills with the `pressed` color, one step past hover, so a press registers at once. Not on the picked row or a disabled one. New token `--tree-view-item-bg-pressed`.
+- `useCollator(options?)`: an `Intl.Collator` for the locale the components use (its own `locale` option, else SerupaProvider's, else the browser's), made once per locale and options. Sorting options and table rows with its `compare` puts "Äpfel" beside "Apfel" in German and "Item 2" before "Item 10". PhoneInput's country list now sorts with the same Collator.
+
+### Changed
+
+- TimePicker's placeholder follows the locale's order, separator and AM/PM words, worked out with formatToParts: "hh:mm AM/PM" in en-US, "hh.mm" in id-ID, "오전/오후 hh:mm" in ko. It was "hh:mm am" or "hh:mm" everywhere.
+- The Motion foundations page covers when to animate, the roles, timing, easing, sequencing, performance and reduced motion.
+- Textarea's `autoResize` uses CSS `field-sizing: content` where the browser has it (Chromium 123+, Safari 26+), with `rows` and `maxRows` as its least and most height. Nothing is measured while typing, and there's no frame at `height: auto` that could jump the page. Other browsers keep the measuring path.
+- Popover, Menu, ContextMenu and Tooltip given a text, several elements or a Fragment as the trigger throw an error that names the component, instead of React's "expected to receive a single React element child". A trigger that doesn't forward its ref warns once.
+
+### Fixed
+
+- Closed Accordion items are no longer empty region landmarks: only an open item's content is a region, and none is with `type="multiple"` and more than six items.
+- Dismissing an Alert with its focused × moves focus to the next focusable element after the alert, or the one before it, instead of dropping it on the page.
+- Avatar's four statuses differed only by color, and looked the same in forced-colors mode. Each now has its own shape: online a filled dot, busy a dot with a bar, away a ring with a dot, offline an empty ring.
+- An Avatar with `alt=""` and a status hid the status from screen readers. The dot is now read on its own ("online").
+- A Badge whose `loading` ended a moment after it started flashed the ring for a frame or two. Once shown, the ring now stays at least 500ms.
+- A Loader with `delay={0}` now shows in the same render that turns `loading` on, not one frame later.
+- Removing a tag with its × (Badge `onRemove`) moves focus to the next tag's ×, or the one before it, instead of dropping it on the page.
+- A long unbroken Breadcrumb label ran past a 320px screen (WCAG 1.4.10). It now wraps inside the trail.
+- The "…" button now takes a press over 24×24px, like the links.
+- A Breadcrumb with no items rendered an empty nav landmark. It now renders nothing.
+- A Button whose `onClick` promise settled just after 300ms flashed its spinner for a frame or two, cut off mid fade-in. Once shown, the spinner now stays at least 500ms, and the `successText` check follows it.
+- Carousel: the slides not shown are inert from the first paint, server HTML included, instead of once an effect ran after hydration. React 19 takes `inert` as a prop, so the workaround for React 18 is gone.
+- ColorPicker's swatch edge and native color well used `border`, at 1.27:1 on the page, so a white swatch on a white page (or a black one on a dark page) had no visible edge. The `--color-picker-swatch-border` default is now `field-border`, which keeps 3:1 in all six themes (WCAG 1.4.11).
+- Console warnings are for development only. Every warning a component gives (an icon-only Button with no label, a Tabs value that matches no tab, a Field label with no control, and the rest) now sits behind `process.env.NODE_ENV !== "production"`, so your bundler's production build drops the warnings and their text. `serupa.iife.js` keeps them, since a plain page has no build step.
+- Icon: hydrating draws only the icons the server could draw (passed or registered). An icon this page had already loaded by name, for example in an island hydrated after another, used to show during hydration, which React reported as a mismatch and rendered again. It now appears right after hydration.
+- Icon draws your custom icons as elements instead of writing their markup as HTML, so a page with Trusted Types on (`require-trusted-types-for 'script'`) needs no policy for Serupa. Nothing else in the package writes HTML either, and a new story-wide test keeps it that way.
+- Serupa.iife.js is minified (3.4 MB to 3.0 MB) and ships with serupa.iife.js.map, so a stack trace on a plain page points to the source files.
+- InlineEdit said nothing when `validate` kept the field open. Focus stays in the field, and screen readers don't read a focused field's description again, so the message was only shown. It's now announced politely on each failed try, as Field announces its errors.
+- Work that ended just after the 300ms delay flashed the loader for a frame or two, cut off mid fade-in.
+- Menu: scales in from the point facing its trigger instead of its centre. `placeLayer` now sets `--dk-layer-origin` on every positioned layer (EO1).
+- The duration tokens' descriptions now match how the components use them. Tooltips, popovers and menus enter in 150ms, dialogs and toasts in 200ms, and drawers in 300ms.
+- The focus ring's width and offset tokens are exported to design-tokens/ as references to the outline scale. They used to be CSS-only values that held a literal `{…}`.
+- NumberInput tells screen readers when typed text that isn't a number is replaced by the previous number, as the date and time pickers do.
+- With two Toasters mounted at once, each toast showed twice. Now only the newest Toaster shows toasts, with a console warning once, and the older one takes over when it unmounts.
+- Pagination size sm keeps the current page a 24px square with two digits in any font. Its semibold "88" in DejaVu Sans (common on Linux, where Inter isn't installed) is 16.7px, and with 4px sides the page was 24.7px wide. The sides are 2px now (`--pagination-padding-x-sm`, `spacing-0.5`); a one-digit page looks the same, since the square's 24px minimum still sets its width.
+- PhoneInput no longer rebuilds its 244 country options on every keystroke; a keystroke's render goes from about 5.5 ms to under 1 ms.
+- PhoneInput: hydrating no longer fails when the server words a country name differently from the browser, for example Node's "Falkland Islands (Islas Malvinas)". The server's options stay in place during hydration and are drawn again in the browser's words right after.
+- `SerupaProvider` with `labels` or `icons` written inline no longer re-renders every component under it each time its parent renders; only new contents do.
+- Collapsing or expanding Sidebar animated its width, so the page beside it was laid out again on every frame and stuttered on heavy pages. Now the width changes once, and only a clip and the edge line slide, which the compositor runs alone. Toggling again mid-way turns back from where it is.
+- Tabs: the selected tab is scrolled into view again once the web fonts load. Tabs that widen when the real font arrives no longer leave it part way past the end of an overflowing list.
+- `theme.js` loaded twice (an inline copy plus the file, or two bundles) made two independent copies. The first one's `onChange` subscribers missed later changes, its `get()` went stale, and on a system light/dark switch it could write its own theme over the visitor's choice. A second copy now does nothing.
+- `localStorage.clear()` in another tab left this tab on the old choice until a reload. It now goes back to the page default, as with `reset()`.
+- TreeView: a focus move, a pick or opening and closing one item now redraws only the rows it changes. With 3,060 items in view, an arrow key used to redraw all of them. Open and picked ids are kept in Sets, so Ctrl+A on a big tree is no longer quadratic, and focus finds its item by id.
+- Every console warning now ends with a code and a link to its section in docs/warnings.md, which says why it shows and how to fix it, such as `(Serupa warning tabs-value: https://github.com/diki-stwn/serupa-ds/blob/main/docs/warnings.md#tabs-value)`. Button's icon-only warning is now `button-icon-label`.
+
+## [9.6.0] - 2026-10-25
+
+### Added
+
+- `initialFocus` on Dialog, a ref to the element that takes focus when the dialog opens, such as Cancel in a confirmation. It wins over `data-autofocus`. A ref to something outside the dialog is ignored, so focus never leaves the modal.
+- `MenuCheckboxItem` (role `menuitemcheckbox`) for on/off settings in a Menu, and `MenuRadioGroup` with `MenuRadioItem` (role `menuitemradio`) for one of a set, each with `aria-checked` and a check before the label. You hold the state (`checked` with `onCheckedChange`, `value` with `onValueChange`). The arrow keys, Home, End and typeahead reach them like any item.
+- Popover: onOpenChange gets a second argument, `{ reason }`, saying why it opened or closed: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` (the close() its children function gets). The `OpenChangeReason` and `OpenChangeDetails` types are exported for the other overlays to use next.
+
+## [9.5.0] - 2026-10-25
+
+### Added
+
+- `defaultOpen` on Dialog and Drawer, so they can be open on arrival without a state of their own. `open` is now optional: without it, Escape, the × and the backdrop close them by themselves, and `onOpenChange(false)` still comes. Menu, Popover and Tooltip already had `defaultOpen`; their tests now cover it.
+
+### Changed
+
+- IconButton's ref type is now declared as `IconButtonElement` (`HTMLButtonElement | HTMLAnchorElement`, the same type as before). The type declarations then print it the same way on every build, so index.d.ts no longer changes from one build to the next.
+
+### Fixed
+
+- CheckboxGroup's `selectAll` box rendered disabled and unchecked on the server, and so until hydration, even when `defaultValue` checked some or all boxes. It now counts the Checkboxes among the group's children until they register, so it is enabled and checked or mixed from the first paint.
+
+## [9.4.0] - 2026-10-25
+
+### Added
+
+- `perView` on Carousel, to show two or three slides side by side, 16px apart (`--carousel-slide-gap`). It takes a number or one per screen width, `{ base, sm, md, lg }`. The buttons and swipe still move one slide and stop when the last one is in view, and the dots count pages, named "1–3 of 7" (new `slidesOf` label, in English and Indonesian). All the slides in view are reachable; the rest stay inert (R5).
+- `orientation="vertical"` on Tabs. The tabs form a column at the start of the panels, with `aria-orientation="vertical"` and ↑ ↓ between them, and the line variant's line on the column's end side (O4).
+- ToggleGroup, a set of ToggleButtons that share one value. With `type="single"` (the default) one is on at a time, and `required` keeps one on. With `"multiple"` any number can be on. `value`, `defaultValue` and `onValueChange` hold the values of the buttons that are on. `size`, `variant` and `disabled` reach every button that doesn't set its own. It looks like a ButtonGroup and has its `attached` and `orientation` props.
+- TreeView, nested items that open and close, such as folders and files. It follows the WAI-ARIA tree pattern: one Tab stop, the arrow keys, Home and End, `*`, and typeahead. `selectionMode` is 'single', 'multiple' (with Shift ranges and Ctrl+A) or 'none'. `value` and `expanded` can be controlled or uncontrolled, closed items' children aren't in the page, and every value has its own token.
+
+### Fixed
+
+- A tab row with more tabs than fit gave no sign of the rest, and a selected tab past the edge stayed out of sight. The edge with more tabs past it now fades out over 32px (new `--tabs-fade-size` token), and the selected tab is scrolled into view whenever it changes, without scrolling the page.
+
+## [9.3.0] - 2026-10-25
+
+### Added
+
+- `collapse="menu"` on Breadcrumb. With `maxItems`, "…" opens a Menu of the hidden pages, as links, instead of putting them back in the trail, so a deep trail stays on one line on a phone. The default, `'inline'`, works as before. New `morePages` label ("More pages"), in English and Indonesian (R4).
+- ContextMenu, a Menu opened from an area instead of a button.
+
+- A right-click (or a long press on touch) opens it at the pointer. Shift+F10 or the Menu key opens it at the focused element.
+- It has Menu's items, keys, top layer and closing. Escape or a choice puts focus back where it was.
+- `aria-label` names it, and `disabled` leaves the browser's own menu in place.
+
+`<ContextMenu aria-label="File actions" target={<Card tabIndex={0}>…</Card>}>…</ContextMenu>`
+
+### Changed
+
+- Breadcrumb's separators sit inside the item after them, not in `<li>`s of their own, so the list has one item per page and screen readers count the levels right. A separator now wraps with its item, never ending a line on its own.
+- Combobox draws at most 100 option rows at once, so typing into lists of thousands stays quick. A muted "Keep typing to narrow N more" line shows how many more match. It uses the new `moreResults` label, with English and Indonesian text. Every row's `aria-posinset` and `aria-setsize` still count all the matches, and the picked option is drawn even when it's further down.
+
+### Fixed
+
+- DatePicker, DateRangePicker and TimePicker work out the locale's date order, typing pattern and 12-hour clock once per locale instead of on every render and keystroke. NumberInput works out its percent scale once per locale and format.
+- Toaster starts empty and reads the toast queue after it mounts, as it already did on a server render. A `toast()` called during a server render can no longer show up in another request's HTML.
+
+## [9.2.0] - 2026-10-25
+
+### Added
+
+- Find-in-page reaches closed Accordion items. Ctrl+F (⌘F) used to skip them; now the browser finds the text and opens the item it's in, through `hidden="until-found"` (idea 186). Closed content is still out of the tab order and hidden from screen readers.
+- `showExpandAll` on Accordion with `type="multiple"`: an "Expand all" button above the items, which becomes "Collapse all" once every item is open. New `expandAll` and `collapseAll` labels, in English and Indonesian (idea 52).
+- `keepMounted` on AccordionItem, as on TabPanel. `keepMounted={false}` renders an item's content only while it's open (and while it closes), for heavy content such as a chart. By default closed content stays in the page and keeps its state.
+- Avatar:
+- The picture now loads lazily and decodes async by default, so a long list of people doesn't fetch every avatar at once. A new `imgProps` prop passes props to the `<img>`, such as `loading="eager"` for one above the fold (BJ1).
+- A name of only spaces now counts as no name. The avatar is hidden like one with no name, instead of being an image named with spaces (AU1).
+- Initials are one character a person sees per word, taken from its first letter, digit or pictograph: "ßen Müller" gives "SM" (it gave "SSM"), a name in quotes no longer gets a quote mark, and a joined or skin-toned emoji stays whole (CD1).
+- A `type="submit"` Button inside a `<form action={fn}>` (React 19 form actions) now shows `loading` while that form is being sent, using React's `useFormStatus`. You don't need your own state, and a second click can't send it twice. Set `loading` yourself to override it.
+- `disabledReason` on Button. With `disabled`, the button stays focusable (`aria-disabled`) so keyboard and screen reader users can reach it and hear why, and a Tooltip around it now shows on hover and focus, which a disabled button never could (idea 214).
+- An `onClick` that returns a promise makes the Button load until it settles, so a slow request can't be sent twice without your own loading state (idea 199).
+- `successText` on Button: after that promise resolves, a check replaces the label for 2 seconds and the text ("Saved") is announced (idea 16).
+- `CheckboxGroup`, which holds a list of checked values (`value`, `defaultValue`, `onValueChange`) for a set of Checkboxes. It names them and passes `size`, `invalid`, `disabled` and `required` down. Here `required` means at least one box. Add `<Checkbox selectAll>` to check or clear the rest: it's checked when all are, and indeterminate when some are.
+- ColorPicker takes `required` and `invalid`. A required picker with no color stops the form submitting, marks the swatches invalid and focuses them (AJ2).
+- With `contrastWith`, every swatch says its contrast ratio before it's picked, and one under `minContrast` is struck through and has `data-low-contrast`, so people see which colors are hard to read before choosing (idea 208).
+- `onValueCommit` on ColorPicker, called once a color is chosen (a swatch, the browser's picker closing, or leaving the hex field), not on every drag step like `onValueChange` (K7).
+- `form` submits the color with a form the picker sits outside of, and that form's reset puts the first color back (U3).
+- Combobox:
+- PageDown and PageUp move by what the list shows at once (about seven options), as the ARIA pattern describes. Before, they jumped to the last and first option, the same as End and Home (BH1).
+- The list is at most 28rem wide unless the field is wider, and long labels wrap. Before, one long label could stretch it to the width of the window. New token `--combobox-listbox-max-width` (BH2).
+- When typing stops, the number of matching options is announced ("3 results"). New label `resultsCount`, in English and Indonesian (BE1).
+- An option's text `description` is now its `aria-description`, so its name is the label alone. `aria-controls` is set only while the list is open (N8).
+- `configure({ link })` now reaches every component that renders a link. Link, NavbarLink, BreadcrumbItem and ListItem use it as their default `as`, and Pagination's page links (with `getHref`) use it too. Before, only Button, IconButton, Badge, Card and MenuItem did, though the README promised it for all of them. An item's own `as` still wins. Pagination has a new `linkAs` prop for one pagination. Nothing changes until `configure({ link })` is called (BL1).
+- Menu, Popover and Tooltip take `defaultOpen`, and InlineEdit takes `defaultEditing`: open at first without controlling it, then opened and closed by the person as usual.
+- Dialog: `fullScreen` fills the screen, either always (`true`) or only under 640px wide (`"mobile"`), with square corners, the footer at the bottom and padding that clears a phone's notch and home bar. Fixed: under `<React.StrictMode>`, a Dialog or Drawer that was open on its first render dropped off the modal stack, so toasts and announcements stayed behind it on the inert page (A1).
+- New component: ErrorBoundary. It catches an error thrown while rendering anything inside it and shows a danger Alert with "Try again" in its place, so one broken widget doesn't take the page down (idea 198). Focus moves to the message when the crash took it away; `onError` reports the error, `resetKeys` clears it on a route change, and `fallback` replaces the message. New `errorTitle`, `errorDescription` and `tryAgain` labels, in English and Indonesian.
+- In a Field with an error, the control also points at the message with `aria-errormessage` (J12). This covers a direct child and any Serupa control at any depth, including both inputs of a DateRangePicker and FileUpload's choose button. The message stays in `aria-describedby` too.
+- Field warns once in the console when nothing on the page has its control's id, so the label names nothing (A4).
+- FileUpload takes `form`, the id of the form its files submit with when it sits outside that form, as a native input does (AJ3).
+- `form` on Slider, SegmentedControl and DateRangePicker, which render no input of their own to take it.
+- New component: Highlight. It marks the parts of a text that match a search in `<mark>`, ignoring case, accents and width the way Combobox matches ("lodz" marks "Łódź", "strasse" marks "Straße"), for search results, options and command palettes (idea 42). `words` marks each word of a query on its own, and `highlightRanges()` returns the matches as offsets.
+- Input: `showCount` adds a character count at the end of the field, and `maxLength` is now counted in characters as people see them (an emoji is one) and applied by Input, as Textarea does. Input and Textarea read the count out only near the limit: once when a few characters are left and once when it's reached (new `charactersLeft` label, English and Indonesian). Email, URL, username and one-time-code inputs turn off autocapitalize, autocorrect and spellcheck unless you set them. Fixed: a form reset now puts Textarea's count back to the default text's.
+- A MenuItem's `shortcut` is now given to screen readers as `aria-keyshortcuts` ("⌘⇧K" becomes `Meta+Shift+K`), and the shown keys are left out of the item's name, so it reads "Edit" instead of "Edit command E" (idea 197). Pass `aria-keyshortcuts` to set it yourself.
+- Menu: a menu is at most 20rem (320px) wide, and longer labels wrap onto a second line. Before, one long label could stretch a menu under a 70px button to the width of the window. New token `--menu-max-width` (BH2).
+- Menu: new `MenuSub`, an item that opens a submenu at its end edge (the left in rtl, flipping when there's no room). → (← in rtl), Enter or Space opens it on its first item; ← (→ in rtl) or Escape closes it back on the item; ↑ ↓ Home End and letters stay inside it. Hovering opens it after 150ms, and it closes 150ms after the pointer settles on another item. Choosing an item in it closes every level. New token `--menu-sub-offset`.
+- Meter says the zone out loud. Outside the best zone, screen readers hear "92%, high", "12%, low" or "45%, medium", so the warning the bar's color gives isn't only visual. The words come from the new `meterZone` label (English and Indonesian built in). A meter with `formatValue` reads your words as they are (idea 206).
+- Fifteen components now warn in the console, once, when they render with no accessible name: Dialog, Drawer, Slider, Switch, Checkbox, Combobox, Select, Input, SegmentedControl, Progress, Meter, RadioGroup, DatePicker, ColorPicker and Carousel. A screen reader would announce only their role. Each warning says how to name the component. Tabs also warns when its value or defaultValue matches no Tab.
+- `--pagination-padding-x-sm` token (4px), the side padding of a page at size sm.
+- PasswordInput: while Caps Lock is on, "Caps Lock is on" shows in the field, joins its description and is read out once (new `capsLockOn` label and `--password-input-caps` token; `capsLockHint={false}` turns it off). The README now says pasting is never blocked (WCAG 3.3.8), and a test checks it.
+- PhoneInput knows every calling code in the world (244 countries and territories, up from 51). `+94 77…` is Sri Lanka now, where the digits used to be read as a number in the picked country (K2).
+- Where countries share a calling code, the area picks one. `+1 416…` is Canada and `+1 684…` American Samoa (both read as the US before), `+7 7…` is Kazakhstan, and `+44 1481…` is Guernsey. `PhoneCountry` has optional `areas` and `patterns`.
+- `countries` takes your own `PhoneCountry` rows as well as ISO codes; a row replaces the built-in one with the same code. `parsePhone` takes the list as a third argument.
+- A `+` code PhoneInput doesn't know warns once in the console.
+- PinInput, for a one-time code or PIN shown as one box per character (`length`, default 6).
+
+- It's one native field under the boxes, so a phone's texted-code suggestion (`autocomplete="one-time-code"`), a paste and a password manager fill every box at once. A form submits the code by `name`, and labels, Field and screen readers treat it as an Input.
+- `type="numeric"` (digits and a number keypad, the default) or `"alphanumeric"`. Other characters are dropped, so "123-456" fills six boxes.
+- `value`, `defaultValue`, `onValueChange` and `onComplete`, plus `mask`, `size` (24, 32 and 44px boxes) and `invalid`.
+
+Tokens: `--pin-input-*`.
+- `headingLevel` on Popover sets the title's level (2–6) to fit the page's outline.
+- `announceComplete` on Progress says "Upload: complete" (or your own words) to screen readers when the value reaches max, and `onComplete` is called then. A bar that starts full doesn't speak.
+- The `progressComplete` label, in English and Indonesian.
+- RadioGroup: `onValueChange(value, event)` is the new name for `onChange`, so every composite (SegmentedControl, Tabs, Slider, Select) uses the same one. `onChange` still works and gets the same arguments after `onValueChange`, but it's deprecated: it warns once in the console and goes in the next major. Migration: rename `onChange` to `onValueChange` on each RadioGroup. Nothing else changes. The `onChange` of a single Radio is the native input event and stays.
+- `onInvalidInput(text, reason)` on DatePicker, DateRangePicker and TimePicker. Typed text that isn't a date or time ("unreadable"), or is one that can't be chosen ("unavailable"), used to be put back on blur without a word. Now the app hears why, and screen readers hear that it wasn't accepted (the `inputNotAccepted` label, Indonesian in `idLabels`) (R35, M1).
+- The `--dialog-focus-ring` and `--drawer-focus-ring` tokens.
+- SegmentedControl: a `size="lg"` (44px), so it lines up with lg Inputs, Selects and Buttons. It has a base-size label, 16px label padding (`--segmented-control-padding-x-lg`) and 20px icons. Its height is `--segmented-control-height-lg`.
+- The `--sidebar-dot` token (default `primary`) for that dot's color.
+- `MenuItem` takes `as`, a link component of its own in place of the `configure({ link })` one.
+- Slider `marks`, with ticks on the track (`true` for every step) and optional labels under them. Also `showValue`, which shows the formatted value over the thumb while it's focused, hovered or dragged. Both are visual only, and come with the tokens `--slider-mark`, `--slider-mark-label`, `--slider-value-bg` and `--slider-value-text`.
+- `clickable="all"` on Stepper, for a form people can fill in any order. With `onStepClick`, every step but the current one becomes a button, upcoming ones too; the default, `'completed'`, keeps only the steps before the current one (R6).
+- `status: 'warning'` on a Stepper step, for a softer problem than `'error'`: a warning-subtle circle with a warning mark, read as ", needs attention" (new `hasWarning` label, in English and Indonesian). New tokens `--stepper-warning-bg`, `--stepper-warning-border` and `--stepper-warning-text`.
+- Switch `pending`, for while a flip is being saved. A small ring turns on the thumb, `aria-busy` is set, and clicks and Space don't flip it again until it's done. It stays focusable and is still submitted.
+- Table: a sortable column's new order is read out ("Sorted by Amount, ascending.", new `tableSorted` label in English and Indonesian). In print, Table shows the whole table, repeats its header row on every page and keeps rows whole, and a Card isn't split across pages.
+- Tabs: the browser's find-in-page now finds text on other tabs. A kept panel of another tab is `hidden="until-found"`, so a match selects its tab (calling `onValueChange`) and shows it, as Accordion opens an item. Browsers without `until-found` keep it plainly hidden, as before.
+- The `toastRepeated` label, in English and Indonesian.
+- Toolbar, a `role="toolbar"` around a set of controls (an editor's formatting buttons, the tools beside a canvas) that takes one Tab stop instead of one per control. It follows the WAI-ARIA toolbar pattern:
+
+- The arrow keys move between the controls: Left and Right in a row (mirrored right to left), Up and Down with `orientation="vertical"`. Home and End go to the first and last, and the keys wrap.
+- Tab comes back to the control used last.
+- Disabled controls, a Menu's items and text editing inside an Input are left alone.
+
+Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding` and `--toolbar-gap`.
+- Input, NumberInput, PasswordInput, PhoneInput, SearchInput, Combobox, DatePicker, TimePicker, Textarea, Image and Divider no longer accept `children` in their types. They render an element that can't hold children (an `<input>`, `<img>` or `<hr>`; a `<textarea>` takes its text from `value`), so `<Input>text</Input>` type-checked and then threw in React. If your code passed children to one of these, move that text to `value`, `defaultValue`, `label` or a wrapper.
+
+### Changed
+
+- DatePicker places its calendar with the same shared code as the other popups (M6). It looks and behaves the same.
+- Calendar builds its date formats once per locale, not on every render.
+- A ColorPicker swatch given as a bare hex string is now read out by a name from its color ("Dark blue", "Light gray") instead of its code ("#1e3a8a"), with the code as its tooltip. The words come from the new `colorName` label, in English and Indonesian (idea 207).
+- `components.css`, `utilities.css`, `bundle.css` and `base.css` ship without the source comments, which made up about 40% of `components.css`. It drops from 42.8 to 26.6 KiB gzipped, and `bundle.css` from 208 to 186 KiB. The rules are the same and keep their layout; the commented source stays in `src/`.
+- Popover's title is now an `<h2>`, as in Dialog, so screen reader users can jump to it by heading. It looks the same.
+- Textarea's `maxLength` counts the same characters as the count, so typing stops where the count says it's full. Text pasted past it is cut at the end of the paste, and an input method's text once it's confirmed. The `<textarea>` no longer carries the browser's `maxlength`.
+
+### Removed
+
+- `--button-focus-gap-color`, `--checkbox-focus-gap-color`, `--radio-focus-gap-color`, `--switch-focus-gap-color` and `--badge-focus-gap-color`, which 9.0.0 deprecated and said were removed. They have had no effect since 9.0.0 (the focus ring is an outline, so its gap is transparent on any background), but they still shipped in the five usage guides, the components' tokens.json files and `design-tokens/components/`. A project that sets one can delete it: nothing changes on screen. `--tabs-focus-gap-color` stays, because the selected pill's inset ring uses it.
+
+### Fixed
+
+- Tab past an open DatePicker or DateRangePicker calendar left it open over the page. Focus moving past it closes it now (M2).
+- On a touch screen, a finger that started a scroll outside an open Menu, Popover, TimePicker list or date picker calendar closed it at once. It now waits for the tap: a scroll leaves it open, a tap outside closes it (O3).
+- On a phone, a Combobox list, Menu, Popover or date picker opened from a field near the bottom of the screen went under the on-screen keyboard, and pinch-zoom left it behind. Popups are placed within the visible part of the page (the visual viewport) and follow it as it changes (U1).
+- When several announcements came at once, they were joined with an extra period, so SortableList said "position 1 of 3.. Apollo" and screen readers paused oddly. Messages that end in their own stop are now joined with a space (idea 212).
+- Added a test over every built-in label in English and Indonesian: none is empty, has doubled punctuation or spaces, or is left in English in the Indonesian set.
+- DatePicker, TimePicker and Combobox keep an `autoComplete` you pass, such as `bday` for a date of birth or `country-name` for a country, so browsers can fill them (WCAG 1.3.5). They wrote `off` over it. `off` stays the default.
+- `autoFocus` on ColorPicker, InlineEdit and SortableList focuses the control inside (the picked swatch, the edit button, the first handle) instead of landing on the wrapper and doing nothing.
+- Badge: a count past `max` still shows "99+", and now screen readers hear the real count ("150") and the tooltip shows it. Before, "99+" was all anyone could learn. Your own `title` wins.
+- A loading Button or Badge, or a disabled Button with a `disabledReason`, swallowed the click for everything above it, so a parent's onClick, an analytics wrapper or a Card's stretched link never heard it. It still does nothing itself (no submit, no navigation), and the click now bubbles (A6).
+- README.md and the Foundations guide name the oldest browsers that get the whole system (`light-dark()` behind `data-brand` / `data-mode`: Chrome and Edge 123, Safari 17.5, Firefox 120; the `popover` top layer: Chrome and Edge 114, Safari 17, Firefox 125) and what an older browser loses.
+- Button: `onClick`'s type accepts a handler that returns a promise (or anything else), matching what the button already does with it: no second click until the promise settles, loading while it takes a while, then `successText`.
+- Calendar's arrow keys, Home, End, PageUp and PageDown stop at `min` and `max`, as the native date field does. A Shift+PageUp could leave focus on a day a year outside the range, in a month the buttons wouldn't show.
+- Calendar's weekday headers give screen readers the full name ("Monday") as text, not only in `abbr`, which some don't read.
+- Carousel: what a screen reader calls the carousel and its slides ("carousel", "slide") was English in every language. It comes from the new `carouselRole` and `slideRole` labels now ("korsel" and "slide" in `idLabels`).
+- The README's checklist for a new component now names its size budgets file, `tools/test/baseline-size/<Name>.json` (`node tools/test/size.mjs --update <Name>`).
+- A ColorPicker in a Field gave the Field's id to both its outer element and its hex field, and put `aria-describedby` and `aria-required` on an element with no role. The radiogroup now carries the description, `aria-required`, `aria-invalid` and `aria-errormessage`, and the hex field stays a separate field named "Hex code" (AK2).
+- A form reset left ColorPicker on the last color and submitted it. It goes back to `defaultValue` now (P2).
+- A controlled ColorPicker whose parent turned down a typed color kept the rejected text in its hex field. On blur the field shows the color it kept (AF2).
+- Typing an option's full label in Combobox ("Brazil") and then leaving the field emptied it and picked nothing. Text that is exactly one enabled option's label (any case, with or without accents) now picks that option when focus leaves (N1).
+- Combobox's chevron and × names ("Show options", "Clear Country") and a range Slider's thumb names ("Minimum", "Maximum") were English in every language. They're labels now (`showOptions`, `clearValue`, `sliderMinimum`, `sliderMaximum`), Indonesian in `idLabels` (A5).
+- Combobox handles long option lists. Its options are in the page only while the list is open, so a closed Combobox with 2,000 options has no option nodes. Each label is folded for matching once per `options` array instead of on every render, and the option rows are memoised, so moving the highlight redraws two rows instead of every row.
+- Server-rendered pages under a strict Content Security Policy (no `'unsafe-inline'` for style attributes): Progress, Meter, Slider, ColorPicker, AvatarGroup, Icon, Carousel and Image apply their `style` attributes again right after hydration, through the DOM, so a Progress bar, a Slider thumb, and swatch colours show as they should. A render in the browser is unchanged.
+- `autoFocus` on a child of a Dialog or Drawer never took effect, because React focuses it while the dialog is still hidden. Focus always landed on the ×. Put `data-autofocus` (or the HTML `autofocus` attribute) on the child, and opening focuses it (BD1).
+- A press on the backdrop of a Dialog or Drawer while a Menu or Popover was open inside closed both at once. It now closes only the popup, and the next press closes the dialog (BG1).
+- A Dialog or Drawer whose parent kept `open` true after Escape was closed by Chromium on the second Escape (a page can refuse it only once per click), and then stayed closed while `open` was still true, with the page behind no longer inert. It now opens again, so `open` stays the truth (AI1).
+- Words some display components say were English in every language. Avatar's status ("online"), AvatarGroup's "N more", an external Link's "(opens in a new tab)" and Kbd's key names ("Up arrow") come from labels now (`avatarStatus`, `avatarMore`, `opensInNewTab`, `keyName`), in Indonesian in `idLabels`. `statusLabel` and `moreLabel` still win, and Link is still a Server Component (T1).
+- Divider: a text `label` now names the separator through `aria-label`. A separator's content is presentational, so screen readers skipped the "or". A label that isn't text stays as normal content, and the divider then has no separator role (BQ1).
+- Card: in a linked card, body text and the header's description can be selected and copied with the mouse. Before, the link's area covered them. A plain click on that text still follows the link (BO1).
+- In a right-to-left page, `side="right"` placed the Drawer on the left while it slid in from the right, crossing the whole screen, and `side="left"` did the opposite. `side` is physical, so each drawer now opens on the edge it names and slides in from. The safe-area padding follows the same edge (AZ2).
+- Textarea with `autoResize` and Stepper no longer measure after every render of a parent. Textarea refits when its value, size, row count or text changes, and Stepper measures again only when its steps' text or orientation changes, not each time an inline `steps` array is passed.
+- Clicking the label of a Field holding a Slider, SegmentedControl or ColorPicker focused nothing, because a label can't focus their `<div>` root. It now focuses the thumb or the checked option (AK1).
+- A native `<select>` as Field's direct child got no id, hint, error or invalid state, and the label pointed at an id nothing had, because its options made Field treat it as a wrapper. Labelable elements (select, button, meter, output, progress, textarea) are always the control now (S1).
+- Field's "(optional)" was English in every language. It's the new `fieldOptional` label now ("(opsional)" in `idLabels`) (S2).
+- An error that appears on a Field after mount (after a submit, say) wasn't announced, since a description is only read on focus. Field now says it politely when it appears or changes (S3).
+- The shared screen reader announcer relied on the `sr-only` utility class, so without `utilities.css` its text showed on the page. It's hidden with inline styles now (A2).
+- Textarea, Select, ColorPicker and InlineEdit look disabled inside a `<fieldset disabled>`, as Input does. The native controls were already disabled, but the boxes kept their enabled look and hover border, and InlineEdit kept its pointer and pencil.
+- Input and the fields built on it look disabled inside a `<fieldset disabled>`. The native field was already disabled, but the box kept its enabled look and hover border.
+- Submitting a form without a required FileUpload focused its hidden input and pointed the browser's bubble at nothing. It now says "Choose a file." in its own alert area, marks the button invalid and focuses it (N2).
+- FileUpload's refusal messages were English in every language. They're labels now (`fileWrongType`, `fileTooLarge`, `fileTooMany`, `fileOnlyOne`, `fileMissing`), Indonesian in `idLabels`, with the accepted types joined by `Intl.ListFormat` (N3).
+- Dragging text or a link across a FileUpload highlighted it as a drop target. Only drags that carry files do now (N5).
+- In forced colors (Windows High Contrast), FileUpload's drag-over state was lost with the primary fill. The area now gets a solid `Highlight` border while files are dragged over it (AM1).
+- Clicking a `<label for>` that points at a FileUpload opened the picker but left focus on its hidden input, with no focus ring and a screen reader on a hidden element. Focus now goes to the choose button.
+- Docs: every component guide now says where `id` goes in its Props table: the root element, the native field inside (so a `<label htmlFor>` works), or nowhere (Menu, Popover, ErrorBoundary take none; Tooltip passes it to its trigger). The guides check requires the row from now on.
+- Combobox, DatePicker, DateRangePicker, PhoneInput, SegmentedControl, Slider and TimePicker placed outside their form with `form="…"` sent nothing, because their hidden inputs didn't carry the form attribute. They do now, and a reset of that form puts their defaults back (U3).
+- At size `sm`, the buttons inside a field (SearchInput's clear, PasswordInput's show/hide, NumberInput's steppers) were 22px with nothing around them to press, short of WCAG 2.5.8's 24px. Each now takes presses over 24px, through a box behind it, without changing the layout.
+- On iPhone and iPad, focusing a small or medium Input, Textarea or Select (and the fields built on Input) zoomed the page, because Safari zooms into text under 16px. On iOS their text is now 16px at every size, with the box height unchanged.
+- DatePicker and DateRangePicker didn't read digits typed without separators, though their fields open a number keypad on phones, where separators are hard to type. Now 6 or 8 digits are read in the locale's order (`11222001` or `112201` in en-US, `22112001` in de-DE), or as ISO `20011122`. When both readings make a date, the one nearer today wins.
+- Link: `tone="neutral"` with `underline="hover"` now warns once in the console, since such a link looks like plain text until it's hovered. The guide gives the numbers for why color alone doesn't mark a link in a sentence: the primary color is 3.1–3.4:1 against body text in the light themes and 1.8–2.6:1 in the dark ones.
+- In forced colors (Windows high contrast) a skeleton Loader was blank, because the browser drops its background fill. The bones now keep a still `GrayText` fill (AM1).
+- Text written in a component's own `locale` (Calendar, DatePicker, DateRangePicker's calendars, TimePicker, NumberInput, FormattedNumber, RelativeTime) carries `lang` when that locale differs from the provider's, so screen readers read "Januari" in an Indonesian voice on an English page. Words from the labels (buttons, names) keep the page's language, and a `lang` you pass wins.
+- A long word, URL or id no longer runs out of its box: Checkbox, Radio and Switch labels, Field's label, hint and error, EmptyState, Loader's text, FileUpload's title and hint wrap it anywhere, and Heading, Text and Link wrap it where nothing else fits. Kbd still keeps a key on one line.
+- A word longer than the line (a German compound, a URL) pushed Alert, Card, Dialog, Drawer, Menu and Toast wider than their box, and an Alert in a narrow column made the page scroll sideways. It wraps inside them now (R31).
+- A Button with a long label grew past its container. It stops at the container's width, and the label ends in an ellipsis.
+- Input and Textarea keep the native `maxlength` in server-rendered HTML, so the limit holds before hydration or without JavaScript. It comes off right after hydration, when the components count characters as people see them.
+- Menu: `shortcut` spellings that came out wrong as `aria-keyshortcuts` now come out right. "Ctrl++" is `Control+Plus` (the key was lost), "Cmd-K" and "Ctrl-S" are split at the hyphen, and "G then I" is two presses, `G I`.
+- Printing a page with `data-mode="dark"` gave light text on white paper, since printers drop backgrounds. `base.css` now prints `data-mode` pages and sections in their light colors, and a flat `*-dark` theme keeps its backgrounds when printed.
+- A nested `data-mode`, `data-brand` or `data-theme` section switched the components inside it but its own plain text kept the page's color on a transparent background. With `base.css` it now takes its theme's `text` color and `surface` background, with no specificity, so a class on the section still wins.
+- With a sticky Navbar, a field reached with Tab, or the target of a `#link`, could scroll into view under the bar and stay hidden (WCAG 2.4.11 Focus Not Obscured). The page's `scroll-padding-top` now follows the bar's height, so they land just below it.
+- On a small screen, a Navbar menu with more links than fit below the bar ran off the bottom of the screen. With a sticky bar, the lower links could not be reached. The panel now ends at the bottom of the screen and scrolls inside, without scrolling the page behind it (AZ1).
+- A project on Node 22 or 24 no longer gets an engines warning (`engines.node` is `>=22`; only working on this repository needs Node 26, in `devEngines`), and CommonJS code can `require("serupa-ds")` and `require("serupa-ds/icons")` on Node 22.12+ through new `"default"` export conditions.
+- A controlled NumberInput whose parent kept its value (or changed it) after onValueChange still showed the stepped or typed number. After a step, Enter or blur the field now shows the `value` prop. A new `value` from outside also shows while the field has focus, as long as people aren't typing in it (AF1).
+- NumberInput submitted the text it shows ("Rp 1.500.000", "1.234,5"), which a server can't read as a number. With `name`, it now submits the number from a hidden input (whole cents with `minorUnits`), and `form` reaches it too (P1, U3).
+- A form reset left NumberInput showing and sending the old number. It puts `defaultValue` back now (P2).
+- NumberInput: from a typed value between steps, the arrows, buttons and Page keys first go to the nearest step in that direction, as the native field and Slider do. 0.1 and ↑ with `step={0.25}` is now 0.25, not 0.35. Money shown with finer decimals than its step keeps them, so $19.99 and ↑ with a step of $1 is still $20.99.
+- NumberInput read an accounting negative, "(Rp 1.500)" from `currencySign: "accounting"`, or a trailing minus ("1234.5-") back as a positive number on blur, a silent sign flip. Both are negative now (AA1).
+- With `style: "unit"`, Thai, Nepali and Tamil unit abbreviations hold dots ("กม."), and NumberInput refused the text it had just written. Dots in the text around the number are fine now (AA2).
+- Chinese numerals (`zh-u-nu-hanidec`, 二〇二五) typed into number, date and time fields are read (AB1).
+- Pagination size sm stays a 24px square in any font. With 8px sides there was 8px left for the number, so a "1" in DejaVu Sans (common on Linux, where Inter isn't installed) made the page 24.36px wide.
+- PasswordInput: showing or hiding the password keeps the caret and selection where they were. Before, the caret jumped to the start, so the next letter typed went in front of the password.
+- A calling code typed without `+` ("62 812…" with Indonesia picked) was written twice (+6262…). It's dropped once the number is too long to be a national one (R33).
+- German numbers are grouped by their area code. "030 123456" is "30 123456", not "301 23456" (R34). Tokyo, Osaka and London group by their area code too.
+- A Tooltip, Popover or Menu placed on the left or right that was wider than the room beside its trigger ran off the screen. It now gets a max width of that room, so its text wraps and it stays in view (A3).
+- In forced colors (Windows High Contrast), Navbar's current page lost its only cue, the shading. It gets an outline now, like Sidebar's (V1).
+- A Fab printed on every page, since it's fixed to the viewport. It's left out of print, like toasts and open menus (V2).
+- Navbar's small-screen menu now closes on a press outside the bar, as Popover does (S5).
+- After a form reset, a RadioGroup still held the old choice, so the next click on that radio did nothing. It follows the reset now, and a controlled one shows its value again (Q2).
+- In DateRangePicker, an end date typed before the start vanished on blur with no word. It's now put back and reported like a date outside `min`..`max`: `onInvalidInput(text, "unavailable")`, and screen readers hear that it wasn't accepted (AS1).
+- PhoneInput ignored `form.reset()`, so the form kept sending, and the field kept showing, the changed number. A reset now puts `defaultValue` and `defaultCountry` back (AJ1).
+- RelativeTime rendered on a long-running server wrote the time the server started for every request ("5 minutes ago" hours later). Each request now uses the current time, kept the same for every RelativeTime rendered within the same second (K1).
+- The README gave components.css as about 90 KB; it is about 250 KB (45 KB gzipped).
+- If making the GitHub release failed after the version's tag was pushed, re-running the Release workflow said the version was already released and never made the release. It now makes the release from the tag.
+- Dialog and Drawer: a body that scrolls takes Tab focus, with a focus ring, so it can be scrolled from the keyboard in every browser when nothing inside is focusable. It's a region named by the title.
+- A fixed Fab no longer covers what the keyboard focuses. While it's in a corner, the page keeps scroll padding at that edge, so a focused link scrolls into view clear of it.
+- Table with `stickyHeader` no longer hides focused cells behind its header. The frame measures the header into scroll padding at the top.
+- After a form reset, SearchInput emptied but kept showing its × (and pressing it sent another empty change). The × now follows the field: gone when it's empty, kept when the reset puts `defaultValue` back (Q1).
+- After a form reset, an uncontrolled Select with a placeholder went back to the placeholder but showed it in the text color, as if it were a choice. It now looks like a placeholder again (O1).
+- Sidebar: in the collapsed rail, an item's badge is read again. The tooltip names the item ("Inbox"), which replaced the link's own text, so its count was lost; the badge is now the item's description ("4").
+- A collapsed Sidebar dropped items' badges, so screen readers lost "Inbox 4" and nothing on screen showed there was news. The badge now stays for screen readers, hidden on screen like the label, and an 8px dot on the icon's corner shows there is one.
+- In a collapsed Sidebar, a group's button now shows its label as a tooltip on hover and focus, as the links do. Before, an icon-only group gave sighted users no name (BA2).
+- `ref` on a group SidebarItem was dropped. It now reaches the group's button, both expanded and in the rail, as the guide says (BA1).
+- SidebarItem links now use the link component set with `configure({ link })`, as Button and MenuItem already do. `as` still wins for one item (BL1, Sidebar part).
+- In a collapsed Sidebar, a group's menu dropped each item's `as` (a router's Link fell back to a full page load), its other link props and the current page. They're kept now, and the current page has `aria-current="page"` (S6).
+- A Sidebar group opened, and showed as active, only when a direct child was the current page. A grandchild counts too now (S7).
+- Dragging a SortableList row couldn't scroll the list or the page, so a long list couldn't be reordered past the screen. Held near the top or bottom edge of what scrolls, it now scrolls that way, faster nearer the edge (R1).
+- SortableList rendered without `items` (from plain JavaScript) threw a TypeError. It renders an empty list now (AD2).
+- In an attached ButtonGroup, a button that was a Menu trigger or sat in a Tooltip lost its outer corners, because the popup that follows it made it not the last child. The first and last buttons are now found among the buttons, so a split button's menu button is rounded on its end.
+- An `aria-label` in Table's `containerProps` landed on the frame even when the table fit and the frame had no role, which axe reports as a prohibited attribute. The frame is named only while it scrolls and is a region (N6).
+- Tabs: a kept panel of another tab (`keepMounted`) is no longer in the Tab order. It's hidden until found, so Tab used to land on an invisible, zero-size panel; only the shown panel takes focus now.
+- Tabs whose controlled `value` matches no tab kept every tab out of the Tab order, so keyboard users skipped the whole list. The first enabled tab now takes the Tab stop until a tab is selected.
+- Checkbox, Radio and Switch rows, a bare Checkbox, Slider, small SegmentedControl options and Breadcrumb links take a press over at least 24px (WCAG 2.5.8). They were drawn and pressable at 16–20px. Nothing moves or looks different: a box behind each one reaches past its edges.
+- Textarea's count counted hidden code units, so 👨‍👩‍👧🇮🇩 showed as "12 / 10". It counts characters as people see them now ("2 / 10") (R32).
+- `dist/theme.js` works pasted into an inline `<script>` in `<head>`, the usual way a server-rendered page avoids a flash of the wrong theme. Its usage comment held a closing script tag, which ended an inline script there, so the browser threw "Invalid or unexpected token" and no theme was set. Loading it with `src` always worked. The README says how to inline it (with a nonce under a strict Content Security Policy).
+- `dist/serupa-icons.iife.js`'s first line says the file is empty since 6.1 and can be removed from the page, instead of "every Material Symbol by name".
+- Theme.js replaced a page's own `data-theme="violet-dark"` with blue-light (or blue-dark) before the first paint. A `data-theme` on `<html>` with no `data-brand` or `data-mode` is now the page default, and `reset()` goes back to it (Z1).
+- TimePicker docs: `step` is in minutes, while `<input type="time">` counts its step in seconds, so a native `step={900}` is `step={15}` here.
+- The Toaster set the F8 hint while rendering and never cleared it, so after the Toaster unmounted a toast with an action still told screen readers to press F8, which did nothing. The hint is set once the Toaster mounts and cleared when it goes (W3).
+- A toast that closed with focus in it (its ×, its action, `toast.dismiss()`) dropped focus on the page body. Focus now goes back where F8 came from, or else to the toast next to it (AO1).
+- Toast's repeat count reaches screen readers. When a burst of the same message stops, it's read once more with the count ("Network error. 12 times."), and the count reads as "12 times" with the title, not "×12".
+- Toolbar: a comment says why its tab-stop sync runs after every render (the effects check). Behaviour is unchanged.
+- Tapping an element with a Tooltip on a touch screen showed the tooltip 400ms later and left it open, because the tap's mouseenter came with no mouseleave. Tooltip listens to pointer events and ignores touch, and a press outside hides an open tooltip (O2).
+- A Tooltip used as the `trigger` of a Menu or Popover passes the props and ref they add (`aria-haspopup`, `aria-expanded`, `onClick` and the rest) on to its element, so a tooltipped icon button opens the menu. The element's own handlers run first and its own id is kept.
+- Touch and scrolling, everywhere: every control that shows a pointer cursor (checkboxes, switches, tabs, menu items, options, calendar days, pagination and more) now sets `touch-action: manipulation`, so a tap responds without the double-tap-zoom wait. Menu, Popover, the tab list, the table and the Sidebar body no longer scroll the page once you reach their end. Drawer pads for a phone's notch and home bar, and Fab's offset is measured from the safe area. A new test checks both touch and scroll rules for every component. With more contrast (`data-contrast="more"`, or the system's setting), the focus ring is 3px instead of 2px. With base.css, bare native controls (a plain checkbox, range or progress bar) and the text caret take the theme's brand color, a nested theme included.
+- DatePicker and DateRangePicker read a typed two-digit year as 20xx, so a birth date typed as 1/2/85 became 2085. A one- or two-digit year is now the one within 50 years of today (in 2026, `85` is 1985 and `30` is 2030). A year typed with four digits, even 0085, stays as typed.
+- Menu, Popover, Combobox, DatePicker and TimePicker panels, Toast and Tooltip take their stacking level from the named layers (`z-popover`, `z-toast`, `z-tooltip`) instead of `z-50`. This only matters where the browser has no top layer: there a menu or picker opened inside a dialog now sits above it, and toasts and tooltips stay above both.
+
 ## [9.1.1] - 2026-10-24
 
 ### Changed

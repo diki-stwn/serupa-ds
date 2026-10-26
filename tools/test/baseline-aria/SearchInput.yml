@@ -1,0 +1,35 @@
+# Disabled
+- searchbox "Search projects" [disabled]: Atlas
+
+# Filtering
+- searchbox "Filter projects"
+- list:
+  - listitem: Atlas
+  - listitem: Borealis
+  - listitem: Cascade
+  - listitem: Delta
+  - listitem: Ember
+
+# Invalid
+- searchbox "Search projects" [invalid]: Atlas!!
+- button "Clear search"
+
+# Loading
+- progressbar "Searching"
+- searchbox "Search projects": Atl
+- button "Clear search"
+
+# LongText
+- searchbox "Search projects": Donaudampfschifffahrtsgesellschaftskapitänskajüte
+- button "Clear search"
+
+# Playground
+- searchbox "Search projects"
+
+# ReadOnly
+- searchbox "Search projects": Atlas
+
+# WithText
+- searchbox "Search projects": Atlas
+- button "Clear search"
+

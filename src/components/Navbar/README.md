@@ -32,6 +32,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 - Keep the links to the main pages, a few short words each; below 768px they fold into the menu button. More links than fit below the bar scroll inside the panel.
 - Mark the current page with `active` on its NavbarLink.
 - Register your router's link component once with `configure({ link })`, or pass it in `as`, so links don't reload the page.
+- Keep `actions` compact below 768px, such as one small button and an Avatar. If they don't fit, the brand shrinks and ends in an ellipsis so the menu button stays on screen.
 - Set `size` to the same width as the page's Container, so the bar lines up with the content.
 
 ## Accessibility
@@ -42,17 +43,26 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 - With the menu open, Tab goes from the button into the links, in the order they appear, since the panel opens under the bar: the links come after the button in the DOM while it's open. Tab past the last link, any move of focus out of the bar, or a press outside it closes the menu.
 - Links keep 4.5:1 on the bar, and the current page and hovered links on their shading, in all six themes (`Navbar.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | Through the brand, links and actions; on small screens, the menu button, then the menu's links once it's open |
+| Enter / Space | On the menu button, opens or closes the menu |
+| Escape | Closes the menu and returns focus to the menu button |
+
 ## Props
 
 ### Navbar
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<header>`. |
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |
 | `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. |
-| `size` | `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The content's maximum width, the same as Container, so it lines up with the page |
+| `size` | `'prose'` \| `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The content's maximum width, the same as Container, so it lines up with the page |
 | `aria-label` | string | `"Main"` | The links' nav name |
 | `menuLabel` | string | `"Menu"` | The small-screen menu button's name |
 
@@ -81,6 +91,7 @@ Each is an optional override: set it on the page, a container or one navbar. The
 | `--navbar-link-text-hover` | `text` | A link on hover. |
 | `--navbar-link-text-active` | `text` | The current page's link. |
 | `--navbar-link-bg-hover` | `secondary` | A link's background on hover. |
+| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
 | `--navbar-link-bg-active` | `secondary` | The current page's link background. |
 | `--navbar-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--navbar-link-size` | `text-sm` | Link text (14px). |

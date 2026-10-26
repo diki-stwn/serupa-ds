@@ -33,11 +33,13 @@ const { Container } = window.Serupa;
 
 - Use `as="main"` for the page's main content (once per page), so people can jump to it.
 - `prose` keeps lines to a comfortable reading length: use it for long text.
+- **Keyboard:** none: a layout box, not focusable.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `size` | `'prose'` \| `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The widest it gets: 672px (`container-2xl`, for reading), 768, 1024, 1280 or 1536px (`screen-*`), or no maximum |
 | `padded` | boolean | `true` | Side padding that grows with the screen |
 | `as` | `'div'` \| `'main'` \| `'section'` \| `'header'` \| `'footer'` \| `'article'` | `'div'` | The element |

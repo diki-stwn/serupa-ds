@@ -37,6 +37,7 @@ export const States: Story = {
   render: () => <div style={{ maxWidth: 320, display: 'grid', gap: 12 }}>
     <Field label="Invalid" error="Enter the whole number."><PhoneInput defaultValue="+62812" /></Field>
     <Field label="Disabled"><PhoneInput defaultValue="+12015550123" disabled /></Field>
+    <Field label="Read-only"><PhoneInput defaultValue="+6591234567" readOnly /></Field>
     <Field label="Small"><PhoneInput defaultValue="+447400123456" size="sm" /></Field>
     <Field label="Large"><PhoneInput defaultValue="+819012345678" size="lg" /></Field>
   </div>,
@@ -57,4 +58,9 @@ export const ByArea: Story = {
 /** countries takes your own rows: here Singapore grouped in pairs, in place of the built-in row. */
 export const OwnRows: Story = {
   args: { countries: ['ID', 'MY', { code: 'SG', dial: '65', trunk: '', pattern: '## ## ## ##', min: 8, max: 8 }], defaultValue: '+6591234567' },
+};
+
+export const LongValue: Story = {
+  args: { defaultValue: '+62 812 3456 7890 1234' },
+  render: (args) => <div style={{ width: 200 }}><PhoneInput {...args} /></div>,
 };

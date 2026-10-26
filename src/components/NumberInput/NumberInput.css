@@ -11,11 +11,15 @@
   display: inline-flex; align-items: center; justify-content: center; padding: var(--number-input-stepper-padding, var(--spacing-1));
   border: var(--spacing-0); border-radius: var(--number-input-stepper-radius, var(--rounded-sm)); background: transparent;
   color: var(--number-input-stepper, var(--text-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
 .dk-number-input__step .dk-icon { font-size: var(--dk-input-icon); }
 @media (hover: hover) { .dk-number-input__step:hover:not(:disabled) { background: var(--number-input-stepper-bg-hover, var(--secondary)); color: var(--number-input-stepper-hover, var(--text)); } }
 .dk-number-input__step:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-input--disabled .dk-number-input__step:disabled { opacity: var(--opacity-100); }
+.dk-input--disabled .dk-number-input__step:disabled, .dk-input:where(:has(.dk-input__field:disabled)) .dk-number-input__step:disabled { opacity: var(--opacity-100); }
 @media (prefers-reduced-motion: reduce) { .dk-number-input__step { transition: none; } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: at size sm the button is 22px, so a box behind it reaches
+   1px past each edge. The stacking context keeps that box under the icon, and the button paints over the text next to it. */
+.dk-number-input__step { position: relative; isolation: isolate; }
+.dk-number-input__step::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
 }

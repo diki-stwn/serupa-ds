@@ -27,26 +27,33 @@
 }
 .dk-progress__fill {
   height: var(--sizing-full); border-radius: inherit; background: var(--dk-progress-fill);
-  transition: inline-size var(--progress-duration, var(--duration-300)) var(--ease-out);
+  transition: translate var(--progress-duration, var(--motion-change-lg)) var(--ease-settle);
 }
+/* The fill is the track's full length, slid back by the part not done (the track clips it): a new value moves it on
+   the compositor, and its rounded end keeps its shape at any value (FB1). Right to left, it slides the other way. */
+.dk-progress__fill[style] { inline-size: var(--sizing-full); translate: calc(var(--spacing-0) - var(--dk-progress-rest)) var(--spacing-0); }
+.dk-progress__fill[style]:dir(rtl) { translate: var(--dk-progress-rest) var(--spacing-0); }
 .dk-progress--indeterminate .dk-progress__fill {
   --dk-progress-segment: 40%; --dk-progress-still: 30%; --dk-progress-from: -100%; --dk-progress-to: 250%;
-  inline-size: var(--dk-progress-segment); animation: dk-progress-slide var(--duration-1200) var(--ease-in-out) infinite;
+  inline-size: var(--dk-progress-segment); animation: dk-progress-slide var(--motion-loop-progress) var(--ease-move) infinite;
 }
-[dir="rtl"] .dk-progress--indeterminate .dk-progress__fill { --dk-progress-from: 100%; --dk-progress-to: -250%; }
+.dk-progress--indeterminate .dk-progress__fill:dir(rtl) { --dk-progress-from: 100%; --dk-progress-to: -250%; }
 @keyframes dk-progress-slide { from { translate: var(--dk-progress-from) 0; } to { translate: var(--dk-progress-to) 0; } }
 .dk-progress--circle { --dk-progress-start: -90deg; position: relative; display: inline-flex; align-items: center; justify-content: center; width: var(--dk-progress-ring); height: var(--dk-progress-ring); flex-shrink: 0; vertical-align: middle; }
 .dk-progress__ring { display: block; width: var(--sizing-full); height: var(--sizing-full); rotate: var(--dk-progress-start); }
 .dk-progress__ring .dk-progress__track, .dk-progress__arc { fill: none; stroke-width: var(--progress-stroke-width, var(--stroke-width-3)); }
 .dk-progress__ring .dk-progress__track { stroke: var(--progress-track, var(--secondary)); }
-.dk-progress__arc { stroke: var(--dk-progress-fill); stroke-linecap: round; transition: stroke-dasharray var(--progress-duration, var(--duration-300)) var(--ease-out); }
+.dk-progress__arc { stroke: var(--dk-progress-fill); stroke-linecap: round; transition: stroke-dasharray var(--progress-duration, var(--motion-change-lg)) var(--ease-settle); }
 .dk-progress--circle .dk-progress__value { position: absolute; font-size: var(--text-xs); line-height: var(--text-xs--line-height); color: var(--progress-label-color, var(--text)); font-weight: var(--progress-label-weight, var(--font-medium)); }
 .dk-progress--circle.dk-progress--size-lg .dk-progress__value { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
-.dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { --dk-progress-turn: 270deg; animation: dk-progress-turn var(--duration-1000) linear infinite; }
+.dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { --dk-progress-turn: 270deg; animation: dk-progress-turn var(--motion-loop-spinner) var(--ease-linear) infinite; }
 @keyframes dk-progress-turn { to { rotate: var(--dk-progress-turn); } }
+@keyframes dk-progress-breathe { 50% { opacity: var(--opacity-50); } }
 @media (prefers-reduced-motion: reduce) {
   .dk-progress__fill, .dk-progress__arc { transition: none; }
-  .dk-progress--indeterminate .dk-progress__fill, .dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { animation: none; }
+  .dk-progress--indeterminate .dk-progress__fill { animation: none; }
+  /* The circle stands still and breathes, as Loader's ring does (EE1). */
+  .dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { animation: dk-progress-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; }
   .dk-progress--indeterminate .dk-progress__fill { margin-inline-start: var(--dk-progress-still); }
 }
 @media (forced-colors: active) {

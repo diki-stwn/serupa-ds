@@ -1,12 +1,14 @@
 "use client";
 import * as React from "react";
-import { cn, type DataAttributes, domId, omit, oneOf, SIZES } from "../../internal/cn";
+import { useFormStatus } from "react-dom";
+import { cn, type DataAttributes, domId, omit, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
+import { useShowAfter } from "../../internal/showAfter";
 import { useSerupa } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
-import { type IconSource } from "../Icon/Icon";
+import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Loader } from "../Loader/Loader";
 import { component } from "../../internal/component";
@@ -31,7 +33,7 @@ interface ButtonOwnProps {
   rightIcon?: IconSource;
   /** Icon-only button: an icon name (custom or Material Symbols) or element, in a square at the size's height. Ignores children, leftIcon and rightIcon; needs an aria-label. */
   icon?: IconSource;
-  /** Shows a centered Loader (ring) and blocks clicks, keys and Enter-key form submission while an action runs, so a request can't be sent twice. Keeps size, colors and keyboard focus; sets aria-busy, aria-disabled and data-loading. Default: false. */
+  /** Shows a centered Loader (ring) and blocks clicks, keys and Enter-key form submission while an action runs, so a request can't be sent twice. Keeps size, colors and keyboard focus; sets aria-busy, aria-disabled and data-loading. Default: false, except that a type="submit" button inside a `<form action={fn}>` is loading while that form is being sent. Set it to override. */
   loading?: boolean;
   /** Announced to screen readers (polite status region) when loading starts. Default: 'Loading'. Pass '' to stay silent. */
   loadingText?: string;
@@ -42,20 +44,27 @@ interface ButtonOwnProps {
   /** Shown with a check in place of the label for 2 seconds, and announced, after an onClick that returned a
       promise resolves ("Saved"). For actions that don't move people elsewhere. Default: none. */
   successText?: string;
+  /** Lets a long label take more than one line: the button grows from its size's height instead of cutting the
+      label with an ellipsis. Without it, a text label that's cut shows in full as the button's title on hover.
+      Default: false. */
+  wrap?: boolean;
 }
 
 /** A Button without href: a native <button>. */
 export interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {
+  /** Without href it's a <button>; give it href to make it a link. */
   href?: undefined;
   /** Can return a promise: the button then takes no second click until it settles, shows loading if it takes a while, and shows successText once it resolves. */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown;
   /** 'button' (default, never submits by accident), 'submit' or 'reset'. */
   type?: 'button' | 'submit' | 'reset';
-  /** Opens, closes or toggles a [popover] element by id (native HTML; React 18's own types don't list it yet). */
+  /** Opens, closes or toggles a [popover] element by id (native HTML). */
   popoverTarget?: string;
+  /** What a press does to the popoverTarget element: 'show', 'hide' or 'toggle' (default). */
   popoverTargetAction?: 'show' | 'hide' | 'toggle';
   /** Invoker commands: the id of the element to act on, and the action ('show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'). */
   commandfor?: string;
+  /** The action for the commandfor element: 'show-modal', 'close', 'request-close', 'show-popover', 'hide-popover', 'toggle-popover', or a custom '--name'. */
   command?: string;
 }
 
@@ -71,7 +80,7 @@ export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTML
 
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1 } as const;
+const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1, wrap: 1 } as const;
 const SUCCESS_MS = 2000;
 const BUSY_MS = 300;
 const isThenable = (v: unknown): v is PromiseLike<unknown> => v != null && typeof (v as PromiseLike<unknown>).then === "function";
@@ -93,16 +102,18 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const pos = props.leftIcon != null && props.rightIcon == null ? "left" : props.rightIcon != null && props.leftIcon == null ? "right" : undefined;
   const variant = oneOf(BUTTON_VARIANTS, props.variant, "primary");
   const size = oneOf(SIZES, props.size, "md");
-  let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, className: props.className });
-  if (iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
-    warnOnce("icon-label", "Button: an icon-only button needs an aria-label.");
+  let classes = buttonClass({ variant: variant, size: size, destructive: props.destructive, iconOnly: iconOnly, iconPosition: pos, wrap: props.wrap, className: props.className });
+  if (process.env.NODE_ENV !== "production" && iconOnly && !rest["aria-label"] && !rest["aria-labelledby"] && !rest.title) {
+    warnOnce("button-icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
-  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading"), then successText if it
-  // resolved.
-  const [busy, setBusy] = React.useState(false);
+  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading") and then for at least
+  // MIN_SHOWN, so one that ends just after BUSY_MS doesn't flash the spinner (EB1); then successText if it resolved.
+  const [working, setWorking] = React.useState(false);
+  const busy = useShowAfter(working, BUSY_MS);
   const [success, setSuccess] = React.useState(false);
   const pending = React.useRef(false);
+  const won = React.useRef("");   // successText, once resolved: shown when the spinner has gone
   const alive = React.useRef(true);
   React.useEffect(function () { alive.current = true; return () => { alive.current = false; }; }, []);
   React.useEffect(function () {
@@ -110,6 +121,13 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     const t = setTimeout(() => setSuccess(false), SUCCESS_MS);
     return () => clearTimeout(t);
   }, [success]);
+  React.useEffect(function () {
+    if (working || busy || !won.current) return;
+    const text = won.current;
+    won.current = "";
+    setSuccess(true);
+    announce(text);
+  }, [working, busy]);
   const successText = props.successText;
   const own = rest.onClick;
   if (own) rest.onClick = function (e: React.MouseEvent<HTMLElement>) {
@@ -117,18 +135,22 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     const r: unknown = own(e);
     if (!isThenable(r)) return;
     pending.current = true;
+    won.current = "";
     setSuccess(false);
-    const slow = setTimeout(function () { if (alive.current && pending.current) setBusy(true); }, BUSY_MS);
+    setWorking(true);
     const settle = function (ok: boolean) {
       pending.current = false;
-      clearTimeout(slow);
       if (!alive.current) return;
-      setBusy(false);
-      if (ok && successText) { setSuccess(true); announce(successText); }
+      if (ok && successText) won.current = successText;
+      setWorking(false);
     };
-    r.then(function () { settle(true); }, function () { settle(false); });
+    // Rethrown, so a rejection Button watched still reaches window's unhandledrejection (Sentry, error reporting) once,
+    // as it would without Button.
+    r.then(function () { settle(true); }, function (err: unknown) { settle(false); throw err; });
   };
-  const loading = !!props.loading || busy;
+  // type="submit" in a <form action={fn}> that is being sent (React's form status): loading on its own, unless set.
+  const form = useFormStatus();
+  const loading = (props.loading != null ? !!props.loading : !isLink && rest.type === "submit" && form.pending) || busy;
   const disabled = !!rest.disabled;
   const reasonId = domId("dk-btn-why", React.useId());
   const reason = disabled && props.disabledReason ? props.disabledReason : "";
@@ -137,7 +159,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   const wasLoading = React.useRef(false);
   // Announced when loading starts, with the text it has then (a later loadingText change isn't announced again).
   const latestText = React.useRef(loadingText);
-  React.useEffect(function () { latestText.current = loadingText; });
+  React.useEffect(function () { latestText.current = loadingText; });   // every render: keeps the latest text
   React.useEffect(function () {
     if (loading && !wasLoading.current && latestText.current) announce(latestText.current);
     wasLoading.current = loading;
@@ -159,6 +181,26 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     rest["aria-describedby"] = reasonId;
   }
   if (variant !== "link") content = [<span className="dk-btn__ripples" aria-hidden key="ripples" />, ...content];
+
+  // A text label cut with an ellipsis shows in full as the button's title on hover (the same words as its name, so
+  // nothing is read twice). Not with wrap, an icon-only button, or a name, title or Tooltip of its own. A Tooltip here would
+  // add 2.6 KiB to every Button; wrap is the answer for keyboard and touch.
+  const text = typeof props.children === "string" || typeof props.children === "number" ? String(props.children) : "";
+  const tipOk = !!text && !iconOnly && !props.wrap && rest.title == null && !rest["aria-label"] && !rest["aria-labelledby"] && !rest["aria-describedby"];
+  const node = React.useRef<HTMLElement | null>(null);
+  const [cut, setCut] = React.useState(false);
+  useIsoLayoutEffect(function () {
+    const label = node.current && node.current.querySelector<HTMLElement>(".dk-btn__label");
+    if (!tipOk || !label) { setCut(false); return; }
+    const check = () => setCut(label.scrollWidth > label.clientWidth);
+    check();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(check);
+    ro.observe(label);
+    return () => ro.disconnect();
+  }, [tipOk, text]);
+  if (cut && tipOk) rest.title = text;
+  const setNode = React.useCallback(function (n: HTMLElement | null) { node.current = n; setRef(ref, n); }, [ref]);
 
   // Micro-interactions: ripple on press, Enter shows the press like Space (your handlers run first)
   rest.onPointerDown = chain(rest.onPointerDown, ripple);
@@ -201,10 +243,10 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
       rest.onClick = block;          // and its handler doesn't run (screen readers and scripts can still click it)
     }
     delete rest.type;
-    return React.createElement(disabled ? "a" : config.link, Object.assign({}, rest, { ref: ref, className: classes }), ...content);
+    return React.createElement(disabled ? "a" : config.link, Object.assign({}, rest, { ref: setNode, className: classes }), ...content);
   }
   if (rest.type === undefined) rest.type = "button";   // never submits a form by accident; pass type="submit" to submit
-  return React.createElement("button", Object.assign({}, rest, { ref: ref, className: classes }), ...content);
+  return React.createElement("button", Object.assign({}, rest, { ref: setNode, className: classes }), ...content);
 });
 
 /** A <button> for actions; pass href for navigation and it renders a link. Built-in micro-interactions: press, ripple and a loading cross-fade, plus an opt-in right-icon nudge (--button-icon-nudge); off under reduced motion. Colors, spacing, sizes, borders and motion can be overridden with the --button-* component tokens (button.tokens.json) on the page, a container or one button. */

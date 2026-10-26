@@ -2,14 +2,15 @@
 interface DatePickerLabels {
     chooseDate: string;
     inputNotAccepted: (text: string) => string;
+    formatHint: (pattern: string) => string;
 }
-interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "max" | "min" | "onChange" | "size" | "value"> {
-    value?: Date | null;
-    defaultValue?: Date | null;
-    onValueChange?: (value: Date | null) => void;
+interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "children" | "defaultValue" | "max" | "min" | "onChange" | "size" | "value"> {
+    value?: Date | null | string;
+    defaultValue?: Date | null | string;
+    onValueChange?: (value: Date | null, iso: null | string) => void;
     onInvalidInput?: (text: string, reason: "unavailable" | "unreadable") => void;
-    min?: Date;
-    max?: Date;
+    min?: Date | string;
+    max?: Date | string;
     isDateDisabled?: (date: Date) => boolean;
     locale?: string;
     weekStartsOn?: number;

@@ -1,0 +1,29 @@
+# LevelAndSize
+- heading "An h1 that looks lg" [level=1]
+- heading "An h3 that looks 4xl" [level=3]
+
+# Levels
+- heading "Level 1, text-3xl" [level=1]
+- heading "Level 2, text-2xl" [level=2]
+- heading "Level 3, text-xl" [level=3]
+- heading "Level 4, text-lg" [level=4]
+- heading "Level 5, text-base" [level=5]
+- heading "Level 6, text-sm" [level=6]
+
+# LongText
+- heading "Quarterly results for every region, team and product line" [level=1]
+- heading "Donaudampfschifffahrtsgesellschaftskapitänskajüte" [level=2]
+
+# Playground
+- heading "Recent activity" [level=2]
+
+# Sizes
+- heading "An h2 that looks sm" [level=2]
+- heading "An h2 that looks base" [level=2]
+- heading "An h2 that looks lg" [level=2]
+- heading "An h2 that looks xl" [level=2]
+- heading "An h2 that looks 2xl" [level=2]
+- heading "An h2 that looks 3xl" [level=2]
+- heading "An h2 that looks 4xl" [level=2]
+- heading "An h2 that looks 5xl" [level=2]
+

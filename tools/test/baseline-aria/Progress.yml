@@ -1,0 +1,33 @@
+# AnnounceComplete
+- text: Upload
+- progressbar "Upload"
+- button "Start"
+
+# Circle
+- progressbar "Storage used"
+- progressbar "Storage used"
+- progressbar "Course progress"
+- progressbar "Loading"
+
+# Indeterminate
+- text: Preparing your export
+- progressbar "Preparing your export"
+
+# LongLabel
+- text: Uploading quarterly-report-Donaudampfschifffahrtsgesellschaftskapitänskajüte-final-v2.pdf
+- progressbar "Uploading quarterly-report-Donaudampfschifffahrtsgesellschaftskapitänskajüte-final-v2.pdf"
+
+# Playground
+- text: Uploading report.pdf
+- progressbar "Uploading report.pdf"
+
+# Tones
+- text: Uploading
+- progressbar "Uploading"
+- text: Uploaded
+- progressbar "Uploaded"
+- text: Storage
+- progressbar "Storage"
+- text: Quota reached
+- progressbar "Quota reached"
+

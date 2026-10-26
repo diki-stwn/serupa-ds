@@ -478,7 +478,7 @@ Rules of thumb:
 
 - Frosted glass: that translucent `surface` with `backdrop-blur-md backdrop-saturate-150` for sticky headers, `backdrop-blur-sm` for menus and `backdrop-blur-lg` behind dialogs.
 - Text over a photo: `brightness-50` or a gradient on the image, then check contrast at the lightest point.
-- `grayscale` for disabled or inactive images and logo walls (add `hover:grayscale-0` in your own CSS).
+- `grayscale` for disabled or inactive images and logo walls (and `filter: none` on hover, in your own CSS).
 - Blur is expensive on large areas and on scroll. Keep `blur-*` and `backdrop-blur-*` on small or fixed elements, and give text a solid fallback for browsers that skip backdrop filters.
 - Use `shadow-*` for cards and panels; save `drop-shadow-*` for icons, illustrations and cut-out images.
 
@@ -525,7 +525,12 @@ Transforms move how an element is drawn, not where it sits in the layout, so nei
 
 Rules of thumb:
 
-- Micro-interactions: `hover:scale-105` on cards, `active:scale-95` on pressed controls, with `transition-transform duration-150`.
+- Micro-interactions: in your own CSS, scale a card up a little on hover and a control down while it's pressed, with `transition-transform duration-150` on the element (utilities have no `hover:` or `active:` prefix):
+
+  ```css
+  @media (hover: hover) { .card-link:hover { scale: var(--scale-105); } }
+  .pressable:active { scale: var(--scale-95); }
+  ```
 - Menus and dialogs enter from `scale-95 opacity-0` to `scale-100 opacity-100`, with `origin-top` for menus that drop down.
 - Centre an absolutely positioned element with `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`.
 - Rotate disclosure chevrons with `rotate-180` (or `-rotate-90`) instead of swapping icons.
@@ -557,7 +562,7 @@ Design for a phone first, then add what changes on wider screens. The five break
 
 Wrap each band of the page (header, main content, footer) in a Container of the same `size`, so their edges line up.
 
-| Content | Container | Max width |
+| Content | Container | Max content width |
 | --- | --- | --- |
 | Articles, help pages, settings forms | `size="prose"` | 672px, about 70 characters a line |
 | A page of cards or a form with a side panel | `size="lg"` | 1024px |
@@ -566,6 +571,7 @@ Wrap each band of the page (header, main content, footer) in a Container of the 
 | A layout that brings its own margins, such as a full-bleed hero | `size="full"` | none |
 
 - Keep reading text within `prose` width even on a wide page: put a long description in its own `prose` block.
+- The maximum is the content's: the side padding sits outside it, and grows to the screen's safe area where a notch is. The padding follows the screen's width, so in a narrow pane use `padded={false}` and pad the pane itself.
 - Don't nest Containers. Inside one, lay things out with Stack and Grid.
 - An app shell (Sidebar and Navbar) fills the window; put a Container inside the content area, not around the shell.
 
@@ -615,7 +621,7 @@ Layout scales as tokens, and layout utilities as classes in `bundle.css` (`.cont
 | `screen-xl` | 1280px | Desktops |
 | `screen-2xl` | 1536px | Large desktops |
 
-**Responsive classes** — put a breakpoint in front of a layout class to apply it from that width up: `sm:` `md:` `lg:` `xl:` `2xl:`. Start with the phone layout and add what changes on wider screens:
+**Responsive classes** — put a breakpoint in front of a layout class to apply it from that width up: `sm:` `md:` `lg:` `xl:`. These four are the only prefixes: there are no `hover:`, `focus:`, `active:` or `dark:` classes, so write those states in your own CSS (the themes already handle dark). Start with the phone layout and add what changes on wider screens:
 
 ```html
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">…</div>
@@ -761,21 +767,68 @@ Rules of thumb:
 
 ## Motion
 
-Transition and animation scales, as tokens in one `transitions` group (`var(--duration-150)`, `var(--ease-out)`, `var(--animate-spin)`) and as matching utility classes in `bundle.css` (`.transition`, `.duration-200`, `.ease-out`, `.animate-pulse`).
+Motion explains a change: where a menu came from, that a press registered, that something is still loading. It never decorates and never makes anyone wait. Most of it takes 100–300ms.
 
-**Duration** — `duration-0`, `75`, `100`, `150`, `200`, `300`, `500`, `700`, `1000` (ms).
+Transition and animation scales are tokens in one `transitions` group (`var(--duration-150)`, `var(--ease-out)`, `var(--animate-spin)`), with matching utility classes in `bundle.css` (`.transition`, `.duration-200`, `.ease-out`, `.animate-pulse`). Components use the **roles**. A role names what is moving rather than how long it takes, and points at a step of the scale, so one change to a role moves every component that uses it.
 
-| Use | Duration | Easing |
+**Roles**
+
+| Role | Today | What moves |
 | --- | --- | --- |
-| Hover, focus, pressed (colors, shadow) | `duration-150` *(default)* | `ease-in-out` |
-| Small elements entering: tooltips, dropdowns | `duration-200` | `ease-out` |
-| Small elements leaving | `duration-150` | `ease-in` |
-| Large elements entering: dialogs, drawers | `duration-300` | `ease-out` |
-| Page-level or large surface changes | `duration-500` | `ease-in-out` |
+| `motion-press` | `duration-100` | A control answering while it's held down (Button scales down). |
+| `motion-release` | `duration-300` | A press let go springing back to size with `ease-spring` (back in place in about a third of it, then settling). |
+| `motion-hover` | `duration-150` | Hover and focus changes on a control that stays put: colors, borders, shadows. |
+| `motion-enter-sm` | `duration-150` | A small surface appearing: tooltips, popovers, menus, date pickers. |
+| `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |
+| `motion-enter-lg` | `duration-300` | A large surface appearing: drawers, sheets. |
+| `motion-exit-sm` / `-md` / `-lg` | `duration-100` / `150` / `200` | The same surfaces leaving. |
+| `motion-change-sm` | `duration-150` | A small part changing in place: a chevron turning, a slider thumb growing, a row gliding to its place. |
+| `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl, Tabs. |
+| `motion-change-lg` | `duration-300` | Something travelling far: a progress or meter fill moving to its value, a carousel slide. |
+| `motion-loop-spinner` | `duration-1000` | One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this. |
+| `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
+| `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
+| `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
+| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
+| `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. |
+| `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
+| `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
+| `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |
+| `ease-exit` | `ease-in` | Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once. A stronger ease-in starts too slowly and makes closing feel sluggish. |
+| `ease-move` | `ease-in-out-cubic` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
+| `ease-settle` | `ease-out-expo` | Something arriving at a new value or let go by the hand: a fill, a slide, a drawer dropped. Most of the travel at once, then a long glide to rest. |
+| `ease-pop` | `ease-out-back` | Something small popping into place: a check mark, a count, a dot. Overshoots by about 4%, then settles. |
+| `ease-spring` | `ease-spring-snappy` | A press let go springing back, or a thumb or indicator landing: a real spring that overshoots and settles. |
+| `ease-celebrate` | `ease-elastic` | A small, rare moment worth celebrating: a success check landing, a count bumping, an item snapping into its slot after a drag. Wobbles, then settles. |
 
-**Easing** — `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`), `ease-in-out` (`cubic-bezier(0.4, 0, 0.2, 1)`, default).
+`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token, and component CSS that takes the scale itself (`var(--duration-150)`, `var(--ease-in-out)`) instead of a role; `duration-0` and `ease-linear` are allowed, and what hasn't moved to a role yet is listed in the check. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
 
-**Delay** — `delay-0` to `delay-1000`, same steps as duration (both in the `transitions` token group). Use `delay-300` or `delay-500` before showing a tooltip.
+**Timing**
+
+- Bigger surfaces take longer, because they travel further: a tooltip enters in 150ms, a dialog in 200ms, a drawer in 300ms.
+- An exit takes about two thirds of its enter. What was closed should get out of the way, and nobody waits to watch it go.
+- Feedback for an action (a press, a toggle, a check) starts within a frame and takes 100ms or less, so the control feels like it answered the hand.
+- Nothing over 300ms answers a click. `duration-500` and longer are for loops and large page-level changes only.
+
+**Easing.** Most of what makes motion feel smooth is its curve. Enter with `ease-enter`, leave with `ease-exit`, change in place with `ease-move`, and arrive at a new value with `ease-settle`. Pop small things into place with `ease-pop`, and let a press go with `ease-spring`. Spinners and progress bars turn at constant speed (`ease-linear`). Steps (`steps()`, `step-end`) are for ticking spinners.
+
+- **Strength.** The curves come in three strengths: `cubic` is gentle, `quart` firm and `expo` hard. A stronger curve does more of its travel at the start of an ease-out (or the end of an ease-in), so the same duration feels quicker and smoother. Entering surfaces use `quart`, values arriving use `expo`.
+- **Overshoot.** `ease-out-back` passes the end by about 4% and comes back; keep it for small things (a check, a dot, a count), never a dialog or a page.
+- **Elastic.** `ease-elastic` wobbles: it overshoots by about 37%, swings back and settles over a few bounces. It's delightful once and tiring the tenth time, so it has its own role, `ease-celebrate`, and rules. Use it for a small thing at a rare, good moment: a success check landing, a count bumping, an item dropped into its slot, a first-run hint arriving. Give it `motion-change-lg` or longer so the wobble reads. Never use it for surfaces (menus, popovers, dialogs, drawers), for page or layout moves, for hover or press, or for anything people do over and over. Animate `scale` or `translate`, not size. Under reduced motion it's off, like every overshoot.
+- **Springs.** `ease-spring-soft` and `ease-spring-snappy` are damped springs written as CSS `linear()`, generated by `tools/tokens/spring.mjs` (damping ratio 0.85 and 0.6). A spring settles in the duration you give it, so give it about twice the motion it answers: a press held for `motion-press` springs back over `motion-change-md`. Browsers without `linear()` (before Chrome 113, Safari 17.2, Firefox 112) use their default `ease`, which still arrives.
+- **Interruptible.** Animate opening and closing with transitions, not keyframes. A transition turns around from where it is when the state flips half way (a menu closed while it opens), where a keyframe animation jumps to its start. The overlays enter from `@starting-style` for this reason.
+
+**Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a list's items or a loader's dots, stagger them by `motion-stagger` (50ms) and cap the wait at `motion-stagger-limit` (300ms), so items past the sixth arrive together. The `stagger` utility does this: put it on the parent, and each child gets `animation-delay` and `--dk-stagger-delay` (for a transition of your own) from its place, with `sibling-index()` where the browser has it. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
+
+**Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too.
+
+**Reduced motion.** When the viewer prefers reduced motion (`prefers-reduced-motion: reduce`), surfaces appear and leave with a fade or not at all, with no sliding or scaling. Loops stop moving: the components' spinners stand still and breathe (opacity) over twice `motion-loop-spinner`, so progress still shows, because a spinner that stops completely reads as stuck; the `animate-spin` utility turns three times slower (`animate-spin-reduced`). `bundle.css` stops `ping`, `pulse` and `bounce`, slows `spin`, turns `animate-enter` into a plain fade and drops the `stagger` delays. Every component's own animations do the same, and yours should too.
+
+**Scales.** These are what the roles point at, and what utility classes use.
+
+- **Duration:** `duration-0`, `75`, `100`, `150`, `200`, `300`, `500`, `700`, `1000`, `1200` (ms).
+- **Easing:** `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`), and `ease-in-out` (`cubic-bezier(0.4, 0, 0.2, 1)`, the default for the `transition` classes); `ease-out-cubic`, `-quart`, `-expo`, `ease-in-cubic`, `-quart`, `-expo` and `ease-in-out-cubic`, `-quart`, `-expo`; `ease-out-back`; and the springs `ease-spring-soft`, `ease-spring-snappy` and `ease-elastic`.
+- **Delay:** `delay-0` to `delay-1000`, in the same steps as duration, plus `delay-50` for a stagger step.
 
 **Transition properties** — `transition` (the default set: colors, outline and gradient stops, opacity, shadow, transform and translate/scale/rotate, filters, and discrete properties like `display`), `transition-colors`, `transition-opacity`, `transition-shadow`, `transition-transform`, `transition-all`, `transition-none`. Each animates at `duration-150` with `ease-in-out` unless a `duration-*` or `ease-*` class says otherwise, whatever the class order; `duration-initial` and `ease-initial` go back to those defaults. Name the properties you animate; avoid `transition-all` in components because it also animates layout.
 
@@ -789,15 +842,18 @@ Transition and animation scales, as tokens in one `transitions` group (`var(--du
 | `animate-ping` | `ping 1s cubic-bezier(0, 0, 0.2, 1) infinite` | A radar ping behind a notification dot or live badge. |
 | `animate-pulse` | `pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite` | Skeleton placeholders while content loads. |
 | `animate-bounce` | `bounce 1s infinite` | A scroll-down hint. Use sparingly. |
+| `animate-enter` | `enter` over `motion-enter-md` with `ease-enter` | Content arriving: it fades in as it rises 8px into place. With `stagger` on the parent, the items arrive one after another. Under reduced motion it only fades. |
 | `animate-none` | `none` | Turns an animation off. |
 
-The `spin`, `ping`, `pulse` and `bounce` keyframes ship in `bundle.css`.
+The `spin`, `ping`, `pulse`, `bounce`, `enter` and `fade-in` keyframes ship in `bundle.css`.
 
-Rules of thumb:
-
-- Motion should explain a change, not decorate it. Most UI motion is 150–300ms.
-- Enter with `ease-out`, leave with `ease-in`, and change in place with `ease-in-out`.
-- Respect reduced motion: `bundle.css` stops `ping`, `pulse` and `bounce` and slows `spin` when the viewer prefers reduced motion. Do the same for your own animations.
+```html
+<ul class="stagger">
+  <li class="animate-enter">Arrives first</li>
+  <li class="animate-enter">50ms later</li>
+  <li class="animate-enter">100ms later</li>
+</ul>
+```
 
 ## SVG
 
@@ -935,7 +991,7 @@ Say what happened and how to fix it, in that order, next to the thing that needs
 
 **The words the components say**
 
-Close buttons, loading text, pagination and the other built-in words come from one set, below. `<SerupaProvider labels>` replaces any of them for a subtree, and each component's own prop (`closeLabel`, `dismissLabel`, `loadingText`, …) still wins for one instance. `idLabels` is the full Indonesian set.
+Close buttons, loading text, pagination and the other built-in words come from one set, below. `<SerupaProvider labels>` replaces any of them for a subtree, and each component's own prop (`closeLabel`, `dismissLabel`, `loadingText`, …) still wins for one instance. `idLabels` is the full Indonesian set. `labels` and `icons` can be written inline (`labels={{ close: "Tutup" }}`): a re-render with the same contents doesn't re-render the components under the provider.
 
 - Overlays close with "Close" (Dialog, Drawer); notices go away with "Dismiss" (Alert, Toast).
 - Loading is "Loading…" everywhere; give a specific one when you can: `loadingText="Saving…"`.
@@ -955,7 +1011,7 @@ The target is **WCAG 2.2 level AA**, in all six themes, at any zoom up to 400%, 
 - **Target size.** Buttons, fields and other sized controls are at least 24px tall (2.5.8), including `sm` and compact density; `lg` is 44px for touch-first screens. A checkbox, radio or switch takes clicks on its label too; one without a visible label is smaller than 24px, so leave space around it (the spacing exception in 2.5.8).
 - **Reflow and zoom.** Components fit a 320px-wide screen and wrap instead of clipping, and sizes are in `rem`, so text zoom works.
 - **Fields on iOS.** Safari on iPhone and iPad zooms into a focused field whose text is under 16px. There, Input, Textarea and Select (and the components built on them) draw their own text at 16px at every size, keeping the box height. Don't stop the zoom with `maximum-scale=1` in the viewport tag: it also stops pinch zoom, which WCAG 1.4.4 needs.
-- **Motion.** Under `prefers-reduced-motion`, components stop their animations, and `base.css` makes every transition near-instant. Nothing flashes.
+- **Motion.** Under `prefers-reduced-motion`, components stop their animations and keep at most a short fade, and `base.css` makes every other transition on the page near-instant. Nothing flashes.
 - **Forced colors and RTL.** Borders, focus and selected states stay visible in forced colors, and layouts use logical properties, so right-to-left languages mirror correctly.
 - **Dragging.** Anything you can drag also works without dragging (2.5.7): Slider takes arrow keys and clicks on the track, and FileUpload has a Choose button.
 
@@ -992,4 +1048,4 @@ Accessibility utilities, as classes in `bundle.css`. They add no tokens.
 - Shadows and fills disappear, so anything that is only separated by a shadow or background needs a border too (`border` with a `transparent` color still draws in forced colors).
 - Focus: use outlines (`outline-2 outline-focus-ring`) or `outline-hidden`, never `outline-none` alone — rings and shadows vanish in forced colors. Button keeps its ring and adds a transparent 2px outline on focus, which only shows in forced colors; its transparent border shows there too.
 
-**Screen-reader text.** Give icon-only controls a name: an `aria-label`, or a `sr-only` span inside the button. For a "Skip to content" link, combine `sr-only` with `focus:not-sr-only` in your own CSS so it appears when tabbed to.
+**Screen-reader text.** Give icon-only controls a name: an `aria-label`, or a `sr-only` span inside the button. For a "Skip to content" link, wrap it in `<VisuallyHidden focusable>`, which hides it until it's tabbed to and then shows it.

@@ -1,34 +1,47 @@
 /* ---------------------------------------------------------------
-   SegmentedControl: segments side by side in a muted, outlined box (24 or 32px tall, 2px inside it). Labels are
+   SegmentedControl: segments side by side in a muted, outlined box (24, 32 or 44px tall, 2px inside it). Labels are
    text-muted and medium; the selected one is text, on a raised surface (outline, shadow-sm) that slides from
-   segment to segment. Equal segments when fullWidth. Invalid: a danger outline. Read-only: no pointer cursor or hover. Disabled: faded.
+   segment to segment. Segments share the width by content; equal segments when fullWidth. Invalid: a danger outline. Read-only: no pointer cursor or hover. Disabled: faded.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-segmented {
   --dk-seg-h: var(--segmented-control-height-md, var(--control-height-md));
   --dk-seg-inner: calc(var(--dk-seg-h) - 2 * var(--segmented-control-padding, var(--spacing-0\.5)) - 2 * var(--border-width-1));
-  position: relative; display: inline-flex; align-items: stretch; box-sizing: border-box; height: var(--dk-seg-h); max-width: var(--sizing-full);
+  /* Segments share the width by content: each column grows from nothing to its label's width, the space handed out
+     evenly, so when they don't all fit the short labels stay whole and the long ones give way (EU1). */
+  position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--spacing-0), max-content); align-items: stretch; box-sizing: border-box; height: var(--dk-seg-h); max-width: var(--sizing-full);
   padding: var(--segmented-control-padding, var(--spacing-0\.5));
   border: var(--border-width-1) solid var(--segmented-control-border, var(--field-border));
   border-radius: var(--segmented-control-radius, var(--rounded-md)); background: var(--segmented-control-bg, var(--surface-muted));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); vertical-align: middle;
 }
 .dk-segmented--size-sm { --dk-seg-h: var(--segmented-control-height-sm, var(--control-height-sm)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
-.dk-segmented--full { display: flex; width: var(--sizing-full); }
-.dk-segmented--full .dk-segmented__item { flex: auto; flex-basis: var(--spacing-0); }
+.dk-segmented--size-lg { --dk-seg-h: var(--segmented-control-height-lg, var(--control-height-lg)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
+.dk-segmented--size-lg .dk-segmented__item { padding-inline: var(--segmented-control-padding-x-lg, var(--spacing-4)); }
+.dk-segmented--full { display: grid; grid-auto-columns: minmax(var(--spacing-0), 1fr); width: var(--sizing-full); }
 .dk-segmented__indicator {
   position: absolute; inset-block: var(--segmented-control-padding, var(--spacing-0\.5)); box-sizing: border-box;
   border: var(--border-width-1) solid var(--segmented-control-indicator-border, var(--field-border));
   border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: var(--segmented-control-indicator, var(--surface));
   box-shadow: var(--segmented-control-indicator-shadow, var(--shadow-sm));
-  transition: left var(--segmented-control-duration, var(--duration-200)) var(--ease-out), width var(--segmented-control-duration, var(--duration-200)) var(--ease-out);
+  transform-origin: top left;
+  transition: translate var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), scale var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
+}
+/* The indicator sits on the selected segment by left and width, which don't animate; a new choice moves it there at
+   once, puts it back where it was on translate and scale, and lets it slide on the compositor (EG1). */
+.dk-segmented__indicator[data-flip] { transition: none; }
+/* Before the script runs, the selected segment carries the indicator's surface itself, so the first paint already
+   shows the choice; the indicator takes over in the same place (FC1). */
+.dk-segmented:not(:has(> .dk-segmented__indicator)) .dk-segmented__item--selected {
+  background: var(--segmented-control-indicator, var(--surface));
+  box-shadow: inset var(--spacing-0) var(--spacing-0) var(--spacing-0) var(--border-width-1) var(--segmented-control-indicator-border, var(--field-border)), var(--segmented-control-indicator-shadow, var(--shadow-sm));
 }
 .dk-segmented__item {
   position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--segmented-control-gap, var(--spacing-1\.5));
   min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0) var(--segmented-control-padding-x, var(--spacing-3));
   border: var(--spacing-0); border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: transparent;
   color: var(--segmented-control-text, var(--text-muted)); font: inherit; font-weight: var(--segmented-control-weight, var(--font-medium)); white-space: nowrap; cursor: pointer; touch-action: manipulation;
-  transition: color var(--duration-150) var(--ease-in-out);
+  transition: color var(--motion-hover) var(--ease-move), scale var(--motion-release) var(--ease-spring);
 }
 /* At least 24px wide, so in sm (18px inside a 24px box) the segments' centers are 24px apart: WCAG 2.5.8. */
 .dk-segmented__item--icon-only { width: max(var(--dk-seg-inner), var(--spacing-6)); padding: var(--spacing-0); }
@@ -36,18 +49,27 @@
 .dk-segmented__icon { display: inline-flex; }
 .dk-segmented__icon .dk-icon { font-size: var(--spacing-4); }
 .dk-segmented--size-sm .dk-segmented__icon .dk-icon { font-size: var(--spacing-3\.5); }
+.dk-segmented--size-lg .dk-segmented__icon .dk-icon { font-size: var(--spacing-5); }
 @media (hover: hover) { .dk-segmented__item:hover:not(:disabled) { color: var(--segmented-control-text-hover, var(--text)); } }
 .dk-segmented__item--selected { color: var(--segmented-control-text-selected, var(--text)); }
 .dk-segmented__item:focus { outline: none; }
 .dk-segmented__item:focus-visible { outline: var(--focus-ring-width) solid var(--segmented-control-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
 .dk-segmented__item:disabled { cursor: not-allowed; opacity: var(--opacity-disabled); }
+/* Pressed: a held segment's label shrinks a little and springs back, like a Button. Not read-only or disabled. */
+.dk-segmented:not(.dk-segmented--readonly) .dk-segmented__item:active:not(:disabled) { scale: var(--segmented-control-press-scale, var(--scale-95)); transition: color var(--motion-hover) var(--ease-move), scale var(--motion-press) var(--ease-settle); }
 .dk-segmented--invalid { border-color: var(--segmented-control-invalid, var(--danger)); }
 .dk-segmented--readonly .dk-segmented__item { cursor: default; }
 /* Read-only: hovering an unselected segment doesn't brighten it, since a click won't choose it. */
 @media (hover: hover) { .dk-segmented--readonly .dk-segmented__item:not(.dk-segmented__item--selected):hover { color: var(--segmented-control-text, var(--text-muted)); } }
 .dk-segmented--disabled { opacity: var(--opacity-disabled); }
 .dk-segmented--disabled .dk-segmented__item:disabled { opacity: var(--opacity-100); }
-@media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } .dk-segmented .dk-segmented__item:active { scale: none; } }
 /* The selected label keeps HighlightText on hover too: the hover color, kept as is, was dark on the dark Highlight. */
-@media (forced-colors: active) { .dk-segmented__indicator { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
+@media (forced-colors: active) { .dk-segmented__indicator, .dk-segmented:not(:has(> .dk-segmented__indicator)) .dk-segmented__item--selected { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
+/* At least 24px to press (WCAG 2.5.8) without moving anything: when an option is shorter or narrower, a box behind
+   it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
+.dk-segmented__item { position: relative; isolation: isolate; }
+.dk-segmented__item::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px high to press, as Apple and Material ask; the width stays, so side-by-side segments never overlap. */
+@media (pointer: coarse) { .dk-segmented__item::after { --dk-reach-block: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); inset-block: var(--dk-reach-block); } }
 }

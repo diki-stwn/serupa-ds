@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
@@ -156,7 +156,7 @@ describe('Table', () => {
   test('sortable header: a button inside the th, no aria-sort until sorted; a hidden caption still names the table', async () => {
     await setup();
     const th = el('hsort'), b = th.querySelector('button')!;
-    expect([th.getAttribute('aria-sort'), b.type, b.textContent, b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon]).toEqual([null, 'button', 'Calls', 'unfold_more']);
+    expect([th.getAttribute('aria-sort'), b.type, b.textContent, b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon]).toEqual([null, 'button', 'Calls', 'unfold_more']);
     expect(q('#tsort caption').getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 
@@ -213,6 +213,17 @@ describe('Table', () => {
     expect([f.getAttribute('tabindex'), f.getAttribute('role'), f.getAttribute('aria-labelledby') === q('#twide caption').id, f.scrollWidth > f.clientWidth]).toEqual(['0', 'region', true, true]);
   });
 
+  test('keyboard table: with focus on the scrolling frame, the arrow keys scroll the table (FH1)', async () => {
+    await setup();
+    const f = el('twide').parentElement!;
+    f.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    // WebKit scrolls smoothly: let the scroll end before the key back, or it starts from partway
+    await expect.poll(async () => { const x = f.scrollLeft; await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); return x > 0 && f.scrollLeft === x; }).toBe(true);
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => f.scrollLeft).toBe(0);
+  });
+
   test('stickyHeader: the header stays at the top while the frame scrolls; the region takes its name from containerProps', async () => {
     await setup();
     const f = el('tsticky').parentElement!, th = f.querySelector('th')!;
@@ -250,5 +261,34 @@ describe('Table', () => {
     }
     still.remove();
     expect([low, n]).toEqual([[], 42]);
+  });
+});
+
+describe('Table: stickyHeader and focus', () => {
+  test('walking up the rows with Shift+Tab, no focused link ends up under the sticky header (WCAG 2.4.11); the frame measures the header into --dk-table-head', async () => {
+    const rows = []; for (let i = 0; i < 40; i++) rows.push(<TableRow key={i}><TableCell>Invoice {i}</TableCell><TableCell><a href={'#e' + i} id={'e' + i}>Edit</a></TableCell></TableRow>);
+    await render(<Table stickyHeader caption="Invoices" containerProps={{ style: { maxHeight: '240px' } }}>
+      <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Action</TableHeaderCell></TableRow></TableHead>
+      <TableBody>{rows}</TableBody>
+    </Table>);
+    const head = document.querySelector('.dk-table__head') as HTMLElement, frame = head.closest('.dk-table') as HTMLElement;
+    await expect.poll(() => frame.style.getPropertyValue('--dk-table-head')).toBe(head.getBoundingClientRect().height + 'px');
+    el('e39').focus();
+    const covered: number[] = [];
+    for (let i = 38; i >= 0; i--) {
+      await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+      await new Promise((r) => requestAnimationFrame(r));   // where it is by the next frame, which is what people see
+      expect(document.activeElement!.id).toBe('e' + i);
+      // The header cells are what stick (the <thead> box itself scrolls away).
+      if (document.activeElement!.getBoundingClientRect().top < head.querySelector('th')!.getBoundingClientRect().bottom - 1) covered.push(i);
+    }
+    expect(covered).toEqual([]);
+  });
+
+  test('pressed: a sortable header held down fills with pressed at once (ED1)', async () => {
+    await render(<Sortable />);
+    const b = el('hsort').querySelector('button') as HTMLButtonElement;
+    expect(css(b).backgroundColor).not.toBe(color('var(--pressed)'));
+    await press(b, () => expect.poll(() => css(b).backgroundColor).toBe(color('var(--pressed)')));
   });
 });

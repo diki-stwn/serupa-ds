@@ -34,12 +34,21 @@ const { Fab } = window.Serupa;
 
 - It's a real `<button>` named by `label`. Put it where it comes in the reading order (often after the main content), since it's fixed but still focused in source order.
 - `shadow-lg` at rest and `shadow-xl` on hover lift it off the page; the colors and focus ring are Button's primary (checked in Button's tests and `Fab.test.tsx`).
+- While it's fixed to a corner, the page gets that much scroll padding at that edge (the FAB's size and twice its offset, 104px by default), so what the keyboard focuses scrolls into view clear of it, not under it (WCAG 2.4.11). With a sticky Navbar at the top, the larger padding wins.
 - It isn't printed: fixed to the viewport, it would repeat on every page.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button, in its place in the source order (not where it floats) |
+| Enter, Space | Press it |
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element (24px) |
 | `label` | string | required | Shown next to the icon when extended; otherwise its `aria-label` and `title` |
 | `extended` | boolean | `false` | Shows the label: a 56px pill instead of a circle |

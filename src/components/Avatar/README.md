@@ -35,21 +35,25 @@ const { Avatar } = window.Serupa;
 ## Accessibility
 
 - With a name, the avatar is one image (`role="img"`) named by it; the picture inside is decorative. Next to the written name, pass `alt=""` so it isn't read twice.
-- The status is part of the name, so it isn't told by color alone.
+- The status is part of the name, and each one has its own shape: online is a filled dot, busy a dot with a bar across, away a ring with a dot inside, and offline an empty ring. So it isn't told by color alone, and the four stay apart in forced-colors mode.
+- With `alt=""`, the picture is hidden from screen readers but the status isn't: the dot is read on its own ("online").
 - Initials and the person icon keep 4.5:1 on their background in all six themes (`Avatar.test.tsx`).
 - In forced-colors mode the frame gets a border.
+- **Keyboard:** none of its own: it isn't focusable. Inside a link or a Tooltip trigger, that element takes the focus.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `src` | string | | The picture, cropped to fill the shape |
-| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH") and the accessible name |
+| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH": the first letter, digit or emoji of the first and last words, one character each, so "ßen Müller" is "SM") and the accessible name |
 | `alt` | string | the name | The accessible name; `alt=""` hides the avatar from screen readers |
 | `size` | `'xs'` \| `'sm'` \| `'md'` \| `'lg'` \| `'xl'` | `'md'` | 24, 32, 40, 48 or 64px |
 | `shape` | `'circle'` \| `'square'` | `'circle'` | Circles for people, squares (8px corners) for everything else |
-| `status` | `'online'` \| `'busy'` \| `'away'` \| `'offline'` | | A dot at the bottom end, also added to the accessible name ("Grace Hopper, online") |
+| `status` | `'online'` \| `'busy'` \| `'away'` \| `'offline'` | | A dot at the bottom end, with a shape per status, also added to the accessible name ("Grace Hopper, online") |
 | `statusLabel` | string | the status | What the status says to screen readers, such as "in a meeting" |
+| `imgProps` | `<img>` props | `loading="lazy"`, `decoding="async"` | For the picture: `loading="eager"` for one above the fold, `referrerPolicy`, `crossOrigin` |
 
 `className`, `style`, `ref` and everything else go to the outer `<span>`, which has `data-component="avatar"`, `data-size` and `data-shape`. `initials(name)` is exported too.
 

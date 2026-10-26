@@ -1,0 +1,47 @@
+# External
+- paragraph:
+  - text: Read
+  - link "the status page (opens in a new tab)":
+    - /url: https://example.com
+  - text: before you start.
+
+# LongText
+- paragraph:
+  - text: Read
+  - link "the complete guide to setting up single sign-on for your organisation":
+    - /url: "#"
+  - text: first, or
+  - link "Donaudampfschifffahrtsgesellschaft (opens in a new tab)":
+    - /url: https://example.com
+  - text: .
+
+# Neutral
+- paragraph:
+  - text: By signing up you agree to the
+  - link "terms":
+    - /url: "#"
+  - text: and the
+  - link "privacy policy":
+    - /url: "#"
+  - text: .
+
+# Playground
+- paragraph:
+  - text: Read
+  - link "the guide":
+    - /url: "#"
+  - text: before you start.
+
+# UnderlineOnHover
+- navigation "Footer":
+  - list:
+    - listitem:
+      - link "Pricing":
+        - /url: "#"
+    - listitem:
+      - link "Docs":
+        - /url: "#"
+    - listitem:
+      - link "Blog":
+        - /url: "#"
+

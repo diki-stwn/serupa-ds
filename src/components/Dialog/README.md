@@ -41,11 +41,12 @@ const [open, setOpen] = React.useState(false);
 
 ## Behavior
 
-- Opening moves focus to the first thing in it that takes focus (put `data-autofocus` on another to choose: React's `autoFocus` runs while the dialog is still hidden, so it can't); closing moves it back to where it was.
+- Opening moves focus to the first thing in it that takes focus. To choose another, pass its ref as `initialFocus` (Cancel in a confirmation, so Enter doesn't delete), or put `data-autofocus` on it (React's `autoFocus` runs while the dialog is still hidden, so it can't). Closing moves focus back to where it was.
 - A body taller than the screen takes Tab focus (with a focus ring) when it scrolls, so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
-- It fades and grows in over 200ms, and appears at once with `prefers-reduced-motion`.
+- It enters as a sequence: the backdrop fades in, and 50ms later (`motion-sequence`) the panel fades and grows in over 200ms. It fades and shrinks out over 150ms with the backdrop, both in place at the centre; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Focus goes back to what opened it at once, not after the fade, and presses reach the page while it fades. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing dialog in the top layer yet, so there it closes at once.
 - On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
+- Without `open`, it keeps its own state: `defaultOpen` shows it on arrival, and Escape, the × or the backdrop close it by themselves (`onOpenChange(false)` still comes).
 - To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 - Under `<React.StrictMode>`, a Dialog that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 
@@ -57,12 +58,22 @@ const [open, setOpen] = React.useState(false);
 - A press on the backdrop while a Menu, Popover or other popup is open inside only closes the popup. The next one closes the dialog.
 - The title and description keep 4.5:1 on the panel in all six themes (`Dialog.test.tsx`). In forced-colors mode the panel gets a border.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab / Shift+Tab | Between the controls in the dialog; the page behind is inert, so focus stays inside |
+| Escape | Asks to close it (`onOpenChange(false)`), in an `alert` dialog too; in stacked dialogs, only the top one |
+| Enter / Space | On the ×, the same as Escape |
+
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `open` | boolean | required | Whether it's open |
-| `onOpenChange` | `(open) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open` |
+| `id` | string | none | Goes to the root `<dialog>`. Point a Button's `commandfor` at it. |
+| `open` | boolean | | Whether it's open (controlled) |
+| `defaultOpen` | boolean | `false` | Open at first, then it closes itself (uncontrolled), for a dialog shown on arrival |
+| `onOpenChange` | `(open, { reason }) => void` | | Called with `false` on Escape, the ×, or a click on the backdrop. Close it by setting `open`. `reason` says which: `'escape'`, `'close'` (the ×), `'outside'` (the backdrop) or `'api'` (the browser closed it, as `dialog.close()` or a `method="dialog"` form do) |
 | `title` | node | | The heading (`text-lg`, `font-semibold`), which also names the dialog |
 | `description` | node | | A muted line under the title, read when it opens |
 | `footer` | node | | Buttons at the end, the main action last |
@@ -72,6 +83,7 @@ const [open, setOpen] = React.useState(false);
 | `closeLabel` | string | `'Close'` | The ×'s name |
 | `closeOnBackdrop` | boolean | `true` (`false` for alert) | Whether a click on the dimmed page closes it |
 | `fullScreen` | boolean \| `'mobile'` | `false` | Fills the screen: `true` always, or `'mobile'` under 640px wide. Square corners, no shadow, the body takes the free height, and the padding clears the notch and home bar |
+| `initialFocus` | `RefObject<HTMLElement>` | | The element that takes focus when it opens, instead of the first that can. A ref to something outside the dialog is ignored |
 
 `children` is the body, which scrolls when it's taller than the screen. `className`, `style`, `ref` and everything else go to the `<dialog>`, which has `data-component="dialog"` and `data-size`.
 

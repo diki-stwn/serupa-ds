@@ -32,11 +32,13 @@ const { Heading } = window.Serupa;
 - Pick the level from the page's outline, never from the look: that's what `size` is for.
 - One `h1` per page, naming it.
 - Headings keep 4.5:1 on `surface` in all six themes (`Heading.test.tsx`).
+- **Keyboard:** none: it isn't focusable. Screen reader users move between headings with their own keys, so keep the levels in order.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root heading (`<h1>`–`<h6>`, by `level`). |
 | `level` | `1`–`6` | `2` | The element. Keep the levels in order down the page, without skipping |
 | `size` | `'sm'` \| `'base'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'3xl'` \| `'4xl'` \| `'5xl'` | the level's | A step of the type scale, with its line height. Each level's own: 1 `3xl`, 2 `2xl`, 3 `xl`, 4 `lg`, 5 `base`, 6 `sm` |
 
@@ -44,7 +46,7 @@ Every heading is `font-semibold` in `text`, with no margins (space it with the l
 
 ## Component tokens
 
-Each is an optional override: set it on the page, a container or one heading. The list lives in `src/components/Heading/heading.tokens.json` (also in `design-tokens/components/`). A `--heading-size-*` override changes the size only; the line height stays the level's.
+Each is an optional override: set it on the page, a container or one heading. The list lives in `src/components/Heading/heading.tokens.json` (also in `design-tokens/components/`). A `--heading-size-*` override changes the size only: set the matching `--heading-line-height-*` with it (for an h1 at `text-4xl`, `--heading-line-height-1: var(--text-4xl--line-height)`), or a large size keeps the level's shorter line height and wrapped lines crowd.
 
 | Token | Default | Use |
 | --- | --- | --- |
@@ -56,3 +58,9 @@ Each is an optional override: set it on the page, a container or one heading. Th
 | `--heading-size-4` | `text-lg` | The size of a level 4 heading (text-lg). |
 | `--heading-size-5` | `text-base` | The size of a level 5 heading (text-base). |
 | `--heading-size-6` | `text-sm` | The size of a level 6 heading (text-sm). |
+| `--heading-line-height-1` | `text-3xl--line-height` | The line height of a level 1 heading (text-3xl's). Set it with --heading-size-1. |
+| `--heading-line-height-2` | `text-2xl--line-height` | The line height of a level 2 heading (text-2xl's). Set it with --heading-size-2. |
+| `--heading-line-height-3` | `text-xl--line-height` | The line height of a level 3 heading (text-xl's). Set it with --heading-size-3. |
+| `--heading-line-height-4` | `text-lg--line-height` | The line height of a level 4 heading (text-lg's). Set it with --heading-size-4. |
+| `--heading-line-height-5` | `text-base--line-height` | The line height of a level 5 heading (text-base's). Set it with --heading-size-5. |
+| `--heading-line-height-6` | `text-sm--line-height` | The line height of a level 6 heading (text-sm's). Set it with --heading-size-6. |

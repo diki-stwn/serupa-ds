@@ -78,7 +78,7 @@ describe('List', () => {
   test('href: the main area is a link; trailing actions stay outside it (no nested controls)', async () => {
     await render(<Card clicks={[]} />);
     const m = q('#ilink .dk-list__main');
-    expect([m.tagName, m.getAttribute('href'), m.contains(el('more')), m.textContent, m.querySelector<HTMLElement>('.dk-icon')?.dataset.icon]).toEqual(['A', '#files', false, 'FilesAll your files', 'folder']);
+    expect([m.tagName, m.getAttribute('href'), m.contains(el('more')), m.textContent, m.querySelector<HTMLElement>('[data-icon]')?.dataset.icon]).toEqual(['A', '#files', false, 'FilesAll your files', 'folder']);
   });
 
   test('link and button items shade on hover; static items don\'t', async () => {
@@ -99,6 +99,22 @@ describe('List', () => {
     expect([clicks.join(), location.hash]).toEqual(['more', '']);
     await userEvent.click(q('#ilink .dk-list__title'));
     expect([clicks.join(), location.hash]).toEqual(['more', '#files']);
+  });
+
+  test('the whole row works where it lights up: a press on trailing meta ("3 days ago") follows the link or presses the button; a trailing action stays its own (GF2)', async () => {
+    const clicks: string[] = [];
+    await render(<div style={{ width: '420px' }}><List>
+      <ListItem id="mlink" href="#doc" title="Doc" trailing={<span id="mmeta">3 days ago</span>} />
+      <ListItem id="mbtn" title="Settings" onClick={() => clicks.push('row')} trailing={<span id="bmeta">Edited</span>} />
+      <ListItem id="mboth" href="#both" title="Both" trailing={<><span id="cmeta">Today</span><IconButton icon="more_horiz" label="More" id="more2" onClick={() => clicks.push('more')} /></>} />
+    </List></div>);
+    const at = (id: string) => { const r = el(id).getBoundingClientRect(); return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)!; };
+    expect([at('mmeta').closest('a')?.getAttribute('href'), at('bmeta').closest('button')?.textContent, at('cmeta').closest('a')?.getAttribute('href'), at('more2').closest('button')?.id])
+      .toEqual(['#doc', 'Settings', '#both', 'more2']);
+    await userEvent.click(el('bmeta'), { force: true });
+    await userEvent.click(el('more2'));
+    await userEvent.click(el('mmeta'), { force: true });
+    expect([clicks.join(), location.hash]).toEqual(['row,more', '#doc']);
   });
 
   test('onClick: the main area is a button (aria-pressed with selected), and Enter presses it', async () => {
@@ -127,6 +143,16 @@ describe('List', () => {
     expect([li.querySelector('a')!.getAttribute('aria-current'), s.backgroundColor]).toEqual(['true', bg('var(--surface-muted)')]);
     expect(s.boxShadow).toMatch(/2px 0px 0px 0px inset$/);
     expect(s.boxShadow).toContain(color('var(--primary)'));
+  });
+
+  test('linkProps\' aria-current wins over selected\'s "true", so a nav list can mark the current page (GF3)', async () => {
+    await render(<List aria-label="Pages">
+      <ListItem id="gp" href="#home" title="Home" selected linkProps={{ 'aria-current': 'page' }} />
+      <ListItem id="gs" href="#docs" title="Docs" selected />
+      <ListItem id="gn" href="#blog" title="Blog" linkProps={{ 'aria-current': 'page' }} />
+      <ListItem id="go" href="#about" title="About" />
+    </List>);
+    expect(['gp', 'gs', 'gn', 'go'].map((id) => el(id).querySelector('a')!.getAttribute('aria-current'))).toEqual(['page', 'true', 'page', null]);
   });
 
   test('as with linkProps: a router link', async () => {

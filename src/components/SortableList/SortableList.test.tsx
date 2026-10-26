@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, drag } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, drag, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { SortableList } from './SortableList';
@@ -56,6 +56,18 @@ describe('SortableList', () => {
       .toEqual([['Apollo', 'Mercury', 'Artemis', 'Gemini'], [{ from: 1, to: 3 }], 'false', true]);
   });
 
+  test('keyboard table: ArrowRight moves the picked-up row down a place, ArrowLeft and ArrowUp up one (FH1)', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
+    handle('Gemini').focus();
+    await userEvent.keyboard(' {ArrowRight}{ArrowRight}');
+    await said('Gemini, position 4 of 4.');
+    await userEvent.keyboard('{ArrowLeft}');
+    await said('Gemini, position 3 of 4.');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp} ');
+    expect([names(), moves]).toEqual([['Gemini', 'Apollo', 'Mercury', 'Artemis'], [{ from: 1, to: 0 }]]);
+  });
+
   test('Enter works like Space; Home and End move to the ends; Escape puts it back without reporting a move', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
@@ -97,6 +109,19 @@ describe('SortableList', () => {
     expect(([...document.querySelectorAll('#sl > li')] as HTMLElement[]).map((r) => r.style.transform)).toEqual(['', '', '', '']);
   });
 
+  test('pointer: let go right after a move (before it renders), the row drops where the pointer is', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
+    const h = handle('Apollo'), r = h.getBoundingClientRect(), last = handle('Artemis').getBoundingClientRect();
+    const at = (type: string, y: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 8, button: 0, isPrimary: true, clientX: r.left + 4, clientY: y }));
+    at('pointerdown', r.top + 4, h);
+    at('pointermove', r.top + 20);
+    at('pointermove', last.bottom);
+    at('pointerup', last.bottom);
+    await expect.poll(() => names()).toEqual(['Gemini', 'Mercury', 'Artemis', 'Apollo']);
+    expect(moves).toEqual([{ from: 0, to: 3 }]);
+  });
+
   test('pointer: held near the bottom of a scrolling container, the list scrolls and the row keeps moving down; near the top it scrolls back', async () => {
     const many = Array.from({ length: 30 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + i }));
     const moves: Array<{ from: number; to: number }> = [];
@@ -116,14 +141,27 @@ describe('SortableList', () => {
     expect(moves.length === 1 && moves[0].from === 0 && moves[0].to > 0).toBe(true);
   });
 
-  test('a press without moving does nothing; a drag back to where it started reports nothing', async () => {
+  test('a press without moving picks the row up (2.5.7, FG1); a press on another row\'s handle drops it in that row\'s place, on its own handle where it is; each is announced', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
-    await userEvent.click(handle('Gemini'));
-    expect([handle('Gemini').getAttribute('aria-pressed'), names()]).toEqual(['false', ['Apollo', 'Gemini', 'Mercury', 'Artemis']]);
+    await userEvent.click(handle('Apollo'));
+    await said('Picked up Apollo, position 1 of 4.');
+    expect([handle('Apollo').getAttribute('aria-pressed'), document.activeElement === handle('Apollo')]).toEqual(['true', true]);
+    await userEvent.click(handle('Mercury'));
+    await said('Dropped Apollo at position 3 of 4.');
+    expect([names(), moves, handle('Apollo').getAttribute('aria-pressed')]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], [{ from: 0, to: 2 }], 'false']);
+    await userEvent.click(handle('Artemis'));
+    await userEvent.click(handle('Artemis'));
+    await said('Dropped Artemis at position 4 of 4.');
+    expect([names(), moves.length]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], 1]);
+  });
+
+  test('a drag back to where it started reports nothing, and the press that ends a drag doesn\'t pick the row up', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
     const h = handle('Gemini'), c = { x: h.offsetWidth / 2, y: h.offsetHeight / 2 };
     await drag(h, c, { x: c.x, y: c.y + 6 }, 4);
-    expect([names(), moves]).toEqual([['Apollo', 'Gemini', 'Mercury', 'Artemis'], []]);
+    expect([names(), moves, handle('Gemini').getAttribute('aria-pressed')]).toEqual([['Apollo', 'Gemini', 'Mercury', 'Artemis'], [], 'false']);
   });
 
   test('disabled: no handles and no instructions; the rows stay', async () => {
@@ -164,6 +202,24 @@ describe('SortableList', () => {
     await render(<SortableList id="sl" autoFocus items={ITEMS} getKey={(i) => i.id} getLabel={(i) => i.name} renderItem={(i) => i.name} onReorder={() => undefined} />);
     await expect.poll(() => document.activeElement).toBe(handle('Apollo'));
     expect(document.getElementById('sl')!.hasAttribute('autofocus')).toBe(false);
+  });
+
+  test('moves glide (EP1): the rows that change place start where they were and slide to their slot on translate; at rest nothing is offset', async () => {
+    await withMotion(async () => {
+      await render(<List />);
+      const row = (name: string) => handle(name).closest('li') as HTMLElement;
+      const top = (name: string) => row(name).getBoundingClientRect().top;
+      const before = { gemini: top('Gemini'), mercury: top('Mercury') };
+      handle('Gemini').focus();
+      await userEvent.keyboard(' {ArrowDown}');
+      const moving = ['Gemini', 'Mercury'].map((n) => row(n).getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty));
+      // A frame in, each is still near its old place: Gemini above its new slot, Mercury below its new one.
+      expect([moving, Math.abs(top('Gemini') - before.gemini) < Math.abs(top('Gemini') - before.mercury), row('Apollo').getAnimations().length])
+        .toEqual([[['translate'], ['translate']], true, 0]);
+      await Promise.all(document.getAnimations().map((a) => a.finished));
+      expect([names(), Math.round(top('Gemini')), Math.round(top('Mercury')), css(row('Gemini')).translate])
+        .toEqual([['Apollo', 'Mercury', 'Gemini', 'Artemis'], Math.round(before.mercury), Math.round(before.gemini), 'none']);
+    });
   });
 
 });

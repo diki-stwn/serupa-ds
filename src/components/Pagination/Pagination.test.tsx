@@ -2,9 +2,12 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, iconPoints } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Pagination, paginationRange } from './Pagination';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (id: string, sel: string) => el(id).querySelector(sel) as HTMLElement;
@@ -59,7 +62,7 @@ describe('Pagination', () => {
   });
 
   test('uncontrolled: starts on page 1 with previous disabled; clicking a page moves there; next moves one page on', async () => {
-    await render(<Pagination id="pdef" count={10} />);
+    await render(<Pagination id="pdef" count={10} />, { wrapper: EnUS });
     expect(shown('pdef')).toBe('(<) [1] 2 3 4 5 … 10 >');
     await userEvent.click(named('pdef', 'Page 5'));
     expect(shown('pdef')).toBe('< 1 … 4 [5] 6 … 10 >');
@@ -76,7 +79,7 @@ describe('Pagination', () => {
       const [p, setP] = React.useState(5);
       return <Pagination id="pc" count={10} page={p} onPageChange={(n) => { calls.push(n); setP(n); }} />;
     }
-    await render(<><Controlled /><Pagination id="pfixed" count={10} page={3} onPageChange={(n) => { calls.push('fixed' + n); }} /></>);
+    await render(<><Controlled /><Pagination id="pfixed" count={10} page={3} onPageChange={(n) => { calls.push('fixed' + n); }} /></>, { wrapper: EnUS });
     await userEvent.click(named('pc', 'Previous page'));
     expect(shown('pc')).toBe('< 1 2 3 [4] 5 … 10 >');
     expect(calls.join()).toBe('4');
@@ -89,7 +92,7 @@ describe('Pagination', () => {
 
   test('getHref: pages are links with your labels and rel prev/next; the next link at the end has no href and aria-disabled; a click follows the link and moves the page', async () => {
     await render(<Pagination id="plink" count={20} defaultPage={20} getHref={(n) => '#page-' + n} previousLabel="Newer" nextLabel="Older"
-      pageLabel={(n) => 'Go to ' + n} aria-label="Results" />);
+      pageLabel={(n) => 'Go to ' + n} aria-label="Results" />, { wrapper: EnUS });
     const n = el('plink');
     expect(n.getAttribute('aria-label')).toBe('Results');
     expect([...n.querySelectorAll('a')].map((a) => [a.getAttribute('aria-label'), a.getAttribute('href'), a.getAttribute('aria-disabled'), a.getAttribute('rel')].join(':')).join(' '))
@@ -101,7 +104,7 @@ describe('Pagination', () => {
   });
 
   test('keyboard: Tab to a page and Enter picks it; keyboard focus shows a 2px ring', async () => {
-    await render(<Pagination id="psm" count={3} size="sm" />);
+    await render(<Pagination id="psm" count={3} size="sm" />, { wrapper: EnUS });
     named('psm', 'Page 1').focus();
     await userEvent.keyboard('{Tab}{Enter}');
     expect(shown('psm')).toBe('< 1 [2] 3 >');
@@ -112,9 +115,11 @@ describe('Pagination', () => {
   });
 
   test('size md is 32px square, sm 24px; the current page is primary with on-primary text, semibold', async () => {
-    await render(<><Pagination id="pdef" count={10} /><Pagination id="psm" count={3} size="sm" /></>);
-    const sq = (id: string) => { const r = named(id, 'Page 1').getBoundingClientRect(); return r.width + 'x' + r.height; };
-    expect([sq('pdef'), sq('psm')]).toEqual(['32x32', '24x24']);
+    // Also in DejaVu Sans, where Inter isn't installed (CI's runners): its "1" is 8.36px, which made a 24.36px page
+    // when sm kept md's 8px sides. And with the widest digits, two of them.
+    await render(<><Pagination id="pdef" count={10} /><Pagination id="psm" count={3} size="sm" /><div style={{ fontFamily: '"DejaVu Sans"' }}><Pagination id="pdv" count={3} size="sm" /><Pagination id="p88" count={88} page={88} size="sm" siblings={0} /></div></>);
+    const sq = (id: string, page = 'Page 1') => { const r = named(id, page).getBoundingClientRect(); return r.width + 'x' + r.height; };
+    expect([sq('pdef'), sq('psm'), sq('pdv'), sq('p88', 'Page 88')]).toEqual(['32x32', '24x24', '24x24', '24x24']);
     const cur = q('pdef', '[aria-current]');
     // The page buttons ease their background for 150ms.
     await expect.poll(() => css(cur).backgroundColor).toBe(color('var(--primary)'));
@@ -130,10 +135,29 @@ describe('Pagination', () => {
     expect(el('pbad').className).toBe('dk-pagination');
   });
 
+  test('the row stays on one line: in 320px the defaults drop siblings, then boundaries, until it fits; with room again they come back (ET1)', async () => {
+    const Box = ({ w }: { w: number }) => <div style={{ width: w + 'px' }}><Pagination id="fit" count={20} defaultPage={10} /></div>;
+    const s = await render(<Box w={600} />, { wrapper: EnUS });
+    const fits = () => { const l = q('fit', 'ul'), a = [named('fit', 'Previous page'), named('fit', 'Next page')].map((x) => x.getBoundingClientRect()); return l.scrollWidth <= l.clientWidth && a[0].top === a[1].top && a[1].right <= l.getBoundingClientRect().right + 0.5; };
+    expect([shown('fit'), fits()]).toEqual(['< 1 … 9 [10] 11 … 20 >', true]);
+    await s.rerender(<Box w={320} />);
+    await vi.waitFor(() => expect(fits()).toBe(true));
+    const narrow = shown('fit');
+    expect(narrow).toContain('[10]');
+    expect(narrow.split(' ').length).toBeLessThan(9);
+    await s.rerender(<Box w={200} />);
+    await vi.waitFor(() => expect(shown('fit')).toBe('< … [10] … >'));
+    await s.rerender(<Box w={600} />);
+    await vi.waitFor(() => expect(shown('fit')).toBe('< 1 … 9 [10] 11 … 20 >'));
+    // A shrink and a grow back in the same frame, before any resize is reported, still end with the full row.
+    await s.rerender(<Box w={200} />);
+    await s.rerender(<Box w={600} />);
+    await vi.waitFor(() => expect(shown('fit')).toBe('< 1 … 9 [10] 11 … 20 >'));
+  });
+
   test('right to left: the arrows point the other way', async () => {
     await render(<div dir="rtl"><Pagination id="prtl" count={3} /></div>);
-    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => [...a.querySelectorAll<HTMLElement>('.dk-icon')]
-      .filter((i) => css(i).display !== 'none').map((i) => i.dataset.icon).join()).join()).toBe('chevron_right,chevron_left');
+    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => iconPoints(a.querySelector('[data-icon]')!)).join()).toBe('right,left');
   });
 
   test('Pagination tokens (--pagination-current-bg, --pagination-size) override one pagination', async () => {
@@ -167,6 +191,22 @@ describe('Pagination', () => {
     await render(<Pagination id="pprs" count={10} defaultPage={7} />);
     const pg = named('pprs', 'Page 1');
     await press(pg, () => expect.poll(() => css(pg).backgroundColor).toBe(color('var(--pressed)')));
+  });
+
+  test('an arrow that reaches the first or last page hands focus to the other arrow, buttons and links alike (FJ1)', async () => {
+    await render(<>
+      <Pagination id="pfb" count={3} defaultPage={2} />
+      <Pagination id="pfl" count={3} defaultPage={2} getHref={(n) => '#p' + n} />
+    </>, { wrapper: EnUS });
+    for (const id of ['pfb', 'pfl']) {
+      const prev = named(id, 'Previous page'), next = named(id, 'Next page');
+      next.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => [shown(id), document.activeElement === prev]).toEqual(['< 1 2 [3] (>)', true]);
+      await userEvent.keyboard('{Enter}');
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => [shown(id), document.activeElement === next]).toEqual(['(<) [1] 2 3 >', true]);
+    }
   });
 
 });

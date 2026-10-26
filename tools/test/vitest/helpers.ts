@@ -1,5 +1,5 @@
 import { afterAll, beforeAll } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 
 declare module 'vitest/browser' {
   interface BrowserCommands {
@@ -8,6 +8,10 @@ declare module 'vitest/browser' {
     pointerUp: () => Promise<void>;
     forcedColors: (on: boolean) => Promise<void>;
     printMedia: (on: boolean) => Promise<void>;
+    coarsePointer: (on: boolean) => Promise<void>;
+    ariaSnapshot: (selector: string) => Promise<string>;
+    ariaMode: () => Promise<'check' | 'update' | 'off'>;
+    writeAriaBaseline: (name: string, text: string) => Promise<void>;
   }
 }
 
@@ -59,7 +63,17 @@ export function css(el: Element | null): CSSStyleDeclaration {
   return getComputedStyle(el);
 }
 
-/** Waits for transitions to settle (the components animate colors for 150ms). */
+/** Focuses el the way a keyboard does, with Tab from a stand-in just before it, so it matches :focus-visible in
+ * every engine. Firefox and WebKit don't count el.focus() after a click as keyboard focus; Chromium does. */
+export async function tabTo(el: HTMLElement): Promise<void> {
+  const from = document.createElement('button');
+  el.before(from);
+  try { from.focus(); await userEvent.tab(); } finally { from.remove(); }
+  if (document.activeElement !== el) throw new Error('tabTo: Tab from just before the element went elsewhere');
+}
+
+/** Waits a fixed 200ms: for color transitions to finish (the components animate colors for 150ms), or to show that
+ * nothing happens within that time. To wait for something to happen, poll for it with expect.poll instead. */
 export const settle = (ms = 200) => new Promise((ok) => setTimeout(ok, ms));
 
 /**
@@ -117,4 +131,24 @@ export async function forcedColors<T>(during: (active: boolean) => Promise<T> | 
   } finally {
     await commands.forcedColors(false);
   }
+}
+
+/** Runs `during` on a touch screen ((pointer: coarse), as on a phone), then turns it off. `active` is false where
+ *  the engine can't emulate one, so a test can skip its touch checks there. */
+export async function coarsePointer<T>(during: (active: boolean) => Promise<T> | T): Promise<T> {
+  let on = true;
+  try { await commands.coarsePointer(true); } catch { on = false; }
+  try {
+    return await during(on && matchMedia('(pointer: coarse)').matches);
+  } finally {
+    if (on) await commands.coarsePointer(false);
+  }
+}
+
+/** Which way a chevron or arrow icon points as drawn: its name's way ("chevron_left", "arrow_forward"), turned around
+ * when Icon flips it for right-to-left text (scale: -1 1 on its svg). */
+export function iconPoints(icon: Element): 'left' | 'right' {
+  const name = (icon as HTMLElement).dataset.icon || '';
+  const right = /right|forward|next|last/.test(name);
+  return right !== (getComputedStyle(icon.querySelector('svg')!).scale === '-1 1') ? 'right' : 'left';
 }

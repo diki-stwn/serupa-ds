@@ -17,7 +17,7 @@ export const Playground: Story = {};
 export const Sizes: Story = {
   render: () => (
     <div className="flex flex-col gap-3 py-4">
-      {(['prose', 'md', 'lg', 'xl'] as const).map((s) => <Container key={s} size={s}><div className="rounded-md bg-surface-muted p-3 text-sm text-text">size="{s}"</div></Container>)}
+      {(['prose', 'md', 'lg', 'xl', '2xl'] as const).map((s) => <Container key={s} size={s}><div className="rounded-md bg-surface-muted p-3 text-sm text-text">size="{s}"</div></Container>)}
     </div>
   ),
 };
@@ -34,4 +34,8 @@ export const FullWidth: Story = {
 export const NotPadded: Story = {
   name: 'No side padding',
   args: { size: 'md', padded: false, children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text">padded={'{false}'}: no padding at the sides, for content that brings its own.</div> },
+};
+
+export const LongText: Story = {
+  args: { size: 'prose', children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text">A long paragraph keeps to the container's width and wraps, and an unbroken word like DonaudampfschifffahrtsgesellschaftskapitänskajüteDonaudampfschifffahrtsgesellschaftskapitänskajüte breaks rather than pushing the page sideways.</div> },
 };

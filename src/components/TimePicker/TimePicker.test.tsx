@@ -2,8 +2,9 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
+const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 import { TimePicker } from './TimePicker';
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
@@ -14,7 +15,7 @@ const time = (o: Element | undefined | null) => (o ? o.querySelector('.dk-time-p
 const st = (id: string) => {
   const i = el(id), l = listOf(id), act = i.getAttribute('aria-activedescendant');
   return { v: i.value, open: !l.hidden, exp: i.getAttribute('aria-expanded'), active: act ? time(document.getElementById(act)) : null, n: l.children.length, first: time(l.children[0]), last: time(l.children[l.children.length - 1]),
-    hidden: [...l.querySelectorAll('.dk-icon')].every((x) => x.closest('[aria-hidden=true]')), sel: [...l.querySelectorAll<HTMLElement>('[aria-selected=true]')].map((o) => o.dataset.value).join() };
+    hidden: [...l.querySelectorAll('[data-icon]')].every((x) => x.closest('[aria-hidden=true]')), sel: [...l.querySelectorAll<HTMLElement>('[aria-selected=true]')].map((o) => o.dataset.value).join() };
 };
 // Tab moves on to the "Next" button after each field: with nothing left to tab to, Firefox sends focus out of the
 // test frame without a blur, and the typed text is read on blur.
@@ -31,9 +32,34 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('a press on the box (start padding, past the clock button) focuses the field with the caret at the end; a disabled box stays put (GG2)', async () => {
+    await render(<div style={{ width: '320px' }}>
+      <TimePicker id="bx" size="lg" locale="en-GB" defaultValue="09:30" aria-label="Start" />
+      <TimePicker id="bx-off" size="lg" disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const box = (id: string) => el(id).closest('[data-component=time-picker]') as HTMLElement;
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    for (const x of [2, b.width - 2]) {
+      el('bx-away').focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === el('bx'), el('bx').selectionStart]).toEqual([x, true, 5]);
+    }
+    el('bx-away').focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(el('bx-off'));
+  });
+
+  test('the placeholder and the format in the description come from the locale: hh:mm AM/PM (en-US), hh.mm (id-ID), 오전/오후 hh:mm (ko), after a Field hint', async () => {
+    await render(<><Field label="Start" hint="Office hours"><TimePicker id="tus" locale="en-US" /></Field><TimePicker id="tid" aria-label="Mulai" locale="id-ID" /><TimePicker id="tko" aria-label="시작" locale="ko" /></>);
+    const f = (id: string) => document.getElementById(id) as HTMLInputElement;
+    expect(['tus', 'tid', 'tko'].map((id) => f(id).placeholder)).toEqual(['hh:mm AM/PM', 'hh.mm', '오전/오후 hh:mm']);
+    expect([described(f('tus')), described(f('tid'))]).toEqual(['Office hours | Format: hh:mm AM/PM', 'Format: hh.mm']);
+  });
+
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
-    await render(<TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await render(<><TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} /><button>After</button></>);   // Tab stays on the page: Firefox fires no blur when it leaves
     await fill('tpi', 'lunch');
     await fill('tpi', '22:00');
     expect([el('tpi').value, calls]).toEqual(['09:00', ['lunch:unreadable', '22:00:unavailable']]);
@@ -46,7 +72,7 @@ describe('TimePicker', () => {
     const i = el('tp'), l = listOf('tp'), b = button('tp');
     expect(ref.current).toBe(i);
     expect(i.parentElement!.className).toMatch(/dk-input.*extra/);
-    expect([i.getAttribute('role'), i.getAttribute('aria-haspopup'), i.getAttribute('aria-expanded'), i.placeholder]).toEqual(['combobox', 'listbox', 'false', 'hh:mm am']);
+    expect([i.getAttribute('role'), i.getAttribute('aria-haspopup'), i.getAttribute('aria-expanded'), i.placeholder]).toEqual(['combobox', 'listbox', 'false', 'hh:mm AM/PM']);
     expect([l.getAttribute('role'), l.getAttribute('aria-label'), b.getAttribute('aria-label'), b.tabIndex]).toEqual(['listbox', 'Choose a time', 'Choose a time', -1]);
     expect(document.querySelector('label')!.htmlFor).toBe('tp');
   });
@@ -62,6 +88,13 @@ describe('TimePicker', () => {
     expect(st('tp').active).toBe('11:30 PM');
     await userEvent.keyboard('{Control>}{Home}{/Control}');
     expect(st('tp').active).toBe('12:00 AM');
+  });
+
+  test('keyboard table: PageUp goes four times up the list, as PageDown goes down (FH1)', async () => {
+    await render(<Meeting />);
+    await openTp();
+    await userEvent.keyboard('{PageDown}{PageDown}{PageUp}');
+    expect(st('tp').active).toBe('2:00 AM');
   });
 
   test('Enter picks the highlighted time, closes the list and keeps focus in the field; reopening highlights and checks it (the check hidden from screen readers); Escape closes the list', async () => {
@@ -208,5 +241,24 @@ describe('TimePicker', () => {
     expect(el('loc').value).toBe('2:30 PM');
     React.act(() => setLoc('de-DE'));
     await expect.poll(() => el('loc').value).toBe('14:30');
+  });
+});
+
+describe('TimePicker: autocomplete', () => {
+  test('off by default; a passed autoComplete reaches the field', async () => {
+    await render(<><TimePicker id="tpac" aria-label="Start" /><TimePicker id="tpon" aria-label="Arrival" autoComplete="on" /></>);
+    expect([document.getElementById('tpac')!.getAttribute('autocomplete'), document.getElementById('tpon')!.getAttribute('autocomplete')]).toEqual(['off', 'on']);
+  });
+
+  test('entry: the list fades in and grows from its top edge with a transition, not keyframes (EF1)', async () => {
+    await withMotion(async () => {
+      await render(<Meeting />);
+      await openTp();
+      const list = document.getElementById(el('tp').getAttribute('aria-controls')!) as HTMLElement;
+      const moves = list.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
+      expect([moves, list.getAnimations().some((a) => a instanceof CSSAnimation), list.dataset.side, css(list).transformOrigin.split(' ')[1]]).toEqual([['opacity', 'scale'], false, 'bottom', '0px']);
+      await Promise.all(list.getAnimations().map((a) => a.finished));
+      expect([css(list).opacity, css(list).scale]).toEqual(['1', 'none']);
+    });
   });
 });

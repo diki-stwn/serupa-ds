@@ -1,0 +1,44 @@
+# Disabled
+- group "Text alignment":
+  - button "Align left" [disabled] [pressed]
+  - button "Align center" [disabled]
+  - button "Align right" [disabled]
+
+# LongLabels
+- group "Schedule":
+  - button "Every day of the week"
+  - button "Weekdays only" [pressed]
+  - button "Once a month"
+
+# Multiple
+- group "Text style":
+  - button "Bold" [pressed]
+  - button "Italic"
+  - button "Underline" [pressed]
+
+# Playground
+- group "Text alignment":
+  - button "Align left" [pressed]
+  - button "Align center"
+  - button "Align right"
+
+# Sizes
+- group "Text alignment, sm":
+  - button "Align left" [pressed]
+  - button "Align center"
+  - button "Align right"
+- group "Text alignment, md":
+  - button "Align left" [pressed]
+  - button "Align center"
+  - button "Align right"
+- group "Text alignment, lg":
+  - button "Align left" [pressed]
+  - button "Align center"
+  - button "Align right"
+
+# WithLabels
+- group "View":
+  - button "Day"
+  - button "Week" [pressed]
+  - button "Month"
+

@@ -2,8 +2,10 @@
 // component can't pass CI with something missing. No browser needed.
 //   node tools/test/contract.mjs
 // Each component needs: <Name>.tsx, index.ts (what the package exports from it), <Name>.css, <name>.tokens.json,
-// <Name>.stories.tsx, <Name>.mdx, README.md, preview.html, a test next to it (<Name>.test.tsx, Vitest), and visual
-// baselines of its stories in every theme.
+// <Name>.stories.tsx, <Name>.mdx, README.md, preview.html, a test next to it (<Name>.test.tsx, Vitest), visual
+// baselines of its stories in every theme, and a stress story (G14): one exported as Long…, Stress… or Overflow…
+// that fills it with long words, long labels and more items than fit, so the visual baselines show how it wraps,
+// truncates or scrolls.
 import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PROJECT, tokensCss, report, done } from './lib.mjs';
@@ -13,13 +15,13 @@ const SKIP = [];
 // Parts a component doesn't need, and why. Keep the reason: an exemption without one is a gap.
 const EXEMPT = {
   FormattedNumber: { tokens: 'inline text in the surrounding font and color; no visual values of its own' },
-  Icon: { tokens: 'draws in currentColor at 1em; no visual values of its own' },
+  Icon: { tokens: 'draws in currentColor at 1em; no visual values of its own', stress: 'one glyph at 1em: no text to grow or wrap' },
   RelativeTime: { tokens: 'inline text in the surrounding font and color; no visual values of its own' },
-  VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see' },
+  ToggleGroup: { tokens: "a ButtonGroup of ToggleButtons: their tokens set its look, and it adds no visual values of its own" },
+  VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see', stress: 'nothing to see' },
 };
 // Known gaps, to be fixed. The check fails when one is fixed, so the entry gets removed and can't come back.
 const GAPS = {};
-
 const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();
 const kebab = (c) => c.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -43,6 +45,7 @@ for (const c of comps) {
     preview: has('preview.html'),
     test: has(`${c}.test.tsx`),
     visual: themes.every((th) => baselines(c).some((f) => f.endsWith(`-${th}-rest.png`))),
+    stress: has(`${c}.stories.tsx`) && /^export const (Long|Stress|Overflow)\w*\b/m.test(fs.readFileSync(path.join(COMP, c, `${c}.stories.tsx`), 'utf8')),
   };
   const missing = [], fixed = [];
   for (const [part, ok] of Object.entries(parts)) {
@@ -50,7 +53,7 @@ for (const c of comps) {
     if (GAPS[c]?.[part]) { if (ok) fixed.push(part); continue; }
     if (!ok) missing.push(part);
   }
-  const what = { code: `${c}.tsx`, index: 'index.ts (its public exports)', css: `${c}.css`, tokens: `${kebab(c)}.tokens.json`, stories: `${c}.stories.tsx`, docs: `${c}.mdx`, guide: 'README.md', preview: 'preview.html', test: `${c}.test.tsx`, visual: `a visual baseline in each of the ${themes.length} themes (add the "update-visual-baselines" label)` };
+  const what = { code: `${c}.tsx`, index: 'index.ts (its public exports)', css: `${c}.css`, tokens: `${kebab(c)}.tokens.json`, stories: `${c}.stories.tsx`, docs: `${c}.mdx`, guide: 'README.md', preview: 'preview.html', test: `${c}.test.tsx`, visual: `a visual baseline in each of the ${themes.length} themes (add the "update-visual-baselines" label)`, stress: 'a stress story (export const LongText, LongLabels, Overflow…): long words, long labels, more items than fit' };
   t(`${c} has everything a component ships with`, !missing.length && !fixed.length,
     [missing.length && `missing: ${missing.map((p) => what[p]).join(', ')}`, fixed.length && `known gap now fixed, remove it from GAPS in contract.mjs: ${fixed.join(', ')}`].filter(Boolean).join('; '));
 }
@@ -61,18 +64,8 @@ const unshakeable = comps.flatMap((c) => fs.readdirSync(path.join(COMP, c)).filt
   .filter((f) => /^\w+\.displayName = |= React\.forwardRef\b/m.test(fs.readFileSync(path.join(COMP, c, f), 'utf8'))).map((f) => `${c}/${f}`));
 t('components are made with component() or named() (internal/component.ts), so unused ones drop out of a bundle', !unshakeable.length, unshakeable.join(', '));
 
-// One focus-ring recipe (outline + outline-offset, tokens focus-ring-width and focus-ring-offset): a box-shadow ring
-// outside the element paints its gap in one color, which shows as a band on tinted backgrounds. Inset rings, for
-// elements whose scrolling container would clip an outline (Tabs), are allowed.
-const haloRings = comps.flatMap((c) => {
-  const f = path.join(COMP, c, `${c}.css`);
-  if (!fs.existsSync(f)) return [];
-  const css = fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-  return [...css.matchAll(/([^{}]*:focus(?:-visible)?[^{}]*)\{([^{}]*)\}/g)]
-    .filter((m) => /box-shadow:[^;]*ring/.test(m[2]) && !/box-shadow:\s*inset/.test(m[2]) && !/:focus-within/.test(m[1]))
-    .map((m) => `${c}: ${m[1].trim()}`);
-});
-t('focus rings are outlines (focus-ring-width, focus-ring-offset), not box-shadow rings with a painted gap', !haloRings.length, haloRings.join('; '));
+// One focus-ring recipe (outline + outline-offset) is the Stylelint rule serupa/focus-ring-outline
+// (tools/lint/stylelint-serupa.mjs), with the layer, raw-value and color rules.
 
 // npm run new-component writes TODO(new-component) wherever a new component still needs its author's words; one left
 // means it isn't finished.

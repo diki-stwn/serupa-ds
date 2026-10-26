@@ -1,4 +1,5 @@
 CHANGELOG.md
+LICENSE
 README.md
 bin/serupa-purge.mjs
 design-tokens/css-values.json
@@ -21,8 +22,11 @@ dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
+dist/serupa.iife.js.map
 dist/theme.js
 dist/utilities.css
+dist/vscode/serupa.css-data.json
+dist/vscode/serupa.html-data.json
 fonts/InterVariable-Italic.woff2
 fonts/InterVariable.woff2
 licenses/Inter-OFL-1.1.txt

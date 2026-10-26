@@ -49,7 +49,7 @@ export const Padding: Story = {
 
 export const AsLink: Story = {
   name: 'As a link',
-  render: () => <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
+  render: () => <ul role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
     <li><Card href="#atlas"><CardHeader title="Atlas" description="Updated 2 hours ago" /></Card></li>
     <li><Card href="#beacon"><CardHeader title="Beacon" description="Updated yesterday" /></Card></li>
   </ul>,
@@ -70,4 +70,17 @@ export const FooterLayouts: Story = {
     <Card><CardHeader title="Delete project?" description="This removes every file in Atlas." /><CardFooter><Button variant="secondary">Cancel</Button><Button destructive>Delete</Button></CardFooter></Card>
     <Card><CardBody>Step 2 of 3</CardBody><CardFooter justify="between"><Button variant="ghost">Back</Button><div className="flex gap-2"><Button variant="secondary">Skip</Button><Button>Next</Button></div></CardFooter></Card>
   </div>,
+};
+
+export const LongText: Story = {
+  render: (args) => (
+    <Card {...args} style={{ maxWidth: 280 }}>
+      <CardHeader title="Enterprise plan for the whole organisation, billed yearly" description={"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} action={<Badge tone="warning">Renewing soon</Badge>} />
+      <CardBody>Renews on 1 March. You're using 96 of 100 seats across 14 teams, and 3 invitations are still waiting for an answer.</CardBody>
+      <CardFooter>
+        <Button variant="secondary">Manage every seat</Button>
+        <Button>Upgrade the plan</Button>
+      </CardFooter>
+    </Card>
+  ),
 };

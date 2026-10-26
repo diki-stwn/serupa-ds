@@ -1,9 +1,14 @@
 /* ---------------------------------------------------------------
-   Grid: equal columns (--dk-grid-cols) or as many as fit (auto-fill, each at least --dk-grid-min, never wider
-   than the grid), with gap from the spacing scale (--dk-grid-gap, else --grid-gap). Lists lose their bullets.
+   Grid: equal columns (--dk-grid-cols), as many as fit (auto-fill, each at least --dk-grid-min, never wider
+   than the grid), or up to --dk-grid-cols (a track is at least (100% + gap) / n - gap, the width that fits n,
+   so no more fit), with gap from the spacing scale (--dk-grid-gap, else --grid-gap). --dk-grid-fit: auto-fit
+   stretches a short row. The private variables start over on each grid, so a nested one doesn't take its
+   parent's. Lists lose their bullets.
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-grid { display: grid; gap: var(--dk-grid-gap, var(--grid-gap, var(--spacing-4))); min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-grid { --dk-grid-gap: initial; --dk-grid-min: initial; --dk-grid-cols: initial; --dk-grid-fit: auto-fill; --dk-grid-g: var(--dk-grid-gap, var(--grid-gap, var(--spacing-4))); display: grid; gap: var(--dk-grid-g); min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-grid--fixed { grid-template-columns: repeat(var(--dk-grid-cols), minmax(0, 1fr)); }
-.dk-grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(var(--dk-grid-min, var(--grid-min-column, var(--container-3xs))), var(--sizing-full)), 1fr)); }
+.dk-grid--auto { grid-template-columns: repeat(var(--dk-grid-fit), minmax(min(var(--dk-grid-min, var(--grid-min-column, var(--container-3xs))), var(--sizing-full)), 1fr)); }
+.dk-grid--upto { grid-template-columns: repeat(var(--dk-grid-fit), minmax(min(max(var(--dk-grid-min), (var(--sizing-full) + var(--dk-grid-g)) / var(--dk-grid-cols) - var(--dk-grid-g)), var(--sizing-full)), 1fr)); }
+.dk-grid--fill { --dk-grid-fit: auto-fit; }
 }

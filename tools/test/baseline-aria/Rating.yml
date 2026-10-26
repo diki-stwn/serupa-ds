@@ -1,0 +1,84 @@
+# Disabled
+- radiogroup "Your rating" [disabled]:
+  - radio "1 star" [disabled]
+  - radio "2 stars" [checked] [disabled]
+  - radio "3 stars" [disabled]
+  - radio "4 stars" [disabled]
+  - radio "5 stars" [disabled]
+
+# HalfStars
+- radiogroup "Your rating":
+  - radio "0.5 stars"
+  - radio "1 star"
+  - radio "1.5 stars"
+  - radio "2 stars"
+  - radio "2.5 stars"
+  - radio "3 stars"
+  - radio "3.5 stars" [checked]
+  - radio "4 stars"
+  - radio "4.5 stars"
+  - radio "5 stars"
+
+# InAField
+- text: How was your stay? Pick again to clear.
+- radiogroup "How was your stay?":
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars"
+  - radio "4 stars"
+  - radio "5 stars"
+
+# Invalid
+- text: How was your stay?
+- radiogroup "How was your stay?" [invalid]:
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars"
+  - radio "4 stars"
+  - radio "5 stars"
+- text: Pick a rating to send your review.
+
+# Overflow
+- radiogroup "Your rating":
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars"
+  - radio "4 stars"
+  - radio "5 stars"
+  - radio "6 stars"
+  - radio "7 stars" [checked]
+  - radio "8 stars"
+  - radio "9 stars"
+  - radio "10 stars"
+
+# Playground
+- radiogroup "Your rating":
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars" [checked]
+  - radio "4 stars"
+  - radio "5 stars"
+
+# ReadOnly
+- img "Average, 4.3 out of 5"
+
+# Sizes
+- radiogroup "Small":
+  - radio "1 star"
+  - radio "2 stars" [checked]
+  - radio "3 stars"
+  - radio "4 stars"
+  - radio "5 stars"
+- radiogroup "Medium":
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars" [checked]
+  - radio "4 stars"
+  - radio "5 stars"
+- radiogroup "Large":
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars"
+  - radio "4 stars" [checked]
+  - radio "5 stars"
+

@@ -86,6 +86,68 @@
           }
         }
       }
+    },
+    "lineHeight": {
+      "line-height-1": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-3xl--line-height}",
+        "$description": "The line height of a level 1 heading (text-3xl's). Set it with --heading-size-1.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-1"
+          }
+        }
+      },
+      "line-height-2": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-2xl--line-height}",
+        "$description": "The line height of a level 2 heading (text-2xl's). Set it with --heading-size-2.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-2"
+          }
+        }
+      },
+      "line-height-3": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-xl--line-height}",
+        "$description": "The line height of a level 3 heading (text-xl's). Set it with --heading-size-3.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-3"
+          }
+        }
+      },
+      "line-height-4": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-lg--line-height}",
+        "$description": "The line height of a level 4 heading (text-lg's). Set it with --heading-size-4.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-4"
+          }
+        }
+      },
+      "line-height-5": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-base--line-height}",
+        "$description": "The line height of a level 5 heading (text-base's). Set it with --heading-size-5.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-5"
+          }
+        }
+      },
+      "line-height-6": {
+        "$type": "dimension",
+        "$value": "{fontSize.text-sm--line-height}",
+        "$description": "The line height of a level 6 heading (text-sm's). Set it with --heading-size-6.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--heading-line-height-6"
+          }
+        }
+      }
     }
   }
 }

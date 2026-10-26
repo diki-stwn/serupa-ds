@@ -1,7 +1,8 @@
 // exports: Drawer, type DrawerProps
 interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
-    open: boolean;
-    onOpenChange?: (open: boolean) => void;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     side?: "bottom" | "left" | "right" | "top";
     size?: "lg" | "md" | "sm";
     title?: React.ReactNode;
@@ -10,5 +11,7 @@ interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>
     closeButton?: boolean;
     closeLabel?: string;
     closeOnBackdrop?: boolean;
+    modal?: boolean;
+    swipeToClose?: boolean;
 }
 declare const Drawer: React.ForwardRefExoticComponent<DrawerProps & React.RefAttributes<HTMLDialogElement>>;

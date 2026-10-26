@@ -12,8 +12,15 @@
 }
 .dk-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
 .dk-calendar__title { flex: auto; margin: var(--spacing-0); text-align: center; color: var(--calendar-title-color, var(--text)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--calendar-title-weight, var(--font-semibold)); }
-.dk-calendar__rtl, [dir="rtl"] .dk-calendar__ltr { display: none; }
-[dir="rtl"] .dk-calendar__rtl { display: inline-block; }
+/* monthYearPicker: the month and year menus where the title was, native selects with the field's look. */
+.dk-calendar__menus { display: flex; flex: auto; justify-content: center; gap: var(--spacing-1); }
+.dk-calendar__menu {
+  height: var(--control-height-sm); padding-block: var(--spacing-0); padding-inline: var(--spacing-2); border: var(--border-width-1) solid var(--calendar-menu-border, var(--field-border));
+  border-radius: var(--rounded-md); background: var(--calendar-menu-bg, var(--field)); color: var(--calendar-title-color, var(--text));
+  font: inherit; font-weight: var(--calendar-title-weight, var(--font-semibold)); cursor: pointer; touch-action: manipulation;
+}
+.dk-calendar__menu:focus { outline: none; }
+.dk-calendar__menu:focus-visible { outline: var(--focus-ring-width) solid var(--calendar-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-calendar__grid { border-collapse: collapse; border-spacing: var(--spacing-0); }
 .dk-calendar__grid th { width: var(--dk-cal-day); height: var(--dk-cal-day); padding: var(--spacing-0); color: var(--calendar-weekday-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); text-align: center; }
 .dk-calendar__grid td { padding: var(--spacing-0); text-align: center; }

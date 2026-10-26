@@ -1,10 +1,13 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, css, lowContrast, settle } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
-import { Checkbox } from './Checkbox';
+import { Checkbox, CheckboxGroup } from './Checkbox';
+import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
 const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
@@ -12,7 +15,6 @@ const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
 describe('Checkbox', () => {
   test('a native checkbox in a <label class="dk-checkbox">: md is a 16px box with a 1px field border, 4px corners and text-sm', async () => {
     await render(<Checkbox id="md">Newsletter</Checkbox>);
-    await settle(300);
     const i = input('md'), s = css(i);
     expect(i.type).toBe('checkbox');
     expect(label('md').tagName).toBe('LABEL');
@@ -87,22 +89,42 @@ describe('Checkbox', () => {
     await expect.poll(() => input('c').checked).toBe(false);
   });
 
+  test('onCheckedChange gets the new state and the event after onChange, in a group too; not when read-only', async () => {
+    const calls: string[] = [];
+    await render(<div>
+      <Checkbox id="occ" onChange={() => calls.push('change')} onCheckedChange={(v, e) => calls.push(v + ' ' + e.type)}>Alone</Checkbox>
+      <Checkbox id="ocr" readOnly onCheckedChange={(v) => calls.push('ro ' + v)}>Locked</Checkbox>
+    </div>);
+    await userEvent.click(input('occ'));
+    await userEvent.click(input('occ'));
+    await userEvent.click(input('ocr'));
+    expect(calls).toEqual(['change', 'true change', 'change', 'false change']);
+  });
+
+  test('onCheckedChange on a box in a CheckboxGroup runs with the group\'s onValueChange', async () => {
+    const calls: string[] = [];
+    await render(<CheckboxGroup aria-label="Days" onValueChange={(v) => calls.push('group ' + v.join('+'))}>
+      <Checkbox id="ocg" value="mon" onCheckedChange={(v) => calls.push('box ' + v)}>Monday</Checkbox>
+    </CheckboxGroup>);
+    await userEvent.click(input('ocg'));
+    expect(calls).toEqual(['group mon', 'box true']);
+  });
+
   test('indeterminate: a dash on the primary fill (the native mixed state); it follows the prop after a click', async () => {
     function App() {
       const [mixed, setMixed] = React.useState(true);
       return <Checkbox id="m" indeterminate={mixed} onChange={() => setMixed(false)}>Select all</Checkbox>;
     }
     await render(<App />);
-    await settle(300);
     const icon = () => input('m').nextElementSibling as HTMLElement;
     expect(input('m').indeterminate).toBe(true);
-    expect((icon().querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).toBe('remove');
+    expect((icon().querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).toBe('remove');
     expect(css(icon()).visibility).toBe('visible');
     expect(css(input('m')).backgroundColor).toBe(color('var(--primary)'));
     await page.getByText('Select all').click();
     expect(input('m').indeterminate).toBe(false);
     expect(input('m').checked).toBe(true);
-    expect((icon().querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).toBe('check');
+    expect((icon().querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).toBe('check');
   });
 
   test('description: a muted second line under the label, added after the checkbox\'s own aria-describedby', async () => {
@@ -127,22 +149,18 @@ describe('Checkbox', () => {
   test('hover darkens the border to field-border-hover', async () => {
     await render(<Checkbox id="h">Hover me</Checkbox>);
     await page.getByText('Hover me').hover();
-    await settle(250);
-    expect(css(input('h')).borderTopColor).toBe(color('var(--field-border-hover)'));
+    await expect.poll(() => css(input('h')).borderTopColor).toBe(color('var(--field-border-hover)'));
   });
 
   test('keyboard focus: a 2px focus-ring outline 2px out, like Button; the gap is transparent, with no box-shadow ring', async () => {
     await render(<><button type="button">Before</button><Checkbox id="f">Focus me</Checkbox></>);
     await page.getByRole('button', { name: 'Before' }).click();
     await userEvent.tab();
-    await settle(250);
-    const s = css(input('f'));
-    expect(`${s.outlineStyle} ${s.outlineColor} ${s.outlineWidth} ${s.outlineOffset} ${s.boxShadow}`).toBe(`solid ${color('var(--focus-ring)')} 2px 2px none`);
+    await expect.poll(() => { const s = css(input('f')); return `${s.outlineStyle} ${s.outlineColor} ${s.outlineWidth} ${s.outlineOffset} ${s.boxShadow}`; }).toBe(`solid ${color('var(--focus-ring)')} 2px 2px none`);
   });
 
   test('invalid: aria-invalid and a danger border', async () => {
     await render(<Checkbox id="i" invalid>Terms</Checkbox>);
-    await settle(300);
     expect(input('i').getAttribute('aria-invalid')).toBe('true');
     expect(css(input('i')).borderTopColor).toBe(color('var(--danger)'));
     expect(label('i').className).toMatch(/dk-checkbox--invalid/);
@@ -151,7 +169,6 @@ describe('Checkbox', () => {
   test('disabled: native disabled at 50% with a not-allowed cursor and a surface-muted box; clicks do nothing', async () => {
     const onChange = vi.fn();
     await render(<Checkbox id="x" disabled onChange={onChange}>Disabled</Checkbox>);
-    await settle(300);
     const s = css(label('x'));
     expect([s.opacity, s.cursor]).toEqual(['0.5', 'not-allowed']);
     expect(css(input('x')).backgroundColor).toBe(color('var(--surface-muted)'));
@@ -206,5 +223,121 @@ describe('Checkbox', () => {
       ['focus ring', 'var(--focus-ring)', 'var(--surface)', 3],
       ['invalid border', 'var(--danger)', 'var(--surface)', 3],
     ])).toEqual([]);
+  });
+});
+
+describe('CheckboxGroup', () => {
+  const box = (v: string) => document.querySelector<HTMLInputElement>(`#grp input[value="${v}"]`)!;
+  const all = () => document.querySelector<HTMLInputElement>('#grp .dk-checkbox:first-child input')!;
+
+  test('a named group: one name for every box, values in the boxes\' order, numbers stay numbers, and size, invalid and disabled reach the boxes', async () => {
+    const seen: unknown[] = [];
+    function App() {
+      const [v, set] = React.useState<number[]>([]);
+      return <CheckboxGroup id="grp" aria-label="Days" value={v} onValueChange={(n) => { seen.push(n); set(n); }} size="sm" invalid>
+        <Checkbox value={1}>Mon</Checkbox><Checkbox value={2}>Tue</Checkbox><Checkbox value={3} disabled>Wed</Checkbox>
+      </CheckboxGroup>;
+    }
+    await render(<App />);
+    const g = document.getElementById('grp')!;
+    expect([g.getAttribute('role'), g.getAttribute('aria-invalid'), g.dataset.component]).toEqual(['group', 'true', 'checkbox-group']);
+    const names = [...g.querySelectorAll('input')].map((i) => i.name);
+    expect(new Set(names).size).toBe(1);
+    expect(names[0]).not.toBe('');
+    expect([...g.querySelectorAll('.dk-checkbox')].map((l) => [l.getAttribute('data-size'), l.classList.contains('dk-checkbox--invalid')])).toEqual([['sm', true], ['sm', true], ['sm', true]]);
+    await userEvent.click(box('2'));
+    await userEvent.click(box('1'));
+    await userEvent.click(box('2'));
+    expect(seen).toEqual([[2], [1, 2], [1]]);
+    expect([box('1').checked, box('2').checked, box('3').disabled]).toEqual([true, false, true]);
+  });
+
+  test('selectAll: unchecked with none, indeterminate (announced as mixed) with some, checked with all; a click checks every enabled box, then clears them, and leaves a disabled box as it is', async () => {
+    const seen: string[][] = [];
+    await render(<CheckboxGroup id="grp" aria-label="Toppings" defaultValue={['olives']} onValueChange={(v) => { seen.push(v); }}>
+      <Checkbox selectAll>All toppings</Checkbox>
+      <Checkbox value="cheese">Cheese</Checkbox><Checkbox value="ham">Ham</Checkbox><Checkbox value="olives" disabled>Olives</Checkbox>
+    </CheckboxGroup>);
+    expect([all().checked, all().indeterminate, all().name]).toEqual([false, false, '']);
+    await userEvent.click(box('cheese'));
+    expect([all().checked, all().indeterminate]).toEqual([false, true]);
+    await userEvent.click(all());
+    expect([all().checked, all().indeterminate, box('cheese').checked, box('ham').checked, box('olives').checked]).toEqual([true, false, true, true, true]);
+    await userEvent.click(all());
+    expect([all().checked, box('cheese').checked, box('ham').checked, box('olives').checked]).toEqual([false, false, false, true]);
+    expect(seen).toEqual([['cheese', 'olives'], ['cheese', 'ham', 'olives'], ['olives']]);
+  });
+
+  test('required means at least one: every box is required (and the form won\'t submit) until one is checked; then none is', async () => {
+    await render(<form id="rq"><CheckboxGroup id="grp" aria-label="Contact" name="via" required>
+      <Checkbox value="mail">Email</Checkbox><Checkbox value="sms">SMS</Checkbox>
+    </CheckboxGroup></form>);
+    const form = document.getElementById('rq') as HTMLFormElement;
+    expect([document.getElementById('grp')!.getAttribute('aria-required'), box('mail').required, box('sms').required, form.checkValidity()]).toEqual(['true', true, true, false]);
+    await userEvent.click(box('sms'));
+    expect([box('mail').required, box('sms').required, form.checkValidity()]).toEqual([false, false, true]);
+  });
+
+  test('required: the browser says "Select at least one option." (the group\'s message, in the provider\'s words), not its one-box message, until a box is checked; a box\'s own message is left alone (EW1)', async () => {
+    const bx = (v: string) => document.querySelector<HTMLInputElement>(`input[value="${v}"]`)!;
+    await render(<><form id="rqm"><CheckboxGroup aria-label="Contact" name="via" required>
+      <Checkbox value="mail">Email</Checkbox><Checkbox value="sms">SMS</Checkbox>
+    </CheckboxGroup></form><SerupaProvider locale="id-ID" labels={idLabels}><CheckboxGroup aria-label="Kontak" required><Checkbox value="wa">WhatsApp</Checkbox></CheckboxGroup></SerupaProvider>
+    <CheckboxGroup aria-label="Own"><Checkbox value="own">Own</Checkbox></CheckboxGroup></>);
+    bx('own').setCustomValidity('Mine');
+    expect([bx('mail').validationMessage, bx('sms').validationMessage, bx('wa').validationMessage]).toEqual(['Select at least one option.', 'Select at least one option.', 'Pilih setidaknya satu opsi.']);
+    await userEvent.click(bx('mail'));
+    expect([bx('mail').validationMessage, bx('sms').validationMessage, (document.getElementById('rqm') as HTMLFormElement).checkValidity(), bx('own').validationMessage]).toEqual(['', '', true, 'Mine']);
+    await userEvent.click(bx('mail'));   // none again
+    expect(bx('sms').validationMessage).toBe('Select at least one option.');
+  });
+
+  test('a form gets every checked value under the name, and a reset brings back defaultValue', async () => {
+    await render(<form id="fr"><CheckboxGroup id="grp" aria-label="Tags" name="tags" defaultValue={['a']}>
+      <Checkbox value="a">A</Checkbox><Checkbox value="b">B</Checkbox><Checkbox value="c">C</Checkbox>
+    </CheckboxGroup></form>);
+    const form = document.getElementById('fr') as HTMLFormElement;
+    await userEvent.click(box('c'));
+    expect(new FormData(form).getAll('tags')).toEqual(['a', 'c']);
+    form.reset();
+    await expect.poll(() => new FormData(form).getAll('tags')).toEqual(['a']);
+    expect(box('c').checked).toBe(false);
+  });
+
+  test('disabled: every box and select-all are disabled, and the group says aria-disabled', async () => {
+    await render(<CheckboxGroup id="grp" aria-label="Off" disabled defaultValue={['x']}><Checkbox selectAll>All</Checkbox><Checkbox value="x">X</Checkbox><Checkbox value="y">Y</Checkbox></CheckboxGroup>);
+    expect([document.getElementById('grp')!.getAttribute('aria-disabled'), all().disabled, box('x').disabled, box('y').disabled]).toEqual(['true', true, true, true]);
+  });
+
+  test('in a Field group: the legend names the group, and the boxes keep their own labels', async () => {
+    await render(<Field label="Notify me about" group><CheckboxGroup id="grp"><Checkbox value="a">Replies</Checkbox><Checkbox value="b">Mentions</Checkbox></CheckboxGroup></Field>);
+    await expect.element(page.getByRole('group', { name: 'Notify me about' })).toBeInTheDocument();
+    await expect.element(page.getByRole('checkbox', { name: 'Replies' })).toBeInTheDocument();
+    await expect.element(page.getByRole('checkbox', { name: 'Mentions' })).toBeInTheDocument();
+  });
+
+  test('pressed: the box shrinks to 90% while the row is held, on scale alone, and springs back; not when disabled (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<><Checkbox id="pc">Press me</Checkbox><Checkbox id="pd" disabled>Off</Checkbox></>);
+      const el = (id: string) => document.getElementById(id) as HTMLElement;
+      const box = (id: string) => el(id).parentElement as HTMLElement;   // the control around the input
+      expect(css(box('pc')).transitionProperty).toBe('scale');
+      await press(el('pc').closest('label')!, () => expect.poll(() => css(box('pc')).scale).toBe('0.9'));
+      await expect.poll(() => css(box('pc')).scale).toBe('none');
+      await press(el('pd').closest('label')!, () => expect(css(box('pd')).scale).toBe('none'));
+    });
+  });
+  test('server markup: an indeterminate box, and a select-all box with some checked, show the dash on the fill before the script runs; once it runs, the native state takes over (GI3)', async () => {
+    const tree = <><Checkbox id="ssr-m" indeterminate>Some</Checkbox>
+      <CheckboxGroup aria-label="Toppings" defaultValue={['ham']}><Checkbox id="ssr-all" selectAll>All</Checkbox><Checkbox value="ham">Ham</Checkbox><Checkbox value="cheese">Cheese</Checkbox></CheckboxGroup></>;
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(tree);
+    document.body.append(host);
+    try {
+      const shown = (id: string) => [input(id).indeterminate, input(id).hasAttribute('data-indeterminate'), css(input(id)).backgroundColor, css(input(id).nextElementSibling).visibility];
+      expect([shown('ssr-m'), shown('ssr-all')]).toEqual([[false, true, color('var(--primary)'), 'visible'], [false, true, color('var(--primary)'), 'visible']]);
+    } finally { host.remove(); }
+    await render(tree);
+    expect([input('ssr-m').indeterminate, input('ssr-m').hasAttribute('data-indeterminate'), input('ssr-all').indeterminate]).toEqual([true, false, true]);
   });
 });

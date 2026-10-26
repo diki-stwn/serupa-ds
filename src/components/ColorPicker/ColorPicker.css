@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    ColorPicker: a wrapping row of round swatches, then the browser's color picker and a hex field, then the
    contrast line. The picked swatch has a ring (primary, 3:1 on the page) and a check in white or black, whichever
-   stands out on it. Every swatch has a thin inset border so a white one still shows on a white page.
+   stands out on it. Every swatch has a thin inset border in field-border (3:1 on the page), so a white one shows on a white page and a black one on a dark page.
    Structure: .dk-color-picker > __swatches (radiogroup) > __swatch; __custom > __native, .dk-input; __contrast.
    --------------------------------------------------------------- */
 @layer dk.components {
@@ -19,9 +19,10 @@
   width: var(--dk-cp-size); height: var(--dk-cp-size); margin: var(--spacing-0); padding: var(--spacing-0);
   background: var(--dk-swatch); color: var(--dk-swatch-ink);
   border: 0; border-radius: var(--color-picker-swatch-radius, var(--rounded-full)); cursor: pointer; touch-action: manipulation;
-  box-shadow: inset 0 0 0 var(--border-width-1) var(--color-picker-swatch-border, var(--border));
+  box-shadow: inset 0 0 0 var(--border-width-1) var(--color-picker-swatch-border, var(--field-border));
 }
 .dk-color-picker__swatch--checked { outline: var(--border-width-2) solid var(--color-picker-ring, var(--primary)); outline-offset: var(--border-width-2); }
+.dk-color-picker__swatches[aria-invalid="true"] .dk-color-picker__swatch { box-shadow: inset 0 0 0 var(--border-width-2) var(--color-picker-invalid, var(--danger)); }   /* the error shows on the swatches, as on a field's border */
 .dk-color-picker__swatch:focus-visible { outline: var(--focus-ring-width) solid var(--color-picker-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-color-picker__check { font-size: var(--dk-cp-check); }
 /* With contrastWith: a swatch under minContrast is struck through (in its check color), so it's seen before it's picked. */
@@ -31,17 +32,21 @@
 }
 @media (forced-colors: active) { .dk-color-picker__swatch--low:not(.dk-color-picker__swatch--checked)::after { background: linear-gradient(to top right, transparent calc(var(--sizing-1-2) - var(--border-width-1)), CanvasText calc(var(--sizing-1-2) - var(--border-width-1)), CanvasText calc(var(--sizing-1-2) + var(--border-width-1)), transparent calc(var(--sizing-1-2) + var(--border-width-1))); forced-color-adjust: none; } }
 .dk-color-picker__swatch:disabled { cursor: not-allowed; }
-.dk-color-picker--disabled { opacity: var(--opacity-disabled); }
+/* Disabled by the prop, or by a <fieldset disabled> around it (its swatches are disabled only together). */
+.dk-color-picker--disabled, .dk-color-picker:where(:has(.dk-color-picker__swatch:disabled)) { opacity: var(--opacity-disabled); }
 .dk-color-picker__custom { display: flex; align-items: center; gap: var(--spacing-2); }
 .dk-color-picker__native {
   inline-size: var(--dk-cp-size); block-size: var(--dk-cp-size); margin: var(--spacing-0); padding: var(--spacing-0);
-  border: var(--border-width-1) solid var(--color-picker-swatch-border, var(--border)); border-radius: var(--rounded-md);
+  border: var(--border-width-1) solid var(--color-picker-swatch-border, var(--field-border)); border-radius: var(--rounded-md);
   background: transparent; cursor: pointer; touch-action: manipulation;
 }
 .dk-color-picker__native:focus-visible { outline: var(--focus-ring-width) solid var(--color-picker-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-color-picker__native::-webkit-color-swatch-wrapper { padding: var(--spacing-0\.5); }
 .dk-color-picker__native::-webkit-color-swatch { border: 0; border-radius: var(--rounded-sm); }
 .dk-color-picker__native::-moz-color-swatch { border: 0; border-radius: var(--rounded-sm); }
+/* Nothing picked: the well holds #000000 but shows empty, not as black already chosen. */
+.dk-color-picker__native[data-empty]::-webkit-color-swatch { background: transparent !important; }
+.dk-color-picker__native[data-empty]::-moz-color-swatch { background: transparent !important; }
 .dk-color-picker__hex { inline-size: var(--color-picker-hex-width, var(--spacing-28)); font-family: var(--font-mono); text-transform: lowercase; }
 .dk-color-picker__hash { font-family: var(--font-mono); }
 .dk-color-picker__contrast { display: flex; align-items: flex-start; gap: var(--spacing-1); min-height: var(--text-sm--line-height); color: var(--color-picker-contrast, var(--text-muted)); font-variant-numeric: tabular-nums; }

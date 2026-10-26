@@ -81,7 +81,7 @@ describe('Alert', () => {
     }
     await render(<App />);
     const b = el('dis').querySelector('button')!, r = b.getBoundingClientRect();
-    expect([b.getAttribute('aria-label'), b.type, (b.querySelector('.dk-icon') as HTMLElement).dataset.icon, r.width, r.height, el('dl').querySelector('button')!.getAttribute('aria-label')])
+    expect([b.getAttribute('aria-label'), b.type, (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, r.width, r.height, el('dl').querySelector('button')!.getAttribute('aria-label')])
       .toEqual(['Dismiss', 'button', 'close', 24, 24, 'Close notice']);
     await expect.element(page.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
     b.focus();
@@ -128,5 +128,49 @@ describe('Alert', () => {
     await render(<Box><Tones /><Alert onDismiss={() => {}}>x</Alert></Box>);
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();
+  });
+});
+
+describe('focus after dismissing (DQ1)', () => {
+  function Page({ keep, move }: { keep?: boolean; move?: boolean }) {
+    const [shown, setShown] = React.useState(true);
+    return <>
+      <button type="button" id="before">Before</button>
+      {shown ? <Alert title="Saved" onDismiss={() => { if (move) document.getElementById('before')!.focus(); if (!keep) setShown(false); }} /> : null}
+      <button type="button" id="after">After</button>
+    </>;
+  }
+  const dismiss = () => (document.querySelector('[aria-label="Dismiss"]') as HTMLElement);
+
+  test('the focused × moves focus to the next focusable element after the alert, not the page', async () => {
+    await render(<Page />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('after');
+  });
+
+  test('with nothing after it, focus goes to the element before it', async () => {
+    function Last() {
+      const [shown, setShown] = React.useState(true);
+      return <><button type="button" id="before">Before</button>{shown ? <Alert title="Saved" onDismiss={() => setShown(false)} /> : null}</>;
+    }
+    await render(<Last />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('before');
+  });
+
+  test('leaves focus alone when onDismiss moves it, or keeps the alert', async () => {
+    await render(<Page move />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(document.activeElement?.id).toBe('before');
+    await render(<Page keep />);
+    const x = document.querySelectorAll<HTMLElement>('[aria-label="Dismiss"]');
+    x[x.length - 1].focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(document.activeElement).toBe(x[x.length - 1]);
   });
 });

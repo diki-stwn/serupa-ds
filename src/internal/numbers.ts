@@ -6,6 +6,7 @@ import { latinDigits } from "./digits";
 const arabic = (t: string) => t.replace(/\u066b/g, ".").replace(/\u066c/g, ",");
 
 interface Symbols { group: string; decimal: string }
+// module state: a cache by locale.
 const symbols = new Map<string, Symbols>();
 function symbolsOf(locale?: string): Symbols {
   const key = locale || "";
@@ -63,6 +64,7 @@ export function parseNumber(text: string, locale?: string): number | null | unde
   return isFinite(n) ? (neg ? -n : n) : undefined;
 }
 
+// module state: a cache by locale and options.
 const formats = new Map<string, Intl.NumberFormat>();
 /** A number as the locale writes it, with Latin digits unless options set a numberingSystem. Without options, no
     grouping and every decimal the value has ("9,5" in de-DE, "1500" not "1.500"), so it reads back as it is. */
@@ -73,6 +75,7 @@ export function formatNumber(n: number, locale?: string, options?: Intl.NumberFo
   return f.format(n);
 }
 
+// module state: a cache by locale and options.
 const shown = new Map<string, Intl.NumberFormat>();
 /** A number to show, not to type: in the locale's own digits and signs, as Calendar shows its days ("٤٥٪" in ar-EG,
     "%45" in tr-TR, "45 %" in fr-FR as a percentage). formatNumber is for what a field reads back. */

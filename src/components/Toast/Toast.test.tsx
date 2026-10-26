@@ -1,15 +1,17 @@
 import * as React from 'react';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Dialog } from '../Dialog/Dialog';
 import { Drawer } from '../Drawer/Drawer';
 import { toast, Toaster, type ToasterPosition } from './Toast';
+import { idLabels } from '../../internal/labels';
 
 const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
-const titles = () => toasts().map((x) => x.querySelector('.dk-toast__title')!.textContent);
+// Each toast is named by its title (aria-labelledby).
+const titles = () => toasts().map((x) => document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent);
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const away = () => userEvent.hover(document.body, { position: { x: 5, y: 5 } });
@@ -31,6 +33,22 @@ describe('Toast', () => {
     expect(s.className).toMatch(/extra/);
   });
 
+  test('two Toasters: only the newest shows each toast, with a warning once; when it unmounts, the older one takes the toasts over (AO2)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      function Two({ both }: { both: boolean }) {
+        return <><Toaster id="t-old" />{both ? <Toaster id="t-new" /> : null}</>;
+      }
+      const r = await render(<Two both />);
+      React.act(() => { toast({ title: 'Link copied', duration: 0 }); });
+      const shown = (id: string) => el(id).querySelectorAll('li').length;
+      await expect.poll(() => [shown('t-old'), shown('t-new')]).toEqual([0, 1]);
+      expect(warn.mock.calls.filter((c) => String(c[0]).startsWith('Toaster:')).length).toBe(1);
+      await r.rerender(<Two both={false} />);
+      await expect.poll(() => shown('t-old')).toBe(1);
+    } finally { warn.mockRestore(); }
+  });
+
   test('toast() shows it at the bottom end, 16px in, 384px wide: labelled by its title, described by its description, a tone icon, a Dismiss button; announced politely', async () => {
     await render(<App />);
     let id = '';
@@ -40,7 +58,7 @@ describe('Toast', () => {
     const x = toasts()[0], r = x.getBoundingClientRect();
     expect(typeof id).toBe('string');
     expect([document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent, document.getElementById(x.getAttribute('aria-describedby')!)!.textContent]).toEqual(['Changes saved', 'All files are up to date.']);
-    expect([x.querySelector<HTMLElement>('.dk-toast__icon .dk-icon')?.dataset.icon, x.querySelector('.dk-toast__close')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
+    expect([x.querySelector<HTMLElement>('.dk-toast__icon .dk-icon')?.dataset.icon, x.querySelector('button[aria-label="Dismiss"]')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
@@ -51,31 +69,52 @@ describe('Toast', () => {
     expect(toasts().map((x) => x.dataset.tone + ':' + !!x.querySelector('.dk-toast__icon'))).toEqual(['success:true', 'neutral:false']);
     React.act(() => { toast({ id, title: 'Saved again', tone: 'info', duration: 0 }); });
     expect(titles()).toEqual(['Saved again', 'Plain message']);
-    await userEvent.click(q('.dk-toast:first-child .dk-toast__close'));
+    await userEvent.click(q('.dk-toast:first-child button[aria-label="Dismiss"]'));
     expect(titles()).toEqual(['Plain message']);
   });
+
+  test('toast.promise: a neutral "Saving…" that stays while pending, then the result in its place, success or danger (said at once), from a string or a function of the value; it returns the promise; two with the same words are two toasts', async () => {
+    await render(<App />);
+    let ok: (v: number) => void = () => {}, fail: (e: Error) => void = () => {};
+    const a = new Promise<number>((r) => { ok = r; }), b = new Promise<number>((_, r) => { fail = r; });
+    let back: Promise<number> | null = null;
+    React.act(() => {
+      back = toast.promise(a, { loading: 'Saving…', success: (n) => n + ' files saved', error: 'Couldn\'t save' });
+      void toast.promise(() => b, { loading: 'Saving…', success: 'Saved', error: (e) => ({ title: 'Couldn\'t save', description: (e as Error).message }) });
+    });
+    expect([back === a, toasts().map((x) => x.dataset.tone + ':' + x.textContent.includes('Saving…'))]).toEqual([true, ['neutral:true', 'neutral:true']]);
+    await new Promise((r) => setTimeout(r, 5200));
+    expect(toasts().length).toBe(2);
+    await React.act(async () => { ok(3); await a; });
+    await expect.poll(() => titles()).toEqual(['3 files saved', 'Saving…']);
+    await React.act(async () => { fail(new Error('The server is offline.')); await b.catch(() => {}); });
+    await expect.poll(() => titles()).toEqual(['3 files saved', 'Couldn\'t save']);
+    expect(toasts().map((x) => x.dataset.tone)).toEqual(['success', 'danger']);
+    await expect.poll(() => q('[data-dk-announcer-assertive]').textContent).toBe('Couldn\'t save. The server is offline.');
+  }, 15000);
 
   test('the action runs and closes the toast', async () => {
     await render(<App />);
     let undos = 0;
     React.act(() => { toast({ title: 'Moved to trash', action: { label: 'Undo', onClick: () => { undos++; } }, duration: 0 }); });
-    await userEvent.click(q('.dk-toast__action'));
+    await userEvent.click(q('.dk-toast button:not([aria-label])'));
     expect([undos, titles().length]).toEqual([1, 0]);
   });
 
-  test('with an action and no duration it stays (past the usual 5s), so there\'s time to reach the button; the first one tells screen readers about F8, once', async () => {
+  test('with an action it goes after the usual 5s like any other (FY1), unless autoDismiss is false; the first one tells screen readers about F8, once', async () => {
     await render(<App />);
     const said = new Set<string>();
     const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.add(t); });
     watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
-    React.act(() => { toast({ title: 'Message deleted', action: { label: 'Undo', onClick: () => {} } }); });
+    React.act(() => { toast({ title: 'Message deleted', action: { label: 'Undo', onClick: () => {} }, autoDismiss: false }); });
     await expect.poll(() => [...said].join(' | ')).toMatch(/Message deleted\. Press F8 to reach it\./);
     React.act(() => { toast({ title: 'Another deleted', action: { label: 'Undo', onClick: () => {} } }); });
     await expect.poll(() => [...said].join(' | ')).toMatch(/Another deleted/);
     expect([...said].some((t) => /Another deleted\. Press F8/.test(t))).toBe(false);
     watch.disconnect();
+    await away();
     await settle(5300);
-    expect(titles()).toEqual(['Message deleted', 'Another deleted']);
+    await expect.poll(titles).toEqual(['Message deleted']);
   });
 
   test('once the Toaster is gone, a toast with an action doesn\'t mention F8', async () => {
@@ -98,13 +137,13 @@ describe('Toast', () => {
     el('before').focus();
     await userEvent.keyboard('{F8}');
     await userEvent.keyboard('{Tab}');
-    expect(document.activeElement!.classList.contains('dk-toast__close')).toBe(true);
+    expect(document.activeElement!.getAttribute('aria-label') === 'Dismiss').toBe(true);
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => document.activeElement!.id).toBe('before');
-    toasts()[0].querySelector<HTMLElement>('.dk-toast__close')!.focus();   // reached without F8
+    toasts()[0].querySelector<HTMLElement>('button[aria-label="Dismiss"]')!.focus();   // reached without F8
     React.act(() => { three = toast({ title: 'Three', duration: 0 }); });
     React.act(() => { toast.dismiss(one); });
-    await expect.poll(() => document.activeElement!.querySelector('.dk-toast__title')?.textContent).toBe('Three');
+    await expect.poll(() => document.getElementById(document.activeElement!.getAttribute('aria-labelledby') ?? '')?.textContent).toBe('Three');
     (document.activeElement as HTMLElement).blur();
     await new Promise((r) => setTimeout(r, 20));
     React.act(() => { toast.dismiss(three); });
@@ -136,20 +175,20 @@ describe('Toast', () => {
 
   test('it goes after its duration, and the time stops while it\'s hovered', async () => {
     await render(<App />);
-    React.act(() => { toast({ title: 'Quick', duration: 400 }); });
-    await settle(250);
+    // 1s, hovered at once: a slow runner's hover round trip can't use the time up before the pointer lands.
+    React.act(() => { toast({ title: 'Quick', duration: 1000 }); });
     await userEvent.hover(q('.dk-toast'));
-    await settle(500);   // past its 400ms: only the hover keeps it
+    await settle(1200);   // past its 1s: only the hover keeps it
     expect(titles().length).toBe(1);
     await away();
-    await expect.poll(() => titles().length, { timeout: 1500 }).toBe(0);
+    await expect.poll(() => titles().length, { timeout: 2500 }).toBe(0);
   });
 
   test('and while something in it has focus', async () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Focus me', duration: 300, action: { label: 'Open', onClick: () => {} } }); });
     await settle(100);
-    q('.dk-toast__action').focus();
+    q('.dk-toast button:not([aria-label])').focus();
     await settle(500);
     expect(titles().length).toBe(1);
     (document.activeElement as HTMLElement).blur();
@@ -160,7 +199,7 @@ describe('Toast', () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Keep me', duration: 300, action: { label: 'Open', onClick: () => {} } }); });
     await settle(100);
-    q('.dk-toast__action').focus();
+    q('.dk-toast button:not([aria-label])').focus();
     await userEvent.hover(q('.dk-toast'));
     await away();
     await settle(600);
@@ -175,9 +214,9 @@ describe('Toast', () => {
     React.act(() => { toast({ title: 'Archived', action: { label: 'Undo', onClick: () => { undos++; } }, duration: 0 }); });
     (document.activeElement as HTMLElement | null)?.blur();
     let toAction = false;
-    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.classList.contains('dk-toast__action'); }
+    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.matches('.dk-toast button:not([aria-label])'); }
     await userEvent.keyboard('{Tab}');
-    expect([toAction, document.activeElement!.classList.contains('dk-toast__close')]).toEqual([true, true]);
+    expect([toAction, document.activeElement!.getAttribute('aria-label') === 'Dismiss']).toEqual([true, true]);
     await userEvent.keyboard('{Shift>}{Tab}{/Shift}{Enter}');
     await expect.poll(() => titles().length).toBe(0);
     expect(undos).toBe(1);
@@ -186,7 +225,7 @@ describe('Toast', () => {
   test('keyboard: Space on Dismiss closes the toast', async () => {
     await render(<App />);
     React.act(() => { toast({ title: 'Saved', duration: 0 }); });
-    q('.dk-toast__close').focus();
+    q('button[aria-label="Dismiss"]').focus();
     await userEvent.keyboard(' ');
     await expect.poll(() => titles().length).toBe(0);
   });
@@ -228,10 +267,10 @@ describe('Toast', () => {
     expect(toasts().map((x) => css(x).backgroundColor)).toEqual(['rgb(1, 2, 3)', 'rgb(1, 2, 3)']);
   });
 
-  test('a burst of the same message is one toast with a count ("×12"), said once; one with an id or an action is never merged', async () => {
+  test('a burst of the same message is one toast with a count ("×12", read as "12 times"); one with an id or an action is never merged', async () => {
     await render(<App />);
     React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', tone: 'danger', duration: 0 }); });
-    expect([toasts().length, titles()[0], q('.dk-toast__count').textContent]).toEqual([1, 'Network error×12', '×12']);
+    expect([toasts().length, q('.dk-toast__count [aria-hidden]').textContent, q('.dk-toast__count .dk-visually-hidden').textContent]).toEqual([1, '×12', ', 12 times']);
     React.act(() => { toast({ title: 'Network error', tone: 'warning', duration: 0 }); toast({ title: 'Network error', tone: 'danger', id: 'mine', duration: 0 }); toast({ title: 'Network error', tone: 'danger', duration: 0, action: { label: 'Retry', onClick: () => {} } }); });
     expect(toasts().length).toBe(3);   // the warning and the one with an id; the third waits past the limit
     expect(q('.dk-toaster__more').textContent).toBe('+1 more');
@@ -243,7 +282,7 @@ describe('Toast', () => {
     await landed();
     expect([titles(), q('.dk-toaster__more').textContent]).toEqual([['Upload 10 failed', 'Upload 11 failed', 'Upload 12 failed'], '+9 more']);
     expect(Math.min(...toasts().map((x) => x.getBoundingClientRect().top), q('.dk-toaster__more').getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
-    await userEvent.click(toasts()[2].querySelector('.dk-toast__close')!);
+    await userEvent.click(toasts()[2].querySelector('button[aria-label="Dismiss"]')!);
     await expect.poll(titles).toEqual(['Upload 9 failed', 'Upload 10 failed', 'Upload 11 failed']);
     expect(q('.dk-toaster__more').textContent).toBe('+8 more');
     setPos('top-center');
@@ -339,5 +378,176 @@ describe('Toast with a Dialog open', () => {
     // Said in turn, or together when another message was just said; never only the second.
     await expect.poll(() => [...seen].join(' | ')).toMatch(/First(\. | \| )Second/);
     watch.disconnect();
+  });
+
+  test('a burst is said when the toast first shows, and once more with the count a second after the last repeat (not twelve times); Indonesian count words', async () => {
+    const said: string[] = [];
+    await render(<App />);
+    const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.push(t); });
+    watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
+    React.act(() => { toast({ title: 'Network error', duration: 0 }); });
+    for (let i = 0; i < 11; i++) { await new Promise((r) => setTimeout(r, 50)); React.act(() => { toast({ title: 'Network error', duration: 0 }); }); }
+    await expect.poll(() => said.filter((x) => /12 times/.test(x)).length, { timeout: 4000 }).toBe(1);
+    await new Promise((r) => setTimeout(r, 1300));
+    watch.disconnect();
+    expect([...new Set(said)]).toEqual(['Network error', 'Network error. 12 times.']);
+    expect(idLabels.toastRepeated(3)).toBe('3 kali');
+  });
+});
+
+describe('Toast: motion (DZ1)', () => {
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]).sort();
+  const byTitle = (t: string) => toasts().find((x) => x.textContent.includes(t))!;
+  test('slides in with a transition; closed, it fades and slides back toward its edge (kept, inert, until it ends) and the one left glides into its place over 200ms; one there as the Toaster arrives is not slid in', async () => {
+    await withMotion(async () => {
+      await render(<App />);
+      React.act(() => { toast({ title: 'First', duration: 0 }); });
+      const first = byTitle('First');
+      expect([runs(first), first.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 200], ['translate', 200]], false]);
+      React.act(() => { toast({ title: 'Second', duration: 0 }); });
+      await landed();
+      const second = byTitle('Second');
+      React.act(() => { toast.dismiss(second.dataset.toast); });
+      // Bottom-end: the newest is last, nearest the edge; it leaves downward, toward it, and the first glides down.
+      expect([second.isConnected, second.hasAttribute('data-leaving'), second.inert, runs(second)]).toEqual([true, true, true, [['opacity', 150], ['translate', 150]]]);
+      await Promise.all(second.getAnimations().map((a) => a.finished));
+      await expect.poll(() => second.isConnected).toBe(false);
+      const glide = first.getAnimations().find((a) => a.id === 'dk-toast-move');
+      expect(glide && ms(glide)).toBe(200);
+      await landed();
+      expect(css(first).translate).toBe('none');
+    });
+  });
+
+  test('toasts there as the Toaster arrives are shown from the first frame', async () => {
+    await withMotion(async () => {
+      function Arrive() { React.useEffect(() => { toast({ title: 'Welcome back', duration: 0 }); }, []); return <Toaster />; }
+      await render(<Arrive />);
+      await expect.poll(() => toasts().length).toBe(1);
+      expect([toasts()[0].hasAttribute('data-instant'), toasts()[0].getAnimations().length]).toEqual([true, 0]);
+      React.act(() => { toast({ title: 'Later', duration: 0 }); });
+      expect([byTitle('Later').hasAttribute('data-instant'), runs(byTitle('Later')).length]).toEqual([false, 2]);
+    });
+  });
+
+  const frames = async (each: () => void) => { do { each(); await new Promise(requestAnimationFrame); } while (document.getAnimations().length); each(); };
+  test('top-center, a fourth toast: the oldest folds toward "+1 more" where it was, and the ones left only ever move down to their place, never fading in again (FO1)', async () => {
+    await withMotion(async () => {
+      await render(<App />);
+      setPos('top-center');
+      React.act(() => { toast({ title: 'Moved to trash', action: { label: 'Undo', onClick: () => {} } }); });
+      React.act(() => { toast({ title: 'Upload failed', tone: 'danger', duration: 0 }); });
+      React.act(() => { toast({ title: 'Storage almost full', tone: 'warning', duration: 0 }); });
+      await landed();
+      const failed = byTitle('Upload failed'), trash = byTitle('Moved to trash');
+      const tops: number[] = [], fades: string[] = [];
+      React.act(() => { toast({ title: 'Update ready', tone: 'info', duration: 0 }); });
+      // Newest on top, the waiting line last: the one pushed out stays below the one it was under.
+      expect([trash.dataset.leaving, toasts().indexOf(trash) > toasts().indexOf(failed), q('.dk-toaster__more').textContent]).toEqual(['queued', true, '+1 more']);
+      expect(runs(trash)).toEqual([['opacity', 150], ['scale', 150], ['translate', 150]]);
+      await frames(() => { tops.push(Math.round(failed.getBoundingClientRect().top)); fades.push(css(failed).opacity); });
+      expect([trash.isConnected, failed.getAnimations().filter((a) => a instanceof CSSTransition).length]).toEqual([false, 0]);
+      expect(fades.filter((o) => o !== '1')).toEqual([]);
+      expect(tops.filter((v, i) => i > 0 && v < tops[i - 1] - 1)).toEqual([]);
+      expect(tops[tops.length - 1]).toBeGreaterThan(tops[0]);
+    });
+  });
+
+  test('the waiting line fades in, glides with the toasts, and fades out once none wait (FO1)', async () => {
+    await withMotion(async () => {
+      await render(<Toaster limit={1} />);
+      React.act(() => { toast({ title: 'One', duration: 0 }); });
+      await landed();
+      React.act(() => { toast({ title: 'Two', duration: 0 }); });
+      const more = q('.dk-toaster__more');
+      expect(runs(more)).toEqual([['opacity', 200]]);
+      // Bottom-end: the line sits over the toasts, so it glides down into place once the one pushed out has gone.
+      await expect.poll(() => more.getAnimations().some((a) => a.id === 'dk-toast-move')).toBe(true);
+      await landed();
+      expect(Math.round(byTitle('Two').getBoundingClientRect().top - more.getBoundingClientRect().bottom)).toBe(8);
+      React.act(() => { toast.dismiss(byTitle('Two').dataset.toast); });
+      await expect.poll(() => more.hasAttribute('data-leaving')).toBe(true);
+      expect([more.isConnected, more.textContent, runs(more)]).toEqual([true, '+1 more', [['opacity', 150]]]);
+      await landed();
+      await expect.poll(() => more.isConnected).toBe(false);
+    });
+  });
+});
+
+describe('Toast: time in the waiting line (FO1)', () => {
+  test('a toast pushed into the waiting line keeps its time running there, so they go in the order they came', async () => {
+    await render(<><App /><button id="out">Out</button></>);
+    await away();
+    const order: string[] = [];
+    const spy = vi.spyOn(toast, 'dismiss');
+    try {
+      for (const n of [1, 2, 3, 4]) { React.act(() => { toast({ id: 'q' + n, title: 'Note ' + n, duration: 700 }); }); await new Promise((r) => setTimeout(r, 40)); }
+      expect(titles()).toEqual(['Note 2', 'Note 3', 'Note 4']);
+      await expect.poll(() => toasts().length + (q('.dk-toaster__more') ? 1 : 0), { timeout: 4000 }).toBe(0);
+      for (const [id] of spy.mock.calls) if (id && !order.includes(id)) order.push(id);
+      expect(order).toEqual(['q1', 'q2', 'q3', 'q4']);
+    } finally { spy.mockRestore(); }
+  });
+
+  test('never shown: with limit={1}, the older of two arriving together waits with its time stopped, and gets all of it once shown', async () => {
+    await render(<Toaster limit={1} />);
+    await away();
+    React.act(() => { toast({ title: 'Older', duration: 300 }); toast({ title: 'Newer', duration: 0 }); });
+    await new Promise((r) => setTimeout(r, 500));
+    expect([titles(), q('.dk-toaster__more').textContent]).toEqual([['Newer'], '+1 more']);
+    React.act(() => { toast.dismiss(toasts()[0].dataset.toast); });
+    await expect.poll(titles).toEqual(['Older']);
+    await new Promise((r) => setTimeout(r, 150));
+    expect(titles()).toEqual(['Older']);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
+  });
+
+  test('closed with the mouse, focus isn\'t handed to the toast next to it, so that one\'s time keeps running (FO1)', async () => {
+    await render(<App />);
+    React.act(() => { toast({ title: 'Stays a while', duration: 600 }); toast({ title: 'Close me', duration: 0 }); });
+    await expect.poll(() => toasts().length).toBe(2);
+    await userEvent.click(toasts()[1].querySelector('button[aria-label="Dismiss"]')!);
+    await away();
+    await expect.poll(titles).toEqual(['Stays a while']);
+    expect(toasts()[0].contains(document.activeElement)).toBe(false);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
+  });
+});
+
+describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
+  const gone = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  test('the Toaster\'s duration is every toast\'s time unless one sets its own; duration 0 still keeps one up', async () => {
+    await render(<Toaster duration={300} limit={5} />);
+    await away();
+    React.act(() => { toast('Quick'); toast({ title: 'Own time', duration: 2000 }); toast({ title: 'Kept', duration: 0 }); toast({ title: 'Undo me', action: { label: 'Undo', onClick: () => {} } }); });
+    expect(titles()).toEqual(['Quick', 'Own time', 'Kept', 'Undo me']);
+    await gone(900);
+    expect(titles()).toEqual(['Own time', 'Kept']);
+  });
+
+  test('autoDismiss false keeps a toast until it\'s closed; on the Toaster it keeps them all, and a toast\'s own true wins', async () => {
+    const screen = await render(<Toaster duration={300} autoDismiss={false} />);
+    await away();
+    React.act(() => { toast('Stays'); toast({ title: 'Goes', autoDismiss: true }); });
+    await gone(900);
+    expect(titles()).toEqual(['Stays']);
+    // Back to the default on the Toaster: "Stays" now goes on time, and only a toast's own false keeps one up.
+    await screen.rerender(<Toaster duration={300} />);
+    React.act(() => { toast({ title: 'Must act', tone: 'danger', autoDismiss: false }); });
+    await gone(900);
+    expect(titles()).toEqual(['Must act']);
+  });
+
+  test('toast.promise keeps its loading toast up however short the Toaster\'s duration, then the result goes on time', async () => {
+    await render(<Toaster duration={300} />);
+    await away();
+    let finish: (v: string) => void = () => {};
+    React.act(() => { void toast.promise(new Promise<string>((r) => { finish = r; }), { loading: 'Saving…', success: 'Saved', error: 'Failed' }); });
+    await gone(900);
+    expect(titles()).toEqual(['Saving…']);
+    React.act(() => finish('ok'));
+    await expect.poll(titles).toEqual(['Saved']);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
   });
 });

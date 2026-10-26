@@ -37,15 +37,25 @@ const { Accordion, AccordionItem } = window.Serupa;
 - Keep anything people must not miss out of a closed item: closed content is hidden from everyone.
 - With many items and `type="multiple"`, add `showExpandAll` so people can open everything at once (to read or print the whole page) and close it again.
 - The browser's find-in-page (Ctrl+F or ⌘F) searches closed items too, and opens the item a match is in.
+- Closed items keep their content, and its state (a half-filled form, a playing video's position). Set `keepMounted={false}` on an item whose content is heavy and doesn't need to, such as a chart or a long table, so it renders only while open. Find-in-page can't find content that isn't there, so keep the default for text people may search.
 
 ## Accessibility
 
-- Follows the WAI-ARIA accordion pattern: each title is a button inside a heading, with `aria-expanded` and `aria-controls`; the content is a region labelled by its title.
+- Follows the WAI-ARIA accordion pattern: each title is a button inside a heading, with `aria-expanded` and `aria-controls`; an open item's content is a region labelled by its title. Closed items aren't regions, so screen readers' landmark lists hold only what's showing, and with `type="multiple"` and more than six items no panel is a region (the APG's advice against crowding the landmarks); the content still follows its heading.
 - Up and Down move between titles (wrapping, skipping disabled ones), Home and End go to the first and last; Enter and Space open and close.
 - Closed content is `hidden="until-found"`, so it's out of the tab order and screen readers skip it, but find-in-page still finds it: a match fires `beforematch`, which opens that item (in `single`, closing the open one). It's set once the closing animation ends. A disabled item's content stays `visibility: hidden` and isn't searchable. Before hydration, and in browsers without `until-found`, closed content is `visibility: hidden` as before.
 - The Expand all button is a plain `<button>` that says "Expand all" or, once every enabled item is open, "Collapse all" (the `expandAll` and `collapseAll` labels in `SerupaProvider`). Disabled items stay as they are.
 - With `collapsible={false}` the open item's button has `aria-disabled`, since pressing it does nothing.
-- Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). With reduced motion it opens without animating.
+- Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). Opening, the content takes its height at once and unfolds over it (a fade and an opening clip), and closing it folds back before the height goes, so the page is laid out once, not on every frame. With reduced motion it only fades.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | Through the titles and anything focusable in open items; closed content is skipped. With `showExpandAll`, its button comes first |
+| Enter / Space | Opens or closes the focused item |
+| Down / Up | The next or previous title, wrapping, skipping disabled ones |
+| Home / End | The first or last title |
 
 ## Props
 
@@ -53,6 +63,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `type` | `'single'` \| `'multiple'` | `'single'` | One open at a time, or any number |
 | `value` | `string[]` | none | The open items (controlled) |
 | `defaultValue` | `string[]` | `[]` | The items open at first. With `single`, only the first counts |
@@ -72,6 +83,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 | `value` | string | its position (`"0"`, `"1"`…) | Identifies it in `value` |
 | `disabled` | boolean | `false` | Can't be opened or closed |
 | `children` | node | none | The content |
+| `keepMounted` | boolean | `true` | `false` renders the content only while the item is open (and while it closes), for heavy content. Its state is lost on close, and find-in-page can't find it |
 
 `className`, `ref` and everything else go to the item, which has `data-state="open"` or `"closed"`.
 
@@ -85,6 +97,7 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-title-color` | `text` | An item's title. |
 | `--accordion-content-color` | `text-muted` | An item's content (4.5:1 on surface). |
 | `--accordion-icon-color` | `text-muted` | The chevron. |
+| `--accordion-trigger-bg-pressed` | `pressed` | A title's fill while it's held down. |
 | `--accordion-bg` | `surface` | The background of variant="card". |
 | `--accordion-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--accordion-title-size` | `text-sm` | Title text (14px). |
@@ -95,4 +108,4 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-icon-size` | `spacing-5` | The chevron (20px). |
 | `--accordion-border-width` | `border-width-1` | Lines and frame (1px). |
 | `--accordion-radius` | `rounded-lg` | The corners of variant="card" (8px). |
-| `--accordion-duration` | `duration-200` | Opening and closing (200ms). |
+| `--accordion-duration` | `motion-change-md` | Opening: the fade and unfold (200ms), and the chevron turning. Closing folds back over motion-exit-md (150ms). |

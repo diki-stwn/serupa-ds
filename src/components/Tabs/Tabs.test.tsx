@@ -3,7 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Tab, TabList, TabPanel, Tabs } from './Tabs';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -95,6 +95,13 @@ describe('Tabs', () => {
     expect(state('ctl')).toMatch(/^One Two \*Three0/);
   });
 
+  test('keyboard table: Space selects the focused tab, as Enter does (FH1)', async () => {
+    await setup();
+    selected('dis').focus();
+    await userEvent.keyboard('{ArrowRight}[Space]');
+    expect(state('dis')).toMatch(/^One Two \*Three0/);
+  });
+
   test('manual activation: arrows only move (skipping a disabled tab), Enter selects', async () => {
     await setup();
     selected('dis').focus();
@@ -151,14 +158,14 @@ describe('Tabs', () => {
     await setup();
     const r = el('un'), sel = selected('un'), other = r.querySelector('[aria-selected="false"]')!, a = getComputedStyle(sel, '::after'), s = css(sel);
     expect([css(r.querySelector('[role="tablist"]')).borderBottomWidth, sel.getBoundingClientRect().height, a.height, a.backgroundColor]).toEqual(['1px', 36, '2px', color('var(--primary)')]);
-    expect([s.fontSize, s.fontWeight, s.paddingLeft, css(sel.querySelector('.dk-icon')).fontSize]).toEqual(['14px', '500', '12px', '16px']);
+    expect([s.fontSize, s.fontWeight, s.paddingLeft, css(sel.querySelector('[data-icon]')).fontSize]).toEqual(['14px', '500', '12px', '16px']);
     await expect.poll(() => css(sel).color).not.toBe(css(other).color);
   });
 
   test('pill, size sm: 32px tabs, the selected one filled in primary with 6px corners, no row border or line', async () => {
     await setup();
     const sel = selected('dv'), s = css(sel);
-    await expect.poll(() => css(sel).backgroundColor).toBe(color('var(--primary)'));
+    await expect.poll(() => getComputedStyle(sel, '::before').backgroundColor).toBe(color('var(--primary)'));
     expect([sel.getBoundingClientRect().height, css(el('dv').querySelector('[role="tablist"]')).borderBottomStyle, s.borderTopLeftRadius, getComputedStyle(sel, '::after').content]).toEqual([32, 'none', '6px', 'none']);
   });
 
@@ -185,7 +192,7 @@ describe('Tabs', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const un = el('un').querySelector('[aria-selected="false"]')!, sel = selected('un'), pill = selected('dv');
-      const checks: Array<[string, string, string, number]> = [['tab', css(un).color, 'var(--surface)', 4.5], ['selected', css(sel).color, 'var(--surface)', 4.5], ['line', getComputedStyle(sel, '::after').backgroundColor, 'var(--surface)', 3], ['pill', css(pill).color, css(pill).backgroundColor, 4.5], ['pill fill', css(pill).backgroundColor, 'var(--surface)', 3]];
+      const checks: Array<[string, string, string, number]> = [['tab', css(un).color, 'var(--surface)', 4.5], ['selected', css(sel).color, 'var(--surface)', 4.5], ['line', getComputedStyle(sel, '::after').backgroundColor, 'var(--surface)', 3], ['pill', css(pill).color, getComputedStyle(pill, '::before').backgroundColor, 4.5], ['pill fill', getComputedStyle(pill, '::before').backgroundColor, 'var(--surface)', 3]];
       for (const [k, a, c, min] of checks) { const r = contrast(a, c); n++; if (r < min) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
     still.remove();
@@ -234,4 +241,85 @@ describe('Tabs on the server', () => {
     expect(focused()).toBe('B');
   });
 
+  test('a kept panel of another tab is hidden="until-found" with no height; find-in-page\'s beforematch selects its tab (CN1)', async () => {
+    await setup();
+    const panels = [...el('un').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(panels.map((p) => p.getAttribute('hidden'))).toEqual([null, 'until-found', '']);   // three isn't kept: plainly hidden
+    expect(Math.round(panels[1].getBoundingClientRect().height)).toBe(0);
+    panels[1].dispatchEvent(new Event('beforematch'));
+    await expect.poll(() => selected('un').textContent).toBe('Two');
+    expect([changes, panels[1].hidden, panels[0].getAttribute('hidden')]).toEqual([['two'], false, 'until-found']);
+    // A disabled tab's panel stays plainly hidden, so a match can't pick it.
+    const dis = [...el('dis').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(dis.map((p) => p.getAttribute('hidden'))).toEqual([null, '', '']);
+  });
+
+  test('only the shown panel is in the Tab order: a kept panel of another tab has no size to land on (CO1)', async () => {
+    await setup();
+    const panels = [...el('un').querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    expect(panels.map((p) => p.tabIndex)).toEqual([0, -1, -1]);
+    (el('un').querySelector('[role="tab"][aria-selected="true"]') as HTMLElement).focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(panels[0]);
+    await userEvent.tab();
+    expect(panels).not.toContain(document.activeElement);
+    panels[1].dispatchEvent(new Event('beforematch'));
+    await expect.poll(() => panels.map((p) => p.tabIndex)).toEqual([-1, 0, -1]);
+  });
+
+  test('overflow (O4): 20 tabs in 400px with the last selected: it is scrolled into view; the start edge fades while tabs are past it, the end only while tabs are past it; nothing fades when it fits', async () => {
+    const many = Array.from({ length: 20 }, (_, i) => 'Tab ' + (i + 1));
+    function Wide() {
+      const [v, set] = React.useState('Tab 20');
+      return <div style={{ width: '400px' }}>
+        <Tabs id="ov" value={v} onValueChange={set}><TabList aria-label="Many">{many.map((t) => <Tab key={t} value={t}>{t}</Tab>)}</TabList></Tabs>
+        <Tabs id="fit"><TabList aria-label="Few"><Tab value="a">A</Tab><Tab value="b">B</Tab></TabList></Tabs>
+        <button id="first" onClick={() => set('Tab 1')}>first</button>
+      </div>;
+    }
+    await render(<Wide />);
+    const list = el('ov').querySelector<HTMLElement>('[role="tablist"]')!;
+    // Polled: once the fonts load, the tabs change width and the list scrolls the selected one back into view.
+    await expect.poll(() => { const box = list.getBoundingClientRect(), t = selected('ov').getBoundingClientRect(); return [list.scrollLeft > 0, t.right <= box.right + 0.5, t.left >= box.left]; }).toEqual([true, true, true]);
+    await expect.poll(() => [list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([true, false]);
+    expect(css(list).maskImage).toMatch(/linear-gradient/);
+    await userEvent.click(el('first'));
+    await expect.poll(() => [list.scrollLeft, list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([0, false, true]);
+    const fit = el('fit').querySelector<HTMLElement>('[role="tablist"]')!;
+    expect([fit.hasAttribute('data-fade-before'), fit.hasAttribute('data-fade-after'), css(fit).maskImage]).toEqual([false, false, 'none']);
+  });
+
+  test('orientation="vertical": aria-orientation vertical, the tabs in a column at the start with the line on their end side; ↓ and ↑ move and select (wrapping), ← → do nothing', async () => {
+    await render(<Tabs id="ver" orientation="vertical"><Set3 /></Tabs>);
+    const list = el('ver').querySelector<HTMLElement>('[role="tablist"]')!, tabs = [...list.querySelectorAll<HTMLElement>('[role="tab"]')];
+    expect([list.getAttribute('aria-orientation'), el('ver').dataset.orientation, Math.round(tabs[1].getBoundingClientRect().left - tabs[0].getBoundingClientRect().left), tabs[1].getBoundingClientRect().top > tabs[0].getBoundingClientRect().top]).toEqual(['vertical', 'vertical', 0, true]);
+    const panel = el('ver').querySelector<HTMLElement>('[role="tabpanel"]:not([hidden])')!;
+    expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(list.getBoundingClientRect().right);
+    expect([css(list).borderInlineEndWidth, css(list).borderBottomWidth]).toEqual(['1px', '0px']);
+    const line = getComputedStyle(tabs[0], '::after');
+    expect([line.width, line.height === '2px']).toEqual(['2px', false]);
+    tabs[0].focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(focused()).toBe('Two');
+    await userEvent.keyboard('{ArrowRight}');
+    expect(focused()).toBe('Two');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    expect([focused(), selected('ver').textContent]).toEqual(['Three', 'Three']);
+  });
+
+  test('the line and the pill fill slide from the tab selected before (EG1): they start where it was, on translate and scale, and come to rest in place', async () => {
+    await withMotion(async () => {
+      await setup();
+      for (const [id, pseudo] of [['un', '::after'], ['dv', '::before']] as const) {
+        const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
+        const [from, to] = id === 'un' ? [tabs[0], tabs[2]] : [tabs[2], tabs[0]];
+        await userEvent.click(to);
+        const moves = to.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
+        const start = moves.find((a) => a.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
+        expect([moves.map((a) => a.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(from.offsetLeft - to.offsetLeft)]);
+        await Promise.all(moves.map((a) => a.finished));
+        expect([getComputedStyle(to, pseudo).translate, getComputedStyle(to, pseudo).scale]).toEqual(['none', 'none']);
+      }
+    });
+  });
 });

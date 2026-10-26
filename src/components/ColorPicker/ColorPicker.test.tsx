@@ -49,18 +49,39 @@ describe('ColorPicker', () => {
     expect([group().getAttribute('aria-invalid'), group().getAttribute('aria-errormessage') === err.id]).toEqual(['true', true]);
   });
 
+  test('invalid shows on the swatches: their border takes the danger color, 3:1 on the page in all six themes', async () => {
+    await render(<><div id="ok"><ColorPicker aria-label="Fine" swatches={SW} /></div><div id="bad"><ColorPicker aria-label="Wrong" swatches={SW} invalid /></div></>);
+    const ring = (id: string) => css(document.querySelector(`#${id} [role="radio"]`)).boxShadow.match(/^(\w+\([^)]*\)|#\w+|\w+)/)![1];
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const r = contrast(ring('bad'), css(document.body).backgroundColor);
+      if (ring('bad') === ring('ok') || r < 3) low.push(`${th}: ${ring('bad')} ${r.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
   test('a radiogroup of swatches named by their labels (a bare hex by a name from its color, with its code as the tooltip), the picked one checked with a check icon; one Tab stop', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<ColorPicker ref={ref} id="cp" className="extra" aria-label="Label color" swatches={SW} defaultValue="#1d4ed8" />);
     expect([group().getAttribute('aria-label'), radios().map((r) => r.getAttribute('aria-label')), radios().map((r) => r.getAttribute('aria-checked')), radios().map((r) => r.tabIndex)])
       .toEqual(['Label color', ['Blue', 'Yellow', 'White', 'Black'], ['true', 'false', 'false', 'false'], [0, -1, -1, -1]]);
-    expect([ref.current === document.getElementById('cp'), ref.current!.className, ref.current!.dataset.component, !!swatch('Blue').querySelector('.dk-icon'), css(swatch('Blue')).backgroundColor])
+    expect([ref.current === document.getElementById('cp'), ref.current!.className, ref.current!.dataset.component, !!swatch('Blue').querySelector('[data-icon]'), css(swatch('Blue')).backgroundColor])
       .toEqual([true, 'dk-color-picker dk-color-picker--size-md extra', 'color-picker', true, 'rgb(29, 78, 216)']);
+  });
+
+  test('keyboard table: ArrowUp picks the previous swatch, as ArrowLeft does, and wraps (FH1)', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    swatch('Blue').focus();
+    await userEvent.keyboard('{ArrowRight}{ArrowUp}{ArrowUp}');
+    expect([calls, document.activeElement === swatch('Black')]).toEqual([['#fde047', '#1d4ed8', '#18181b'], true]);
   });
 
   test('arrow keys, Home and End move and pick, wrapping; a click picks; onValueChange gets lowercase #rrggbb', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     swatch('Blue').focus();
     await userEvent.keyboard('{ArrowRight}');
     expect([document.activeElement === swatch('Yellow'), swatch('Yellow').getAttribute('aria-checked'), calls]).toEqual([true, 'true', ['#fde047']]);
@@ -72,7 +93,7 @@ describe('ColorPicker', () => {
 
   test('the hex field: six digits pick the color as people type, three on blur or Enter; a bad code goes back on blur and is marked invalid while typed', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     expect(hex().value).toBe('1d4ed8');
     await userEvent.fill(hex(), '#7C3AED');
     expect([calls, radios().every((r) => r.getAttribute('aria-checked') === 'false')]).toEqual([['#7c3aed'], true]);
@@ -87,9 +108,45 @@ describe('ColorPicker', () => {
     expect(hex().hasAttribute('aria-invalid')).toBe(false);
   });
 
+  test('the hex field (EY1): a code on its way to six digits isn\'t marked invalid until Enter, one that can\'t be a color is at once; a pasted code with spaces round it picks', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    for (const t of ['1', '1d', '1d4e', '1d4ed']) {
+      await userEvent.fill(hex(), t);
+      expect([t, hex().hasAttribute('aria-invalid')]).toEqual([t, false]);
+    }
+    await userEvent.keyboard('{Enter}');
+    expect(hex().getAttribute('aria-invalid')).toBe('true');
+    await userEvent.keyboard('{Backspace}');   // typing again clears it until the next Enter
+    expect(hex().hasAttribute('aria-invalid')).toBe(false);
+    await userEvent.fill(hex(), '1g');
+    expect(hex().getAttribute('aria-invalid')).toBe('true');
+    await userEvent.fill(hex(), '');
+    const data = new DataTransfer();
+    data.setData('text/plain', ' #7C3AED\n');
+    // Firefox gives a ClipboardEvent made in script an empty copy of the clipboardData passed in, so the paste carries it as its own.
+    const ev = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'clipboardData', { value: data });
+    hex().dispatchEvent(ev);
+    await expect.poll(() => calls.at(-1)).toBe('#7c3aed');
+    expect([hex().value, hex().hasAttribute('aria-invalid')]).toEqual(['7C3AED', false]);
+  });
+
+  test('the browser\'s well (EY1): empty with nothing picked, and black chosen there is picked when it closes, though the well already held #000000', async () => {
+    const changes: string[] = [], commits: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} onValueChange={(v) => changes.push(v)} onValueCommit={(v) => commits.push(v)} />);
+    const native = document.querySelector('input[type="color"]') as HTMLInputElement;
+    expect([native.value, native.hasAttribute('data-empty')]).toEqual(['#000000', true]);
+    native.focus();
+    native.dispatchEvent(new Event('input', { bubbles: true }));   // a drag that ends on black: input, and no change
+    native.blur();
+    await expect.poll(() => commits).toEqual(['#000000']);
+    expect([changes, native.hasAttribute('data-empty')]).toEqual([['#000000'], false]);
+  });
+
   test('the browser\'s color input picks too, and is named', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     const native = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect([native.getAttribute('aria-label'), native.value]).toEqual(['Custom color', '#1d4ed8']);
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(native, '#00ff00');   // past React's value tracking
@@ -128,7 +185,7 @@ describe('ColorPicker', () => {
 
   test('controlled, a parent that turns down a typed color: on blur the hex field shows the color it kept, not the rejected text (AF2)', async () => {
     const seen: string[] = [];
-    await render(<ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} />);
+    await render(<><ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} /><button>After</button></>);   // Tab stays on the page: Firefox fires no blur when it leaves
     await userEvent.clear(hex());
     await userEvent.type(hex(), '00ff00');
     await userEvent.tab();
@@ -149,10 +206,10 @@ describe('ColorPicker', () => {
 
   test('contrastWith: the WCAG ratio, rounded down, in a polite live region; below minContrast it warns', async () => {
     const calls: string[] = [];
-    await render(<Controlled calls={calls} />);
-    expect([line().getAttribute('aria-live'), line().textContent, line().querySelector('.dk-icon')]).toEqual(['polite', 'Contrast 6.7:1', null]);
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    expect([line().getAttribute('aria-live'), line().textContent, line().querySelector('[data-icon]')]).toEqual(['polite', 'Contrast 6.7:1', null]);
     await userEvent.click(swatch('Yellow'));
-    expect([line().textContent, line().classList.contains('dk-color-picker__contrast--low'), !!line().querySelector('.dk-icon')])
+    expect([line().textContent, line().classList.contains('dk-color-picker__contrast--low'), !!line().querySelector('[data-icon]')])
       .toEqual(['Contrast 1.3:1, below 4.5:1, which can be hard to read', true, true]);
   });
 
@@ -164,7 +221,7 @@ describe('ColorPicker', () => {
   });
 
   test('contrastWith: before anything is picked, each swatch describes its ratio, and one under minContrast says so and is struck through; a bare hex swatch has its code as the tooltip', async () => {
-    await render(<ColorPicker aria-label="C" swatches={SW} contrastWith="#ffffff" />);
+    await render(<SerupaProvider locale="en-US"><ColorPicker aria-label="C" swatches={SW} contrastWith="#ffffff" /></SerupaProvider>);
     const desc = (r: HTMLElement) => document.getElementById(r.getAttribute('aria-describedby')!)?.textContent;
     expect(radios().map(desc)).toEqual(['Contrast 6.7:1', 'Contrast 1.3:1, below 4.5:1, which can be hard to read', 'Contrast 1.0:1, below 4.5:1, which can be hard to read', 'Contrast 17.7:1']);
     expect(radios().map((r) => r.hasAttribute('data-low-contrast'))).toEqual([false, true, true, false]);
@@ -209,7 +266,7 @@ describe('ColorPicker', () => {
     for (const v of ['#1D4ED8', '#fde047', '#fff', '#18181b']) {
       await userEvent.click(radios()[SW.findIndex((s) => (typeof s === 'string' ? s : s.value) === v)]);
       const b = radios().find((r) => r.getAttribute('aria-checked') === 'true')!;
-      const r = contrast(css(b.querySelector('.dk-icon')).color, css(b).backgroundColor);
+      const r = contrast(css(b.querySelector('[data-icon]')).color, css(b).backgroundColor);
       if (r < 3) low.push(`${v} check ${r.toFixed(2)}`);
     }
     for (const th of THEMES) {
@@ -220,6 +277,25 @@ describe('ColorPicker', () => {
       if (r < 3) low.push(`${th} ring ${r.toFixed(2)}`);
       const w = contrast(css(line()).color, css(b.closest('div[style]')).backgroundColor);
       if (w < 4.5) low.push(`${th} ${line().className} ${w.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
+  // DT1: the edge was --border, 1.27:1 on the page, so a white swatch on a white page (a black one on a dark page) had no edge.
+  test('every swatch and the native well have an edge that keeps 3:1 on the page in all six themes, so white and black swatches show', async () => {
+    await render(<div style={{ background: 'var(--surface)', padding: '8px' }}><ColorPicker aria-label="C" swatches={['#ffffff', '#000000']} /></div>);
+    const page = () => css(radios()[0].closest('div[style]')).backgroundColor;
+    const native = document.querySelector('input[type="color"]') as HTMLElement;
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      for (const b of radios()) {
+        const edge = /rgba?\([^)]*\)/.exec(css(b).boxShadow)![0], r = contrast(edge, page());
+        if (r < 3) low.push(`${th} ${b.getAttribute('aria-label')} ${r.toFixed(2)}`);
+      }
+      const n = contrast(css(native).borderTopColor, page());
+      if (n < 3) low.push(`${th} native well ${n.toFixed(2)}`);
     }
     document.documentElement.removeAttribute('data-theme');
     expect(low).toEqual([]);

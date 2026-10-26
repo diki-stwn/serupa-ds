@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    Combobox: Input's box with a chevron button at the end (and a × when clearable), and a list in the top layer
    under it: surface, outline, 8px corners, shadow-lg, 4px inside, up to 240px tall before it scrolls, at least
-   as wide as the field. Options are 32px with an optional muted second line; the highlighted one gets
+   as wide as the field. With multiple, the picked options are tags that wrap with the text inside the box. Options are 32px with an optional muted second line; the highlighted one gets
    highlight with a 2px primary bar at its start, and the selected one has a primary check. Empty and loading messages are muted.
    --------------------------------------------------------------- */
 @layer dk.components {
@@ -10,15 +10,15 @@
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: var(--spacing-1);
   border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent;
   color: var(--combobox-chevron, var(--text-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
-.dk-combobox__button .dk-icon { font-size: var(--dk-input-icon); transition: rotate var(--duration-150) var(--ease-in-out); }
+.dk-combobox__button .dk-icon { font-size: var(--dk-input-icon); transition: rotate var(--motion-change-sm) var(--ease-move); }
 @media (hover: hover) { .dk-combobox__button:hover:not(:disabled) { background: var(--combobox-chevron-bg-hover, var(--secondary)); color: var(--combobox-chevron-hover, var(--text)); } }
 .dk-combobox__button:disabled { cursor: not-allowed; }
 .dk-combobox[data-state="open"] .dk-combobox__toggle .dk-icon { --dk-combobox-turn: 180deg; rotate: var(--dk-combobox-turn); }
 .dk-combobox__popup {
   --dk-combobox-offset: var(--combobox-offset, var(--spacing-1));
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-popover));
   /* At least as wide as the field (set by the script), at most 28rem, so one long label wraps instead of widening the list. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--combobox-listbox-max-width, var(--container-md)));
   max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
@@ -29,6 +29,15 @@
   color: var(--combobox-option-color, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
 }
 .dk-combobox__popup[hidden] { display: none; }
+/* Entry (EF1): the list fades in and grows from the edge facing the field, as Menu and Popover do, in motion-enter-sm.
+   A transition from @starting-style rather than keyframes, so a list closed mid-way never restarts from the top.
+   Reduced motion: the fade alone. */
+.dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+.dk-combobox__popup[data-side="bottom"] { transform-origin: top; }
+.dk-combobox__popup[data-side="top"] { transform-origin: bottom; }
+@starting-style { .dk-combobox__popup:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) { @starting-style { .dk-combobox__popup:not([hidden]) { scale: var(--scale-95); } } }
+@media (prefers-reduced-motion: reduce) { .dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter); } }
 .dk-combobox__option {
   display: flex; align-items: center; gap: var(--spacing-2); box-sizing: border-box; min-height: var(--combobox-option-height, var(--control-height-md));
   padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2));
@@ -43,6 +52,11 @@
 .dk-combobox__option--active .dk-combobox__description { color: var(--combobox-option-color, var(--text)); }   /* muted text is below 4.5:1 on highlight */
 .dk-combobox__check { flex-shrink: 0; color: var(--combobox-check, var(--primary)); font-size: var(--spacing-4); }
 .dk-combobox__message { display: flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2)); color: var(--combobox-description-color, var(--text-muted)); }
+/* multiple: the tags and the text wrap inside the box, which grows a row at a time; the buttons stay at the end. */
+.dk-combobox--multiple { height: auto; min-height: var(--dk-input-h); }
+.dk-combobox__values { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); flex: auto; min-width: var(--spacing-0); padding-block: var(--spacing-0\.5); }
+.dk-combobox__tags { display: contents; }
+.dk-combobox--multiple .dk-input__field { flex: auto; width: var(--spacing-16); height: auto; min-height: var(--spacing-5); }
 @media (prefers-reduced-motion: reduce) { .dk-combobox__button, .dk-combobox__button .dk-icon { transition: none; } }
 @media (forced-colors: active) { .dk-combobox__option--active { outline: var(--border-width-1) solid Highlight; } }
 }

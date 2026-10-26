@@ -63,10 +63,14 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     } else announce(sds.labels.reorderCancelled(name, at + 1, total));
   };
 
-  // Keyboard (and screen readers, whose virtual click has detail 0): a click picks the item up or drops it.
-  const onClick = (key: string | number, index: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (e.detail !== 0 || props.disabled) return;   // a mouse or touch press is a drag, handled by the pointer events
-    if (drag && !drag.pointer) finish(drag, true);
+  // A click picks the item up or drops it: from the keyboard, a screen reader's virtual click, or a press that didn't
+  // move (WCAG 2.5.7: a single pointer can reorder without dragging). With one picked up, a click on another row's
+  // handle drops it in that row's place.
+  const dragged = React.useRef(false);
+  const onClick = (key: string | number, index: number) => () => {
+    if (props.disabled) return;
+    if (dragged.current) { dragged.current = false; return; }   // the click that ends a drag
+    if (drag && !drag.pointer) finish(key === drag.key ? drag : { ...drag, to: index }, true);
     else { setDrag({ key, from: index, to: index, pointer: false }); announce(sds.labels.reorderGrabbed(label(items[index]), index + 1, total)); }
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -92,6 +96,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     if (d && !d.pointer && handles.current.get(d.key) !== document.activeElement) finish(d, false);
   });
   // Moving a row in the DOM can take focus off its handle: give it back.
+  // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
   useIsoLayoutEffect(() => {
     if (!drag || drag.pointer) return;
     const h = handles.current.get(drag.key);
@@ -105,13 +110,14 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const stop = React.useRef<(() => void) | null>(null);
   React.useEffect(() => () => { if (stop.current) stop.current(); }, []);
   const onPointerDown = (key: string | number) => (e: React.PointerEvent<HTMLButtonElement>) => {
+    dragged.current = false;
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
     const row = e.currentTarget.closest("li") as HTMLElement;
     pointer.current = { id: e.pointerId, key, startY: e.clientY, y: e.clientY, grab: e.clientY - row.getBoundingClientRect().top, moved: false };
-    const placeAt = (p: NonNullable<typeof pointer.current>) => {
+    const placeAt = (p: NonNullable<typeof pointer.current>): Drag | undefined => {
       const { items: all, getKey: keyOf } = latest.current;
       const at = all.findIndex((it) => keyOf(it) === p.key);
-      if (at < 0) return;
+      if (at < 0) return undefined;
       // The new place: how many of the other rows have their middle above the dragged row's middle.
       const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
       const self = rows.find((r) => r.dataset.key === String(p.key));
@@ -119,7 +125,9 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       let to = 0;
       for (const r of rows) if (r !== self && r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 < middle) to++;
       // A new object every move, so the row is placed under the pointer again.
-      setDrag({ key: p.key, from: at, to, pointer: true });
+      const next = { key: p.key, from: at, to, pointer: true };
+      setDrag(next);
+      return next;
     };
     // Near the top or bottom edge of what scrolls (the list's scrolling container, or the page), it scrolls that way,
     // faster the closer the pointer is, so a long list can be reordered past the screen. touch-action: none on the
@@ -152,6 +160,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       p.y = ev.clientY;
       if (!p.moved && Math.abs(p.y - p.startY) < 4) return;
       p.moved = true;
+      dragged.current = true;
       ev.preventDefault();
       placeAt(p);
       if (!frame) frame = requestAnimationFrame(tick);
@@ -160,7 +169,11 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       const p = pointer.current;
       if (!p || p.id !== ev.pointerId) return;
       off();
-      const d = current.current;
+      if (p.moved) setTimeout(() => { dragged.current = false; });   // no click came after it (let go off the handle)
+      // Placed where it's let go, not where the last render put it: a release right after a move comes before that
+      // move's render.
+      let d = current.current;
+      if (p.moved) { p.y = ev.clientY; d = placeAt(p) || d; }
       if (p.moved && d && d.pointer) latest.current.finish(d, !cancel);
     };
     const up = end(false), cancel = end(true);
@@ -173,7 +186,33 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     stop.current = off;
     window.addEventListener("pointermove", moveTo); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
   };
+  const tops = React.useRef(new Map<string, number>());
+  // The rows that change place glide there (FLIP): each starts where it showed (mid-way through an earlier move, or
+  // where the pointer left it), offset by translate, and the transition in the CSS takes it to its new slot. The row
+  // under the pointer is left to follow it. Reduced motion has no transition, so they move at once.
+  // every render: a move re-renders the rows; reads each row's offsetTop, and styles only the rows that moved.
+  useIsoLayoutEffect(() => {
+    const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
+    const held = pointer.current && drag && drag.pointer ? String(drag.key) : null;
+    const next = new Map<string, number>(), moved: [HTMLElement, number][] = [];
+    for (const r of rows) {
+      const key = r.dataset.key || "", top = r.offsetTop, was = tops.current.get(key);
+      next.set(key, top);
+      if (was === undefined || was === top || key === held) continue;
+      const cs = getComputedStyle(r);
+      const shift = (cs.transform === "none" ? 0 : new DOMMatrix(cs.transform).m42) + (parseFloat(cs.translate.split(" ")[1]) || 0);
+      const dy = Math.round(was + shift - top);
+      if (dy) moved.push([r, dy]);
+    }
+    tops.current = next;
+    if (!moved.length || !list.current) return;
+    for (const [r, dy] of moved) { r.dataset.flip = ""; r.style.translate = "0 " + dy + "px"; }
+    void list.current.offsetWidth;   // one reflow: they start from where they were
+    for (const [r] of moved) { delete r.dataset.flip; r.style.translate = ""; }
+  });
+
   // The dragged row sits where the pointer is, between the others.
+  // every render: each pointer move re-renders; outside a drag it only clears a transform left behind.
   useIsoLayoutEffect(() => {
     const p = pointer.current, rows = list.current ? [...list.current.children] as HTMLElement[] : [];
     for (const r of rows) {
@@ -186,7 +225,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
 
   const name = props.reorderLabel || sds.labels.reorder;
   return (<>
-    <ul {...rest} ref={(n) => { list.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <ul role="list" {...rest} ref={(n) => { list.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-sortable-list", drag && "dk-sortable-list--sorting", props.disabled && "dk-sortable-list--disabled", props.className)} data-component="sortable-list">
       {shown.map((it, index) => {
         const key = getKey(it), dragging = !!drag && drag.key === key;

@@ -59,4 +59,17 @@ describe('Highlight', () => {
     document.documentElement.setAttribute('data-theme', 'blue-light');
     expect([low, css(m).fontWeight]).toEqual([[], '600']);
   });
+
+  test('in an option or menu item a match keeps the text\'s weight (typing doesn\'t widen the letters) and is underlined instead', async () => {
+    await render(<div role="listbox" aria-label="Cities">
+      <div role="option" aria-selected="false" style={{ fontWeight: 400 }}><Highlight id="o" query="par">Paris</Highlight></div>
+      <div role="menuitem" style={{ fontWeight: 500 }}><Highlight id="i" query="par">Parma</Highlight></div>
+    </div>);
+    const o = el('o').querySelector('mark')!, i = el('i').querySelector('mark')!;
+    await document.fonts.ready;   // under load the font can still be on its way, and the swap changes the width
+    const before = el('o').getBoundingClientRect().width;
+    expect([css(o).fontWeight, css(o).textDecorationLine, css(i).fontWeight, css(i).textDecorationLine]).toEqual(['400', 'underline', '500', 'underline']);
+    await render(<div role="option" aria-selected="false" style={{ fontWeight: 400 }}><Highlight id="w" query="">Paris</Highlight></div>);
+    expect(Math.abs(el('w').getBoundingClientRect().width - before)).toBeLessThan(0.25);   // splitting the text can move it by a subpixel (5/32 px in WebKit); a bolder match adds whole pixels
+  });
 });

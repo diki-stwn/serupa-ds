@@ -61,6 +61,16 @@
             "cssVar": "--accordion-focus-ring"
           }
         }
+      },
+      "trigger-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A title's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--accordion-trigger-bg-pressed"
+          }
+        }
       }
     },
     "typography": {
@@ -156,8 +166,8 @@
     "motion": {
       "duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-200}",
-        "$description": "Opening and closing (200ms).",
+        "$value": "{transitions.motion-change-md}",
+        "$description": "Opening: the fade and unfold (200ms), and the chevron turning. Closing folds back over motion-exit-md (150ms).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--accordion-duration"

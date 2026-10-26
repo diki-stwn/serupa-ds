@@ -51,13 +51,15 @@ Without `low` and `high` the bar is primary and `data-state` is `none`. `meterSt
 ## Accessibility
 
 - `role="meter"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext` (the shown value). It's named by its `label`.
-- Outside the best zone, the value read out also says where it falls, so the warning the color gives is heard too: "92%, high", "12%, low" or "45%, medium". The words come from the `meterZone` label in `SerupaProvider`. With `formatValue`, your words are read as they are, so say the zone in them.
+- Outside the best zone, the value also says where it falls, shown with `showValue` and read out, so the warning the color gives is seen and heard in words too (WCAG 1.4.1): "92%, high", "12%, low" or "45%, medium". The words come from the `meterZone` label in `SerupaProvider`. With `formatValue`, your words are read as they are, so say the zone in them.
 - Every zone's fill keeps 3:1 on the page, and the label and value 4.5:1, in all six themes (`Meter.test.tsx`). In forced-colors mode the track gets a border and the fill uses Highlight.
+- **Keyboard:** none: it shows a value and isn't focusable. Use a Slider for a value people set.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `value` | `number` | | Between `min` and `max`, clamped. |
 | `min` | `number` | `0` | The lowest possible value. |
 | `max` | `number` | `100` | The highest possible value. |
@@ -66,8 +68,8 @@ Without `low` and `high` the bar is primary and `data-state` is `none`. `meterSt
 | `optimum` | `number` | the middle | The best value; it decides which zone is good (see Zones). |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | The bar is 4, 8 or 12px thick. |
 | `label` | `ReactNode` | | A visible name above the bar. Otherwise pass `aria-label`. |
-| `showValue` | `boolean` | `false` | The value at the end of the label row. |
-| `formatValue` | `(value, min, max) => string` | the share, as the locale writes a percentage | The value's words, shown and read out. Without it, the read-out value adds the zone outside the best one. |
+| `showValue` | `boolean` | `false` | The value at the end of the label row, in the read-out's words. |
+| `formatValue` | `(value, min, max) => string` | the share, as the locale writes a percentage | The value's words, shown and read out. Without it, the value adds the zone outside the best one. |
 
 Every other prop, `className` and `ref` go to the outer `<div>`. It has `data-component="meter"`, `data-size` and `data-state` (`optimum`, `suboptimal`, `poor` or `none`).
 
@@ -90,4 +92,4 @@ Each is an optional override: set it on the page, a container or one meter. The 
 | `--meter-radius` | `rounded-full` | The bar's ends. |
 | `--meter-gap` | `spacing-1_5` | Space between the label row and the bar (6px). |
 | `--meter-label-weight` | `font-medium` | The label's weight. |
-| `--meter-duration` | `duration-300` | How long the fill takes to move to a new value. |
+| `--meter-duration` | `motion-change-lg` | How long the fill takes to move to a new value. |

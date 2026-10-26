@@ -41,3 +41,17 @@ export const Currency: Story = {
     </div>;
   },
 };
+
+export const LongValue: Story = {
+  args: { defaultValue: 123456789012, max: undefined },
+  decorators: [(Story) => <div style={{ width: 140 }}><Story /></div>],
+};
+
+// Invalid shows through its Field's error; disabled and read-only both turn the steppers off.
+export const States: Story = {
+  render: () => <div style={{ maxWidth: 320, display: 'grid', gap: 12 }}>
+    <Field label="Invalid" error="Order at most 99."><NumberInput defaultValue={120} min={0} max={99} /></Field>
+    <Field label="Disabled"><NumberInput defaultValue={4} disabled /></Field>
+    <Field label="Read-only"><NumberInput defaultValue={12} readOnly /></Field>
+  </div>,
+};

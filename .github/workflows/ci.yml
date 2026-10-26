@@ -31,11 +31,18 @@ jobs:
   # Builds the package and Storybook once; every test job downloads them instead of building its own.
   build:
     name: build
+    if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
+    # The commit it built. A pull request's merge commit is made again whenever main moves, so a test job that checked
+    # out the pull request by name could get a newer one than the build it downloads (reproducible.mjs then fails).
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
@@ -60,6 +67,7 @@ jobs:
   # The checks that need neither the build nor a browser, beside the build so they don't wait for it.
   static:
     name: types and lint
+    if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -110,6 +118,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The commit the build job built, not the pull request's merge commit as it is now.
+          ref: ${{ needs.build.outputs.sha }}
           # A pull request's merge commit and the base it merges into (HEAD^1), to see what it changes; a run started
           # with "since" needs the history back to that commit.
           fetch-depth: ${{ github.event_name == 'workflow_dispatch' && inputs.since != '' && '0' || '2' }}
@@ -208,4 +218,5 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success
+      - if: github.head_ref != 'changeset-release/main'
+        run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success

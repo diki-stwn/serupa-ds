@@ -50,5 +50,15 @@ export const Interactive: Story = {
     <Badge onClick={() => {}}>Filter: Open</Badge>
     <Badge href="#tag" tone="violet">Link badge</Badge>
     <Badge onClick={() => {}} loading>Saving</Badge>
+    <Badge onClick={() => {}} disabled>Archived</Badge>
   </Row>,
+};
+
+export const LongLabel: Story = {
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, width: 160 }}>
+      <Badge {...args}>Waiting for approval from finance</Badge>
+      <Badge {...args}>{"Donaudampfschifffahrtsgesellschaft"}</Badge>
+    </div>
+  ),
 };

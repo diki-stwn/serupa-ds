@@ -33,14 +33,21 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 - Go from the top level down to the current page, and make the current page the last item.
 - Label each item with the title people see on that page, so the trail matches where it leads.
 - On deep trails, set `maxItems` so it fits on one line; the first item and the last ones stay visible.
+- Where the trail must stay on one line once "…" is pressed, such as a phone header, add `collapse="menu"`: "…" opens a [Menu](../Menu/README.md) of the hidden pages instead of putting them back in the trail.
 - With a router, register its link component once with `configure({ link })`, or pass it as `as` so client-side navigation keeps working.
 
 ## Accessibility
 
+- Each link, and the "…" button, takes a press over at least 24×24px (WCAG 2.5.8) without moving the trail. On a touch screen it's 44px high, as Apple and Material ask (the width stays, so links never overlap).
+- A long unbroken label, such as a file name or a URL slug, wraps inside the trail rather than running past a 320px screen (WCAG 1.4.10).
+- An item with only an `icon` needs an `aria-label`. Without one it's a link a screen reader can only call "link", and it warns once in the console.
+- A Breadcrumb with no items renders nothing, so it doesn't leave an empty nav landmark.
 - It's a `<nav>` landmark named "Breadcrumb" holding an ordered list, so screen readers say how many levels there are. Give it another name if the page has two.
-- The current page has `aria-current="page"`. Separators are hidden from screen readers.
+- The current page has `aria-current="page"`. Separators sit inside the item after them and are hidden from screen readers, so the list has one item per page.
+- With `collapse="menu"`, "…" is a menu button named "More pages" (`aria-haspopup="menu"`, `aria-expanded`), and the hidden pages are links in the menu. It follows Menu's keys: Enter, Space or ↓ opens it on the first page, ↑ ↓ move, Enter follows a link, and Escape closes it and returns to "…".
 - Links, the current page and separators keep 4.5:1 on `surface` in all six themes (`Breadcrumb.test.tsx`).
 - Links are underlined on hover only: their place in the trail and the chevrons already say they're links.
+- **Keyboard:** Tab moves through the links, and Enter follows one. The current page is text, not a Tab stop. With `maxItems`, the "…" button is a Tab stop too, and Enter or Space shows the hidden pages (or opens their menu with `collapse="menu"`).
 
 ## Props
 
@@ -48,11 +55,13 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `children` | BreadcrumbItems | none | From the top level to the current page |
-| `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left pages |
+| `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left text, following the nearest `dir`, so a `dir="ltr"` block on a right-to-left page points right |
 | `maxItems` | number (2 or more) | no limit | Shows the first item, "…", then the last `maxItems - 1`. Pressing "…" shows them all and moves focus to the first one it showed |
+| `collapse` | `'inline'` \| `'menu'` | `'inline'` | What "…" does: shows the hidden items in the trail, or opens a Menu of them |
 | `aria-label` | string | `"Breadcrumb"` | The nav's name |
-| `expandLabel` | string | `"Show all pages"` | The "…" button's name |
+| `expandLabel` | string | `"Show all pages"` (`"More pages"` with `collapse="menu"`) | The "…" button's name, and the menu's |
 
 `className`, `style`, `ref` and everything else go to the `<nav>`, which has `data-component="breadcrumb"`.
 
@@ -62,7 +71,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 | --- | --- | --- | --- |
 | `href` | string | none | Where it goes |
 | `icon` | an icon name or element | none | A 16px icon before the label |
-| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. Typed: the props and `ref` are those of the element `as` names, so `as={RouterLink} to="/x"` checks `to`, and without `as` they're an `<a>`'s. A link set only with `configure({ link })` is typed as an `<a>`, so pass it `href`. |
 
 The last item is the current page (Breadcrumb sets its `current` prop; you don't pass it): text with `aria-current="page"`, not a link, even if it has an `href`. `className`, `ref` and everything else go to the link.
 

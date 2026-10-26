@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Input } from './Input';
+import { NumberInput } from '../NumberInput/NumberInput';
 import { iconArg } from '../../../.storybook/icon-arg';
 
 const meta = {
@@ -31,6 +32,17 @@ export const Icons: Story = {
   </Col>,
 };
 
+/** Fixed text around what's typed. It's added to the field's description, so screen readers hear it too. */
+export const PrefixAndSuffix: Story = {
+  name: 'Prefix and suffix',
+  render: () => <Col>
+    <Input type="url" prefix="https://" aria-label="Website" placeholder="example.com" />
+    <Input prefix="@" aria-label="Username" placeholder="ana" />
+    <Input suffix=".serupa.app" aria-label="Workspace address" placeholder="atlas" />
+    <NumberInput suffix="kg" aria-label="Weight (kg)" defaultValue={12} />
+  </Col>,
+};
+
 export const States: Story = {
   render: () => <Col>
     <Input aria-label="Default" defaultValue="Default" />
@@ -46,4 +58,24 @@ export const Count: Story = {
     <Input showCount maxLength={10} aria-label="Code" defaultValue="WELCOME-10" />
     <Input showCount aria-label="Note" defaultValue="No limit" />
   </Col>,
+};
+
+/** A <fieldset disabled> disables the fields inside, and they look disabled too. */
+export const InDisabledFieldset: Story = {
+  name: 'In a disabled fieldset',
+  render: () => <fieldset disabled style={{ border: 0, margin: 0, padding: 0 }}>
+    <Col>
+      <Input aria-label="Company" defaultValue="Atlas Ltd" />
+      <Input aria-label="Tax ID" placeholder="Tax ID" />
+    </Col>
+  </fieldset>,
+};
+
+export const LongValue: Story = {
+  render: (args) => (
+    <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <Input {...args} defaultValue="grace.brewster.murray.hopper@navy.example.com" leftIcon="mail" />
+      <Input {...args} placeholder="A placeholder far longer than the input is wide" />
+    </div>
+  ),
 };

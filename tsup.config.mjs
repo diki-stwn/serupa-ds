@@ -5,7 +5,9 @@ import fs from 'node:fs';
 import { defineConfig } from 'tsup';
 
 const { version } = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
-const define = { __VERSION__: JSON.stringify(version) };
+// The browser script keeps the development warnings (warnOnce): a plain page has no build step that could turn them
+// back on, and no process to read. React comes from the page, so this doesn't change which React runs.
+const define = { __VERSION__: JSON.stringify(version), 'process.env.NODE_ENV': '"development"' };
 
 // In the browser script, react and react-dom come from the page: window.React and window.ReactDOM.
 const windowReact = {
@@ -23,7 +25,8 @@ export default defineConfig([
   ...(only === 'iife' ? [] : [{
     entry: { index: 'src/index.ts', icons: 'src/material/index.ts' },
     format: ['esm'],
-    dts: { only: true },
+    // stripInternal: a prop tagged @internal (Calendar's hooks for DateRangePicker) stays out of the public types.
+    dts: { only: true, compilerOptions: { stripInternal: true } },
     clean: false,
     external: ['react', 'react-dom'],
   }]),
@@ -36,9 +39,12 @@ export default defineConfig([
     clean: false,
     define,
     esbuildPlugins: [windowReact],
-    minify: name !== 'serupa.iife',
+    minify: true,
+    // A map beside the browser script, so a stack trace on a page can be read; the map points to the sources by
+    // path without carrying them, which would double the package.
+    ...(name === 'serupa.iife' ? { sourcemap: true, esbuildOptions(o) { o.sourcesContent = false; } } : {}),
     banner: {
-      js: name === 'serupa.iife' ? `/*! Serupa v${version} by Diki · components (needs React 19) · CHANGELOG.md */` : `/*! Serupa v${version} · every Material Symbol by name (load after serupa.iife.js) · Apache 2.0 */`,
+      js: name === 'serupa.iife' ? `/*! Serupa v${version} by Diki · components (needs React 19) · CHANGELOG.md */` : `/*! Serupa v${version} · serupa-icons.iife.js is empty since 6.1 (serupa.iife.js has every icon): remove it from your page */`,
     },
   })),
 ]);

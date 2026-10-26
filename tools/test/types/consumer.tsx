@@ -5,15 +5,15 @@
 import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
-  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, configure, enLabels, idLabels, useSerupa, version,
-  type ButtonProps, type DateRange, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
+  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, useCollator, useLocale, useSerupa, version,
+  type ButtonProps, type CarouselPerView, type ComboboxMultipleProps, type ComboboxSingleProps, type DateRange, type SliderMark, type TreeViewItem, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
-import { type IconData } from 'serupa-ds/icons';
+import type { IconData } from 'serupa-ds/icons';
 
 // Equal<A, B> is true only when A and B are the same type (not merely assignable either way).
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
 const is = <T extends true>(): T | void => undefined;
-type ParamOf<F> = F extends (value: infer V) => unknown ? V : never;
+type ParamOf<F> = F extends (value: infer V, ...more: never[]) => unknown ? V : never;
 type RefOf<C> = C extends React.ForwardRefExoticComponent<infer P> ? (P extends React.RefAttributes<infer E> ? E : never) : never;
 
 // Refs reach the element each component documents.
@@ -21,7 +21,20 @@ is<Equal<RefOf<typeof Input>, HTMLInputElement>>();
 is<Equal<RefOf<typeof Checkbox>, HTMLInputElement>>();
 is<Equal<RefOf<typeof Select>, HTMLSelectElement>>();
 is<Equal<RefOf<typeof Dialog>, HTMLDialogElement>>();
-is<Equal<RefOf<typeof Link>, HTMLAnchorElement>>();
+
+// Link: an <a>'s props and ref by default; with `as`, the props and ref of the element it names (G10).
+const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string; className?: string; children?: React.ReactNode }>(function RouterLink() { return null; });
+export const links = [
+  <Link ref={React.createRef<HTMLAnchorElement>()} href="/docs">Docs</Link>,
+  <Link as={RouterLink} to="/settings" ref={React.createRef<HTMLAnchorElement>()}>Settings</Link>,
+  <Link as="button" type="button" ref={React.createRef<HTMLButtonElement>()}>Open</Link>,
+  // @ts-expect-error: an <a>'s ref can't be a button's
+  <Link ref={React.createRef<HTMLButtonElement>()} href="/docs">Docs</Link>,
+  // @ts-expect-error: RouterLink needs to
+  <Link as={RouterLink}>Settings</Link>,
+  // @ts-expect-error: an <a> has no to
+  <Link to="/settings">Settings</Link>,
+];
 
 // Button: a <button> without href, a link with it, and each one's ref and click event to match.
 const buttonRef = React.createRef<HTMLButtonElement>();
@@ -54,9 +67,26 @@ export const images = [
   <Image src="/a.png" />,
 ];
 
+// Fields that render a void element (an <input>, <img> or <hr>) take no children: React would throw.
+export const voids = [
+  // @ts-expect-error: an <input> has no children
+  <Input>text</Input>,
+  // @ts-expect-error: nor do the fields built on Input
+  <NumberInput>1</NumberInput>,
+  // @ts-expect-error: an <img> has no children
+  <Image src="/a.png" alt="">caption</Image>,
+  // @ts-expect-error: a picker's field is an <input>
+  <DatePicker>today</DatePicker>,
+];
+
 // Value callbacks get the value's own type.
-is<Equal<ParamOf<React.ComponentProps<typeof Combobox>['onValueChange']>, string | null>>();
+is<Equal<ParamOf<ComboboxSingleProps['onValueChange']>, string | null>>();
+is<Equal<ParamOf<ComboboxMultipleProps['onValueChange']>, string[]>>();
+export const tagsPicker = <Combobox multiple aria-label="Tags" options={['a']} value={['a']} onValueChange={(v) => v.length} />;
+// @ts-expect-error: with multiple, the value is a list
+export const tagsWrong = <Combobox multiple aria-label="Tags" options={['a']} value="a" />;
 is<Equal<ParamOf<React.ComponentProps<typeof DatePicker>['onValueChange']>, Date | null>>();
+is<Equal<Parameters<NonNullable<React.ComponentProps<typeof DatePicker>['onValueChange']>>[1], string | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof DateRangePicker>['onValueChange']>, DateRange>>();
 is<Equal<ParamOf<React.ComponentProps<typeof NumberInput>['onValueChange']>, number | null>>();
 is<Equal<ParamOf<React.ComponentProps<typeof SegmentedControl>['onValueChange']>, string>>();
@@ -67,8 +97,8 @@ is<Equal<DateRange, { start: Date | null; end: Date | null }>>();
 declare const count: number;
 declare const range: [number, number];
 export const generics = [
-  <RadioGroup value={count} onChange={(_v) => is<Equal<typeof _v, number>>()}><Radio value={2}>Two</Radio></RadioGroup>,
-  <RadioGroup<'s' | 'm'> defaultValue="s" onChange={(_v) => is<Equal<typeof _v, 's' | 'm'>>()}><Radio value="s">S</Radio></RadioGroup>,
+  <RadioGroup value={count} onValueChange={(_v) => is<Equal<typeof _v, number>>()}><Radio value={2}>Two</Radio></RadioGroup>,
+  <RadioGroup<'s' | 'm'> defaultValue="s" onValueChange={(_v) => is<Equal<typeof _v, 's' | 'm'>>()}><Radio value="s">S</Radio></RadioGroup>,
   // @ts-expect-error: a value outside the group's type
   <RadioGroup<'s' | 'm'> defaultValue="xl" />,
   <Slider value={count} onValueChange={(_v) => is<Equal<typeof _v, number>>()} aria-label="Volume" />,
@@ -80,6 +110,10 @@ export const generics = [
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.title} renderItem={(t) => t.name} onReorder={() => {}} />,
 ];
 is<Equal<SliderValue, number | [number, number]>>();
+// The types of props a project builds in its own code.
+export const tree: TreeViewItem[] = [{ id: 'src', label: 'src', children: [{ id: 'a', label: 'a.ts' }] }];
+export const marks: SliderMark[] = [{ value: 0, label: 'Low' }];
+export const perView: CarouselPerView = { base: 1, md: 3 };
 
 // Layout props take the spacing scale and the listed elements only.
 export const layout = [
@@ -104,6 +138,13 @@ export const someLabels = <SerupaProvider labels={{}}><Input /></SerupaProvider>
 // @ts-expect-error: a word that no component uses
 export const unknownLabel = <SerupaProvider labels={{ notAWord: 'x' }} />;
 export const settings = () => useSerupa();
+is<Equal<Parameters<typeof useLocale>, [own?: string]>>();
+is<Equal<ReturnType<typeof useLocale>, string>>();
+announce('Saved');
+announce('Upload failed', { assertive: true });
+// @ts-expect-error: assertive is a boolean
+announce('Saved', { assertive: 'yes' });
+export const order = (): number => useCollator({ locale: 'de-DE', sensitivity: 'base' }).compare('a', 'A');
 
 // The functions.
 is<Equal<ReturnType<typeof toast>, string>>();
@@ -119,6 +160,7 @@ is<Equal<typeof version, string>>();
 // Plain pages: window.Serupa has every component, and theme only when theme.js is loaded.
 is<Equal<typeof window.Serupa.Button, typeof Button>>();
 is<Equal<typeof window.Serupa.version, string>>();
+is<Equal<typeof window.Serupa.useLocale, typeof useLocale>>();
 // @ts-expect-error: theme may be missing
 window.Serupa.theme.set({ mode: 'dark' });
 window.Serupa.theme?.set({ brand: 'violet' });

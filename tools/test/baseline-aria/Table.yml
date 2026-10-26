@@ -1,0 +1,234 @@
+# Align
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Start Center End":
+      - columnheader "Start"
+      - columnheader "Center"
+      - columnheader "End"
+  - rowgroup:
+    - row "Ada Active 1,204":
+      - cell "Ada"
+      - cell "Active"
+      - cell "1,204"
+
+# Overflow
+- region "Team members, with every role and how many calls each made this quarter":
+  - table "Team members, with every role and how many calls each made this quarter":
+    - caption: Team members, with every role and how many calls each made this quarter
+    - rowgroup:
+      - row "Name Role and permissions Calls this quarter":
+        - columnheader "Name"
+        - columnheader "Role and permissions"
+        - columnheader "Calls this quarter"
+    - rowgroup:
+      - row "Maria Magdalena von Hohenzollern-Sigmaringen Administrator 1,234,567":
+        - cell "Maria Magdalena von Hohenzollern-Sigmaringen"
+        - cell "Administrator"
+        - cell "1,234,567"
+      - row "Donaudampfschifffahrtsgesellschaftskapitänskajüte Editor 0":
+        - cell "Donaudampfschifffahrtsgesellschaftskapitänskajüte"
+        - cell "Editor"
+        - cell "0"
+
+# Playground
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Name Role Status Calls":
+      - columnheader "Name"
+      - columnheader "Role"
+      - columnheader "Status"
+      - columnheader "Calls"
+  - rowgroup:
+    - row "Ada Lovelace Admin Active 1,204":
+      - cell "Ada Lovelace"
+      - cell "Admin"
+      - cell "Active"
+      - cell "1,204"
+    - row "Grace Hopper Editor Active 318":
+      - cell "Grace Hopper"
+      - cell "Editor"
+      - cell "Active"
+      - cell "318"
+    - row "Linus Torvalds Viewer Invited 0":
+      - cell "Linus Torvalds"
+      - cell "Viewer"
+      - cell "Invited"
+      - cell "0"
+    - row "Margaret Hamilton Editor Active 87":
+      - cell "Margaret Hamilton"
+      - cell "Editor"
+      - cell "Active"
+      - cell "87"
+
+# SelectableRows
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Select all rows Name Role Calls":
+      - columnheader "Select all rows":
+        - checkbox "Select all rows" [checked=mixed]
+      - columnheader "Name"
+      - columnheader "Role"
+      - columnheader "Calls"
+  - rowgroup:
+    - row "Select Ada Lovelace Ada Lovelace Admin 1,204":
+      - cell "Select Ada Lovelace":
+        - checkbox "Select Ada Lovelace"
+      - cell "Ada Lovelace"
+      - cell "Admin"
+      - cell "1,204"
+    - row "Select Grace Hopper Grace Hopper Editor 318":
+      - cell "Select Grace Hopper":
+        - checkbox "Select Grace Hopper" [checked]
+      - cell "Grace Hopper"
+      - cell "Editor"
+      - cell "318"
+    - row "Select Linus Torvalds Linus Torvalds Viewer 0":
+      - cell "Select Linus Torvalds":
+        - checkbox "Select Linus Torvalds"
+      - cell "Linus Torvalds"
+      - cell "Viewer"
+      - cell "0"
+    - row "Select Margaret Hamilton Margaret Hamilton Editor 87":
+      - cell "Select Margaret Hamilton":
+        - checkbox "Select Margaret Hamilton"
+      - cell "Margaret Hamilton"
+      - cell "Editor"
+      - cell "87"
+
+# Selected
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Name Role Status Calls":
+      - columnheader "Name"
+      - columnheader "Role"
+      - columnheader "Status"
+      - columnheader "Calls"
+  - rowgroup:
+    - row "Ada Lovelace Admin Active 1,204":
+      - cell "Ada Lovelace"
+      - cell "Admin"
+      - cell "Active"
+      - cell "1,204"
+    - row "Grace Hopper Editor Active 318":
+      - cell "Grace Hopper"
+      - cell "Editor"
+      - cell "Active"
+      - cell "318"
+    - row "Linus Torvalds Viewer Invited 0":
+      - cell "Linus Torvalds"
+      - cell "Viewer"
+      - cell "Invited"
+      - cell "0"
+    - row "Margaret Hamilton Editor Active 87":
+      - cell "Margaret Hamilton"
+      - cell "Editor"
+      - cell "Active"
+      - cell "87"
+
+# Sortable
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Name Calls":
+      - columnheader "Name"
+      - columnheader "Calls":
+        - button "Calls"
+  - rowgroup:
+    - row "Ada Lovelace 1,204":
+      - cell "Ada Lovelace"
+      - cell "1,204"
+    - row "Grace Hopper 318":
+      - cell "Grace Hopper"
+      - cell "318"
+    - row "Margaret Hamilton 87":
+      - cell "Margaret Hamilton"
+      - cell "87"
+    - row "Linus Torvalds 0":
+      - cell "Linus Torvalds"
+      - cell "0"
+  - rowgroup:
+    - row "Total 1,609":
+      - cell "Total"
+      - cell "1,609"
+
+# StickyHeader
+- region "Team members":
+  - table "Team members":
+    - caption: Team members
+    - rowgroup:
+      - row "Invoice Amount":
+        - columnheader "Invoice"
+        - columnheader "Amount"
+    - rowgroup:
+      - row "INV-1001 $120.00":
+        - cell "INV-1001"
+        - cell "$120.00"
+      - row "INV-1002 $157.00":
+        - cell "INV-1002"
+        - cell "$157.00"
+      - row "INV-1003 $194.00":
+        - cell "INV-1003"
+        - cell "$194.00"
+      - row "INV-1004 $231.00":
+        - cell "INV-1004"
+        - cell "$231.00"
+      - row "INV-1005 $268.00":
+        - cell "INV-1005"
+        - cell "$268.00"
+      - row "INV-1006 $305.00":
+        - cell "INV-1006"
+        - cell "$305.00"
+      - row "INV-1007 $342.00":
+        - cell "INV-1007"
+        - cell "$342.00"
+      - row "INV-1008 $379.00":
+        - cell "INV-1008"
+        - cell "$379.00"
+      - row "INV-1009 $416.00":
+        - cell "INV-1009"
+        - cell "$416.00"
+      - row "INV-1010 $453.00":
+        - cell "INV-1010"
+        - cell "$453.00"
+      - row "INV-1011 $490.00":
+        - cell "INV-1011"
+        - cell "$490.00"
+      - row "INV-1012 $527.00":
+        - cell "INV-1012"
+        - cell "$527.00"
+
+# Striped
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Name Role Status Calls":
+      - columnheader "Name"
+      - columnheader "Role"
+      - columnheader "Status"
+      - columnheader "Calls"
+  - rowgroup:
+    - row "Ada Lovelace Admin Active 1,204":
+      - cell "Ada Lovelace"
+      - cell "Admin"
+      - cell "Active"
+      - cell "1,204"
+    - row "Grace Hopper Editor Active 318":
+      - cell "Grace Hopper"
+      - cell "Editor"
+      - cell "Active"
+      - cell "318"
+    - row "Linus Torvalds Viewer Invited 0":
+      - cell "Linus Torvalds"
+      - cell "Viewer"
+      - cell "Invited"
+      - cell "0"
+    - row "Margaret Hamilton Editor Active 87":
+      - cell "Margaret Hamilton"
+      - cell "Editor"
+      - cell "Active"
+      - cell "87"
+

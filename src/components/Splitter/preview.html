@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Splitter — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface); color: var(--text); font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var T = window.Serupa, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(T.Splitter, { separatorLabel: 'Folders', defaultSize: 30, collapsible: true, style: { height: '240px', border: '1px solid var(--border)' } }, h('div', { style: { padding: '16px' } }, 'Folders'), h('div', { style: { padding: '16px' } }, 'Messages')));
+</script>
+</body>
+</html>

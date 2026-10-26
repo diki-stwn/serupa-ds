@@ -25,7 +25,7 @@ import { CopyButton } from "serupa-ds";
 
 - Show the text next to the button too, so people can see what they copy and select it themselves if copying fails.
 - Name what's copied when there are several on a page: "Copy link", "Copy the API key". With `iconOnly`, `children` is the button's name.
-- `value` can be a function, called when the button is pressed, for text that's costly to build or changes.
+- `value` can be a function, called when the button is pressed, for text that's costly to build or changes. It can return a promise, such as a fetch: the copy is handed to the clipboard within the press and filled in when the text arrives, so Safari, which refuses a copy once the press is over, still takes it. While it's fetched the button takes no second press, and shows loading if it takes a while.
 
 ## Behavior
 
@@ -40,10 +40,18 @@ import { CopyButton } from "serupa-ds";
 - Only the current label is read out: the other is hidden from screen readers. An `iconOnly` button's name changes to "Copied" while it shows the check, and it has a tooltip (`title`).
 - The check keeps 3:1 on the button in all six themes (`CopyButton.test.tsx`). In forced-colors mode it uses the button's text color.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button |
+| Enter, Space | Copy; "Copied" is read out, or the failure, assertively |
+
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `value` | `string \| () => string \| Promise<string>` | | What to copy. |
 | `children` | `ReactNode` | `'Copy'` (`labels.copy`) | The label, or the name with `iconOnly`. |
 | `copiedLabel` | `string` | `'Copied'` (`labels.copied`) | Shown and announced once it has copied. |

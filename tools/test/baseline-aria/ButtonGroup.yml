@@ -1,0 +1,45 @@
+# LongLabels
+- group "Clipboard":
+  - button "Copy every selected row"
+  - button "Cut"
+  - button "Donaudampfschifffahrtsgesellschaft"
+
+# Narrow
+- group "Format":
+  - button "Bold"
+  - button "Italic"
+  - button "Underline"
+  - button "Strike"
+  - button "Code"
+  - button "Link"
+
+# Playground
+- group "Clipboard":
+  - button "Copy"
+  - button "Cut"
+  - button "Paste"
+
+# SmallIcons
+- group "Text alignment":
+  - button "Align left"
+  - button "Align center"
+  - button "Align right"
+- group "Zoom":
+  - button "Zoom in"
+  - button "Zoom out"
+
+# Spaced
+- group:
+  - button "Cancel"
+  - button "Save"
+
+# SplitButton
+- group "Publish":
+  - button "Publish"
+  - button "More publish options"
+
+# Vertical
+- group "Zoom":
+  - button "Zoom in"
+  - button "Zoom out"
+

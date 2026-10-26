@@ -28,6 +28,7 @@ const { ToggleButton, ButtonGroup } = window.Serupa;
 ## Usage
 
 - Group related toggles in a [ButtonGroup](../ButtonGroup/README.md) with an `aria-label` that says what they're for ("Text formatting").
+- To give a set of toggles one value, with one on at a time (alignment) or any number (text styles), use a [ToggleGroup](../ToggleGroup/README.md).
 - Use `variant="ghost"` in toolbars and the default `outline` elsewhere.
 - Give the toggles in one group the same `size`.
 
@@ -37,10 +38,18 @@ const { ToggleButton, ButtonGroup } = window.Serupa;
 - An icon-only toggle needs an `aria-label`.
 - Pressed text keeps 4.5:1 on its background, and the pressed border 3:1 on `surface`, in all six themes (`ToggleButton.test.tsx`). In Windows high-contrast mode it uses the system highlight colors.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button |
+| Enter, Space | Turn it on or off (`aria-pressed`) |
+
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<button>`. |
 | `pressed` | boolean | none | Whether it's on (controlled) |
 | `defaultPressed` | boolean | `false` | Whether it starts on (uncontrolled) |
 | `onPressedChange` | `(pressed) => void` | none | Called with the new state |

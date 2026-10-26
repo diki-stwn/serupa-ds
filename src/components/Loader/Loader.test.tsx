@@ -42,6 +42,40 @@ function reduceMotion() {
 }
 
 describe('Loader', () => {
+  // EB1: the delay had no minimum, so work ending at 320ms showed a spinner for 20ms, cut off mid fade-in.
+  test('delay, then a minimum: work ending at 320ms keeps the loader until 800ms; ending at 200ms never shows it; loading again during the minimum keeps it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let set: (v: boolean) => void = () => {};
+      function Wait() { const [on, s] = React.useState(true); set = s; return <div id="w"><Loader id="lw" loading={on} /></div>; }
+      await render(<Wait />);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const state = () => { const l = el('lw'); return l ? (l.getAttribute('role') || 'waiting') : 'gone'; };
+      expect(state()).toBe('waiting');
+      await step(300);
+      expect(state()).toBe('progressbar');
+      await step(20);
+      await React.act(async () => set(false));
+      expect(state()).toBe('progressbar');   // 20ms in: stays
+      await step(470);
+      expect(state()).toBe('progressbar');   // 490ms in
+      await step(10);
+      expect(state()).toBe('gone');          // 500ms in: done
+      await React.act(async () => set(true));
+      await step(200);
+      await React.act(async () => set(false));
+      await step(1000);
+      expect(state()).toBe('gone');          // ended inside the delay: never shown
+      await React.act(async () => set(true));
+      await step(300);
+      await React.act(async () => set(false));
+      await step(100);
+      await React.act(async () => set(true));
+      await step(1000);
+      expect(state()).toBe('progressbar');   // loading again during the minimum: still shown
+    } finally { vi.useRealTimers(); }
+  });
+
   test('sizes: sm 16px, md 24px (default), lg 40px; an unknown variant, size and tone fall back to ring, md and neutral', async () => {
     await render(<>
       <Loader id="sm" size="sm" delay={0} />
@@ -64,20 +98,11 @@ describe('Loader', () => {
     expect([arc.getAttribute('pathLength'), arc.getAttribute('stroke-dasharray')]).toEqual(['100', '25 150']);
   });
 
-  test('ring: turns steadily, 2s a turn (the shared spin keyframes), while the arc grows and shrinks every 1.5s, so each stretch starts somewhere new', async () => {
+  test('ring: the quarter arc stays as it is while the drawing turns steadily at motion-loop-spinner (1s a turn, the shared spin keyframes); nothing repaints on each frame (EE1)', async () => {
     await render(<Loader id="ring" delay={0} />);
     const svg = css(q('#ring svg')), arc = css(q('#ring .dk-loader__arc'));
-    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction}`).toBe('spin 2s linear');
-    expect(`${arc.animationName} ${arc.animationDuration}`).toBe('dk-loader-arc 1.5s');
-  });
-
-  test('ring: the arc starts as a dot, stretches to most of the ring, then its tail catches up', async () => {
-    await render(<Loader id="ring" delay={0} />);
-    const [start, mid, late] = at(q('#ring .dk-loader__arc'), 'dk-loader-arc', [0, 750, 1400], (n) => { const s = getComputedStyle(n); return [parseFloat(s.strokeDasharray), parseFloat(s.strokeDashoffset)]; });
-    expect(start[0]).toBeLessThanOrEqual(2);
-    expect(mid[0]).toBeGreaterThanOrEqual(60);
-    expect(mid[1]).toBeGreaterThan(-20);
-    expect(late[1]).toBeLessThan(-80);
+    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction} ${svg.animationIterationCount}`).toBe('spin 1s linear infinite');
+    expect([arc.animationName, q('#ring').getAnimations({ subtree: true }).filter((x) => (x as CSSAnimation).animationName !== 'dk-loader-in').map((x) => (x as CSSAnimation).animationName)]).toEqual(['none', ['spin']]);
   });
 
   test('dots: three dots pulsing (1s, forever), each 150ms after the one before', async () => {
@@ -115,6 +140,15 @@ describe('Loader', () => {
     expect(rs.map((r) => r.getAttribute('class')!.match(/d(\d)/)![1]).join('')).toBe('012123234');
     expect(s.map((x) => x.animationDelay).join()).toBe('0s,0.075s,0.15s,0.075s,0.15s,0.225s,0.15s,0.225s,0.3s');
     expect(`${s[0].animationName} ${s[0].animationDuration} ${s[0].animationTimingFunction} ${s[0].animationIterationCount}`).toBe('dk-loader-pixel 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+  });
+
+  test('pixel, right to left: the grid is mirrored, so the wave starts from the top right, the inline start (GI2); the drawing is never narrowed by base.css', async () => {
+    await render(<div><Loader id="ltr" variant="pixel" delay={0} /><div dir="rtl"><Loader id="rtl" variant="pixel" delay={0} /></div></div>);
+    const start = (id: string) => {
+      const svg = el(id).querySelector('svg')!.getBoundingClientRect(), r = [...el(id).querySelectorAll('rect[width="8"]')].find((x) => getComputedStyle(x).animationName === 'dk-loader-pixel' && getComputedStyle(x).animationDelay === '0s')!.getBoundingClientRect();
+      return [r.left + r.width / 2 > svg.left + svg.width / 2 ? 'right' : 'left', Math.round(r.top - svg.top)];
+    };
+    expect([start('ltr'), start('rtl'), css(el('rtl').querySelector('svg')).maxWidth]).toEqual([['left', 0], ['right', 0], 'none']);
   });
 
   test('pixel: a square rests at 15% (pixel-dim), is full at the crest and fades back', async () => {
@@ -366,26 +400,32 @@ describe('Loader', () => {
     expect([l.getAttribute('aria-hidden'), e.getAttribute('role'), e.getAttribute('aria-label')]).toEqual(['true', 'progressbar', 'Loading projects']);
   });
 
-  test('shine: the words are clipped from a gradient of the text color, resting at 65% (label-dim) with a full-strength band, sweeping left to right every 2s with ease-in-out, forever', async () => {
+  test('shine: the words rest at 65% of the text color (label-dim); a soft-edged window half the words wide holds a full-color copy (not read: the label is hidden, and the copy is generated content), sweeping every 2s with ease-in-out, forever, on translate (EE1)', async () => {
     await render(<span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>);
-    const l = q('#lab .dk-loader__label'), s = css(l);
-    expect(s.backgroundClip || s.webkitBackgroundClip).toBe('text');
-    expect(s.webkitTextFillColor).toMatch(/transparent|rgba\(0, 0, 0, 0\)/);
-    expect(s.backgroundImage).toMatch(/linear-gradient/);
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-shine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
-    const dim = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
-    expect(dim.length).toBeGreaterThanOrEqual(13);
-    expect(dim[0]).toMatch(/0\.65\)?$|0\.65\)/);
-    expect(dim.some((c) => !/0\.65/.test(c))).toBe(true);
+    const l = q('#lab .dk-loader__label'), g = l.firstElementChild as HTMLElement, s = css(l), w = css(g), copy = getComputedStyle(g, '::after');
+    expect(s.webkitTextFillColor).toMatch(/0\.65\)$/);
+    expect([l.textContent, g.dataset.words, copy.content, copy.webkitTextFillColor, s.overflow]).toEqual(['Loading projects', 'Loading projects', '"Loading projects"', 'rgb(15, 23, 42)', 'hidden']);
+    expect(w.maskImage || w.webkitMaskImage).toMatch(/linear-gradient/);
+    expect(Math.round(g.getBoundingClientRect().width * 2)).toBe(Math.round(l.getBoundingClientRect().width));
+    for (const a of [w, copy]) expect(`${a.animationName} ${a.animationDuration} ${a.animationTimingFunction} ${a.animationIterationCount}`).toBe('dk-loader-glint 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
   });
 
-  test('shine: the band starts off the left of the words and ends off the right (seamless loop), past halfway at half time (ease-in-out)', async () => {
+  test('shine: the window starts off the left of the words and ends off the right (seamless loop), past halfway at half time (ease-in-out), while the copy moves back by as much so it stays on the words', async () => {
     await render(<Loader id="lab" variant="text" label="Loading projects" delay={0} />);
-    const pos = at(q('#lab .dk-loader__label'), 'dk-loader-shine', [0, 1000, 1999], (n) => getComputedStyle(n).backgroundPosition);
-    expect(pos[0].startsWith('100%'), pos[0]).toBe(true);
-    expect(parseFloat(pos[1])).toBeGreaterThan(0);
-    expect(parseFloat(pos[1])).toBeLessThan(50);
-    expect(parseFloat(pos[2])).toBeLessThan(1);
+    const l = q('#lab .dk-loader__label'), g = l.firstElementChild!, lw = l.getBoundingClientRect().width;
+    const runs = g.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-glint');
+    expect(runs.length).toBe(2);
+    const left = (ms: number) => { runs.forEach((a) => { a.pause(); a.currentTime = ms; }); return (g.getBoundingClientRect().left - l.getBoundingClientRect().left) / lw; };
+    const [start, mid, end] = [left(0), left(1000), left(1999)];
+    expect(start).toBeCloseTo(-0.5, 1);
+    expect(mid).toBeGreaterThan(0.25);
+    expect(end).toBeGreaterThan(0.99);
+    // The copy's translate is the window's, undone: in the copy's own width (twice the window's), half as many percent, the other way.
+    const pct = (el: Element, pseudo?: string) => parseFloat(getComputedStyle(el, pseudo).translate);
+    runs.forEach((a) => { a.currentTime = 700; });
+    const gw = g.getBoundingClientRect().width;
+    expect(pct(g) / 100 * gw + pct(g, '::after') / 100 * gw * 2).toBeCloseTo(0, 0);
+    runs.forEach((a) => a.play());
   });
 
   test('shine: the resting words (text at 65%) keep 4.5:1 on surface in all six themes', () => {
@@ -434,9 +474,9 @@ describe('Loader', () => {
     const r = await forcedColors(async (active) => {
       if (!active) return null;
       const bone = css(q('#fcs .dk-loader__bone')), page = css(q('#fcs').parentElement);
-      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', bone.backgroundImage, bone.animationName];
+      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', getComputedStyle(q('#fcs .dk-loader__bone'), '::after').display];
     });
-    if (r) expect(r).toEqual([true, 'none', 'none']);
+    if (r) expect(r).toEqual([true, 'none']);
   });
 
   function Skeletons() {
@@ -501,18 +541,26 @@ describe('Loader', () => {
     expect([css(el('skp')).color, css(el('skinv')).color]).toEqual(['rgb(15, 23, 42)', 'rgb(255, 255, 255)']);
   });
 
-  test('skeleton fill: the text color at 10%, with a lighter band (5%) sweeping left to right every 2s, ease-in-out, like the text variant', async () => {
+  test('skeleton fill: the text color at 10%, with a lighter band (5%) sweeping left to right every 2s, ease-in-out, on translate (EE1)', async () => {
     await render(<Skeletons />);
-    const b = q('#sk1 .dk-loader__bone'), s = css(b), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
+    const b = q('#sk1 .dk-loader__bone'), s = getComputedStyle(b, '::after'), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
     expect(stops.length).toBe(13);
     expect(stops[0]).toMatch(/15 23 42|0\.0588/);
     expect(stops[0]).toMatch(/\/ 0\.1\)|, 0\.1\)/);
     expect(stops[6]).toMatch(/\/ 0\.05\)|, 0\.05\)/);
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-shine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
-    expect(s.backgroundSize).toBe('300% 100%');
-    const pos = at(b, 'dk-loader-shine', [0, 1999], (n) => getComputedStyle(n).backgroundPosition);
-    expect(pos[0].startsWith('100%'), pos[0]).toBe(true);
-    expect(parseFloat(pos[1])).toBeLessThan(1);
+    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    // Three bones wide, it starts with its last third on the bone and ends with its first: the band passes through.
+    const w = b.getBoundingClientRect().width;
+    expect([Math.round(parseFloat(s.width) / w), css(b).overflow]).toEqual([3, 'hidden']);
+    const moves = b.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-sweep');
+    // read the band where the sweep ends (Firefox hands back the keyframe's var() unresolved): two bones on,
+    // a percentage of the band or a length
+    moves[0].pause();
+    moves[0].currentTime = 1999;
+    const t = getComputedStyle(b, '::after').translate;
+    const moved = t.endsWith('%') ? parseFloat(t) / 100 * parseFloat(s.width) / w : parseFloat(t) / w;
+    moves[0].play();
+    expect(Math.round(moved)).toBe(2);
   });
 
   test('delay: for the first 300ms nothing shows or is announced, but its space is kept (a waiting skeleton keeps its shapes); then it fades in, becomes a progressbar and is announced', async () => {
@@ -553,11 +601,10 @@ describe('Loader', () => {
     await settle(100);
     expect(css(el('quick')).visibility).toBe('hidden');
     hide();
-    await settle(500);
-    expect(document.getElementById('quick')).toBeNull();
+    await expect.poll(() => document.getElementById('quick')).toBeNull();
   });
 
-  test('reduced motion: the label is plain text; the ring a steady quarter arc turning slowly (3s); the dots only fade; the spokes tick at half speed (2s)', async () => {
+  test('reduced motion: the label is plain text; the ring (a quarter arc) and the spokes stand still and breathe (opacity, 2s); the dots only fade (EE1)', async () => {
     await render(<>
       <span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>
       <Loader id="ring" delay={0} />
@@ -567,13 +614,14 @@ describe('Loader', () => {
     const restore = reduceMotion();
     try {
       const l = css(q('#lab .dk-loader__label'));
-      expect([l.animationName, l.backgroundImage, l.webkitTextFillColor]).toEqual(['none', 'none', l.color]);
+      expect([l.webkitTextFillColor, css(q('#lab .dk-loader__glint')).display]).toEqual([l.color, 'none']);
       const arc = css(q('#ring .dk-loader__arc'));
-      expect([css(q('#ring svg')).animationDuration, arc.animationName]).toEqual(['3s', 'none']);
+      const ring = css(q('#ring svg'));
+      expect([`${ring.animationName} ${ring.animationDuration}`, arc.animationName]).toEqual(['dk-loader-breathe 2s', 'none']);
       expect(arc.strokeDasharray).toMatch(/^25(px)?,? 150/);
       expect(css(q('#dots .dk-loader__dot')).animationName).toBe('dk-loader-dot-fade');
       const spk = css(q('#spk svg'));
-      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-tick 2s');
+      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-breathe 2s');
     } finally { restore(); }
   });
 
@@ -597,7 +645,7 @@ describe('Loader', () => {
     try {
       const s = css(q('#sk1 .dk-loader__bone'));
       expect([s.animationName, s.backgroundImage]).toEqual(['none', 'none']);
-      expect(s.backgroundColor).toMatch(/0\.1\)$/);
+      expect([s.backgroundColor, getComputedStyle(q('#sk1 .dk-loader__bone'), '::after').display]).toEqual([expect.stringMatching(/0\.1\)$/), 'none']);
     } finally { restore(); }
   });
 });

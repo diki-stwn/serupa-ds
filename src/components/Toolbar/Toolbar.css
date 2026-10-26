@@ -1,0 +1,16 @@
+/* ---------------------------------------------------------------
+   Toolbar: its controls in a wrapping row (or a column), 4px apart and centered, inside 4px of padding on a
+   surface with rounded corners. It draws nothing else: each control keeps its own look. A vertical Divider
+   between groups takes the row's height. Every value reads one of its own tokens (toolbar.tokens.json), which
+   fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--toolbar-gap, var(--spacing-1));
+  padding: var(--toolbar-padding, var(--spacing-1));
+  border-radius: var(--toolbar-radius, var(--rounded-md));
+  background: var(--toolbar-bg, var(--surface));
+  color: var(--toolbar-text, var(--text));
+}
+.dk-toolbar--vertical { display: inline-flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+}

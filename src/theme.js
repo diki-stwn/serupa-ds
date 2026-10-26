@@ -4,7 +4,11 @@
    already has the right theme:
 
      <html data-brand="blue" data-mode="auto">
-     <script src="node_modules/serupa-ds/dist/theme.js"></script>
+     <script src="node_modules/serupa-ds/dist/theme.js">   and the closing script tag
+
+   Or paste this file's text into an inline script in <head> (with a nonce under a strict Content Security
+   Policy), which saves a request: a server-rendered page then never flashes the wrong theme. So this file
+   never contains a closing script tag or an HTML comment opener, either of which would end or break it.
 
    data-brand  blue | violet | emerald         (default: blue)
    data-mode   auto | light | dark             (default: auto = follow the operating system)
@@ -18,9 +22,10 @@
      reset()                     forget the choice and go back to the page's data-brand / data-mode
      onChange(fn)                fn({ brand, mode, theme }) after every change; returns an unsubscribe function */
 (function () {
+  // Loaded twice (inline and as a file): the first copy runs the page.
+  if (window.Serupa && window.Serupa.theme) return;
   var BRANDS = ["blue", "violet", "emerald"], MODES = ["auto", "light", "dark"], KEY = "serupa-theme";
   var root = document.documentElement;
-  // A page that sets data-theme itself ("violet-dark") and neither data-brand nor data-mode keeps it as its default.
   var own = !root.hasAttribute("data-brand") && !root.hasAttribute("data-mode") && /^([a-z]+)-(light|dark)$/.exec(root.getAttribute("data-theme") || "");
   var page = own && BRANDS.indexOf(own[1]) >= 0 ? { brand: own[1], mode: own[2] }
     : { brand: pick(root.getAttribute("data-brand"), BRANDS, "blue"), mode: pick(root.getAttribute("data-mode"), MODES, "auto") };
@@ -31,8 +36,7 @@
   function pick(v, list, fallback) { return list.indexOf(v) >= 0 ? v : fallback; }
   function load() {
     try {
-      // Before 5.0.0 the choice was saved as "diki-theme": move it to the new key once, so visitors keep their
-      // theme and reset() forgets it for good.
+      // A 4.x choice ("diki-theme") moves to the new key once: kept, and reset() forgets it for good.
       var raw = localStorage.getItem(KEY);
       if (raw == null && (raw = localStorage.getItem("diki-theme")) != null) {
         localStorage.setItem(KEY, raw);
@@ -44,7 +48,7 @@
       if (BRANDS.indexOf(s.brand) >= 0) o.brand = s.brand;
       if (MODES.indexOf(s.mode) >= 0) o.mode = s.mode;
       return o;
-    } catch (e) { return {}; }   // storage blocked (private window, sandbox): use the page's defaults
+    } catch (e) { return {}; }   // storage blocked: the page's defaults
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ brand: state.brand, mode: state.mode })); } catch (e) {} }
   function resolved() { return state.mode === "auto" ? (media && media.matches ? "dark" : "light") : state.mode; }
@@ -53,6 +57,7 @@
     var i = info();
     if (root.getAttribute("data-theme") === i.theme && !always) return;
     root.setAttribute("data-theme", i.theme);
+    root.getAnimations({ subtree: true }).forEach(function (a) { if (/color|shadow|fill|stroke/.test(a.transitionProperty)) a.finish(); });
     listeners.slice().forEach(function (fn) { try { fn(i); } catch (e) { if (window.console) console.error(e); } });
   }
 
@@ -60,8 +65,8 @@
     var onScheme = function () { if (state.mode === "auto") apply(); };
     if (media.addEventListener) media.addEventListener("change", onScheme); else if (media.addListener) media.addListener(onScheme);
   }
-  // Another tab changed the choice: follow it.
-  window.addEventListener("storage", function (e) { if (e.key === KEY) { state = Object.assign({}, page, load()); apply(true); } });
+  // Another tab changed the choice, or cleared storage (key null): follow it.
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) { state = Object.assign({}, page, load()); apply(true); } });
 
   var api = {
     get: info,

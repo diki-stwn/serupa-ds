@@ -42,3 +42,14 @@ export const Controlled: Story = {
     return <ToggleButton pressed={muted} onPressedChange={setMuted} icon={muted ? 'volume_off' : 'volume_up'} aria-label="Mute" />;
   },
 };
+
+export const LongLabel: Story = {
+  args: { children: 'Show the alignment grid on every page' },
+  render: (args) => <div style={{ width: 180 }}><ToggleButton {...args} /></div>,
+};
+
+export const Sizes: Story = {
+  render: (args) => <div className="flex gap-3 items-center">
+    {(['sm', 'md', 'lg'] as const).map((size) => <ToggleButton key={size} {...args} size={size}>Show grid, {size}</ToggleButton>)}
+  </div>,
+};

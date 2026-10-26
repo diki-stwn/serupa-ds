@@ -2,14 +2,14 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, iconPoints } from '../../../tools/test/vitest/helpers';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 // The trail as written: each item's text, ">" for a separator.
-const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.classList.contains('dk-breadcrumb__separator') ? '>' : li.textContent)).join(' ');
-const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('.dk-icon')].filter((i) => css(i).display !== 'none');
+const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector('.dk-breadcrumb__separator') ? '> ' : '') + li.querySelector('.dk-breadcrumb__item')!.textContent).join(' ');
+const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('[data-icon]')].filter((i) => css(i).display !== 'none');
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
   return <a {...p} ref={ref} href={'#router' + to} data-router="" />;
@@ -24,17 +24,17 @@ function Home({ r }: { r?: React.Ref<HTMLElement> }) {
 }
 const Slash = () => <Breadcrumb id="bslash" separator="slash" aria-label="You are here">
   <BreadcrumbItem href="#a">A</BreadcrumbItem>
-  <BreadcrumbItem as={RouterLink} {...{ to: '/b' }}>B</BreadcrumbItem>
+  <BreadcrumbItem as={RouterLink} to="/b">B</BreadcrumbItem>
   <BreadcrumbItem>C</BreadcrumbItem>
 </Breadcrumb>;
 
 describe('Breadcrumb', () => {
-  test('a <nav aria-label="Breadcrumb"> holding an <ol>; ref, className and props reach the nav', async () => {
+  test('a <nav aria-label="Breadcrumb"> holding an <ol> with one <li> per page; ref, className and props reach the nav', async () => {
     const r = React.createRef<HTMLElement>();
     await render(<Home r={r} />);
     const n = el('bdef'), ol = n.firstElementChild!;
     expect([n.tagName, n.getAttribute('aria-label'), n.className, n.dataset.component, r.current === n, n.dataset.x, ol.tagName, ol.children.length])
-      .toEqual(['NAV', 'Breadcrumb', 'dk-breadcrumb extra', 'breadcrumb', true, 'y', 'OL', 5]);
+      .toEqual(['NAV', 'Breadcrumb', 'dk-breadcrumb extra', 'breadcrumb', true, 'y', 'OL', 3]);
   });
 
   test('items are links; the last is the current page: text with aria-current="page" and no href', async () => {
@@ -43,10 +43,13 @@ describe('Breadcrumb', () => {
       .toEqual(['A #home ', 'A #projects ', 'SPAN  page']);
   });
 
-  test('separators: a 16px chevron_right, hidden from screen readers; an item can have a 16px icon', async () => {
+  test('separators: a 16px chevron_right at the start of each item after the first, hidden from screen readers, 6px from the links on both sides; an item can have a 16px icon', async () => {
     await render(<Home />);
     const s = q('#bdef .dk-breadcrumb__separator'), vis = shownIcons(s);
-    expect([s.getAttribute('aria-hidden'), vis.map((i) => i.dataset.icon).join(), css(vis[0]).fontSize]).toEqual(['true', 'chevron_right', '16px']);
+    expect([s.getAttribute('aria-hidden'), vis.map((i) => i.dataset.icon).join(), css(vis[0]).fontSize, s.parentElement!.tagName]).toEqual(['true', 'chevron_right', '16px', 'LI']);
+    expect([...el('bdef').querySelectorAll('li')].map((li) => li.querySelectorAll('.dk-breadcrumb__separator').length)).toEqual([0, 1, 1]);
+    const a = q('#bdef a').getBoundingClientRect(), sr = s.getBoundingClientRect(), b = el('bdef').querySelectorAll('a')[1].getBoundingClientRect();
+    expect([Math.round(sr.left - a.right), Math.round(b.left - sr.right)]).toEqual([6, 6]);
     const i = q('#bdef .dk-breadcrumb__icon .dk-icon');
     expect([i.dataset.icon, css(i).fontSize]).toEqual(['home', '16px']);
   });
@@ -60,6 +63,17 @@ describe('Breadcrumb', () => {
     await userEvent.unhover(a);
     const c = css(q('#bdef [aria-current]'));
     expect([c.color, c.fontWeight]).toEqual([text, '500']);
+  });
+
+  test('as is typed (G10): an item takes the props of the element as names (RouterLink needs to), an <a>\'s by default', () => {
+    const typed = [
+      <BreadcrumbItem key="1" as={RouterLink} to="/b">B</BreadcrumbItem>,
+      // @ts-expect-error RouterLink needs to
+      <BreadcrumbItem key="2" as={RouterLink}>B</BreadcrumbItem>,
+      // @ts-expect-error an <a> has no to
+      <BreadcrumbItem key="3" href="#b" to="/b">B</BreadcrumbItem>,
+    ];
+    expect(typed.length).toBe(3);
   });
 
   test('separator="slash", a custom aria-label, and a router link through as', async () => {
@@ -82,6 +96,24 @@ describe('Breadcrumb', () => {
     await expect.poll(() => document.activeElement!.textContent).toBe('Org');
   });
 
+  test('collapse="menu": "…" (named "More pages") opens a menu of the hidden pages as links, and the trail stays collapsed', async () => {
+    await render(<Breadcrumb id="bmenu" maxItems={3} collapse="menu">
+      {['Home', 'Org', 'Team', 'Projects', 'Website', 'Settings'].map((l) => <BreadcrumbItem key={l} href={'#' + l} icon={l === 'Org' ? 'home' : undefined}>{l}</BreadcrumbItem>)}
+    </Breadcrumb>);
+    expect(trail('bmenu')).toBe('Home > … > Website > Settings');
+    const b = q('#bmenu .dk-breadcrumb__more') as HTMLButtonElement;
+    expect([b.getAttribute('aria-label'), b.getAttribute('aria-haspopup'), b.getAttribute('aria-expanded')]).toEqual(['More pages', 'menu', 'false']);
+    await userEvent.click(b);
+    const menu = await expect.poll(() => document.querySelector('[role="menu"]')).toBeTruthy().then(() => q('[role="menu"]'));
+    const links = [...menu.querySelectorAll('[role="menuitem"]')];
+    expect([menu.getAttribute('aria-label'), links.map((l) => [l.tagName, l.getAttribute('href'), l.textContent].join(' ')), !!links[0].querySelector('.dk-menu__icon .dk-icon')])
+      .toEqual(['More pages', ['A #Org Org', 'A #Team Team', 'A #Projects Projects'], true]);
+    await expect.poll(() => document.activeElement).toBe(links[0]);
+    expect(trail('bmenu')).toBe('Home > … > Website > Settings');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => document.activeElement).toBe(b);
+  });
+
   test('the "…" button is named "Show all pages" by default', async () => {
     await render(<Breadcrumb id="bdef" maxItems={2}>
       {['Home', 'Org', 'Team'].map((l) => <BreadcrumbItem key={l} href={'#' + l}>{l}</BreadcrumbItem>)}
@@ -96,7 +128,7 @@ describe('Breadcrumb', () => {
       <div dir="rtl"><Breadcrumb id="brtl"><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem>B</BreadcrumbItem></Breadcrumb></div>
     </>);
     expect([el('bbad').querySelectorAll('.dk-breadcrumb__item').length, (q('#bbad .dk-breadcrumb__separator .dk-icon')).dataset.icon]).toEqual([3, 'chevron_right']);
-    expect([...el('brtl').querySelectorAll('.dk-breadcrumb__separator')].flatMap(shownIcons).map((i) => i.dataset.icon).join()).toBe('chevron_left');
+    expect([...el('brtl').querySelectorAll('.dk-breadcrumb__separator [data-icon]')].map(iconPoints).join()).toBe('left');
   });
 
   test('keyboard focus: a 2px ring on the link', async () => {
@@ -131,6 +163,28 @@ describe('Breadcrumb', () => {
     }
     still.remove();
     expect([low, n]).toEqual([[], 18]);
+  });
+
+  // DU1: a long unbroken label ran 16px past a 320px screen, "…" was a 16×20 target, an icon-only item was a
+  // nameless link, and an empty Breadcrumb left an empty nav landmark.
+  test('at 320px a long unbroken label wraps inside; "…" reaches 24×24 like the links; an icon-only item with no name warns once; no items renders nothing', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<>
+      <div style={{ width: '320px' }}><Breadcrumb id="narrow" maxItems={2}>
+        <BreadcrumbItem href="#a">Files</BreadcrumbItem><BreadcrumbItem href="#b">Middle</BreadcrumbItem>
+        <BreadcrumbItem>quarterly-report-final-version-2026-10-25-reviewed.pdf</BreadcrumbItem>
+      </Breadcrumb></div>
+      <Breadcrumb id="icons"><BreadcrumbItem href="#h" icon="home" /><BreadcrumbItem href="#h2" icon="home" /><BreadcrumbItem href="#ok" icon="home" aria-label="Home" /><BreadcrumbItem>Page</BreadcrumbItem></Breadcrumb>
+      <Breadcrumb id="empty" />
+    </>);
+    const box = el('narrow').getBoundingClientRect();
+    const far = Math.max(...[...el('narrow').querySelectorAll('li')].map((li) => Math.round(li.getBoundingClientRect().right)));
+    expect(far).toBeLessThanOrEqual(Math.round(box.right));
+    const more = el('narrow').querySelector('button')!, r = more.getBoundingClientRect();
+    const reach = [[r.left - 3, (r.top + r.bottom) / 2], [(r.left + r.right) / 2, r.top - 1.5]].map(([x, y]) => document.elementFromPoint(x, y) === more);
+    expect(reach).toEqual([true, true]);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes('BreadcrumbItem has no accessible name')).length).toBe(1);
+    expect(document.getElementById('empty')).toBeNull();
   });
 
   test('no errors or React warnings', async () => {

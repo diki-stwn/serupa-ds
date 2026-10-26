@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, press } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Navbar, NavbarLink } from './Navbar';
 
@@ -101,8 +101,8 @@ describe('Navbar', () => {
     window.scrollTo(0, 600);
     await expect.poll(() => window.scrollY).toBe(600);
     const n = el('nsticky');
-    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth])
-      .toEqual([0, '40', 'Docs', '1024px']);
+    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth]) // lg: 1024px of content plus 32px padding each side
+      .toEqual([0, '40', 'Docs', '1088px']);
   });
 
   test('sticky: Tab to a field above the screen scrolls it into view below the bar, not under it (WCAG 2.4.11); the page padding follows the bar and goes away with it', async () => {
@@ -134,9 +134,31 @@ describe('Navbar', () => {
     await resize(500);
     const b = toggle();
     expect(vis('#nav nav')).toBe(false);
-    expect([b.getAttribute('aria-label'), b.getAttribute('aria-expanded'), b.getAttribute('aria-controls') === q('#nav nav').id, b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(b.getBoundingClientRect().right)])
+    expect([b.getAttribute('aria-label'), b.getAttribute('aria-expanded'), b.getAttribute('aria-controls') === q('#nav nav').id, b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(b.getBoundingClientRect().right)])
       .toEqual(['Menu', 'false', true, 'menu', 484]);
     expect(q('#nsticky .dk-navbar__toggle').getAttribute('aria-label')).toBe('Open the menu');
+  });
+
+  test('small screens with wide actions: the brand shrinks and ends in an ellipsis, so the menu button stays on screen and nothing scrolls sideways (GH1)', async () => {
+    await render(<Navbar id="nav" brand={<a href="#home" id="brand">Serupa Analytics</a>} actions={<><Button size="sm">Sign in</Button><Button size="sm">Start free trial</Button></>}>
+      <NavbarLink href="#dash">Dashboard</NavbarLink>
+    </Navbar>);
+    for (const w of [390, 320]) {
+      await resize(w);
+      const b = el('brand');
+      expect([w, Math.round(toggle().getBoundingClientRect().right) <= w, document.documentElement.scrollWidth <= w, b.scrollWidth > b.clientWidth, css(b).textOverflow]).toEqual([w, true, true, true, 'ellipsis']);
+    }
+    await resize(1100);
+    expect(el('brand').scrollWidth > el('brand').clientWidth).toBe(false);
+  });
+
+  test('keyboard table: Enter or Space on the menu button opens or closes the menu (FH1)', async () => {
+    await render(<Main />);
+    await resize(500);
+    toggle().focus();
+    const seen: Array<string | null> = [];
+    for (const k of ['{Enter}', '{Enter}', '[Space]', '[Space]']) { await userEvent.keyboard(k); seen.push(toggle().getAttribute('aria-expanded')); }
+    expect(seen).toEqual(['true', 'false', 'true', 'false']);
   });
 
   test('pressing it opens the links in a full-width panel under the bar, one per line; the icon becomes close', async () => {
@@ -146,7 +168,7 @@ describe('Navbar', () => {
     await expect.poll(() => vis('#nav nav')).toBe(true);
     const n = el('nav'), nav = n.querySelector('nav')!, r = nav.getBoundingClientRect(), top = [...nav.querySelectorAll('a')].map((a) => Math.round(a.getBoundingClientRect().top));
     const gap = Math.round(r.top - n.getBoundingClientRect().bottom);
-    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(r.width), top[0] < top[1] && top[1] < top[2]]).toEqual(['true', 'close', 500, true]);
+    expect([toggle().getAttribute('aria-expanded'), toggle().querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(r.width), top[0] < top[1] && top[1] < top[2]]).toEqual(['true', 'close', 500, true]);
     expect(gap <= 0 && gap >= -1).toBe(true);
   });
 
@@ -250,5 +272,12 @@ describe('Navbar', () => {
   test('links inside a Fragment each get their own list item', async () => {
     await render(<Navbar id="nfrag" brand="Acme"><NavbarLink href="/">Home</NavbarLink><><NavbarLink href="/a">A</NavbarLink><NavbarLink href="/b">B</NavbarLink></>{false}</Navbar>);
     expect([...el('nfrag').querySelectorAll('.dk-navbar__links > li')].map((li) => li.textContent)).toEqual(['Home', 'A', 'B']);
+  });
+
+  test('pressed: a link held down fills with pressed at once, with no fade in (ED1)', async () => {
+    await render(<Main />);
+    await press(el('lp'), () => {
+      expect([css(el('lp')).backgroundColor, css(el('lp')).transitionDuration.split(',')[0].trim()]).toEqual([color('var(--pressed)'), '0s']);
+    });
   });
 });

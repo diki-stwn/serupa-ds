@@ -6,7 +6,8 @@ interface TooltipProps {
     delay?: number;
     role?: "description" | "label";
     open?: boolean;
-    onOpenChange?: (open: boolean) => void;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     disabled?: boolean;
     className?: string;
     style?: React.CSSProperties;

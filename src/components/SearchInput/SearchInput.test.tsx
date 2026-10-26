@@ -5,9 +5,16 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SearchInput } from './SearchInput';
 
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
+
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
-const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('.dk-search-input__clear');
+const clearBtn = (id: string) => box(id).querySelector<HTMLButtonElement>('button[aria-controls]');
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 
@@ -27,13 +34,25 @@ function Controlled({ calls, now }: { calls: string[]; now: { value: string } })
 }
 
 describe('SearchInput', () => {
+  test('a press on the box (the search icon, the side padding) focuses the field with the caret at the end; a press on clear still clears (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}><SearchInput id="sp" size="lg" aria-label="Find" defaultValue="cats" /><button id="sp-away">away</button></div>);
+    const y = box('sp').getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('sp-away') as HTMLElement).focus();
+      await userEvent.click(box('sp'), { position: { x, y } });
+      expect([x, document.activeElement === field('sp'), field('sp').selectionStart]).toEqual([x, true, 4]);
+    }
+    await userEvent.click(clearBtn('sp')!);
+    expect(field('sp').value).toBe('');
+  });
+
   test('Input\'s box (32px) around a type="search" field with a search icon at the start and no clear button yet; ref to the input, className to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><Main calls={[]} sref={ref} /></Wrap>);
     const i = field('q'), b = box('q'), ic = b.querySelector('.dk-search-input__icon')!;
     expect([i.type, i.getAttribute('enterkeyhint'), ref.current === i, b.className, b.dataset.component, b.getBoundingClientRect().height, i.labels![0].textContent])
       .toEqual(['search', 'search', true, 'dk-input dk-search-input dk-input--size-md extra', 'search-input', 32, 'Search projects']);
-    expect([(ic.querySelector('.dk-icon') as HTMLElement).dataset.icon, ic.getAttribute('aria-hidden'), clearBtn('q')]).toEqual(['search', 'true', null]);
+    expect([(ic.querySelector('[data-icon]') as HTMLElement).dataset.icon, ic.getAttribute('aria-hidden'), clearBtn('q')]).toEqual(['search', 'true', null]);
   });
 
   test('typing shows a × named "Clear search" controlling the field; Enter calls onSearch; the × clears the field, hides itself and keeps focus; Escape clears it (uncontrolled)', async () => {
@@ -52,6 +71,19 @@ describe('SearchInput', () => {
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => clearBtn('q')).toBeNull();
     expect(field('q').value).toBe('');
+  });
+
+  test('keyboard table: Tab reaches the field, then the × once there\'s text, then goes on (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><SearchInput id="kb-q" aria-label="Search" /><button id="kb-after">after</button></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const empty = document.activeElement?.id;
+    await userEvent.keyboard('road');
+    await expect.poll(() => clearBtn('kb-q')).not.toBeNull();
+    await userEvent.tab();
+    const x = document.activeElement === clearBtn('kb-q');
+    await userEvent.tab();
+    expect([empty, x, document.activeElement?.id]).toEqual(['kb-q', true, 'kb-after']);
   });
 
   test('controlled: the × fires onChange with "" and then onClear, and the value follows; Escape clears it too, without reaching listeners outside (a dialog stays open)', async () => {
@@ -126,5 +158,14 @@ describe('SearchInput', () => {
     (document.getElementById('rf') as HTMLFormElement).reset();
     await expect.poll(() => !!clearBtn('r1')).toBe(false);
     expect([field('r1').value, field('r2').value, !!clearBtn('r2')]).toEqual(['', 'apollo', true]);
+  });
+  test('size sm: the clear button is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><SearchInput id="hb" aria-label="Search" size="sm" defaultValue="shoes" /></div>);
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-search-input__clear')!];
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);
+      expect(reach(b)).toEqual([true, true, true, true]);
+    }
   });
 });

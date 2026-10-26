@@ -1,0 +1,37 @@
+# Disabled
+- combobox "Time" [disabled]: 10:00 AM
+- button "Choose a time" [disabled]
+
+# Invalid
+- combobox "Time" [invalid]
+- button "Choose a time"
+
+# OverflowNarrow
+- combobox "Time": 11:30 PM
+- button "Choose a time"
+
+# Playground
+- combobox "Time"
+- button "Choose a time"
+
+# ReadOnly
+- combobox "Time": 10:00 AM
+- button "Choose a time" [disabled]
+
+# Sizes
+- combobox "sm": 9:30 AM
+- button "Choose a time"
+- combobox "md": 9:30 AM
+- button "Choose a time"
+- combobox "lg": 9:30 AM
+- button "Choose a time"
+
+# TwentyFourHour
+- combobox "Time": 14:30
+- button "Choose a time"
+
+# WorkingHours
+- text: Start time Between 8 AM and 6 PM
+- combobox "Start time": 9:00 AM
+- button "Choose a time"
+

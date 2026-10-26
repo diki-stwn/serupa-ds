@@ -1,0 +1,28 @@
+# Controlled
+- button "Mute"
+
+# Ghost
+- button "Bold" [pressed]
+- button "Italic"
+- button "Bulleted list"
+
+# LongLabel
+- button "Show the alignment grid on every page"
+
+# Playground
+- button "Show grid"
+
+# Pressed
+- button "Show grid" [pressed]
+
+# Sizes
+- button "Show grid, sm"
+- button "Show grid, md"
+- button "Show grid, lg"
+
+# Toolbar
+- group "Text formatting":
+  - button "Bold" [pressed]
+  - button "Italic"
+  - button "Underline"
+

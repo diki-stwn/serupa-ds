@@ -1,0 +1,206 @@
+# Overflow
+- banner:
+  - link "Acme Corporation International":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+      - listitem:
+        - link "Settings and billing":
+          - /url: "#"
+      - listitem:
+        - link "Donaudampfschifffahrtsgesellschaftskapitänskajüte":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+
+# Playground
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+
+# SignedOut
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Sign in"
+  - button "Sign up"
+
+# Sizes
+- banner:
+  - link "size=\"prose\"":
+    - /url: "#"
+  - navigation "Main, prose":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+- banner:
+  - link "size=\"md\"":
+    - /url: "#"
+  - navigation "Main, md":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+- banner:
+  - link "size=\"lg\"":
+    - /url: "#"
+  - navigation "Main, lg":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+- banner:
+  - link "size=\"xl\"":
+    - /url: "#"
+  - navigation "Main, xl":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+- banner:
+  - link "size=\"2xl\"":
+    - /url: "#"
+  - navigation "Main, 2xl":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+- banner:
+  - link "size=\"full\"":
+    - /url: "#"
+  - navigation "Main, full":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+
+# SmallScreen
+- banner:
+  - link "Acme":
+    - /url: "#"
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+      - listitem:
+        - link "Projects":
+          - /url: "#"
+      - listitem:
+        - link "Team":
+          - /url: "#"
+      - listitem:
+        - link "Reports":
+          - /url: "#"
+  - button "Docs"
+  - img "Ada Lovelace"
+

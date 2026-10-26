@@ -84,24 +84,25 @@ const AREAS: Record<string, string> = {
 // Berlin (030) is "30 123456" and a mobile "151 23456789"; Tokyo and Osaka have one-digit area codes; London two.
 const DE3 = "201 202 203 208 209 211 212 214 221 228 231 234 241 251 261 271 281 291 331 335 340 341 345 351 355 361 365 371 375 381 385 391 395 421 431 441 451 461 471 481 491 511 521 531 541 551 561 571 581 591 611 621 631 641 651 661 671 681 711 721 731 741 751 761 771 781 791 821 831 841 851 861 871 881 906 911 921 931 941 951 961 971 981 991";
 const by = (keys: string, pattern: string): Record<string, string> => Object.fromEntries(keys.split(" ").map((k) => [k, pattern]));
-const PATTERNS: Record<string, Record<string, string>> = {
+const PATTERNS: Record<string, Record<string, string>> = /* @__PURE__ */ (() => ({
   DE: { ...by("30 40 69 89", "## ########"), ...by("15 16 17 " + DE3, "### ########") },
   JP: by("3 6", "#-####-####"),
   GB: { ...by("20 23 24 28 29", "## #### ####"), ...by("113 114 115 116 117 118 121 131 141 151 161 191", "### ### ####") },
-};
+}))();
 
 /** Every country PhoneInput knows, one row per ISO code (main country first for a shared calling code). */
 // The North American Numbering Plan: +1 and a 10-digit number like the US, the country told by its area code (AREAS).
 const NANP = "AS AI AG BS BB BM VG KY DM DO GD GU JM MS MP PR KN LC VC SX TT TC VI";
-export const PHONE_COUNTRIES: readonly PhoneCountry[] = (ROWS + NANP.replace(/(\w+) ?/g, "|$1 1 - (###)_###-#### 10 10")).split("|").map(function (row) {
+export const PHONE_COUNTRIES: readonly PhoneCountry[] = /* @__PURE__ */ (() => (ROWS + NANP.replace(/(\w+) ?/g, "|$1 1 - (###)_###-#### 10 10")).split("|").map(function (row) {
   const [code, dial, trunk, pattern, min, max] = row.split(" ");
   const c: PhoneCountry = { code, dial, trunk: trunk === "-" ? "" : trunk, pattern: pattern ? pattern.replace(/_/g, " ") : "#", min: pattern ? +min : 4, max: pattern ? +max : 15 - dial.length };
   if (AREAS[code]) c.areas = AREAS[code].split(" ");
   if (PATTERNS[code]) c.patterns = PATTERNS[code];
   return c;
-});
+}))();
 
-const BY_CODE = new Map(PHONE_COUNTRIES.map((c) => [c.code, c]));
+// module state: a fixed index of PHONE_COUNTRIES, never changed.
+const BY_CODE = /* @__PURE__ */ (() => new Map(PHONE_COUNTRIES.map((c) => [c.code, c])))();
 /** The country with this ISO code (any case), or undefined. */
 export const phoneCountry = (code: string | undefined): PhoneCountry | undefined => (code ? BY_CODE.get(code.toUpperCase()) : undefined);
 

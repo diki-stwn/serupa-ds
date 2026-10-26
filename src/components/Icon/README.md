@@ -32,12 +32,13 @@ Find icons in the Material Symbols catalog (Rounded style) at fonts.google.com/i
 - Use Material Symbols Rounded, filled, and custom icons drawn to the same rules. Don't mix in other icon sets or the Outlined/Sharp styles.
 - Before drawing a custom icon, check that Material Symbols doesn't already have one for that meaning.
 - One icon per meaning across the product: `delete`, not `delete` in one place and `remove` in another.
+- **Right to left:** arrows and chevrons that point along the line of reading (`arrow_forward`, `chevron_right`, `send`, `undo`…) flip by themselves in right-to-left text, so `<Button rightIcon="arrow_forward">Next</Button>` points the way an Arabic or Hebrew reader goes. Icons of things (a clock, a check, media controls) don't. Use `mirror` for your own arrows (`true`) or for an icon you already turn yourself (`false`).
 
 ### Setup: by name
 
 There's no font to load. Every icon is an SVG drawn in the page, so it shows at once and nothing flashes while a file loads.
 
-- **Every Material Symbol works by name** (`name="category"`, `leftIcon="category"`), about 3,800 of them, with autocomplete in TypeScript. Find one on the Foundations → Icons page in Storybook: search, then click to copy its name. A name loads the first time a page draws it, so it appears a moment later that first time: the icons the components use come from a small file (about 14 KB), and any other name from the full set. Apps that draw no names never download either.
+- **Every Material Symbol works by name** (`name="category"`, `leftIcon="category"`), about 3,800 of them, with autocomplete in TypeScript. Find one on the Foundations → Icons page in Storybook: search, then click to copy its name. A name loads the first time a page draws it, so it appears a moment later that first time: the icons the components use come from a small file (about 14 KB), and any other name from the full set. Apps that draw no names never download either. Both are dynamic imports, so this needs a bundler that splits them into files of their own, as Vite, Next.js, webpack and Rollup do by default. A build that puts everything in one file (esbuild without `--splitting`, Rollup with `inlineDynamicImports`, a single-chunk webpack or IIFE build) puts the full set in it too, about 2.7 MB (510 KB gzipped). There, draw imported icons (`icon={Close}`) or `registerIcons` the ones you use by name, and keep names out of the bundle's reach.
 - **An imported icon works too** (`icon={Category}` with `import { Category } from "serupa-ds/icons"`), the same icon either way. It draws on the first render, and only the icons you import ship in your bundle, so prefer it for icons you know ahead of time.
 - **The components' own icons** (Dialog's close, Checkbox's check, Select's chevron) are imported by each component, so they draw at once and on the server, and a bundle keeps only the icons of the components it uses.
 - **On a plain page** (`serupa.iife.js`), every name works. `serupa-icons.iife.js` is no longer needed; it's kept, empty, for pages that still include it.
@@ -112,14 +113,17 @@ Icons take the text color (`currentColor`). Set it with an alias, never a palett
 - **Icon-only buttons:** the button needs the name, not the icon: pass `aria-label` to the Button, or use [IconButton](../IconButton/README.md), which requires a `label`.
 - **Contrast:** icons that carry meaning need 3:1 against their background (see Color, under Usage).
 - **Translation:** icons are SVGs with no text, so translation tools and screen readers never see an icon's name.
+- **Keyboard:** none: the svg is `focusable="false"`, so it's never a Tab stop of its own, in a button or not.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `name` | `IconName`: any Material Symbol's name, a custom icon's name, or a name you registered | | Give `name` or `icon`. A custom icon with the same name as a Material Symbol wins. All names autocomplete. |
 | `icon` | `IconData`: a Material Symbol imported from `serupa-ds/icons` | | Give `name` or `icon`: `icon={ArrowForward}`. |
-| `size` | `number \| string` | 24px, or the button's icon size inside a Button | Pixels as a number, or any CSS length. Sets the font size; the icon is 1em square. |
+| `size` | `number \| string` | 24px, or the button's icon size inside a Button | Pixels as a number (or a string of one: `"20"` is 20px), or any CSS length. Sets the font size; the icon is 1em square. |
+| `mirror` | `boolean \| 'auto'` | `'auto'` | Flips the icon in right-to-left text (`dir="rtl"`), so it points the way reading goes. `'auto'` flips Material Symbols' directional icons (`arrow_forward`, `arrow_back`, `chevron_left`, `chevron_right`, `navigate_next`, `first_page`, `last_page`, `send`, `reply`, `undo`, `redo`, `open_in_new`, `logout` and the like) and nothing else; `true` flips any icon (your own custom arrow), `false` none (an icon you turn yourself). |
 | `aria-label` | `string` | | Makes the icon meaningful: `role="img"` with this name. Without it (or `aria-labelledby`) the icon is `aria-hidden`. |
 
 `className`, `style`, `ref` and other `<span>` props go to the outer `<span>`, which has `data-icon` with the icon's name.

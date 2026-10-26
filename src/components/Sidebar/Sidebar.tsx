@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, omit } from "../../internal/cn";
+import { cn, domId, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -9,6 +9,7 @@ import { Menu, MenuItem } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
+import type { OpenChangeDetails } from "../../internal/openChange";
 import * as icons from "../../material/builtin";
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
@@ -38,12 +39,16 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAn
   icon?: IconSource;
   /** The current page: shaded, with aria-current="page". Default: false. */
   active?: boolean;
-  /** Something at the end, such as a count Badge. Hidden when collapsed. */
+  /** Something at the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read it. */
   badge?: React.ReactNode;
   /** Nested SidebarItems: the item becomes a button that shows and hides them. */
   children?: React.ReactNode;
   /** With children: open at first. Default: open when one of them is active. */
   defaultOpen?: boolean;
+  /** With children: whether the group is open, controlled. Pair it with onOpenChange. */
+  open?: boolean;
+  /** With children: called when the group's button asks to open or close it, with why: { reason: 'trigger' }. */
+  onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   as?: React.ElementType;
 }
@@ -62,6 +67,35 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   const sds = useSerupa();
   const rest = omit(props, { header: 1, footer: 1, collapsed: 1, className: 1, children: 1, "aria-label": 1 });
   const collapsed = !!props.collapsed;
+  // The column's width changes once, not on every frame (EA1): expanding widens it at the start, collapsing narrows
+  // it at the end, and in between a clip-path (with a line for the edge) slides, which the compositor runs alone.
+  // shown is the layout (rail or full); slide is the clip: "rail" or "full" while it moves, "" at rest.
+  const [shown, setShown] = React.useState(collapsed);
+  const [slide, setSlide] = React.useState<"" | "rail" | "full">("");
+  const nav = React.useRef<HTMLElement | null>(null);
+  const want = React.useRef(collapsed);
+  const timer = React.useRef<{ raf?: number; end?: ReturnType<typeof setTimeout> }>({});
+  const settle = React.useCallback(() => {
+    clearTimeout(timer.current.end);
+    if (want.current) setShown(true);
+    setSlide("");
+  }, []);
+  useIsoLayoutEffect(() => {
+    if (want.current === collapsed) return;
+    want.current = collapsed;
+    const n = nav.current, t = timer.current;
+    cancelAnimationFrame(t.raf as number);
+    clearTimeout(t.end);
+    const ms = n ? Math.max(...getComputedStyle(n).transitionDuration.split(",").map((d) => parseFloat(d) * (/ms/.test(d) ? 1 : 1000))) : 0;
+    if (!ms) { setShown(collapsed); setSlide(""); return; }   // no motion (reduced motion): snap
+    // From rest, show the clip's start for a frame before it moves; mid-way, turn back from where it is.
+    const from = slide === "" ? (collapsed ? "full" : "rail") : null;
+    if (!collapsed) setShown(false);
+    const go = () => { setSlide(collapsed ? "rail" : "full"); t.end = setTimeout(settle, ms + 100); };
+    if (from) { setSlide(from); t.raf = requestAnimationFrame(() => { t.raf = requestAnimationFrame(go); }); } else go();
+  }, [collapsed]);
+  React.useEffect(() => () => { cancelAnimationFrame(timer.current.raf as number); clearTimeout(timer.current.end); }, []);
+  const onEnd = (e: React.TransitionEvent<HTMLElement>) => { if (e.target === e.currentTarget && e.propertyName === "clip-path" && (slide === "rail") === want.current) settle(); };
   // runs of loose items get their own list
   const body: React.ReactNode[] = [];
   let run: React.ReactNode[] = [];
@@ -69,9 +103,10 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   flattenChildren(props.children).forEach((c) => { if (isSection(c)) { flush(); body.push(c); } else run.push(c); });
   flush();
   return (
-    <SidebarContext.Provider value={{ collapsed, depth: 0 }}>
-      <nav {...rest} aria-label={props["aria-label"] || sds.labels.mainNavigation} ref={ref} data-component="sidebar" data-collapsed={collapsed ? "" : undefined}
-        className={cn("dk-sidebar", collapsed && "dk-sidebar--collapsed", props.className)}>
+    <SidebarContext.Provider value={{ collapsed: shown, depth: 0 }}>
+      <nav {...rest} aria-label={props["aria-label"] || sds.labels.mainNavigation} ref={(n) => { nav.current = n; setRef(ref, n); }} data-component="sidebar" data-collapsed={shown ? "" : undefined}
+        data-slide={slide || undefined} onTransitionEnd={(e) => { onEnd(e); if (props.onTransitionEnd) props.onTransitionEnd(e); }}
+        className={cn("dk-sidebar", shown && "dk-sidebar--collapsed", props.className)}>
         {props.header != null ? <div className="dk-sidebar__header">{props.header}</div> : null}
         <div className="dk-sidebar__body">{body}</div>
         {props.footer != null ? <div className="dk-sidebar__footer">{props.footer}</div> : null}
@@ -93,7 +128,7 @@ export const SidebarSection = /* @__PURE__ */ component<HTMLDivElement, SidebarS
   );
 });
 
-const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, as: 1, className: 1 } as const;
+const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, open: 1, onOpenChange: 1, as: 1, className: 1 } as const;
 type ItemElement = React.ReactElement<SidebarItemProps>;
 const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(React.isValidElement) as ItemElement[];
 /** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
@@ -109,13 +144,24 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   const kids = itemsOf(props.children);
   const group = kids.length > 0;
   const childActive = kids.some(activeWithin);
-  const [open, setOpen] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
+  const [own, setOwn] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
+  const open = props.open !== undefined ? !!props.open : own;
+  const toggle = () => {
+    if (props.open === undefined) setOwn(!open);
+    if (props.onOpenChange) props.onOpenChange(!open, { reason: "trigger" });
+  };
   const listId = domId("dk-sbi", React.useId());
   const rail = ctx.collapsed && ctx.depth === 0;
+  // In the rail the badge is hidden on screen, like the label, and a dot on the icon says there is one.
+  const dot = rail && props.badge != null && props.badge !== false;
+  // There the tooltip is the item's name (aria-labelledby replaces its text), so the badge is read as its
+  // description: "Inbox", then "4".
+  const badgeId = listId + "-badge";
+  if (dot) rest["aria-describedby"] = cn(rest["aria-describedby"], badgeId);
   const inner = (chevron: boolean) => <>
-    {props.icon ? <span className="dk-sidebar__icon">{asIcon(props.icon)}</span> : null}
+    {props.icon ? <span className="dk-sidebar__icon">{asIcon(props.icon)}{dot ? <span className="dk-sidebar__dot" aria-hidden="true" /> : null}</span> : null}
     <span className="dk-sidebar__label">{props.label}</span>
-    {props.badge != null && !rail ? <span className="dk-sidebar__badge">{props.badge}</span> : null}
+    {props.badge != null ? <span className="dk-sidebar__badge" id={dot ? badgeId : undefined}>{props.badge}</span> : null}
     {chevron && !rail ? <Icon icon={icons.ExpandMore} className="dk-sidebar__chevron" /> : null}
   </>;
   // An item with children is a button, not a link: its other attributes and handlers go to the button.
@@ -141,7 +187,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   if (group) {
     return (
       <li className="dk-sidebar__li" data-state={open ? "open" : "closed"}>
-        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); setOpen(!open); }}>{inner(true)}</button>
+        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); toggle(); }}>{inner(true)}</button>
         <SidebarContext.Provider value={{ collapsed: ctx.collapsed, depth: ctx.depth + 1 }}>
           <ul id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open}>{kids}</ul>
         </SidebarContext.Provider>

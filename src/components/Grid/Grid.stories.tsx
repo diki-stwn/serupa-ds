@@ -24,6 +24,15 @@ export const ThreeColumns: Story = { args: { columns: 3, gap: 6 } };
 
 export const AutoFit: Story = { args: { minColumnWidth: '10rem', gap: 2, children: cells(9) } };
 
+export const UpToThree: Story = { args: { columns: 3, minColumnWidth: '12rem', gap: 4 } };
+
+export const Fill: Story = { args: { fill: true, minColumnWidth: '12rem', gap: 4, children: cells(2) } };
+
 export const AsList: Story = {
   render: () => <Grid as="ul" columns={2}>{['Invoices', 'Receipts', 'Contracts', 'Reports'].map((t) => <li key={t}><Box>{t}</Box></li>)}</Grid>,
+};
+
+export const Overflow: Story = {
+  args: { columns: 3, gap: 2, children: [<Box key="a">Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="b">A cell with a long sentence that wraps</Box>, <Box key="c">Short</Box>] },
+  render: (args) => <div style={{ width: 240 }}><Grid {...args} /></div>,
 };

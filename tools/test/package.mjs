@@ -37,6 +37,10 @@ const bundlesAll = /import \* as Serupa from "\.\/index";/.test(browserTs) && /O
 const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
+// dist/index.d.ts imports React's types: a TypeScript project needs @types/react, a JavaScript one doesn't.
+const typeImports = [...new Set([...read('dist/index.d.ts').matchAll(/from ['"]([^'"./][^'"]*)['"]/g)].map((m) => m[1]))];
+const untypedPeers = typeImports.filter((m) => !pkg.peerDependencies?.[`@types/${m}`] || !pkg.peerDependenciesMeta?.[`@types/${m}`]?.optional);
+t('every package dist/index.d.ts imports types from has its @types package as an optional peer', typeImports.length && !untypedPeers.length, `${untypedPeers.map((m) => `@types/${m}`).join(', ')} (imports: ${typeImports.join(', ')})`);
 
 // A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
 // is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
@@ -79,7 +83,14 @@ if (D) {
     t(`${name} renders on the server`, !e && /class="dk-/.test(html), e ? e.message : html.slice(0, 160));
   }
   [console.error, console.warn] = keep;
-  t('no React warnings while rendering on the server', !warnings.length, warnings.slice(0, 3).join(' | '));
+  // Several cases write numbers or dates without a locale: Serupa says once that the HTML is en-US until hydration.
+  const serverLocale = warnings.filter((w) => w.startsWith('Serupa: rendered on the server without a locale'));
+  t('a component that writes dates or numbers on the server without a locale warns once, naming SerupaProvider locale (AG1)', serverLocale.length === 1 && serverLocale[0].includes('<SerupaProvider locale>'), `${serverLocale.length} warnings`);
+  // …and says nothing when the provider sets one (a fresh process, so the warning hasn't been given yet).
+  const withLocale = spawnSync(process.execPath, ['--input-type=module', '-e', `const w = []; console.warn = (m) => w.push(m); const React = (await import('react')).default; const { renderToString } = await import('react-dom/server'); const D = await import(${JSON.stringify(pathToFileURL(path.join(PROJECT, 'dist', 'index.js')).href)}); const h = React.createElement; renderToString(h(D.SerupaProvider, { locale: 'id-ID' }, h(D.DatePicker, { 'aria-label': 'Day' }), h(D.NumberInput, { 'aria-label': 'Qty', defaultValue: 1 }))); process.stdout.write(String(w.length));`], { encoding: 'utf8', cwd: PROJECT });
+  t('…and doesn\'t warn when SerupaProvider sets the locale', withLocale.stdout === '0', withLocale.stdout + withLocale.stderr.slice(0, 200));
+  const others = warnings.filter((w) => !serverLocale.includes(w));
+  t('no React warnings while rendering on the server', !others.length, others.slice(0, 3).join(' | '));
   // RelativeTime on a long-running server: each request says how long ago it is then, not when the process started.
   const realNow = Date.now, start = realNow(), stamp = start - 5 * 60e3;
   const ago = () => renderToString(h(D.RelativeTime, { date: stamp, locale: 'en-US' })).replace(/<[^>]*>/g, '');
@@ -91,10 +102,19 @@ if (D) {
   const cal = renderToString(await ssrCase('Calendar')), picker = renderToString(await ssrCase('DatePicker'));
   t('Calendar and DatePicker on the server: 18 October 2026 is selected and typed as 18/10/2026 (en-GB)',
     /<td aria-selected="true"[^>]*><button[^>]*aria-label="Sunday, 18 October 2026"/.test(cal) && picker.includes('value="18/10/2026"'), `${(cal.match(/<td aria-selected="true".{0,120}/) || ['nothing selected'])[0]} | ${(picker.match(/value="[^"]*"/) || ['no value'])[0]}`);
+  // CheckboxGroup's boxes register as they mount, which never happens on the server: select-all counts its sibling
+  // Checkboxes instead, so with defaultValue ['a'] of a and b it's enabled and mixed (a dash) from the first paint.
+  const all = (renderToString(await ssrCase('CheckboxGroup')).match(/<label[^>]*>.*?<\/label>/) || [''])[0];
+  t('CheckboxGroup on the server: select-all is enabled and mixed when defaultValue checks some boxes',
+    !/ disabled=""/.test(all) && !/ checked=""/.test(all) && /data-icon="remove"/.test(all) && !/dk-checkbox--disabled/.test(all), all.slice(0, 400));
   t('version matches package.json', D.version === pkg.version, D.version);
   // base.css and theme.js say __VERSION__ in src/, which the build replaces (tools/build/build.mjs).
   const unstamped = ['dist/base.css', 'dist/theme.js'].filter((f) => read(f).includes('__VERSION__') || !read(f).includes(`Serupa v${pkg.version} `));
   t('dist/base.css and dist/theme.js carry package.json\'s version (stamped at build)', !unstamped.length && read('dist/theme.js').includes(`version = "${pkg.version}"`), unstamped.join(', '));
+  // Server-rendered apps paste theme.js into an inline <script> to avoid a flash of the wrong theme: a closing script tag
+  // anywhere in it (a comment included) ends that script early, and an HTML comment opener changes how the rest is read.
+  const inlineBreakers = ['</script', '<!--'].filter((x) => read('dist/theme.js').toLowerCase().includes(x));
+  t('dist/theme.js works pasted into an inline <script>: no closing script tag or HTML comment opener in it', !inlineBreakers.length, inlineBreakers.join(', '));
   // Icons: each component imports the icons it draws, so they draw on the server. A name drawn as a string loads in
   // the browser (the components' icons from a small chunk, the rest from the full set), so on the server it's an empty box.
   const iconHtml = (props) => renderToString(h(D.Icon, props));
@@ -138,7 +158,7 @@ t('bundle.css = components.css + utilities.css', body('dist/bundle.css') === bod
 t('components.css holds no utility classes (only dk-* and the keyframes they use)', !/^\.(?!dk-)[a-z]/m.test(body('dist/components.css').replace(/\/\*[\s\S]*?\*\//g, '')));
 t('the old bundle.js alias is gone (removed in 8.0.0)', !fs.existsSync(path.join(PROJECT, 'dist', 'bundle.js')));
 
-// 4. The files the package ships (npm pack): the fixed list in baseline-package.txt, plus a module and its source map
+// 4. The files the package ships (npm pack): the fixed list in baseline-package.txt, plus a module and its source map (none for the icon table)
 // in dist/js/ for each module in src/ (not tests or stories) and a tokens file in design-tokens/components/ for each
 // component's, so a new file can't ship (or one vanish) unreviewed, and a component pull request edits no shared list.
 const pack = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: PROJECT, encoding: 'utf8', shell: process.platform === 'win32' });
@@ -148,7 +168,9 @@ const ENTRIES = new Set(['browser', 'browser-icons', 'theme-types']);
 const modules = fs.readdirSync(path.join(PROJECT, 'src'), { recursive: true }).map((f) => String(f).split(path.sep).join('/'))
   .filter((f) => /\.tsx?$/.test(f) && !/\.(test|stories)\.tsx?$|\.d\.ts$/.test(f)).map((f) => f.replace(/\.tsx?$/, '')).filter((f) => !ENTRIES.has(f));
 const tokenFiles = fs.readdirSync(path.join(PROJECT, 'src', 'components'), { recursive: true }).map(String).filter((f) => f.endsWith('.tokens.json')).map((f) => `design-tokens/components/${path.basename(f)}`);
-const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, `dist/js/${m}.js.map`]), ...tokenFiles]);
+// The generated icon table ships without a source map (tools/build/build.mjs).
+const NO_MAP = new Set(['material/icons']);
+const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, ...(NO_MAP.has(m) ? [] : [`dist/js/${m}.js.map`])]), ...tokenFiles]);
 const extra = shipped ? [...shipped].filter((f) => !expected.has(f)) : [], gone = shipped ? [...expected].filter((f) => !shipped.has(f)) : [];
 t('npm pack ships exactly the expected files (tools/test/baseline-package.txt, a module per src/ file, a tokens file per component)', shipped && !extra.length && !gone.length,
   shipped ? `ships unexpectedly: ${extra.slice(0, 8).join(', ') || 'none'}; missing: ${gone.slice(0, 8).join(', ') || 'none'}. If intended, edit tools/test/baseline-package.txt (or package.json "files")` : pack.stderr.slice(0, 300));

@@ -1,4 +1,4 @@
-// exports: configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useSerupa, version
+// exports: announce, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -20,6 +20,10 @@ interface SerupaTheme {
 type Space = 0 | 0.5 | 1 | 1.5 | 10 | 11 | 12 | 14 | 16 | 2 | 2.5 | 20 | 24 | 3 | 3.5 | 4 | 5 | 6 | 7 | 8 | 9;
 type Side = "bottom" | "left" | "right" | "top";
 type Placement = `${Side}-${"end" | "start"}` | Side;
+type OpenChangeReason = "api" | "blur" | "close" | "escape" | "focus" | "hover" | "outside" | "select" | "swipe" | "trigger";
+interface OpenChangeDetails {
+    reason: OpenChangeReason;
+}
 interface SerupaConfig {
     link?: React.ElementType;
 }
@@ -46,18 +50,28 @@ interface SerupaProviderProps {
     locale?: string;
     labels?: Partial<SerupaLabels>;
     icons?: Array<IconData | Readonly<Record<string, IconData>>> | IconData | Readonly<Record<string, IconData>>;
+    platform?: "apple" | "other";
     children?: React.ReactNode;
 }
 interface SerupaSettings {
     locale: string | undefined;
     labels: SerupaLabels;
     icons: ReadonlyMap<string, IconData>;
+    platform: "apple" | "other" | undefined;
 }
 declare function SerupaProvider(props: SerupaProviderProps): React.ReactElement;
 declare namespace SerupaProvider {
     var displayName: string;
 }
 declare function useSerupa(): SerupaSettings;
+declare function useLocale(own?: string): string;
+declare function announce(text: string, options?: {
+    assertive?: boolean;
+}): void;
+declare function useCollator(options?: Intl.CollatorOptions & {
+    locale?: string;
+}): Intl.Collator;
+declare function withoutTransitions(change: () => void, element?: HTMLElement): void;
 type CustomIconName = never;
 declare const customIcons: readonly CustomIconName[];
 declare function registerIcons(...icons: Array<IconData | Readonly<Record<string, IconData>>>): void;
@@ -68,6 +82,7 @@ declare global {
     interface Window {
         Serupa: ComponentGlobals & {
             version: string;
+            announce: typeof announce;
             configure: typeof configure;
             customIcons: typeof customIcons;
             enLabels: typeof DEFAULT_LABELS;
@@ -75,7 +90,10 @@ declare global {
             idLabels: typeof idLabels;
             registerIcons: typeof registerIcons;
             SerupaProvider: typeof SerupaProvider;
+            useCollator: typeof useCollator;
+            useLocale: typeof useLocale;
             useSerupa: typeof useSerupa;
+            withoutTransitions: typeof withoutTransitions;
             theme?: ThemeApi;
         };
     }

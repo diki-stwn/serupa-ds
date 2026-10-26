@@ -1,0 +1,96 @@
+# Collapsed
+- navigation "Main":
+  - strong: A
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Inbox":
+        - /url: "#"
+        - text: Inbox 4
+  - text: Workspace
+  - list "Workspace":
+    - listitem:
+      - button "Projects"
+    - listitem:
+      - link "Team":
+        - /url: "#"
+    - listitem:
+      - link "Reports":
+        - /url: "#"
+  - img "Ada Lovelace"
+
+# LongLabels
+- navigation "Main":
+  - strong: Acme
+  - text: Workspace settings for every team
+  - list "Workspace settings for every team":
+    - listitem:
+      - link "Home and recent activity across projects":
+        - /url: "#"
+    - listitem:
+      - link "Donaudampfschifffahrtsgesellschaftskapitänskajüte 1234":
+        - /url: "#"
+  - img "Ada Lovelace"
+  - text: Ada Lovelace
+
+# Playground
+- navigation "Main":
+  - strong: Acme
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Inbox 4":
+        - /url: "#"
+  - text: Workspace
+  - list "Workspace":
+    - listitem:
+      - button "Projects" [expanded]
+      - list:
+        - listitem:
+          - link "Website":
+            - /url: "#"
+        - listitem:
+          - link "Mobile app":
+            - /url: "#"
+    - listitem:
+      - link "Team":
+        - /url: "#"
+    - listitem:
+      - link "Reports":
+        - /url: "#"
+  - img "Ada Lovelace"
+  - text: Ada Lovelace
+
+# Toggle
+- navigation "Main":
+  - strong: Acme
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: "#"
+    - listitem:
+      - link "Inbox 4":
+        - /url: "#"
+  - text: Workspace
+  - list "Workspace":
+    - listitem:
+      - button "Projects" [expanded]
+      - list:
+        - listitem:
+          - link "Website":
+            - /url: "#"
+        - listitem:
+          - link "Mobile app":
+            - /url: "#"
+    - listitem:
+      - link "Team":
+        - /url: "#"
+    - listitem:
+      - link "Reports":
+        - /url: "#"
+  - button "Collapse the sidebar"
+

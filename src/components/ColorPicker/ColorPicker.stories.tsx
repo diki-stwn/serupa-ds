@@ -32,3 +32,14 @@ export const ContrastCheck: Story = {
   },
 };
 export const SwatchesOnly: Story = { name: 'Swatches only', args: { custom: false, size: 'sm' } };
+
+export const LongLabels: Story = {
+  args: { swatches: [{ value: '#1d4ed8', label: 'Deep ocean blue for headings' }, { value: '#047857', label: 'Forest green for success' }, { value: '#b91c1c', label: 'Signal red for errors' }] },
+  render: (args) => <div style={{ width: 160 }}><ColorPicker {...args} /></div>,
+};
+
+export const Invalid: Story = {
+  args: { 'aria-label': undefined, defaultValue: undefined },
+  render: (args) => <Field label="Label color" error="Pick a color for the label." required><ColorPicker {...args} /></Field>,
+};
+export const Disabled: Story = { args: { disabled: true } };

@@ -31,6 +31,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLElement> {
    one, an empty link over the card named by the card's text (the "stretched link" pattern, so buttons inside
    aren't nested in a link). className, ref and every other prop go to the card element; href, target, rel and
    aria-label go to the link. */
+const INTERACTIVE = "a[href], button, input, select, textarea, label, summary, [tabindex]";
 const OWN = { variant: 1, padding: 1, as: 1, className: 1, href: 1, target: 1, rel: 1, children: 1 } as const;
 
 type CardLinkProps = { href: string; target?: string; rel?: string; "aria-label"?: string };
@@ -55,7 +56,34 @@ export const Card = /* @__PURE__ */ component<HTMLElement, CardProps>("Card", fu
   // A direct CardHeader with a title takes the link; otherwise the card gets an empty one, named by its own text.
   const titled = React.Children.toArray(props.children).some((c) => React.isValidElement(c) && c.type === CardHeader && hasContent((c.props as CardHeaderProps).title));
   const id = rest.id || base;
-  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant }),
+  const own = rest.onClick;
+  const ownAux = rest.onAuxClick;
+  // The text (CardBody, the header's description) sits above the link's area so it can be selected and copied. A
+  // click on it still follows the link, unless it ended a selection. The card's own link, or null when the click
+  // was on something interactive inside, or ended a selection.
+  const target = (e: React.MouseEvent<HTMLElement>) => {
+    const t = e.target as Element;
+    if (e.defaultPrevented || !(t instanceof Element) || t.closest(INTERACTIVE)) return null;
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && e.currentTarget.contains(sel.anchorNode)) return null;
+    return e.currentTarget.querySelector<HTMLAnchorElement>(".dk-card__link");
+  };
+  // A browser treats a click it didn't make as a plain one, so a Ctrl, Cmd or Shift click, or a middle click, would
+  // navigate this tab away instead of opening another: open the other tab here (ER1).
+  const away = (a: HTMLAnchorElement) => window.open(a.href, "_blank", "noopener");
+  const onClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (own) own(e);
+    const a = target(e);
+    if (!a) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey) away(a);
+    else a.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, altKey: e.altKey }));
+  };
+  const onAuxClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (ownAux) ownAux(e);
+    const a = e.button === 1 ? target(e) : null;
+    if (a) away(a);
+  };
+  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant, onClick: onClick, onAuxClick: onAuxClick }),
     titled ? null : React.createElement(config.link, { ...link, className: "dk-card__link dk-card__link--cover", "aria-labelledby": link["aria-label"] ? undefined : id, key: "link" }),
     <CardLinkContext.Provider value={titled ? link : null} key="content">{props.children}</CardLinkContext.Provider>);
 });

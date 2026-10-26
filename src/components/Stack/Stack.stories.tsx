@@ -42,3 +42,16 @@ export const Wrap: Story = {
 export const AsList: Story = {
   render: () => <Stack as="ul" gap={2}>{['Invoices', 'Receipts', 'Contracts'].map((t) => <li key={t}><Box>{t}</Box></li>)}</Stack>,
 };
+
+export const Align: Story = {
+  render: () => <Stack gap={4}>{(['start', 'center', 'end', 'baseline', 'stretch'] as const).map((a) => (
+    <Stack key={a} direction="row" gap={2} align={a} className="min-h-16 rounded-md border border-border p-2">
+      <Box>align="{a}"</Box><div className="rounded-md bg-surface-muted p-3 text-2xl text-text">Tall</div>
+    </Stack>
+  ))}</Stack>,
+};
+
+export const Overflow: Story = {
+  args: { direction: 'row', wrap: true, gap: 2, children: [<Box key="1">Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="2">A box with a long label</Box>, <Box key="3">Three</Box>, <Box key="4">Four</Box>] },
+  render: (args) => <div style={{ width: 240 }}><Stack {...args} /></div>,
+};

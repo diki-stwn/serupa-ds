@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Toolbar — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface-muted); color: var(--text); font-family: var(--font-sans); }
+  #root { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var D = window.Serupa, h = React.createElement, T = D.ToggleButton, I = D.IconButton;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
+    h(D.Toolbar, { 'aria-label': 'Text formatting' },
+      h(D.ButtonGroup, { 'aria-label': 'Style' }, h(T, { icon: 'format_bold', 'aria-label': 'Bold', defaultPressed: true }), h(T, { icon: 'format_italic', 'aria-label': 'Italic' }), h(T, { icon: 'format_underlined', 'aria-label': 'Underline' })),
+      h(D.Divider, { orientation: 'vertical' }),
+      h(I, { variant: 'ghost', icon: 'link', label: 'Insert link' }), h(I, { variant: 'ghost', icon: 'image', label: 'Insert image' })),
+    h(D.Toolbar, { 'aria-label': 'Drawing tools', orientation: 'vertical' },
+      h(T, { icon: 'edit', 'aria-label': 'Pen', defaultPressed: true }), h(T, { icon: 'ink_eraser', 'aria-label': 'Eraser' }), h(I, { variant: 'ghost', icon: 'undo', label: 'Undo' }))
+  ));
+</script>
+</body>
+</html>

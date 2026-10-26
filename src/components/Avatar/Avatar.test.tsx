@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
-import { Avatar, type AvatarSize, type AvatarStatus } from './Avatar';
+import { Avatar, initials, type AvatarSize, type AvatarStatus } from './Avatar';
 import { idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
 
@@ -53,10 +53,33 @@ describe('Avatar', () => {
     expect([m('ini'), m('one')]).toEqual(['GH:true:false', 'L:true:false']);
   });
 
+  test('initials: one character a person sees per word, from its first letter, digit or pictograph (CD1)', () => {
+    expect(['ßen Müller', '"Ada" Lovelace', '(Grace) Hopper', '— Ada —', '👩🏽‍💻 Dev', 'émile zola', 'e\u0301mile zola', 'ǆemal bijedić', '42 Club', '...'].map((n) => initials(n)))
+      .toEqual(['SM', 'AL', 'GH', 'A', '👩🏽‍💻D', 'ÉZ', 'E\u0301Z', 'ǄB', '4C', '']);
+  });
+
   test('no picture and no name: the person icon, hidden from screen readers; alt="" hides it (the name is written beside it); alt replaces the name', async () => {
     await render(<Row><Avatar id="none" /><Avatar id="alt" name="Ada Lovelace" alt="" /><Avatar id="alt2" name="Atlas" alt="Atlas project" shape="square" /></Row>);
-    expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('.dk-icon') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
+    expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('[data-icon]') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
     expect([el('alt').getAttribute('aria-hidden'), el('alt').getAttribute('role'), el('alt2').getAttribute('aria-label')]).toEqual(['true', null, 'Atlas project']);
+  });
+
+  test('a name of only spaces counts as none: the icon, hidden, no aria-label of spaces (AU1)', async () => {
+    await render(<Row><Avatar id="blank" name="   " /></Row>);
+    expect([el('blank').getAttribute('aria-hidden'), el('blank').getAttribute('aria-label'), el('blank').getAttribute('role'), !!el('blank').querySelector('[data-icon]')]).toEqual(['true', null, null, true]);
+  });
+
+  test('the <img> loads lazily and decodes async by default; imgProps reach it, can make it eager, and its onError still falls back (BJ1)', async () => {
+    const err = vi.fn();
+    await render(<Row>
+      <Avatar id="lazy" src={IMG} name="Ada Lovelace" />
+      <Avatar id="eager" src={IMG} name="Grace Hopper" imgProps={{ loading: 'eager', referrerPolicy: 'no-referrer', className: 'mine' }} />
+      <Avatar id="bad" src="data:image/png;base64,broken" name="Linus T" imgProps={{ onError: err }} />
+    </Row>);
+    const img = (id: string) => el(id).querySelector('img')!;
+    expect([img('lazy').loading, img('lazy').decoding, img('eager').loading, img('eager').referrerPolicy, img('eager').className]).toEqual(['lazy', 'async', 'eager', 'no-referrer', 'dk-avatar__img mine']);
+    await expect.poll(() => el('bad').querySelector('.dk-avatar__initials')?.textContent).toBe('LT');
+    expect(err).toHaveBeenCalledTimes(1);
   });
 
   test('sizes: 24/12, 32/12, 40/14, 48/16 and 64/20 (box/initials, px); the person icon scales with the size (14 to 40px); shape square: 8px corners', async () => {
@@ -86,8 +109,31 @@ describe('Avatar', () => {
     const sts = STATUSES.map((s) => { const e = q(`[data-st="${s}"]`), d = e.querySelector('.dk-avatar__status') as HTMLElement, r = d.getBoundingClientRect(), o = e.getBoundingClientRect();
       return { name: e.getAttribute('aria-label'), w: r.width, end: Math.round(o.right - r.right), bottom: Math.round(o.bottom - r.bottom), ring: /0px 0px 0px 2px/.test(css(d).boxShadow), hidden: d.getAttribute('aria-hidden'), bg: css(d).backgroundColor }; });
     STATUSES.forEach((s, i) => expect({ ...sts[i], bg: undefined }).toEqual({ name: 'Ada Lovelace, ' + s, w: 10, end: 0, bottom: 0, ring: true, hidden: 'true', bg: undefined }));
-    expect(new Set(sts.map((s) => s.bg)).size).toBe(4);
+    expect(new Set(sts.map((s) => s.bg)).size).toBeGreaterThan(1);
     expect(el('stl').getAttribute('aria-label')).toBe('Ada Lovelace, in a meeting');
+  });
+
+  // DR1: color alone failed 1.4.1, and forced colors turned all four into the same dot.
+  test('each status has its own shape (filled, bar, ring with a dot, empty ring), still four shapes in forced colors', async () => {
+    await render(<Row>{STATUSES.map((s) => <Avatar key={s} data-st={s} status={s} name="Ada Lovelace" />)}</Row>);
+    const shape = (s: AvatarStatus) => { const d = q(`[data-st="${s}"] [aria-hidden="true"]:not(.dk-avatar__frame *)`), a = getComputedStyle(d, '::after');
+      return [css(d).borderTopWidth !== '0px', a.width !== '0px' && a.backgroundColor !== 'rgba(0, 0, 0, 0)' ? Math.round(parseFloat(a.width) / parseFloat(a.height)) : 0].join(); };
+    expect(STATUSES.map(shape)).toEqual(['false,0', 'false,2', 'true,1', 'true,0']);
+    const restore = forcedColors();
+    try {
+      expect(STATUSES.map(shape)).toEqual(['false,0', 'false,2', 'true,1', 'true,0']);
+      const d = q('[data-st="busy"] [aria-hidden="true"]:not(.dk-avatar__frame *)');
+      expect(getComputedStyle(d, '::after').backgroundColor).not.toBe(css(d).backgroundColor);
+    } finally { restore(); }
+  });
+
+  test('alt="" with a status: the picture is hidden but the status is still read ("online"), in the provider\'s words or statusLabel', async () => {
+    await render(<Row><Avatar data-a="1" alt="" name="Ada Lovelace" status="away" /><Avatar data-a="2" alt="" status="busy" statusLabel="in a meeting" /><Avatar data-a="3" alt="" name="Ada Lovelace" /></Row>);
+    const a = (n: string) => q(`[data-a="${n}"]`);
+    expect([a('1').getAttribute('aria-hidden'), a('1').getAttribute('role')]).toEqual([null, null]);
+    expect(a('1').querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('away');
+    expect(a('2').querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('in a meeting');
+    expect(a('3').getAttribute('aria-hidden')).toBe('true');
   });
 
   test('component tokens (--avatar-bg, --avatar-size-md) override one avatar', async () => {

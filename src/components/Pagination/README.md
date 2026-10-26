@@ -29,7 +29,7 @@ const [page, setPage] = React.useState(1);
 
 - Put it under the list or table it pages through.
 - When pages have URLs, pass `getHref` so every page is a link; clicks still call `onPageChange`. They go through your router's link set with `configure({ link })`, or `linkAs`.
-- Where space is tight, use `size="sm"` and fewer `siblings`. The number of slots stays the same, so the arrows don't move.
+- The row stays on one line. When it's wider than its box (the defaults need about 340px), it shows fewer `siblings` and then fewer `boundaries` until it fits, and goes back to what you asked when there's room again. The arrows stay at the ends either way. Within one width the number of slots stays the same, so the arrows don't move as you page. `size="sm"` fits more.
 - Page numbers are written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its
   days: ١ ٢ ٣ in Egyptian Arabic, ۱ ۲ ۳ in Persian. A page's name comes from `pageLabel`, so translate it with the
   other labels.
@@ -41,13 +41,23 @@ const [page, setPage] = React.useState(1);
 - It's a `<nav>` landmark named "Pagination" with a list. The current page has `aria-current="page"`; the ellipses are hidden from screen readers.
 - At the first or last page the arrow is disabled (a link loses its `href` and gets `aria-disabled`).
 - Pages, also on hover, the current page and the ellipsis keep 4.5:1 in all six themes (`Pagination.test.tsx`).
-- The arrows point the other way in right-to-left pages.
+- The arrows point the other way in right-to-left text. They follow the nearest `dir`, so a `dir="ltr"` block on a right-to-left page keeps left-to-right arrows.
 - After a page change, move focus to the top of the new results (or announce them) so keyboard and screen reader users know the list changed.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each page, the arrows and any link or button in it; a disabled arrow is skipped |
+| Enter | Goes to that page (Space too, when the pages are buttons) |
+
+An arrow that takes you to the first or last page turns disabled, so focus moves to the other arrow instead of falling back to the top of the page.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<nav>`. |
 | `count` | number | required | How many pages there are |
 | `page` | number | none | The current page, from 1 (controlled) |
 | `defaultPage` | number | `1` | The page it starts on when uncontrolled |
@@ -82,5 +92,6 @@ Each is an optional override: set it on the page, a container or one pagination.
 | `--pagination-size-sm` | `control-height-sm` | At size sm (24px). |
 | `--pagination-gap` | `spacing-1` | Space between pages (4px). |
 | `--pagination-padding-x` | `spacing-2` | Side padding inside a page, for wide numbers (8px). |
+| `--pagination-padding-x-sm` | `spacing-0.5` | At size sm (2px), so two semibold digits fit in the 24px square. |
 | `--pagination-radius` | `rounded-md` | A page's corners (6px). |
 | `--pagination-disabled` | `opacity-disabled` | Previous or next when there's no page that way. |

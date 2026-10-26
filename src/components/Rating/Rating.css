@@ -1,0 +1,31 @@
+/* ---------------------------------------------------------------
+   Rating: a row of stars, 20, 24 or 32px (sm, md, lg) with 2px between them. Each star is the empty color with the
+   fill color drawn over its share (a whole, a half, or any fraction when read-only), from the start side. The
+   radios are invisible and laid over their star or half; the focused one rings its star. Every value reads one of
+   its own tokens (rating.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-rating {
+  --dk-rating-size: var(--rating-size-md, var(--spacing-6));
+  display: inline-flex; align-items: center; gap: var(--rating-gap, var(--spacing-0\.5)); vertical-align: middle;
+}
+.dk-rating--size-sm { --dk-rating-size: var(--rating-size-sm, var(--spacing-5)); }
+.dk-rating--size-lg { --dk-rating-size: var(--rating-size-lg, var(--spacing-8)); }
+.dk-rating__star { position: relative; display: inline-flex; flex: none; width: var(--dk-rating-size); height: var(--dk-rating-size); border-radius: var(--rounded-sm); }
+.dk-rating__empty, .dk-rating__fill { position: absolute; inset-block: var(--spacing-0); inset-inline-start: var(--spacing-0); display: block; overflow: hidden; pointer-events: none; }
+.dk-rating__empty { inset-inline-end: var(--spacing-0); color: var(--rating-empty, var(--field-border)); }
+.dk-rating__fill { width: var(--dk-rating-share); color: var(--rating-fill, var(--warning)); }
+/* Every star is drawn whole and the fill span clips it to its share; base.css's max-width on svg would shrink it to the share instead (GI1). */
+.dk-rating svg { display: block; flex: none; width: var(--dk-rating-size); max-width: none; height: var(--dk-rating-size); fill: currentColor; }
+/* The radios share the star's width in its row: one covers it, or two cover a half each (from the start side). */
+.dk-rating__choice { position: relative; flex: auto; align-self: stretch; width: var(--spacing-0); margin: var(--spacing-0); appearance: none; opacity: var(--opacity-0); cursor: pointer; touch-action: manipulation; }
+.dk-rating__star:has(.dk-rating__choice:focus-visible) { outline: var(--focus-ring-width) solid var(--rating-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
+.dk-rating[aria-invalid="true"] .dk-rating__empty { color: var(--rating-invalid, var(--danger)); }   /* the error shows on the stars, as on a field's border */
+.dk-rating--disabled { opacity: var(--opacity-disabled); }
+.dk-rating--disabled .dk-rating__choice { cursor: not-allowed; }
+@media (forced-colors: active) {
+  .dk-rating__empty { color: GrayText; }
+  .dk-rating__fill { color: CanvasText; }
+  .dk-rating__star:has(.dk-rating__choice:focus-visible) { outline-color: Highlight; }
+}
+}

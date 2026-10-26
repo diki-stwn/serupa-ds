@@ -15,6 +15,10 @@ type Story = StoryObj<typeof meta>;
 export const Playground: Story = {};
 export const WithText: Story = { args: { defaultValue: 'Atlas' } };
 export const Loading: Story = { args: { defaultValue: 'Atl', loading: true } };
+export const Invalid: Story = { args: { defaultValue: 'Atlas!!', invalid: true } };
+// Disabled and read-only: the clear button hides, since the text can't change.
+export const Disabled: Story = { args: { defaultValue: 'Atlas', disabled: true } };
+export const ReadOnly: Story = { name: 'Read-only', args: { defaultValue: 'Atlas', readOnly: true } };
 const PROJECTS = ['Atlas', 'Borealis', 'Cascade', 'Delta', 'Ember'];
 export const Filtering: Story = {
   render: function Render() {
@@ -25,4 +29,12 @@ export const Filtering: Story = {
       <ul style={{ margin: 0 }}>{shown.map((p) => <li key={p}>{p}</li>)}</ul>
     </div>;
   },
+};
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <SearchInput {...args} defaultValue={"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} />
+    </div>
+  ),
 };

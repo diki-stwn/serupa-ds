@@ -21,9 +21,22 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>{children}</div></SerupaProvider>;
 
 describe('PhoneInput', () => {
+  test('a press on the box past the number field focuses it with the caret at the end; a disabled box stays put (GG2)', async () => {
+    await render(<Wrap><PhoneInput id="bx" size="lg" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" />
+      <PhoneInput id="bx-off" size="lg" aria-label="Off" disabled /><button id="bx-away">away</button></Wrap>);
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    (document.getElementById('bx-away') as HTMLElement).focus();
+    await userEvent.click(box('bx'), { position: { x: b.width - 2, y } });
+    expect([document.activeElement === field('bx'), field('bx').selectionStart]).toEqual([true, field('bx').value.length]);
+    (document.getElementById('bx-away') as HTMLElement).focus();
+    await userEvent.click(box('bx-off'), { position: { x: b.width - 4, y }, force: true });
+    expect(document.activeElement).not.toBe(field('bx-off'));
+  });
+
   test('Input\'s box around a country menu and a tel field (tel-national, inputmode tel); ref to the field, className and style to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="ID" ref={ref} className="extra" style={{ marginTop: '2px' }} /></Wrap>);
@@ -50,6 +63,25 @@ describe('PhoneInput', () => {
     // No more digits than the country uses (12 in ID).
     await userEvent.type(field('p'), '12345');
     expect(field('p').value.replace(/\D/g, '').length).toBe(12);
+  });
+
+  test('keyboard table: Tab goes to the country select, then the number; ArrowDown and ArrowUp there pick a country; Delete before a separator removes the digit beyond it (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><PhoneInput id="kp" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const order = [document.activeElement === menu('kp')];
+    const start = menu('kp').value;
+    await userEvent.keyboard('{ArrowDown}');
+    const down = menu('kp').value;
+    await userEvent.keyboard('{ArrowUp}');
+    // Passing through a country with shorter numbers keeps every digit typed.
+    expect([down !== start, menu('kp').value, field('kp').value]).toEqual([true, start, '(201) 555-0123']);
+    await userEvent.tab();
+    order.push(document.activeElement === field('kp'));
+    const i = field('kp');
+    i.setSelectionRange(9, 9);   // before the "-" of "(201) 555-0123"
+    await userEvent.keyboard('{Delete}');
+    expect([order, i.value]).toEqual([[true, true], '(201) 555-123']);
   });
 
   test('Backspace after a separator removes the digit before it; typing in the middle keeps the caret after the new digit', async () => {
@@ -108,6 +140,43 @@ describe('PhoneInput', () => {
     await expect.poll(() => [menu('c').value, field('c').value]).toEqual(['FR', '6 12 34 56 78']);
   });
 
+  test('controlled from outside: cleared, or a number of another country with country fixed; form reset: no default gives an empty field and the locale\'s country, a controlled field shows its value again', async () => {
+    function Ctl(p: { country?: string }) {
+      const [v, setV] = React.useState('+6281234567890');
+      return <>
+        <PhoneInput id="o" aria-label="Out" value={v} onValueChange={setV} country={p.country} />
+        {['', '+33612345678', '+6281234567890'].map((n) => <button key={n} type="button" id={'set' + n.length} onClick={() => setV(n)}>{n || 'clear'}</button>)}
+      </>;
+    }
+    const to = (n: number) => userEvent.click(document.getElementById('set' + n)!);
+    const node: ((n: HTMLInputElement | null) => void) & { got?: HTMLInputElement | null } = (n) => { node.got = n; };
+    const screen = await render(<Wrap><SerupaProvider locale="en-US"><form id="rf"><Ctl /><PhoneInput id="u" aria-label="Plain" name="u" ref={node} /></form></SerupaProvider></Wrap>);
+    expect(node.got).toBe(field('u'));
+    await to(0);
+    await expect.poll(() => field('o').value).toBe('');
+    expect(menu('o').value).toBe('ID');
+    await screen.rerender(<Wrap><SerupaProvider locale="en-US"><form id="rf"><Ctl country="ID" /><PhoneInput id="u" aria-label="Plain" name="u" ref={node} /></form></SerupaProvider></Wrap>);
+    await to(12);
+    await expect.poll(() => menu('o').value).toBe('ID');
+    await to(14);
+    await expect.poll(() => field('o').value).not.toBe('');
+    const shown = field('o').value;
+    await userEvent.fill(field('u'), '2025550123');
+    await pick(menu('u'), 'GB');
+    (document.getElementById('rf') as HTMLFormElement).reset();
+    await expect.poll(() => [field('u').value, menu('u').value]).toEqual(['', 'US']);
+    expect(field('o').value).toBe(shown);
+  });
+
+  test('invalid marks the field; readOnly locks the country menu too; picking the country it already has reports nothing', async () => {
+    const calls: string[] = [];
+    await render(<Wrap><PhoneInput id="iv" aria-label="Bad" invalid defaultCountry="ID" /><PhoneInput id="ro" aria-label="Locked" readOnly defaultValue="+6281234567890" />
+      <PhoneInput id="same" aria-label="Same" defaultCountry="ID" onValueChange={(v) => { calls.push(v); }} onCountryChange={(c) => { calls.push(c); }} /></Wrap>);
+    expect([field('iv').getAttribute('aria-invalid'), box('iv').className.includes('dk-input--invalid'), menu('ro').disabled, menu('iv').disabled]).toEqual(['true', true, true, false]);
+    menu('same').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(calls).toEqual([]);
+  });
+
   test('Field labels the number; countries limits the menu; name submits E.164; disabled covers both; Indonesian labels; size sm and lg', async () => {
     await render(<Wrap>
       <form id="f">
@@ -138,7 +207,7 @@ describe('PhoneInput', () => {
       void css(box('p')).backgroundColor;
       await settled();
       const bg = css(box('p')).backgroundColor;
-      for (const [name, fg, min] of [['code', css(part('p')).color, 4.5], ['chevron', css(part('p').querySelector('.dk-icon')).color, 3], ['number', css(field('p')).color, 4.5]] as const) {
+      for (const [name, fg, min] of [['code', css(part('p')).color, 4.5], ['chevron', css(part('p').querySelector('[data-icon]')).color, 3], ['number', css(field('p')).color, 4.5]] as const) {
         const r = contrast(fg, bg);
         if (r < min) low.push(`${th} ${name} ${r.toFixed(2)}`);
       }

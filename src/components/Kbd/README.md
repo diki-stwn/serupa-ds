@@ -29,7 +29,7 @@ import { Kbd } from "serupa-ds";
 
 ### Named keys
 
-These names (in any case) show as symbols on Apple devices and as words elsewhere, and screen readers hear the key's name:
+These names (in any case, and with any spaces, `_` or `-`: `page_up` and `Page Up` are `pageup`) show as symbols on Apple devices and as words elsewhere, and screen readers hear the key's name:
 
 | Name | Apple | Elsewhere |
 | --- | --- | --- |
@@ -42,23 +42,28 @@ These names (in any case) show as symbols on Apple devices and as words elsewher
 | `backspace`, `delete` | ⌫, ⌦ | Backspace, Del |
 | `tab`, `esc`, `space` | ⇥, Esc, Space | Tab, Esc, Space |
 | `up`, `down`, `left`, `right` | ↑ ↓ ← → | ↑ ↓ ← → |
+| `home`, `end` | ↖ ↘ | Home, End |
+| `pageup` (`pgup`), `pagedown` (`pgdn`) | ⇞ ⇟ | PgUp, PgDn |
+| `capslock`, `insert` (`ins`), `fn` | ⇪, Ins, fn | Caps Lock, Ins, Fn |
 
 Use `mod` for shortcuts that follow the platform. Any other text shows as it is, and single letters show in capitals.
 
 ## Behavior
 
-- The platform is read in the browser after the page loads, so server-rendered pages show the words first.
+- Inside a `SerupaProvider` with `platform` set (`"apple"` or `"other"`, worked out on the server from the User-Agent or `Sec-CH-UA-Platform`), the right keys show from the first render, the server's too. Without it, the platform is read in the browser after the page loads, so server-rendered pages show the words first.
 - It sits with the text, so it can go inline in a sentence.
 
 ## Accessibility
 
 - A combination is one `<kbd>` holding a `<kbd>` per key, as HTML recommends. Symbols are hidden from screen readers and replaced with the key's name, through the `keyName` label (so "Panah atas" and "Spasi" in `idLabels`); the + between keys is hidden.
 - Labels and the + keep 4.5:1 in all six themes (`Kbd.test.tsx`).
+- **Keyboard:** none: it shows keys, it doesn't take them.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<kbd>`. |
 | `keys` | `string[]` | | A combination, one key each. Or pass a single key as children. |
 | `size` | `'sm' \| 'md'` | `'md'` | 20 or 24px keycaps. |
 

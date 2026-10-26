@@ -1,0 +1,55 @@
+# Count
+- textbox "Title": Quarterly report
+- text: 16 / 30
+- textbox "Code": WELCOME-10
+- text: 10 / 10
+- textbox "Note": No limit
+- text: "8"
+
+# Icons
+- textbox "Search"
+- textbox "Website":
+  - /placeholder: https://
+
+# InDisabledFieldset
+- group:
+  - textbox "Company" [disabled]: Atlas Ltd
+  - textbox "Tax ID" [disabled]
+
+# LongValue
+- textbox "Email":
+  - /placeholder: you@example.com
+  - text: grace.brewster.murray.hopper@navy.example.com
+- textbox "Email":
+  - /placeholder: A placeholder far longer than the input is wide
+
+# Playground
+- textbox "Email":
+  - /placeholder: you@example.com
+
+# PrefixAndSuffix
+- text: https://
+- textbox "Website":
+  - /placeholder: example.com
+- text: "@"
+- textbox "Username":
+  - /placeholder: ana
+- textbox "Workspace address":
+  - /placeholder: atlas
+- text: .serupa.app
+- spinbutton "Weight (kg)": "12"
+- text: kg
+- button "Decrease"
+- button "Increase"
+
+# Sizes
+- textbox "Small"
+- textbox "Medium"
+- textbox "Large"
+
+# States
+- textbox "Default"
+- textbox "Invalid" [invalid]: not-an-email
+- textbox "Read-only"
+- textbox "Disabled" [disabled]
+

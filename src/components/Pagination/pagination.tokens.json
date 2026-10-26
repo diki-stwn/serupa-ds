@@ -137,6 +137,16 @@
             "cssVar": "--pagination-padding-x"
           }
         }
+      },
+      "padding-x-sm": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-0_5}",
+        "$description": "At size sm (2px), so two semibold digits fit in the 24px square.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pagination-padding-x-sm"
+          }
+        }
       }
     },
     "radius": {

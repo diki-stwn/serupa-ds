@@ -1,16 +1,16 @@
 /* ---------------------------------------------------------------
    Heading: h1 to h6 in the system's type. Each level has a size (--heading-size-<level>, 1: text-3xl down to
-   6: text-sm) with the type scale's line height, font-semibold and the text color; 2xl and up are tracked
-   tight. size="..." picks another step of the scale. Margins are left to the layout (none by default).
+   6: text-sm) and a line height (--heading-line-height-<level>, the same step's), font-semibold and the text
+   color; 2xl and up are tracked tight. size="..." picks another step of the scale. Margins are left to the layout (none by default).
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-heading { margin: var(--spacing-0); color: var(--heading-text, var(--text)); font-family: var(--font-sans); font-weight: var(--heading-weight, var(--font-semibold)); text-wrap: balance; }
-.dk-heading--1 { font-size: var(--heading-size-1, var(--text-3xl)); line-height: var(--text-3xl--line-height); letter-spacing: var(--tracking-tight); }
-.dk-heading--2 { font-size: var(--heading-size-2, var(--text-2xl)); line-height: var(--text-2xl--line-height); letter-spacing: var(--tracking-tight); }
-.dk-heading--3 { font-size: var(--heading-size-3, var(--text-xl)); line-height: var(--text-xl--line-height); }
-.dk-heading--4 { font-size: var(--heading-size-4, var(--text-lg)); line-height: var(--text-lg--line-height); }
-.dk-heading--5 { font-size: var(--heading-size-5, var(--text-base)); line-height: var(--text-base--line-height); }
-.dk-heading--6 { font-size: var(--heading-size-6, var(--text-sm)); line-height: var(--text-sm--line-height); }
+.dk-heading { margin: var(--spacing-0); color: var(--heading-text, var(--text)); font-family: var(--font-sans); font-weight: var(--heading-weight, var(--font-semibold)); text-wrap: balance; overflow-wrap: break-word; }
+.dk-heading--1 { font-size: var(--heading-size-1, var(--text-3xl)); line-height: var(--heading-line-height-1, var(--text-3xl--line-height)); letter-spacing: var(--tracking-tight); }
+.dk-heading--2 { font-size: var(--heading-size-2, var(--text-2xl)); line-height: var(--heading-line-height-2, var(--text-2xl--line-height)); letter-spacing: var(--tracking-tight); }
+.dk-heading--3 { font-size: var(--heading-size-3, var(--text-xl)); line-height: var(--heading-line-height-3, var(--text-xl--line-height)); }
+.dk-heading--4 { font-size: var(--heading-size-4, var(--text-lg)); line-height: var(--heading-line-height-4, var(--text-lg--line-height)); }
+.dk-heading--5 { font-size: var(--heading-size-5, var(--text-base)); line-height: var(--heading-line-height-5, var(--text-base--line-height)); }
+.dk-heading--6 { font-size: var(--heading-size-6, var(--text-sm)); line-height: var(--heading-line-height-6, var(--text-sm--line-height)); }
 .dk-heading.dk-heading--size-sm { font-size: var(--text-sm); line-height: var(--text-sm--line-height); letter-spacing: var(--tracking-normal); }
 .dk-heading.dk-heading--size-base { font-size: var(--text-base); line-height: var(--text-base--line-height); letter-spacing: var(--tracking-normal); }
 .dk-heading.dk-heading--size-lg { font-size: var(--text-lg); line-height: var(--text-lg--line-height); letter-spacing: var(--tracking-normal); }

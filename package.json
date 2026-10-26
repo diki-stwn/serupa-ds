@@ -1,7 +1,8 @@
 {
   "name": "serupa-ds",
-  "version": "9.1.1",
+  "version": "9.7.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "description": "Serupa, a design system by Diki: tokens, utility classes, page defaults, automatic dark mode and React components. Import the components as ES modules (React 19 is a peer dependency), or load dist/serupa.iife.js on a plain page, where it reads window.React (React 19 ships in dist/lib/).",
   "author": "Diki (https://github.com/diki-stwn)",
@@ -39,6 +40,7 @@
     "./theme.js": "./dist/theme.js",
     "./components.json": "./dist/components.json",
     "./design-tokens/*": "./design-tokens/*",
+    "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
   },
@@ -81,12 +83,20 @@
     "lint": "node tools/utilities/build.mjs && node tools/build/registry.mjs && eslint . && stylelint \"src/**/*.css\" \".storybook/**/*.css\"",
     "test:coverage": "vitest run --project components --coverage",
     "test:unit": "vitest run --project components",
+    "test:aria:update": "SERUPA_UPDATE_ARIA=1 vitest run --project components src/internal/ariaStories.test.tsx",
+    "test:server-html:update": "SERUPA_UPDATE_SERVER_HTML=1 vitest run --project components src/internal/serverHtml.test.tsx",
     "test:checks": "vitest run --project checks",
     "test:watch": "vitest --project components"
   },
   "peerDependencies": {
+    "@types/react": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -102,15 +112,19 @@
     "@vitest/browser-playwright": "5.0.5",
     "@vitest/coverage-v8": "5.0.5",
     "@vitest/eslint-plugin": "1.6.27",
+    "axe-core": "4.14.0",
     "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.13.0",
     "knip": "6.43.0",
     "playwright": "1.64.1",
+    "postcss-value-parser": "4.2.0",
     "publint": "0.3.25",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "rolldown": "1.2.14",
+    "rollup": "4.64.10",
     "storybook": "10.6.3",
     "style-dictionary": "5.7.0",
     "stylelint": "17.16.0",
@@ -120,7 +134,8 @@
     "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
     "vitest": "5.0.5",
-    "vitest-browser-react": "2.3.0"
+    "vitest-browser-react": "2.3.0",
+    "webpack": "5.112.2"
   },
   "engines": {
     "node": ">=22"

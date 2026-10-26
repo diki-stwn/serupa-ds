@@ -67,11 +67,46 @@ describe('Kbd', () => {
     expect(caps('sm')[0].offsetHeight).toBe(20);
   });
 
+  test('a SerupaProvider platform decides from the first render and wins over the device', async () => {
+    windows();
+    const first: string[] = [];
+    const Spy = () => { React.useLayoutEffect(() => { first.push(keys('p-apple')); }, []); return null; };
+    await render(<div>
+      <SerupaProvider platform="apple"><Kbd id="p-apple" keys={['mod', 'K']} /><Spy /></SerupaProvider>
+    </div>);
+    expect(first[0]).toMatch(/^⌘/);
+    expect(keys('p-apple')).toMatch(/^⌘/);
+    vi.restoreAllMocks();
+    device('MacIntel', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
+    await render(<SerupaProvider platform="other"><Kbd id="p-other" keys={['mod', 'K']} /></SerupaProvider>);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(keys('p-other')).toMatch(/^Ctrl/);
+  });
+
   test('on Apple devices: mod is ⌘ (read "Command"), shift ⇧, alt ⌥ (read "Option")', async () => {
     device('MacIntel', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
     await render(<Keys />);
     expect(keys('combo')).toMatch(/^⌘Command\(Command\) ⇧Shift\(Shift\) P/);
     expect([spoken('combo'), spoken('sm')]).toEqual(['Command + Shift + P', 'Option + F4']);
+  });
+
+  test('Home, End, Page Up/Down, Caps Lock, Insert and Fn are named keys, written any way ("page_up", "Page Up")', async () => {
+    const More = () => <div>
+      <Kbd id="nav" keys={['home', 'End', 'page_up', 'Page Down', 'pgup']} />
+      <Kbd id="locks" keys={['capslock', 'ins', 'fn', 'caps-lock']} />
+      <Kbd id="dash" keys={['mod', '-']} />
+    </div>;
+    windows();
+    const s = await render(<More />);
+    expect(keys('nav')).toBe('Home End PgUpPage Up(Page Up) PgDnPage Down(Page Down) PgUpPage Up(Page Up)');
+    expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
+    expect(spoken('dash')).toBe('Control + -');
+    await s.unmount();
+    vi.restoreAllMocks();
+    device('MacIntel', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
+    await render(<More />);
+    expect(keys('nav')).toBe('↖Home(Home) ↘End(End) ⇞Page Up(Page Up) ⇟Page Down(Page Down) ⇞Page Up(Page Up)');
+    expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
   });
 
   test('inline in a sentence it sits with the text (centered within 3px of the words)', async () => {

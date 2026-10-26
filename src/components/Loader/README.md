@@ -1,6 +1,6 @@
 # Loader
 
-Shows that something is loading when you can't say how far along it is. Six looks: a **ring** (an arc that grows and shrinks as it turns on a faint track), **spokes** (eight spokes ticking round a circle, like the iOS activity indicator), **dots** (three pulsing dots), **pixel** (a 3×3 grid of square pixels with a wave of light running through it), **text** (words with a shine sweeping through them) and **skeleton** (placeholder shapes where the content will be, with the same shine).
+Shows that something is loading when you can't say how far along it is. Six looks: a **ring** (a quarter arc turning on a faint track), **spokes** (eight spokes ticking round a circle, like the iOS activity indicator), **dots** (three pulsing dots), **pixel** (a 3×3 grid of square pixels with a wave of light running through it), **text** (words with a shine sweeping through them) and **skeleton** (placeholder shapes where the content will be, with the same shine).
 
 Called Spinner before 3.0.0: see the upgrade table in the changelog.
 
@@ -77,7 +77,7 @@ Use one look per kind of wait across the product: the ring for loading content y
 <Loader variant="spokes" size="lg" tone="muted" label="Loading photos" />
 ```
 
-It takes the same sizes, tones and delay as the ring; `primary` and `muted` color it. Under reduced motion it ticks at half speed (2s a turn). Use it where the product should feel at home on Apple platforms, or where a quieter, more mechanical motion suits better than the ring's growing arc; keep one of the two per product.
+It takes the same sizes, tones and delay as the ring; `primary` and `muted` color it. Under reduced motion it stands still and breathes, like the ring. Use it where the product should feel at home on Apple platforms, or where a quieter, more mechanical motion suits better than the ring's smooth turn; keep one of the two per product.
 
 ### Pixel
 
@@ -169,6 +169,14 @@ Don't use it on `surface-inverse`, which turns light in dark themes; there, leav
 
 By default a loader waits 300ms before it appears. Most requests finish sooner, so people never see a loader flash on and off. While it waits it keeps its space (nothing jumps when it appears), shows nothing, and isn't announced. If the content arrives first and you remove the loader, it never shows at all. Use `delay={0}` where the wait is certain to be long, or when the loader replaces something the person just clicked.
 
+### Minimum time
+
+Once it shows, a loader stays at least 500ms. Without that, work ending at 320ms would show a spinner for 20ms, cut off in the middle of its fade-in, which reads as a glitch. For the minimum to work, keep the Loader mounted and pass `loading={false}` when the work ends, rather than removing it. It then stays until the 500ms are up, and renders nothing after that. If the work ends within the delay, it never shows.
+
+```tsx
+<Loader loading={isFetching} />
+```
+
 ## Accessibility
 
 - A loader with a label is a `role="progressbar"` without a value, which is how ARIA says "busy, progress unknown". Its name is `label` ("Loading…").
@@ -178,12 +186,14 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 - In a group of skeletons, name one ("Loading profile") and pass `label=""` to the rest, so it's announced once, and set `aria-busy` on the area.
 - It draws in the text color, so it keeps the contrast of the text it sits with. With `tone`, use it on `surface` backgrounds, where `primary` and `text-muted` meet the 3:1 non-text contrast.
 - The text variant's visible words are hidden from screen readers, which already hear the same text as its name.
-- Under reduced motion the text variant is plain text, the skeleton a still fill, the pixel patterns run at half speed (2.4s), the spokes tick at half speed (2s), the ring keeps a steady quarter arc and turns slowly (the `animate-spin-reduced` token, 3s a turn), and the dots fade without growing.
+- Under reduced motion the text variant is plain text, the skeleton a still fill, the pixel patterns run at half speed (2.4s), the ring and the spokes stand still and breathe between full and half strength (opacity, 2s), and the dots fade without growing. Nothing turns.
+- **Keyboard:** none: it isn't focusable.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `variant` | `'ring'` \| `'spokes'` \| `'dots'` \| `'pixel'` \| `'text'` \| `'skeleton'` | `'ring'` | The look |
 | `shape` | `'text'` \| `'circle'` \| `'rect'` | `'text'` | Skeleton only: lines of text, an avatar, or an image or card |
 | `lines` | number, 1 to 20 | `1` | Skeleton with `shape="text"` only: how many lines |
@@ -193,6 +203,7 @@ By default a loader waits 300ms before it appears. Most requests finish sooner, 
 | `tone` | `'neutral'` \| `'primary'` \| `'muted'` \| `'inverse'` | `'neutral'` | `neutral` takes the text color, so it fits any surface (white on a primary button, `text` on a page). `primary` and `muted` color the ring, dots or pixel grid with those aliases (`text` and `skeleton` stay in the text color). `inverse` makes it white in every theme, for dark scrims, overlays and media |
 | `label` | string | `'Loading…'` | Its accessible name, announced when it appears, and the words `text` shows. `''` makes it decorative |
 | `delay` | number (ms) | `300` | Waits this long before showing. `0` shows it at once |
+| `loading` | boolean | `true` | Pass `false` when the work ends. Once shown, it stays at least 500ms, then renders nothing |
 
 `tone="current"`, the old name of `neutral`, was removed in 4.0.0; like any unknown tone it falls back to `neutral`, with no warning.
 
@@ -237,4 +248,4 @@ Each is an optional override: set it on the page, a container or one loader. Uns
 | `--loader-pixel-duration` | `duration-1200` | One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s) |
 | `--loader-pixel-stagger` | `delay-75` | Delay from one step of a pixel pattern to the next |
 
-The ring turns once every 2s while its arc stretches from a dot to most of the ring and shrinks again every 1.5s, its tail chasing its head. The two periods don't line up, so each stretch starts somewhere new. Both are sums of the motion tokens (`duration-1000` + `duration-1000`, `duration-1000` + `duration-500`), with `ease-linear` for the turn and `ease-in-out` for the arc. The text shine and the skeleton shimmer take 2s (`duration-1000` twice) with `ease-in-out`. Under reduced motion the arc stays a steady quarter and the ring turns at `animate-spin-reduced` (3s). It fades in over `duration-150` with `ease-out`.
+The ring is a quarter arc that turns once every `motion-loop-spinner` (1s) with `ease-linear`, the one spinner speed of the library: Switch's pending ring and the indeterminate circular Progress turn with it. Only the drawing turns, so nothing is repainted on each frame. The text shine and the skeleton shimmer take 2s (`duration-1000` twice) with `ease-in-out`, and both move on `translate`, which the compositor runs without repainting: the skeleton slides a layer three bones wide through each bone, and the text slides a window holding a full-color copy of the words across them. Under reduced motion the ring stands still and breathes over twice that (2s, `ease-in-out`). It fades in over `duration-150` with `ease-out`.

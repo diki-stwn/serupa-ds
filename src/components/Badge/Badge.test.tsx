@@ -2,9 +2,12 @@ import * as React from 'react';
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, css, keepMotion, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, keepMotion, press, tabTo } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Badge, type BadgeTone, type BadgeVariant } from './Badge';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 // About motion: transitions and animations stay on for this file (setup.ts turns them off elsewhere).
 keepMotion();
@@ -126,11 +129,34 @@ function App() {
 
 async function show() {
   clicks = 0; removed = [];
-  await render(<App />);
+  await render(<App />, { wrapper: EnUS });
 }
 afterEach(async () => { await userEvent.unhover(document.body).catch(() => {}); });
 
 describe('Badge', () => {
+  // EB1: loading that ended a moment after it started flashed the ring for a frame or two.
+  test('loading that ends after 20ms keeps the ring at least 500ms; it shows in the same render that turns it on', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let set: (v: boolean) => void = () => {};
+      function Wait() { const [on, s] = React.useState(false); set = s; return <Badge id="bl" loading={on}>Syncing</Badge>; }
+      await render(<Wait />);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const busy = () => document.getElementById('bl')!.hasAttribute('aria-busy');
+      await React.act(async () => set(true));
+      expect(busy()).toBe(true);
+      await step(20);
+      await React.act(async () => set(false));
+      await step(470);
+      expect(busy()).toBe(true);    // 490ms
+      await step(10);
+      expect(busy()).toBe(false);   // 500ms
+    } finally {
+      await React.act(async () => { vi.advanceTimersByTime(5000); });   // the announcer's timers run out
+      vi.useRealTimers();
+    }
+  });
+
   test('defaults: a <span> badge, subtle, neutral, with no size attribute or class; unknown variant and tone fall back to subtle and neutral', async () => {
     await show();
     const d = el('def');
@@ -204,7 +230,7 @@ describe('Badge', () => {
   test('leftIcon: a Material Symbols icon before the label at 12px, decorative; it replaces the dot', async () => {
     await show();
     const e = el('icon'), i = e.querySelector('.dk-badge__icon') as HTMLElement;
-    expect([(i.querySelector('.dk-icon') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('.dk-icon')).fontSize, !!e.querySelector('.dk-badge__dot')])
+    expect([(i.querySelector('[data-icon]') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('[data-icon]')).fontSize, !!e.querySelector('.dk-badge__dot')])
       .toEqual(['schedule', 'true', '12px', false]);
   });
 
@@ -214,12 +240,14 @@ describe('Badge', () => {
       <SerupaProvider locale="fa"><Badge id="cfa12" count={12} /></SerupaProvider>
       <SerupaProvider locale="en-US"><Badge id="cen1500" count={1500} max={9999} /></SerupaProvider>
     </>);
-    expect(['car7', 'car120', 'cfa12', 'cen1500'].map((id) => document.getElementById(id)!.textContent)).toEqual(['٧', '٩٩+', '۱۲', '1500']);
+    const shown = (id: string) => { const e = document.getElementById(id)!; return (e.querySelector('[aria-hidden="true"]') || e).textContent; };
+    expect(['car7', 'car120', 'cfa12', 'cen1500'].map(shown)).toEqual(['٧', '٩٩+', '۱۲', '1500']);
+    expect([document.getElementById('car120')!.title, document.getElementById('car120')!.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['١٢٠', '١٢٠']);
   });
 
   test('count: a round pill (20px for one digit), "99+" past the default max, "max+" past a given max; nothing at 0, unless showZero', async () => {
     await show();
-    const m = (id: string) => { const e = el(id), r = e.getBoundingClientRect(); return [e.textContent, Math.round(r.width), Math.round(r.height), css(e).borderTopLeftRadius, css(e).fontVariantNumeric] as const; };
+    const m = (id: string) => { const e = el(id), r = e.getBoundingClientRect(); return [(e.querySelector('[aria-hidden="true"]') || e).textContent, Math.round(r.width), Math.round(r.height), css(e).borderTopLeftRadius, css(e).fontVariantNumeric] as const; };
     const c3 = m('c3');
     expect([c3[0], c3[1], c3[2], c3[4]]).toEqual(['3', 20, 20, 'tabular-nums']);
     expect(parseFloat(c3[3])).toBeGreaterThanOrEqual(10);
@@ -228,6 +256,12 @@ describe('Badge', () => {
     expect(m('c12m9')[0]).toBe('9+');
     expect(el('zero').children.length).toBe(0);
     expect(m('zshow')[0]).toBe('0');
+  });
+
+  test('count past max: "99+" shows, and screen readers and the tooltip get the real count (AW1); your title wins', async () => {
+    await render(<><Badge id="big" count={150} /><Badge id="own" count={150} title="150 unread messages" /><Badge id="few" count={7} /></>, { wrapper: EnUS });
+    const big = el('big');
+    expect([big.title, big.querySelector('[aria-hidden="true"]')!.textContent, el('own').title, el('few').title, el('few').querySelector('.dk-visually-hidden'), big.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['150', '99+', '150 unread messages', '', null, '150']);
   });
 
   test('count: a badge whose count goes from 0 to 2 and back to 0 appears and disappears without an error (hooks run on every render)', async () => {
@@ -240,15 +274,15 @@ describe('Badge', () => {
 
   test('removable: a real <button type="button"> named "Remove Design" (removeLabel changes the verb), with a close icon', async () => {
     await show();
-    const b = q('#tags .dk-badge__remove') as HTMLButtonElement;
-    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('.dk-icon') as HTMLElement).dataset.icon, q('#rmlabel .dk-badge__remove').getAttribute('aria-label')])
+    const b = q('#tags button') as HTMLButtonElement;
+    expect([b.tagName, b.type, b.getAttribute('aria-label'), (b.querySelector('[data-icon]') as HTMLElement).dataset.icon, q('#rmlabel button').getAttribute('aria-label')])
       .toEqual(['BUTTON', 'button', 'Remove Design', 'close', 'Clear filter Status: open']);
     await expect.element(page.getByRole('button', { name: 'Remove Design' })).toBeInTheDocument();
   });
 
   test('removable: the × mirrors a leading icon (a 12px box, --badge-gap less 2px from the label, the badge padding at the end, less 2px; a × with no leading icon adds the 2px offset at the start), and keeps a 24×24 target', async () => {
     await show();
-    const e = q('#tags .dk-badge'), l = e.querySelector('.dk-badge__label')!.getBoundingClientRect(), btn = e.querySelector('.dk-badge__remove')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
+    const e = q('#tags .dk-badge'), l = e.querySelector('.dk-badge__label')!.getBoundingClientRect(), btn = e.querySelector('button')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
     const ring = getComputedStyle(btn, '::after');
     expect([b.width, b.height]).toEqual([12, 20]);
     expect(Math.round((b.left - l.right) * 10) / 10).toBe(2);
@@ -262,12 +296,12 @@ describe('Badge', () => {
 
   test('removable: the focus ring goes round the whole 24×24 target; click and keyboard (Enter) call onRemove', async () => {
     await show();
-    (q('#tags .dk-badge__remove')).focus();
+    await tabTo(q('#tags button'));
     const a = getComputedStyle(document.activeElement!, '::after');
     expect([a.outlineWidth, a.outlineStyle, css(document.activeElement).outlineStyle]).toEqual(['2px', 'solid', 'none']);
-    await userEvent.click(q('#tags .dk-badge__remove'));
+    await userEvent.click(q('#tags button'));
     await expect.poll(() => removed).toEqual(['Design']);
-    q('#tags .dk-badge__remove').focus();
+    q('#tags button').focus();
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => removed.join()).toBe('Design,Research');
     expect(document.querySelectorAll('#tags .dk-badge').length).toBe(0);
@@ -371,15 +405,13 @@ describe('Badge', () => {
 
   test('onClick with onRemove: the badge is the button, no nested × button, and a warning', async () => {
     await show();
-    expect([el('both').tagName, !!q('#both .dk-badge__remove')]).toEqual(['BUTTON', false]);
+    expect([el('both').tagName, !!q('#both button')]).toEqual(['BUTTON', false]);
     expect(warns.some((m) => /onRemove is ignored/.test(m))).toBe(true);
   });
 
   test('loading, interactive: a ring at the icon size (12px) centered over the hidden content (a 150ms cross-fade, the ring grows in), width kept, aria-busy and aria-disabled, announced "Loading"; clicks and Enter do nothing, focus stays; off again, it works again', async () => {
     await show();
-    // The layout size, which the press scale (0.97 while :active or data-pressed) doesn't change: a box measured
-    // mid-press reads 131px for 135px (as it once did in CI), and a press still settling here can depend on test order.
-    const ld = el('ld'), w0 = [ld.offsetWidth, ld.offsetHeight];
+    const ld = el('ld');
     const announcer = q('[data-dk-announcer]');
     announcer.textContent = '';
     setLoading(true);
@@ -401,7 +433,9 @@ describe('Badge', () => {
     expect(Math.abs((art.left + art.width / 2) - (r.left + r.width / 2))).toBeLessThan(1);
     expect(Math.abs((art.top + art.height / 2) - (r.top + r.height / 2))).toBeLessThan(1);
     await expect.poll(() => content().map((c) => css(c).opacity).join()).toBe('0,0');
-    expect([ld.offsetWidth, ld.offsetHeight]).toEqual(w0);
+    // The layout size (the press scale doesn't change it), compared with the same badge's once it stops loading, below:
+    // the width it had when the test started can differ by a few pixels in CI, where the text font isn't settled yet.
+    const busy = [ld.offsetWidth, ld.offsetHeight];
     // Every badge that started loading at once is said, in one message.
     await expect.poll(() => announcer.textContent).toMatch(/(^|\. )Loading…$/);
     expect([css(ld).cursor, ld.textContent.endsWith('Approve request')]).toEqual(['progress', true]);
@@ -409,6 +443,7 @@ describe('Badge', () => {
     setLoading(false);
     await expect.poll(() => ld.getAttribute('aria-busy')).toBe(null);
     expect(!!ld.querySelector('.dk-badge__loader')).toBe(false);
+    expect([ld.offsetWidth, ld.offsetHeight]).toEqual(busy);
     await expect.poll(() => css(ld.querySelector('.dk-badge__label')).opacity).toBe('1');
   });
 
@@ -418,13 +453,14 @@ describe('Badge', () => {
     expect([e.tagName, e.getAttribute('aria-busy'), e.getAttribute('aria-disabled'), (q('#ldrm .dk-badge__remove') as HTMLButtonElement).disabled]).toEqual(['SPAN', 'true', null, true]);
   });
 
-  test('micro-interactions: a clickable badge has the ripple layer first (under the content), a plain badge none; scale moves in 100ms', async () => {
+  test('micro-interactions: a clickable badge has the ripple layer first (under the content), a plain badge none; scale springs back over motion-release (300ms) with ease-spring', async () => {
     await show();
     const e = el('mi');
     expect(e.firstElementChild!.className).toBe('dk-badge__ripples');
     expect(!!el('def').querySelector('.dk-badge__ripples')).toBe(false);
     expect(css(e).transitionProperty).toMatch(/scale/);
-    expect(css(e).transitionDuration).toMatch(/0\.1s/);
+    expect(css(e).transitionDuration).toMatch(/0\.3s$/);
+    expect(css(e).transitionTimingFunction).toMatch(/linear\(/);
   });
 
   test('press and ripple: shrinks to 97% while held and comes back on release; one circle from the press point, text color at 20%, wide enough to reach the far corner, under the label, 500ms; removed after release', async () => {
@@ -510,12 +546,64 @@ describe('Badge', () => {
       await show();
       const o = await hold(el('mi'), async () => {
         await new Promise(requestAnimationFrame);
-        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, dots: el('mi').querySelectorAll('.dk-badge__ripple').length, host: css(el('mi').querySelector('.dk-badge__ripples')).display, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim() };
+        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, dots: el('mi').querySelectorAll('.dk-badge__ripple').length, host: css(el('mi').querySelector('.dk-badge__ripples')).display, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
       }, { ms: 200, at: { x: 6, y: 6 } });
       expect(o.ping).toBe('none/none');
       expect(['1', 'none']).toContain(o.scale);
       expect([o.dots, o.host]).toEqual([0, 'none']);
-      expect(o.from).toMatch(/100%/);
+      expect([o.from, o.anim]).toEqual([expect.stringMatching(/100%/), 'dk-loader-in']);
     } finally { restore(); }
+  });
+});
+
+describe('focus after removing a tag (179)', () => {
+  function Tags({ onGone }: { onGone?: (name: string) => void }) {
+    const [tags, setTags] = React.useState(['Design', 'Code', 'Docs']);
+    return <><input id="add" aria-label="Add a tag" />
+      <ul>{tags.map((t) => <li key={t}><Badge onRemove={() => { setTags((l) => l.filter((x) => x !== t)); onGone?.(t); }}>{t}</Badge></li>)}</ul></>;
+  }
+  const focused = () => document.activeElement?.getAttribute('aria-label') || document.activeElement?.id || document.activeElement?.tagName;
+
+  test('moves to the next tag\'s ×, or the one before at the end of the list, instead of dropping to the page', async () => {
+    await render(<Tags />);
+    (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(focused).toBe('Remove Docs');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(focused).toBe('Remove Design');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.querySelectorAll('[data-component="badge"]').length).toBe(0);
+    expect(focused()).toBe('BODY');   // nothing left to go to: the app moves focus (to the input that adds tags)
+  });
+
+  test('leaves focus alone when the handler moves it, or keeps the badge', async () => {
+    await render(<><Tags onGone={() => (document.getElementById('add') as HTMLElement).focus()} /><Badge id="kept" onRemove={() => {}}>Kept</Badge></>);
+    (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(focused()).toBe('Add a tag');
+    (document.querySelector('[aria-label="Remove Kept"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(focused()).toBe('Remove Kept');
+  });
+  test('a cut label shows in full as the title (EV1); one that fits, a count, or a badge with its own title or name gets none', async () => {
+    const LONG = 'Waiting for the design review to finish';
+    function Box() {
+      const [w, setW] = React.useState(400);
+      return <div style={{ width: w + 'px' }}>
+        <Badge id="grow" onClick={() => setW(120)}>{LONG}</Badge>
+        <Badge id="fits">New</Badge>
+        <Badge id="named" aria-label="Review pending">{LONG}</Badge>
+        <Badge id="own" title="Mine">{LONG}</Badge>
+        <span style={{ display: 'block', width: '120px' }}><Badge id="still" onRemove={() => {}}>{LONG}</Badge></span>
+      </div>;
+    }
+    await render(<Box />);
+    expect([el('grow').hasAttribute('title'), el('still').title]).toEqual([false, LONG]);
+    el('grow').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('grow').getAttribute('title')).toBe(LONG);
+    expect([el('fits').hasAttribute('title'), el('named').hasAttribute('title'), el('own').title, el('grow').textContent]).toEqual([false, false, 'Mine', LONG]);
   });
 });

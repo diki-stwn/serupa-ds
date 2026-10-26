@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Dialog } from '../Dialog/Dialog';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
-import { Tooltip } from './Tooltip';
+import { Tooltip, coolTooltips } from './Tooltip';
+
+// Every test starts cold: the warm-up (EC1) would otherwise carry over from the test before.
+beforeEach(() => coolTooltips());
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 // The tooltip an element points at, through aria-describedby or aria-labelledby.
@@ -21,6 +24,34 @@ const near = (a: number, b: number) => Math.abs(a - b) <= 1;
 const away = () => userEvent.hover(document.body, { position: { x: 500, y: 20 } });
 
 describe('Tooltip', () => {
+  test('defaultOpen: shown on arrival, uncontrolled; Escape hides it by itself and tells onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    await render(<Tooltip content="Edit the file" defaultOpen onOpenChange={(v) => asks.push(v)}><button id="tdef">Edit</button></Tooltip>);
+    await expect.poll(() => isOpen('tdef')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('tdef')).toBe(false);
+    expect(asks.join()).toBe('false');
+  });
+
+  test('onOpenChange says why: hover in and out, focus and blur from the keyboard, escape', async () => {
+    const why: string[] = [];
+    await render(<div style={{ padding: '80px' }}><button id="tbefore">Before</button><Tooltip content="Why" delay={0} onOpenChange={(v, d) => why.push((v ? 'show ' : 'hide ') + d.reason)}><button id="twhy">Why</button></Tooltip></div>);
+    await userEvent.hover(el('twhy'));
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await away();
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    el('tbefore').focus();
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => isOpen('twhy')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('twhy')).toBe(false);
+    expect(why).toEqual(['show hover', 'hide hover', 'show focus', 'hide blur', 'show focus', 'hide escape']);
+  });
+
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
     await render(<>
       <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" noTitle aria-describedby="other" /></Tooltip>
@@ -35,25 +66,26 @@ describe('Tooltip', () => {
 
   test('hover: shows after the 400ms delay, above and centered, 6px away, in the top layer; leaving hides it after a short grace', async () => {
     await render(<div style={{ padding: '120px 200px' }}><Tooltip content="Edit the file"><button id="a">Edit</button></Tooltip></div>);
+    // Timed from before the hover, so a slow machine only makes it later: never early (a fixed wait then a check
+    // isn't, as a busy runner can stretch the wait past the delay).
+    const t0 = performance.now();
     await userEvent.hover(el('a'));
-    await settle(200);
-    expect(isOpen('a')).toBe(false);
-    await settle(350);
+    await expect.poll(() => isOpen('a')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);
     const t = tipOf('a'), a = el('a');
-    expect([isOpen('a'), t.dataset.side, t.matches(':popover-open')]).toEqual([true, 'top', true]);
+    expect([t.dataset.side, t.matches(':popover-open')]).toEqual(['top', true]);
     expect(near(rect(a).top - rect(t).bottom, 6)).toBe(true);
     expect(near(rect(t).left + rect(t).width / 2, rect(a).left + rect(a).width / 2)).toBe(true);
     await away();
     await settle(50);
     expect(isOpen('a')).toBe(true);
-    await settle(150);
-    expect(isOpen('a')).toBe(false);
+    await expect.poll(() => isOpen('a')).toBe(false);
   });
 
   test('the pointer can move onto the tooltip without it closing (hoverable); Escape hides it even while hovered (dismissible)', async () => {
     await render(<div style={{ padding: '120px 200px' }}><Tooltip content="Edit the file"><button id="a">Edit</button></Tooltip></div>);
     await userEvent.hover(el('a'));
-    await settle(500);
+    await expect.poll(() => isOpen('a')).toBe(true);
     await userEvent.hover(tipOf('a'));
     await settle(300);
     expect(isOpen('a')).toBe(true);
@@ -116,28 +148,22 @@ describe('Tooltip', () => {
       <div style={{ overflow: 'hidden', width: '60px', height: '30px', position: 'relative', margin: '120px 200px' }}><Tooltip content="Not clipped by overflow hidden" delay={0}><button id="h">Clip</button></Tooltip></div>
     </>);
     await userEvent.hover(el('g'));
-    await settle(100);
-    const g = rect(tipOf('g'));
-    expect([tipOf('g').dataset.side, g.top >= 0 && g.left >= 0 && g.right <= innerWidth && g.bottom <= innerHeight]).toEqual(['bottom', true]);
+    await expect.poll(() => { const g = rect(tipOf('g')); return [tipOf('g').dataset.side, isOpen('g') && g.top >= 0 && g.left >= 0 && g.right <= innerWidth && g.bottom <= innerHeight]; }).toEqual(['bottom', true]);
     await userEvent.hover(el('h'));
-    await settle(100);
-    const t = tipOf('h'), r = rect(t), hit = document.elementFromPoint(r.left + 4, r.top + r.height / 2);
-    expect(t.contains(hit)).toBe(true);
+    await expect.poll(() => { const t = tipOf('h'), r = rect(t); return isOpen('h') && t.contains(document.elementFromPoint(r.left + 4, r.top + r.height / 2)); }).toBe(true);
   });
 
   test('new text while open places it again, still centered', async () => {
     const tip = (content: string) => <div style={{ padding: '120px 200px' }}><Tooltip content={content} open><button id="n">Name</button></Tooltip></div>;
     const { rerender } = await render(tip('Short'));
     await rerender(tip('A much longer line of text than before'));
-    await settle(50);
-    const t = rect(tipOf('n')), a = rect(el('n'));
-    expect(near(t.left + t.width / 2, a.left + a.width / 2)).toBe(true);
+    await expect.poll(() => { const t = rect(tipOf('n')), a = rect(el('n')); return t.width > 100 && near(t.left + t.width / 2, a.left + a.width / 2); }).toBe(true);
   });
 
   test('look: text-xs, 6px corners, 4px 8px padding, 240px at most; --tooltip-bg overrides one', async () => {
     await render(<Tooltip content="Tokens" delay={0} style={{ '--tooltip-bg': 'rgb(1, 2, 3)' } as React.CSSProperties}><button id="f">Tokens</button></Tooltip>);
     await userEvent.hover(el('f'));
-    await settle(100);
+    await expect.poll(() => isOpen('f')).toBe(true);
     const s = getComputedStyle(tipOf('f'));
     expect([s.backgroundColor, s.fontSize, s.borderTopLeftRadius, s.padding, s.maxWidth]).toEqual(['rgb(1, 2, 3)', '12px', '6px', '4px 8px', '240px']);
   });
@@ -150,16 +176,14 @@ describe('Tooltip', () => {
     }
     await render(<InDialog />);
     await userEvent.click(el('dopen'));
-    await settle(300);
+    await expect.poll(() => (el('tdlg') as HTMLDialogElement).open).toBe(true);
     await userEvent.hover(el('i'));
-    await settle(100);
-    expect(isOpen('i')).toBe(true);
+    await expect.poll(() => isOpen('i')).toBe(true);
     await userEvent.keyboard('{Escape}');
-    await settle(100);
-    expect([isOpen('i'), (el('tdlg') as HTMLDialogElement).open]).toEqual([false, true]);
+    await expect.poll(() => isOpen('i')).toBe(false);
+    expect((el('tdlg') as HTMLDialogElement).open).toBe(true);
     await userEvent.keyboard('{Escape}');
-    await settle(100);
-    expect((el('tdlg') as HTMLDialogElement).open).toBe(false);
+    await expect.poll(() => (el('tdlg') as HTMLDialogElement).open).toBe(false);
   });
 
   test('contrast: the text keeps 4.5:1 on the tooltip in all six themes', async () => {
@@ -171,5 +195,85 @@ describe('Tooltip', () => {
       if (r < 4.5) low.push(`${th} ${r.toFixed(2)}`);
     }
     expect(low).toEqual([]);
+  });
+});
+
+describe('Tooltip warm-up (EC1)', () => {
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  function Bar() {
+    return <div style={{ display: 'flex', gap: '8px', padding: '80px' }}>
+      <Tooltip content="Bold"><button id="wa">B</button></Tooltip>
+      <Tooltip content="Italic"><button id="wb">I</button></Tooltip>
+      <Tooltip content="Underline"><button id="wc">U</button></Tooltip>
+    </div>;
+  }
+
+  test('once one has shown, the next opens at once without a fade and the first closes; after 300ms off them all, the delay is back', async () => {
+    await render(<Bar />);
+    await away(); await wait(400);
+    let t0 = performance.now();
+    await userEvent.hover(el('wa'));
+    await expect.poll(() => isOpen('wa')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);   // a cold start waits for the delay
+    expect(tipOf('wa').hasAttribute('data-warm')).toBe(false);
+    await userEvent.hover(el('wb'));
+    // at once, with no delay to wait out; WebKit can close the first one a frame after the pointer leaves it
+    await expect.poll(() => [isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), tipOf('wb').getAnimations().length], { timeout: 100 }).toEqual([true, false, true, 0]);
+    // Off every tooltip for less than 300ms: still warm.
+    await away(); await wait(150);
+    await userEvent.hover(el('wc'));
+    expect(isOpen('wc')).toBe(true);
+    // Off them all for longer: cold again.
+    await away(); await wait(500);
+    t0 = performance.now();
+    await userEvent.hover(el('wa'));
+    await expect.poll(() => isOpen('wa')).toBe(true);
+    expect(performance.now() - t0).toBeGreaterThanOrEqual(400);
+    await away();
+  });
+  test('entry: fades in and slides 4px away from its trigger with a transition, not keyframes (EO1)', async () => {
+    await withMotion(async () => {
+      await render(<div style={{ padding: '80px' }}><Tooltip content="Bold" placement="bottom"><button id="sl">B</button></Tooltip></div>);
+      await userEvent.hover(el('sl'));
+      await expect.poll(() => isOpen('sl')).toBe(true);
+      const t = tipOf('sl');
+      const moves = t.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
+      expect([moves, t.getAnimations().some((a) => a instanceof CSSAnimation), t.dataset.side]).toEqual([['opacity', 'translate'], false, 'bottom']);
+      await Promise.all(t.getAnimations().map((a) => a.finished));
+      expect([css(t).opacity, css(t).translate]).toEqual(['1', 'none']);
+    });
+  });
+
+  test('exit: fades and slides back out faster than it came, kept shown until it has gone; handed over to the next one, it goes at once (DZ1)', async () => {
+    await withMotion(async () => {
+      const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+      const runs = (t: Element) => t.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|translate)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
+      await render(<div style={{ padding: '80px', display: 'flex', gap: '40px' }}>
+        <Tooltip content="Bold" placement="bottom"><button id="xa">B</button></Tooltip><Tooltip content="Italic" placement="bottom"><button id="xb">I</button></Tooltip>
+      </div>);
+      const a = tipOf('xa'), b = tipOf('xb');
+      await userEvent.hover(el('xa'));
+      await expect.poll(() => a.hidden).toBe(false);
+      expect(runs(a)).toEqual([['opacity', 150], ['translate', 150]]);
+      await Promise.all(a.getAnimations().map((x) => x.finished));
+      await userEvent.keyboard('{Escape}');
+      expect(a.hidden).toBe(true);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it hides at once.
+      if (!CSS.supports('overlay', 'auto')) { expect(css(a).display).toBe('none'); return; }
+      expect([css(a).display, runs(a)]).toEqual(['block', [['opacity', 100], ['translate', 100]]]);
+      await Promise.all(a.getAnimations().map((x) => x.finished.catch(() => {})));
+      expect(css(a).display).toBe('none');
+
+      await away();
+      await userEvent.hover(el('xa'));
+      await expect.poll(() => a.hidden).toBe(false);
+      await Promise.all(a.getAnimations().map((x) => x.finished));
+      await userEvent.hover(el('xb'));
+      await expect.poll(() => b.hidden).toBe(false);
+      // On a slow runner the first can hide a task after the second shows; once hidden it must be gone at once, not fading.
+      await expect.poll(() => a.hidden).toBe(true);
+      expect([css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual(['none', 0, 0]);
+      await away();
+    });
   });
 });

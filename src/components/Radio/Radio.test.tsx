@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Radio, RadioGroup } from './Radio';
 
@@ -26,7 +26,7 @@ afterEach(() => {
 const Grid = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'grid', gap: '16px', width: '420px', justifyItems: 'start' }}>{children}</div>;
 function Letters({ changes, gref, rref }: { changes: string[]; gref?: React.Ref<HTMLDivElement>; rref?: React.Ref<HTMLInputElement> }) {
   const [v, setV] = React.useState('b');
-  return <RadioGroup id="ctl" ref={gref} aria-label="Letters" value={v} onChange={(val, e) => { changes.push(val + ':' + e.type); setV(val); }} className="extra" data-x="y">
+  return <RadioGroup id="ctl" ref={gref} aria-label="Letters" value={v} onValueChange={(val, e) => { changes.push(val + ':' + e.type); setV(val); }} className="extra" data-x="y">
     <Radio id="a" value="a" ref={rref} name="ignored" defaultChecked>Alpha</Radio>
     <Radio id="b" value="b" description="The second letter.">Bravo</Radio>
     <Radio id="c" value="c" size="lg">Charlie</Radio>
@@ -60,7 +60,7 @@ describe('Radio', () => {
   test('form reset: the first choice is checked again and the group follows it (uncontrolled); a controlled group shows its value again', async () => {
     await render(<form id="rr">
       <RadioGroup aria-label="Plan" name="plan" defaultValue="free"><Radio id="rr-free" value="free">Free</Radio><Radio id="rr-pro" value="pro">Pro</Radio></RadioGroup>
-      <RadioGroup aria-label="Ship" value="air" onChange={() => {}}><Radio id="rr-air" value="air">Air</Radio><Radio id="rr-sea" value="sea">Sea</Radio></RadioGroup>
+      <RadioGroup aria-label="Ship" value="air" onValueChange={() => {}}><Radio id="rr-air" value="air">Air</Radio><Radio id="rr-sea" value="sea">Sea</Radio></RadioGroup>
     </form>);
     await userEvent.click(input('rr-pro'));
     expect(input('rr-pro').checked).toBe(true);
@@ -88,14 +88,14 @@ describe('Radio', () => {
     await render(<Grid><Letters changes={[]} /></Grid>);
     const prim = color('var(--primary)');
     expect([input('a').checked, input('b').checked]).toEqual([false, true]);
-    // The fill eases in over 150ms.
+    // The fill eases in over 100ms (motion-press).
     await expect.poll(() => [css(input('b')).backgroundColor, css(input('b')).borderTopColor]).toEqual([prim, prim]);
     expect([css(dot('b')).visibility, css(dot('a')).visibility, dot('b').getBoundingClientRect().width, css(dot('b')).backgroundColor]).toEqual(['visible', 'hidden', 6, color('var(--on-primary)')]);
     const dr = dot('b').getBoundingClientRect(), ir = input('b').getBoundingClientRect();
     expect(Math.abs(dr.left + dr.width / 2 - (ir.left + ir.width / 2)) + Math.abs(dr.top + dr.height / 2 - (ir.top + ir.height / 2))).toBeLessThan(0.5);
   });
 
-  test('a click on a label calls onChange(value, event) and moves the check; arrow keys move the choice, natively', async () => {
+  test('a click on a label calls onValueChange(value, event) and moves the check; arrow keys move the choice, natively', async () => {
     const changes: string[] = [];
     await render(<Grid><Letters changes={changes} /></Grid>);
     await userEvent.click(wrap('a').querySelector('.dk-radio__label')!);
@@ -105,6 +105,52 @@ describe('Radio', () => {
     await userEvent.keyboard('{ArrowDown}');
     await expect.poll(() => input('b').checked).toBe(true);
     expect([document.activeElement!.id, changes.join()]).toEqual(['b', 'a:change,b:change']);
+  });
+
+  test('keyboard table: Tab lands on the checked radio (or the first); every arrow moves the choice, wrapping and skipping disabled ones; Space checks the focused radio when none is (FH1)', async () => {
+    const seen: string[] = [];
+    await render(<Grid><button id="kb-before">Before</button><RadioGroup aria-label="Fruit" name="kb" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="kb-a" value="a">A</Radio><Radio id="kb-b" value="b" disabled>B</Radio><Radio id="kb-c" value="c">C</Radio><Radio id="kb-d" value="d">D</Radio>
+    </RadioGroup></Grid>);
+    input('kb-before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect([document.activeElement!.id, input('kb-a').checked]).toEqual(['kb-a', false]);   // none checked: the first, not checked yet
+    await userEvent.keyboard(' ');
+    await expect.poll(() => input('kb-a').checked).toBe(true);
+    const at = async (key: string) => { await userEvent.keyboard(`{${key}}`); return document.activeElement!.id + (input(document.activeElement!.id).checked ? '*' : ''); };
+    expect([await at('ArrowRight'), await at('ArrowDown'), await at('ArrowRight'), await at('ArrowUp'), await at('ArrowLeft'), await at('ArrowLeft')])
+      .toEqual(['kb-c*', 'kb-d*', 'kb-a*', 'kb-d*', 'kb-c*', 'kb-a*']);   // B is skipped, and the ends wrap
+    expect(seen.join()).toBe('a,c,d,a,d,c,a');
+    input('kb-before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement!.id).toBe('kb-a');   // back to the checked one
+  });
+
+  test('right to left: ArrowLeft is next and wraps from the last radio to the first, ArrowRight wraps back, in every engine', async () => {
+    const seen: string[] = [];
+    await render(<Grid><div dir="rtl"><RadioGroup aria-label="Fruit" name="rtl" defaultValue="c" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="rtl-a" value="a">A</Radio><Radio id="rtl-b" value="b">B</Radio><Radio id="rtl-c" value="c">C</Radio>
+    </RadioGroup></div></Grid>);
+    input('rtl-c').focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => input('rtl-a').checked).toBe(true);
+    expect(document.activeElement!.id).toBe('rtl-a');
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => input('rtl-c').checked).toBe(true);
+    expect([document.activeElement!.id, seen.join()]).toEqual(['rtl-c', 'a,c']);
+  });
+
+  test('onChange, deprecated: still called with (value, event) after onValueChange, and warns once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const calls: string[] = [];
+    await render(<Grid><RadioGroup aria-label="Ship" onValueChange={(v, e) => calls.push('value:' + v + ':' + e.type)} onChange={(v, e) => calls.push('change:' + v + ':' + e.type)}>
+      <Radio id="dc-air" value="air">Air</Radio><Radio id="dc-sea" value="sea">Sea</Radio>
+    </RadioGroup></Grid>);
+    await userEvent.click(input('dc-sea'));
+    await userEvent.click(input('dc-air'));
+    expect(calls).toEqual(['value:sea:change', 'change:sea:change', 'value:air:change', 'change:air:change']);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes('RadioGroup: onChange is deprecated')).length).toBe(1);
+    warn.mockRestore();
   });
 
   test('a radio\'s own size wins over the group\'s: lg is a 20px circle with text-base, centered', async () => {
@@ -204,5 +250,16 @@ describe('Radio', () => {
       ['focus', 'var(--focus-ring)', 'var(--surface)', 3],
       ['invalid', 'var(--danger)', 'var(--surface)', 3],
     ])).toEqual([]);
+  });
+
+  test('pressed: the circle shrinks to 90% while the row is held, on scale alone, and springs back; not when disabled (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<RadioGroup aria-label="Press"><Radio id="pr" value="a">Press me</Radio><Radio id="pq" value="b" disabled>Off</Radio></RadioGroup>);
+      const dot = (id: string) => (document.getElementById(id) as HTMLElement).parentElement as HTMLElement;   // the control around the input
+      expect(css(dot('pr')).transitionProperty).toBe('scale');
+      await press(dot('pr').closest('label')!, () => expect.poll(() => css(dot('pr')).scale).toBe('0.9'));
+      await expect.poll(() => css(dot('pr')).scale).toBe('none');
+      await press(dot('pq').closest('label')!, () => expect(css(dot('pq')).scale).toBe('none'));
+    });
   });
 });

@@ -3,18 +3,21 @@
    hover and pressed (one step darker while held); the current page is primary with on-primary text. Arrows with nowhere to go fade to 50%.
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-pagination { font-family: var(--font-sans); font-size: var(--pagination-font-size, var(--text-sm)); line-height: var(--text-sm--line-height); --dk-pagination-size: var(--pagination-size, var(--control-height-md)); }
+.dk-pagination { font-family: var(--font-sans); font-size: var(--pagination-font-size, var(--text-sm)); line-height: var(--text-sm--line-height); --dk-pagination-size: var(--pagination-size, var(--control-height-md)); min-width: var(--spacing-0); }
 .dk-pagination--sm { --dk-pagination-size: var(--pagination-size-sm, var(--control-height-sm)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
-.dk-pagination__list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--pagination-gap, var(--spacing-1)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-pagination__list { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--pagination-gap, var(--spacing-1)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-pagination__item {
   box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
   min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); padding: var(--spacing-0) var(--pagination-padding-x, var(--spacing-2));
   border: var(--spacing-0); border-radius: var(--pagination-radius, var(--rounded-md)); background: transparent;
   color: var(--pagination-text, var(--text)); font: inherit; font-variant-numeric: tabular-nums; text-decoration: none; cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move);
 }
 .dk-pagination__arrow { padding: var(--spacing-0); }
 .dk-pagination__arrow .dk-icon { font-size: var(--spacing-5); }
+/* 2px a side leaves 20px for the number, so the current page's two semibold digits (16.7px in DejaVu Sans, common
+   on Linux where Inter isn't installed) still fit the 24px square; 4px made "88" 24.7px wide. */
+.dk-pagination--sm .dk-pagination__item:not(.dk-pagination__arrow) { padding: var(--spacing-0) var(--pagination-padding-x-sm, var(--spacing-0\.5)); }
 .dk-pagination--sm .dk-pagination__arrow .dk-icon { font-size: var(--spacing-4); }
 @media (hover: hover) { .dk-pagination__item:hover:not(:disabled, [aria-disabled="true"], .dk-pagination__item--current) { background: var(--pagination-bg-hover, var(--secondary)); } }
 .dk-pagination__item:active:not(:disabled, [aria-disabled="true"], .dk-pagination__item--current) { background: var(--pagination-bg-pressed, var(--pressed)); }
@@ -22,8 +25,6 @@
 .dk-pagination__item--current { background: var(--pagination-current-bg, var(--primary)); color: var(--pagination-current-text, var(--on-primary)); font-weight: var(--pagination-weight-current, var(--font-semibold)); cursor: default; }
 .dk-pagination__item:disabled, .dk-pagination__item[aria-disabled="true"] { opacity: var(--pagination-disabled, var(--opacity-disabled)); cursor: not-allowed; }
 .dk-pagination__ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); color: var(--pagination-ellipsis, var(--text-muted)); user-select: none; }
-.dk-pagination__rtl, [dir="rtl"] .dk-pagination__ltr { display: none; }
-[dir="rtl"] .dk-pagination__rtl { display: inline-block; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }

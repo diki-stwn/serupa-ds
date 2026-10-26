@@ -45,7 +45,7 @@ const { Badge } = window.Serupa;
 
 ## Usage
 
-- Keep labels to one or two words; a badge is not a sentence.
+- Keep labels to one or two words; a badge is not a sentence. A badge is at most as wide as its container, and a longer label ends in an ellipsis; then the full label shows as the badge's `title` on hover (as on Button), unless you pass your own `title` or `aria-label`. Keyboard and touch users can't see a title, so keep labels short enough to fit.
 - Use status tones for status and palette tones for categories. Don't make a category red or green: it reads as a status.
 - Use `subtle` by default and `solid` sparingly: one strong badge per row or card.
 
@@ -72,7 +72,7 @@ Status and palette tones use the fixed palette steps in the Styles table. Solid 
 - **Indicator**: `dot` with no label, icon or count renders a lone dot that says "something new" without a number, for the corner of an icon or avatar. It's a solid circle in the tone's fill (any `variant` is ignored), 8px, with a 2px ring in the surface color so it stays apart from what it overlaps. You place it (for example `className="absolute top-0 right-0"` inside a `relative` parent). It can't be clicked or removed (too small to target): `onClick`, `href` and `onRemove` are dropped with a warning. Switch to `count` once you know how many.
 - **Ping**: `ping` with `dot` adds the system's ping animation (the same `ping` keyframes and `--animate-ping` token as the `animate-ping` utility): a copy of the dot grows to twice its size and fades, every second, while the dot stays put. It works on a dot in a label and on the indicator. Use it for live states ("Live", "Recording", "In a call"), not for unread or ordinary statuses: several pinging dots on one screen compete for attention. Off under reduced motion and in forced-colors mode. Constant motion lasting more than 5 seconds should be stoppable (WCAG 2.2.2), so turn `ping` off when the state ends or after a while.
 - **Icon**: `leftIcon` adds a 12px icon before the label. It replaces the dot.
-- **Count**: `count` makes a round pill, as wide as it is tall for one digit, with tabular digits. Past `max` (99) it shows "99+"; at 0 it renders nothing unless `showZero`. The number is written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its days: ٩٩+ in Egyptian Arabic. A count badge has no label, dot, icon or remove button.
+- **Count**: `count` makes a round pill, as wide as it is tall for one digit, with tabular digits. Past `max` (99) it shows "99+", while screen readers hear the real count and a tooltip (`title`) shows it, unless you pass your own `title`; at 0 it renders nothing unless `showZero`. The number is written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its days: ٩٩+ in Egyptian Arabic. A count badge has no label, dot, icon or remove button.
 - **Optical balance**: like Button, an icon reads lighter than text, so a badge with an icon on one side only gets 2px more padding on the text side (`--badge-icon-offset`): a leading icon or dot pads the end (6 + 2px), a × pads the start. With an icon on both sides, or none, the padding is even. Logical sides, so right-to-left mirrors it.
 - **Remove**: `onRemove` adds a × button at the end, for filter chips and tags. It's a real `<button type="button">` named "Remove" + the label, with a 2px focus ring. The × mirrors a leading icon: an icon-sized box (12px), `--badge-gap` from the label, and the same end padding as the start, so a badge with an icon, a label and a × is balanced. Because the × glyph sits further inside its box than most icons, the box is pulled in 2px on each side to even out what you see. The button still has a full 24×24 target (the WCAG 2.2 minimum, as on a small Button), reaching 2px past the badge's top and bottom, and its focus ring goes round all of it.
 
@@ -107,13 +107,21 @@ The same as Button's, each with a component token to tune it or turn it off. Onl
 - A number alone means little to a screen reader. Name the control the count sits on ("Notifications, 5 unread") and hide the badge with `aria-hidden`, or give the badge an `aria-label`.
 - A clickable badge is a real `<button>` or link, so Tab, Enter and Space work and screen readers announce it as one. Its label is its name; make it say what happens ("Filter: Open"), not just the status.
 - While loading, the label stays in the accessibility tree (the badge keeps its name), `aria-busy` is set and `loadingText` is announced once.
-- The remove button is reachable with Tab and pressed with Enter or Space. After a badge is removed, move focus somewhere sensible, such as the next tag or the input that adds tags.
+- The remove button is reachable with Tab and pressed with Enter or Space. When `onRemove` takes the badge away and its × had focus, focus moves to the next tag's × in the same list, or the one before it after the last tag, so it isn't lost on the page. After the last tag, or to put focus somewhere else (such as the input that adds tags), move it in `onRemove`: the badge leaves focus alone then.
 - In forced-colors (high-contrast) mode every badge gets a visible border.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To a clickable badge (a `<button>` or link), then to its remove button |
+| Enter, Space | Press a clickable badge (Enter only, on a link), or the remove button |
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `variant` | `'subtle'` \| `'solid'` \| `'outline'` | `'subtle'` | The style |
 | `tone` | `'neutral'` \| `'primary'` \| `'success'` \| `'warning'` \| `'danger'` \| `'info'` \| a palette family (`'red'` … `'rose'`) | `'neutral'` | The color |
 | `dot` | boolean | `false` | A 6px status dot before the label, in the text color. With no label, icon or count, a lone indicator dot (see Extras) |
@@ -127,7 +135,7 @@ The same as Button's, each with a component token to tune it or turn it off. Onl
 | `onClick` | function | | Renders a `<button type="button">` with hover, focus and active states. `onRemove` is ignored then (a button can't hold another button) |
 | `href` | string | | Renders a link (the component set with `Serupa.configure({ link })`, `<a>` by default) with the same states; `target="_blank"` gets `rel="noopener noreferrer"` |
 | `disabled` | boolean | `false` | With `onClick`: a native disabled button, at 50% with no states |
-| `loading` | boolean | `false` | A ring at the icon size replaces the content and the badge keeps its width. Sets `aria-busy`; on a clickable badge also `aria-disabled`, and clicks, Enter and Space do nothing while focus stays. A remove button is disabled meanwhile |
+| `loading` | boolean | `false` | A ring at the icon size replaces the content and the badge keeps its width. Sets `aria-busy`; on a clickable badge also `aria-disabled`, and clicks, Enter and Space do nothing while focus stays. A remove button is disabled meanwhile. Once the ring shows, it stays at least 500ms, so loading that ends a moment later doesn't flash it |
 | `loadingText` | string | `'Loading…'` | Announced to screen readers when loading starts ("" announces nothing) |
 
 Any other attribute (`id`, `className`, `style`, `title`, `type`, `aria-*`, `data-*`, `ref`) goes to the outer element: a `<span>`, or the `<button>` or link when clickable. Every badge has `data-component="badge"`, `data-variant`, `data-tone` and `data-size` for tests, plus `data-interactive` when clickable and `data-loading` while loading.
@@ -167,8 +175,8 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-state-text` | `opacity-30` | Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%) |
 | `--badge-focus-ring` | `focus-ring` | Clickable badges: the keyboard focus ring |
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
-| `--badge-press-duration` | `duration-100` | How fast the press scales (100ms) |
+| `--badge-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release` with `ease-spring`. |
 | `--badge-ripple-opacity` | `opacity-20` | Ripple strength, in the text color (20%); `0` turns it off |
-| `--badge-ripple-duration` | `duration-500` | How long the ripple takes to spread (500ms) |
-| `--badge-ripple-fade-duration` | `duration-300` | How long the ripple takes to fade after release (300ms) |
-| `--badge-loading-duration` | `duration-150` | Cross-fade between the content and the loading ring (150ms) |
+| `--badge-ripple-duration` | `motion-ripple` | How long the ripple takes to spread (500ms) |
+| `--badge-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms) |
+| `--badge-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading ring (150ms) |

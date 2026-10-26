@@ -1,0 +1,187 @@
+# BottomEnd
+- button "Row actions" [expanded]
+- menu "Row actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# Checkable
+- button "View" [expanded]
+- menu "View":
+  - group "Show":
+    - text: Show
+    - menuitemcheckbox "Grid" [checked]
+    - menuitemcheckbox "Rulers"
+  - separator
+  - group "Sort by":
+    - text: Sort by
+    - menuitemradio "Name" [checked]
+    - menuitemradio "Date modified"
+    - menuitemradio "Size"
+
+# Context
+- text: Right-click, or focus and press Shift+F10
+
+# DisabledItems
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Rename"
+  - menuitem "Share (owners only)" [disabled]
+  - menuitem "Download" [disabled]
+  - separator
+  - menuitem "Delete" [disabled]
+
+# Groups
+- button "Account" [expanded]
+- menu "Account":
+  - group "ana@example.com":
+    - text: ana@example.com
+    - menuitem "Profile"
+    - menuitem "Settings"
+  - separator
+  - group "Workspace":
+    - text: Workspace
+    - menuitem "Members"
+    - menuitem "Billing"
+  - separator
+  - menuitem "Sign out"
+
+# IconTrigger
+- button "Row actions"
+
+# Left
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# LeftEnd
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# LeftStart
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# Links
+- button "Help" [expanded]
+- menu "Help":
+  - menuitem "Documentation"
+  - menuitem "Contact support"
+  - menuitem "Source on GitHub"
+  - menuitem "What’s new" [disabled]
+
+# LongLabels
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Move to “Quarterly planning and budget review”"
+  - menuitem "Share with everyone in the Northwind workspace"
+  - menuitem "Delete this project and all of its files for good"
+
+# Playground
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# RightEnd
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# RightStart
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# Shortcuts
+- button "Edit" [expanded]
+- menu "Edit":
+  - menuitem "Undo"
+  - menuitem "Redo"
+  - separator
+  - menuitem "Cut"
+  - menuitem "Copy"
+  - menuitem "Paste" [disabled]
+  - separator
+  - menuitem "Select all"
+
+# Submenus
+- button "File" [expanded]
+- menu "File":
+  - menuitem "New"
+  - menuitem "Share"
+  - menuitem "Move to"
+  - separator
+  - menuitem "Close"
+
+# TopEnd
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# TopStart
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# WithoutIcons
+- button "Sort by" [expanded]
+- menu "Sort by":
+  - menuitem "Name"
+  - menuitem "Date modified"
+  - menuitem "Date created"
+  - menuitem "Size"
+

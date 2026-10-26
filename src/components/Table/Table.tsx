@@ -78,6 +78,30 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
     check();
     return () => ro.disconnect();
   }, []);
+  // A sticky header covers the top of the frame: measure it, so focus scrolls in below it (the CSS reads --dk-table-head).
+  const sticky = !!props.stickyHeader;
+  React.useEffect(() => {
+    const el = frame.current, head = el && el.querySelector<HTMLElement>(".dk-table__head");
+    if (!el || !sticky || !head || typeof ResizeObserver === "undefined") return;
+    const set = () => el.style.setProperty("--dk-table-head", head.getBoundingClientRect().height + "px");
+    const ro = new ResizeObserver(set);
+    ro.observe(head);
+    set();
+    // Firefox leaves scroll-padding out when it decides whether a focused control needs scrolling, so one that is partly
+    // under the header stays there (WCAG 2.4.11). After the browser's own focus scroll, the frame moves by what's still covered.
+    let raf = 0;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target as HTMLElement;
+      if (t === el || head.contains(t)) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const covered = el.getBoundingClientRect().top + el.clientTop + head.getBoundingClientRect().height - t.getBoundingClientRect().top;
+        if (covered > 0) el.scrollTop -= covered;
+      });
+    };
+    el.addEventListener("focusin", onFocus);
+    return () => { ro.disconnect(); cancelAnimationFrame(raf); el.removeEventListener("focusin", onFocus); el.style.removeProperty("--dk-table-head"); };
+  }, [sticky]);
   // A name on the frame belongs to its region role: a plain div that doesn't scroll can't carry one (axe aria-prohibited-attr).
   const { "aria-label": frameLabel, "aria-labelledby": frameLabelledBy, ...cp } = props.containerProps || {};
   const hasCaption = props.caption != null && props.caption !== false && props.caption !== "";
@@ -93,18 +117,22 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
   );
 });
 
+export type TableHeadProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableFootProps = React.HTMLAttributes<HTMLTableSectionElement>;
+
 /** The header rows (<thead>). */
-export const TableHead = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableHead", function TableHead(props, ref) {
+export const TableHead = /* @__PURE__ */ component<HTMLTableSectionElement, TableHeadProps>("TableHead", function TableHead(props, ref) {
   return <thead {...props} ref={ref} className={cn("dk-table__head", props.className)} />;
 });
 
 /** The body rows (<tbody>). */
-export const TableBody = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableBody", function TableBody(props, ref) {
+export const TableBody = /* @__PURE__ */ component<HTMLTableSectionElement, TableBodyProps>("TableBody", function TableBody(props, ref) {
   return <tbody {...props} ref={ref} className={cn("dk-table__body", props.className)} />;
 });
 
 /** Footer rows such as totals (<tfoot>). */
-export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableFoot", function TableFoot(props, ref) {
+export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, TableFootProps>("TableFoot", function TableFoot(props, ref) {
   return <tfoot {...props} ref={ref} className={cn("dk-table__foot", props.className)} />;
 });
 

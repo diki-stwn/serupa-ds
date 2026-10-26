@@ -2,13 +2,20 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, tabTo } from '../../../tools/test/vitest/helpers';
 import { PasswordInput } from './PasswordInput';
+
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const toggle = (id: string) => field(id).nextElementSibling as HTMLButtonElement;
-const eye = (id: string) => (toggle(id).querySelector<HTMLElement>('.dk-icon'))?.dataset.icon;
+const eye = (id: string) => (toggle(id).querySelector<HTMLElement>('[data-icon]'))?.dataset.icon;
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 
@@ -23,6 +30,18 @@ const Main = ({ pref }: { pref?: React.Ref<HTMLInputElement> }) => <>
 </>;
 
 describe('PasswordInput', () => {
+  test('a press on the box (the side padding, the icon) focuses the field with the caret at the end; the reveal button still toggles (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}><PasswordInput id="pp" size="lg" leftIcon="lock" aria-label="Password" defaultValue="secret" /><button id="pp-away">away</button></div>);
+    const y = box('pp').getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('pp-away') as HTMLElement).focus();
+      await userEvent.click(box('pp'), { position: { x, y } });
+      expect([x, document.activeElement === field('pp'), field('pp').selectionStart]).toEqual([x, true, 6]);
+    }
+    await userEvent.click(toggle('pp'));
+    expect(field('pp').type).toBe('text');
+  });
+
   test('Input\'s box (32px, md) around a type="password" field, autocomplete current-password, no spellcheck; ref to the input, className and style to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><Main pref={ref} /></Wrap>);
@@ -38,13 +57,30 @@ describe('PasswordInput', () => {
     expect([t.type, t.getAttribute('aria-label'), t.getAttribute('aria-pressed'), t.getAttribute('aria-controls'), eye('pw')]).toEqual(['button', 'Show password', 'false', 'pw', 'visibility']);
   });
 
+  test('keyboard table: Tab goes to the field, then the show button; pressing Caps Lock in the field shows "Caps Lock is on" (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><PasswordInput id="kc" aria-label="Password" /></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const order = [document.activeElement === field('kc')];
+    // The key itself, as a browser reports it: the keydown that turns Caps Lock on already has it on, the one that turns it off has it off.
+    const caps = (on: boolean) => field('kc').dispatchEvent(new KeyboardEvent('keydown', { key: 'CapsLock', bubbles: true, modifierCapsLock: on }));
+    const hint = () => { const d = field('kc').getAttribute('aria-describedby'); return d ? document.getElementById(d)!.textContent : null; };
+    caps(true);
+    await expect.poll(hint).toBe('Caps Lock is on');
+    caps(false);
+    await expect.poll(hint).toBe(null);
+    await userEvent.tab();
+    order.push(document.activeElement === toggle('kc'));
+    expect(order).toEqual([true, true]);
+  });
+
   test('pressing it shows the text (type text, aria-pressed true, eye crossed out) and the field keeps focus; Enter and Space on the button toggle it; it shows a 2px focus ring', async () => {
     await render(<Wrap><Main /></Wrap>);
     await userEvent.fill(field('pw'), 'hunter2');
     field('pw').focus();
     await userEvent.click(toggle('pw'));
     expect([field('pw').type, field('pw').value, toggle('pw').getAttribute('aria-pressed'), eye('pw'), document.activeElement === field('pw')]).toEqual(['text', 'hunter2', 'true', 'visibility_off', true]);
-    toggle('pw').focus();
+    await tabTo(toggle('pw'));
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => field('pw').type).toBe('password');
     await userEvent.keyboard('[Space]');
@@ -87,7 +123,7 @@ describe('PasswordInput', () => {
       <PasswordInput id="pnew" aria-label="New" size="lg" />
     </Wrap>);
     await expect.poll(() => css(toggle('ptok')).color).toBe('rgb(1, 2, 3)');
-    expect(['pinv', 'pw', 'pnew'].map((id) => css(toggle(id).querySelector('.dk-icon')).fontSize)).toEqual(['14px', '16px', '20px']);
+    expect(['pinv', 'pw', 'pnew'].map((id) => css(toggle(id).querySelector('[data-icon]')).fontSize)).toEqual(['14px', '16px', '20px']);
   });
 
   test('contrast: the text 4.5:1 and the eye icon 3:1 on the field in all six themes', async () => {
@@ -141,7 +177,8 @@ describe('PasswordInput', () => {
     field('pcar').setSelectionRange(1, 4, 'backward');
     await userEvent.click(toggle('pcar'));
     const f = field('pcar');
-    expect([f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
+    // WebKit can move the selection after the new type is applied; the component puts it back on the next frame
+    await expect.poll(() => [f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
   });
 
   test('pasting works: nothing blocks it, so a password manager or a pasted password fills the field (WCAG 3.3.8)', async () => {
@@ -152,5 +189,14 @@ describe('PasswordInput', () => {
     const ev = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
     field('pp').dispatchEvent(ev);
     expect(ev.defaultPrevented).toBe(false);
+  });
+  test('size sm: show/hide is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><PasswordInput id="hb" aria-label="Password" size="sm" /></div>);
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-password-input__toggle')!];
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);
+      expect(reach(b)).toEqual([true, true, true, true]);
+    }
   });
 });

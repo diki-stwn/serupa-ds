@@ -2,9 +2,12 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Textarea } from './Textarea';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 const el = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
 const box = (id: string) => {
@@ -40,7 +43,7 @@ function App(props: { tref?: React.Ref<HTMLTextAreaElement> }) {
     <Textarea id="dis" disabled aria-label="Disabled" />
   </div>;
 }
-const setup = async (tref?: React.Ref<HTMLTextAreaElement>) => { changes = []; await render(<App tref={tref} />); await document.fonts.ready; };
+const setup = async (tref?: React.Ref<HTMLTextAreaElement>) => { changes = []; await render(<App tref={tref} />, { wrapper: EnUS }); await document.fonts.ready; };
 
 describe('Textarea', () => {
   test('a native <textarea> in a .dk-textarea box (data-component="textarea"); md text-sm, 12px side and 6px top padding, 1px border, 6px corners, 3 rows by default', async () => {
@@ -63,6 +66,32 @@ describe('Textarea', () => {
     await setup(ref);
     const i = el('md');
     expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels[0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
+  });
+
+  test('keyboard table: Tab goes on out of the field without inserting a tab; Enter starts a new line (FH1)', async () => {
+    await render(<div><Textarea id="kb-ta" aria-label="Notes" /><button id="kb-after">after</button></div>);
+    el('kb-ta').focus();
+    await userEvent.keyboard('a{Enter}b');
+    await userEvent.tab();
+    expect([el('kb-ta').value, document.activeElement?.id]).toEqual(['a\nb', 'kb-after']);
+  });
+
+  test('a press on the box outside the field (the count row, its side) focuses the field with the caret at the end; a disabled one does nothing (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}>
+      <Textarea id="tp" aria-label="Bio" showCount maxLength={50} defaultValue="hello" />
+      <Textarea id="tp-off" aria-label="Off" showCount disabled />
+      <button id="tp-away">away</button>
+    </div>, { wrapper: EnUS });
+    const b = el('tp').parentElement!, f = el('tp').getBoundingClientRect(), r = b.getBoundingClientRect();
+    const below = f.bottom - r.top + (r.bottom - f.bottom) / 2;
+    for (const x of [8, r.width / 2, r.width - 8]) {
+      el('tp-away').focus();
+      await userEvent.click(b, { position: { x, y: below } });
+      expect([x, document.activeElement === el('tp'), el('tp').selectionStart]).toEqual([x, true, 5]);
+    }
+    el('tp-away').focus();
+    await userEvent.click(el('tp-off').parentElement!, { position: { x: 8, y: 4 }, force: true });
+    expect(document.activeElement).not.toBe(el('tp-off'));
   });
 
   test('typing (with a new line) updates a controlled value through onChange', async () => {
@@ -103,11 +132,21 @@ describe('Textarea', () => {
     expect([a0.fh, a0.resize]).toEqual([2 * 20 + 12, 'none']);
     await userEvent.click(el('auto'));
     await userEvent.keyboard('1{Enter}2{Enter}3');
-    await expect.poll(() => [box('auto').fh, box('auto').oy]).toEqual([3 * 20 + 12, 'hidden']);
+    await expect.poll(() => [box('auto').fh, el('auto').scrollHeight > el('auto').clientHeight]).toEqual([3 * 20 + 12, false]);
     await userEvent.keyboard('{Enter}4{Enter}5{Enter}6');
-    await expect.poll(() => [box('auto').fh, box('auto').oy]).toEqual([4 * 20 + 12, 'auto']);
+    await expect.poll(() => [box('auto').fh, box('auto').oy, el('auto').scrollHeight > el('auto').clientHeight]).toEqual([4 * 20 + 12, 'auto', true]);
     await userEvent.keyboard('{Control>}a{/Control}{Backspace}');
     await expect.poll(() => box('auto').fh).toBe(2 * 20 + 12);
+  });
+
+  test('autoResize: in CSS (field-sizing: content, no height set inline) where the browser has it, measured in script elsewhere; the page doesn\'t scroll as it grows', async () => {
+    await setup();
+    const f = el('auto'), css = CSS.supports('field-sizing', 'content');
+    await userEvent.click(f);
+    const y = scrollY;
+    await userEvent.keyboard('1{Enter}2{Enter}3');
+    await expect.poll(() => box('auto').fh).toBe(3 * 20 + 12);
+    expect([getComputedStyle(f).getPropertyValue('field-sizing') === 'content', f.style.height !== '', scrollY]).toEqual([css, !css, y]);
   });
 
   test('autoResize: fits wrapped text, and refits when the width changes, raising no ResizeObserver loop error', async () => {
@@ -146,7 +185,7 @@ describe('Textarea', () => {
     await render(<>
       <Textarea id="emo" showCount maxLength={4} defaultValue="👨‍👩‍👧🇮🇩" aria-label="Emoji" />
       <Ctrl onValue={(v) => seen.push(v)} />
-    </>);
+    </>, { wrapper: EnUS });
     expect([count('emo').textContent, el('emo').hasAttribute('maxlength')]).toEqual(['2 / 4', false]);
     await userEvent.click(el('emo'));
     await userEvent.keyboard('{End}abc');
@@ -164,7 +203,7 @@ describe('Textarea', () => {
 
   test('maxLength with an input method: the text is cut once the composition is confirmed, not while it\'s being typed', async () => {
     const seen: string[] = [];
-    await render(<Textarea id="ime" showCount maxLength={3} defaultValue="あ" onChange={(e) => seen.push(e.target.value)} aria-label="IME" />);
+    await render(<Textarea id="ime" showCount maxLength={3} defaultValue="あ" onChange={(e) => seen.push(e.target.value)} aria-label="IME" />, { wrapper: EnUS });
     const t = el('ime'), set = (v: string) => { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(t, v); t.dispatchEvent(new Event('input', { bubbles: true })); };
     t.focus();
     React.act(() => {
@@ -223,10 +262,20 @@ describe('Textarea', () => {
   });
 
   test('a form reset puts the count back to the default (P2)', async () => {
-    await render(<form id="tf"><Textarea id="trs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>);
+    await render(<form id="tf"><Textarea id="trs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>, { wrapper: EnUS });
     await userEvent.type(el('trs'), 'cdef');
     expect(count('trs').textContent).toBe('6 / 10');
     (document.getElementById('tf') as HTMLFormElement).reset();
     await expect.poll(() => [el('trs').value, count('trs').textContent]).toEqual(['ab', '2 / 10']);
   });
+
+  test('the focus ring shows at once (no transition in), so a field focused as a popup opens doesn\'t animate on its first frame; it still fades out on blur', () => withMotion(async () => {
+    await render(<><Textarea id="ring" aria-label="Notes" /><button id="away">Away</button></>);
+    const f = el('ring'), b = el('ring').closest('[data-component=textarea]') as HTMLElement;
+    const shadows = () => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    f.focus();
+    expect([shadows(), css(b).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    (document.getElementById('away') as HTMLElement).focus();
+    expect(shadows()).toBe(1);
+  }));
 });

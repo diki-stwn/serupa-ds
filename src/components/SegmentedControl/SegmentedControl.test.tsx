@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { SegmentedControl, type SegmentedControlOption } from './SegmentedControl';
 
@@ -76,6 +77,14 @@ describe('SegmentedControl', () => {
     await userEvent.keyboard('{ArrowRight}{Tab}');
     expect(document.activeElement!.id).toBe('after');
     expect(items('per').map((x) => x.tabIndex).join()).toBe('-1,0,-1,-1');
+  });
+
+  test('keys: ArrowDown selects the next segment and ArrowUp the one before, as ArrowRight and ArrowLeft do, skipping disabled ones and wrapping (FH1)', async () => {
+    await render(<Col><Period /></Col>);
+    seg('per', 'day').focus();
+    const seen: Array<string | null | undefined> = [];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowDown}', '{ArrowUp}']) { await userEvent.keyboard(k); seen.push(checked('per') + '/' + focused()); }
+    expect(seen).toEqual(['week/week', 'month/month', 'day/day', 'month/month']);   // Year is disabled
   });
 
   test('a click selects, and the selection moves to it; a disabled segment can\'t be chosen', async () => {
@@ -162,6 +171,16 @@ describe('SegmentedControl', () => {
     expect(items('icomd').map((x) => Math.round(x.getBoundingClientRect().width)).join()).toBe('26,26');
   });
 
+  test('lg: 44px tall like a lg Input or Button, 16px label padding, a base-size label and 38px-square icon-only segments', async () => {
+    await render(<Col>
+      <SegmentedControl id="lg" aria-label="Period" size="lg" options={PERIODS.slice(0, 2)} />
+      <SegmentedControl id="lgi" aria-label="Align" size="lg" options={[{ value: 'l', icon: 'format_align_left', 'aria-label': 'Left' }, { value: 'r', icon: 'format_align_right', 'aria-label': 'Right' }]} />
+    </Col>);
+    const it = items('lg')[0];
+    expect([el('lg').getBoundingClientRect().height, el('lg').dataset.size, css(it).paddingLeft, css(el('lg')).fontSize, items('lgi').map((x) => Math.round(x.getBoundingClientRect().width)).join()])
+      .toEqual([44, 'lg', '16px', '16px', '38,38']);
+  });
+
   test('fullWidth: fills its container with equal segments; disabled: every segment disabled and out of the Tab order, faded', async () => {
     await render(<Col>
       <div style={{ width: '300px' }}><SegmentedControl id="full" aria-label="Full" fullWidth options={PERIODS.slice(0, 3)} /></div>
@@ -170,6 +189,19 @@ describe('SegmentedControl', () => {
     expect(el('full').getBoundingClientRect().width).toBe(300);
     expect(new Set(items('full').map((x) => Math.round(x.getBoundingClientRect().width))).size).toBe(1);
     expect([el('dis').getAttribute('aria-disabled'), items('dis').every((x) => x.disabled && x.tabIndex === -1), css(el('dis')).opacity]).toEqual(['true', true, '0.5']);
+  });
+
+  test('long labels in 320px: the segments share the width by content, so short labels stay whole and the long one gives way, its full label as its title; the selection still sits on its segment (EU1)', async () => {
+    const opts: SegmentedControlOption[] = [{ value: 'n', label: 'Notifications' }, { value: 'i', label: 'Internationalisation-preferences' }, { value: 's', label: 'Security' }];
+    await render(<div style={{ width: '320px' }}><SegmentedControl id="lg" aria-label="Settings" options={opts} defaultValue="s" /><SegmentedControl id="ok" aria-label="Period" options={PERIODS} /></div>);
+    const label = (v: string) => seg('lg', v).lastElementChild as HTMLElement;
+    const whole = (v: string) => label(v).scrollWidth <= label(v).clientWidth;
+    await expect.poll(() => seg('lg', 'i').title).toBe('Internationalisation-preferences');
+    expect([Math.round(el('lg').getBoundingClientRect().width) <= 320, whole('n'), whole('s'), whole('i'), seg('lg', 'n').title, seg('lg', 's').title, off('lg')])
+      .toEqual([true, true, true, false, '', '', [0, 0]]);
+    // Room to spare: no label cut, no title, and the control as wide as its segments need.
+    const l = items('ok').map((b) => b.lastElementChild as HTMLElement);
+    expect([l.every((x) => x.scrollWidth <= x.clientWidth), items('ok').every((b) => !b.title), Math.round(el('ok').getBoundingClientRect().width) < 320]).toEqual([true, true, true]);
   });
 
   test('right-to-left: segments run right to left and ArrowLeft goes to the next one', async () => {
@@ -243,5 +275,38 @@ describe('SegmentedControl', () => {
     } finally { console.error = warn; }
     expect([el('fs').getAttribute('aria-invalid'), el('fs').getAttribute('aria-required'), el('fs').hasAttribute('invalid')]).toEqual(['true', 'true', false]);
     expect(warned.filter((w) => /invalid|required/i.test(String(w)))).toEqual([]);
+  });
+
+  test('pressed: a held segment shrinks to 95% and springs back; not when read-only (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<><SegmentedControl id="sp" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="a" />
+        <SegmentedControl id="sr" aria-label="Locked" readOnly options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="a" /></>);
+      const seg = (id: string) => el(id).querySelectorAll('button')[1];
+      expect(css(seg('sp')).transitionProperty).toContain('scale');
+      await press(seg('sp'), () => expect.poll(() => css(seg('sp')).scale).toBe('0.95'));
+      await expect.poll(() => css(seg('sp')).scale).toBe('none');
+      await press(seg('sr'), () => expect(css(seg('sr')).scale).toBe('none'));
+    });
+  });
+  test('a new choice slides the indicator from the last one on translate and scale, not left and width, and it comes to rest on the segment (EG1)', async () => {
+    await withMotion(async () => {
+      await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
+      const [a, b] = items('sl');
+      await userEvent.click(b);
+      const moves = el('sl').firstElementChild!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
+      const start = moves.find((x) => x.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
+      expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(a.offsetLeft - b.offsetLeft)]);
+      await Promise.all(moves.map((x) => x.finished));
+      expect(off('sl')).toEqual([0, 0]);
+    });
+  });
+
+  test('before the script runs, the selected segment carries the indicator\'s surface itself (FC1)', () => {
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(<SegmentedControl id="ssr" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="b" />);
+    document.body.append(host);
+    try {
+      expect([el('ssr').firstElementChild!.tagName, css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual(['BUTTON', color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
+    } finally { host.remove(); }
   });
 });

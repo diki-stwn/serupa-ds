@@ -8,7 +8,7 @@
   --dk-tooltip-offset: var(--tooltip-offset, var(--spacing-1\.5));
   position: fixed;
   inset: auto;
-  z-index: var(--tooltip-z-index, var(--z-50));
+  z-index: var(--tooltip-z-index, var(--z-tooltip));
   max-width: var(--tooltip-max-width, var(--spacing-60));
   margin: var(--spacing-0);
   padding: var(--tooltip-padding-y, var(--spacing-1)) var(--tooltip-padding-x, var(--spacing-2));
@@ -24,10 +24,30 @@
   font-weight: var(--font-normal);
   text-align: start;
   overflow-wrap: break-word;
-  animation: dk-tooltip-in var(--duration-150) var(--ease-out);
+  /* Fades in and slides a few pixels away from its trigger (EO1), from @starting-style so a tip closed mid-way never
+     restarts; fades and slides back out faster (DZ1, motion-exit-sm), kept shown and in the top layer (display and
+     overlay, allow-discrete) until it has gone. A browser that can't keep it in the top layer (no overlay) hides it
+     at once. Reduced motion: the fade alone. */
+  transition: opacity var(--motion-exit-sm) var(--ease-exit), translate var(--motion-exit-sm) var(--ease-exit);
 }
-.dk-tooltip[hidden] { display: none; }
-@keyframes dk-tooltip-in { from { opacity: var(--opacity-0); } }
-@media (prefers-reduced-motion: reduce) { .dk-tooltip { animation: none; } }
+.dk-tooltip:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), translate var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-tooltip[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), translate var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-tooltip[hidden] { display: none; opacity: var(--opacity-0); pointer-events: none; }
+@starting-style { .dk-tooltip:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-tooltip[hidden][data-side="bottom"] { translate: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-1)); }
+  .dk-tooltip[hidden][data-side="top"] { translate: var(--spacing-0) var(--spacing-1); }
+  .dk-tooltip[hidden][data-side="right"] { translate: calc(var(--spacing-0) - var(--spacing-1)) var(--spacing-0); }
+  .dk-tooltip[hidden][data-side="left"] { translate: var(--spacing-1) var(--spacing-0); }
+  @starting-style {
+    .dk-tooltip[data-side="bottom"]:not([hidden]) { translate: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-1)); }
+    .dk-tooltip[data-side="top"]:not([hidden]) { translate: var(--spacing-0) var(--spacing-1); }
+    .dk-tooltip[data-side="right"]:not([hidden]) { translate: calc(var(--spacing-0) - var(--spacing-1)) var(--spacing-0); }
+    .dk-tooltip[data-side="left"]:not([hidden]) { translate: var(--spacing-1) var(--spacing-0); }
+  }
+}
+.dk-tooltip[data-warm] { transition: none; }   /* opened warm, straight after another, or handed over to the next: swapped at once */
 @media (forced-colors: active) { .dk-tooltip { border: var(--border-width-1) solid CanvasText; } }
 }

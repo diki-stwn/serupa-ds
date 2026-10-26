@@ -21,8 +21,25 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
    - **Words** come from its `labels.ts`, in English and Indonesian, never written into the JSX (the `serupa/no-literal-words` lint rule).
    - **Values** read tokens: its own component tokens, falling back to the shared ones (the foundation check).
    - **Tests:** one `test()` per behaviour, found the way people find things (`getByRole`), in random order.
+   - **Every option shows:** each value of a prop typed as a short union of strings (`variant`, `size`, `placement`) is rendered by a story or set by a test, unless it is the one the component falls back to (`node tools/test/prop-values.mjs`).
+   - **Documented on hover:** every prop has its own doc comment, `@internal` ones stay out of the public types, and the component exports its `…Props` type (`node tools/test/public-docs.mjs`, after a build).
+   - **Examples compile:** every `tsx` and `jsx` block in its README type-checks against the built types, imports and all (`node tools/test/doc-snippets.mjs`, after a build). A sketch can leave out its imports, `…` stands for content, and names it never declares (`open`, `setOpen`) count as `any`.
 4. `npm run tokens`, `npm run build`, then `node tools/test/api.mjs --update` and `node tools/test/size.mjs --update <Name>` for its baselines.
 5. `npx changeset` (minor, "Added: <Name> …"), open the pull request, and add the `update-visual-baselines` label so CI draws its screenshots. Review them.
+
+## API conventions
+
+Every component names the same things the same way, so learning one teaches the rest (the README's [shared conventions](README.md#components) are the short version for people using the package). A new prop follows these; a name that doesn't is deprecated in favour of one that does, never just renamed.
+
+- **A composite's value** (Tabs, Slider, DatePicker, Combobox): `value` (controlled), `defaultValue` (uncontrolled) and `onValueChange(value)`.
+- **An overlay's open state** (Menu, Popover, Tooltip): `open`, `defaultOpen` and `onOpenChange(open)`.
+- **Any other state people can change:** `x`, `defaultX` and `onXChange(x)`, named for the state: `pressed` and `onPressedChange` on ToggleButton, `page` and `onPageChange` on Pagination, `editing` and `onEditingChange` on InlineEdit.
+- **A wrapper of one native element** (Input, Textarea, Select, Checkbox, Switch) keeps the element's own `value`, `checked` and `onChange(event)` from React's types, so it works with form libraries as the element does. Checkbox and Switch also take `onCheckedChange(checked, event)`, the on/off shape MenuCheckboxItem and ToggleButton use.
+- **`size`** on controls is `'sm' | 'md' | 'lg'`, at the control heights 24, 32 and 44px. Components on another scale say so in the type: Heading and Text follow the type scale, Container the page widths, Avatar and Icon their own sizes.
+- **`tone`** is what a color means (`neutral`, `primary`, `info`, `success`, `warning`, `danger`), and **`variant`** is the visual style (for example `solid`, `subtle`, `outline`, `ghost`). Badge takes both: `tone="danger" variant="outline"`.
+- **A console warning** about a mistake goes through `warnOnce()` (`src/internal/warn.ts`), inside `if (process.env.NODE_ENV !== "production" && …)`, so a production build drops it and its text. Its first argument is a code (`"tabs-value"`) with a section in [docs/warnings.md](docs/warnings.md), which the warning links to. `node tools/test/dev-warnings.mjs` fails on a warning that isn't guarded or has no section.
+
+`node tools/test/props.mjs` checks the callbacks: a component's own `on…Change` names a prop it has, and only a native wrapper has a plain `onChange`. The known exceptions are listed in it with their reasons.
 
 ## Pull requests
 

@@ -184,7 +184,7 @@
     "transitions": {
       "duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-300}",
+        "$value": "{transitions.motion-change-lg}",
         "$description": "How long the fill takes to move to a new value.",
         "$extensions": {
           "com.serupa": {

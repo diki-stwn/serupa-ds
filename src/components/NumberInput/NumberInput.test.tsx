@@ -3,8 +3,16 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { NumberInput } from './NumberInput';
+
+// The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
+// and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
+const reach = (b: HTMLElement) => {
+  const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  return [[r.left - 0.75, cy], [r.right + 0.25, cy], [cx, r.top - 0.75], [cx, r.bottom + 0.25]].map(([x, y]) => document.elementFromPoint(x, y)?.closest('button') === b);
+};
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const steps = (id: string) => [...field(id).parentElement!.querySelectorAll<HTMLButtonElement>('.dk-number-input__step')];
@@ -35,7 +43,19 @@ describe('NumberInput', () => {
     expect(box.className).toMatch(/dk-input dk-number-input dk-input--size-md/);
     expect(box.className).toMatch(/extra/);
     expect([box.dataset.component, box.getBoundingClientRect().height, i.labels![0].textContent, i.value]).toEqual(['number-input', 32, 'Quantity', '5']);
-    expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('.dk-icon')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
+    expect(steps('qty').map((b) => `${b.getAttribute('aria-label')}:${b.tabIndex}:${b.querySelector<HTMLElement>('[data-icon]')?.dataset.icon}`)).toEqual(['Decrease:-1:remove', 'Increase:-1:add']);
+  });
+
+  test('a press on the box (the icon, the side padding) focuses the field with the caret at the end; a press on + still steps (GE1)', async () => {
+    await render(<Col><NumberInput id="nb" size="lg" leftIcon="search" aria-label="Qty" defaultValue={12} locale="en-US" /><button id="nb-away">away</button></Col>);
+    const b = field('nb').parentElement!, y = b.getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('nb-away') as HTMLElement).focus();
+      await userEvent.click(b, { position: { x, y } });
+      expect([x, document.activeElement === field('nb'), field('nb').selectionStart]).toEqual([x, true, 2]);
+    }
+    await userEvent.click(plus('nb'));
+    expect(field('nb').value).toBe('13');
   });
 
   test('a form gets the number, not the shown text: "1500000" for "Rp 1.500.000", cents with minorUnits; the visible field has no name; form= works outside the form; disabled sends nothing', async () => {
@@ -76,6 +96,14 @@ describe('NumberInput', () => {
     }
     expect(seen).toEqual(['6', '4', '14', '4', '100', '100', '0', '0']);
     expect([minus('qty').disabled, plus('qty').disabled]).toEqual([true, false]);
+  });
+
+  test('keyboard table: PageDown goes down largeStep steps, as PageUp goes up, within min (FH1)', async () => {
+    await render(<Qty />);
+    field('qty').focus();
+    const seen: string[] = [];
+    for (const k of ['{PageUp}{PageUp}', '{PageDown}', '{PageDown}{PageDown}']) { await userEvent.keyboard(k); seen.push(field('qty').value); }
+    expect(seen).toEqual(['25', '15', '0']);
   });
 
   test('on blur: 250 is clamped to 100, " 7 " becomes 7, junk goes back to the last number, and empty stays empty', async () => {
@@ -145,13 +173,24 @@ describe('NumberInput', () => {
   });
 
   test('step 0.25: ArrowUp 1.5 → 1.75, and 2.333 rounds to 2 decimals (2.33); decimal keyboard', async () => {
-    await render(<NumberInput id="dec" aria-label="Price" defaultValue={1.5} step={0.25} />);
+    await render(<SerupaProvider locale="en-US"><NumberInput id="dec" aria-label="Price" defaultValue={1.5} step={0.25} /></SerupaProvider>);
     field('dec').focus();
     await userEvent.keyboard('{ArrowUp}');
     const up = field('dec').value;
     await fill('dec', '2.333');
     await blur('dec');
     expect([up, field('dec').value, field('dec').inputMode]).toEqual(['1.75', '2.33', 'decimal']);
+  });
+
+  test('from a typed value off the grid, the first step lands on the grid point that way: 0.1 ↑ is 0.25, 0.1 ↓ is 0, 0.6 PageUp is 3; on the grid it steps as before (CC1)', async () => {
+    await render(<SerupaProvider locale="en-US"><NumberInput id="snap" aria-label="Amount" step={0.25} largeStep={10} /></SerupaProvider>);
+    const seen: string[] = [];
+    for (const [typed, key] of [['0.1', '{ArrowUp}'], ['0.1', '{ArrowDown}'], ['0.6', '{PageUp}'], ['0.5', '{ArrowUp}'], ['-0.1', '{ArrowUp}']]) {
+      await fill('snap', typed);
+      await userEvent.keyboard(key);
+      seen.push(field('snap').value);
+    }
+    expect(seen).toEqual(['0.25', '0', '3', '0.75', '0']);
   });
 
   test('locale: 1.500 is 1500 in id-ID and 1,500 is 1500 in en-US; "9,5" shows as 9,5 in de-DE and 9.5 in en-US after blur; 1 000 is read in fr-FR', async () => {
@@ -245,12 +284,91 @@ describe('NumberInput', () => {
   });
 
   test('min with decimals the step doesn\'t have (min 0.5, step 1): ArrowUp from 2.5 is 3.5, and from Home (0.5) is 1.5', async () => {
-    await render(<NumberInput id="half" aria-label="Half" min={0.5} max={5.5} step={1} defaultValue={2.5} />);
+    await render(<SerupaProvider locale="en-US"><NumberInput id="half" aria-label="Half" min={0.5} max={5.5} step={1} defaultValue={2.5} /></SerupaProvider>);
     await userEvent.click(field('half'));
     await userEvent.keyboard('{ArrowUp}');
     expect(field('half').value).toBe('3.5');
     await userEvent.keyboard('{Home}{ArrowUp}');
     expect(field('half').value).toBe('1.5');
+  });
+
+  test('holding + repeats after 400ms, every 50ms, and stops on pointerup, on leaving the button, on Escape and at max (P7)', async () => {
+    await render(<NumberInput id="hold" aria-label="Hold" defaultValue={0} min={0} max={30} />);
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const down = (b: HTMLElement) => b.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true, cancelable: true }));
+    const n = () => Number(field('hold').value);
+    down(plus('hold'));
+    await wait(300);
+    expect([n(), document.activeElement === field('hold')]).toEqual([1, true]);   // one step on the press, then a pause
+    await wait(400);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    await wait(30);
+    const held = n();
+    await wait(200);
+    expect([held >= 4 && held <= 10, n()]).toEqual([true, held]);
+    // Leaving the button and Escape stop it too.
+    down(plus('hold')); await wait(600);
+    plus('hold').dispatchEvent(new PointerEvent('pointerout', { bubbles: true, relatedTarget: document.body }));   // React's onPointerLeave
+    await wait(30);
+    const left = n(); await wait(200);
+    expect(n()).toBe(left);
+    down(minus('hold')); await wait(600);
+    await userEvent.keyboard('{Escape}');
+    await wait(30);
+    const esc = n(); await wait(200);
+    expect([esc < left, n()]).toEqual([true, esc]);
+    // At max the button is disabled and the repeat ends there.
+    down(plus('hold')); await expect.poll(n, { timeout: 4000 }).toBe(30);
+    expect([n(), plus('hold').disabled]).toEqual([30, true]);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    down(minus('hold')); await wait(100);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    expect(n()).toBe(29);
+  }, 15_000);
+
+  test('while held, a long touch\'s context menu is held back; a right press steps nothing and keeps focus where it was', async () => {
+    await render(<Col><NumberInput id="ctx" aria-label="Ctx" defaultValue={0} /><button id="ctx-out">Out</button></Col>);
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const menu = () => { const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true }); plus('ctx').dispatchEvent(e); return e.defaultPrevented; };
+    expect(menu()).toBe(false);
+    plus('ctx').dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true, cancelable: true }));
+    await wait(50);
+    expect(menu()).toBe(true);
+    window.dispatchEvent(new PointerEvent('pointerup'));
+    await wait(30);
+    document.getElementById('ctx-out')!.focus();
+    const n = field('ctx').value;
+    const right = new PointerEvent('pointerdown', { button: 2, bubbles: true, cancelable: true });
+    plus('ctx').dispatchEvent(right);
+    await wait(30);
+    expect([field('ctx').value, right.defaultPrevented, document.activeElement?.id]).toEqual([n, true, 'ctx-out']);
+  });
+
+  test('a click with no pointer press (a screen reader\'s) is one step, and a pointer click is one step too', async () => {
+    await render(<Qty />);
+    plus('qty').click();
+    await expect.poll(() => field('qty').value).toBe('6');
+    await userEvent.click(plus('qty'));
+    expect(field('qty').value).toBe('7');
+  });
+
+  test('onInvalidInput: a number out of range is brought back and reported as "range" (blur and Enter); text that isn\'t a number as "unreadable", and said', async () => {
+    const seen: string[] = [];
+    await render(<Col><NumberInput id="inv" aria-label="Quantity" defaultValue={5} min={0} max={100} onInvalidInput={(t, why) => seen.push(t + ':' + why)} /></Col>);
+    await fill('inv', ' 250 ');
+    await blur('inv');
+    await fill('inv', '-4');
+    field('inv').focus();
+    await userEvent.keyboard('{Enter}');
+    await fill('inv', 'abc');
+    await blur('inv');
+    await fill('inv', '42');
+    await blur('inv');
+    field('inv').focus(); await blur('inv');   // untouched: nothing to report
+    expect([seen, field('inv').value]).toEqual([['250:range', '-4:range', 'abc:unreadable'], '42']);
+    await fill('inv', 'xyz');
+    await blur('inv');
+    await expect.poll(() => announcerIdle() && document.querySelector('[data-dk-announcer-assertive]')!.textContent).toMatch(/"xyz" wasn't accepted/);
   });
 
   test('steppers={false}: no buttons', async () => {
@@ -294,5 +412,15 @@ describe('NumberInput', () => {
   test('--number-input-stepper overrides one field', async () => {
     await render(<NumberInput id="tok" aria-label="Tok" style={{ '--number-input-stepper': 'rgb(1, 2, 3)' } as React.CSSProperties} />);
     expect(css(minus('tok')).color).toBe('rgb(1, 2, 3)');
+  });
+  test('size sm: each stepper is 22px but takes presses over 24px (WCAG 2.5.8), past each outer edge, without moving anything', async () => {
+    await render(<div style={{ width: '320px', padding: '8px' }}><NumberInput id="hb" aria-label="Seats" size="sm" defaultValue={5} /></div>);
+    const [dec, inc] = [...document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelectorAll<HTMLElement>('.dk-number-input__step')];
+    expect([Math.round(dec.getBoundingClientRect().height), Math.round(inc.getBoundingClientRect().width)]).toEqual([22, 22]);
+    // Start, top and bottom of Decrease; end, top and bottom of Increase. The 2px between them goes to one or the other.
+    const [ds, , dt, db] = reach(dec), [, ie, it, ib] = reach(inc);
+    expect([ds, dt, db, ie, it, ib]).toEqual([true, true, true, true, true, true]);
+    const gap = (dec.getBoundingClientRect().right + inc.getBoundingClientRect().left) / 2, mid = dec.getBoundingClientRect().top + 11;
+    expect([dec, inc]).toContain(document.elementFromPoint(gap, mid)?.closest('button'));
   });
 });

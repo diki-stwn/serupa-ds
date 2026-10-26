@@ -5,6 +5,7 @@ import { useSerupa } from "./provider";
 import { useFormReset } from "./useFormReset";
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
+const never = () => () => {}, yes = () => true, no = () => false;
 type Handlers<E extends Field> = {
   value?: string | number | readonly string[] | null; defaultValue?: string | number | readonly string[] | null; maxLength?: number;
   onChange?: React.ChangeEventHandler<E>;
@@ -13,8 +14,8 @@ type Handlers<E extends Field> = {
 };
 
 /* The character count and maxLength of Input and Textarea, in characters as people see them (👨‍👩‍👧 is one), not the
-   browser's UTF-16 units. It takes maxLength off the native field (the browser's would stop typing at "4 / 10" with
-   emoji) and applies it itself, wrapping rest's change and composition handlers. With announce (showCount), the count
+   browser's UTF-16 units. It takes maxLength off the native field once hydrated (the browser's would stop typing at
+   "4 / 10" with emoji) and applies it itself, wrapping rest's change and composition handlers. With announce (showCount), the count
    is read out only near the limit, once when few characters are left and once when it's reached, not on every
    keystroke. A form reset puts the count back to the default's. */
 export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.RefObject<E | null>, opts: { announce: boolean }): { length: number; max: number | null } {
@@ -24,7 +25,10 @@ export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.Re
   const [len, setLen] = React.useState(function () { return graphemeCount(initial); });
   const length = controlled ? graphemeCount(String(rest.value)) : len;
   const max = rest.maxLength != null && rest.maxLength > 0 ? rest.maxLength : null;
-  delete rest.maxLength;
+  // Server HTML and the hydration render keep the native maxLength, so the cap holds before the script runs or
+  // without it; it comes off right after hydration. A client-only render never has it.
+  const hydrated = React.useSyncExternalStore(never, yes, no);
+  if (hydrated || max == null) delete rest.maxLength;
   const last = React.useRef(initial);
   const composing = React.useRef(false);
   if (controlled && !composing.current) last.current = String(rest.value);   // the value the parent holds now

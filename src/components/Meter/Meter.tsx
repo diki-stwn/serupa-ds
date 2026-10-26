@@ -1,10 +1,12 @@
 "use client";
 import * as React from "react";
 import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
+import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
 import type { MeterZone } from "./labels";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export type MeterState = 'optimum' | 'suboptimal' | 'poor' | 'none';
 export interface MeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -25,7 +27,7 @@ export interface MeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   size?: 'sm' | 'md' | 'lg';
   /** A visible name above the bar, which also names it. Without one, give it an aria-label. */
   label?: React.ReactNode;
-  /** Shows the value at the end of the label row. Default: false. */
+  /** Shows the value at the end of the label row, in the same words as the read-out ("92%, high"). Default: false. */
   showValue?: boolean;
   /** Turns the value into words, shown and read out: (value, min, max) => "7.2 of 10 GB". Default: the share as the
       locale writes a percentage ("72%"). Say what a colored zone means here too, such as "92%, almost full". */
@@ -62,6 +64,8 @@ const TONE: Record<MeterState, string | null> = { optimum: "success", suboptimal
    role="meter" with aria-valuenow / min / max and aria-valuetext, and data-state with the zone. */
 /** A measurement within a known range (storage used, strength, a level): a bar with role="meter", colored by the low, high and optimum zones. */
 export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Meter", function Meter(props, ref) {
+  const nameRef = useNameCheck("Meter", NAME_HOW.label);   // warns when it has no accessible name
+  const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const locale = useLocale();
   const base = domId("dk-mtr", React.useId());
@@ -74,23 +78,24 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
   const tone = TONE[state];
   const labels = useSerupa().labels;
   const text = props.formatValue ? props.formatValue(value, min, max) : displayNumber(share, locale, PERCENT);
-  // Outside the best zone, the default words say where the value falls, so the warning isn't only a color.
+  // Outside the best zone, the default words say where the value falls, shown and read out, so the warning isn't
+  // only a color (WCAG 1.4.1).
   const spoken = props.formatValue || state === "none" || state === "optimum" ? text : labels.meterZone(text, zone(value, min, max, num(props.low), num(props.high)));
   const hasLabel = props.label != null && props.label !== false && props.label !== "";
   const showValue = !!props.showValue;
   const outer = omit(rest, { "aria-label": 1, "aria-labelledby": 1 } as const);
   return (
-    <div {...outer} ref={ref} className={cn("dk-meter", "dk-meter--size-" + size, tone && "dk-meter--" + tone, props.className)}
+    <div {...outer} ref={restyle} className={cn("dk-meter", "dk-meter--size-" + size, tone && "dk-meter--" + tone, props.className)}
       data-component="meter" data-size={size} data-state={state}>
       {hasLabel || showValue ? (
         <div className="dk-meter__header">
           {hasLabel ? <span className="dk-meter__label" id={base + "-label"}>{props.label}</span> : null}
-          {showValue ? <span className="dk-meter__value" aria-hidden>{text}</span> : null}
+          {showValue ? <span className="dk-meter__value" aria-hidden>{spoken}</span> : null}
         </div>
       ) : null}
-      <div className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
+      <div ref={nameRef} className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
         aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || (hasLabel && !rest["aria-label"] ? base + "-label" : undefined)}>
-        <div className="dk-meter__fill" style={{ inlineSize: share * 100 + "%" }} />
+        <div className="dk-meter__fill" style={{ "--dk-meter-rest": +((1 - share) * 100).toFixed(4) + "%" } as React.CSSProperties} />
       </div>
     </div>
   );

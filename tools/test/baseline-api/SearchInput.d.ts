@@ -3,7 +3,7 @@ interface SearchInputLabels {
     searching: string;
     clearSearch: string;
 }
-interface SearchInputProps extends Omit<InputProps, "leftIcon" | "rightIcon" | "showCount" | "type"> {
+interface SearchInputProps extends Omit<InputProps, "leftIcon" | "prefix" | "rightIcon" | "showCount" | "suffix" | "type"> {
     onSearch?: (value: string) => void;
     onClear?: () => void;
     clearLabel?: string;

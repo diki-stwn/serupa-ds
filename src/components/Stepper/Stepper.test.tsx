@@ -2,9 +2,12 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Stepper, type StepperStep } from './Stepper';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 const STEPS: StepperStep[] = [{ title: 'Account', description: 'Email and password' }, { title: 'Profile', optional: true }, { title: 'Billing' }, { title: 'Review' }];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -22,13 +25,15 @@ function App(props: { sref?: React.Ref<HTMLElement> }) {
   return <div style={{ width: '640px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
     <Stepper id="st" steps={STEPS} current={c} ref={props.sref} className="extra" onStepClick={(i) => { clicks.push(i); set(i); }} />
     <Stepper id="err" steps={[{ title: 'Upload' }, { title: 'Check', status: 'error' }, { title: 'Done' }]} current={1} aria-label="Import" labels={{ error: 'needs attention' }} />
+    <Stepper id="warn" steps={[{ title: 'Details' }, { title: 'Photos', status: 'warning' }, { title: 'Publish' }]} current={2} />
+    <Stepper id="any" steps={STEPS} current={1} clickable="all" onStepClick={(i) => { clicks.push(i); }} />
     <Stepper id="ver" orientation="vertical" steps={STEPS} current={1} />
     <Stepper id="sm" size="sm" steps={STEPS} current={4} />
     <div dir="rtl"><Stepper id="rtl" steps={STEPS.slice(0, 3)} current={1} /></div>
     <Stepper id="tok" steps={STEPS.slice(0, 2)} current={0} style={{ '--stepper-active-bg': 'rgb(1, 2, 3)' } as React.CSSProperties} />
   </div>;
 }
-const setup = async (sref?: React.Ref<HTMLElement>) => { clicks = []; await render(<App sref={sref} />); };
+const setup = async (sref?: React.Ref<HTMLElement>) => { clicks = []; await render(<App sref={sref} />, { wrapper: EnUS }); };
 
 describe('Stepper', () => {
   test('step numbers are written in the digits of the locale, as Calendar writes its days: ٣ ٤ in ar-EG', async () => {
@@ -72,6 +77,17 @@ describe('Stepper', () => {
     expect(clicks.join()).toBe('0,1');
   });
 
+  test('keyboard table: Tab goes to each completed step\'s button and skips the rest; Space on one goes to that step; without onStepClick nothing takes focus (FH1)', async () => {
+    const got: number[] = [];
+    await render(<div><button id="kb-before">before</button><Stepper id="kb-st" steps={STEPS} current={2} onStepClick={(i) => got.push(i)} /><Stepper id="kb-plain" steps={STEPS} current={2} /><button id="kb-after">after</button></div>);
+    el('kb-before').focus();
+    const order: string[] = [];
+    for (let i = 0; i < 3; i++) { await userEvent.tab(); order.push(document.activeElement?.closest('li')?.textContent?.slice(0, 7) || document.activeElement!.id); }
+    await userEvent.tab({ shift: true });
+    await userEvent.keyboard(' ');
+    expect([order, got]).toEqual([['Account', 'Profile', 'kb-after'], [1]]);
+  });
+
   test('horizontal: 32px circles; each 2px line sits level with the circles\' middle, 8px from the text and the next circle', async () => {
     await setup();
     const geo = lis('st').slice(0, 3).map((li) => {
@@ -92,6 +108,21 @@ describe('Stepper', () => {
     await setup();
     const e = steps('err');
     expect([e[1].state, e[1].ind, e[1].text, el('err').getAttribute('aria-label')]).toEqual(['error', 'priority_high', 'Check, needs attention', 'Import']);
+  });
+
+  test('status="warning": a warning-subtle circle with a warning mark, read as "…, needs attention"; it wins over complete', async () => {
+    await setup();
+    const w = steps('warn');
+    expect([w[1].state, w[1].ind, w[1].text, w[0].state]).toEqual(['warning', 'warning', 'Photos, needs attention', 'complete']);
+    expect(css(lis('warn')[1].querySelector('.dk-stepper__indicator')).backgroundColor).not.toBe(css(lis('err')[1].querySelector('.dk-stepper__indicator')).backgroundColor);
+  });
+
+  test('clickable="all": every step but the current one is a button, upcoming ones too, and clicking one calls onStepClick', async () => {
+    await setup();
+    expect(steps('any').map((s) => s.btn)).toEqual([true, false, true, true]);
+    await userEvent.click(lis('any')[3].querySelector('button')!);
+    await userEvent.click(lis('any')[0].querySelector('button')!);
+    expect(clicks).toEqual([3, 0]);
   });
 
   test('vertical: a 2px line runs down the middle of each circle, 8px from it and from the next', async () => {
@@ -119,18 +150,20 @@ describe('Stepper', () => {
     const low: string[] = []; let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const page = css(document.body).backgroundColor, li = lis('st'), err = lis('err')[1], c = (l: Element, s: string) => css(l.querySelector(s));
+      const page = css(document.body).backgroundColor, li = lis('st'), err = lis('err')[1], warn = lis('warn')[1], c = (l: Element, s: string) => css(l.querySelector(s));
       const pairs: Array<[string, string, string, number]> = [
         ['upcoming number', c(li[3], '.dk-stepper__indicator').color, c(li[3], '.dk-stepper__indicator').backgroundColor, 4.5],
         ['upcoming ring', c(li[3], '.dk-stepper__indicator').borderTopColor, page, 3],
         ['current number', c(li[2], '.dk-stepper__indicator').color, c(li[2], '.dk-stepper__indicator').backgroundColor, 4.5],
         ['complete circle', c(li[0], '.dk-stepper__indicator').backgroundColor, page, 3],
         ['error mark', c(err, '.dk-stepper__indicator').color, c(err, '.dk-stepper__indicator').backgroundColor, 3],
+        ['warning mark', c(warn, '.dk-stepper__indicator').color, c(warn, '.dk-stepper__indicator').backgroundColor, 3],
+        ['warning ring', c(warn, '.dk-stepper__indicator').borderTopColor, page, 3],
         ['title', c(li[0], '.dk-stepper__title').color, page, 4.5],
         ['description', c(li[0], '.dk-stepper__description').color, page, 4.5]];
       for (const [k, fg, bg, min] of pairs) { const r = contrast(fg, bg); n++; if (r < min) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
-    expect([low, n]).toEqual([[], 42]);
+    expect([low, n]).toEqual([[], 54]);
   });
 
   test('--stepper-active-bg overrides one stepper', async () => {
@@ -160,5 +193,15 @@ describe('Stepper', () => {
     expect(n.querySelector('.dk-stepper__summary')).toBeNull();
     setW(320);
     await expect.poll(() => n.className).toMatch(/compact/);
+  });
+
+  test('pressed: a step\'s indicator shrinks to 95% while its head is held, on scale alone, and springs back (ED1)', async () => {
+    await withMotion(async () => {
+      await render(<Stepper id="sp" steps={STEPS} current={2} onStepClick={() => {}} />);
+      const head = document.querySelector('#sp button') as HTMLButtonElement, dot = head.firstElementChild as HTMLElement;
+      expect(css(dot).transitionProperty).toBe('scale');
+      await press(head, () => expect.poll(() => css(dot).scale).toBe('0.95'));
+      await expect.poll(() => css(dot).scale).toBe('none');
+    });
   });
 });

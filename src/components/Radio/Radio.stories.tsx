@@ -26,10 +26,22 @@ export const Controlled: Story = {
   render: function ControlledDemo() {
     const [value, setValue] = React.useState<string>('email');
     return <div className="flex flex-col gap-3">
-      <RadioGroup aria-label="Contact by" value={value} onChange={setValue} orientation="horizontal">
+      <RadioGroup aria-label="Contact by" value={value} onValueChange={setValue} orientation="horizontal">
         <Radio value="email">Email</Radio><Radio value="phone">Phone</Radio><Radio value="post">Post</Radio>
       </RadioGroup>
       <p className="text-sm">Picked: <code>{value}</code></p>
     </div>;
   },
+};
+
+export const LongLabels: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <RadioGroup {...args}>
+        <Radio value="free">Free, for one person working on a handful of projects</Radio>
+        <Radio value="pro" description="Everything in Free, plus unlimited projects, guests and a full year of version history">Pro</Radio>
+        <Radio value="team">{"Donaudampfschifffahrtsgesellschaft"}</Radio>
+      </RadioGroup>
+    </div>
+  ),
 };

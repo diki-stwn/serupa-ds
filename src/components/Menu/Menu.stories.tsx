@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
+import { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub, type MenuProps } from './Menu';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 
@@ -61,6 +61,26 @@ export const TopEnd: Story = {
 export const RightStart: Story = {
   name: 'Placement: right-start',
   args: { placement: 'right-start' },
+};
+export const RightEnd: Story = {
+  name: 'Placement: right-end',
+  args: { placement: 'right-end' },
+  decorators: [frame({ display: 'flex', alignItems: 'flex-end' })],
+};
+export const Left: Story = {
+  name: 'Placement: left',
+  args: { placement: 'left' },
+  decorators: [frame({ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' })],
+};
+export const LeftStart: Story = {
+  name: 'Placement: left-start',
+  args: { placement: 'left-start' },
+  decorators: [frame({ display: 'flex', justifyContent: 'flex-end' })],
+};
+export const LeftEnd: Story = {
+  name: 'Placement: left-end',
+  args: { placement: 'left-end' },
+  decorators: [frame({ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' })],
 };
 
 export const WithoutIcons: Story = {
@@ -124,6 +144,26 @@ export const Groups: Story = {
   },
   decorators: [frame({ minHeight: 400 })],
 };
+/** Settings: MenuCheckboxItem for on or off, MenuRadioGroup for one of a set. You hold the state. */
+export const Checkable: Story = {
+  name: 'Checkable items',
+  render: function Render() {
+    const [grid, setGrid] = React.useState(true), [rulers, setRulers] = React.useState(false), [sort, setSort] = React.useState('name');
+    return <Menu defaultOpen trigger={<Button variant="secondary" rightIcon="expand_more">View</Button>}>
+      <MenuGroup label="Show">
+        <MenuCheckboxItem checked={grid} onCheckedChange={setGrid} shortcut="⌘'">Grid</MenuCheckboxItem>
+        <MenuCheckboxItem checked={rulers} onCheckedChange={setRulers} shortcut="⌘R">Rulers</MenuCheckboxItem>
+      </MenuGroup>
+      <MenuSeparator />
+      <MenuRadioGroup label="Sort by" value={sort} onValueChange={setSort}>
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="date">Date modified</MenuRadioItem>
+        <MenuRadioItem value="size">Size</MenuRadioItem>
+      </MenuRadioGroup>
+    </Menu>;
+  },
+  decorators: [frame({ minHeight: 400 })],
+};
 export const Links: Story = {
   args: {
     trigger: <Button variant="secondary" leftIcon="help" rightIcon="expand_more">Help</Button>,
@@ -168,4 +208,17 @@ export const Submenus: Story = {
     </>,
   },
   decorators: [frame({ minHeight: 360, paddingInlineEnd: 480 })],
+};
+
+// Opened (controlled) it shows at the target's corner; in the page a right-click opens it at the pointer.
+export const Context: Story = {
+  render: function Render(_args, ctx) {
+    const open = ctx.viewMode === 'docs' ? undefined : true;
+    return <ContextMenu aria-label="File actions" open={open} target={<div tabIndex={0} style={{ width: 280, padding: 16, border: '1px dashed var(--border)', borderRadius: 8 }}>Right-click, or focus and press Shift+F10</div>}>
+      <MenuItem icon="open_in_new">Open</MenuItem>
+      <MenuItem icon="edit">Rename</MenuItem>
+      <MenuSeparator />
+      <MenuItem icon="delete" destructive>Delete</MenuItem>
+    </ContextMenu>;
+  },
 };

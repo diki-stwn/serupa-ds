@@ -36,8 +36,27 @@ export const Group: Story = {
     <Field group label="Notifications" hint="Pick any">
       <Checkbox defaultChecked>Email</Checkbox><Checkbox>SMS</Checkbox>
     </Field>
-    <Field group label="Plan" error="Choose a plan">
+    <Field group required label="Plan" error="Choose a plan">
       <RadioGroup><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
     </Field>
   </div>,
+};
+
+export const LongText: Story = {
+  args: {
+    label: 'The email address we should send every receipt and invoice to',
+    hint: 'We send one receipt per payment, plus a monthly summary for Donaudampfschifffahrtsgesellschaftskapitänskajüte.',
+    error: 'Enter an email address like name@example.com, without spaces before or after it',
+  },
+  decorators: [(Story) => <div style={{ maxWidth: 240 }}><Story /></div>],
+};
+
+export const Horizontal: Story = {
+  name: 'Horizontal (a settings form)',
+  render: () => <div className="flex flex-col gap-4">
+    <Field layout="horizontal" label="Display name" hint="Shown on your profile."><Input defaultValue="Ani" /></Field>
+    <Field layout="horizontal" label="Language"><Select options={['Bahasa Indonesia', 'English']} /></Field>
+    <Field layout="horizontal" label="Bio" optional error="Keep it under 160 characters."><Textarea rows={2} /></Field>
+  </div>,
+  decorators: [(Story) => <div style={{ maxWidth: 560 }}><Story /></div>],
 };

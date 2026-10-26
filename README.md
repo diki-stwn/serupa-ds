@@ -14,16 +14,16 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v9.1.1
+npm install github:diki-stwn/serupa-ds#v9.7.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.1.1/serupa-ds-9.1.1.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.7.0/serupa-ds-9.7.0.tgz
 ```
 
-Always pin a tag (`#v9.1.1`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v9.7.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -47,7 +47,7 @@ export function SignUp() {
 }
 ```
 
-React 19 is a peer dependency, so the components use your app's React, and they render on the server too. Types ship with the package.
+React 19 is a peer dependency, so the components use your app's React, and they render on the server too. Types ship with the package. They build on React's, so a TypeScript project also needs `@types/react` 19, an optional peer dependency that a JavaScript project can leave out.
 
 In React Server Components (the Next.js App Router), import them straight into a server component. The interactive ones (Button, Dialog, Combobox…) are client components (`"use client"`); layout and text (Container, Stack, Grid, Heading, Text, Divider…) render on the server, and so do the helpers `buttonClass`, `paginationRange`, `formatFileSize` and `initials`.
 
@@ -81,7 +81,9 @@ Set the brand and mode on `<html>` and load `theme.js` first in `<head>`, so the
 <html data-brand="blue" data-mode="auto">   <!-- brand: blue | violet | emerald; mode: auto | light | dark -->
 ```
 
-Or set one theme directly on any element: `data-theme="violet-dark"`. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
+A server-rendered app can save the request by pasting the text of `dist/theme.js` into an inline `<script>` in `<head>` (give it a nonce under a strict Content Security Policy); the file is written so it works inline. If both the inline copy and the file end up on a page, the second one does nothing, so the first keeps running the theme.
+
+Or set one theme directly on any element: `data-theme="violet-dark"`. A theme switch with theme.js changes every color at once: it finishes each control's color transition, so controls don't each fade on their own, while motion runs on (a menu fading out as "Dark" is picked, a switch sliding). To switch a section yourself, do it inside `withoutTransitions(() => section.setAttribute("data-theme", "violet-dark"), section)` for the same effect. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
 
 ### 4. Ship it
 
@@ -113,6 +115,30 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
+### For your own components
+
+The package also exports what the components use themselves, so a component you build follows the same settings:
+
+| Export | What it gives |
+| --- | --- |
+| `useSerupa()` | The nearest `SerupaProvider`'s settings: `locale`, `labels` (the built-in words), `icons` and `platform`. |
+| `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
+| `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
+| `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
+
+```tsx
+import { announce, useLocale } from "serupa-ds";
+
+function SavedAt({ at }: { at: Date }) {
+  const locale = useLocale();
+  return <span>{at.toLocaleTimeString(locale)}</span>;
+}
+
+announce("Draft saved");
+```
+
+[Localization](docs/Localization.mdx) has more on the provider.
+
 ### How the utility classes read tokens
 
 Every utility class works on its own, with no framework or build step, and every class whose value is on a scale reads it from its token: `p-4` is `var(--spacing-4)`, `duration-300` is `var(--duration-300)`. Change a token on a page and its classes follow. Three deliberate exceptions: breakpoints (CSS can't read variables inside `@media`), shadow classes (they write the token's shape out so a color class can recolor it), and `rounded-full` (9999px). Border and divide style classes (`border-dashed`) only change a line that a width class draws, so the system needs no CSS reset.
@@ -138,6 +164,8 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [IconButton](src/components/IconButton/README.md) | A button that shows only an icon: a menu trigger, a close button, a toolbar action. |
 | [Link](src/components/Link/README.md) | An inline text link: underlined, in the primary color or the surrounding text's. |
 | [ToggleButton](src/components/ToggleButton/README.md) | A Button that stays on or off, for a setting that applies right away: bold in a text editor, mute, show the grid. |
+| [ToggleGroup](src/components/ToggleGroup/README.md) | A set of [ToggleButton](src/components/ToggleButton/README.md)s that share one value: one on at a time, such as text alignment or a view mode, or any number, such as bold, italic and underline. |
+| [Toolbar](src/components/Toolbar/README.md) | A set of controls, such as an editor's formatting buttons, that takes one Tab stop instead of one per control. |
 
 ### Content
 
@@ -157,6 +185,12 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [RelativeTime](src/components/RelativeTime/README.md) | Says how long ago, or how far ahead, a moment is, in the reader's language: "3 minutes ago", "yesterday", "in 2 hours". |
 | [SortableList](src/components/SortableList/README.md) | A list people put in their own order: tasks by priority, steps in a flow, columns in a table. |
 | [Table](src/components/Table/README.md) | A data table built on native table markup: a header row, body rows and an optional footer, in a bordered frame that scrolls sideways when the table is too wide. |
+
+### Data display
+
+| Component | What it's for |
+| --- | --- |
+| [Timeline](src/components/Timeline/README.md) | An ordered list of events, each with a marker on a line that joins them, a title, a time and optional content. |
 
 ### Feedback
 
@@ -188,7 +222,9 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [NumberInput](src/components/NumberInput/README.md) | A field for a number, with − and + buttons at the end. |
 | [PasswordInput](src/components/PasswordInput/README.md) | A password field with a button at the end that shows and hides what was typed, so people can check it before they submit. |
 | [PhoneInput](src/components/PhoneInput/README.md) | A phone number field with a country menu at the start. |
+| [PinInput](src/components/PinInput/README.md) | A one-time code or PIN, shown as one box per character, such as the 6-digit code texted at sign-in. |
 | [Radio](src/components/Radio/README.md) | Native radios for one choice from a short list. |
+| [Rating](src/components/Rating/README.md) | Stars to pick a score (how was your stay, how useful was this article) or to show one (a product's average). |
 | [SearchInput](src/components/SearchInput/README.md) | A search field: a search icon at the start, and a × at the end once something is typed. |
 | [SegmentedControl](src/components/SegmentedControl/README.md) | Picks one of a few options shown side by side, such as a view (List, Board) or a period (Day, Week, Month). |
 | [Select](src/components/Select/README.md) | A native `<select>` styled like Input: the same three heights (24, 32 and 44px), colors, focus ring and states, with a chevron and an optional left icon. |
@@ -196,6 +232,12 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [Switch](src/components/Switch/README.md) | An on/off setting that takes effect at once. |
 | [Textarea](src/components/Textarea/README.md) | A multi-line text field, Input's sibling: a native `<textarea>` in a box. |
 | [TimePicker](src/components/TimePicker/README.md) | A time-of-day field: people type a time, or pick one from a list. |
+
+### Layout
+
+| Component | What it's for |
+| --- | --- |
+| [Splitter](src/components/Splitter/README.md) | Two panes with a handle between them that people drag, or move with the keys, to give one pane more room: a list and its detail, a sidebar and an editor, code and its output. |
 
 ### Layout and type
 
@@ -219,6 +261,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [Sidebar](src/components/Sidebar/README.md) | A vertical nav for an app's pages: an optional header (a logo, a workspace switcher), sections of items with icons, badges and nested groups, and a footer pinned to the bottom (settings, the signed-in user). |
 | [Stepper](src/components/Stepper/README.md) | Shows where people are in a task split into steps, such as sign-up, checkout or setup. |
 | [Tabs](src/components/Tabs/README.md) | Switches between related panels in one place, such as a project's Overview, Activity and Settings. |
+| [TreeView](src/components/TreeView/README.md) | Nested items that open and close, such as folders and files, a table of contents or categories. |
 
 ### Overlays
 
@@ -266,6 +309,19 @@ Names are never removed in a minor or patch release: they're marked deprecated i
 
 Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The files are generated from `tokens.json` (`npm run tokens`) and the tests fail if they fall out of step. `tools/tokens/style-dictionary.config.mjs` builds them back into CSS, one file per theme, with the system's own variable names; the tests check that every one of its 3,500 values equals the token.
 
+## Editor autocomplete
+
+The package carries [VS Code custom data](https://code.visualstudio.com/api/extension-guides/custom-data-extension) for the utility classes and the tokens. With it, VS Code offers every utility class in `class="…"` with what it sets, the themes in `data-theme`, and every token where a stylesheet sets one (`:root { --primary: … }`). Add this to the project's `.vscode/settings.json`:
+
+```json
+{
+  "html.customData": ["./node_modules/serupa-ds/dist/vscode/serupa.html-data.json"],
+  "css.customData": ["./node_modules/serupa-ds/dist/vscode/serupa.css-data.json"]
+}
+```
+
+The class list works in HTML files. JSX's `className` and `var(--…)` inside a value are completed by other means: VS Code offers inside `var()` only the custom properties of the stylesheet being edited.
+
 ## Browser support
 
 Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cross-browser test (`tools/test/compat.mjs`) runs the system in Safari's engine (WebKit) or Firefox and compares every utility class and the behaviour of `base.css`, `theme.js`, responsive classes and Button with Chromium. A few classes depend on newer CSS that not every browser has yet; they do nothing where it's missing:
@@ -297,7 +353,7 @@ How to make a change, and a new component, step by step: [CONTRIBUTING.md](CONTR
 
 ## Credits
 
-Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4.
+Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4. It isn't open source: all rights are reserved ([LICENSE](LICENSE)), and `package.json` says so with `"license": "UNLICENSED"`.
 
 The system is self-contained: every file it needs is in it, and nothing loads from another server. It builds on these open-source works; their licenses are in `licenses/`.
 

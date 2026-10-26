@@ -8,6 +8,7 @@ import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export type SelectOption = string | number | { value: string | number; label?: React.ReactNode; disabled?: boolean };
 export interface SelectOptionGroup { label: string; options: SelectOption[]; disabled?: boolean }
@@ -41,9 +42,10 @@ function optionNodes(list: Array<SelectOption | SelectOptionGroup> | undefined):
 
 /** A native <select> styled like Input (ref, value, onChange and every select attribute go to it), with a chevron; className and style go to the box. Label it with <label htmlFor>, aria-label or Field. multiple isn't supported. */
 export const Select = /* @__PURE__ */ component<HTMLSelectElement, SelectProps>("Select", function Select(props, ref) {
+  const nameRef = useNameCheck("Select", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const rest = omit(props, OWN);
-  if ((props as { multiple?: boolean }).multiple) warnOnce("select-multiple", "Serupa.Select: multiple isn't supported (a native multi-select is hard to use); use checkboxes instead. It was ignored.");
+  if (process.env.NODE_ENV !== "production" && (props as { multiple?: boolean }).multiple) warnOnce("select-multiple", "Serupa.Select: multiple isn't supported (a native multi-select is hard to use); use checkboxes instead. It was ignored.");
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -55,7 +57,7 @@ export const Select = /* @__PURE__ */ component<HTMLSelectElement, SelectProps>(
   rest.onChange = function (e: React.ChangeEvent<HTMLSelectElement>) { if (!controlled) setPicked(e.target.value); if (onChange) onChange(e); };
   // A form reset puts the native <select> back on its default; the placeholder look follows it.
   const own = React.useRef<HTMLSelectElement | null>(null);
-  const setRefs = React.useCallback(function (node: HTMLSelectElement | null) { own.current = node; setRef(ref, node); }, [ref]);
+  const setRefs = React.useCallback(function (node: HTMLSelectElement | null) { own.current = node; nameRef(node); setRef(ref, node); }, [ref, nameRef]);
   const start = rest.defaultValue;
   useFormReset(own, () => { if (!controlled) setPicked(start); });
   const empty = hasPh && (cur == null || cur === "");

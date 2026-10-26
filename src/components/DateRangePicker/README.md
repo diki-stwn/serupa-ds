@@ -39,21 +39,33 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 
 ## Accessibility
 
+- The calendar fades and grows in out of the field over 150ms, and fades and shrinks back over 100ms when it closes; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. The calendar stays while it fades out, inert, and focus goes back to the field at once. Firefox and Safari can't keep a closing popup in the top layer yet, so there it closes at once.
 - The box is a `role="group"`; name it with `aria-label` when it has no Field. Each field has its own name.
 - The popup is a `role="dialog"` holding one or two Calendars (see Calendar's keyboard table); a polite live line says which end to pick next.
+- Each field's description ends with the format to type ("Format: mm/dd/yyyy"), after a Field hint, so it's heard once the placeholder is gone (the `formatHint` label).
 - Days in a range, the status line and the dash keep 4.5:1 in all six themes (`DateRangePicker.test.tsx`).
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | The start field, the end field, then the calendar button |
+| Enter | In a field, reads the date typed |
+| Alt+Down | In a field, opens the calendar |
+| Enter / Space | On the calendar button, opens the calendar; in it, Calendar's keys pick the start, then the end |
+| Escape | Closes the calendar and returns focus to its button |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `value` / `defaultValue` | `{ start: Date \| null; end: Date \| null }` | | The range, controlled or not. |
-| `onValueChange` | `(range: DateRange) => void` | | Called whenever either end changes, so also after the first pick (with `end: null`). |
+| `value` / `defaultValue` | `{ start: Date \| string \| null; end: Date \| string \| null }` | | The range, controlled or not. Each end a Date or a plain `"yyyy-mm-dd"` string for that local day (`new Date("2026-10-24")` is UTC midnight, the day before west of Greenwich, and gets a console warning there). |
+| `onValueChange` | `(range: DateRange, iso: { start, end }) => void` | | Called whenever either end changes, so also after the first pick (with `end: null`). `iso` is the same range as `"yyyy-mm-dd"` strings, to store or pass back as `value`. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when text typed in either field is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max`, disabled, or an end before the start). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
-| `min`, `max` | `Date` | | Days outside can't be either end. |
+| `min`, `max` | `Date \| string` | | Days outside can't be either end. A Date or `"yyyy-mm-dd"`. |
 | `isDateDisabled` | `(date: Date) => boolean` | | Days that can't be an end. They can sit inside a range. |
 | `months` | `1 \| 2` | `2` | Months side by side in the popup (stacked below 640px). |
-| `locale`, `weekStartsOn` | | the browser's | As in DatePicker. |
+| `locale`, `weekStartsOn` | | the browser's | As in DatePicker. The calendars carry `lang` when it differs from the provider's; the two fields keep the page's, as their names do. |
 | `size`, `invalid`, `disabled`, `readOnly` | | | Like Input. |
 | `required` | `boolean` | `false` | Both fields are required (and `aria-required`), so a form won't submit until each end has a date. Field's `required` sets `aria-required` on both. |
 | `id` | `string` | | The start field's id, so Field or `<label htmlFor>` focuses it. |

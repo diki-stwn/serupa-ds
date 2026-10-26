@@ -33,3 +33,12 @@ export const Weights: Story = {
 export const Truncate: Story = {
   render: () => <div style={{ width: 200 }}><Text truncate>quarterly-report-final-version-2.pdf</Text></div>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <Text {...args}>Invite people to work on this project with you, and give each of them only the access they need.</Text>
+      <Text {...args}>{"Donaudampfschifffahrtsgesellschaftskapitänskajüte"}</Text>
+    </div>
+  ),
+};

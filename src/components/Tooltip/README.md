@@ -33,6 +33,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 ## Usage
 
+- The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").
 - Keep `content` to a short line of text, a few words where you can.
 - Use `role="label"` only when the tooltip is the element's only name; otherwise keep the default, which adds to the element's own name.
 - On an IconButton that has a Tooltip, set `noTitle` so the browser's own title doesn't show as well.
@@ -45,7 +46,15 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 - WCAG 1.4.13: Escape hides it from anywhere, the pointer can move onto it without it closing, and it stays until the pointer or focus leaves.
 - Don't put anything only in a tooltip that people need to do the task: touch screens have no hover.
 - A disabled `<button>` can't take focus or hover events, so a tooltip on it never shows. For a Serupa [Button](../Button/README.md), pass `disabledReason` with `disabled`: it stays focusable, and a Tooltip with the same words shows on hover and focus. For other elements, use `aria-disabled` instead of `disabled`.
+- It fades in and slides 4px away from the element over 150ms, and fades and slides back over 100ms as it hides; with `prefers-reduced-motion` it only fades. Moving from one tooltip to the next (the warm-up) swaps them at once, with no fade either way. Firefox and Safari can't keep a hiding tooltip in the top layer yet, so there it hides at once.
 - The text keeps 4.5:1 on the tooltip in all six themes (`Tooltip.test.tsx`). In forced-colors mode it gets a border.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the element: the tooltip shows with its focus ring |
+| Escape | Hides it, from anywhere, without closing a Dialog or Menu around it |
 
 ## Props
 
@@ -54,10 +63,13 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 | `content` | node | required | A short line of text. No links or buttons: people can't reach them |
 | `children` | one element | required | Something that takes focus: a Button, IconButton or link. It gets the events and the `aria-` wiring, and keeps its own handlers and ref |
 | `placement` | `'top'` \| `'bottom'` \| `'left'` \| `'right'`, each with `-start` or `-end` | `'top'` | Where it goes. It flips to the other side when there's no room and slides to stay on screen |
-| `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once |
+| `delay` | number | `400` | Milliseconds the pointer rests before it shows. Keyboard focus shows it at once, and so does the pointer while another tooltip is open or closed less than 300ms ago (the warm-up) |
 | `role` | `'description'` \| `'label'` | `'description'` | Adds to the element's name (`aria-describedby`), or is its name (`aria-labelledby`) |
-| `open`, `onOpenChange` | boolean, function | | Control it yourself |
+| `open`, `onOpenChange` | boolean, function | | Control it yourself. onOpenChange(open, { reason }) says why: `'hover'`, `'focus'`, `'blur'`, `'trigger'` (a press on the element), `'escape'` or `'outside'` |
+| `defaultOpen` | boolean | `false` | Shown at first, without controlling it |
 | `disabled` | boolean | `false` | Never shows |
+
+`id` isn't a prop of its own: an id given here goes to the trigger, unless the trigger has one, which stays. The tooltip's id is made for you.
 
 `className` and `style` go to the tooltip, which has `role="tooltip"`, `data-component="tooltip"`, `data-state` and `data-side`.
 
@@ -75,4 +87,4 @@ Each is an optional override: set it on the page, a container or one tooltip. Th
 | `--tooltip-padding-y` | `spacing-1` | Padding at the top and bottom (4px). |
 | `--tooltip-offset` | `spacing-1_5` | The gap between the tooltip and what it describes (6px). |
 | `--tooltip-max-width` | `spacing-60` | The widest a tooltip gets before it wraps (240px). |
-| `--tooltip-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
+| `--tooltip-z-index` | `z-tooltip` | The stacking level where the browser has no top layer (popover). |

@@ -1,0 +1,131 @@
+<!-- Count -->
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input maxLength="30" aria-label="Title" type="text" aria-describedby="dk-in_R_1_" class="dk-input__field" value="Quarterly report"/>
+<span class="dk-input__count" id="dk-in_R_1_">16 / 30</span>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input maxLength="10" aria-label="Code" type="text" aria-describedby="dk-in_R_2_" class="dk-input__field" value="WELCOME-10"/>
+<span class="dk-input__count dk-input__count--full" id="dk-in_R_2_">10 / 10</span>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Note" type="text" aria-describedby="dk-in_R_3_" class="dk-input__field" value="No limit"/>
+<span class="dk-input__count" id="dk-in_R_3_">8</span>
+</span>
+</div>
+
+<!-- Icons -->
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<span class="dk-input__icon dk-input__icon--left" aria-hidden="true">
+<span aria-hidden="true" data-icon="search" class="dk-icon">
+</span>
+</span>
+<input aria-label="Search" placeholder="Search" type="text" class="dk-input__field"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input type="url" aria-label="Website" placeholder="https://" autoCapitalize="off" autoCorrect="off" spellCheck="false" class="dk-input__field"/>
+<span class="dk-input__icon dk-input__icon--right" aria-hidden="true">
+<span aria-hidden="true" data-icon="link" class="dk-icon">
+</span>
+</span>
+</span>
+</div>
+
+<!-- InDisabledFieldset -->
+<fieldset disabled="" style="border:0;margin:0;padding:0">
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Company" type="text" class="dk-input__field" value="Atlas Ltd"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Tax ID" placeholder="Tax ID" type="text" class="dk-input__field"/>
+</span>
+</div>
+</fieldset>
+
+<!-- LongValue -->
+<div style="width:200px;display:flex;flex-direction:column;gap:8px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<span class="dk-input__icon dk-input__icon--left" aria-hidden="true">
+<span aria-hidden="true" data-icon="mail" class="dk-icon">
+</span>
+</span>
+<input placeholder="you@example.com" aria-label="Email" type="text" class="dk-input__field" value="grace.brewster.murray.hopper@navy.example.com"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input placeholder="A placeholder far longer than the input is wide" aria-label="Email" type="text" class="dk-input__field"/>
+</span>
+</div>
+
+<!-- Playground -->
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input placeholder="you@example.com" aria-label="Email" type="text" class="dk-input__field"/>
+</span>
+
+<!-- PrefixAndSuffix -->
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<span class="dk-input__affix dk-input__affix--prefix" id="dk-in_R_1_-prefix">https://</span>
+<input type="url" aria-label="Website" placeholder="example.com" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-describedby="dk-in_R_1_-prefix" class="dk-input__field"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<span class="dk-input__affix dk-input__affix--prefix" id="dk-in_R_2_-prefix">@</span>
+<input aria-label="Username" placeholder="ana" type="text" aria-describedby="dk-in_R_2_-prefix" class="dk-input__field"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Workspace address" placeholder="atlas" type="text" aria-describedby="dk-in_R_3_-suffix" class="dk-input__field"/>
+<span class="dk-input__affix dk-input__affix--suffix" id="dk-in_R_3_-suffix">.serupa.app</span>
+</span>
+<span class="dk-input dk-number-input dk-input--size-md dk-number-input--steppers" data-component="number-input" data-size="md">
+<input aria-label="Weight (kg)" type="text" inputMode="decimal" role="spinbutton" aria-valuenow="12" autoComplete="off" class="dk-input__field" aria-describedby="dk-ni_R_4_-suffix" value="12"/>
+<span class="dk-input__affix dk-input__affix--suffix" id="dk-ni_R_4_-suffix">kg</span>
+<span class="dk-number-input__steppers">
+<button type="button" tabindex="-1" class="dk-number-input__step" aria-label="Decrease">
+<span aria-hidden="true" data-icon="remove" class="dk-icon">
+<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
+<path d="m240-440q-17 0-28.5-11.5-11.5-11.5-11.5-28.5 0-17 11.5-28.5 11.5-11.5 28.5-11.5h480q17 0 28.5 11.5 11.5 11.5 11.5 28.5 0 17-11.5 28.5-11.5 11.5-28.5 11.5z">
+</path>
+</svg>
+</span>
+</button>
+<button type="button" tabindex="-1" class="dk-number-input__step" aria-label="Increase">
+<span aria-hidden="true" data-icon="add" class="dk-icon">
+<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
+<path d="m440-440h-200q-17 0-28.5-11.5-11.5-11.5-11.5-28.5 0-17 11.5-28.5 11.5-11.5 28.5-11.5h200v-200q0-17 11.5-28.5 11.5-11.5 28.5-11.5 17 0 28.5 11.5 11.5 11.5 11.5 28.5v200h200q17 0 28.5 11.5 11.5 11.5 11.5 28.5 0 17-11.5 28.5-11.5 11.5-28.5 11.5h-200v200q0 17-11.5 28.5-11.5 11.5-28.5 11.5-17 0-28.5-11.5-11.5-11.5-11.5-28.5z">
+</path>
+</svg>
+</span>
+</button>
+</span>
+</span>
+</div>
+
+<!-- Sizes -->
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-sm" data-component="input" data-size="sm">
+<input aria-label="Small" placeholder="Small" type="text" class="dk-input__field"/>
+</span>
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Medium" placeholder="Medium" type="text" class="dk-input__field"/>
+</span>
+<span class="dk-input dk-input--size-lg" data-component="input" data-size="lg">
+<input aria-label="Large" placeholder="Large" type="text" class="dk-input__field"/>
+</span>
+</div>
+
+<!-- States -->
+<div class="flex flex-col gap-3" style="max-width:320px">
+<span class="dk-input dk-input--size-md" data-component="input" data-size="md">
+<input aria-label="Default" type="text" class="dk-input__field" value="Default"/>
+</span>
+<span class="dk-input dk-input--size-md dk-input--invalid" data-component="input" data-size="md">
+<input aria-label="Invalid" aria-invalid="true" type="text" class="dk-input__field" value="not-an-email"/>
+</span>
+<span class="dk-input dk-input--size-md dk-input--readonly" data-component="input" data-size="md">
+<input aria-label="Read-only" readOnly="" type="text" class="dk-input__field" value="Read-only"/>
+</span>
+<span class="dk-input dk-input--size-md dk-input--disabled" data-component="input" data-size="md">
+<input aria-label="Disabled" disabled="" type="text" class="dk-input__field" value="Disabled"/>
+</span>
+</div>

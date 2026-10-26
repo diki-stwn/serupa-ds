@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Meter, meterState } from './Meter';
@@ -10,7 +10,7 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const mt = (id: string) => el(id).querySelector('[role=meter]') as HTMLElement;
 const share = (id: string) => {
   const tr = el(id).querySelector('.dk-meter__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-meter__fill')!.getBoundingClientRect();
-  return Math.round(f.width / tr.width * 100);
+  return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
 const thick = (id: string) => Math.round(el(id).querySelector('.dk-meter__track')!.getBoundingClientRect().height);
 const value = (id: string) => el(id).querySelector('.dk-meter__value')?.textContent ?? null;
@@ -21,7 +21,8 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div></SerupaProvider>;
 
 describe('Meter', () => {
   test('a meter with valuenow 72, min 0, max 100 and valuetext "72%", named by its label; ref, className and props reach the outer box', async () => {
@@ -67,7 +68,7 @@ describe('Meter', () => {
     expect(cases.map(([id]) => fill(id))).toEqual(cases.map((c) => tone[c[2]]));
   });
 
-  test('outside the best zone the read-out value says where it falls ("92%, high"), the shown value stays "92%"; in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
+  test('outside the best zone the read-out and shown value say where it falls ("92%, high"), so the zone is not only a color (GH4); in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
     await render(<Wrap>
       <Meter id="z-high" value={92} high={80} optimum={10} showValue aria-label="Storage" />
       <Meter id="z-low" value={12} low={20} high={60} optimum={100} aria-label="Battery" />
@@ -80,7 +81,7 @@ describe('Meter', () => {
     const pct = (l: string) => new Intl.NumberFormat(l, { style: 'percent' }).format(0.92);
     expect(['z-high', 'z-low', 'z-mid', 'z-best', 'z-none', 'z-own', 'z-id'].map((id) => mt(id).getAttribute('aria-valuetext')))
       .toEqual([pct('en-US') + ', high', '12%, low', '45%, medium', '85%', pct('en-US'), 'Almost full', pct('id-ID') + ', tinggi']);
-    expect(value('z-high')).toBe(pct('en-US'));
+    expect(value('z-high')).toBe(pct('en-US') + ', high');
   });
 
   test('meterState: no zones without low and high; edges as the HTML spec sets them (low and high clamped into min..max, high never under low, optimum clamped)', () => {
@@ -127,5 +128,19 @@ describe('Meter', () => {
   test('--meter-fill-poor overrides one meter', async () => {
     await render(<Wrap><Meter id="tok" value={90} low={30} high={70} optimum={0} aria-label="tok" style={{ '--meter-fill-poor': 'rgb(1, 2, 3)' } as React.CSSProperties} /></Wrap>);
     expect(fill('tok')).toBe('rgb(1, 2, 3)');
+  });
+  test('a new value moves the fill on translate, not its width, and right to left it fills from the right (FB1)', async () => {
+    const bar = (v: number) => <Wrap><div dir="rtl"><Meter id="mv" value={v} aria-label="mv" /></div></Wrap>;
+    const { rerender } = await render(bar(30));
+    const own = () => el('mv').querySelector('[role=meter]')!.firstElementChild as HTMLElement;
+    await withMotion(async () => {
+      void css(own()).translate;   // where it starts from
+      await rerender(bar(70));
+      const moves = own().getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
+      expect(moves.map((a) => a.transitionProperty)).toEqual(['translate']);
+      await Promise.all(moves.map((a) => a.finished));
+    });
+    const tr = own().parentElement!.getBoundingClientRect(), f = own().getBoundingClientRect();
+    expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
   });
 });

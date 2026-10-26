@@ -1,0 +1,26 @@
+# Alphanumeric
+- textbox "Invite code": K7Q
+
+# Disabled
+- textbox "Verification code" [disabled]: "1234"
+
+# Filled
+- textbox "Verification code": "492"
+
+# InAField
+- text: Verification code We sent a 6-digit code to your phone.
+- textbox "Verification code" [invalid]: "381904"
+- text: That code has expired.
+
+# Masked
+- textbox "PIN": "27"
+
+# Overflow
+- textbox "Verification code": "492817"
+
+# Playground
+- textbox "Verification code"
+
+# ReadOnly
+- textbox "Verification code": "1234"
+

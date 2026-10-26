@@ -1,0 +1,23 @@
+# LongLabel
+- text: Above
+- separator "or continue with a single sign-on provider"
+- separator "Donaudampfschifffahrtsgesellschaftskapitänskajüte"
+- text: Below
+
+# Playground
+- text: Above
+- separator
+- text: Below
+
+# Vertical
+- text: Edit
+- separator
+- text: Share
+- separator
+- text: Delete
+
+# WithLabel
+- text: Above
+- separator "or"
+- text: Below
+

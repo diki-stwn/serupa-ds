@@ -21,3 +21,19 @@ export const WithAField: Story = {
     <CopyButton value="https://serupa.app/invite/7Hq2" size="md">Copy link</CopyButton>
   </div>,
 };
+
+export const LongLabel: Story = {
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <CopyButton {...args}>Copy the secret API key to the clipboard</CopyButton>
+    </div>
+  ),
+};
+
+export const VariantsAndSizes: Story = {
+  render: (args) => <div className="flex gap-3 items-center">
+    <CopyButton {...args} variant="primary">Copy, primary</CopyButton>
+    <CopyButton {...args} variant="link">Copy, link</CopyButton>
+    <CopyButton {...args} size="lg">Copy, lg</CopyButton>
+  </div>,
+};

@@ -38,17 +38,18 @@ import { RelativeTime } from "serupa-ds";
 - It's a `<time>` with a machine-readable `datetime`, read out as its words.
 - The exact date is in `title`, which shows on hover but isn't reliably read out or reachable by keyboard. Where the exact time matters, show it as text too or wrap it in a [Tooltip](../Tooltip/README.md) on a focusable element.
 - It doesn't announce its updates: a live region that changes every minute would be noise.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<time>`. |
 | `date` | `Date \| number \| string` | | The moment. An invalid date renders an empty `<time>`. |
 | `format` | `'long' \| 'short' \| 'narrow'` | `'long'` | "3 minutes ago", "3 min. ago", "3m ago". |
 | `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". |
 | `titleFormat` | `Intl.DateTimeFormatOptions \| false` | `{ dateStyle: 'long', timeStyle: 'short' }` | The tooltip's date; `false` leaves it out. Your own `title` wins. |
-| `locale` | `string` | the provider's, else the browser's | |
-
+| `locale` | `string` | the provider's, else the browser's | When it differs from the provider's, the element carries `lang`, so screen readers read the words in that language. |
 Every other prop, `className` and `ref` go to the `<time>`, which has `data-component="relative-time"`.
 
 ## Component tokens

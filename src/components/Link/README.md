@@ -38,21 +38,28 @@ const { Link, Text } = window.Serupa;
 - Underlined by default, so a link in a sentence doesn't rely on color alone (WCAG 1.4.1). Use `underline="hover"` only where the place already says it's a link: a nav bar, a footer, a list of links. Color alone doesn't do it in a sentence: the primary color is only 3.1–3.4:1 against body text in the light themes and 1.8–2.6:1 in the dark ones, under the 3:1 that 1.4.1 asks of a link set apart by color.
 - The primary color keeps 4.5:1 on `surface`, on hover too, and the focus ring 3:1, in all six themes (`Link.test.tsx`).
 - With `external`, screen readers hear "(opens in a new tab)" after the text, from the `opensInNewTab` label ("(terbuka di tab baru)" in `idLabels`). Link stays a Server Component: only that note is a small client component.
+- The new-tab icon stays on the line of the last word: with a text label, the last word and the icon don't break apart, so the icon never starts a line by itself.
 - Write link text that makes sense on its own ("Read the pricing guide", not "click here"): screen reader users often move from link to link.
 - The keyboard focus ring follows the text when a link wraps onto two lines.
 - `autoFocus` focuses the link once it mounts, also through `as` (React's own `autoFocus` works only on form controls). Use it sparingly, such as for the one way on from a confirmation page.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the link |
+| Enter | Follow it (Space scrolls the page, as on any link) |
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `href` | string | none | Where it goes |
 | `tone` | `'primary'` \| `'neutral'` | `'primary'` | The primary color, or the surrounding text's color (still underlined) |
 | `underline` | `'always'` \| `'hover'` | `'always'` | Always underlined, or only on hover and focus |
 | `external` | boolean | `false` | Opens a new tab (`target="_blank"`, adds `noopener noreferrer` to your `rel`), with a new-tab icon and "(opens in a new tab)" for screen readers |
-| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; it gets `className`, `ref` and every other prop. Set it once for the app with `configure({ link })`; `as` wins for one link. |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; it gets `className`, `ref` and every other prop. Set it once for the app with `configure({ link })`; `as` wins for one link. Typed: the props and `ref` are those of the element `as` names, so `as={RouterLink} to="/x"` checks `to`, and without `as` they're an `<a>`'s. A link set only with `configure({ link })` is typed as an `<a>`, so pass it `href`. |
 
-`className`, `style`, `ref`, `target`, `rel` and everything else go to the element, which has `data-component="link"`. It has no font size of its own: it takes the text around it.
+`href`, `id`, `className`, `style`, `ref`, `target`, `rel` and everything else go to the element (an `<a>`, or what `as` names), which has `data-component="link"`. It has no font size of its own: it takes the text around it.
 
 ## Component tokens
 

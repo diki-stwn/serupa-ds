@@ -2,12 +2,13 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { css, lowContrast } from '../../../tools/test/vitest/helpers';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { Combobox } from '../Combobox/Combobox';
 import { SegmentedControl } from '../SegmentedControl/SegmentedControl';
 import { Slider } from '../Slider/Slider';
 import { Input } from '../Input/Input';
+import { Radio, RadioGroup } from '../Radio/Radio';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Textarea } from '../Textarea/Textarea';
 import { Field } from './Field';
@@ -134,6 +135,19 @@ describe('Field', () => {
     expect(el('c1').matches(':disabled')).toBe(true);
   });
 
+  test('group required: the * stays hidden and the legend says "Required" in words, so the group is read as required whatever it holds; in the provider\'s words; not shown (FR1)', async () => {
+    await render(<>
+      <Field group required label="Contact by"><RadioGroup><Radio value="e">Email</Radio><Radio value="p">Phone</Radio></RadioGroup></Field>
+      <Field group required label="Extras"><label><input type="checkbox" id="x1" />Gift wrap</label></Field>
+      <SerupaProvider labels={idLabels}><Field group required label="Kontak"><label><input type="checkbox" />Surel</label></Field></SerupaProvider>
+      <Field group label="Optional set"><label><input type="checkbox" />Nothing</label></Field>
+    </>);
+    for (const name of ['Contact by Required', 'Extras Required', 'Kontak Wajib diisi']) await expect.element(page.getByRole('group', { name, exact: true })).toBeInTheDocument();
+    await expect.element(page.getByRole('group', { name: 'Optional set', exact: true })).toBeInTheDocument();
+    const legend = el('x1').closest('fieldset')!.querySelector('legend')!, said = legend.lastElementChild as HTMLElement;
+    expect([css(said).position, Math.round(said.getBoundingClientRect().width) <= 1]).toEqual(['absolute', true]);
+  });
+
   test('no React warnings', async () => {
     const error = vi.spyOn(console, 'error'), warn = vi.spyOn(console, 'warn');
     await render(<>
@@ -213,4 +227,35 @@ describe('Field', () => {
     await r.rerender(<Field label="Email"><input id="em" /></Field>);
     expect(document.getElementById('em')!.hasAttribute('aria-errormessage')).toBe(false);
   });
+
+  test('layout="horizontal" (D17): the label in a 192px column on the control\'s first line (baselines aligned), 16px from it; hint and error under the control; still named and described', async () => {
+    await render(<div style={{ width: '560px' }}>
+      <Field id="h-in" layout="horizontal" label="Display name" hint="Shown on your profile." error="Too short.">
+        <Input defaultValue="An" />
+      </Field>
+    </div>);
+    const f = el('h-in').closest('[data-component="field"]') as HTMLElement;
+    const [hintId, errorId] = described('h-in');
+    const label = el('h-in').labels![0].getBoundingClientRect(), box = el('h-in').parentElement!.getBoundingClientRect();
+    const hint = document.getElementById(hintId)!.getBoundingClientRect(), error = document.getElementById(errorId)!.getBoundingClientRect();
+    expect([f.dataset.layout, Math.round(label.width), Math.round(box.left - label.right), Math.round(box.width)]).toEqual(['horizontal', 192, 16, 560 - 192 - 16]);
+    // the label's text sits on the input's text line
+    const text = document.createRange(); text.selectNodeContents(el('h-in').labels![0].firstChild!);
+    const input = el('h-in').getBoundingClientRect();
+    expect(Math.abs((text.getBoundingClientRect().top + text.getBoundingClientRect().bottom) / 2 - (input.top + input.bottom) / 2)).toBeLessThan(2);
+    expect([hint.top >= box.bottom, error.top >= hint.bottom, Math.round(hint.left) === Math.round(box.left)]).toEqual([true, true, true]);
+    expect([el('h-in').labels![0].textContent, described('h-in').length, el('h-in').getAttribute('aria-invalid')]).toEqual(['Display name', 2, 'true']);
+  });
+
+  test('layout="horizontal" stacks again when the field is narrower than both columns, and is ignored with group', async () => {
+    await render(<>
+      <div style={{ width: '300px' }}><Field id="h-narrow" layout="horizontal" label="Display name"><Input /></Field></div>
+      <div style={{ width: '560px' }}><Field group layout="horizontal" label="Plan" data-testid="h-group"><RadioGroup name="p"><Radio value="a">A</Radio></RadioGroup></Field></div>
+    </>);
+    const label = el('h-narrow').labels![0].getBoundingClientRect(), box = el('h-narrow').parentElement!.getBoundingClientRect();
+    expect([box.top >= label.bottom, Math.round(box.left), Math.round(box.width)]).toEqual([true, Math.round(label.left), 300]);
+    const g = document.querySelector('[data-testid="h-group"]') as HTMLElement;
+    expect([g.tagName, g.classList.contains('dk-field--horizontal'), g.dataset.layout]).toEqual(['FIELDSET', false, undefined]);
+  });
 });
+

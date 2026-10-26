@@ -1,11 +1,14 @@
 "use client";
 import * as React from "react";
+import { pressFocuses } from "../../internal/affix";
 import { cn, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { useLocale, useSerupa } from "../../internal/provider";
+import { collatorFor } from "../../internal/collator";
 import * as icons from "../../material/builtin";
 import { warnOnce } from "../../internal/warn";
 import { useFormReset } from "../../internal/useFormReset";
@@ -21,7 +24,7 @@ export interface PhoneValueDetails {
   complete: boolean;
 }
 
-export interface PhoneInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "onChange" | "leftIcon" | "rightIcon"> {
+export interface PhoneInputProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "onChange" | "leftIcon" | "rightIcon"> {
   /** The number in E.164, such as "+6281234567890", or "" (controlled). Use with onValueChange. */
   value?: string;
   /** The number at first (uncontrolled), in E.164. */
@@ -45,6 +48,7 @@ export interface PhoneInputProps extends Omit<InputProps, "type" | "showCount" |
 const own = { size: 1, invalid: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, country: 1, defaultCountry: 1,
   onCountryChange: 1, countries: 1, countryLabel: 1, name: 1, onKeyDown: 1 } as const;
 
+const never = () => () => {}, yes = () => true, no = () => false;
 const regionOf = (locale: string): string | undefined => {
   try { return new Intl.Locale(locale).maximize().region; } catch { return undefined; }
 };
@@ -63,6 +67,7 @@ const caretAfter = (text: string, n: number): number => {
 /** A phone number field: a country menu and a tel field that groups the number as people type, reporting E.164 ("+6281234567890"). */
 export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInputProps>("PhoneInput", function PhoneInput(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
+  const nameRef = useNameCheck("PhoneInput", NAME_HOW.field);   // warns when it has no accessible name
   const sds = useSerupa();
   const locale = useLocale();
   const rest = omit(props, own);
@@ -78,12 +83,17 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     return mine.map((c) => ({ ...c, code: c.code.toUpperCase() })).concat(PHONE_COUNTRIES.filter((c) => !codes.has(c.code)));
   }, [props.countries]);
   const find = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
+  // Country names come from the runtime's Intl data, and a server's (Node's ICU) words some of them differently from
+  // the browser's ("Falkland Islands (Islas Malvinas)"), so the names and their order may not match the server HTML.
+  // The hydration render keeps the server's options as sent; right after it they are drawn again, in the browser's words.
+  const hydrated = React.useSyncExternalStore(never, yes, no);
   const list = React.useMemo(function () {
     const pick = (code: string | undefined) => (code ? table.find((c) => c.code === code.toUpperCase()) : undefined);
     const picked = props.countries ? props.countries.map((c) => pick(typeof c === "string" ? c : c && c.code)).filter((c): c is PhoneCountry => !!c) : table.slice();
+    const order = collatorFor(locale);
     let names: Intl.DisplayNames | undefined;
     try { names = new Intl.DisplayNames([locale], { type: "region" }); } catch { names = undefined; }
-    return picked.map((c) => ({ c, name: (names && names.of(c.code)) || c.code })).sort((a, b) => a.name.localeCompare(b.name, locale));
+    return picked.map((c) => ({ c, name: (names && names.of(c.code)) || c.code })).sort((a, b) => order.compare(a.name, b.name));
   }, [props.countries, table, locale]);
   const fallback = find(props.defaultCountry) || find(regionOf(locale)) || find("US") || phoneCountry("US")!;
   const start = parsePhone(props.value ?? props.defaultValue ?? "", props.country ?? props.defaultCountry, table);
@@ -91,6 +101,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const [ownCountry, setOwnCountry] = React.useState<string>(() => (start ? start.country.code : fallback.code));
   const country = find(props.country) || find(ownCountry) || fallback;
   const [national, setNational] = React.useState(() => (start ? start.national : ""));
+  // The digits as last typed, pasted or set: a new country cuts the number to its length from these, so arrowing
+  // through the menu (a change per arrow) doesn't leave it cut to the shortest country passed on the way.
+  const typed = React.useRef(national);
   // A controlled value that changed from outside (not the one this field just reported) is read again.
   const reported = React.useRef(start ? toE164(start.national, start.country) : "");
   let shown = national;
@@ -98,15 +111,16 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     const p = parsePhone(props.value, country.code, table);
     shown = p ? p.national : "";
     reported.current = props.value;
-    if (shown !== national) setNational(shown);
+    if (shown !== national) { setNational(shown); typed.current = shown; }
     if (p && p.country.code !== country.code && props.country === undefined) setOwnCountry(p.country.code);
   }
 
   const input = React.useRef<HTMLInputElement | null>(null);
   const setRef = React.useCallback(function (node: HTMLInputElement | null) {
     input.current = node;
+    nameRef(node);
     if (typeof ref === "function") ref(node); else if (ref) ref.current = node;
-  }, [ref]);
+  }, [ref, nameRef]);
   // A form reset puts the default number and country back (uncontrolled), in the field and in what the form sends; a
   // controlled field shows its value again (the browser reset the text to its first value).
   const [, rerender] = React.useState(0);
@@ -114,6 +128,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     if (props.value === undefined) {
       const d = parsePhone(props.defaultValue ?? "", props.defaultCountry, table);
       setNational(d ? d.national : "");
+      typed.current = d ? d.national : "";
       if (props.country === undefined) setOwnCountry(d ? d.country.code : fallback.code);
       reported.current = d ? toE164(d.national, d.country) : "";
     }
@@ -121,14 +136,16 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   });
   const caret = React.useRef<number | null>(null);
   const text = formatNational(shown, country);
+  // every render: an edit that reformats the number asks for the caret back, and the new text is there only after the render.
   React.useLayoutEffect(function () {
     if (caret.current == null || !input.current || document.activeElement !== input.current) return;
     input.current.setSelectionRange(caret.current, caret.current);
     caret.current = null;
   });
 
-  const commit = function (digits: string, c: PhoneCountry) {
+  const commit = function (digits: string, c: PhoneCountry, picked?: boolean) {
     digits = digits.slice(0, c.max);
+    if (!picked) typed.current = digits;
     setNational(digits);
     if (c.code !== country.code) {
       if (props.country === undefined) setOwnCountry(c.code);
@@ -148,7 +165,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     if (/^\s*(\+|00)/.test(raw)) {
       const p = parsePhone(raw, country.code, table);
       if (p) { const d = commit(p.national, p.country); caret.current = formatNational(d, p.country).length; return; }
-      if (raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
+      if (process.env.NODE_ENV !== "production" && raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
     }
     const all = raw.replace(/\D/g, "");
     let digits = stripTrunk(all, country);
@@ -178,18 +195,20 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
 
   const onCountry = function (e: React.ChangeEvent<HTMLSelectElement>) {
     const c = find(e.target.value);
-    if (c) commit(shown, c);
+    if (c) commit(typed.current, c, true);
   };
 
+  // The 244 options as elements made once per list, so typing (a render per key) doesn't rebuild and compare them all.
+  const options = React.useMemo(() => list.map(({ c, name }) => <option key={(hydrated ? "" : "server-") + c.code} value={c.code} suppressHydrationWarning>{name + " (+" + c.dial + ")"}</option>), [list, hydrated]);
   return (
     <span className={cn("dk-input dk-phone-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="phone-input" data-size={size}>
+      style={props.style} data-component="phone-input" data-size={size} onMouseDown={pressFocuses(input)}>
       <span className="dk-phone-input__country">
         <span className="dk-phone-input__dial" aria-hidden>+{country.dial}</span>
         <Icon icon={icons.ExpandMore} className="dk-phone-input__chevron" />
         <select className="dk-phone-input__select" value={country.code} onChange={onCountry} disabled={rest.disabled || rest.readOnly}
           aria-label={props.countryLabel || sds.labels.country}>
-          {list.map(({ c, name }) => <option key={c.code} value={c.code}>{name + " (+" + c.dial + ")"}</option>)}
+          {options}
         </select>
       </span>
       <input autoComplete="tel-national" {...rest} ref={setRef} type="tel" inputMode="tel" className="dk-input__field" value={text} onChange={onChange} onKeyDown={onKeyDown} />

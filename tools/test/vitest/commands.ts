@@ -2,7 +2,7 @@
 // They drive Playwright's real mouse. userEvent.dragAndDrop lost the moves after a pointer capture in Firefox, and a
 // userEvent.click with a delay can be over before a test sees the press.
 import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
-import type { FrameLocator, Page } from 'playwright';
+import type { CDPSession, FrameLocator, Page } from 'playwright';
 
 type Point = { x: number; y: number };
 
@@ -41,7 +41,33 @@ export const forcedColors: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ forcedColors: on ? 'active' : 'none' });
 };
 
+/** Makes the page a touch screen, (pointer: coarse) and (hover: none), as on a phone, or back. Chromium only
+ *  (DevTools touch emulation); elsewhere it throws. */
+const touch = new WeakMap<Page, CDPSession>();
+export const coarsePointer: BrowserCommand<[on: boolean]> = async (ctx, on) => {
+  const { page } = playwright(ctx);
+  // The session that turned it on turns it off: an override belongs to the session that set it.
+  let cdp = touch.get(page);
+  if (!cdp) { cdp = await page.context().newCDPSession(page); touch.set(page, cdp); }
+  await cdp.send('Emulation.setTouchEmulationEnabled', on ? { enabled: true, maxTouchPoints: 5 } : { enabled: false });
+};
 /** Lays the page out as for printing (@media print) or back for the screen. */
 export const printMedia: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ media: on ? 'print' : 'screen' });
+};
+
+/** The accessibility tree under `selector` as Playwright writes it (ariaSnapshot: roles, names, states, as YAML). */
+export const ariaSnapshot: BrowserCommand<[selector: string]> = async (ctx, selector) => playwright(ctx).iframe.locator(selector).ariaSnapshot();
+
+// The accessibility-tree baselines (E3) are Chromium's, in English: other engines and locales name and nest some
+// things differently, so those runs leave them alone. SERUPA_UPDATE_ARIA=1 writes them instead of checking.
+const ARIA = 'tools/test/baseline-aria';
+/** "check", "update" (SERUPA_UPDATE_ARIA) or "off" (another engine or a locale run). */
+export const ariaMode: BrowserCommand<[]> = async () =>
+  (process.env.SERUPA_BROWSER && process.env.SERUPA_BROWSER !== 'chromium') || process.env.SERUPA_LOCALE ? 'off' : process.env.SERUPA_UPDATE_ARIA ? 'update' : 'check';
+/** Writes one component's accessibility-tree baseline, tools/test/baseline-aria/<name>.yml. */
+export const writeAriaBaseline: BrowserCommand<[name: string, text: string]> = async (_ctx, name, text) => {
+  const fs = await import('node:fs');
+  fs.mkdirSync(ARIA, { recursive: true });
+  fs.writeFileSync(`${ARIA}/${name}.yml`, text);
 };

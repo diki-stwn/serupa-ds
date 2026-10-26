@@ -34,31 +34,47 @@ const [start, setStart] = React.useState<string | null>("09:00");
 
 - People type `2:30 pm`, `2:30p`, `2pm`, `14:30`, `1430` or `9`. Without AM or PM, 13–23 are afternoon and 0–11 morning. The locale's own form is read too, as the field writes it: `오후 2:05` in Korean, `٢:٠٥ م` in Egyptian Arabic, `۱۴:۰۵` in Persian, with digits in any script. The text is read on blur and Enter; text that isn't a time, or a time outside `min`–`max`, puts back the last good value.
 - The list opens on ↓ or ↑ in the field, or the clock button, with the chosen time (or the one nearest the typed text) highlighted and near the top.
+- A press anywhere on the box, on its start padding or past the clock button, focuses the field with the caret at the end, as the text cursor over the box promises.
 - In the list: ↑ ↓ move one time, PageUp and PageDown four, Ctrl+Home and Ctrl+End to the ends, Enter picks, Escape closes, Tab closes and moves on. Typing while the list is open moves the highlight to the nearest time, and Enter then keeps what was typed. Focus stays in the field throughout, the clock button included.
 
 ## Accessibility
 
 - The field is an ARIA combobox (`aria-haspopup="listbox"`, `aria-expanded`, `aria-activedescendant`) and the list a `role="listbox"` with `aria-selected` on the chosen time. The check is decorative.
+- The placeholder and the format in the field's description ("Format: hh:mm AM/PM", after a Field hint) follow the locale's order, separator and AM/PM words: "hh.mm" in id-ID, "오전/오후 hh:mm" in ko. The words come from the `formatHint` label.
 - The clock button is out of the tab order, since ↓ in the field does the same.
 - Times keep 4.5:1 (also highlighted), and the check and clock icon 3:1, in all six themes (`TimePicker.test.tsx`).
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Down / Up | In the field, opens the list; in the list, the next or previous time |
+| PageDown / PageUp | Four times down or up the list |
+| Ctrl+Home / Ctrl+End | The first or last time (Alt works too) |
+| Enter | Picks the highlighted time, or reads what was typed; with the list closed, reads what was typed |
+| Escape | Closes the list |
+| Tab | Closes the list and moves on; the clock button isn't a Tab stop |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` / `defaultValue` | `string \| null` | | The time as `"HH:mm"` (24-hour), controlled or not. The same format as `<input type="time">`. |
 | `onValueChange` | `(value: string \| null) => void` | | Called with `"HH:mm"`, or `null` when the field is cleared. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a time) or `"unavailable"` (outside `min`..`max`). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
 | `min`, `max` | `string` | `"00:00"`, `"23:59"` | The earliest and latest times, typed or picked. |
-| `step` | `number` | `30` | Minutes between the times in the list, counted from `min` (or midnight), like `<input type="time">`. Under 1, it's 30. Typed times don't have to fall on a step. |
-| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | How times are written. |
+| `step` | `number` | `30` | **Minutes** between the times in the list, counted from `min` (or midnight). Under 1, it's 30. Typed times don't have to fall on a step. `<input type="time">` counts its `step` in seconds, so a native `step={900}` (15 minutes) becomes `step={15}` here; `step={900}` would list a time every 15 hours. |
+| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | How times are written. When it differs from the provider's, the field and the options carry `lang`, so screen readers read them in that language. |
 | `hour12` | `boolean` | the locale's | 12-hour (2:30 PM) or 24-hour (14:30). |
 | `size`, `invalid` | | `'md'`, `false` | Like Input. |
 | `name` | `string` | | Adds a hidden input that sends `"HH:mm"`. With `form`, the hidden input belongs to that form too. |
-| `placeholder` | `string` | `"hh:mm am"` or `"hh:mm"` | |
+| `placeholder` | `string` | the locale's format: `"hh:mm AM/PM"` (en-US), `"hh:mm"` (en-GB), "hh.mm" (id-ID) | |
 | `listLabel` | `string` | `"Choose a time"` | The list's name, and the clock button's. |
 
 `disabled`, `readOnly`, `id`, `aria-*`, `onBlur`, `onKeyDown` and `ref` go to the text field; `className` and `style` to the box.
+
+`autoComplete` is `off` unless you pass one.
 
 ## Component tokens
 
@@ -82,6 +98,6 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--time-picker-option-height` | `control-height-md` | Each time's height (32px). |
 | `--time-picker-list-padding` | `spacing-1` | Space inside the list (4px). |
 | `--time-picker-offset` | `spacing-1` | The gap between the field and the list (4px). |
-| `--time-picker-z-index` | `z-50` | The list's stacking order, where the top layer isn't available. |
+| `--time-picker-z-index` | `z-popover` | The list's stacking order, where the top layer isn't available. |
 
 It uses Input's box, so it lines up with other fields.

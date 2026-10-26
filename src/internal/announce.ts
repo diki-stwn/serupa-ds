@@ -10,6 +10,7 @@ const assertive: Channel = { el: null, queue: [], since: 0, timer: null };
 const HOLD = 500;   // each message stays this long before the next one replaces it, so a quick second one doesn't drop the first
 
 const home = () => topModal() || document.body;
+// module state: browser only (it watches the page's open modals); a server render never sets it.
 let watching = false;
 function region(ch: Channel, live: "polite" | "assertive"): HTMLDivElement | null {
   if (ch.el || typeof document === "undefined") return ch.el;
@@ -36,7 +37,8 @@ export function ensureAnnouncer(): HTMLDivElement | null {
 function pump(ch: Channel): void {
   if (ch.timer || !ch.queue.length || !ch.el) return;
   const el = ch.el;
-  const wait = Math.max(0, ch.since + HOLD - Date.now());
+  // At most HOLD: if the clock went back (a system time change, a test's fake clock), the wait doesn't grow with it.
+  const wait = Math.min(HOLD, Math.max(0, ch.since + HOLD - Date.now()));
   ch.timer = setTimeout(function () {
     el.textContent = "";
     // Cleared first so the same text is announced again.
@@ -57,7 +59,8 @@ function said(queued: string, text: string): boolean {
   return at >= 0 && (at === 0 || /[.!?…。] $/.test(queued.slice(0, at)) || queued.slice(at - 2, at) === ". ") && (at + text.length === queued.length || /^(\.? )/.test(queued.slice(at + text.length)));
 }
 
-/** Says text to screen readers. assertive interrupts what's being read: only for errors. */
+/** Says text to screen readers through the live regions the components use, which move into an open Dialog or Drawer
+ *  so they're heard there too. A burst is said as one message. assertive interrupts what's being read: only for errors. */
 export function announce(text: string, options?: { assertive?: boolean }): void {
   const ch = options && options.assertive ? assertive : polite;
   if (!region(ch, options && options.assertive ? "assertive" : "polite")) return;

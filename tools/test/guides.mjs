@@ -1,6 +1,7 @@
 // Usage guides: every component's README.md has the sections docs/usage-guide-template.md requires, so each
 // Storybook page says when to use the component, when not to, and how it meets accessibility; and every test or
-// tool file a guide names (`tools/test/menu.mjs`, `Menu.test.tsx`) exists.
+// tool file a guide names (`tools/test/menu.mjs`, `Menu.test.tsx`) exists; and every class the docs name exists in
+// dist/bundle.css (npm run build first), so a page never recommends one that does nothing.
 //   node tools/test/guides.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,5 +24,39 @@ for (const name of fs.readdirSync(DIR).sort()) {
   const order = REQUIRED.filter((h) => headings.includes(h)).map((h) => headings.indexOf(h));
   const inOrder = order.every((v, i) => !i || v > order[i - 1]);
   t(`${name}: the guide has ${REQUIRED.join(', ')}, in that order`, !missing.length && inOrder, missing.length ? `missing: ${missing.join(', ')}` : `order: ${headings.join(' · ')}`);
+  // Where an id lands (BC2): the root, the native field inside, or nowhere. A reader needs to know before pointing a
+  // <label htmlFor>, aria-describedby or a link at it. A `| \`id\` |` row, or `id` named in prose, under Props.
+  const props = (md.split(/^## Props\s*$/m)[1] || '').split(/^## /m)[0];
+  t(`${name}: the Props section says where \`id\` goes`, /`id`/.test(props), 'add an `id` row: the root element, the native field inside, or not a prop');
+  // What the keyboard does, under Accessibility: a "### Keyboard" part or a "**Keyboard:**" line ("none: it isn't
+  // focusable" is an answer). A component that handles keys itself (keydown in its source) needs a | Key | … | table.
+  const a11y = (md.split(/^## Accessibility\s*$/m)[1] || '').split(/^## /m)[0];
+  const said = /^### Keyboard\b|\*\*Keyboard:\*\*/m.test(a11y);
+  const table = /^\s*\| Key \|/m.test(a11y);
+  const keys = /onKeyDown|keydown/.test(fs.readFileSync(path.join(DIR, name, `${name}.tsx`), 'utf8'));
+  const ok = said && (!keys || table);
+  const why = !said ? 'no "### Keyboard" part or "**Keyboard:**" line under Accessibility' : 'it handles keys: add a | Key | Does | table';
+  t(`${name}: the guide says what the keyboard does`, ok, why);
+}
+// The classes the docs name: each word of a class="…" in an example, and each prefixed class in backticks
+// (`md:gap-12`). Utilities have only breakpoint prefixes, so `hover:scale-105` or `focus:not-sr-only` would silently
+// do nothing. A bare `scale-105` in backticks is left alone: a token has the same name.
+const bundle = path.join(PROJECT, 'dist', 'bundle.css');
+if (!fs.existsSync(bundle)) t('the classes the docs name exist in dist/bundle.css', false, 'npm run build first');
+else {
+  const css = fs.readFileSync(bundle, 'utf8');
+  const exists = (c) => css.includes('.' + c.replace(/[:/.[\]%]/g, (m) => '\\' + m));
+  const docs = ['README.md', ...fs.readdirSync(path.join(PROJECT, 'docs')).filter((f) => /\.mdx?$/.test(f)).map((f) => `docs/${f}`),
+    ...fs.readdirSync(DIR).map((n) => `src/components/${n}/README.md`).filter((f) => fs.existsSync(path.join(PROJECT, f)))];
+  const unknown = [];
+  for (const f of docs) {
+    const text = fs.readFileSync(path.join(PROJECT, f), 'utf8');
+    const named = [
+      ...[...text.matchAll(/class(?:Name)?="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)).filter((c) => /^[a-z-]/.test(c)),
+      ...[...text.matchAll(/`([^`\n]+)`/g)].flatMap((m) => m[1].split(/\s+/)).filter((w) => /^[a-z0-9]+:[a-z-][\w\-/.[\]%]*$/.test(w)),
+    ];
+    for (const c of new Set(named)) if (!exists(c)) unknown.push(`${f}: ${c}`);
+  }
+  t('the classes the docs name exist in dist/bundle.css', !unknown.length, unknown.slice(0, 12).join(', '));
 }
 done(report('Usage guides', R));

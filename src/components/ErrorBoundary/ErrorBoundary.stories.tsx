@@ -45,3 +45,8 @@ export const CustomFallback: Story = {
 
 /** Working until it breaks: press the button, then Try again. */
 export const Interactive: Story = { args: { children: <Flaky /> } };
+
+export const LongText: Story = {
+  args: { title: "We couldn't load the quarterly revenue chart for every region", description: 'The rest of the page still works. Donaudampfschifffahrtsgesellschaftskapitänskajüte reported the problem, so try again in a moment.' },
+  render: (args) => <div style={{ width: 240 }}><ErrorBoundary {...args} /></div>,
+};

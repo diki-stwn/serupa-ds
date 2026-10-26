@@ -34,6 +34,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 
 ## Usage
 
+- The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").
 - Keep it small: a few fields or a short paragraph. If it needs scrolling, use a [Drawer](../Drawer/README.md) or a [Dialog](../Dialog/README.md).
 - Give it a `title`, or an `aria-label` when there's none, so it has a name.
 - Use the function form of `children` to close it from a Done, Cancel or submit button.
@@ -42,9 +43,19 @@ const { Popover, Button, Field, Input } = window.Serupa;
 ## Accessibility
 
 - The panel is a `role="dialog"` named by its title (or `aria-label`); the trigger has `aria-expanded` and `aria-controls`.
+- The title is an `<h2>`, as in Dialog, so screen reader users can jump to it by heading; set `headingLevel` to fit the page's outline.
 - Opening moves focus inside; Escape and `close()` return it to the trigger. It sits right after the trigger in the tab order, so Tab moves from the trigger into it.
 - A click outside or focus moving elsewhere closes it, without moving focus.
-- Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`). With reduced motion it appears without growing in.
+- Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`).
+- It fades and grows in out of its trigger over 150ms, and fades and shrinks back over 100ms when it closes; with reduced motion it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Its content stays while it fades out, inert, and focus goes back to the trigger at once. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing popover in the top layer yet, so there it closes at once.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Enter / Space | On the trigger, opens it and moves focus inside |
+| Tab | From the trigger into the panel, which sits right after it; out of the panel, closes it |
+| Escape | Closes it and returns focus to the trigger |
 
 ## Props
 
@@ -53,11 +64,15 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `trigger` | element | required | One element that can take focus; it gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls` |
 | `children` | node, or `(close) => node` | required | The content. The function form gets `close()` for a Done or Cancel button |
 | `title` | node | none | A heading at the top that names it |
+| `headingLevel` | `2`–`6` | `2` | The title's heading level, to fit the page outline |
 | `placement` | `'bottom'`, `'top'`, `'left'`, `'right'`, each with `-start` or `-end` | `'bottom'` | Where it goes; it flips and shifts to stay on screen, and with no room on either side it takes the roomier one and scrolls inside. On the left or right, a popover wider than the room beside its trigger gets that width and wraps |
-| `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled) |
+| `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled). onOpenChange(open, { reason }) says why: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` |
+| `defaultOpen` | boolean | `false` | Open at first (uncontrolled) |
 | `aria-label` | string | none | Its name when there's no title |
 | `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |
 | `className`, `style` | | | Go to the panel, which has `data-component="popover"` and `data-side` |
+
+`id` isn't a prop. Put an id on the trigger, which keeps it; the panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
 
 ## Component tokens
 
@@ -79,4 +94,4 @@ Each is an optional override: set it on the page, a container or one popover. Th
 | `--popover-padding` | `spacing-4` | Space inside the panel (16px). |
 | `--popover-gap` | `spacing-2` | Space under the title (8px). |
 | `--popover-offset` | `spacing-2` | The gap between the panel and its trigger (8px). |
-| `--popover-z-index` | `z-50` | The stacking level where the browser has no top layer (popover). |
+| `--popover-z-index` | `z-popover` | The stacking level where the browser has no top layer (popover). |

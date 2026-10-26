@@ -4,13 +4,14 @@ import { render } from 'vitest-browser-react';
 import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Progress } from './Progress';
+import { idLabels } from '../../internal/labels';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const pb = (id: string) => (el(id).querySelector('[role=progressbar]') || el(id));
 // How much of the track the fill covers, in whole percent.
 const share = (id: string) => {
   const tr = el(id).querySelector('.dk-progress__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-progress__fill')!.getBoundingClientRect();
-  return Math.round(f.width / tr.width * 100);
+  return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
 const thick = (id: string) => Math.round(el(id).querySelector('.dk-progress__track')!.getBoundingClientRect().height);
 const value = (id: string) => el(id).querySelector('.dk-progress__value')?.textContent ?? null;
@@ -20,7 +21,8 @@ let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
 afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); });
 
-const Wrap = ({ children }: { children: React.ReactNode }) => <div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div>;
+// The examples are in English whatever language the browser is in (run.mjs --locale); a test of another locale sets its own.
+const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div></SerupaProvider>;
 
 describe('Progress', () => {
   test('bar: a progressbar with valuenow 45, min 0, max 100 and valuetext "45%", named by its label; ref and className reach the outer box', async () => {
@@ -77,12 +79,12 @@ describe('Progress', () => {
   });
 
   test('circle: a 40px progressbar ring (24, 64px for sm, lg), the arc 30% round, the value inside for md and lg only; without a value a quarter arc that turns', async () => {
-    await render(<div>
+    await render(<SerupaProvider locale="en-US"><div>
       <Progress id="c1" variant="circle" value={30} showValue aria-label="Storage" />
       <Progress id="csm" variant="circle" size="sm" value={30} showValue aria-label="sm" />
       <Progress id="clg" variant="circle" size="lg" value={30} showValue aria-label="lg" />
       <Progress id="cind" variant="circle" aria-label="Loading" />
-    </div>);
+    </div></SerupaProvider>);
     const r = (id: string) => el(id).getBoundingClientRect(), dash = (id: string) => el(id).querySelector('.dk-progress__arc')!.getAttribute('stroke-dasharray');
     expect([Math.round(r('c1').width), Math.round(r('c1').height), Math.round(r('csm').width), Math.round(r('clg').width)]).toEqual([40, 40, 24, 64]);
     expect([el('c1').getAttribute('role'), el('c1').getAttribute('aria-valuenow'), el('c1').getAttribute('aria-label'), dash('c1')]).toEqual(['progressbar', '30', 'Storage', '30 100']);
@@ -118,4 +120,55 @@ describe('Progress', () => {
     await render(<Wrap><Progress id="tok" value={60} aria-label="tok" style={{ '--progress-fill': 'rgb(1, 2, 3)' } as React.CSSProperties} /></Wrap>);
     expect(css(el('tok').querySelector('.dk-progress__fill')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
+});
+
+describe('Progress: done', () => {
+  test('announceComplete says "Upload: complete" once when the value reaches max, not on mount at max or on the way; onComplete runs each time it gets there; own words and Indonesian', async () => {
+    const said: string[] = [], dones: number[] = [];
+    function App(props: { v: number; words?: string }) {
+      return <><Progress id="pdone" label="Upload" value={props.v} announceComplete={props.words || true} onComplete={() => dones.push(props.v)} />
+        <Progress id="pfull" aria-label="Quota" value={100} announceComplete onComplete={() => dones.push(-1)} /></>;
+    }
+    const screen = await render(<App v={10} />);
+    const live = document.querySelector('[data-dk-announcer]')!;
+    const watch = new MutationObserver(() => { if (live.textContent) said.push(live.textContent); });
+    watch.observe(live, { childList: true, characterData: true, subtree: true });
+    await screen.rerender(<App v={60} />);
+    await screen.rerender(<App v={100} />);
+    await expect.poll(() => said.length).toBeGreaterThan(0);
+    await screen.rerender(<App v={30} />);
+    await screen.rerender(<App v={100} words="All files uploaded" />);
+    await expect.poll(() => said.at(-1)).toBe('All files uploaded');
+    watch.disconnect();
+    expect([[...new Set(said)], dones]).toEqual([['Upload: complete', 'All files uploaded'], [100, 100]]);
+    expect([idLabels.progressComplete('Unggah'), idLabels.progressComplete('')]).toEqual(['Unggah: selesai', 'Selesai']);
+  });
+  test('a new value moves the fill on translate, not its width, and right to left it fills from the right (FB1)', async () => {
+    const bar = (v: number) => <Wrap><div dir="rtl"><Progress id="mv" value={v} aria-label="mv" /></div></Wrap>;
+    const { rerender } = await render(bar(30));
+    const own = () => el('mv').querySelector('[role=progressbar]')!.firstElementChild as HTMLElement;
+    await withMotion(async () => {
+      void css(own()).translate;   // where it starts from
+      await rerender(bar(70));
+      const moves = own().getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
+      expect(moves.map((a) => a.transitionProperty)).toEqual(['translate']);
+      await Promise.all(moves.map((a) => a.finished));
+    });
+    const tr = own().parentElement!.getBoundingClientRect(), f = own().getBoundingClientRect();
+    expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
+  });
+
+  test('reduced motion: the indeterminate circle stands still and breathes (opacity, 2s), as Loader\'s ring does (EE1)', async () => {
+    await render(<Progress id="crm" variant="circle" aria-label="Loading" />);
+    const ring = el('crm').querySelector('svg') as SVGElement;
+    const rules = [...document.styleSheets].flatMap((sh) => { try { return [...sh.cssRules]; } catch { return []; } });
+    const flat = (rs: CSSRule[]): CSSRule[] => rs.flatMap((r) => (r instanceof CSSGroupingRule ? [r, ...flat([...r.cssRules])] : [r]));
+    const rm = flat(rules).filter((r): r is CSSMediaRule => r instanceof CSSMediaRule && /prefers-reduced-motion:\s*reduce/.test(r.conditionText) && /dk-progress/.test(r.cssText));
+    const was = rm.map((r) => r.media.mediaText);
+    rm.forEach((r) => { r.media.mediaText = '(min-width: 0px)'; });
+    try {
+      expect(withMotion(() => { const s = css(ring); return `${s.animationName} ${s.animationDuration}`; })).toBe('dk-progress-breathe 2s');
+    } finally { rm.forEach((r, i) => { r.media.mediaText = was[i]; }); }
+  });
+
 });

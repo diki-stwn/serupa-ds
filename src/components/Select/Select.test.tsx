@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Select } from './Select';
 
@@ -30,6 +30,22 @@ describe('Select', () => {
     expect([field('md').tagName, box('md').dataset.component, f.appearance]).toEqual(['SELECT', 'select', 'none']);
     expect(box('md').className).toMatch(/dk-select dk-select--size-md/);
     expect([b.height, f.fontSize, f.paddingLeft, f.paddingRight, b.borderTopWidth, b.borderRadius]).toEqual(['32px', '14px', '12px', '36px', '1px', '6px']);
+  });
+
+  test('keyboard table: Tab reaches the select; ArrowDown and ArrowUp pick the next and previous option, skipping a disabled one; Space goes to the browser, which opens its list (FH1)', async () => {
+    const changes: string[] = [];
+    await render(<Grid><button id="kb-before">before</button><Select id="kb-s" aria-label="Pick" defaultValue="a" onChange={(e) => changes.push(e.target.value)} options={['a', { value: 'b', label: 'Bee', disabled: true }, 'c']} /></Grid>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id;
+    await userEvent.keyboard('{ArrowDown}{ArrowUp}');
+    let cancelled: boolean | null = null;
+    const watch = (e: KeyboardEvent) => { if (e.key === ' ') cancelled = e.defaultPrevented; };
+    window.addEventListener('keydown', watch);
+    await userEvent.keyboard(' ');
+    window.removeEventListener('keydown', watch);
+    await userEvent.keyboard('{Escape}');
+    expect([at, changes, cancelled]).toEqual(['kb-s', ['c', 'a'], false]);
   });
 
   test('sizes: sm 24px text-xs, lg 44px text-base; an unknown size falls back to md; multiple is ignored with a warning', async () => {
@@ -89,7 +105,7 @@ describe('Select', () => {
     const i = field('grp');
     expect([...i.querySelectorAll('optgroup')].map((g) => g.label + '=' + [...g.children].map((o) => (o as HTMLOptionElement).value).join('/')).join()).toBe('Europe=London/Paris');
     expect([...i.options].map((o) => o.value).join()).toBe('London,Paris,Tokyo,kid');
-    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('.dk-icon'))?.dataset.icon).join())
+    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).join())
       .toBe('true:none:schedule,true:none:expand_more');
     expect(css(i).paddingLeft).toBe('36px');
   });
@@ -145,4 +161,14 @@ describe('Select', () => {
       ['invalid', 'var(--danger)', 'var(--field)', 3],
     ])).toEqual([]);
   });
+
+  test('the focus ring shows at once (no transition in), so a field focused as a popup opens doesn\'t animate on its first frame; it still fades out on blur', () => withMotion(async () => {
+    await render(<><Select id="ring" aria-label="Fruit" options={['Apple', 'Pear']} /><button id="away">Away</button></>);
+    const f = document.getElementById('ring') as HTMLSelectElement, b = document.getElementById('ring')!.closest('[data-component=select]') as HTMLElement;
+    const shadows = () => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    f.focus();
+    expect([shadows(), css(b).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    (document.getElementById('away') as HTMLElement).focus();
+    expect(shadows()).toBe(1);
+  }));
 });

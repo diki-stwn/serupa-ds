@@ -57,18 +57,29 @@ const { Select, Field } = window.Serupa;
 - Every select needs a name: Field, a `<label htmlFor>` or `aria-label`. The placeholder isn't a label.
 - The chevron and left icon are decorative and don't take clicks: a click anywhere in the box opens the select.
 - Text and placeholder keep 4.5:1 on `field`; the chevron, border, focus ring and invalid border 3:1, in all six themes (`Select.test.tsx`).
+- Native constraints (`required` with an empty first option) show too: a field that fails them takes the `invalid` border once people have edited it or tried to send the form (`:user-invalid`), never on first paint. It's only the color: `aria-invalid` and the message stay yours (set `invalid` and Field's `error` when you check it yourself). To keep the browser out of it, leave out the attribute and check the value in your own code.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the select |
+| ↑ ↓ | The previous or next option (on macOS, opens the list) |
+| Alt+↓, Space | Opens the browser's list |
+| A letter | The next option that starts with it |
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<select>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | 24px with `text-xs`, 32px with `text-sm`, 44px with `text-base`, like Input |
 | `options` | array | | Strings (value and label), `{ value, label, disabled }`, or groups `{ label, options, disabled }`. `<option>` and `<optgroup>` children come after them |
 | `placeholder` | string | | A first, empty option shown in the placeholder color until something is picked. It can't be picked back. An uncontrolled Select starts on it |
 | `leftIcon` | icon name or element | | A decorative icon before the text (14, 16 or 20px, in `text-muted`) |
 | `invalid` | boolean | `false` | A danger border and focus ring, and `aria-invalid` |
 
-Everything else (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<select>`. `className` and `style` go to the box, so `className="w-48"` sets its width (full width by default). The box has `data-component="select"` and `data-size`. `multiple` isn't supported (a native multi-select is hard to use): it's ignored with a warning; use checkboxes.
+Everything else (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `required`, `id`, `aria-*`) and `ref` go to the `<select>`. `className` and `style` go to the box, so `className="w-48"` sets its width (full width by default). The box has `data-component="select"` and `data-size`. `multiple` isn't supported (a native multi-select is hard to use): it's ignored with a warning; use checkboxes. Inside a `<fieldset disabled>` the box takes the disabled look too, as the native select is disabled with it.
 
 ## Component tokens
 

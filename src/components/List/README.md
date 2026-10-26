@@ -1,6 +1,6 @@
 # List
 
-Rows of related things: people, files, notifications, settings. Each row has a title, an optional muted description, something before it (an Avatar or an icon) and something after it (a date, a Badge, an action). A row can be a link or a button; trailing actions stay outside it, so controls are never nested.
+Rows of related things: people, files, notifications, settings. Each row has a title, an optional muted description, something before it (an Avatar or an icon) and something after it (a date, a Badge, an action). A row can be a link or a button; trailing actions stay outside it, so controls are never nested. A press anywhere on the row works, trailing meta ("3 days ago") included, except on a trailing action, which keeps its own press.
 
 ```jsx
 const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
@@ -42,10 +42,11 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 ## Accessibility
 
-- It's a real list, so screen readers say how many rows there are. Name it with `aria-label` when there's no heading over it.
+- It's a real list, so screen readers say how many rows there are, Safari's VoiceOver included (`role="list"` keeps the role it would drop from a list without bullets). Name it with `aria-label` when there's no heading over it.
 - A whole row is one link or button, named by its title and description; trailing actions are separate controls, so give them names that say which row they're for ("More for Ada Lovelace").
 - Selected rows have a bar and `aria-current` or `aria-pressed`, not only a background.
 - Titles and descriptions keep 4.5:1 on plain and shaded rows, and the selected bar 3:1, in all six themes (`List.test.tsx`).
+- **Keyboard:** an item with `href` or `onClick` has one Tab stop, its main area, where Enter (Space too for a button) acts. A disabled one is skipped. Controls in `trailing` are Tab stops of their own. Plain items add none.
 
 ## Props
 
@@ -53,6 +54,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<ul>` or `<ol>`. |
 | `variant` | `'plain'` \| `'card'` | `'plain'` | Bare rows, or rows in a bordered, rounded frame |
 | `divided` | boolean | `true` | Lines between rows |
 | `as` | `'ul'` \| `'ol'` | `'ul'` | `ol` when the order matters |
@@ -71,7 +73,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 | `onClick` | function | none | Makes the main area a button (without `href`) |
 | `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; its props (such as `to`) go in `linkProps`. Set it once for the app with `configure({ link })`; `as` wins for one link. |
 | `linkProps` | object | none | Extra props for the link or button |
-| `selected` | boolean | `false` | Shaded with a primary bar; `aria-current="true"` on a link, `aria-pressed` on a button |
+| `selected` | boolean | `false` | Shaded with a primary bar; `aria-current="true"` on a link (an `aria-current` in `linkProps`, such as `"page"` for the current page of a nav list, wins), `aria-pressed` on a button |
 | `disabled` | boolean | `false` | Dims a link or button row and stops it |
 
 `className`, `ref` and everything else go to the `<li>`.

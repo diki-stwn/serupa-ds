@@ -8,7 +8,7 @@
   justify-content: center;
   gap: var(--button-gap-md, var(--spacing-1\.5));
   white-space: nowrap;
-  max-inline-size: var(--sizing-full);   /* never wider than its container: a long label is cut with an ellipsis (below) */
+  max-inline-size: var(--sizing-full);   /* never wider than its container: a long label is cut with an ellipsis (below), or wraps with wrap */
   box-sizing: border-box;
   height: var(--button-height-md, var(--control-height-md));
   padding: var(--spacing-0) var(--button-padding-x-md, var(--spacing-3));
@@ -25,11 +25,12 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;   /* no double-tap zoom delay on touch screens */
-  /* the properties a button changes, each with its own timing: colors and the focus ring at duration-150,
-     the press (scale) at --button-press-duration (see Micro-interactions below) */
+  /* the properties a button changes, each with its own timing: colors and the focus ring at motion-hover,
+     the release (scale) springing back at motion-release with ease-spring; the press itself, below, at
+     --button-press-duration (see Micro-interactions below) */
   transition-property: background-color, color, border-color, text-decoration-color, box-shadow, scale;
-  transition-duration: var(--duration-150), var(--duration-150), var(--duration-150), var(--duration-150), var(--duration-150), var(--button-press-duration, var(--duration-100));
-  transition-timing-function: var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-out);
+  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-release);
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-spring);
   position: relative;
   --dk-btn-press: var(--button-press-scale, var(--scale-97));
   --dk-btn-nudge: var(--button-icon-nudge, var(--spacing-0));   /* off by default; opt in with --button-icon-nudge */
@@ -38,7 +39,7 @@
   --dk-btn-ring: var(--button-focus-ring, var(--focus-ring));
   box-shadow: var(--dk-btn-shadow);
 }
-/* A label longer than the room it has ends in an ellipsis; the whole label is still the button's name. */
+/* A label longer than the room it has ends in an ellipsis; the whole label is still the button's name, and a Tooltip shows it. */
 .dk-btn__label { display: block; min-width: var(--spacing-0); overflow: hidden; text-overflow: ellipsis; }
 .dk-btn:focus-visible {
   /* The focus ring: an outline, so the 2px gap is truly transparent on any background and forced-colors mode draws it. */
@@ -100,6 +101,12 @@
 .dk-btn--size-lg svg { width: var(--button-icon-size-lg, var(--spacing-5)); height: var(--button-icon-size-lg, var(--spacing-5)); }
 .dk-btn--size-lg .dk-icon { font-size: var(--button-icon-size-lg, var(--spacing-5)); }
 
+/* wrap: the label takes as many lines as it needs, and the height grows from each size's height (min-height) */
+.dk-btn--wrap { white-space: normal; text-align: center; height: auto; min-height: var(--button-height-md, var(--control-height-md)); padding-block: var(--button-padding-y-wrap, var(--spacing-1)); }
+.dk-btn--wrap.dk-btn--size-sm { height: auto; min-height: var(--button-height-sm, var(--control-height-sm)); padding-block: var(--button-padding-y-wrap-sm, var(--spacing-0\.5)); }
+.dk-btn--wrap.dk-btn--size-lg { height: auto; min-height: var(--button-height-lg, var(--control-height-lg)); padding-block: var(--button-padding-y-wrap, var(--spacing-1)); }
+.dk-btn--wrap .dk-btn__label { overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+
 /* Icon only: a square at each size's height */
 .dk-btn--icon-only { padding: var(--spacing-0); width: var(--button-height-md, var(--control-height-md)); }
 .dk-btn--icon-only.dk-btn--size-sm { width: var(--button-height-sm, var(--control-height-sm)); }
@@ -136,22 +143,26 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
    Press: the button shrinks to --button-press-scale while held (pointer, Space, or Enter through the
    data-pressed attribute Button sets). Not on the link variant, which reads as text. */
 .dk-btn:not(.dk-btn--link):active:not(:disabled, [aria-disabled="true"]),
-.dk-btn:not(.dk-btn--link)[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-btn-press); }
+.dk-btn:not(.dk-btn--link)[data-pressed]:not(:disabled, [aria-disabled="true"]) {
+  scale: var(--dk-btn-press);
+  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--button-press-duration, var(--motion-press));
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-settle);
+}
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
 .dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */
-.dk-btn__label { transition: opacity var(--button-loading-duration, var(--duration-150)) var(--ease-in-out); }
+.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
 .dk-btn__icon {
   transition-property: opacity, translate;
-  transition-duration: var(--button-loading-duration, var(--duration-150)), var(--button-icon-nudge-duration, var(--duration-150));
-  transition-timing-function: var(--ease-in-out), var(--ease-out);
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--motion-change-sm));
+  transition-timing-function: var(--ease-move), var(--ease-settle);
 }
 @media (hover: hover) {
   .dk-btn:hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: var(--dk-btn-nudge) 0; }
   .dk-btn:dir(rtl):hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: calc(var(--spacing-0) - var(--dk-btn-nudge)) 0; }
 }
 /* Loading: the content fades out (transition above) while the spinner fades and grows in. */
-.dk-btn__loader { animation: dk-btn-loader-in var(--button-loading-duration, var(--duration-150)) var(--ease-out) both; }
+.dk-btn__loader { animation: dk-btn-loader-in var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
 @keyframes dk-btn-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-btn-loader-from); } }
 /* Ripple: from the press point, in the text color at --button-ripple-opacity; Button adds the circles. */
 .dk-btn__ripples { position: absolute; inset: var(--spacing-0); border-radius: inherit; overflow: hidden; pointer-events: none; }
@@ -160,13 +171,14 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
   border-radius: var(--rounded-full);
   background-color: currentColor;
   opacity: var(--button-ripple-opacity, var(--opacity-20));
-  animation: dk-btn-ripple var(--button-ripple-duration, var(--duration-500)) var(--ease-in-out) both;   /* even spread: reads as a wave, not a flash */
-  transition: opacity var(--button-ripple-fade-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-btn-ripple var(--button-ripple-duration, var(--motion-ripple)) var(--ease-move) both;   /* even spread: reads as a wave, not a flash */
+  transition: opacity var(--button-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
 }
 .dk-btn__ripple--out { opacity: var(--opacity-0); }
 @keyframes dk-btn-ripple { from { scale: var(--scale-0); } }
 @media (prefers-reduced-motion: reduce) {
   .dk-btn { --dk-btn-press: var(--scale-100); --dk-btn-nudge: var(--spacing-0); --dk-btn-loader-from: var(--scale-100); }
   .dk-btn__ripples { display: none; }
+  .dk-btn__loader { animation-name: dk-loader-in; }   /* only fades in: nothing grows */
 }
 }

@@ -34,3 +34,18 @@ export const LevelAndSize: Story = {
     <Heading level={3} size="4xl">An h3 that looks 4xl</Heading>
   </div>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <Heading {...args} level={1}>Quarterly results for every region, team and product line</Heading>
+      <Heading {...args}>{"Donaudampfschifffahrtsgesellschaftskapitänskajüte"}</Heading>
+    </div>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => <div className="flex flex-col gap-3">
+    {(['sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'] as const).map((size) => <Heading key={size} level={2} size={size}>An h2 that looks {size}</Heading>)}
+  </div>,
+};

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Combobox } from './Combobox';
+import { Combobox, type ComboboxSingleProps } from './Combobox';
 import { Field } from '../Field/Field';
 
 const COUNTRIES = ['Argentina', 'Australia', 'Brazil', 'Canada', 'Côte d’Ivoire', 'Denmark', 'Egypt', 'France', 'Germany', 'India', 'Japan', 'Kenya', 'Mexico', 'Norway', 'Peru'];
@@ -12,15 +12,32 @@ const PEOPLE = [
 ];
 const meta = {
   title: 'Components/Forms/Combobox',
-  component: Combobox,
+  component: Combobox as React.ComponentType<ComboboxSingleProps>,   // one pick; several are in Multiple
   args: { 'aria-label': 'Country', placeholder: 'Pick a country', options: COUNTRIES, size: 'md', clearable: false, disabled: false },
   argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
   decorators: [(Story) => <div style={{ maxWidth: 'var(--container-xs)', minHeight: 'var(--spacing-80)' }}><Story /></div>],
-} satisfies Meta<typeof Combobox>;
+} satisfies Meta<ComboboxSingleProps>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+export const Multiple: Story = {
+  render: function Render() {
+    const [team, setTeam] = React.useState<string[]>(['ada', 'grace']);
+    return <Field label="Reviewers" hint="Pick everyone who should review this.">
+      <Combobox multiple clearable value={team} onValueChange={setTeam} options={PEOPLE} placeholder="Add a reviewer" name="reviewers" />
+    </Field>;
+  },
+};
+// A pretend server: answers after 400ms with the countries that contain the text.
+const search = (text: string, { signal }: { signal: AbortSignal }) => new Promise<string[]>((ok, no) => {
+  const t = setTimeout(() => ok(COUNTRIES.filter((c) => c.toLowerCase().includes(text.toLowerCase()))), 400);
+  signal.addEventListener('abort', () => { clearTimeout(t); no(new DOMException('Aborted', 'AbortError')); });
+});
+export const LoadOptions: Story = {
+  name: 'With loadOptions',
+  render: () => <Field label="Country"><Combobox placeholder="Search countries" loadOptions={search} clearable /></Field>,
+};
 export const WithDescriptions: Story = {
   render: function Render() {
     const [owner, setOwner] = React.useState<string | null>('grace');
@@ -59,10 +76,16 @@ export const States: Story = {
     <Combobox aria-label="With an icon" options={COUNTRIES} defaultValue="Peru" leftIcon="public" />
     <Combobox aria-label="Invalid" options={COUNTRIES} defaultValue="Norway" invalid />
     <Combobox aria-label="Disabled" options={COUNTRIES} defaultValue="Egypt" disabled />
+    <Combobox aria-label="Read-only" options={COUNTRIES} defaultValue="Canada" readOnly />
   </Col>,
 };
 
 export const InAFieldWithAnError: Story = {
   name: 'In a field, with an error',
   render: () => <Field label="Country" error="Pick the country on your passport." required><Combobox options={COUNTRIES} placeholder="Pick a country" /></Field>,
+};
+
+export const LongOptions: Story = {
+  args: { options: ['The Democratic Republic of São Tomé and Príncipe', 'Saint Vincent and the Grenadines', 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', ...COUNTRIES], defaultValue: 'The Democratic Republic of São Tomé and Príncipe' },
+  decorators: [(Story) => <div style={{ width: 200, minHeight: 'var(--spacing-80)' }}><Story /></div>],
 };

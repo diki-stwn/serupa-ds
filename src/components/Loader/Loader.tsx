@@ -4,6 +4,7 @@ import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
+import { useShowAfter } from "../../internal/showAfter";
 
 export type LoaderVariant = 'ring' | 'spokes' | 'dots' | 'pixel' | 'text' | 'skeleton';
 export type LoaderShape = 'text' | 'circle' | 'rect';
@@ -28,6 +29,8 @@ export interface LoaderProps extends React.HTMLAttributes<HTMLSpanElement> {
   glow?: boolean;
   /** Milliseconds to wait before showing, so fast requests don't flash a loader. Its space is kept meanwhile. Default: 300. 0 shows it at once. */
   delay?: number;
+  /** Whether it's loading. Keep the Loader mounted and pass false when the work ends: once shown, it stays at least 500ms, so it never flashes, then renders nothing. Default: true. */
+  loading?: boolean;
 }
 
 /* Loader: shows that something is loading when you can't say how far along it is.
@@ -37,7 +40,7 @@ export interface LoaderProps extends React.HTMLAttributes<HTMLSpanElement> {
    content will be: shape "text" with lines, "circle" or "rect", sized by className); sizes sm, md, lg (16, 24, 40px drawings;
    text-xs, text-sm, text-base words); tone "neutral" (the text color), "primary", "muted" (the ring or dots)
    or "inverse" (white, for dark scrims and media). By default it waits delay ms (300) before it appears, so
-   fast requests don't flash it, and then announces label ("Loading") to screen readers; label="" makes it
+   fast requests don't flash it, then stays at least 500ms (loading={false} ends it), and announces label ("Loading") to screen readers; label="" makes it
    decorative, for when something nearby already says it's loading. */
 const VARIANTS: readonly LoaderVariant[] = ["ring", "spokes", "dots", "pixel", "text", "skeleton"];
 const SHAPES: readonly LoaderShape[] = ["text", "circle", "rect"];
@@ -54,7 +57,7 @@ const PIXEL_STEPS: Record<string, number[]> = {
   cross: [0, 7, 0, 7, 7, 7, 0, 7, 0],     // the corners, then the plus (edges and center)
   checker: [0, 7, 0, 7, 0, 7, 0, 7, 0]    // the X (corners and center), then the edges
 };
-const OWN = { variant: 1, size: 1, tone: 1, label: 1, delay: 1, shape: 1, lines: 1, pattern: 1, glow: 1, className: 1 } as const;
+const OWN = { variant: 1, size: 1, tone: 1, label: 1, delay: 1, loading: 1, shape: 1, lines: 1, pattern: 1, glow: 1, className: 1 } as const;
 
 /** Shows that something is loading when you can't say how far along it is. Mark the area that's loading with aria-busy while it shows. */
 export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("Loader", function Loader(props, ref) {
@@ -70,17 +73,13 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
   const lines = Math.min(20, Math.max(1, Math.floor(Number(props.lines)) || 1));   // text shape: 1 to 20 lines
   const words = label || sds.labels.loading;   // the text variant always shows words; label="" only makes it decorative
   const delay = props.delay == null ? 300 : Math.max(0, Number(props.delay) || 0);
-  const [shown, setShown] = React.useState(delay === 0);
   const [wait] = React.useState(delay);   // the delay it mounted with: a later change doesn't restart the wait
-  React.useEffect(function () {
-    if (shown) return;
-    const t = setTimeout(function () { setShown(true); }, wait);
-    return function () { clearTimeout(t); };
-  }, [shown, wait]);
+  const loading = props.loading !== false;
+  const shown = useShowAfter(loading, wait);
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
   // Announced once, when it shows, with the label it has then (a later label change isn't announced again).
   const latestLabel = React.useRef(label);
-  React.useEffect(function () { latestLabel.current = label; });
+  React.useEffect(function () { latestLabel.current = label; });   // every render: keeps the latest label
   React.useEffect(function () { if (shown && latestLabel.current) announce(latestLabel.current); }, [shown]);
 
   rest["data-component"] = "loader";
@@ -122,13 +121,15 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
         <circle className="dk-loader__dot" cx={20} cy={12} r={2.5} />
       </svg>
     : <svg viewBox="0 0 24 24" aria-hidden focusable="false">
-        {/* turns (2s) while the arc grows and shrinks (1.5s): Loader.css. A quarter of the ring when still (reduced motion) */}
+        {/* a quarter arc turning (1s a turn): Loader.css; still and breathing under reduced motion */}
         <circle className="dk-loader__track" cx={12} cy={12} r={10} />
         <circle className="dk-loader__arc" cx={12} cy={12} r={10} pathLength={100} strokeDasharray="25 150" />
       </svg>;
   // The visible label repeats the accessible name, so it's hidden from assistive tech (no double reading).
-  const text = isText ? <span className="dk-loader__label" aria-hidden key="label">{words}</span> : null;
+  // The glint holds a full-color copy of the words in its ::after (from data-words, so the text isn't read twice).
+  const text = isText ? <span className="dk-loader__label" aria-hidden key="label">{words}<span className="dk-loader__glint" data-words={words} /></span> : null;
   const cls = cn("dk-loader", "dk-loader--" + variant, isSkeleton && "dk-loader--shape-" + shape, variant === "pixel" && pattern !== "wave" && "dk-loader--pattern-" + pattern, variant === "pixel" && props.glow && "dk-loader--glow", "dk-loader--size-" + size, tone !== "neutral" && "dk-loader--" + tone, !shown && "dk-loader--waiting", props.className);
+  if (!loading && !shown) return null;   // done, and shown long enough (or never shown)
   if (isSkeleton) {   // the shapes are drawn even while waiting, so the space they keep is the content's
     const bones: React.ReactNode[] = [];
     if (shape === "text") for (let i = 0; i < lines; i++) bones.push(<span className="dk-loader__line" key={i}><span className="dk-loader__bone" /></span>);

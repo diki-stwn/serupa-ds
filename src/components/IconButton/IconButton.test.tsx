@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { css } from '../../../tools/test/vitest/helpers';
 import { IconButton } from './IconButton';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const box = (id: string) => { const r = el(id).getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); };
@@ -28,7 +29,7 @@ describe('IconButton', () => {
     const ref = React.createRef<HTMLButtonElement | HTMLAnchorElement>();
     await render(<Icons ibRef={ref} />);
     const e = el('ib') as HTMLButtonElement;
-    expect([e.tagName, e.type, e.getAttribute('aria-label'), e.title, e.dataset.variant, e.dataset.shape, e.hasAttribute('data-icon-only'), (e.querySelector('.dk-icon') as HTMLElement).dataset.icon]).toEqual(['BUTTON', 'button', 'More actions', 'More actions', 'ghost', 'square', true, 'more_vert']);
+    expect([e.tagName, e.type, e.getAttribute('aria-label'), e.title, e.dataset.variant, e.dataset.shape, e.hasAttribute('data-icon-only'), (e.querySelector('[data-icon]') as HTMLElement).dataset.icon]).toEqual(['BUTTON', 'button', 'More actions', 'More actions', 'ghost', 'square', true, 'more_vert']);
     expect(e.className).toMatch(/dk-icon-btn/);
     expect(e.className).toMatch(/extra/);
     expect(ref.current).toBe(e);
@@ -46,6 +47,17 @@ describe('IconButton', () => {
     await render(<Icons />);
     expect([el('ibl').tagName, el('ibl').getAttribute('href'), el('ibl').getAttribute('aria-label')]).toEqual(['A', '#x', 'Open']);
     expect([el('ibt').hasAttribute('title'), el('ibt').hasAttribute('data-destructive'), el('ibtitle').title]).toEqual([false, true, 'Close (Esc)']);
+  });
+
+  test('inside a Tooltip it has no title (GC2): the Tooltip shows the words, as a description or, with role="label", as its name', async () => {
+    await render(<>
+      <Tooltip content="Open the settings"><IconButton id="tdesc" icon="settings" label="Settings" /></Tooltip>
+      <Tooltip content="Settings" role="label"><IconButton id="tname" icon="settings" label="Settings" /></Tooltip>
+      <IconButton id="tbare" icon="settings" label="Settings" />
+    </>);
+    const tip = (id: string, attr: string) => document.getElementById(el(id).getAttribute(attr)!)!.textContent;
+    expect([el('tdesc').hasAttribute('title'), tip('tdesc', 'aria-describedby'), el('tname').hasAttribute('title'), tip('tname', 'aria-labelledby'), el('tbare').title])
+      .toEqual([false, 'Open the settings', false, 'Settings', 'Settings']);
   });
 
   test('a click calls onClick', async () => {

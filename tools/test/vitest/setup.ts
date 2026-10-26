@@ -7,6 +7,22 @@ import { userEvent } from 'vitest/browser';
 import { announcerIdle } from '../../../src/internal/announce';
 import { resetWarnings } from '../../../src/internal/warn';
 
+// Every test file starts at the same moment, the one the visual and Storybook checks use (CLOCK in tools/test/lib.mjs),
+// and the clock ticks from there: what a component shows for "today" or "5 minutes ago" can't change with the day the
+// suite runs (a month that starts on a Sunday, a leap day, a clock change). vi.useFakeTimers fakes Date on top of it
+// and puts it back after.
+const CLOCK = '2025-03-12T10:00:00';
+const RealDate = Date;
+const shift = new RealDate(CLOCK).getTime() - RealDate.now();
+function FixedDate(this: unknown, ...a: unknown[]) {
+  if (!new.target) return new RealDate(RealDate.now() + shift).toString();
+  return Reflect.construct(RealDate, a.length ? a : [RealDate.now() + shift], new.target) as Date;
+}
+FixedDate.prototype = RealDate.prototype;
+Object.setPrototypeOf(FixedDate, RealDate);
+FixedDate.now = () => RealDate.now() + shift;
+Object.defineProperty(globalThis, 'Date', { value: FixedDate, writable: true, configurable: true });
+
 afterEach(() => { document.documentElement.setAttribute('data-theme', 'blue-light'); });
 document.documentElement.setAttribute('data-theme', 'blue-light');
 // No transitions or animations: a test reads the end state, which Firefox and WebKit can otherwise still be

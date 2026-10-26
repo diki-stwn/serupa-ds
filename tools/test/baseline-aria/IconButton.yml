@@ -1,0 +1,36 @@
+# AsALink
+- link "Open the docs":
+  - /url: "#docs"
+- link "Help":
+  - /url: "#help"
+
+# LongLabel
+- button "Open the menu with every action for this project, including archive and delete"
+
+# Playground
+- button "More actions"
+
+# SizesAndShapes
+- button "Edit"
+- button "Edit"
+- button "Edit"
+- button "Edit"
+- button "Edit"
+- button "Edit"
+
+# States
+- button "Edit"
+- button "Edit (disabled)" [disabled]
+- button "Syncing" [disabled]
+- button "Add (disabled)" [disabled]
+- button "Refreshing" [disabled]
+- button "Delete (disabled)" [disabled]
+
+# Variants
+- button "Add"
+- button "Edit"
+- button "Share"
+- button "More actions"
+- button "Open"
+- button "Delete"
+

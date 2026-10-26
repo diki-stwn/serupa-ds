@@ -2,6 +2,7 @@
 // String length counts UTF-16 code units instead ("👨‍👩‍👧🇮🇩".length is 12). Where Intl.Segmenter is missing (Firefox
 // before 125), code points are the closest stand-in.
 
+// module state: one locale-free segmenter, made on first use.
 let seg: Intl.Segmenter | null | undefined;
 const segmenter = () => (seg === undefined ? (seg = typeof Intl !== "undefined" && "Segmenter" in Intl ? new Intl.Segmenter(undefined, { granularity: "grapheme" }) : null) : seg);
 

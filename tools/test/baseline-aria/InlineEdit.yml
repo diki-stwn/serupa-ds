@@ -1,0 +1,22 @@
+# LongText
+- 'button "Project name: Apollo launch plan for the third quarter, every region and team, Donaudampfschifffahrtsgesellschaftskapitänskajüte , Edit"'
+
+# Playground
+- 'button "Project name: Apollo launch plan , Edit"'
+
+# Sizes
+- 'button "Name (sm): A sm title , Edit"'
+- 'button "Name (md): A md title , Edit"'
+- 'button "Name (lg): A lg title , Edit"'
+
+# States
+- 'button "Description: Add a description , Edit"'
+- text: Ada Lovelace Serupa
+
+# WithServerCheck
+- 'button "Slug: apollo-plan , Edit"'
+
+# WithValidation
+- 'button "Slug: apollo-plan , Edit"'
+- text: serupa.app/apollo-plan
+

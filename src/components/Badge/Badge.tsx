@@ -1,15 +1,17 @@
 "use client";
 import * as React from "react";
-import { cn, oneOf, omit } from "../../internal/cn";
+import { cn, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
+import { useShowAfter } from "../../internal/showAfter";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Loader } from "../Loader/Loader";
+import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import { component } from "../../internal/component";
 import * as icons from "../../material/builtin";
 
@@ -43,10 +45,13 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
   onClick?: React.MouseEventHandler<HTMLElement>;
   /** Makes it a link (the component set with Serupa.configure({ link }), <a> by default), with hover, focus and active states. */
   href?: string;
+  /** Where the link opens, as on <a>; with "_blank", rel defaults to "noopener noreferrer". */
   target?: string;
+  /** The link's relation to the page, as on <a>. */
   rel?: string;
   /** Native button attributes, when interactive. */
   disabled?: boolean;
+  /** 'button' (default, never submits by accident), 'submit' or 'reset', when interactive. */
   type?: 'button' | 'submit' | 'reset';
   /** A ring replaces the content (the width stays); aria-busy, and an interactive badge ignores clicks but keeps focus. */
   loading?: boolean;
@@ -66,6 +71,24 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
 const VARIANTS: readonly BadgeVariant[] = ["subtle", "solid", "outline"];
 const TONES: readonly BadgeTone[] = ["neutral", "primary", "success", "warning", "danger", "info", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"];
 const PLAIN = { useGrouping: false } as const;
+// Removing a tag drops focus on <body> when its × had it (179). Once the badge is gone, focus moves to the next
+// remove button among its siblings (the badges in the same list), else the one before it. A handler that moves focus
+// itself, or keeps the badge, is left alone.
+function removeAndRefocus(e: React.MouseEvent<HTMLButtonElement>, onRemove: (e: React.MouseEvent<HTMLButtonElement>) => void): void {
+  const me = e.currentTarget, badge = me.closest(".dk-badge");
+  let scope = badge && badge.parentElement;
+  if (scope && scope.childElementCount === 1 && scope.parentElement) scope = scope.parentElement;   // each badge in its own <li>
+  const all = scope ? Array.from(scope.querySelectorAll<HTMLButtonElement>(".dk-badge__remove")) : [];
+  const at = all.indexOf(me);
+  onRemove(e);
+  setTimeout(function () {
+    const active = me.ownerDocument.activeElement;
+    if (me.isConnected || (active && active !== me.ownerDocument.body)) return;
+    const next = all.slice(at + 1).concat(all.slice(0, at).reverse()).find((b) => b.isConnected && !b.disabled);
+    if (next) next.focus();
+  }, 0);
+}
+
 const OWN = { variant: 1, tone: 1, size: 1, dot: 1, ping: 1, leftIcon: 1, count: 1, max: 1, showZero: 1, onRemove: 1, removeLabel: 1, loading: 1, loadingText: 1, className: 1, children: 1 } as const;
 
 /** A short label for status, counts and categories. A <span>; a <button> with onClick, a link with href. */
@@ -75,8 +98,9 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "subtle");
   const tone = oneOf(TONES, props.tone, "neutral");
-  if (props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
-  const loading = !!props.loading;
+  if (process.env.NODE_ENV !== "production" && props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
+  // Once it shows, the ring stays at least MIN_SHOWN, so loading that ends a moment later doesn't flash it (EB1).
+  const loading = useShowAfter(!!props.loading, 0);
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;
   // Hooks first: a count of 0 renders nothing below, and hooks must run on every render.
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
@@ -87,24 +111,47 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     wasLoading.current = loading;
   }, [loading, loadingText]);
   const isCount = props.count != null;
+  // A text label cut with an ellipsis shows in full as the badge's title on hover, as Button's does (DV1): the same
+  // words as its text, so nothing is read twice. Not for a count, or a badge with a title or name of its own.
+  const text = !isCount && (typeof props.children === "string" || typeof props.children === "number") ? String(props.children) : "";
+  const tipOk = !!text && rest.title == null && !rest["aria-label"] && !rest["aria-labelledby"];
+  const node = React.useRef<HTMLElement | null>(null);
+  const [cut, setCut] = React.useState(false);
+  useIsoLayoutEffect(function () {
+    const own = node.current && node.current.querySelector<HTMLElement>(".dk-badge__label");
+    if (!tipOk || !own) { setCut(false); return; }
+    const check = () => setCut(own.scrollWidth > own.clientWidth);
+    check();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(check);
+    ro.observe(own);
+    return () => ro.disconnect();
+  }, [tipOk, text]);
+  const setNode = React.useCallback(function (n: HTMLElement | null) { node.current = n; setRef(ref, n); }, [ref]);
   let label: React.ReactNode = props.children;
   if (isCount) {
     const n = Math.max(0, Math.floor(Number(props.count)) || 0);
     const max = Math.max(1, Math.floor(Number(props.max)) || 99);
     if (n === 0 && !props.showZero) return null;   // nothing to count: no badge
     label = displayNumber(Math.min(n, max), locale, PLAIN) + (n > max ? "+" : "");   // the locale's digits, as Calendar's
+    if (n > max) {
+      // "99+" is what shows; screen readers and the tooltip get the real count.
+      const full = displayNumber(n, locale, PLAIN);
+      label = <><span aria-hidden="true">{label}</span><VisuallyHidden>{full}</VisuallyHidden></>;
+      if (rest.title == null) rest.title = full;
+    }
   }
   const isLink = rest.href != null, interactive = isLink || typeof rest.onClick === "function";
   let removable = !isCount && typeof props.onRemove === "function";
   if (removable && interactive) {   // a button inside a button (or link) isn't valid: the badge's own click wins
-    warnOnce("badge-remove-interactive", "Badge: onRemove is ignored on a badge with onClick or href (a button can't hold another button).");
+    if (process.env.NODE_ENV !== "production") warnOnce("badge-remove-interactive", "Badge: onRemove is ignored on a badge with onClick or href (a button can't hold another button).");
     removable = false;
   }
   // Indicator: dot with no label, icon or count is a lone dot ("something new", no number): a solid circle in the
   // tone with a ring in the surface color, for the corner of an icon or avatar. Decorative unless you name it.
   const hasLabel = !(label == null || label === false || label === "");
   if (!isCount && props.dot && !hasLabel && (props.leftIcon == null || props.leftIcon === false)) {
-    if (interactive || typeof props.onRemove === "function") warnOnce("badge-indicator", "Badge: a dot indicator can't be clicked or removed (it's too small to target); name and handle the control it sits on.");
+    if (process.env.NODE_ENV !== "production" && (interactive || typeof props.onRemove === "function")) warnOnce("badge-indicator", "Badge: a dot indicator can't be clicked or removed (it's too small to target); name and handle the control it sits on.");
     delete rest.href; delete rest.onClick; delete rest.type; delete rest.disabled; delete rest.target; delete rest.rel;
     rest["data-component"] = "badge";
     rest["data-variant"] = "indicator";
@@ -112,6 +159,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     if (rest["aria-label"] || rest["aria-labelledby"]) rest.role = rest.role || "img"; else rest["aria-hidden"] = true;
     return <span {...rest} ref={ref} className={cn("dk-badge", "dk-badge--indicator", "dk-badge--tone-" + tone, props.ping && "dk-badge--ping", props.className)} />;
   }
+  if (cut && tipOk) rest.title = text;
   rest["data-component"] = "badge";
   rest["data-variant"] = variant;
   rest["data-tone"] = tone;
@@ -130,7 +178,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     ? <span className="dk-badge__icon dk-badge__icon--dot" aria-hidden key="dot"><span className="dk-badge__dot" /></span> : null;
   const named = typeof label === "string" || typeof label === "number" ? " " + label : "";
   const remove = removable
-    ? <button type="button" className="dk-badge__remove" key="remove" onClick={props.onRemove} disabled={loading || undefined}
+    ? <button type="button" className="dk-badge__remove" key="remove" onClick={(e) => removeAndRefocus(e, props.onRemove!)} disabled={loading || undefined}
         aria-label={(props.removeLabel || sds.labels.remove) + named}><Icon icon={icons.Close} /></button>
     : null;
   // Loading: a ring centered over the hidden content, so the badge keeps its width (decorative: the badge announces loadingText)
@@ -148,8 +196,8 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   if (isLink) {
     if (rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
     delete rest.type;
-    return React.createElement(config.link, Object.assign(rest, { ref: ref, className: classes }), ...content);
+    return React.createElement(config.link, Object.assign(rest, { ref: setNode, className: classes }), ...content);
   }
   if (interactive && rest.type === undefined) rest.type = "button";   // never submits a form by accident
-  return React.createElement(interactive ? "button" : "span", Object.assign(rest, { ref: ref, className: classes }), ...content);
+  return React.createElement(interactive ? "button" : "span", Object.assign(rest, { ref: setNode, className: classes }), ...content);
 });

@@ -2,19 +2,31 @@
    Carousel: one slide at a time across the full width, with 12px corners. Round secondary previous and next
    buttons sit over the sides, 8px in, with shadow-sm; the dots sit centered 12px below: 8px circles in
    field-border, the current one primary and 24px wide, each in a 24px target. Slides move in 300ms (at once
-   with reduced motion) and follow a swipe. Every value goes through --carousel-* tokens.
+   with reduced motion) and follow a swipe. With perView, the slides share the width, 16px apart. Every value
+   goes through --carousel-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-carousel { display: flex; flex-direction: column; gap: var(--carousel-gap, var(--spacing-3)); min-width: var(--spacing-0); }
 .dk-carousel__viewport { position: relative; overflow: hidden; border-radius: var(--carousel-radius, var(--rounded-xl)); touch-action: pan-y; }
-.dk-carousel__track {
-  display: flex;
-  transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--sizing-full) + var(--dk-carousel-drag, 0px)));
-  transition: transform var(--duration-300) var(--ease-out);
+.dk-carousel {
+  --dk-carousel-space: var(--spacing-0);
+  --dk-carousel-step: calc((var(--sizing-full) + var(--dk-carousel-space)) / var(--dk-carousel-per, 1));
 }
-.dk-carousel[data-dir="rtl"] .dk-carousel__track { transform: translateX(calc(var(--dk-carousel-index) * var(--sizing-full) + var(--dk-carousel-drag, 0px))); }
+.dk-carousel--multi { --dk-carousel-space: var(--carousel-slide-gap, var(--spacing-4)); }
+.dk-carousel__track {
+  display: flex; gap: var(--dk-carousel-space);
+  transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px)));
+  transition: transform var(--dk-carousel-settle, var(--motion-change-lg)) var(--ease-settle);
+}
+/* A loop carrying on past an end: the slides it wraps to stand in again beyond it (Carousel.tsx), then the track snaps back. */
+.dk-carousel__track[data-snap] { transition: none; }
+.dk-carousel__slide[data-wrap="after"] { translate: calc(var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
+.dk-carousel__slide[data-wrap="before"] { translate: calc(var(--spacing-0) - var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
+.dk-carousel[data-dir="rtl"] .dk-carousel__slide[data-wrap="after"] { translate: calc(var(--spacing-0) - var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
+.dk-carousel[data-dir="rtl"] .dk-carousel__slide[data-wrap="before"] { translate: calc(var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
+.dk-carousel[data-dir="rtl"] .dk-carousel__track { transform: translateX(calc(var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px))); }
 .dk-carousel__viewport[data-dragging] .dk-carousel__track { transition: none; user-select: none; }
-.dk-carousel__slide { flex: 0 0 var(--sizing-full); min-width: var(--spacing-0); }
+.dk-carousel__slide { flex: 0 0 calc(var(--dk-carousel-step) - var(--dk-carousel-space)); min-width: var(--spacing-0); }
 .dk-carousel__arrow { position: absolute; inset-block-start: var(--sizing-1-2); translate: 0 calc(var(--spacing-0) - var(--sizing-1-2)); box-shadow: var(--carousel-arrow-shadow, var(--shadow-sm)); }
 .dk-carousel__arrow--prev { inset-inline-start: var(--carousel-arrow-offset, var(--spacing-2)); }
 .dk-carousel__arrow--next { inset-inline-end: var(--carousel-arrow-offset, var(--spacing-2)); }
@@ -34,15 +46,24 @@
   background: transparent;
   cursor: pointer; touch-action: manipulation;
 }
+.dk-carousel__dot { position: relative; }
+/* Every dot is drawn at the current one's width, centered in its 24px target, and clipped to a circle; the current
+   one lets the clip go, so it widens on the compositor without moving its neighbours (FB1). A clip keeps the round
+   ends round all the way, which a scaleX would stretch. */
 .dk-carousel__dot::before {
+  --dk-dot-h: var(--carousel-dot-size, var(--spacing-2));
+  --dk-dot-w: var(--carousel-dot-active-width, var(--spacing-6));
+  --dk-dot-clip: calc((var(--dk-dot-w) - var(--dk-dot-h)) / 2);
   content: "";
-  width: var(--carousel-dot-size, var(--spacing-2));
-  height: var(--carousel-dot-size, var(--spacing-2));
+  position: absolute; inset: var(--spacing-0); margin: auto;
+  width: var(--dk-dot-w);
+  height: var(--dk-dot-h);
   border-radius: var(--rounded-full);
   background: var(--carousel-dot, var(--field-border));
-  transition: width var(--duration-150) var(--ease-out);
+  clip-path: inset(var(--spacing-0) var(--dk-dot-clip) round var(--rounded-full));
+  transition: clip-path var(--motion-change-sm) var(--ease-settle);
 }
-.dk-carousel__dot[aria-current="true"]::before { width: var(--carousel-dot-active-width, var(--spacing-6)); background: var(--carousel-dot-active, var(--primary)); }
+.dk-carousel__dot[aria-current="true"]::before { clip-path: inset(var(--spacing-0) round var(--rounded-full)); background: var(--carousel-dot-active, var(--primary)); }
 @media (hover: hover) { .dk-carousel__dot:hover:not([aria-current="true"])::before { background: var(--carousel-dot-hover, var(--text-muted)); } }
 .dk-carousel__dot:focus { outline: none; }
 .dk-carousel__dot:focus-visible { outline: var(--focus-ring-width) solid var(--carousel-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); border-radius: var(--rounded-full); }

@@ -412,6 +412,26 @@
             "cssVar": "--button-icon-offset"
           }
         }
+      },
+      "padding-y-wrap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Top and bottom padding of a wrap button, md and lg, whose label can take more than one line (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--button-padding-y-wrap"
+          }
+        }
+      },
+      "padding-y-wrap-sm": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-0_5}",
+        "$description": "Top and bottom padding of a wrap button, sm (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--button-padding-y-wrap-sm"
+          }
+        }
       }
     },
     "sizing": {
@@ -511,7 +531,7 @@
       },
       "press-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-100}",
+        "$value": "{transitions.motion-press}",
         "$description": "How fast the press scales down and back (100ms).",
         "$extensions": {
           "com.serupa": {
@@ -531,7 +551,7 @@
       },
       "icon-nudge-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-150}",
+        "$value": "{transitions.motion-change-sm}",
         "$description": "How fast the right icon slides (150ms).",
         "$extensions": {
           "com.serupa": {
@@ -541,7 +561,7 @@
       },
       "loading-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-150}",
+        "$value": "{transitions.motion-enter-sm}",
         "$description": "Cross-fade between the content and the loading spinner (150ms).",
         "$extensions": {
           "com.serupa": {
@@ -561,7 +581,7 @@
       },
       "ripple-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-500}",
+        "$value": "{transitions.motion-ripple}",
         "$description": "How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave.",
         "$extensions": {
           "com.serupa": {
@@ -571,7 +591,7 @@
       },
       "ripple-fade-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-300}",
+        "$value": "{transitions.motion-ripple-fade}",
         "$description": "How long the ripple takes to fade after release (300ms).",
         "$extensions": {
           "com.serupa": {

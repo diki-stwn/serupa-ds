@@ -1,8 +1,9 @@
 /* ---------------------------------------------------------------
    Stepper: numbered circles (24 or 32px) with a title and an optional muted line, joined by 2px lines.
    Upcoming: a surface circle with a field-border ring and a muted number. Current: primary, with a primary
-   ring 2px out. Complete: primary with a check, and the line after it primary. Error: danger. Horizontal: the
-   lines stretch between steps, level with the circles' middle. Vertical: the lines run down from each circle.
+   ring 2px out. Complete: primary with a check, and the line after it primary. Error: danger. Warning: a
+   warning-subtle circle, ringed and marked in warning text. Horizontal: the lines stretch between steps, level
+   with the circles' middle. Vertical: the lines run down from each circle.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-stepper {
@@ -24,6 +25,11 @@
 }
 button.dk-stepper__head { cursor: pointer; touch-action: manipulation; border-radius: var(--rounded-md); }
 @media (hover: hover) { button.dk-stepper__head:hover .dk-stepper__title { text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
+/* Pressed: the indicator shrinks a little while a step's head is held (pointer or Space), as a Button does, then
+   springs back. Only scale moves; none under reduced motion. */
+button.dk-stepper__head .dk-stepper__indicator { transition: scale var(--motion-release) var(--ease-spring); }
+button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-press-scale, var(--scale-95)); transition: scale var(--motion-press) var(--ease-settle); }
+@media (prefers-reduced-motion: reduce) { button.dk-stepper__head .dk-stepper__indicator { transition: none; } button.dk-stepper__head:active .dk-stepper__indicator { scale: none; } }
 button.dk-stepper__head:focus { outline: none; }
 button.dk-stepper__head:focus-visible { outline: var(--focus-ring-width) solid var(--stepper-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-stepper__indicator {
@@ -39,6 +45,7 @@ button.dk-stepper__head:focus-visible { outline: var(--focus-ring-width) solid v
 }
 .dk-stepper__step--current .dk-stepper__indicator { outline: var(--outline-width-2) solid var(--stepper-active-bg, var(--primary)); outline-offset: var(--outline-offset-2); }
 .dk-stepper__step--error .dk-stepper__indicator { border-color: var(--stepper-error-bg, var(--danger)); background: var(--stepper-error-bg, var(--danger)); color: var(--stepper-error-text, var(--on-danger)); }
+.dk-stepper__step--warning .dk-stepper__indicator { border-color: var(--stepper-warning-border, var(--warning-text)); background: var(--stepper-warning-bg, var(--warning-subtle)); color: var(--stepper-warning-text, var(--warning-text)); }
 .dk-stepper__text { display: flex; flex-direction: column; min-width: var(--spacing-0); padding-top: var(--dk-step-text-pad); }
 .dk-stepper { --dk-step-text-pad: calc((var(--dk-step-size) - var(--text-sm--line-height)) / 2); }
 .dk-stepper--size-sm { --dk-step-text-pad: calc((var(--dk-step-size) - var(--text-xs--line-height)) / 2); }

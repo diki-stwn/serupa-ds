@@ -5,6 +5,7 @@ declare function buttonClass(opts?: {
     size?: ButtonSize;
     iconOnly?: boolean;
     iconPosition?: "left" | "right";
+    wrap?: boolean;
     className?: string;
 }): string;
 type ButtonVariant = "ghost" | "link" | "outline" | "primary" | "secondary";
@@ -20,6 +21,7 @@ interface ButtonOwnProps {
     loadingText?: string;
     disabledReason?: string;
     successText?: string;
+    wrap?: boolean;
 }
 interface ButtonAsButtonProps extends ButtonOwnProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "type"> {
     href?: undefined;

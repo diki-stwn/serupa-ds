@@ -12,13 +12,13 @@
   padding: var(--file-upload-zone-padding, var(--spacing-6));
   border: var(--border-width-1) dashed var(--file-upload-zone-border, var(--field-border)); border-radius: var(--file-upload-zone-radius, var(--rounded-lg));
   background: var(--file-upload-zone-bg, var(--surface-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), border-color var(--motion-hover) var(--ease-move);
 }
 .dk-file-upload__zone--over { border-style: solid; border-color: var(--file-upload-zone-border-active, var(--primary)); background: var(--file-upload-zone-bg-active, var(--primary-subtle)); }
 .dk-file-upload__zone--over .dk-file-upload__hint { color: var(--file-upload-title-color, var(--text)); }
 .dk-file-upload__icon { color: var(--file-upload-icon-color, var(--text-muted)); font-size: var(--spacing-8); pointer-events: none; }
-.dk-file-upload__title { margin: var(--spacing-0); font-weight: var(--font-medium); pointer-events: none; }
-.dk-file-upload__hint { margin: var(--spacing-0); color: var(--file-upload-hint-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); pointer-events: none; }
+.dk-file-upload__title { margin: var(--spacing-0); font-weight: var(--font-medium); pointer-events: none; overflow-wrap: anywhere; }
+.dk-file-upload__hint { margin: var(--spacing-0); color: var(--file-upload-hint-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); pointer-events: none; overflow-wrap: anywhere; }
 .dk-file-upload__input, .dk-file-upload__required { position: absolute; width: var(--spacing-px); height: var(--spacing-px); margin: var(--spacing-0); padding: var(--spacing-0); overflow: hidden; clip-path: inset(var(--sizing-1-2)); white-space: nowrap; border: var(--spacing-0); opacity: var(--opacity-0); }
 .dk-file-upload__errors { display: flex; flex-direction: column; gap: var(--spacing-1); }
 .dk-file-upload__error { display: flex; align-items: flex-start; gap: var(--spacing-1\.5); margin: var(--spacing-0); color: var(--file-upload-error-color, var(--danger-text)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }

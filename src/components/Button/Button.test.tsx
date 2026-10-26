@@ -260,6 +260,21 @@ describe('Button', () => {
     settle = [];
   });
 
+  // DW1: Button's own then(ok, fail) marked the promise handled, so a failed save never reached unhandledrejection.
+  test('onClick with a promise that rejects: the rejection still reaches window\'s unhandledrejection once, as without Button', async () => {
+    const seen: unknown[] = [];
+    const on = (e: PromiseRejectionEvent) => { seen.push(e.reason); e.preventDefault(); };
+    window.addEventListener('unhandledrejection', on);
+    try {
+      const boom = new Error('save failed');
+      await render(<Button id="rj" onClick={() => Promise.reject(boom)}>Save</Button>);
+      await userEvent.click(el('rj'));
+      await expect.poll(() => seen.length).toBe(1);
+      await new Promise((r) => setTimeout(r, 50));
+      expect([seen.length, seen[0] === boom, el('rj').hasAttribute('aria-busy')]).toEqual([1, true, false]);
+    } finally { window.removeEventListener('unhandledrejection', on); }
+  });
+
   test('onClick with a quick promise (under 300ms): no loading flash and no "Loading" announced, but still no second click until it settles', async () => {
     let ok: () => void = () => {};
     const onClick = vi.fn(() => new Promise<void>((r) => { ok = r; }));
@@ -275,7 +290,55 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledTimes(2);
   });
 
-  test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: turning, its arc growing and shrinking)', async () => {
+  // EB1: a promise ending at 320ms showed the spinner for 20ms, cut off mid fade-in, then snapped back to the label.
+  test('onClick with a promise ending just after 300ms: the spinner stays at least 500ms (until 800ms), and the success check follows it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let ok: () => void = () => {};
+      await render(<Button id="mn" onClick={() => new Promise<void>((r) => { ok = r; })} successText="Copied">Copy</Button>);
+      const step = (ms: number) => React.act(async () => { vi.advanceTimersByTime(ms); });
+      const state = () => el('mn').hasAttribute('aria-busy') ? 'busy' : el('mn').hasAttribute('data-success') ? 'success' : 'idle';
+      await React.act(async () => el('mn').click());
+      await step(300);
+      expect(state()).toBe('busy');
+      await step(20);
+      await React.act(async () => ok());
+      expect(state()).toBe('busy');      // resolved at 320ms: the spinner stays
+      await step(470);
+      expect(state()).toBe('busy');      // 790ms
+      await step(10);
+      expect(state()).toBe('success');   // 800ms: the spinner goes and the check follows
+    } finally {
+      await React.act(async () => { vi.advanceTimersByTime(5000); });   // the check's 2s and the announcer's timers run out
+      vi.useRealTimers();
+    }
+  });
+
+  test('type="submit" in a <form action> is loading while the form is sent (useFormStatus) and stops after; loading={false} overrides it; a plain button there doesn\'t load', async () => {
+    let finish: () => void = () => {};
+    const sent: string[] = [];
+    const save = async (data: FormData) => { sent.push(data.get('title') as string); await new Promise<void>((r) => { finish = r; }); };
+    await render(<>
+      <form action={save}><input name="title" defaultValue="A" /><Button id="fsave" type="submit">Save</Button><Button id="fother">Other</Button></form>
+      <form action={save}><input name="title" defaultValue="B" /><Button id="fown" type="submit" loading={false}>Save</Button></form>
+    </>);
+    const busy = (id: string) => document.getElementById(id)!.getAttribute('aria-busy');
+    expect([busy('fsave'), busy('fother')]).toEqual([null, null]);
+    await userEvent.click(document.getElementById('fsave')!);
+    await expect.poll(() => busy('fsave')).toBe('true');
+    expect([busy('fother'), sent]).toEqual([null, ['A']]);
+    document.getElementById('fsave')!.click();   // loading: a second click doesn't send it again
+    await new Promise((r) => setTimeout(r, 50));
+    expect(sent).toEqual(['A']);
+    React.act(() => finish());
+    await expect.poll(() => busy('fsave')).toBe(null);
+    await userEvent.click(document.getElementById('fown')!);
+    await expect.poll(() => sent).toEqual(['A', 'B']);
+    expect(busy('fown')).toBe(null);
+    React.act(() => finish());
+  });
+
+  test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: a quarter arc, turning)', async () => {
     await withRouter(async () => {
       setLoading(true);
       await expect.poll(() => document.querySelectorAll('.dk-btn__spinner').length).toBe(4);
@@ -286,7 +349,7 @@ describe('Button', () => {
       });
       expect(geo).toEqual([{ n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }]);
       const s = q('#sub .dk-btn__spinner');
-      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('.dk-loader__arc')!).animationName]).toEqual(['loader', 'ring', 'spin', 'dk-loader-arc']);
+      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('.dk-loader__arc')!).animationName]).toEqual(['loader', 'ring', 'spin', 'none']);
     });
   });
 
@@ -349,12 +412,12 @@ describe('Button', () => {
     expect(g('nested-d').borderTopColor).toBe(probe('violet-dark', 'borderTopColor', 'var(--danger-border)'));
   });
 
-  test('reduced motion: the spinner turns 3x slower (animate-spin-reduced)', async () => {
+  test('reduced motion: the spinner stands still and breathes, and it only fades in, without growing (EE1)', async () => {
     await render(<Button id="sub" loading>Save</Button>);
     const restore = reduceMotion();
     try {
       const s = getComputedStyle(q('#sub .dk-btn__spinner svg'));
-      expect(`${s.animationName} ${s.animationDuration}`).toBe('spin 3s');
+      expect([`${s.animationName} ${s.animationDuration}`, getComputedStyle(q('#sub [data-component=loader]').parentElement!).animationName]).toEqual(['dk-loader-breathe 2s', 'dk-loader-in']);
     } finally { restore(); }
   });
 });
@@ -394,12 +457,15 @@ describe('Button micro-interactions', () => {
     expect(take()).toEqual(['click']);
   });
 
-  test('press: animates scale only, at --button-press-duration (100ms), ease-out', async () => {
+  test('press: animates scale only, down at --button-press-duration (100ms) with ease-settle (ease-out-expo), and springs back on release over motion-release (300ms) with ease-spring', async () => {
     await render(<Motion />);
-    const s = getComputedStyle(el('press')), props = s.transitionProperty.split(', '), i = props.indexOf('scale');
-    expect(i).toBeGreaterThanOrEqual(0);
-    expect(s.transitionDuration.split(', ')[i]).toBe('0.1s');
-    expect(s.transitionTimingFunction.split(/, (?=c|l|e)/)[i]).toMatch(/cubic-bezier\(0, 0, 0.2, 1\)/);
+    const timing = () => { const s = getComputedStyle(el('press')), props = s.transitionProperty.split(', '), i = props.indexOf('scale'); return { i, props, d: s.transitionDuration.split(', ')[i], e: s.transitionTimingFunction.split(/, (?=c|l|e)/)[i] }; };
+    const rest = timing(), down = await hold(el('press'), async () => { await expect.poll(() => getComputedStyle(el('press')).scale).toBe('0.97'); return timing(); }, { ms: 1000 });
+    expect(rest.i).toBeGreaterThanOrEqual(0);
+    expect([rest.d, down.d]).toEqual(['0.3s', '0.1s']);
+    expect(rest.e).toMatch(/^linear\(/);
+    expect(down.e).toMatch(/cubic-bezier\(0.16, 1, 0.3, 1\)/);
+    const props = rest.props;
     expect([props.includes('all'), props.includes('width')]).toEqual([false, false]);
   });
 
@@ -476,8 +542,7 @@ describe('Button micro-interactions', () => {
     expect([rp.n, rp.clip, rp.bg, rp.opacity, rp.pe, rp.hidden, rp.first]).toEqual([1, 'hidden', rp.color, '0.2', 'none', 'true', true]);
     expect(rp.dur).toBe(500);
     expect(rp.wave[0]).toBeLessThan(0.15);
-    expect(rp.wave[1]).toBeGreaterThan(0.5);
-    expect(rp.wave[1]).toBeLessThan(0.9);
+    expect(rp.wave[1]).toBeCloseTo(0.5, 1);   // ease-move (ease-in-out-cubic) is symmetrical: half way at half time
     expect(rp.wave[2]).toBe(1);
   });
 
@@ -542,5 +607,39 @@ describe('Button micro-interactions', () => {
       a?.play();
       expect(still).toContain(from);
     } finally { restore(); setBusy(false); }
+  });
+});
+
+describe('Button long labels (DV1)', () => {
+  const LONG = 'Save every change to this very long document';
+
+  test('wrap: a long label takes more lines and the button grows from its size height; nothing is cut', async () => {
+    await render(<div style={{ width: '120px' }}>
+      <Button id="w" wrap>{LONG}</Button>
+      <Button id="ws" wrap size="sm">Short</Button>
+    </div>);
+    const b = el('w'), label = b.querySelector('span:not([aria-hidden])') as HTMLElement;
+    expect([b.classList.contains('dk-btn--wrap'), b.getBoundingClientRect().height > 32, b.getBoundingClientRect().width <= 120, label.scrollWidth <= label.clientWidth]).toEqual([true, true, true, true]);
+    // A short label keeps the size's height.
+    expect(Math.round(el('ws').getBoundingClientRect().height)).toBe(24);
+    expect(buttonClass({ wrap: true })).toContain('dk-btn--wrap');
+  });
+
+  test('a cut text label shows in full as the title; one that fits, or a button with its own name or wrap, gets none', async () => {
+    function Box() {
+      const [w, setW] = React.useState(400);
+      return <div style={{ width: w + 'px' }}>
+        <Button id="grow" onClick={() => setW(90)}>{LONG}</Button>
+        <Button id="fits">OK</Button>
+        <Button id="named" aria-label="Save">{LONG}</Button>
+        <Button id="wrapped" wrap>{LONG}</Button>
+      </div>;
+    }
+    await render(<Box />);
+    expect(el('grow').hasAttribute('title')).toBe(false);
+    el('grow').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('grow').getAttribute('title')).toBe(LONG);
+    expect([document.activeElement?.id, el('fits').hasAttribute('title'), el('named').hasAttribute('title'), el('wrapped').hasAttribute('title')]).toEqual(['grow', false, false, false]);
   });
 });

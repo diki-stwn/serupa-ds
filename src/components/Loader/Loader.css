@@ -11,7 +11,7 @@
   vertical-align: middle;
   min-height: var(--dk-loader-size);
   --dk-loader-size: var(--loader-size-md, var(--spacing-6));
-  animation: dk-loader-in var(--duration-150) var(--ease-out) both;   /* fades in once shown */
+  animation: dk-loader-in var(--motion-enter-sm) var(--ease-enter) both;   /* fades in once shown */
 }
 .dk-loader--text { min-height: var(--spacing-0); }   /* just the words: as tall as their line */
 .dk-loader__art { display: inline-flex; flex-shrink: 0; width: var(--dk-loader-size); height: var(--dk-loader-size); }
@@ -23,20 +23,17 @@
 .dk-loader--muted > .dk-loader__art { color: var(--loader-muted, var(--text-muted)); }
 .dk-loader--inverse { color: var(--loader-inverse, var(--white)); }
 .dk-loader--waiting { visibility: hidden; animation: none; }   /* during the show-after delay: keeps its space, shows nothing */
-.dk-loader__art > svg { display: block; width: var(--sizing-full); height: var(--sizing-full); overflow: visible; }
+/* max-width: none, so base.css's svg max-width can't take a pixel off the drawing (a Button's loading ring, GI1). */
+.dk-loader__art > svg { display: block; width: var(--sizing-full); max-width: none; height: var(--sizing-full); overflow: visible; }
 .dk-loader__track, .dk-loader__arc { fill: none; stroke: currentColor; stroke-width: var(--loader-stroke-width, var(--stroke-width-2)); }
 .dk-loader__track { opacity: var(--loader-track-opacity, var(--opacity-20)); }
 .dk-loader__arc { stroke-linecap: round; }
-/* The ring: the drawing turns (2s a turn) while the arc stretches from a dot to most of the ring and shrinks
-   again, its tail chasing its head (1.5s). The two periods don't line up, so each stretch starts somewhere new.
-   The arc's lengths are in hundredths of the ring (pathLength="100"); timings are sums of motion tokens. */
-.dk-loader--ring .dk-loader__art > svg { animation: spin calc(var(--duration-1000) + var(--duration-1000)) var(--ease-linear) infinite; }
-.dk-loader--ring .dk-loader__arc { animation: dk-loader-arc calc(var(--duration-1000) + var(--duration-500)) var(--ease-in-out) infinite; }
-@keyframes dk-loader-arc {
-  0% { stroke-dasharray: 1 150; stroke-dashoffset: 0; }
-  50% { stroke-dasharray: 70 150; stroke-dashoffset: -15; }
-  100% { stroke-dasharray: 70 150; stroke-dashoffset: -99; }
-}
+/* The ring: a quarter arc (pathLength="100", dasharray 25) on its track, the drawing turning at a steady
+   --motion-loop-spinner (1s a turn), the one spinner speed (EE1): Switch's pending ring and the circular Progress
+   turn with it. Only the drawing turns, on the compositor: nothing repaints on each frame. */
+.dk-loader--ring .dk-loader__art > svg { animation: spin var(--motion-loop-spinner) var(--ease-linear) infinite; }
+/* Reduced motion (below): spinners don't turn; the still drawing breathes between full and half strength. */
+@keyframes dk-loader-breathe { 50% { opacity: var(--opacity-50); } }
 .dk-loader__dot {
   fill: currentColor;
   transform-box: fill-box;
@@ -59,6 +56,8 @@
 .dk-loader__px-cut { fill: none; stroke: black; stroke-width: var(--loader-pixel-divider-width, var(--stroke-width-1)); }
 .dk-loader__px-divider { fill: none; stroke: currentColor; stroke-width: var(--loader-pixel-divider-width, var(--stroke-width-1)); stroke-opacity: var(--loader-pixel-divider, var(--opacity-10)); }
 .dk-loader--pixel .dk-loader__art > svg { filter: drop-shadow(0 0 var(--loader-pixel-glow, var(--spacing-0)) currentColor); }
+/* Right to left, the grid is mirrored, so every pattern starts from the inline start, as the glint and the skeleton sweep do (GI2). */
+.dk-loader--pixel .dk-loader__art > svg:dir(rtl) { --dk-loader-flip: -1 1; scale: var(--dk-loader-flip); }
 .dk-loader__px--d1 { animation-delay: var(--loader-pixel-stagger, var(--delay-75)); }
 .dk-loader__px--d2 { animation-delay: calc(var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75))); }
 .dk-loader__px--d3 { animation-delay: calc(var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75))); }
@@ -101,7 +100,7 @@
 /* Spokes: eight rounded spokes round a circle, like the iOS activity indicator, in its proportions: each spoke
    about 10% of the size wide and 25% long, round a hole 40% across. The lead spoke is at full strength
    and each one behind it (anticlockwise) is fainter, down to opacity-25; the drawing ticks a spoke at a time
-   (45°, step-end), a full turn every --loader-spokes-duration (1s). Under reduced motion it ticks at half speed. */
+   (45°, step-end), a full turn every --loader-spokes-duration (1s). Under reduced motion it stands still and breathes. */
 .dk-loader__spoke { stroke: currentColor; stroke-linecap: round; stroke-width: var(--loader-spokes-width, var(--stroke-width-4)); }
 .dk-loader__spoke:nth-child(2) { opacity: var(--opacity-85); }
 .dk-loader__spoke:nth-child(3) { opacity: var(--opacity-70); }
@@ -111,11 +110,13 @@
 .dk-loader__spoke:nth-child(7) { opacity: var(--opacity-30); }
 .dk-loader__spoke:nth-child(8) { opacity: var(--opacity-25); }
 .dk-loader--spokes .dk-loader__art > svg { animation: dk-loader-tick var(--loader-spokes-duration, var(--duration-1000)) step-end infinite; }
+/* stylelint-disable serupa/no-raw-value -- the eight spokes' turns are the art's geometry, 360deg / 8 a step, not a design value */
 @keyframes dk-loader-tick {
   0% { transform: rotate(0deg); } 12.5% { transform: rotate(45deg); } 25% { transform: rotate(90deg); } 37.5% { transform: rotate(135deg); }
   50% { transform: rotate(180deg); } 62.5% { transform: rotate(225deg); } 75% { transform: rotate(270deg); } 87.5% { transform: rotate(315deg); }
   100% { transform: rotate(360deg); }
 }
+/* stylelint-enable serupa/no-raw-value */
 @keyframes dk-loader-in { from { opacity: var(--opacity-0); } }
 @keyframes dk-loader-dot {
   0%, 80%, 100% { opacity: var(--loader-dots-dim, var(--opacity-25)); scale: var(--scale-75); }
@@ -127,23 +128,49 @@
 }
 /* Text variant: the words in the text color, dimmed to --loader-label-dim, with a band of full color
    sweeping left to right through them every 2s (ease-in-out: easing in and out), a shine. The dimmed text keeps 4.5:1 on surface in every
-   theme. Browsers without text clipping or color-mix() show the plain text. */
-.dk-loader__label { font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); white-space: nowrap; }
+   theme. The band is a window (.dk-loader__glint, a soft-edged half of the label) that slides across on translate, holding a full-color
+   copy of the words (::after, the label's width) that slides back by as much, so the copy stays on the words: both run on the compositor.
+   Browsers without color-mix() show the plain text. */
+.dk-loader__label { font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); overflow-wrap: anywhere; }
 .dk-loader--size-sm .dk-loader__label { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-loader--size-lg .dk-loader__label { font-size: var(--text-base); line-height: var(--text-base--line-height); }
-@supports ((background-clip: text) or (-webkit-background-clip: text)) and (color: color-mix(in srgb, currentColor 50%, transparent)) {
+.dk-loader__glint { display: none; }
+@supports (color: color-mix(in srgb, currentColor 50%, transparent)) {
   .dk-loader__label {
-    --dk-loader-dim: color-mix(in srgb, currentColor var(--loader-label-dim, var(--opacity-65)), transparent);
-    background-image: linear-gradient(to right, var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), currentColor, var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim), var(--dk-loader-dim));   /* evenly spaced stops: a band about half the text wide */
-    background-size: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full)) var(--sizing-full);
-    background-repeat: no-repeat;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: dk-loader-shine calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;   /* ease-in-out: the shine eases in, glides through, eases out */
+    position: relative;
+    overflow: hidden;
+    -webkit-text-fill-color: color-mix(in srgb, currentColor var(--loader-label-dim, var(--opacity-65)), transparent);
   }
+  .dk-loader__glint {
+    --dk-loader-glint-from: calc(var(--sizing-full) * -1);
+    --dk-loader-glint-to: calc(var(--sizing-full) * 2);
+    --dk-loader-glint-edge: linear-gradient(to right, transparent, black 40%, black 60%, transparent);
+    display: block;
+    position: absolute;
+    inset-block: var(--spacing-0);
+    inset-inline-start: var(--spacing-0);
+    width: var(--sizing-1-2);
+    overflow: hidden;   /* the copy shows only through the window */
+    pointer-events: none;
+    -webkit-mask-image: var(--dk-loader-glint-edge);
+    mask-image: var(--dk-loader-glint-edge);
+    animation: dk-loader-glint calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;   /* ease-in-out: the shine eases in, glides through, eases out */
+  }
+  .dk-loader__glint::after {
+    --dk-loader-glint-from: calc(var(--sizing-full) / 2);
+    --dk-loader-glint-to: calc(var(--sizing-full) * -1);
+    content: attr(data-words);
+    position: absolute;
+    inset-block: var(--spacing-0);
+    inset-inline-start: var(--spacing-0);
+    width: calc(var(--sizing-full) + var(--sizing-full));   /* the label's width, so the words wrap the same */
+    -webkit-text-fill-color: currentColor;
+    animation: inherit;
+  }
+  .dk-loader__glint:dir(rtl) { --dk-loader-glint-from: var(--sizing-full); --dk-loader-glint-to: calc(var(--sizing-full) * -2); }
+  .dk-loader__glint:dir(rtl)::after { --dk-loader-glint-from: calc(var(--sizing-full) / -2); --dk-loader-glint-to: var(--sizing-full); }
 }
-@keyframes dk-loader-shine { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+@keyframes dk-loader-glint { from { translate: var(--dk-loader-glint-from) 0; } to { translate: var(--dk-loader-glint-to) 0; } }
 /* Skeleton variant: placeholder shapes in the place of content that is loading, with the same shine as the text
    variant (a lighter band sweeping left to right every 2s, ease-in-out). Shapes: "text" (lines as tall as the
    size's text line, the last of several shorter), "circle" (an avatar, the loader's size) and "rect" (an image or
@@ -158,6 +185,7 @@
 .dk-loader__line { display: flex; align-items: center; font-size: var(--text-sm); height: var(--text-sm--line-height); }
 .dk-loader--size-sm .dk-loader__line { font-size: var(--text-xs); height: var(--text-xs--line-height); }
 .dk-loader--size-lg .dk-loader__line { font-size: var(--text-base); height: var(--text-base--line-height); }
+/* stylelint-disable-next-line serupa/color-through-component-token -- the fill where color-mix() is missing: the text color at --loader-skeleton-fill would need it */
 .dk-loader__bone { display: block; flex-shrink: 0; width: var(--sizing-full); height: var(--sizing-full); background-color: var(--secondary); border-radius: var(--loader-skeleton-radius, var(--rounded-md)); }
 .dk-loader__line > .dk-loader__bone { height: 1em; border-radius: var(--loader-skeleton-text-radius, var(--rounded-sm)); }
 .dk-loader__line:last-child:not(:first-child) > .dk-loader__bone { width: var(--sizing-3-5); }   /* a paragraph's last line: 3/5 wide */
@@ -166,31 +194,45 @@
   .dk-loader__bone {
     --dk-loader-fill: color-mix(in srgb, currentColor var(--loader-skeleton-fill, var(--opacity-10)), transparent);
     --dk-loader-glint: color-mix(in srgb, currentColor var(--loader-skeleton-shine, var(--opacity-5)), transparent);
+    position: relative;
+    overflow: hidden;
     background-color: transparent;
-    background-image: linear-gradient(to right, var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-glint), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill));   /* the same stops as the text shine */
-    background-size: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full)) var(--sizing-full);
-    background-repeat: no-repeat;
-    animation: dk-loader-shine calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;
   }
+  /* The shine is a layer three bones wide, sliding on translate (the compositor) from its last third on the bone to its first. */
+  .dk-loader__bone::after {
+    --dk-loader-sweep: calc(var(--sizing-full) * 2 / 3);
+    content: "";
+    position: absolute;
+    inset-block: var(--spacing-0);
+    inset-inline-end: var(--spacing-0);
+    width: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full));
+    background-image: linear-gradient(to right, var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-glint), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill));   /* evenly spaced stops: a band about half the bone wide */
+    animation: dk-loader-sweep calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;
+  }
+  .dk-loader__bone:dir(rtl)::after { --dk-loader-sweep: calc(var(--sizing-full) * -2 / 3); }
 }
-/* Reduced motion: the ring keeps a steady quarter arc and turns slowly (animate-spin-reduced, 3s a turn);
+@keyframes dk-loader-sweep { to { translate: var(--dk-loader-sweep) 0; } }
+/* Reduced motion: the ring and the spokes stand still and breathe (opacity, twice the spinner's period: 2s);
    the dots only fade, without growing; the pixel patterns slow to half speed; the label is plain text and the skeleton a still fill, without the shine. */
 @media (prefers-reduced-motion: reduce) {
-  .dk-loader--ring .dk-loader__art > svg { animation: var(--animate-spin-reduced); }
-  .dk-loader--spokes .dk-loader__art > svg { animation-duration: calc(var(--loader-spokes-duration, var(--duration-1000)) + var(--loader-spokes-duration, var(--duration-1000))); }   /* ticks at half speed */
-  .dk-loader__label { animation: none; background-image: none; -webkit-text-fill-color: currentColor; }   /* plain text, no shine */
-  .dk-loader--ring .dk-loader__arc { animation: none; }
+  .dk-loader--ring .dk-loader__art > svg, .dk-loader--spokes .dk-loader__art > svg { animation: dk-loader-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; }
+  .dk-loader__label { -webkit-text-fill-color: currentColor; }   /* plain text, no shine */
+  .dk-loader__glint { display: none; }
   .dk-loader__dot { animation-name: dk-loader-dot-fade; }
   .dk-loader__px, .dk-loader--pixel .dk-loader__px { animation-duration: calc(var(--duration-1200) + var(--duration-1200)); }   /* half speed, keeping order and starts: 2.4s */
   .dk-loader--pattern-snake .dk-loader__px, .dk-loader--pattern-spiral .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000) + var(--duration-1000)); }   /* 3s */
   .dk-loader--pattern-cross .dk-loader__px, .dk-loader--pattern-checker .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000)); }   /* 2s */
   .dk-loader--pattern-random .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000) + var(--duration-1000) + var(--duration-1000)); }   /* 4s, one shared clock: the scattered starts keep it random */
-  .dk-loader__bone { animation: none; background-image: none; background-color: var(--dk-loader-fill, var(--secondary)); }   /* a still fill */
+  /* stylelint-disable-next-line serupa/color-through-component-token -- as above */
+  .dk-loader__bone { background-color: var(--dk-loader-fill, var(--secondary)); }   /* a still fill */
+  .dk-loader__bone::after { display: none; }
 }
 /* Forced colors (Windows high contrast) drop background colors, which would leave a skeleton screen blank: the
    bones keep a still GrayText fill, the system color for content that isn't there yet. */
 @media (forced-colors: active) {
-  .dk-loader__bone { forced-color-adjust: none; animation: none; background-image: none; background-color: GrayText; }
+  .dk-loader__bone { forced-color-adjust: none; background-color: GrayText; }
+  .dk-loader__bone::after, .dk-loader__glint { display: none; }
+  .dk-loader__label { -webkit-text-fill-color: currentColor; }
 }
 /* Inside a loading Button the Loader (ring) takes the button's icon size. */
 .dk-btn .dk-loader { --dk-loader-size: var(--button-icon-size-md, var(--spacing-4)); }

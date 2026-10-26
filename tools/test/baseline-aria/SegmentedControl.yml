@@ -1,0 +1,50 @@
+# Disabled
+- radiogroup "Period" [disabled]:
+  - radio "Day" [disabled]
+  - radio "Week" [checked] [disabled]
+  - radio "Month" [disabled]
+
+# FullWidth
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# IconOnly
+- radiogroup "Text alignment":
+  - radio "Left" [checked]
+  - radio "Center"
+  - radio "Right"
+
+# Invalid
+- text: Period
+- radiogroup "Period" [invalid]:
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+- text: Pick the period to report on
+
+# LongLabels
+- radiogroup "Report":
+  - radio "Donaudampfschifffahrtsgesellschaftskapitänskajüte" [checked]
+  - radio "Quarterly revenue by region and product line"
+  - radio "Day"
+
+# Playground
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# ReadOnly
+- radiogroup "Period":
+  - radio "Day"
+  - radio "Week" [checked]
+  - radio "Month"
+
+# WithIcons
+- radiogroup "View":
+  - radio "List" [checked]
+  - radio "Board"
+  - radio "Calendar"
+

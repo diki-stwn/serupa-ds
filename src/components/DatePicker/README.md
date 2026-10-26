@@ -30,18 +30,22 @@ const [due, setDue] = React.useState<Date | null>(null);
 - Set `min`, `max` or `isDateDisabled` rather than rejecting a date after it's entered: blocked days show faded and struck through in the calendar and a blocked typed date puts back the last good value.
 - Leave `locale` unset in most products so the format follows the visitor's browser. Set it only when the whole product uses one locale.
 - Use `name` in a plain form: it sends `yyyy-mm-dd`, whatever the display format.
+- Keep a day from an API or database as the plain `"yyyy-mm-dd"` string and pass it as is: `value="2026-10-24"`, and store `iso` from `onValueChange`. `new Date("2026-10-24")` is UTC midnight, which is 23 October anywhere west of Greenwich; DatePicker warns once in the console when it's given such a Date there.
 - Match the `size` of the other fields in the same form.
 
 ## Behavior
 
-- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Two-digit years are read as 20xx.
+- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Digits alone work too, as typed on a number keypad: `11222025` or `112225` in en-US, `22112025` in de-DE, or `20251122`. A two-digit year is the one within 50 years of today: in 2026, `85` is 1985 and `30` is 2030, so birth dates and deadlines both read right.
 - The field always uses Gregorian years and Latin digits, so a date reads back as the same day in every locale: Thai shows 22/11/2025 rather than the Buddhist year 2568, and Persian shows 2025/11/22 rather than ۱۴۰۴/۰۹/۰۱. Digits typed in another script (٢٢/١١/٢٠٢٥) are read too. The calendar's month and weekday names stay in the locale.
 - The text is read on blur and on Enter. A date that can't be read, or one that can't be chosen, puts back the last good value. An empty field clears it.
+- A press anywhere on the box, on its side padding or past the calendar button, focuses the field with the caret at the end, as the text cursor over the box promises.
 - The calendar opens from the button or Alt+↓ in the field, showing the typed or chosen month with focus on that day. Picking a day or Escape closes it and returns focus to the field. A click outside or Tab past the calendar closes it too, leaving focus where it went. On a touch screen, a finger that starts a scroll outside leaves it open; a tap outside closes it.
 
 ## Accessibility
 
+- The calendar fades and grows in out of the field over 150ms, and fades and shrinks back over 100ms when it closes; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. The calendar stays while it fades out, inert, and focus goes back to the field at once. Firefox and Safari can't keep a closing popup in the top layer yet, so there it closes at once.
 - **Role and name:** the field is a text input; label it with Field, `<label htmlFor>` or `aria-label`. The calendar button is named by `buttonLabel` ("Choose a date").
+- **Format:** the format to type ("Format: mm/dd/yyyy", in the locale's order) is part of the field's description, after a Field hint, so screen readers say it even once the placeholder is gone. The words come from the `formatHint` label.
 - **Keyboard:**
 
   | Key | Does |
@@ -60,11 +64,12 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `value` / `defaultValue` | `Date \| null` | | The chosen day, controlled or not. |
-| `onValueChange` | `(date: Date \| null) => void` | | Called with the new day, or `null` when the field is cleared. |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
+| `value` / `defaultValue` | `Date \| string \| null` | | The chosen day, controlled or not: a Date, or a plain `"yyyy-mm-dd"` string. |
+| `onValueChange` | `(date: Date \| null, iso: string \| null) => void` | | Called with the new day (local midnight) and the same day as `"yyyy-mm-dd"`, or `null` twice when the field is cleared. |
 | `onInvalidInput` | `(text, reason) => void` | | Called when typed text is put back: `"unreadable"` (not a date) or `"unavailable"` (outside `min`..`max` or disabled). Screen readers also hear that it wasn't accepted (`inputNotAccepted`). |
-| `min`, `max`, `isDateDisabled` | | | Days that can't be chosen, typed or picked. |
-| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | The typed format and the calendar's names and first day. |
+| `min`, `max`, `isDateDisabled` | | | Days that can't be chosen, typed or picked. `min` and `max` take a Date or `"yyyy-mm-dd"`. |
+| `locale` | `string` | the nearest `SerupaProvider`'s, else the browser's (en-US until a server-rendered page hydrates) | The typed format and the calendar's names and first day. When it differs from the provider's, the field and the calendar carry `lang`, so screen readers read them in that language. |
 | `weekStartsOn` | `0`–`6` | the locale's | |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Like Input. |
 | `invalid` | `boolean` | `false` | Like Input. |
@@ -73,6 +78,8 @@ const [due, setDue] = React.useState<Date | null>(null);
 | `buttonLabel` | `string` | `"Choose a date"` | The calendar button's name, and the popup's. |
 
 `disabled`, `readOnly`, `id`, `aria-*`, `onBlur`, `onKeyDown` and `ref` go to the text field; `className` and `style` to the box.
+
+`autoComplete` is `off` unless you pass one. For a date of birth, pass `autoComplete="bday"` so browsers can fill it (WCAG 1.3.5); what they type, such as 1990-05-12 or 05/12/1990, is read as the date.
 
 ## Component tokens
 
@@ -91,7 +98,7 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--date-picker-popup-radius` | `rounded-lg` | Its corners (8px). |
 | `--date-picker-popup-padding` | `spacing-3` | Space inside it (12px). |
 | `--date-picker-offset` | `spacing-1` | The gap between the field and the panel (4px). |
-| `--date-picker-z-index` | `z-50` | The panel's stacking order, where the top layer isn't available. |
+| `--date-picker-z-index` | `z-popover` | The panel's stacking order, where the top layer isn't available. |
 
 The field itself uses Input's box (the `dk-input` classes and `--input-*` tokens), so it lines up with other fields.
 

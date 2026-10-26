@@ -58,7 +58,7 @@ import { <Name> } from "serupa-ds";
 <!-- Required. -->
 
 - **Role and name:** <the element or role it renders, and how it gets its accessible name (Field, aria-label…).>
-- **Keyboard:**
+- **Keyboard:** <what each key does, in a table. A component that handles keys itself needs one (`tools/test/guides.mjs` checks). One that isn't focusable says so in a line instead: "none: it isn't focusable".>
 
   | Key | Does |
   | --- | --- |
@@ -70,10 +70,11 @@ import { <Name> } from "serupa-ds";
 
 ## Props
 
-<!-- Required. -->
+<!-- Required, with an `id` row. -->
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | <Where it goes: the root element, the native field inside (so a `<label htmlFor>` works), or not a prop. Required: guides.mjs checks it.> |
 | `<prop>` | `<type>` | `<default>` | <What it does.> |
 
 <Which native attributes pass through, and to which element.>

@@ -1,10 +1,13 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Calendar } from '../Calendar/Calendar';
+import { Field } from '../Field/Field';
 import { DatePicker } from './DatePicker';
+
+const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
@@ -20,6 +23,36 @@ function Ctl(props: { calls: string[]; setRef?: { set?: (d: Date | null) => void
 }
 
 describe('DatePicker', () => {
+  test('a press on the box (side padding, past the calendar button) focuses the field with the caret at the end; a press in the open calendar is not taken for one on the box; a disabled box stays put (GG2)', async () => {
+    await render(<div style={{ width: '320px' }}>
+      <DatePicker id="bx" size="lg" defaultValue={new Date(2026, 2, 14)} aria-label="Due" />
+      <DatePicker id="bx-off" size="lg" disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const box = (id: string) => el(id).closest('[data-component=date-picker]') as HTMLElement;
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2, end = el('bx').value.length;
+    for (const x of [2, b.width - 2]) {
+      el('bx-away').focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === el('bx'), el('bx').selectionStart]).toEqual([x, true, end]);
+    }
+    await userEvent.click(button('bx'));
+    await expect.poll(() => popup('bx').contains(document.activeElement)).toBe(true);
+    const p = popup('bx').getBoundingClientRect();
+    await userEvent.click(popup('bx'), { position: { x: 3, y: p.height - 3 } });
+    expect([document.activeElement === el('bx'), popup('bx').hidden]).toEqual([false, false]);   // the calendar's, not the box's
+    el('bx-away').focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(el('bx-off'));
+  });
+
+  test('the format to type is part of the field\'s description, after a Field hint, in the locale\'s order: it stays when the placeholder is gone', async () => {
+    await render(<><Field label="Due" hint="The last working day"><DatePicker id="fh" locale="en-US" /></Field><DatePicker id="fg" aria-label="Start" locale="de-DE" /></>);
+    expect([described(el('fh')), described(el('fg'))]).toEqual(['The last working day | Format: mm/dd/yyyy', 'Format: dd.mm.yyyy']);
+    await userEvent.fill(el('fh'), '3/4/2026');
+    expect(described(el('fh'))).toBe('The last working day | Format: mm/dd/yyyy');
+  });
+
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
     await render(<DatePicker id="dpi" locale="en-US" defaultValue={new Date(2026, 4, 10)} min={new Date(2026, 0, 1)} max={new Date(2026, 11, 31)} onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
@@ -141,6 +174,35 @@ describe('DatePicker', () => {
     await expect.poll(() => el('ctl').value).toBe('07/04/2025');
   });
 
+  test('plain "yyyy-mm-dd" strings: value, min and max take them as that local day, and onValueChange also gets the day as "yyyy-mm-dd" (H10)', async () => {
+    const calls: string[] = [];
+    function Plain() {
+      const [v, setV] = React.useState<string | null>('2026-10-24');
+      return <DatePicker id="plain" aria-label="Due" locale="en-US" name="plain" value={v} min="2026-10-01" max="2026-10-31"
+        onValueChange={(d, iso) => { calls.push((d ? d.getHours() + ':' + d.getDate() : 'null') + ' ' + iso); setV(iso); }} />;
+    }
+    await render(<Plain />);
+    const hid = () => document.querySelector<HTMLInputElement>('input[type=hidden][name=plain]')!.value;
+    expect([el('plain').value, hid()]).toEqual(['10/24/2026', '2026-10-24']);
+    await type('plain', '11/2/2026');   // after max
+    await type('plain', '10/5/2026');
+    await type('plain', '');
+    expect([calls, el('plain').value, hid()]).toEqual([['0:5 2026-10-05', 'null null'], '', '']);
+    await render(<DatePicker id="bad" aria-label="Bad" locale="en-US" defaultValue="2026-02-30" />);
+    expect(el('bad').value).toBe('');
+  });
+
+  test('a Date at UTC midnight west of Greenwich (new Date("2026-10-24")) warns once to pass the string instead; a string or a local Date doesn\'t', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const offset = vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(300);
+    try {
+      await render(<><DatePicker aria-label="A" defaultValue="2026-10-24" /><DatePicker aria-label="B" defaultValue={new Date(2026, 9, 24, 9)} /></>);
+      expect(warn).not.toHaveBeenCalled();
+      await render(<DatePicker aria-label="C" defaultValue={new Date(Date.UTC(2026, 9, 24))} />);
+      expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.startsWith('DatePicker'))).toEqual([expect.stringMatching(/UTC midnight .*pass the "yyyy-mm-dd" string/)]);
+    } finally { warn.mockRestore(); offset.mockRestore(); }
+  });
+
   test('disabled: the field and button are disabled and faded', async () => {
     await render(<DatePicker id="dis" aria-label="Off" disabled />);
     expect([el('dis').disabled, el('dis').parentElement!.querySelector('button')!.disabled]).toEqual([true, true]);
@@ -170,5 +232,51 @@ describe('DatePicker', () => {
     still.remove();
     expect(low).toEqual([]);
     expect(n).toBe(54);
+  });
+});
+
+describe('DatePicker: autocomplete', () => {
+  test('off by default; a passed autoComplete ("bday" for a date of birth) reaches the field, and what autofill types is read as the date', async () => {
+    const got: string[] = [];
+    await render(<><DatePicker id="dpac" aria-label="Start" /><DatePicker id="dpbd" aria-label="Date of birth" locale="en-US" autoComplete="bday" onValueChange={(d) => got.push(d ? d.toDateString() : 'null')} /></>);
+    const a = document.getElementById('dpac') as HTMLInputElement, b = document.getElementById('dpbd') as HTMLInputElement;
+    expect([a.getAttribute('autocomplete'), b.getAttribute('autocomplete')]).toEqual(['off', 'bday']);
+    await userEvent.fill(b, '1990-05-12');
+    b.blur();
+    await expect.poll(() => got.at(-1)).toBe('Sat May 12 1990');
+  });
+  test('the calendar scales in from the point on its edge facing the field, level with the field\'s centre (EO1)', async () => {
+    await render(<div style={{ padding: '0 40px' }}><DatePicker id="dpo" aria-label="Start" /></div>);
+    await userEvent.click(button('dpo'));
+    await expect.poll(() => popup('dpo') && !popup('dpo').hidden).toBe(true);
+    // The anchor is the whole field (input and button), so the origin sits under its centre, held inside the calendar.
+    const p = popup('dpo'), f = (el('dpo').parentElement as HTMLElement).getBoundingClientRect(), r = p.getBoundingClientRect();
+    const [x, y] = getComputedStyle(p).transformOrigin.split(' ').map(parseFloat);
+    const want = Math.min(Math.max(f.left + f.width / 2 - r.left, 0), r.width);
+    expect([p.dataset.side, Math.round(y), Math.abs(x - want) <= 1]).toEqual(['bottom', 0, true]);
+  });
+});
+
+describe('DatePicker: motion (DZ1)', () => {
+  test('the calendar opens with a transition and fades and shrinks out faster, kept (inert) until the fade ends; focus is back on the field at once', async () => {
+    await withMotion(async () => {
+      const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+      const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|scale)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
+      const settled = (e: Element) => Promise.all(e.getAnimations().map((a) => a.finished.catch(() => {})));
+      await render(<DatePicker id="mo" aria-label="Due" locale="en-US" defaultValue={new Date(2026, 2, 1)} />);
+      await userEvent.click(button('mo'));
+      const p = popup('mo');
+      expect([runs(p), p.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
+      await settled(p);
+      await userEvent.keyboard('{Escape}');
+      expect([p.hidden, document.activeElement]).toEqual([true, el('mo')]);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      if (CSS.supports('overlay', 'auto')) {
+        expect([getComputedStyle(p).display, p.inert, !!p.querySelector('[data-date]'), runs(p)]).toEqual(['block', true, true, [['opacity', 100], ['scale', 100]]]);
+        await settled(p);
+      }
+      await expect.poll(() => p.querySelector('[data-date]')).toBe(null);
+      expect(getComputedStyle(p).display).toBe('none');
+    });
   });
 });

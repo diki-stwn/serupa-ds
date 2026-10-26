@@ -1,0 +1,68 @@
+# Group
+- group "Teams to notify":
+  - text: Teams to notify 1 picked
+  - group:
+    - checkbox "All teams" [checked=mixed]
+    - text: All teams
+    - checkbox "Design" [checked]
+    - text: Design
+    - checkbox "Engineering"
+    - text: Engineering
+    - checkbox "Legal (always notified)" [disabled]
+    - text: Legal (always notified)
+
+# GroupHorizontal
+- group "Days":
+  - text: Days
+  - group:
+    - checkbox "Monday" [checked]
+    - text: Monday
+    - checkbox "Tuesday"
+    - text: Tuesday
+    - checkbox "Wednesday"
+    - text: Wednesday
+
+# LongLabel
+- checkbox "Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news"
+- text: Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news We send about one email a month, and you can unsubscribe from any of them with one click.
+
+# Playground
+- checkbox "Email me about updates"
+- text: Email me about updates
+
+# SelectAll
+- checkbox "All teams" [checked=mixed]
+- text: All teams
+- checkbox "Design" [checked]
+- text: Design
+- checkbox "Engineering"
+- text: Engineering
+- checkbox "Marketing"
+- text: Marketing
+
+# Sizes
+- checkbox "Small"
+- text: Small
+- checkbox "Medium"
+- text: Medium
+- checkbox "Large"
+- text: Large
+
+# States
+- checkbox "Checked" [checked]
+- text: Checked
+- checkbox "Some selected" [checked=mixed]
+- text: Some selected
+- checkbox "Accept the terms" [invalid]
+- text: Accept the terms
+- checkbox "Read-only and checked" [checked]
+- text: Read-only and checked
+- checkbox "Disabled" [disabled]
+- text: Disabled
+- checkbox "Disabled and checked" [checked] [disabled]
+- text: Disabled and checked
+
+# WithDescription
+- checkbox "Email me about updates"
+- text: Email me about updates About once a month. Unsubscribe any time.
+

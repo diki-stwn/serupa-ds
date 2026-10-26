@@ -1,0 +1,40 @@
+# Destructive
+- button "Delete selected"
+- button "Delete selected"
+
+# Disabled
+- button "New project" [disabled]
+- button "New project" [disabled]
+- button "Compose" [disabled]
+
+# Extended
+- button "Compose"
+
+# ExtendedSmall
+- button "Compose"
+
+# Kinds
+- button "New project"
+- button "Add"
+- button "Compose"
+
+# Loading
+- button "Upload" [disabled]
+- button "Upload" [disabled]
+
+# LongLabel
+- button "Create a new project from a template"
+
+# Playground
+- button "New project"
+
+# Positions
+- group "Screen":
+  - button "Add (bottom-end)"
+  - button "Chat (bottom-start)"
+  - button "Search (top-end)"
+  - button "Compose"
+
+# Small
+- button "New project"
+

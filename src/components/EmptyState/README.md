@@ -12,8 +12,8 @@ const { EmptyState, Button } = window.Serupa;
   actions={<Button leftIcon="add">New project</Button>}
 />
 
-// Inside a table or a card, after a search
-<EmptyState size="sm" icon="search_off" title="No results" description={`Nothing matches "${query}".`}
+// Inside a table or a card, after a search: announce says it to screen readers as it appears
+<EmptyState announce size="sm" icon="search_off" title="No results" description={`Nothing matches "${query}".`}
   actions={<Button variant="outline" onClick={clear}>Clear the search</Button>} />
 
 // A slot to fill
@@ -43,13 +43,15 @@ const { EmptyState, Button } = window.Serupa;
 
 - The title is a heading (`h3` by default), so people can find it; set `headingLevel` to fit the page.
 - The icon is decorative and hidden from screen readers.
-- When the empty state appears after an action (a search), consider announcing it, for example by putting it in a region with `aria-live="polite"`.
+- When the empty state appears after an action (a search, a filter), set `announce`: as it appears, its title and description are said politely through the same live region as Toast and Loader ("No results. Nothing matches "mars"."), which moves into an open Dialog or Drawer so it's heard there too. It's said once; give it a new `key` to say it again for a new query. Leave it off for a page that's empty on arrival, which people find by reading.
 - The title and description keep 4.5:1 on `surface`, and the icon 3:1 on its circle, in all six themes (`EmptyState.test.tsx`).
+- **Keyboard:** none. It isn't focusable; Tab reaches the buttons and links in its actions.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. |
 | `icon` | an icon name or element | none | An icon in a circle, or your own illustration at its own size |
 | `title` | node | required | What's empty, in a few words |
 | `description` | node | none | What it means or what to do next |
@@ -57,6 +59,7 @@ const { EmptyState, Button } = window.Serupa;
 | `size` | `'sm'` \| `'md'` | `'md'` | `sm` fits inside a card, a table or a menu |
 | `variant` | `'plain'` \| `'dashed'` | `'plain'` | A dashed frame, for a drop zone or a slot to fill |
 | `headingLevel` | `2`–`6` | `3` | The title's heading level |
+| `announce` | boolean | `false` | Says the title and description to screen readers, politely, as it appears: for a result after a search or a filter |
 
 `className`, `style`, `ref` and everything else go to the wrapper, which has `data-component="empty-state"`.
 

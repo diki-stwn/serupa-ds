@@ -72,6 +72,36 @@
           }
         }
       },
+      "warning-bg": {
+        "$type": "color",
+        "$value": "{color.warning-subtle}",
+        "$description": "A step with status \"warning\": its circle.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--stepper-warning-bg"
+          }
+        }
+      },
+      "warning-border": {
+        "$type": "color",
+        "$value": "{color.warning-text}",
+        "$description": "Its ring (3:1 on the surface).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--stepper-warning-border"
+          }
+        }
+      },
+      "warning-text": {
+        "$type": "color",
+        "$value": "{color.warning-text}",
+        "$description": "The mark on it.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--stepper-warning-text"
+          }
+        }
+      },
       "title-color": {
         "$type": "color",
         "$value": "{color.text}",
@@ -197,6 +227,18 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--stepper-title-weight"
+          }
+        }
+      }
+    },
+    "motion": {
+      "press-scale": {
+        "$type": "number",
+        "$value": "{transforms.scale-95}",
+        "$description": "Size of a step's indicator while its head is held down (95%). 1 turns press feedback off.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--stepper-press-scale"
           }
         }
       }

@@ -1,0 +1,101 @@
+# Disabled
+- group "Dates":
+  - textbox "Start date" [disabled]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date" [disabled]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates" [disabled]
+
+# InField
+- text: Stay mm/dd/yyyy, from today on
+- group:
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+  - button "Choose dates"
+
+# Invalid
+- group "Dates":
+  - textbox "Start date" [invalid]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - textbox "End date" [invalid]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - button "Choose dates"
+
+# OneMonth
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+  - button "Choose dates"
+
+# OverflowNarrow
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 12/24/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 01/06/2026
+  - button "Choose dates"
+
+# Playground
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+  - button "Choose dates"
+
+# ReadOnly
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates" [disabled]
+
+# Sizes
+- group "sm":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates"
+- group "md":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates"
+- group "lg":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates"
+
+# WithValue
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates"
+

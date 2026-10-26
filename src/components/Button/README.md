@@ -35,7 +35,7 @@ const { Button, buttonClass } = window.Serupa;
 
 ## Usage
 
-- A button is never wider than its container. A label that doesn't fit ends in an ellipsis, and the whole label is still its accessible name, so keep labels short enough to read in full.
+- A button is never wider than its container. A text label that doesn't fit ends in an ellipsis and shows in full as the button's `title` on hover (the same words as its name, so screen readers don't hear it twice). Keyboard focus and touch don't show a title, so where a label may not fit (a narrow column, a long translation, 400% zoom) pass `wrap`: the label takes as many lines as it needs and the button grows from its size's height. Short labels are still best.
 - One `primary` button per view or dialog; everything else is `secondary`, `outline` or `ghost`.
 - Label with a verb: "Save changes", not "OK".
 - Use `destructive` only for actions that delete or can't be undone, and only one solid (`primary`) destructive button per view, usually in the confirmation step.
@@ -134,7 +134,8 @@ The button is a plain `<button>`, so it works with any form library, router or d
 - **`loading` blocks repeat requests.** While it's true, clicks, Space and Enter on the button, and Enter in a form field (implicit submission) do nothing, so a slow request can't be sent twice. The click still bubbles, so a parent's handler hears it. The button keeps keyboard focus (unlike `disabled`, which would drop it mid-request) and sets `aria-busy` and `aria-disabled`.
 - **`disabled`** is the native attribute: the button leaves the tab order and ignores clicks.
 - **`disabledReason` says why.** With `disabled`, the button uses `aria-disabled` instead, so it stays in the tab order: keyboard and screen reader users can reach it and hear the reason as its description (`aria-describedby`), and it still looks disabled and ignores clicks, Enter and form submission. To show the reason on hover and focus as well, wrap it in a [Tooltip](../Tooltip/README.md) with the same words; the button then lets the tooltip describe it, so the reason is read once. A disabled link Button with a reason gets `tabIndex={0}`. Without `disabled`, `disabledReason` does nothing.
-- **An `onClick` that returns a promise loads by itself.** The button shows `loading` until the promise settles, so a second click can't send the request twice, and you don't need your own loading state. With `successText` ("Saved"), a resolved promise shows a check in place of the label for 2 seconds (the button keeps its width and name) and announces the text politely. A rejected promise just ends the loading; show the error yourself.
+- **An `onClick` that returns a promise loads by itself.** The button shows `loading` until the promise settles, so a second click can't send the request twice, and you don't need your own loading state. A promise that settles within 300ms shows no spinner at all. Once the spinner shows, it stays at least 500ms, so one that ends just after 300ms doesn't flash it for a frame. With `successText` ("Saved"), a resolved promise shows a check (after the spinner, if one showed) in place of the label for 2 seconds (the button keeps its width and name) and announces the text politely. A rejected promise just ends the loading; show the error yourself. The rejection isn't swallowed: it still reaches `window`'s `unhandledrejection` (and Sentry or any other error reporting) once, as it would without Button.
+- **A submit button in a form with an `action` loads by itself.** With `<form action={save}>` (React 19 form actions), a `type="submit"` Button shows `loading` while the form is being sent, from React's `useFormStatus`, so you don't need your own state. Set `loading` yourself to override it.
 - **`ref`** reaches the DOM element (the `<button>`, or the `<a>` with `href`), for focusing after an error.
 
 ```jsx
@@ -163,7 +164,7 @@ Small motion that confirms what happened, all built in:
 
 | Interaction | What it does | Turn off or tune |
 | --- | --- | --- |
-| Press | While held (pointer, Space or Enter) the button shrinks to 97% and springs back on release, in 100ms | `--button-press-scale: 1` |
+| Press | While held (pointer, Space or Enter) the button shrinks to 97% in 100ms and springs back on release, a real spring (`ease-spring`) over 300ms (`motion-release`) | `--button-press-scale: 1` |
 | Ripple | A circle in the text color, 20% strong, spreads across the button from the press point over 500ms, then fades once released; even a quick click shows the whole wave | `--button-ripple-opacity: 0` |
 | Icon nudge (off by default) | When turned on, a right icon slides in its direction on hover (on devices that hover), mirrored in right-to-left text. Left icons stay still. It suits forward arrows ("Continue →"), not chevrons or other icons, so it's off unless you turn it on | On: `--button-icon-nudge: var(--spacing-0\.5)` (2px) |
 | Loading | The label and icons fade out while the spinner fades and grows in, in 150ms; they fade back when done | `--button-loading-duration: 0ms` |
@@ -211,9 +212,17 @@ Button's behaviour follows web standards; its look comes only from this design s
 | Under reduced motion the spinner turns slower with a steady arc, and press, nudge and ripple are off | [WCAG 2.3.3 Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) |
 | Toggle buttons pass `aria-pressed`; menu buttons pass `aria-haspopup`, `aria-expanded` and `aria-controls` | [APG: Button pattern (toggle)](https://www.w3.org/WAI/ARIA/apg/patterns/button/), [APG: Menu Button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) |
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the button (also when it's loading or has a `disabledReason`; a plain `disabled` button is skipped) |
+| Enter, Space | Press it; Enter shows the press as Space does. While loading, or disabled with a reason, nothing happens |
+| Enter in a form field | Submits the form through a `type="submit"` button, unless that button is loading |
+
 ## Props
 
-Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading`, `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it) and `successText` (shown with a check and announced after a promise from `onClick` resolves). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through. That includes the native popover and invoker attributes, typed here because React's types don't list them yet: `popoverTarget` with `popoverTargetAction` (`show`, `hide` or `toggle`) works a `[popover]` element by id, and `commandfor` with `command` (such as `show-modal` for a `<dialog>`) sends it an invoker command.
+Button's own props are `variant` (`primary`), `destructive`, `size` (`md`), `leftIcon`, `rightIcon`, `icon`, `loading` (default: on while a `type="submit"` button's `<form action>` is being sent), `loadingText` (what screen readers hear when loading starts; default "Loading…", `""` for silence), `disabledReason` (why it's disabled: keeps it focusable and describes it), `successText` (shown with a check and announced after a promise from `onClick` resolves) and `wrap` (a long label takes more lines instead of an ellipsis; default `false`). With `href` it renders a link and takes link attributes (`target`, `rel`, `download`…); without, it's a `<button>` and takes button attributes (`type`, which defaults to `"button"`, `form`, `name`…). Everything else (`onClick`, `disabled`, `aria-label`…) passes straight through, and `id` goes to the `<button>` or `<a>` itself. That includes the native popover and invoker attributes, typed here because React's types don't list them yet: `popoverTarget` with `popoverTargetAction` (`show`, `hide` or `toggle`) works a `[popover]` element by id, and `commandfor` with `command` (such as `show-modal` for a `<dialog>`) sends it an invoker command.
 
 `buttonClass({ variant, size, destructive, iconOnly, iconPosition, className })` returns the class names, to style any other element as a button. `Serupa.configure({ link })` sets the component that renders link Buttons.
 
@@ -279,6 +288,8 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | `--button-padding-x-sm` | `spacing-2` | Side padding, sm (8px). |
 | `--button-padding-x-md` | `spacing-3` | Side padding, md (12px). |
 | `--button-padding-x-lg` | `spacing-5` | Side padding, lg (20px). |
+| `--button-padding-y-wrap` | `spacing-1` | Top and bottom padding of a `wrap` button, md and lg (4px). |
+| `--button-padding-y-wrap-sm` | `spacing-0.5` | Top and bottom padding of a `wrap` button, sm (2px). |
 | `--button-gap-sm` | `spacing-1` | Gap between icon and label, sm (4px). |
 | `--button-gap-md` | `spacing-1.5` | Gap between icon and label, md (6px). |
 | `--button-gap-lg` | `spacing-2` | Gap between icon and label, lg (8px). |
@@ -307,13 +318,13 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-press-scale` | `scale-97` | Size while pressed (97%). 1 turns press feedback off. |
-| `--button-press-duration` | `duration-100` | How fast the press scales down and back (100ms). |
+| `--button-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release`. |
 | `--button-icon-nudge` | `spacing-0` | How far a right icon slides on hover. Off by default (0); set it to `var(--spacing-0\.5)` (2px) where right icons are forward arrows. |
-| `--button-icon-nudge-duration` | `duration-150` | How fast the right icon slides (150ms). |
-| `--button-loading-duration` | `duration-150` | Cross-fade between the content and the loading spinner (150ms). |
+| `--button-icon-nudge-duration` | `motion-change-sm` | How fast the right icon slides (150ms). |
+| `--button-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading spinner (150ms). |
 | `--button-ripple-opacity` | `opacity-20` | Strength of the ripple from the press point, in the text color (20%). 0 turns the ripple off. |
-| `--button-ripple-duration` | `duration-500` | How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave. |
-| `--button-ripple-fade-duration` | `duration-300` | How long the ripple takes to fade after release (300ms). |
+| `--button-ripple-duration` | `motion-ripple` | How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave. |
+| `--button-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms). |
 
 ### All tokens Button reads
 

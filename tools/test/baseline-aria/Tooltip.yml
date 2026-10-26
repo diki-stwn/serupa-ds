@@ -1,0 +1,64 @@
+# Bottom
+- button "Download"
+- tooltip "Download as PDF"
+
+# BottomEnd
+- button "Download"
+- tooltip "Saves a copy to your device"
+
+# BottomStart
+- button "Download"
+- tooltip "Download as PDF"
+
+# Disabled
+- button "Download"
+
+# Left
+- button "Download"
+- tooltip "Download as PDF"
+
+# LeftEnd
+- button "Download"
+- tooltip "Download as PDF"
+
+# LeftStart
+- button "Download"
+- tooltip "Download as PDF"
+
+# LongText
+- button "Download"
+- tooltip "Exports every page of this report, with its charts and comments, as one PDF file. Large reports can take a minute."
+
+# OnDisabledLooking
+- button "Delete" [disabled]
+- tooltip "Only owners can delete a project"
+
+# OnHover
+- button "Download"
+- button "Save"
+- button "Delete" [disabled]
+
+# OnText
+- button "Save"
+- tooltip "Ctrl + S"
+
+# Playground
+- button "Download"
+- tooltip "Download as PDF"
+
+# Right
+- button "Download"
+- tooltip "Download as PDF"
+
+# RightEnd
+- button "Download"
+- tooltip "Download as PDF"
+
+# TopEnd
+- button "Download"
+- tooltip "Download as PDF"
+
+# TopStart
+- button "Download"
+- tooltip "Saves a copy to your device"
+

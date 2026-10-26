@@ -14,7 +14,7 @@
 @media (hover: hover) { .dk-time-picker__button:hover:not(:disabled) { background: var(--time-picker-button-bg-hover, var(--surface-muted)); color: var(--time-picker-button-hover, var(--text)); } }
 .dk-time-picker__button:disabled { cursor: not-allowed; }
 .dk-time-picker__list {
-  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--time-picker-z-index, var(--z-50));
+  box-sizing: border-box; position: fixed; inset: auto; z-index: var(--time-picker-z-index, var(--z-popover));
   min-width: var(--time-picker-list-min-width, var(--spacing-40)); max-height: var(--time-picker-list-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
   margin: var(--spacing-0); padding: var(--time-picker-list-padding, var(--spacing-1)); list-style: none;
   border: var(--border-width-1) solid var(--time-picker-list-border, var(--border-overlay)); border-radius: var(--time-picker-list-radius, var(--rounded-lg));
@@ -23,6 +23,15 @@
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start; cursor: default;
 }
 .dk-time-picker__list[hidden] { display: none; }
+/* Entry (EF1): the list fades in and grows from the edge facing the field, as Menu, Popover and Combobox do, in
+   motion-enter-sm. A transition from @starting-style rather than keyframes, so a list closed mid-way never restarts.
+   Reduced motion: the fade alone. */
+.dk-time-picker__list { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+.dk-time-picker__list[data-side="bottom"] { transform-origin: top; }
+.dk-time-picker__list[data-side="top"] { transform-origin: bottom; }
+@starting-style { .dk-time-picker__list:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) { @starting-style { .dk-time-picker__list:not([hidden]) { scale: var(--scale-95); } } }
+@media (prefers-reduced-motion: reduce) { .dk-time-picker__list { transition: opacity var(--motion-enter-sm) var(--ease-enter); } }
 .dk-time-picker__option {
   display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); box-sizing: border-box;
   min-height: var(--time-picker-option-height, var(--control-height-md)); padding: var(--spacing-0) var(--spacing-2);

@@ -17,9 +17,11 @@
   display: flex; align-items: center; padding: var(--navbar-link-padding-y, var(--spacing-2)) var(--navbar-link-padding-x, var(--spacing-3));
   border-radius: var(--navbar-link-radius, var(--rounded-md)); color: var(--navbar-link-text, var(--text-muted));
   font-size: var(--navbar-link-size, var(--text-sm)); line-height: var(--text-sm--line-height); font-weight: var(--navbar-link-weight, var(--font-medium)); text-decoration: none; white-space: nowrap;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
 @media (hover: hover) { .dk-navbar__link:hover { background: var(--navbar-link-bg-hover, var(--secondary)); color: var(--navbar-link-text-hover, var(--text)); } }
+/* Pressed: one step past hover while held, at once (no fade in); letting go fades back. */
+.dk-navbar__link:active { background: var(--navbar-link-bg-pressed, var(--pressed)); color: var(--navbar-link-text-hover, var(--text)); transition-duration: var(--duration-0); }
 .dk-navbar__link--active { background: var(--navbar-link-bg-active, var(--secondary)); color: var(--navbar-link-text-active, var(--text)); }
 /* Forced colors drop the background and color, so the current page gets an outline. */
 @media (forced-colors: active) { .dk-navbar__link--active, .dk-navbar__link[aria-current="page"] { outline: var(--outline-width-2) solid CanvasText; } }
@@ -33,6 +35,10 @@
   .dk-navbar[data-state="open"] .dk-navbar__nav { display: block; }
   .dk-navbar__links { flex-direction: column; align-items: stretch; }
   .dk-navbar__toggle.dk-btn { display: inline-flex; flex-shrink: 0; }
+  /* The brand gives way first, so wide actions never push the menu button off the screen (WCAG 1.4.10): a brand
+     that doesn't fit ends in an ellipsis. Its link keeps its own box, so its focus ring isn't clipped. */
+  .dk-navbar__brand { flex-shrink: initial; min-width: var(--spacing-0); }
+  .dk-navbar__brand > * { min-width: var(--spacing-0); max-width: var(--sizing-full); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__toggle, .dk-navbar__toggle:first-child { margin-inline-start: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .dk-navbar__link { transition: none; } }

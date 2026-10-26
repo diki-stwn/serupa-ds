@@ -36,22 +36,33 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 
 - The swatches are one radio group: Tab reaches the picked swatch (or the first), the arrow keys move and pick (wrapping), and Home and End go to the ends.
 - A form reset puts the first color (`defaultValue`) back, in the swatches, the hex field and the submitted value.
-- The hex field picks the color as soon as six digits are typed, and a three-digit code (`f0a`) on Enter or blur. A code that isn't a color is marked invalid while typed and goes back to the picked color on blur. The `#` is optional.
-- The browser's color picker (the square before the field) picks any color too; when the picked color isn't a swatch, no swatch is checked.
+- The hex field picks the color as soon as six digits are typed, and a three-digit code (`f0a`) on Enter or blur. A code on its way to six digits isn't marked invalid; one that can't be a color (`1g`, seven digits) is marked at once, and a short one (`1d4e`) when Enter is pressed. A bad code goes back to the picked color on blur. The `#` is optional, and a pasted code is trimmed first, so ` #1d4ed8 ` copied with spaces works.
+- The browser's color picker (the square before the field) picks any color too; when the picked color isn't a swatch, no swatch is checked. With nothing picked, its square shows empty rather than black, and black chosen there is picked when it closes.
 - The contrast ratio is rounded down to one decimal, so 4.49 shows as 4.4 and never looks like a pass. It's written in the locale's numbers ("4,5:1" in Indonesian).
 
 ## Accessibility
 
 - `role="radiogroup"` named by `aria-label`, `aria-labelledby` or a surrounding [Field](../Field/README.md)'s label, with a `role="radio"` swatch for each color and `aria-checked` on the picked one. In a Field, the hint and error describe the radiogroup, and `aria-required` and `aria-invalid` sit on it. The hex field is its own field, named "Hex code".
 - The picked swatch shows a ring (3:1 on the page in all six themes) and a check in white or black, whichever stands out more on that color, so the choice doesn't rely on seeing the color.
-- Every swatch has a thin inset border, so white shows on white. In forced-colors mode the swatches keep their real colors and the ring uses Highlight.
+- Every swatch, and the native color well, has a thin border in `field-border`, which keeps 3:1 on the page in all six themes. So a white swatch shows on a white page and a black one on a dark page (WCAG 1.4.11). In forced-colors mode the swatches keep their real colors and the ring uses Highlight.
 - The contrast line is a polite live region, so a change is read out. The warning has an icon and words, not just a color.
 - With `contrastWith`, every swatch also says its ratio before it's picked, as its description ("Contrast 1.3:1, below 4.5:1, which can be hard to read"), and a swatch under `minContrast` is struck through with a diagonal line (`CanvasText` in forced-colors mode) and has `data-low-contrast`. The line goes away once it's picked, when the check and the contrast line take over.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the chosen swatch (the swatches are one Tab stop), then the hex field and the browser's color picker, with `custom` |
+| Right / Down | The next swatch, choosing it; Left and Right swap in right-to-left pages, and it wraps |
+| Left / Up | The previous swatch, the same way |
+| Home / End | The first or last swatch |
+| Enter | In the hex field, chooses the color typed |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<div>`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. A label click then focuses the picked swatch. |
 | `swatches` | `Array<{ value, label } \| string>` | | The colors, as hex. A bare hex is named from its color ("Dark blue"). |
 | `value` | `string \| null` | | Controlled, as hex. |
 | `defaultValue` | `string \| null` | | Uncontrolled. |
@@ -61,11 +72,11 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 | `contrastWith` | `string` | | A hex color to check against: the picked one in the contrast line, and every swatch in its description and strike-through. |
 | `minContrast` | `number` | `4.5` | Below this ratio it warns. |
 | `size` | `'sm' \| 'md'` | `'md'` | 24 or 32px swatches. |
-| `disabled` | `boolean` | `false` | |
+| `disabled` | `boolean` | `false` | A `<fieldset disabled>` around it does the same |
 | `name` | `string` | | Submits the color with a form. |
 | `form` | `string` | | The id of the form it submits with, when the picker sits outside it (like an input's `form`). |
 | `required` | `boolean` | `false` | A color must be picked: `aria-required` on the swatches, and the form won't submit without one (the swatches are marked invalid and take focus). Set for you in a required Field. |
-| `invalid` | `boolean` | `false` | Marks the swatches invalid. Set for you in a Field with an error. |
+| `invalid` | `boolean` | `false` | Marks the swatches invalid: `aria-invalid` on the group, and each swatch's border turns the danger color (`--color-picker-invalid`). Set for you in a Field with an error. |
 
 Every other prop, `className` and `ref` go to the outer `<div>`, which has `data-component="color-picker"`; `focus()` on it and `autoFocus` focus the picked swatch. `aria-label` and `aria-labelledby` name the radio group.
 
@@ -76,7 +87,7 @@ Each is an optional override: set it on the page, a container or one picker. The
 | Token | Default | Use |
 | --- | --- | --- |
 | `--color-picker-text` | `text` | The picker's text. |
-| `--color-picker-swatch-border` | `border` | The thin inset border on every swatch. |
+| `--color-picker-swatch-border` | `field-border` | The thin inset border on every swatch and round the native color well (3:1 on the page). |
 | `--color-picker-ring` | `primary` | The ring around the picked swatch (3:1). |
 | `--color-picker-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--color-picker-contrast` | `text-muted` | The contrast line (4.5:1). |

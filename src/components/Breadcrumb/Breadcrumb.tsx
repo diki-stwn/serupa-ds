@@ -7,6 +7,8 @@ import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSerupa } from "../../internal/provider";
+import { warnOnce } from "../../internal/warn";
+import { Menu, MenuItem } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
 
 export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
@@ -16,27 +18,41 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   separator?: 'chevron' | 'slash';
   /** Shows at most this many items: the first, a "…" button that shows the rest, and the last ones. Default: no limit. */
   maxItems?: number;
+  /** What the "…" button does. 'inline' (default): shows the hidden items in the trail. 'menu': opens a Menu of
+      them, so a long trail stays on one line on a phone. */
+  collapse?: 'inline' | 'menu';
   /** The nav's accessible name. Default: "Breadcrumb". */
   "aria-label"?: string;
-  /** The "…" button's accessible name. Default: "Show all pages". */
+  /** The "…" button's accessible name. Default: "Show all pages", or "More pages" with collapse="menu". */
   expandLabel?: string;
 }
 
-export interface BreadcrumbItemProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+/** BreadcrumbItem's own props, beside those of the element it renders. */
+export interface BreadcrumbItemOwnProps {
   /** Where it goes. The last item is the current page: it's text, not a link, whatever href says. */
   href?: string;
   /** An icon before the label: a Material Symbols or custom name, or an element. */
   icon?: IconSource;
-  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
-  as?: React.ElementType;
   /** Set by Breadcrumb on the last item. */
   current?: boolean;
 }
 
+/** BreadcrumbItem's props: its own, `as`, and the props of the element `as` names (an <a>'s by default), so
+ *  <BreadcrumbItem as={RouterLink} to="/projects"> takes RouterLink's `to`. */
+export type BreadcrumbItemProps<C extends React.ElementType = 'a'> = BreadcrumbItemOwnProps & {
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
+  as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof BreadcrumbItemOwnProps | 'as'>;
+
 /* BreadcrumbItem: one page in the trail, a link (or, as the current page, text with aria-current="page"). */
 /** One page in a Breadcrumb: a link, or the current page when it's the last. */
-export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, BreadcrumbItemProps>("BreadcrumbItem", function BreadcrumbItem(props, ref) {
+const BreadcrumbItemBase = /* @__PURE__ */ component<HTMLAnchorElement, BreadcrumbItemProps>("BreadcrumbItem", function BreadcrumbItem(props, ref) {
   const rest = omit(props, { icon: 1, as: 1, current: 1, className: 1, children: 1 });
+  // An icon with no text and no aria-label is a link (or page) a screen reader can only call "link".
+  const named = (props.children != null && props.children !== false && props.children !== "") || !!props["aria-label"] || !!props["aria-labelledby"] || !!props.title;
+  React.useEffect(function () {
+    if (process.env.NODE_ENV !== "production" && !named) warnOnce("no-name", "BreadcrumbItem has no accessible name, so a screen reader announces only its role. Give it text, or an aria-label.", "name:BreadcrumbItem");
+  }, [named]);
   const content = <>{props.icon ? <span className="dk-breadcrumb__icon">{asIcon(props.icon)}</span> : null}{props.children}</>;
   if (props.current) {
     delete rest.href;
@@ -45,13 +61,21 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
   return React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cn("dk-breadcrumb__item dk-breadcrumb__link", props.className) }), content);
 });
 
+/** One page in a Breadcrumb: a link, or the current page when it's the last. `as` renders your router's link, typed with its props. */
+export const BreadcrumbItem = BreadcrumbItemBase as {
+  <C extends React.ElementType = 'a'>(props: BreadcrumbItemProps<C> & { ref?: React.Ref<React.ComponentRef<C>> }): React.ReactElement | null;
+  displayName?: string;
+};
+
 /* Breadcrumb: a nav with an ordered list of pages from the top level to the current one, a chevron (or slash)
-   between them. maxItems collapses the middle into a "…" button that shows them again. className and every
-   other prop go to the <nav>. */
+   between them. Each separator sits inside the item after it, hidden from screen readers, so the list has one
+   <li> per page and is read as "list, 4 items". maxItems collapses the middle into a "…" button that shows them
+   again, or with collapse="menu" opens a Menu of them. className and every other prop go to the <nav>. */
 /** Where the current page sits: links to the pages above it, separated by chevrons. maxItems collapses the middle. */
 export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps>("Breadcrumb", function Breadcrumb(props, ref) {
   const sds = useSerupa();
-  const rest = omit(props, { separator: 1, maxItems: 1, expandLabel: 1, className: 1, children: 1 });
+  const rest = omit(props, { separator: 1, maxItems: 1, collapse: 1, expandLabel: 1, className: 1, children: 1 });
+  const asMenu = props.collapse === "menu";
   const separator = oneOf(["chevron", "slash"] as const, props.separator, "chevron");
   const [expanded, setExpanded] = React.useState(false);
   const firstHidden = React.useRef<HTMLLIElement>(null);
@@ -68,21 +92,25 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
       if (a) a.focus();
     }
   }, [expanded]);
-  const sep = (key: string) => <li key={key} className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <><Icon icon={icons.ChevronRight} className="dk-breadcrumb__ltr" /><Icon icon={icons.ChevronLeft} className="dk-breadcrumb__rtl" /></>}</li>;
+  const sep = <span className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <Icon icon={icons.ChevronRight} />}</span>;
   const out: React.ReactNode[] = [];
   shown.forEach(({ el, i }, n) => {
-    if (n > 0) out.push(sep("s" + i));
     if (collapse && n === 1) {
-      out.push(<li key="more" className="dk-breadcrumb__li">
-        <button type="button" className="dk-breadcrumb__item dk-breadcrumb__more" aria-label={props.expandLabel || sds.labels.showHiddenPages}
-          onClick={() => { focusAfter.current = true; setExpanded(true); }}>…</button>
-      </li>, sep("s-more"));
+      const label = props.expandLabel || (asMenu ? sds.labels.morePages : sds.labels.showHiddenPages);
+      const more = <button type="button" className="dk-breadcrumb__item dk-breadcrumb__more" aria-label={label}
+        onClick={asMenu ? undefined : () => { focusAfter.current = true; setExpanded(true); }}>…</button>;
+      out.push(<li key="more" className="dk-breadcrumb__li">{sep}
+        {asMenu ? <Menu trigger={more} aria-label={label}>
+          {items.slice(1, items.length - (max - 1)).map((h, k) => <MenuItem key={h.key != null ? h.key : k} href={h.props.href} as={h.props.as} icon={h.props.icon}>{h.props.children}</MenuItem>)}
+        </Menu> : more}
+      </li>);
     }
     const last = i === items.length - 1;
     out.push(<li key={el.key != null ? el.key : i} className="dk-breadcrumb__li" ref={expanded && max > 0 && i === 1 ? firstHidden : undefined}>
-      {React.cloneElement(el, { current: last || el.props.current })}
+      {n > 0 ? sep : null}{React.cloneElement(el, { current: last || el.props.current })}
     </li>);
   });
+  if (!items.length) return null;   // no pages: no empty nav landmark
   return (
     <nav aria-label={sds.labels.breadcrumb} {...rest} ref={ref} data-component="breadcrumb" className={cn("dk-breadcrumb", props.className)}>
       <ol className="dk-breadcrumb__list">{out}</ol>

@@ -1,11 +1,11 @@
 # SortableList
 
-A list people put in their own order: tasks by priority, steps in a flow, columns in a table. Each row has a handle; people drag it, or pick the row up with the keyboard and move it with the arrow keys. Every step is announced to screen readers.
+A list people put in their own order: tasks by priority, steps in a flow, columns in a table. Each row has a handle; people drag it, tap it and then tap where the row goes, or pick the row up with the keyboard and move it with the arrow keys. Every step is announced to screen readers.
 
 ```tsx
 import { SortableList } from "serupa-ds";
 
-const [tasks, setTasks] = React.useState(initialTasks);
+const [tasks, setTasks] = React.useState([{ id: "brief", title: "Write the brief" }, { id: "review", title: "Review the designs" }]);
 <SortableList
   aria-label="Launch tasks"
   items={tasks}
@@ -36,22 +36,33 @@ const [tasks, setTasks] = React.useState(initialTasks);
 
 ## Behavior
 
-- Pointer: press the handle and move more than 4px; the row follows the pointer and the others move out of its way. Letting go drops it. A press without moving does nothing. Held near the top or bottom edge of the list's scrolling container (or of the window), it scrolls that way, faster nearer the edge, so a row can be moved past the screen.
+- Pointer: press the handle and move more than 4px; the row follows the pointer and the others move out of its way. Letting go drops it. A press without moving picks the row up, as Space does; a press on another row's handle then drops it in that row's place, and a press on its own handle drops it where it is (WCAG 2.5.7: no drag needed). Held near the top or bottom edge of the list's scrolling container (or of the window), it scrolls that way, faster nearer the edge, so a row can be moved past the screen.
 - Keyboard: Space or Enter on a handle picks the row up. The arrow keys move it one place, Home and End to either end. Space or Enter drops it, and Escape, Tab or a click elsewhere puts it back where it was. Focus stays on its handle throughout.
 - Nothing is reported until the drop, so a cancelled move leaves your data alone.
 - `disabled` shows the rows without handles.
 
 ## Accessibility
 
-- A `<ul>` of `<li>` rows. Each handle is a button named "Reorder" and the item's name, described by the keyboard instructions, with `aria-pressed` while its row is picked up.
+- A `<ul role="list">` of `<li>` rows (the role keeps it a list in Safari). Each handle is a button named "Reorder" and the item's name, described by the keyboard instructions, with `aria-pressed` while its row is picked up.
 - Screen readers hear each step in a polite live region: "Picked up Gemini, position 2 of 4.", "Gemini, position 3 of 4.", "Dropped Gemini at position 4 of 4." or "Cancelled. Gemini is back at position 2 of 4." The words come from `SerupaProvider` labels (Indonesian in `idLabels`).
 - Screen reader users in browse mode activate the handle with Enter, which picks the row up the same way.
 - The handle is at least 24 by 24px, and it keeps 3:1 (the text 4.5:1) on the row in all six themes (`SortableList.test.tsx`). In forced-colors mode the moving row gets a Highlight outline.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each row's handle |
+| Space / Enter | On a handle, picks the row up; again, drops it where it is |
+| Up / Left, Down / Right | Moves the picked-up row one place, announcing where it is |
+| Home / End | Moves it to the top or the bottom |
+| Escape / Tab | Puts it back where it was |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<ul>`. |
 | `items` | `T[]` | | The items, in order. |
 | `getKey` | `(item: T) => string \| number` | | A stable id. |
 | `getLabel` | `(item: T) => string` | | The item's name, for its handle and announcements. |

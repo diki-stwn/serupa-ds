@@ -42,12 +42,12 @@ const { Table, TableHead, TableBody, TableFoot, TableRow, TableHeaderCell, Table
 
 ## Usage
 
-Table only lays out what you give it: sorting, filtering and selection state stay in your code.
+Table only lays out what you give it: sorting, filtering and selection state stay in your code. Sort text columns with `useCollator().compare`, so names sort the way people in the page's locale expect ("Item 2" before "Item 10", "Äpfel" beside "Apfel" in German).
 
 - Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.
 - Use `size="sm"` for dense data, and `striped` when long rows are hard to follow across.
-- With `stickyHeader`, give the frame a height through `containerProps`.
+- With `stickyHeader`, give the frame a height through `containerProps`. The frame measures the header and keeps that much scroll padding at the top, so a focused link or button in a row scrolls into view below the header, not under it (WCAG 2.4.11).
 
 ## Accessibility
 
@@ -57,12 +57,21 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - In print, the frame shows the whole table instead of its scrolled window, the header row repeats on every page, and a row isn't split across pages.
 - Text and muted text keep 4.5:1 on plain, hovered, striped and selected rows, and the header text on its background; the selected bar keeps 3:1 (all six themes, `Table.test.tsx`). Selection isn't shown by color alone: the bar shows it, and a `TableSelectCell`'s checkbox ("Select Ada, checked") says it to screen readers. Browsers ignore `aria-selected` on a plain table's rows, so `selected` doesn't set it; give selectable rows a `TableSelectCell`. The checkbox outline keeps 3:1 on a shaded row.
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To each sortable header's button, and to the frame when the table is too wide and scrolls |
+| Enter / Space | On a sortable header, sorts by it; the new order is announced |
+| Arrow keys | With focus on the scrolling frame, scroll the table |
+
 ## Props
 
 ### Table
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the `<table>`, not the scrolling wrapper, so `aria-describedby` and links to it reach the table. |
 | `size` | `'sm'` \| `'md'` | `'md'` | 12px cell padding, or 8px top and bottom for dense data |
 | `striped` | boolean | `false` | Shades every other body row (rows then don't change on hover) |
 | `stickyHeader` | boolean | `false` | Keeps the header in view; give the frame a height with `containerProps` |
@@ -94,6 +103,7 @@ Each is an optional override: set it on the page, a container or one table's fra
 | `--table-header-bg` | `surface-muted` | The header row's background. |
 | `--table-header-text` | `text-muted` | Header text (4.5:1 on header-bg). |
 | `--table-row-bg-hover` | `surface-muted` | A body row on hover, and every other row when striped (muted text keeps 4.5:1). |
+| `--table-sort-bg-pressed` | `pressed` | A sortable header's fill while it's held down. |
 | `--table-row-bg-selected` | `surface-muted` | A selected row's background. |
 | `--table-row-indicator-selected` | `primary` | The bar at the start of a selected row. |
 | `--table-focus-ring` | `focus-ring` | The keyboard focus ring (sort buttons, a scrolling table). |

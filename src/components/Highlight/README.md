@@ -33,13 +33,15 @@ highlightRanges("Łódź, Poland", "lodz")                        // [[0, 4]]
 ## Accessibility
 
 - Matches are `<mark>` elements, which assistive tech exposes as highlighted text; the words themselves are unchanged, so the text reads as written.
-- A match isn't marked by color alone: it's also semibold. The text keeps 4.5:1 on the tint in all six themes (`Highlight.test.tsx`).
+- A match isn't marked by color alone: it's also semibold. Inside an option or menu item (`role="option"`, `"menuitem"`, `"menuitemradio"`, `"menuitemcheckbox"`), which is filtered as people type, it keeps the text's weight and is underlined instead, so the letters don't widen on each keystroke and the text and its ellipsis stay put. The text keeps 4.5:1 on the tint in all six themes (`Highlight.test.tsx`).
 - In forced-colors mode marks use the system's Mark and MarkText colors.
+- **Keyboard:** none: inline text, not focusable.
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `children` | `string` | | The text to show. |
 | `query` | `string \| string[]` | | What to mark. Empty marks nothing. |
 | `words` | `boolean` | `false` | Mark each word of the query on its own. |
@@ -54,5 +56,5 @@ Each is an optional override: set it on the page, a container or one highlight. 
 | --- | --- | --- |
 | `--highlight-bg` | `warning-subtle` | Behind a match. |
 | `--highlight-text` | `text` | A match's text (4.5:1 on bg). |
-| `--highlight-weight` | `font-semibold` | A match's weight, so it isn't marked by color alone. |
+| `--highlight-weight` | `font-semibold` | A match's weight, so it isn't marked by color alone (not in an option or menu item, where it's underlined instead). |
 | `--highlight-radius` | `rounded-xs` | A match's corners (2px). |

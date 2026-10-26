@@ -11,7 +11,7 @@ interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDivElement
     value?: string;
     defaultValue?: string;
     onValueChange?: (value: string) => void;
-    size?: "md" | "sm";
+    size?: "lg" | "md" | "sm";
     fullWidth?: boolean;
     disabled?: boolean;
     name?: string;

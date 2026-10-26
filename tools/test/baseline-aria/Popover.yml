@@ -1,0 +1,130 @@
+# Bottom
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# BottomEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# Filters
+- button "Filters" [expanded]
+- dialog "Filter projects":
+  - heading "Filter projects" [level=2]
+  - checkbox "Active" [checked]
+  - text: Active
+  - checkbox "Archived"
+  - text: Archived
+  - checkbox "Shared with me (none yet)" [disabled]
+  - text: Shared with me (none yet)
+  - button "Reset"
+  - button "Apply"
+
+# Info
+- button "About billing"
+
+# Left
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# LeftEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# LeftStart
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# LongContent
+- button "Plan details" [expanded]
+- dialog "What changes on the new plan":
+  - heading "What changes on the new plan" [level=2]
+  - paragraph: Your workspace moves to the Team plan on the 1st of next month. Every member keeps their projects, files and comments, and nothing needs to be exported or set up again.
+  - paragraph: Storage goes from 10 GB to 100 GB, guests can comment on any project they’re invited to, and owners get a log of who changed what. You can switch back at any time from Billing.
+
+# Playground
+- button "Share"
+
+# Right
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# RightEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# Top
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# TopEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# TopStart
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# WithoutTitle
+- button "About billing" [expanded]
+- dialog "About billing": You’re billed on the 1st of each month. Changes apply from the next bill.
+

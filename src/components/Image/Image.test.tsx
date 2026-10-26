@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, keepMotion } from '../../../tools/test/vitest/helpers';
 import { Image, type ImageProps } from './Image';
 
 const PIC = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#3b82f6"/></svg>');
@@ -50,7 +52,7 @@ describe('Image', () => {
   });
 
   test('ratio auto with width and height: the frame has their shape while the picture loads, so the text under it doesn\'t move; it shrinks to a narrower container', async () => {
-    const slow = `/__slow-picture__.svg?${Date.now()}`;
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
     await render(<div style={{ width: '300px' }}>
       <Image src={slow} alt="Slow" width={800} height={600} frameProps={{ 'data-testid': 'sized' } as React.HTMLAttributes<HTMLSpanElement>} />
       <p id="after-pic">Below</p>
@@ -74,11 +76,21 @@ describe('Image', () => {
 
   test('while loading: the picture is hidden and the frame shows the placeholder fill; then it appears', async () => {
     // The test server sends this picture after a second (vitest.config.ts), so it is still loading at first.
-    await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${Date.now()}`} />);
+    await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('slow');
-    expect([f.dataset.state, css(f.querySelector('img')).opacity, css(f).backgroundColor]).toEqual(['loading', '0', color('var(--surface-muted)')]);
+    // Hidden from the first frame after mount (server HTML shows it: below).
+    await expect.poll(() => css(f.querySelector('img')).opacity).toBe('0');
+    expect([f.dataset.state, css(f).backgroundColor]).toEqual(['loading', color('var(--surface-muted)')]);
     await expect.poll(() => box('slow').state, { timeout: 5000 }).toBe('loaded');
     await expect.poll(() => css(f.querySelector('img')).opacity).toBe('1');
+  });
+
+  test('server HTML, before any script runs: the picture isn\'t hidden (it paints as it arrives, also with no JavaScript), above the loading sweep', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    host.innerHTML = renderToString(<Image src={`/__slow-picture__.svg?${crypto.randomUUID()}`} alt="Hero" ratio="video" frameProps={{ style: { width: 200 } }} />);
+    const f = host.querySelector('[data-component=image]') as HTMLElement, i = f.querySelector('img')!;
+    expect([f.dataset.state, css(i).opacity, css(i).position]).toEqual(['loading', '1', 'relative']);
+    host.remove();
   });
 
   test('on error: a broken-image icon named by the alt text (role="img") keeps the frame; fallback replaces the icon', async () => {
@@ -88,9 +100,24 @@ describe('Image', () => {
     </Row>);
     await expect.poll(() => [frame('broken').dataset.state, frame('custom').dataset.state]).toEqual(['error', 'error']);
     const f = frame('broken'), fb = f.querySelector('.dk-image__fallback')!;
-    expect([!!f.querySelector('img'), fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('.dk-icon')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
+    expect([!!f.querySelector('img'), fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
       .toEqual([false, 'img', 'Team photo', 'broken_image', 200]);
     expect(frame('custom').querySelector('.dk-image__fallback')!.textContent).toBe('No logo');
+  });
+
+  test('a new src starts over: a broken picture given a good src loads it; a slow one replaced before it arrives shows the new one, and the old answer changes nothing', async () => {
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+    const r = await render(<Pic id="next" alt="Team photo" ratio="square" src={BROKEN} />);
+    await expect.poll(() => box('next').state).toBe('error');
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={PIC} />);
+    await expect.poll(() => [box('next').state, frame('next').querySelector('img')?.getAttribute('src')]).toEqual(['loaded', PIC]);
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={slow} />);
+    expect(box('next').state).toBe('loading');
+    await r.rerender(<Pic id="next" alt="Team photo" ratio="square" src={BROKEN} />);
+    await expect.poll(() => box('next').state).toBe('error');
+    // The slow picture's answer comes after a second: by then nothing shows it, and the error stays.
+    await new Promise((done) => setTimeout(done, 1300));
+    expect([box('next').state, !!frame('next').querySelector('img')]).toEqual(['error', false]);
   });
 
   test('viewable: the picture is a button named "View image: <alt>" with a zoom-in cursor; the remove button is "Remove image: <alt>"', async () => {
@@ -106,11 +133,32 @@ describe('Image', () => {
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => dialog().open).toBe(true);
     await finished();
-    const d = dialog(), full = d.querySelector<HTMLImageElement>('.dk-image__full')!;
-    expect([d.querySelector('.dk-dialog__title')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.alt, d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, 'Harbor at dusk', true]);
+    const d = dialog(), full = d.querySelector<HTMLImageElement>('img')!;
+    // The Dialog is titled with the alt text, so the picture is alt="" (not read twice).
+    expect([d.querySelector('.dk-dialog__title')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.getAttribute('alt'), d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, '', true]);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => dialog().open).toBe(false);
     expect(document.activeElement).toBe(viewBtn());
+  });
+
+  test('the viewer: with no fullSrc it shows the largest srcSet candidate; its stage has the picture\'s shape (width and height, 2:1) and the placeholder fill while the picture loads', async () => {
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+    await render(<Pic id="set" alt="Harbor" ratio="video" viewable width={400} height={200} srcSet={`${PIC}#small 400w, ${slow} 1600w, ${PIC}#mid 800w`} />);
+    await userEvent.click(frame('set').querySelector('button')!);
+    const stage = () => frame('set').querySelector<HTMLElement>('dialog [data-state]')!;
+    await expect.poll(() => stage()).toBeTruthy();
+    const r = stage().getBoundingClientRect();
+    expect([stage().querySelector('img')!.getAttribute('src'), stage().dataset.state, css(stage()).backgroundColor, Math.round(r.width / r.height)]).toEqual([slow, 'loading', color('var(--surface-muted)'), 2]);
+    await expect.poll(() => stage().dataset.state, { timeout: 5000 }).toBe('loaded');
+  });
+
+  test('the viewer: a full-size picture that fails shows the fallback (named by the alt text), not the browser\'s broken image', async () => {
+    await render(<Pic id="vb" alt="Harbor" ratio="video" viewable fullSrc={BROKEN} />);
+    await expect.poll(() => frame('vb').dataset.state).toBe('loaded');
+    await userEvent.click(frame('vb').querySelector('button')!);
+    await expect.poll(() => frame('vb').querySelector<HTMLElement>('dialog [data-state]')?.dataset.state).toBe('error');
+    const fb = frame('vb').querySelector('dialog [role=img]')!;
+    expect([fb.getAttribute('role'), fb.getAttribute('aria-label'), !!fb.querySelector('svg'), frame('vb').querySelector('dialog img')]).toEqual(['img', 'Harbor', true, null]);
   });
 
   test('a click opens it too, and the × closes it', async () => {
@@ -118,7 +166,7 @@ describe('Image', () => {
     await userEvent.click(viewBtn());
     await expect.poll(() => dialog().open).toBe(true);
     await finished();
-    await userEvent.click(dialog().querySelector('.dk-dialog__close')!);
+    await userEvent.click(dialog().querySelector('button[aria-label="Close"]')!);
     await expect.poll(() => dialog().open).toBe(false);
   });
 
@@ -151,5 +199,88 @@ describe('Image', () => {
   test('--image-radius overrides one image', async () => {
     await render(<Pic id="tok" alt="Token" ratio="square" frameStyle={{ '--image-radius': '3px' } as React.CSSProperties} />);
     expect(box('tok').radius).toBe('3px');
+  });
+});
+
+describe('Image loading motion', () => {
+  keepMotion();
+
+  test('once the script runs, a lazy picture still loading a frame later is hidden and fades in (opacity, 200ms) when it arrives; a priority one is never hidden', async () => {
+    await render(<><Pic id="lazy" alt="Lazy" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />
+      <Pic id="hero" alt="Hero" ratio="square" priority src={`/__slow-picture__.svg?${crypto.randomUUID()}`} /></>);
+    const img = (id: string) => frame(id).querySelector('img')!;
+    await expect.poll(() => css(img('lazy')).opacity).toBe('0');
+    expect([frame('lazy').dataset.state, frame('hero').dataset.state, css(img('hero')).opacity]).toEqual(['loading', 'loading', '1']);
+    await expect.poll(() => frame('lazy').dataset.state, { timeout: 5000 }).toBe('loaded');
+    expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
+  });
+
+  test('a server-rendered picture still loading when the page hydrates stays shown (it may have painted in part); one mounted later on the client is hidden', async () => {
+    const ui = <Image src={`/__slow-picture__.svg?${crypto.randomUUID()}`} alt="Hero" ratio="video" frameProps={{ style: { width: 200 } }} />;
+    const host = document.body.appendChild(document.createElement('div'));
+    host.innerHTML = renderToString(ui);
+    const root = hydrateRoot(host, ui);
+    await render(<Pic id="client" alt="Client" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('client').querySelector('img')).opacity).toBe('0');
+    const f = host.querySelector('[data-component=image]') as HTMLElement;
+    expect([f.dataset.state, css(f.querySelector('img')).opacity]).toEqual(['loading', '1']);
+    root.unmount(); host.remove();
+  });
+
+  test('a lazy picture that fails after it was hidden drops the fade class, so a broken frame is the same however late it fails', async () => {
+    await render(<Pic id="late" alt="Late" ratio="square" src={`/__slow-picture__.svg?broken&${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('late').querySelector('img')).opacity).toBe('0');
+    await expect.poll(() => frame('late').dataset.state, { timeout: 5000 }).toBe('error');
+    expect(frame('late').classList.contains('dk-image--fades')).toBe(false);
+  });
+
+  test('while loading: a lighter band sweeps through the fill every 2s (ease-move, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
+    await render(<Pic id="sweep" alt="Slow" ratio="square" onRemove={() => {}} src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
+    const f = frame('sweep'), s = getComputedStyle(f, '::before');
+    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-image-sweep 2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
+    expect([Math.round(parseFloat(s.width) / f.getBoundingClientRect().width), s.pointerEvents, css(f).opacity, css(f).animationName]).toEqual([3, 'none', '1', 'none']);
+    const run = f.getAnimations({ subtree: true }).find((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-image-sweep')!;
+    // read the band where the sweep ends (Firefox hands back the keyframe's var() unresolved): two frames on,
+    // a percentage of the band, three frames wide, or a length
+    run.pause();
+    run.currentTime = 1999;
+    const t = getComputedStyle(f, '::before').translate;
+    const moved = t.endsWith('%') ? parseFloat(t) / 100 * 3 : parseFloat(t) / f.getBoundingClientRect().width;
+    run.play();
+    expect(Math.round(moved)).toBe(2);
+    await expect.poll(() => f.dataset.state, { timeout: 5000 }).toBe('loaded');
+    expect(getComputedStyle(f, '::before').content).toBe('none');
+  });
+  test('sizes (H9): a lazy picture whose srcSet lists widths gets sizes="auto" (with the given sizes after it as the fallback); x descriptors, priority or a sizes already starting with auto are left alone', async () => {
+    const W = `${PIC}#a 400w, ${PIC}#b 800w`, X = `${PIC}#a 1x, ${PIC}#b 2x`;
+    await render(<Row>
+      <Pic id="w" srcSet={W} />
+      <Pic id="given" srcSet={W} sizes="(max-width: 600px) 100vw, 200px" />
+      <Pic id="already" srcSet={W} sizes="auto, 50vw" />
+      <Pic id="x" srcSet={X} />
+      <Pic id="hero" srcSet={W} sizes="100vw" priority />
+      <Pic id="eager" srcSet={W} loading="eager" />
+    </Row>);
+    const sizes = (id: string) => frame(id).querySelector('img')!.getAttribute('sizes');
+    expect(['w', 'given', 'already', 'x', 'hero', 'eager'].map(sizes)).toEqual(['auto', 'auto, (max-width: 600px) 100vw, 200px', 'auto, 50vw', null, '100vw', null]);
+  });
+
+  test('sources (H9): a <picture> with one <source> each ahead of the <img>, the first matching one shown; the frame lays out exactly as without; sizes="auto" on lazy width lists', async () => {
+    const WIDE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#ef4444"/></svg>');
+    await render(<Row>
+      <Pic id="plain" alt="Plain" ratio="video" />
+      <Pic id="src" alt="Art directed" ratio="video" sources={[
+        { srcSet: `${WIDE} 400w`, media: '(min-width: 1px)', width: 400, height: 200 },
+        { srcSet: PIC, type: 'image/x-never' },
+      ]} />
+    </Row>);
+    const f = frame('src'), i = f.querySelector('img')!;
+    const list = [...f.querySelectorAll('picture > source')].map((s) => [s.getAttribute('media'), s.getAttribute('type'), s.getAttribute('sizes'), s.getAttribute('width')]);
+    expect(list).toEqual([['(min-width: 1px)', null, 'auto', '400'], [null, 'image/x-never', null, null]]);
+    expect(i.parentElement!.tagName).toBe('PICTURE');
+    await expect.poll(() => f.dataset.state).toBe('loaded');
+    expect(i.currentSrc).toBe(WIDE);
+    expect(box('src')).toEqual({ ...box('plain') });
+    expect([...frame('plain').querySelectorAll('picture')].length).toBe(0);
   });
 });

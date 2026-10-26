@@ -41,8 +41,10 @@ import { ErrorBoundary } from "serupa-ds";
 
 - The default fallback is a danger [Alert](../Alert/README.md) (`role="alert"`), so screen readers read it as soon as it appears, with a "Try again" button.
 - When the crash took focus with it (focus fell to `<body>`), focus moves to the fallback, so keyboard users aren't sent back to the top of the page. Focus elsewhere on the page is left alone. The box shows the focus ring when focus came from the keyboard.
+- When the error is cleared from inside the fallback (Try again, a custom fallback's `reset()`, or a `resetKeys` change while focus is in it), focus moves to the first focusable part of the content that came back, rather than falling to the top of the page. If that content has nothing focusable, its first element takes focus for that one move (`tabIndex=-1`, removed when focus leaves).
 - The words come from the `errorTitle`, `errorDescription` and `tryAgain` labels in `SerupaProvider` (English and Indonesian built in).
 - A fallback of your own should do the same: say what happened in words and offer a way on.
+- **Keyboard:** when a crash leaves focus nowhere, focus moves to the fallback, which isn't a Tab stop, so the next Tab reaches its Try again button. Enter or Space on that button renders the children again, and focus moves into them.
 
 ## Props
 
@@ -56,6 +58,8 @@ import { ErrorBoundary } from "serupa-ds";
 | `onReset` | `() => void` | | Called when the error is cleared (Try again, `reset()` or `resetKeys`). |
 | `resetKeys` | `unknown[]` | | When a value changes, the error clears. |
 | `className` | `string` | | On the default fallback's box, which has `data-component="error-boundary"`. |
+
+`id` isn't a prop. Put an id on what you pass as `fallback`, or on an element inside.
 
 A function `fallback` gets `ErrorBoundaryFallbackProps`: `error`, the value that was thrown, and `reset`, which clears it and renders the children again.
 

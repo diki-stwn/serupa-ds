@@ -1,0 +1,163 @@
+{
+  "treeView": {
+    "$description": "TreeView's component tokens. Each one is an optional override: set the CSS variable (--tree-view-<name>) on the page, a container or one TreeView, and every TreeView inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.surface}",
+        "$description": "The background.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The labels (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-text"
+          }
+        }
+      },
+      "item-bg-hover": {
+        "$type": "color",
+        "$value": "{color.secondary}",
+        "$description": "A row's background on hover.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-bg-hover"
+          }
+        }
+      },
+      "item-bg-selected": {
+        "$type": "color",
+        "$value": "{color.highlight}",
+        "$description": "The picked row's background (the text reads 4.5:1 on it).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-bg-selected"
+          }
+        }
+      },
+      "item-indicator": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The 2px bar at the picked row's start.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-indicator"
+          }
+        }
+      },
+      "icon-color": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The chevrons and item icons (3:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-icon-color"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The ring inside the focused row.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-focus-ring"
+          }
+        }
+      },
+      "item-bg-pressed": {
+        "$type": "color",
+        "$value": "{color.pressed}",
+        "$description": "A row's fill while it's held down.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-bg-pressed"
+          }
+        }
+      }
+    },
+    "radius": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "The corners (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-radius"
+          }
+        }
+      },
+      "item-radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-sm}",
+        "$description": "A row's corners (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-radius"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Space inside, on every side (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-padding"
+          }
+        }
+      },
+      "indent": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "How much further in each level starts (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-indent"
+          }
+        }
+      },
+      "item-padding-x": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Space at a row's start and end (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-padding-x"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1}",
+        "$description": "Space between the chevron, icon and label (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-gap"
+          }
+        }
+      }
+    },
+    "sizing": {
+      "item-height": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-md}",
+        "$description": "A row's least height (32px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--tree-view-item-height"
+          }
+        }
+      }
+    }
+  }
+}

@@ -27,9 +27,11 @@ const { PasswordInput, Field } = window.Serupa;
 - Label it with [Field](../Field/README.md), and put the password rules in the hint ("At least 12 characters"), not only in an error.
 - Set `autoComplete="new-password"` when people create a password, so password managers suggest one; the default suits sign-in.
 - Match the `size` to the other fields in the form.
+- A press anywhere on the box other than the reveal button, such as on the icon or the side padding, focuses the field with the caret at the end, as Input's box does.
 
 ## Accessibility
 
+- The show/hide button takes presses over at least 24px (WCAG 2.5.8), even at size `sm` where it's 22px: a box behind it reaches past its edges without moving anything.
 - The button is named "Show password" and has `aria-pressed`, so screen readers say whether the password is shown. Its `aria-controls` points at the field when the field has an `id` (Field gives it one).
 - Clicking it keeps focus in the field, so typing carries on. It's also reachable with Tab, and Enter or Space press it.
 - Spell check and auto-capitalization are off, so a shown password isn't underlined or changed.
@@ -38,10 +40,19 @@ const { PasswordInput, Field } = window.Serupa;
 - Pasting is never blocked, so a password manager or a copied password can fill the field (WCAG 3.3.8, accessible authentication). Don't add an `onPaste` that prevents it.
 - The text keeps 4.5:1 and the eye icon 3:1 on the field in all six themes (`PasswordInput.test.tsx`).
 
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the field, then to the show and hide button |
+| Enter, Space | On the button: show or hide the password; focus stays on the button |
+| Caps Lock | While the field has focus: shows and reads out "Caps Lock is on" |
+
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input>` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `visible` | boolean | none | Shows the password as text (controlled) |
 | `defaultVisible` | boolean | `false` | Shows it at first (uncontrolled) |
 | `onVisibleChange` | `(visible) => void` | none | Called when the button is pressed |

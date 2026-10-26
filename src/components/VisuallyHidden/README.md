@@ -35,11 +35,13 @@ const { VisuallyHidden } = window.Serupa;
 - It's clipped to 1px and taken out of the layout, not `display: none`, so screen readers still read it.
 - Don't hide anything someone who can see needs: if it matters, show it.
 - A focusable skip link takes its own place in the layout when shown: style it with your page so it doesn't push content around, or put it in a fixed spot.
+- **Keyboard:** none of its own. It only hides its content on screen, so anything focusable inside stays in the Tab order: give a skip link `focusable`, so it shows while it has focus.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<span>`. |
 | `focusable` | boolean | `false` | Shows it while it, or something inside it, has focus |
 | `as` | `'span'` \| `'div'` \| `'h1'`…`'h6'` \| `'p'` \| `'label'` \| `'legend'` | `'span'` | The element |
 

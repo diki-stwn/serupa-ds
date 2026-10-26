@@ -2,11 +2,11 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, press, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, press, settle, withMotion, iconPoints } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { keyShortcuts, Menu, MenuGroup, MenuItem, MenuSeparator, MenuSub } from './Menu';
+import { ContextMenu, keyShortcuts, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -45,6 +45,36 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
+    const asks: boolean[] = [];
+    await render(<Menu defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="mdef">Actions</Button>}><MenuItem>Edit</MenuItem></Menu>);
+    await expect.poll(() => !menuOf('mdef').hidden).toBe(true);
+    expect(el('mdef').getAttribute('aria-expanded')).toBe('true');
+    menuOf('mdef').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect([asks.join(), el('mdef').getAttribute('aria-expanded')]).toEqual(['false', 'false']);
+  });
+
+  test('onOpenChange says why: trigger, select, escape, blur (Tab), outside', async () => {
+    const why: string[] = [];
+    await render(<div><button id="mafter">After</button><Menu onOpenChange={(v, d) => why.push((v ? 'open ' : 'shut ') + d.reason)} trigger={<Button id="mwhy">Actions</Button>}><MenuItem>Edit</MenuItem></Menu></div>);
+    const reopen = async () => { await userEvent.click(el('mwhy')); await expect.poll(() => !!openMenu()).toBe(true); };
+    await reopen();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await reopen();
+    await userEvent.click(el('mafter'));
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(why).toEqual(['open trigger', 'shut select', 'open trigger', 'shut escape', 'open trigger', 'shut blur', 'open trigger', 'shut outside']);
+  });
+
   test('closed: the button has aria-haspopup="menu" and aria-expanded="false"; the menu is empty and hidden', async () => {
     await render(<Actions chosen={[]} />);
     const b = el('mb'), m = document.querySelector('[role="menu"]') as HTMLElement;
@@ -63,6 +93,27 @@ describe('Menu', () => {
     expect(document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).toBe('Danger zone');
     expect([!!m.querySelector('[role="separator"]'), m.querySelectorAll('[aria-disabled="true"]').length, m.querySelector('kbd')!.textContent]).toEqual([true, 1, '⌘E']);
     expect(focus()).toBe('Edit');
+  });
+
+  test('a mouse opens it on the press: drag onto an item and let go chooses it; a quick click leaves it open; a press on the open button closes it (GG3)', async () => {
+    const chosen: string[] = [];
+    await render(<Actions chosen={chosen} />);
+    const b = el('mb');
+    await press(b, async () => {
+      await expect.poll(() => b.getAttribute('aria-expanded')).toBe('true');
+      expect(focus()).toBe('Edit');
+      await new Promise((r) => setTimeout(r, 250));
+      await userEvent.hover(menuOf('mb').querySelectorAll('[role="menuitem"]')[1]);
+    });
+    await expect.poll(() => chosen).toEqual(['dup']);
+    expect([b.getAttribute('aria-expanded'), document.activeElement]).toEqual(['false', b]);
+    await userEvent.click(b);
+    await expect.poll(() => focus()).toBe('Edit');
+    expect([b.getAttribute('aria-expanded'), chosen]).toEqual(['true', ['dup']]);
+    await press(b, () => expect.poll(() => b.getAttribute('aria-expanded')).toBe('false'));
+    expect(document.activeElement).toBe(b);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => focus()).toBe('Edit');
   });
 
   test('keys: ↓ ↑ move and wrap, disabled items are still reachable, Home and End jump, a letter goes to the next item starting with it', async () => {
@@ -110,8 +161,7 @@ describe('Menu', () => {
     await userEvent.keyboard('{Enter}');
     expect(!!openMenu()).toBe(true);
     await userEvent.keyboard('{Tab}');
-    await settle(50);
-    expect(!!openMenu()).toBe(false);
+    await expect.poll(() => !!openMenu()).toBe(false);
     expect(focus()).not.toBe('mb');
   });
 
@@ -140,9 +190,9 @@ describe('Menu', () => {
       <MenuItem onSelect={(e) => { e.preventDefault(); chosen.push('stay'); }}>Stay open</MenuItem><MenuItem>Two</MenuItem>
     </Menu></div>);
     await userEvent.click(el('ib'));
-    await settle(100);
+    await expect.poll(() => !!menuOf('ib') && near(rect(menuOf('ib')).right, rect(el('ib')).right)).toBe(true);
     const m = menuOf('ib');
-    expect([m.getAttribute('aria-label'), m.getAttribute('aria-labelledby'), near(rect(m).right, rect(el('ib')).right)]).toEqual(['Row actions', null, true]);
+    expect([m.getAttribute('aria-label'), m.getAttribute('aria-labelledby')]).toEqual(['Row actions', null]);
     await userEvent.keyboard('{Enter}');
     expect([!!openMenu(), chosen.join()]).toEqual([true, 'stay']);
   });
@@ -158,8 +208,7 @@ describe('Menu', () => {
     await userEvent.click(el('cb'));
     expect([!!openMenu(), opens.join()]).toEqual([false, 'true']);
     React.act(() => setOpen(true));
-    await settle(100);
-    expect(getComputedStyle(menuOf('cb')).backgroundColor).toBe('rgb(1, 2, 3)');
+    await expect.poll(() => menuOf('cb') && getComputedStyle(menuOf('cb')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 
   test('a new placement while open moves it there', async () => {
@@ -233,7 +282,7 @@ describe('Menu', () => {
     await userEvent.keyboard('{ArrowLeft}');
     const item = el('share'), panel = sub('share')!;
     expect([focus(), rect(panel).right <= rect(item).left + 8]).toEqual(['Email', true]);
-    expect([getComputedStyle(item.querySelector('.dk-menu__ltr')!).display, getComputedStyle(item.querySelector('.dk-menu__rtl')!).display !== 'none']).toEqual(['none', true]);
+    expect(iconPoints(item.querySelector('.dk-menu__chevron [data-icon]')!)).toBe('left');
     await userEvent.keyboard('{ArrowRight}');
     expect([focus(), sub('share')]).toEqual(['Share', null]);
   });
@@ -255,7 +304,7 @@ describe('Menu', () => {
     const m = menuOf('mb'), it = m.querySelector<HTMLElement>('[role="menuitem"]')!, s = getComputedStyle(m), i = getComputedStyle(it);
     expect([s.paddingTop, s.borderTopLeftRadius, it.offsetHeight, i.fontSize, i.borderTopLeftRadius]).toEqual(['4px', '8px', 32, '14px', '6px']);
     expect(s.boxShadow).toMatch(/10px 15px -3px/);
-    expect(getComputedStyle(it.querySelector('.dk-icon')!).fontSize).toBe('16px');
+    expect(getComputedStyle(it.querySelector('[data-icon]')!).fontSize).toBe('16px');
   });
 
   test('a long label wraps inside a menu at most 320px wide (--menu-max-width), even under a narrow button (BH2)', async () => {
@@ -332,4 +381,260 @@ describe('Menu', () => {
     expect(openMenu()!.getAttribute('aria-labelledby')).toBe(b.id);
   });
 
+  test('your onClick and onKeyDown run first, on the button, the items and a submenu, and preventDefault stops the menu; a menu with no items takes focus itself', async () => {
+    const calls: string[] = [];
+    const stop = (n: string) => (e: React.SyntheticEvent) => { calls.push(n); e.preventDefault(); };
+    const note = (n: string) => () => { calls.push(n); };
+    await render(<div>
+      <Menu trigger={<Button id="sb" onClick={stop('btn-click')} onKeyDown={stop('btn-key')}>Stopped</Button>}><MenuItem>One</MenuItem></Menu>
+      <Menu trigger={<Button id="hb">Handlers</Button>}>
+        <MenuItem id="it" onClick={note('it-click')} onKeyDown={stop('it-key')} onSelect={note('it-select')}>Item</MenuItem>
+        <MenuSub id="sub" label="More" onClick={stop('sub-click')} onKeyDown={stop('sub-key')}><MenuItem>Inner</MenuItem></MenuSub>
+      </Menu>
+      <Menu trigger={<Button id="eb">Empty</Button>}>{null}</Menu>
+    </div>);
+    await userEvent.click(el('sb'));
+    el('sb').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect([el('sb').getAttribute('aria-expanded'), calls.join()]).toEqual(['false', 'btn-click,btn-key']);
+    calls.length = 0;
+    await userEvent.click(el('hb'));
+    await expect.poll(() => focus()).toBe('Item');
+    await userEvent.keyboard('{Enter}');
+    expect([el('hb').getAttribute('aria-expanded'), calls.join()]).toEqual(['true', 'it-key']);
+    el('sub').focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.click(el('sub'));
+    expect(el('sub').getAttribute('aria-expanded')).toBe('false');
+    expect(calls).toEqual(expect.arrayContaining(['sub-key', 'sub-click']));
+    await userEvent.click(el('it'));
+    expect(calls).toEqual(expect.arrayContaining(['it-click', 'it-select']));
+    await expect.poll(() => el('hb').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(el('eb'));
+    await expect.poll(() => document.activeElement).toBe(menuOf('eb'));
+  });
+
+  test('MenuCheckboxItem: role menuitemcheckbox with aria-checked and a check before the label while on; choosing flips it, tells onCheckedChange and closes the menu; ↓ reaches it; the state is the parent\'s (checked), so one the parent doesn\'t change stays', async () => {
+    const asks: boolean[] = [];
+    function View() {
+      const [grid, setGrid] = React.useState(false), [rulers, setRulers] = React.useState(true);
+      return <Menu trigger={<Button id="vb">View</Button>}>
+        <MenuItem>Zoom in</MenuItem>
+        <MenuCheckboxItem checked={grid} onCheckedChange={(v) => { asks.push(v); setGrid(v); }}>Show grid</MenuCheckboxItem>
+        <MenuCheckboxItem checked={rulers} onCheckedChange={setRulers} shortcut="⌘R">Rulers</MenuCheckboxItem>
+        <MenuCheckboxItem checked={false} onSelect={(e) => e.preventDefault()}>Locked</MenuCheckboxItem>
+      </Menu>;
+    }
+    await render(<View />);
+    const items = () => [...menuOf('vb').querySelectorAll<HTMLElement>('[role^="menuitem"]')];
+    const state = () => items().map((x) => x.getAttribute('role')!.replace('menuitem', '') + ':' + x.getAttribute('aria-checked'));
+    const ticks = () => items().map((x) => { const c = x.querySelector('[data-icon="check"]'); return c ? getComputedStyle(c).visibility : '-'; });
+    await userEvent.click(el('vb'));
+    expect(state()).toEqual([':null', 'checkbox:false', 'checkbox:true', 'checkbox:false']);
+    expect(ticks()).toEqual(['-', 'hidden', 'visible', 'hidden']);
+    expect(items()[2].getAttribute('aria-keyshortcuts')).toBe('Meta+R');
+    await userEvent.keyboard('{ArrowDown}');
+    expect(document.activeElement!.textContent).toBe('Show grid');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(asks).toEqual([true]);
+    await userEvent.click(el('vb'));
+    expect(state()).toEqual([':null', 'checkbox:true', 'checkbox:true', 'checkbox:false']);
+    await userEvent.click(items()[2]);
+    await userEvent.click(el('vb'));
+    expect(state()[2]).toBe('checkbox:false');
+    await userEvent.click(items()[3]);
+    expect([!!openMenu(), state()[3]]).toEqual([true, 'checkbox:false']);
+  });
+
+  test('MenuRadioGroup: a group named by its label, MenuRadioItems with role menuitemradio and aria-checked on the chosen one; choosing one tells onValueChange and moves the check', async () => {
+    const asks: string[] = [];
+    function Sort() {
+      const [by, setBy] = React.useState('name');
+      return <Menu trigger={<Button id="sb">Sort</Button>}>
+        <MenuRadioGroup label="Sort by" value={by} onValueChange={(v) => { asks.push(v); setBy(v); }}>
+          <MenuRadioItem value="name">Name</MenuRadioItem>
+          <MenuRadioItem value="date">Date</MenuRadioItem>
+          <MenuRadioItem value="size" disabled>Size</MenuRadioItem>
+        </MenuRadioGroup>
+      </Menu>;
+    }
+    await render(<Sort />);
+    const radios = () => [...menuOf('sb').querySelectorAll<HTMLElement>('[role="menuitemradio"]')];
+    await userEvent.click(el('sb'));
+    const g = menuOf('sb').querySelector('[role="group"]')!;
+    expect(document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).toBe('Sort by');
+    expect(radios().map((x) => x.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false']);
+    expect(document.activeElement!.textContent).toBe('Name');
+    await userEvent.click(radios()[1]);
+    await userEvent.click(el('sb'));
+    expect(radios().map((x) => x.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
+    radios()[2].click();
+    expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
+  });
+});
+
+describe('ContextMenu', () => {
+  function Area({ chosen, ...p }: { chosen: string[]; disabled?: boolean; onOpenChange?: (open: boolean, d: { reason: string }) => void }) {
+    return <>
+      <button id="before">Before</button>
+      <ContextMenu aria-label="File actions" {...p} target={<div id="area" tabIndex={0} style={{ width: '300px', height: '200px', margin: '40px' }}>Report.pdf</div>}>
+        <MenuItem onSelect={() => chosen.push('open')}>Open</MenuItem>
+        <MenuItem onSelect={() => chosen.push('rename')}>Rename</MenuItem>
+        <MenuItem destructive onSelect={() => chosen.push('delete')}>Delete</MenuItem>
+      </ContextMenu>
+    </>;
+  }
+
+  test('a right-click opens a role="menu" named by aria-label at the pointer, focus on the first item; the browser\'s menu is kept away', async () => {
+    await render(<Area chosen={[]} />);
+    const r = rect(el('area'));
+    const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + 50, clientY: r.top + 60, button: 2 });
+    el('area').dispatchEvent(ev);
+    await expect.poll(() => focus()).toBe('Open');
+    const m = openMenu()!;
+    expect([ev.defaultPrevented, m.getAttribute('aria-label'), focus()]).toEqual([true, 'File actions', 'Open']);
+    const mr = rect(m);
+    expect(near(mr.left, r.left + 50) && mr.top >= r.top + 60 && mr.top <= r.top + 60 + 8).toBe(true);
+  });
+
+  test('Shift+F10 or the Menu key on the focused area opens it at the area\'s lower corner; Escape closes it and focus goes back', async () => {
+    await render(<Area chosen={[]} />);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await expect.poll(() => [!!openMenu(), focus()]).toEqual([true, 'Open']);
+    expect(near(rect(openMenu()!).left, rect(el('area')).left)).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => [openMenu(), document.activeElement!.id]).toEqual([undefined, 'area']);
+    await userEvent.keyboard('{ContextMenu}');
+    await expect.poll(() => focus()).toBe('Open');
+  });
+
+  test('Menu\'s keys work in it; choosing an item runs onSelect, closes it and puts focus back; a click outside closes it', async () => {
+    const chosen: string[] = [];
+    await render(<Area chosen={chosen} />);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await expect.poll(() => focus()).toBe('Open');
+    await userEvent.keyboard('{ArrowDown}');
+    expect(focus()).toBe('Rename');
+    await userEvent.keyboard('d');
+    expect(focus()).toBe('Delete');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => [chosen.join(), openMenu(), document.activeElement!.id]).toEqual(['delete', undefined, 'area']);
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await expect.poll(() => !!openMenu()).toBe(true);
+    await userEvent.click(el('before'));
+    await expect.poll(() => openMenu()).toBeUndefined();
+  });
+
+  test('ContextMenu onOpenChange says why: trigger (right-click or keys), select, escape, outside', async () => {
+    const why: string[] = [];
+    await render(<Area chosen={[]} onOpenChange={(v, d) => why.push((v ? 'open ' : 'shut ') + d.reason)} />);
+    const keysOpen = async () => { el('area').focus(); await userEvent.keyboard('{Shift>}{F10}{/Shift}'); await expect.poll(() => !!openMenu()).toBe(true); };
+    await keysOpen();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await keysOpen();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => openMenu()).toBe(undefined);
+    await keysOpen();
+    await userEvent.click(el('before'));
+    await expect.poll(() => openMenu()).toBe(undefined);
+    expect(why).toEqual(['open trigger', 'shut select', 'open trigger', 'shut escape', 'open trigger', 'shut outside']);
+  });
+
+  test('disabled: the browser keeps its own menu and the keys do nothing; the target\'s own onContextMenu runs first and can stop it', async () => {
+    await render(<Area chosen={[]} disabled />);
+    const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 60, clientY: 60 });
+    el('area').dispatchEvent(ev);
+    el('area').focus();
+    await userEvent.keyboard('{Shift>}{F10}{/Shift}');
+    await settle();
+    expect([ev.defaultPrevented, openMenu()]).toEqual([false, undefined]);
+    const seen: string[] = [];
+    await render(<ContextMenu aria-label="Own" target={<div id="own" onContextMenu={(e) => { seen.push('own'); e.preventDefault(); }}>Own</div>}><MenuItem>One</MenuItem></ContextMenu>);
+    el('own').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 10, clientY: 10 }));
+    await settle();
+    expect([seen.join(), openMenu()]).toEqual(['own', undefined]);
+  });
+
+  test('the menu scales in from the point on its edge facing the trigger, level with the trigger\'s centre (EO1)', async () => {
+    await render(<div style={{ padding: '40px 120px' }}><Menu trigger={<Button id="mo">Actions</Button>}><MenuItem>Edit</MenuItem><MenuItem>Duplicate</MenuItem></Menu></div>);
+    await userEvent.click(el('mo'));
+    const m = document.querySelector('[role=menu]') as HTMLElement, b = el('mo').getBoundingClientRect(), r = m.getBoundingClientRect();
+    const [x, y] = getComputedStyle(m).transformOrigin.split(' ').map(parseFloat);
+    expect([m.dataset.side, Math.round(y), Math.abs(r.left + x - (b.left + b.width / 2)) <= 1]).toEqual(['bottom', 0, true]);
+  });
+});
+
+describe('Menu: motion (DZ1)', () => {
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|scale)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
+  const settled = (e: Element) => Promise.all(e.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
+  // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+  const holds = () => CSS.supports('overlay', 'auto');
+  test('opens with a transition and fades and shrinks out faster, its items kept (inert) until the fade ends; focus is back at once', async () => {
+    await withMotion(async () => {
+      await render(<Actions chosen={[]} />);
+      await userEvent.click(el('mb'));
+      const m = menuOf('mb');
+      expect([runs(m), m.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
+      await settled(m);
+      expect([getComputedStyle(m).opacity, getComputedStyle(m).scale]).toEqual(['1', 'none']);
+      await userEvent.keyboard('{Escape}');
+      expect([openMenu(), document.activeElement]).toEqual([undefined, el('mb')]);
+      if (!holds()) { expect(getComputedStyle(m).display).toBe('none'); return; }
+      expect([getComputedStyle(m).display, m.inert, m.querySelectorAll('[role="menuitem"]').length, runs(m)]).toEqual(['block', true, 5, [['opacity', 100], ['scale', 100]]]);
+      await settled(m);
+      await expect.poll(() => m.querySelectorAll('[role="menuitem"]').length).toBe(0);
+      expect(getComputedStyle(m).display).toBe('none');
+    });
+  });
+
+  test('stagger: opening, the items fade and drop into place 50ms (motion-stagger) apart, counted across groups, capped at motion-enter-sm; closing fades the menu as one', async () => {
+    await withMotion(async () => {
+      await render(<Actions chosen={[]} />);
+      await userEvent.click(el('mb'));
+      const m = menuOf('mb'), items = [...m.querySelectorAll('[role="menuitem"]')];
+      const timing = (e: Element) => { const s = getComputedStyle(e); return `${s.transitionProperty} ${s.transitionDuration} ${s.transitionDelay}`; };
+      expect(items.map(timing)).toEqual(['0s', '0.05s', '0.1s', '0.15s', '0.15s'].map((d) => `opacity, translate 0.15s, 0.15s ${d}, ${d}`));
+      await settled(m);
+      expect(items.map((i) => getComputedStyle(i).opacity)).toEqual(['1', '1', '0.5', '1', '1']);   // Archive is disabled
+      await userEvent.keyboard('{Escape}');
+      expect(items.flatMap((i) => i.getAnimations())).toEqual([]);
+    });
+  });
+
+  test('a submenu open when its item is chosen fades out with its menu; one open on arrival is there from the first frame; ContextMenu fades out too', async () => {
+    await withMotion(async () => {
+      await render(<Nested chosen={[]} />);
+      await userEvent.click(el('nb'));
+      await userEvent.click(el('share'));
+      const s = sub('share')!;
+      await expect.poll(() => s.hidden).toBe(false);
+      expect(el('share').getAttribute('aria-expanded')).toBe('true');
+      const m = menuOf('nb');
+      await settled(m);
+      await userEvent.click(page.getByRole('menuitem', { name: 'Email' }));
+      expect([openMenu(), s.hidden]).toEqual([undefined, true]);
+      if (holds()) {
+        expect([runs(m), runs(s), getComputedStyle(s).display]).toEqual([[['opacity', 100], ['scale', 100]], [['opacity', 100], ['scale', 100]], 'block']);
+        await settled(m);
+      }
+      await expect.poll(() => m.querySelectorAll('[role="menuitem"]').length).toBe(0);
+
+      await render(<Menu defaultOpen trigger={<Button id="marr">Actions</Button>}><MenuItem>Edit</MenuItem></Menu>);
+      await expect.poll(() => !menuOf('marr').hidden).toBe(true);
+      expect([menuOf('marr').getAnimations().length, getComputedStyle(menuOf('marr')).opacity]).toEqual([0, '1']);
+
+      await render(<ContextMenu aria-label="Card actions" target={<div id="ctx" style={{ width: 200, height: 100 }}>Card</div>}><MenuItem>Rename</MenuItem></ContextMenu>);
+      await userEvent.click(el('ctx'), { button: 'right' });
+      const c = openMenu()!;
+      await settled(c);
+      await userEvent.keyboard('{Escape}');
+      expect(c.hidden).toBe(true);
+      if (holds()) expect([c.inert, runs(c), c.querySelectorAll('[role="menuitem"]').length]).toEqual([true, [['opacity', 100], ['scale', 100]], 1]);
+    });
+  });
 });

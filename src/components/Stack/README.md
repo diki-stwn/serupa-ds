@@ -39,12 +39,14 @@ const { Stack, Button } = window.Serupa;
 ## Accessibility
 
 - Stack only lays things out: the reading and tab order stay the order of the children, so keep it the same as what people see.
-- Use `as="ul"` or `as="ol"` when the items are a list, so screen readers say how many there are.
+- Use `as="ul"` or `as="ol"` when the items are a list, so screen readers say how many there are. It then carries `role="list"`, since Safari stops calling a list without bullets a list.
+- **Keyboard:** none: a layout box, not focusable.
 
 ## Props
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root element (`as`). |
 | `direction` | `'column'` \| `'row'` | `'column'` | One under another, or side by side |
 | `gap` | a spacing step: `0` `0.5` `1` `1.5` `2` `2.5` `3` `3.5` `4` `5` `6` `7` `8` `9` `10` `11` `12` `14` `16` `20` `24` | `4` (16px) | The space between items: `gap={6}` is `spacing-6`, 24px |
 | `align` | `'stretch'` \| `'start'` \| `'center'` \| `'end'` \| `'baseline'` | `'stretch'` in a column, `'center'` in a row | Cross-axis alignment |

@@ -1,12 +1,13 @@
 "use client";
 import * as React from "react";
 import { cn, isInvalid, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
-import { type IconSource } from "../Icon/Icon";
+import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
 export interface SegmentedControlOption {
   value: string;
@@ -16,6 +17,7 @@ export interface SegmentedControlOption {
   icon?: IconSource;
   /** The segment's name when it shows only an icon. */
   "aria-label"?: string;
+  /** Turns this segment off. */
   disabled?: boolean;
 }
 export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -27,10 +29,11 @@ export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDiv
   defaultValue?: string;
   /** Called with the new value when a segment is chosen. */
   onValueChange?: (value: string) => void;
-  /** 'sm' (24px) or 'md' (32px, default): the control heights. */
-  size?: 'sm' | 'md';
+  /** 'sm' (24px), 'md' (32px, default) or 'lg' (44px): the control heights. */
+  size?: 'sm' | 'md' | 'lg';
   /** Stretches to its container, with equal segments. Default: false. */
   fullWidth?: boolean;
+  /** Turns every segment off, as a disabled native control. */
   disabled?: boolean;
   /** Submits the value with a form, in a hidden input. */
   name?: string;
@@ -53,6 +56,7 @@ const OWN = { options: 1, value: 1, defaultValue: 1, onValueChange: 1, size: 1, 
    ToggleButton. */
 /** Picks one of a few options shown side by side: a radio group drawn as segments. */
 export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, SegmentedControlProps>("SegmentedControl", function SegmentedControl(props, ref) {
+  const nameRef = useNameCheck("SegmentedControl", NAME_HOW.group);   // warns when it has no accessible name
   const rest = omit(props, OWN);
   const options = props.options || [];
   const disabled = !!props.disabled;
@@ -68,7 +72,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   useFormReset(root, () => { if (!controlled) setOwn(props.defaultValue ?? (options.find((o) => !o.disabled) || {}).value); }, props.form);
   const buttons = React.useRef<Record<string, HTMLButtonElement | null>>({});
   const [box, setBox] = React.useState<{ x: number; w: number } | null>(null);
-  const size = props.size === "sm" ? "sm" : "md";
+  const size = props.size === "sm" || props.size === "lg" ? props.size : "md";
   // In a Field, its label names the group (Field's <label for> can't reach a radiogroup); its own name wins.
   const fieldLabel = useFieldLabel(props.id);
   // ref.current.focus() and autoFocus land on the segment in the Tab order: the selected one, or else the first
@@ -82,12 +86,34 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     if (!controlled) setOwn(v);
     if (props.onValueChange) props.onValueChange(v);
   };
+  // A label cut with an ellipsis shows in full as its segment's title on hover (the same words as its name, so nothing
+  // is read twice), as Button does.
+  const [cut, setCut] = React.useState("");
   const measure = React.useCallback(() => {
     const r = root.current, b = value != null ? buttons.current[value] : null;
+    let c = "";
+    for (const k in buttons.current) { const l = buttons.current[k]?.querySelector<HTMLElement>(".dk-segmented__label"); if (l && l.scrollWidth > l.clientWidth) c += k + "\n"; }
+    setCut(c);
     if (!r || !b) { setBox(null); return; }
     setBox({ x: b.offsetLeft, w: b.offsetWidth });
   }, [value]);
   useIsoLayoutEffect(measure, [measure, options.length, size, props.fullWidth]);
+  // A new choice slides the indicator from the last one (CSS above it, EG1): it's already at the new segment by left and
+  // width, so it starts back where it was on translate and scale with no transition, then lets go of both.
+  const indicator = React.useRef<HTMLSpanElement | null>(null);
+  const last = React.useRef<{ x: number; w: number; v: string | undefined } | null>(null);
+  useIsoLayoutEffect(() => {
+    const was = last.current, el = indicator.current;
+    last.current = box ? { ...box, v: value } : null;
+    if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w)) return;
+    el.setAttribute("data-flip", "");
+    el.style.translate = was.x - box.x + "px 0";
+    el.style.scale = was.w / box.w + " 1";
+    void el.offsetWidth;
+    el.removeAttribute("data-flip");
+    el.style.translate = "";
+    el.style.scale = "";
+  }, [box]);
   React.useEffect(() => {
     const r = root.current;
     if (!r || typeof ResizeObserver === "undefined") return;
@@ -124,13 +150,13 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   const onBlur = (e: React.FocusEvent<HTMLDivElement>) => { if (rest.onBlur && crossing(e)) rest.onBlur(e); };
   const checkedUsable = usable.some((o) => o.value === value);
   return (
-    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, tabStop); setRef(ref, n); }}
+    <div {...rest} ref={(n) => { root.current = n; nameRef(n); delegateFocus(n, tabStop); setRef(ref, n); }}
       role="radiogroup" aria-disabled={disabled || undefined}
       aria-invalid={invalid || undefined} aria-required={required || undefined} aria-readonly={readOnly || undefined}
       aria-labelledby={props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel)}
       className={cn("dk-segmented", "dk-segmented--size-" + size, props.fullWidth && "dk-segmented--full", disabled && "dk-segmented--disabled", invalid && "dk-segmented--invalid", readOnly && "dk-segmented--readonly", props.className)}
       data-component="segmented-control" data-size={size} onKeyDown={undefined} onFocus={onFocus} onBlur={onBlur}>
-      {box ? <span className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
+      {box ? <span ref={indicator} className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
       {options.map((o) => {
         const on = o.value === value, off = disabled || !!o.disabled;
         const icon = asIcon(o.icon);
@@ -138,7 +164,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
         const tab = off ? -1 : on || (!checkedUsable && usable[0] && usable[0].value === o.value) ? 0 : -1;
         return (
           <button key={o.value} ref={(n) => { buttons.current[o.value] = n; }} type="button" role="radio" aria-checked={on}
-            aria-label={o["aria-label"]} disabled={off} tabIndex={tab} data-value={o.value}
+            aria-label={o["aria-label"]} title={typeof o.label === "string" && !o["aria-label"] && cut.split("\n").includes(o.value) ? o.label : undefined} disabled={off} tabIndex={tab} data-value={o.value}
             className={cn("dk-segmented__item", on && "dk-segmented__item--selected", !hasLabel && "dk-segmented__item--icon-only")}
             onClick={() => choose(o.value)} onKeyDown={onKeyDown}>
             {icon != null && icon !== false ? <span className="dk-segmented__icon" aria-hidden>{icon}</span> : null}

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Checkbox } from './Checkbox';
+import { Checkbox, CheckboxGroup } from './Checkbox';
+import { Field } from '../Field/Field';
 
 const meta = {
   title: 'Components/Forms/Checkbox',
@@ -43,4 +44,40 @@ export const SelectAll: Story = {
         onChange={(e) => setPicked(e.target.checked ? [...picked, t] : picked.filter((x) => x !== t))}>{t}</Checkbox>)}</div>
     </Col>;
   },
+};
+
+export const Group: Story = {
+  name: 'CheckboxGroup',
+  render: function GroupDemo() {
+    const [teams, setTeams] = React.useState<string[]>(['design']);
+    return <Field group label="Teams to notify" hint={`${teams.length} picked`}>
+      <CheckboxGroup name="teams" value={teams} onValueChange={setTeams}>
+        <Checkbox selectAll>All teams</Checkbox>
+        <Checkbox value="design">Design</Checkbox>
+        <Checkbox value="engineering">Engineering</Checkbox>
+        <Checkbox value="legal" disabled>Legal (always notified)</Checkbox>
+      </CheckboxGroup>
+    </Field>;
+  },
+};
+
+export const LongLabel: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <Checkbox {...args} description="We send about one email a month, and you can unsubscribe from any of them with one click.">
+        Email me about product updates, security notices and {"Donaudampfschifffahrtsgesellschaft"} news
+      </Checkbox>
+    </div>
+  ),
+};
+
+export const GroupHorizontal: Story = {
+  name: 'CheckboxGroup in a row',
+  render: () => <Field group label="Days">
+    <CheckboxGroup name="days" orientation="horizontal" defaultValue={['mon']}>
+      <Checkbox value="mon">Monday</Checkbox>
+      <Checkbox value="tue">Tuesday</Checkbox>
+      <Checkbox value="wed">Wednesday</Checkbox>
+    </CheckboxGroup>
+  </Field>,
 };

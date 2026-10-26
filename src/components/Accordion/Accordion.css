@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    Accordion: items separated by 1px lines (card: inside a bordered, rounded frame). A title is a full-width
-   text-sm font-medium button with a chevron that turns over when open, and an underline on hover. Content
-   (muted text-sm) opens and closes by animating the row height from 0fr to 1fr; closed, it's hidden.
+   text-sm font-medium button with a chevron that turns over when open, an underline on hover, and the pressed fill while held. Content
+   (muted text-sm) takes its height at once and unfolds over it (a fade and an opening clip); closed, it's hidden.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-accordion { --dk-accordion-turn: 180deg; font-family: var(--font-sans); }
@@ -19,22 +19,38 @@
 }
 .dk-accordion--card .dk-accordion__trigger { padding-inline: var(--accordion-padding-x, var(--spacing-4)); border-radius: var(--spacing-0); }
 @media (hover: hover) { .dk-accordion__trigger:hover:not(:disabled) .dk-accordion__title { text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
+/* Pressed: one step past hover, as rows, tabs and days are while held. Instant, so the press answers within a frame. */
+.dk-accordion__trigger:active:not(:disabled, [aria-disabled="true"]) { background: var(--accordion-trigger-bg-pressed, var(--pressed)); }
 .dk-accordion__trigger:focus-visible { outline: var(--focus-ring-width) solid var(--accordion-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-accordion--card .dk-accordion__trigger:focus-visible { outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-accordion__trigger:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-accordion__trigger[aria-disabled="true"] { cursor: default; }
-.dk-accordion__icon.dk-icon { flex-shrink: 0; color: var(--accordion-icon-color, var(--text-muted)); font-size: var(--accordion-icon-size, var(--spacing-5)); transition: rotate var(--accordion-duration, var(--duration-200)) var(--ease-in-out); }
+.dk-accordion__icon.dk-icon { flex-shrink: 0; color: var(--accordion-icon-color, var(--text-muted)); font-size: var(--accordion-icon-size, var(--spacing-5)); transition: rotate var(--accordion-duration, var(--motion-change-md)) var(--ease-move); }
 .dk-accordion__item--open > .dk-accordion__heading .dk-accordion__icon { rotate: var(--dk-accordion-turn); }
+/* Motion (EH2): the height changes at once, in one layout, and the content unfolds over it on the compositor, so
+   nothing lays the page out on every frame. Open: shown at once, then it fades in and (unless reduced motion asks
+   otherwise) its clip opens from the top over --accordion-duration with ease-enter. Closed: it keeps its height while
+   it fades and folds back up over motion-exit-md with ease-exit; content-visibility turns hidden at the end
+   (allow-discrete), which takes the height away. Transitions, so a quick second press turns back from where it is. */
 .dk-accordion__panel {
-  display: grid; grid-template-rows: 0fr; visibility: hidden;
-  transition: grid-template-rows var(--accordion-duration, var(--duration-200)) var(--ease-in-out), visibility var(--accordion-duration, var(--duration-200));
+  --dk-accordion-motion: var(--motion-exit-md) var(--ease-exit);
+  visibility: hidden; opacity: var(--opacity-0); content-visibility: hidden;
+  transition: opacity var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility var(--motion-exit-md) allow-discrete;
 }
-.dk-accordion__item--open > .dk-accordion__panel { grid-template-rows: 1fr; visibility: visible; }
+.dk-accordion__item--open > .dk-accordion__panel {
+  --dk-accordion-motion: var(--accordion-duration, var(--motion-change-md)) var(--ease-enter);
+  visibility: visible; opacity: var(--opacity-100); content-visibility: visible; transition: opacity var(--dk-accordion-motion);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dk-accordion__panel { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full)); transition: opacity var(--dk-accordion-motion), clip-path var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility var(--motion-exit-md) allow-discrete; }
+  .dk-accordion__item--open > .dk-accordion__panel { clip-path: inset(var(--spacing-0)); transition: opacity var(--dk-accordion-motion), clip-path var(--dk-accordion-motion); }
+}
 /* Closed and settled: hidden="until-found" hides the content (content-visibility) and lets find-in-page reach it,
-   which needs the panel visible. */
-.dk-accordion__panel:has(> .dk-accordion__clip > .dk-accordion__content[hidden="until-found"]) { visibility: visible; }
+   which needs the panel shown; the content's padding goes too, so it takes no height. */
+.dk-accordion__panel:has(> .dk-accordion__clip > .dk-accordion__content[hidden="until-found"]) { visibility: visible; content-visibility: visible; transition: none; }
+.dk-accordion__content[hidden="until-found"] { padding-block: var(--spacing-0); }
 .dk-accordion__clip { min-height: var(--spacing-0); overflow: hidden; }
 .dk-accordion__content { padding-bottom: var(--accordion-padding-y, var(--spacing-4)); color: var(--accordion-content-color, var(--text-muted)); font-size: var(--accordion-content-size, var(--text-sm)); line-height: var(--text-sm--line-height); }
 .dk-accordion--card .dk-accordion__content { padding-inline: var(--accordion-padding-x, var(--spacing-4)); }
-@media (prefers-reduced-motion: reduce) { .dk-accordion__panel, .dk-accordion__icon.dk-icon { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-accordion__icon.dk-icon { transition: none; } }
 }

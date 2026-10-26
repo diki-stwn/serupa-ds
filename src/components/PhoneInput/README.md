@@ -35,6 +35,7 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 - Pasting or typing a number that starts with `+` or `00` picks the country from its calling code. Where countries share one, the area decides: `+1 416…` is Canada, `+1 684…` American Samoa, `+7 7…` Kazakhstan, `+44 1481…` Guernsey.
 - A trunk prefix typed at the start (the `0` of `0812…`) is dropped, since the calling code replaces it. So is a calling code typed without `+` ("62 812…" with Indonesia picked), once the number is too long to be a national one.
 - A `+` code PhoneInput doesn't know warns once in the console; its digits are read as a number in the picked country.
+- A press on the box past the number field focuses the field with the caret at the end, as the text cursor over the box promises; the country menu keeps its own press.
 
 ## Accessibility
 
@@ -43,6 +44,14 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 - The number is `type="tel"` with `inputmode="tel"` and `autocomplete="tel-national"`, so phones show the dial pad and browsers can fill it in.
 - Backspace next to a space or dash removes the digit before it, so deleting never gets stuck on the grouping.
 - The calling code keeps 4.5:1 and the chevron 3:1 on the field in all six themes (`PhoneInput.test.tsx`).
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | The country select, then the number field |
+| Up / Down | In the country select, the browser's own keys pick a country |
+| Backspace / Delete | Next to a space, dash or bracket in the number, removes the digit beyond it rather than the punctuation |
 
 ## Countries
 
@@ -57,6 +66,7 @@ Every calling code in the world: 244 countries and territories, one row each in 
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the native `<input type="tel">` (not the wrapper), so a `<label htmlFor>` or a Field can point at it. |
 | `value` | string | none | The number in E.164 (controlled) |
 | `defaultValue` | string | none | The number at first (uncontrolled), in E.164 |
 | `onValueChange` | `(value, { country, national, complete }) => void` | none | Called with E.164 (`""` when empty) as the number or country changes |
