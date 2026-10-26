@@ -51,6 +51,8 @@
 - button "Show options"
 - combobox "Disabled" [disabled]: Egypt
 - button "Show options" [disabled]
+- combobox "Read-only"
+- button "Show options" [disabled]
 
 # WithDescriptions
 - text: Owner
