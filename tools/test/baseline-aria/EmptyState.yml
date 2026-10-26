@@ -10,13 +10,27 @@
 # LongText
 - heading "No projects match every one of the filters you picked" [level=3]
 - paragraph: Try fewer filters, or search for Donaudampfschifffahrtsgesellschaftskapitänskajüte by name instead.
+- paragraph:
+  - text: "Did you mean:"
+  - button "Donaudampfschifffahrtsgesellschaft"
+  - button "quarterly planning for the whole organisation"
 - button "New project"
 - button "Import"
+- button "Clear filters"
 
 # NoResults
 - heading "No results" [level=3]
 - paragraph: Nothing matches "quarterly".
 - button "Clear the search"
+
+# NoResultsWithSuggestions
+- heading "No results for “quartely”" [level=3]
+- paragraph: Check the spelling, or search with fewer filters.
+- paragraph:
+  - text: "Did you mean:"
+  - button "quarterly"
+  - button "quarter"
+- button "Clear filters"
 
 # Playground
 - heading "No projects yet" [level=3]

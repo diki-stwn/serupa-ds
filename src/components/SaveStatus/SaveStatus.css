@@ -1,0 +1,17 @@
+/* ---------------------------------------------------------------
+   SaveStatus: one line of small muted text with a 16px icon before it: a ring while saving, a check once saved (in the
+   success color), an error icon and text in the danger color with a link-style Try again after it. It keeps a line's
+   height when idle, so the layout doesn't jump. Every value reads one of its own tokens (save-status.tokens.json),
+   which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-save-status {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--save-status-gap, var(--spacing-1\.5));
+  min-height: var(--text-sm--line-height); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
+  color: var(--save-status-text, var(--text-muted));
+}
+.dk-save-status__icon { flex: none; font-size: var(--save-status-icon-size, var(--spacing-4)); }
+.dk-save-status__text { min-width: var(--spacing-0); overflow-wrap: anywhere; }
+.dk-save-status--saved .dk-save-status__icon { color: var(--save-status-saved, var(--success)); }
+.dk-save-status--error { color: var(--save-status-error, var(--danger-text)); }
+}
