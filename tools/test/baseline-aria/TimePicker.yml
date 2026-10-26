@@ -14,6 +14,10 @@
 - combobox "Time"
 - button "Choose a time"
 
+# ReadOnly
+- combobox "Time": 10:00 AM
+- button "Choose a time" [disabled]
+
 # Sizes
 - combobox "sm": 9:30 AM
 - button "Choose a time"

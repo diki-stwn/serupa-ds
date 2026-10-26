@@ -86,7 +86,7 @@ On a `ContextMenu`'s target, Shift+F10 or the Menu key opens it at the focused e
 
 In a submenu, ↑ ↓ Home End and letters move among its own items only. Choosing an item in a submenu closes every level and focus goes back to the button.
 
-Hovering an item highlights it, and a press outside closes the menu. Hovering a `MenuSub` opens its submenu after 150ms, and it closes 150ms after the pointer settles on another item, so the pointer can cut across an item on the way into the submenu.
+A mouse opens the menu as the button is pressed, so it can be dragged onto an item and let go there to choose it, as in a desktop app's menus; a quick click opens it and leaves it open. A touch or pen opens it on the tap, and so does a mouse when the trigger has its own `onClick` (which can call `preventDefault()` to stop it). Hovering an item highlights it, and a press outside closes the menu. Hovering a `MenuSub` opens its submenu after 150ms, and it closes 150ms after the pointer settles on another item, so the pointer can cut across an item on the way into the submenu.
 
 ## Props
 
