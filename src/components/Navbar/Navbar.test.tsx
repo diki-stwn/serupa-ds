@@ -101,8 +101,8 @@ describe('Navbar', () => {
     window.scrollTo(0, 600);
     await expect.poll(() => window.scrollY).toBe(600);
     const n = el('nsticky');
-    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth])
-      .toEqual([0, '40', 'Docs', '1024px']);
+    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth]) // lg: 1024px of content plus 32px padding each side
+      .toEqual([0, '40', 'Docs', '1088px']);
   });
 
   test('sticky: Tab to a field above the screen scrolls it into view below the bar, not under it (WCAG 2.4.11); the page padding follows the bar and goes away with it', async () => {

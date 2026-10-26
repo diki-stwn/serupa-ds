@@ -15,12 +15,15 @@ describe('Container', () => {
     const r = React.createRef<HTMLElement>();
     await render(<Wide><Container id="cdef" ref={r} className="extra">x</Container></Wide>);
     const e = el('cdef'), s = css(e);
-    expect([e.tagName, e.className, r.current === e, s.maxWidth, e.dataset.size, e.getBoundingClientRect().width]).toEqual(['DIV', 'dk-container dk-container--xl dk-container--padded extra', true, '1280px', 'xl', 600]);
+    expect([e.tagName, e.className, r.current === e, s.maxWidth, e.dataset.size, e.getBoundingClientRect().width]).toEqual(['DIV', 'dk-container dk-container--xl dk-container--padded extra', true, '1328px', 'xl', 600]);
   });
 
-  test('prose: 672px (container-2xl), as main', async () => {
-    await render(<Wide><Container id="cprose" size="prose" as="main">x</Container></Wide>);
-    expect([css(el('cprose')).maxWidth, el('cprose').tagName]).toEqual(['672px', 'MAIN']);
+  test('prose: 672px of content (container-2xl), the padding outside it, as main (FF1)', async () => {
+    await page.viewport(1400, 800);
+    await expect.poll(() => window.innerWidth).toBe(1400);
+    await render(<Wide w={1200}><Container id="cprose" size="prose" as="main">x</Container><Container id="cbare" size="prose" padded={false}>x</Container></Wide>);
+    const e = el('cprose'), s = css(e);
+    expect([e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight), s.paddingLeft, el('cbare').getBoundingClientRect().width, e.tagName]).toEqual([672, '32px', 672, 'MAIN']);
   });
 
   test('full, padded={false}: no maximum, no padding', async () => {
@@ -50,6 +53,6 @@ describe('Container', () => {
     await expect.poll(() => window.innerWidth).toBe(2000);
     await render(<Wide w={1800}><Container id="cdef">x</Container></Wide>);
     const r = el('cdef').getBoundingClientRect(), o = el('root').getBoundingClientRect();
-    expect([r.width, Math.round(r.left - o.left), Math.round(o.right - r.right)]).toEqual([1280, 260, 260]);
+    expect([r.width, Math.round(r.left - o.left), Math.round(o.right - r.right)]).toEqual([1344, 228, 228]);   // 1280 of content and 32px each side
   });
 });
