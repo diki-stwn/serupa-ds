@@ -15,6 +15,10 @@
 }
 .dk-list__item:not(:has(.dk-list__trailing)) .dk-list__main { margin-inline-end: calc(var(--spacing-0) - var(--dk-list-px)); padding-inline-end: var(--dk-list-px); }
 .dk-list__item--interactive .dk-list__main { cursor: pointer; touch-action: manipulation; }
+/* The row lights up as a whole, so it works as a whole (GF2): the link or button's hit area covers the row, trailing
+   meta included. A trailing control is positioned, so it paints, and takes the press, above that area. */
+.dk-list__item--interactive .dk-list__main::after { content: ""; position: absolute; inset: var(--spacing-0); }
+.dk-list__item--interactive .dk-list__trailing :is(a, button, input, select, textarea, label, [tabindex]) { position: relative; }
 .dk-list__item--selected { background: var(--list-bg-hover, var(--surface-muted)); }
 @media (hover: hover) { .dk-list__item--interactive:hover:not(.dk-list__item--disabled) { background: var(--list-bg-hover, var(--surface-muted)); } }
 .dk-list__item--interactive:not(.dk-list__item--disabled):has(.dk-list__main:active) { background: var(--list-bg-pressed, var(--pressed)); }   /* the row, not its trailing action */
