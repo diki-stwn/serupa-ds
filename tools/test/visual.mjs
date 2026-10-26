@@ -1,7 +1,9 @@
 // Visual snapshots: renders every Storybook story (from storybook-static/, npm run build-storybook) and compares it
 // with the saved image in baseline-visual/<Component>/: at rest in every theme, and hovered and focused in the
 // first theme (blue-light), and for the components in FORCED once more with forced colors on (Windows High Contrast),
-// where states shown only by colour disappear unless the CSS has a forced-colors rule.
+// where states shown only by colour disappear unless the CSS has a forced-colors rule. Every story is also shot once
+// on the page's other axes together (right to left, more contrast, compact density; <Story>-axes.png), so a mirroring,
+// contrast-token or control-height regression shows up too.
 //   node tools/test/visual.mjs            check
 //   node tools/test/visual.mjs --update   accept the current look as the new baseline (a picture that differs
 //                                         only within the tolerance keeps its old file)
@@ -25,6 +27,8 @@ const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emera
 const SKIP = ['VisuallyHidden'];  // nothing to see
 // Components whose states (checked, selected, current, progress, drag-over) are easy to lose in forced colors: each
 // story is also shot with forced-colors: active, as <Story>-forced-colors.png.
+// The other axes, all at once in blue-light at rest: one picture per story catches a change on any of them.
+const AXES = 'dir:rtl;contrast:more;density:compact';
 const FORCED = ['Checkbox', 'FileUpload', 'Loader', 'Progress', 'Radio', 'SegmentedControl', 'Slider', 'Switch', 'Table', 'Tabs'];
 
 const SB = path.join(PROJECT, 'storybook-static');
@@ -44,6 +48,7 @@ const stories = all.filter((e) => !only || only.has(component(e))).filter((_, i)
 const expected = new Set(all.flatMap((e) => [
   ...THEMES.flatMap((th) => ['rest', 'hover', 'focus'].map((s) => `${component(e)}/${e.exportName}-${th}-${s}.png`)),
   ...(FORCED.includes(component(e)) ? [`${component(e)}/${e.exportName}-forced-colors.png`] : []),
+  `${component(e)}/${e.exportName}-axes.png`,
 ]));
 const saved = () => fs.readdirSync(DIR, { recursive: true }).map((f) => String(f).split(path.sep).join('/')).filter((f) => f.endsWith('.png') && !f.endsWith('.actual.png'));
 
@@ -94,9 +99,9 @@ async function tabTo(page, el) {
 }
 
 // Opens a story in a theme, with motion off, once it has drawn and its fonts have loaded. '' when ready.
-async function open(page, e, theme) {
+async function open(page, e, theme, more = '') {
   const [brand, mode] = theme.split('-');
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};a11y.manual:!true`);
+  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};${more ? `${more};` : ''}a11y.manual:!true`);
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) return 'did not render in 15 s';
   if (await page.evaluate(() => document.body.classList.contains('sb-show-errordisplay'))) return 'Storybook shows an error';
@@ -156,6 +161,13 @@ async function checkStory(e, page) {
       const r = await compare(page, name);
       if (r) out.push(r);
     }
+  }
+  {
+    const name = `${c}/${e.exportName}-axes`;
+    const notReady = await open(page, e, THEMES[0], AXES);
+    const on = !notReady && await page.evaluate(() => { const h = document.documentElement; return h.dir === 'rtl' && h.dataset.contrast === 'more' && h.dataset.density === 'compact'; });
+    const r = notReady ? { name, ok: false, detail: notReady } : !on ? { name, ok: false, detail: 'the page did not take dir="rtl", data-contrast="more" and data-density="compact" from the globals' } : await compare(page, name);
+    if (r) out.push(r);
   }
   if (FORCED.includes(c)) {
     // Forced colors replace every colour with the system's few, so one pass is enough (the theme doesn't show).
