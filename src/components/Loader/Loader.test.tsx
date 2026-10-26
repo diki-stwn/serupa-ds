@@ -142,6 +142,15 @@ describe('Loader', () => {
     expect(`${s[0].animationName} ${s[0].animationDuration} ${s[0].animationTimingFunction} ${s[0].animationIterationCount}`).toBe('dk-loader-pixel 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
   });
 
+  test('pixel, right to left: the grid is mirrored, so the wave starts from the top right, the inline start (GI2); the drawing is never narrowed by base.css', async () => {
+    await render(<div><Loader id="ltr" variant="pixel" delay={0} /><div dir="rtl"><Loader id="rtl" variant="pixel" delay={0} /></div></div>);
+    const start = (id: string) => {
+      const svg = el(id).querySelector('svg')!.getBoundingClientRect(), r = [...el(id).querySelectorAll('rect[width="8"]')].find((x) => getComputedStyle(x).animationName === 'dk-loader-pixel' && getComputedStyle(x).animationDelay === '0s')!.getBoundingClientRect();
+      return [r.left + r.width / 2 > svg.left + svg.width / 2 ? 'right' : 'left', Math.round(r.top - svg.top)];
+    };
+    expect([start('ltr'), start('rtl'), css(el('rtl').querySelector('svg')!).maxWidth]).toEqual([['left', 0], ['right', 0], 'none']);
+  });
+
   test('pixel: a square rests at 15% (pixel-dim), is full at the crest and fades back', async () => {
     await render(<Loader id="px" variant="pixel" delay={0} />);
     const [rest, crest, after] = at(q('#px rect.dk-loader__px'), 'dk-loader-pixel', [0, 480, 1140], opacity);
