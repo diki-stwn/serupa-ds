@@ -37,6 +37,15 @@
   - radio "Team"
   - text: Team
 
+# LongLabels
+- radiogroup "Plan":
+  - radio "Free, for one person working on a handful of projects"
+  - text: Free, for one person working on a handful of projects
+  - radio "Pro" [checked]
+  - text: Pro Everything in Free, plus unlimited projects, guests and a full year of version history
+  - radio "Donaudampfschifffahrtsgesellschaft"
+  - text: Donaudampfschifffahrtsgesellschaft
+
 # Playground
 - radiogroup "Plan":
   - radio "Free"
