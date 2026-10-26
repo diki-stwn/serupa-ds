@@ -109,6 +109,19 @@ describe('SortableList', () => {
     expect(([...document.querySelectorAll('#sl > li')] as HTMLElement[]).map((r) => r.style.transform)).toEqual(['', '', '', '']);
   });
 
+  test('pointer: let go right after a move (before it renders), the row drops where the pointer is', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
+    const h = handle('Apollo'), r = h.getBoundingClientRect(), last = handle('Artemis').getBoundingClientRect();
+    const at = (type: string, y: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 8, button: 0, isPrimary: true, clientX: r.left + 4, clientY: y }));
+    at('pointerdown', r.top + 4, h);
+    at('pointermove', r.top + 20);
+    at('pointermove', last.bottom);
+    at('pointerup', last.bottom);
+    await expect.poll(() => names()).toEqual(['Gemini', 'Mercury', 'Artemis', 'Apollo']);
+    expect(moves).toEqual([{ from: 0, to: 3 }]);
+  });
+
   test('pointer: held near the bottom of a scrolling container, the list scrolls and the row keeps moving down; near the top it scrolls back', async () => {
     const many = Array.from({ length: 30 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + i }));
     const moves: Array<{ from: number; to: number }> = [];

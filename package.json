@@ -89,8 +89,14 @@
     "test:watch": "vitest --project components"
   },
   "peerDependencies": {
+    "@types/react": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -113,6 +119,7 @@
     "globals": "17.13.0",
     "knip": "6.43.0",
     "playwright": "1.64.1",
+    "postcss-value-parser": "4.2.0",
     "publint": "0.3.25",
     "react": "19.3.1",
     "react-dom": "19.3.1",
