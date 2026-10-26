@@ -68,6 +68,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const open = controlled ? !!props.open : inner;
   const close = React.useCallback((reason: OpenChangeReason) => { if (!controlled) setInner(false); if (ask.current) ask.current(false, { reason }); }, [controlled]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
+  // Open on arrival: there from the first frame, so it doesn't slide in; it closes, and opens again, with motion.
+  const arrived = React.useRef(open); if (!open) arrived.current = false;
 
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
   const [reopened, reopen] = React.useState(0);
@@ -147,6 +149,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       if (across > 10 && across > d) { drag.current = null; return; }
       if (d < 10) return;
       g.on = true;
+      e.currentTarget.setAttribute("data-dragging", "");   // follows the finger, with no transition behind it
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
     }
     g.d = d;
@@ -156,6 +159,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     const g = drag.current;
     if (!g || e.pointerId !== g.id) return;
     drag.current = null;
+    e.currentTarget.removeAttribute("data-dragging");
     e.currentTarget.style.translate = "";
     const size = horiz ? e.currentTarget.offsetWidth : e.currentTarget.offsetHeight;
     const fast = g.d > 30 && g.d / Math.max(1, e.timeStamp - g.t) > 0.5;
@@ -174,7 +178,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       aria-modal={modal ? "true" : undefined}
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size}
+      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size} data-instant={arrived.current ? "" : undefined}
       onKeyDown={onKeyDown} onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-drawer__panel" onPointerDown={onSwipeDown} onPointerMove={onSwipeMove} onPointerUp={onSwipeEnd} onPointerCancel={onSwipeEnd}>
         {has(props.title) || has(props.description) || showClose ? (
