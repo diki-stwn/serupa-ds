@@ -24,7 +24,7 @@
 .dk-pagination__item:focus-visible { outline: var(--focus-ring-width) solid var(--pagination-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-pagination__item--current { background: var(--pagination-current-bg, var(--primary)); color: var(--pagination-current-text, var(--on-primary)); font-weight: var(--pagination-weight-current, var(--font-semibold)); cursor: default; }
 .dk-pagination__item:disabled, .dk-pagination__item[aria-disabled="true"] { opacity: var(--pagination-disabled, var(--opacity-disabled)); cursor: not-allowed; }
-.dk-pagination__ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); color: var(--pagination-ellipsis, var(--text-muted)); user-select: none; }
+.dk-pagination__ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); color: var(--pagination-ellipsis, var(--text-muted)); -webkit-user-select: none; user-select: none; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }

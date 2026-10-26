@@ -72,34 +72,34 @@
 @property --dk-mask-right { syntax: '*'; inherits: false; initial-value: linear-gradient(#fff, #fff); }
 @property --dk-mask-bottom { syntax: '*'; inherits: false; initial-value: linear-gradient(#fff, #fff); }
 @property --dk-mask-left { syntax: '*'; inherits: false; initial-value: linear-gradient(#fff, #fff); }
-@property --dk-mask-top-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-top-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-top-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-top-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-right-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-right-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-right-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-right-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-bottom-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-bottom-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-bottom-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-bottom-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-left-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-left-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-left-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-left-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-linear-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-linear-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-linear-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-linear-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-radial-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-radial-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-radial-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-radial-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
-@property --dk-mask-conic-from-position { syntax: '*'; inherits: false; initial-value: 0%; }
-@property --dk-mask-conic-to-position { syntax: '*'; inherits: false; initial-value: 100%; }
-@property --dk-mask-conic-from-color { syntax: '*'; inherits: false; initial-value: black; }
-@property --dk-mask-conic-to-color { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-t-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-t-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-t-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-t-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-r-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-r-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-r-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-r-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-b-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-b-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-b-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-b-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-l-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-l-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-l-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-l-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-linear-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-linear-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-linear-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-linear-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-radial-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-radial-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-radial-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-radial-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
+@property --dk-mask-conic-from-p { syntax: '*'; inherits: false; initial-value: 0%; }
+@property --dk-mask-conic-to-p { syntax: '*'; inherits: false; initial-value: 100%; }
+@property --dk-mask-conic-from-c { syntax: '*'; inherits: false; initial-value: black; }
+@property --dk-mask-conic-to-c { syntax: '*'; inherits: false; initial-value: transparent; }
 @property --dk-mask-linear-position { syntax: '*'; inherits: false; initial-value: 0deg; }
 @property --dk-mask-conic-position { syntax: '*'; inherits: false; initial-value: 0deg; }
 @property --dk-mask-radial-shape { syntax: '*'; inherits: false; initial-value: ellipse; }
@@ -2536,264 +2536,264 @@
 /* mask-image: none */
 .mask-none { mask-image: none; }
 /* mask-image, edges: mask-t-, -r-, -b-, -l-, -x-, -y- with -from-<%> (fully shown until) and -to-<%> (fully hidden from), measured from that edge */
-[class^="mask-t-"], [class*=" mask-t-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-top: linear-gradient(to top, var(--dk-mask-top-from-color) var(--dk-mask-top-from-position), var(--dk-mask-top-to-color) var(--dk-mask-top-to-position)); }
-[class^="mask-r-"], [class*=" mask-r-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-right: linear-gradient(to right, var(--dk-mask-right-from-color) var(--dk-mask-right-from-position), var(--dk-mask-right-to-color) var(--dk-mask-right-to-position)); }
-[class^="mask-b-"], [class*=" mask-b-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-bottom: linear-gradient(to bottom, var(--dk-mask-bottom-from-color) var(--dk-mask-bottom-from-position), var(--dk-mask-bottom-to-color) var(--dk-mask-bottom-to-position)); }
-[class^="mask-l-"], [class*=" mask-l-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-left: linear-gradient(to left, var(--dk-mask-left-from-color) var(--dk-mask-left-from-position), var(--dk-mask-left-to-color) var(--dk-mask-left-to-position)); }
-[class^="mask-x-"], [class*=" mask-x-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-left: linear-gradient(to left, var(--dk-mask-left-from-color) var(--dk-mask-left-from-position), var(--dk-mask-left-to-color) var(--dk-mask-left-to-position)); --dk-mask-right: linear-gradient(to right, var(--dk-mask-right-from-color) var(--dk-mask-right-from-position), var(--dk-mask-right-to-color) var(--dk-mask-right-to-position)); }
-[class^="mask-y-"], [class*=" mask-y-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-top: linear-gradient(to top, var(--dk-mask-top-from-color) var(--dk-mask-top-from-position), var(--dk-mask-top-to-color) var(--dk-mask-top-to-position)); --dk-mask-bottom: linear-gradient(to bottom, var(--dk-mask-bottom-from-color) var(--dk-mask-bottom-from-position), var(--dk-mask-bottom-to-color) var(--dk-mask-bottom-to-position)); }
-.mask-t-from-0\% { --dk-mask-top-from-position: 0%; }
-.mask-t-from-5\% { --dk-mask-top-from-position: 5%; }
-.mask-t-from-10\% { --dk-mask-top-from-position: 10%; }
-.mask-t-from-15\% { --dk-mask-top-from-position: 15%; }
-.mask-t-from-20\% { --dk-mask-top-from-position: 20%; }
-.mask-t-from-25\% { --dk-mask-top-from-position: 25%; }
-.mask-t-from-30\% { --dk-mask-top-from-position: 30%; }
-.mask-t-from-35\% { --dk-mask-top-from-position: 35%; }
-.mask-t-from-40\% { --dk-mask-top-from-position: 40%; }
-.mask-t-from-45\% { --dk-mask-top-from-position: 45%; }
-.mask-t-from-50\% { --dk-mask-top-from-position: 50%; }
-.mask-t-from-55\% { --dk-mask-top-from-position: 55%; }
-.mask-t-from-60\% { --dk-mask-top-from-position: 60%; }
-.mask-t-from-65\% { --dk-mask-top-from-position: 65%; }
-.mask-t-from-70\% { --dk-mask-top-from-position: 70%; }
-.mask-t-from-75\% { --dk-mask-top-from-position: 75%; }
-.mask-t-from-80\% { --dk-mask-top-from-position: 80%; }
-.mask-t-from-85\% { --dk-mask-top-from-position: 85%; }
-.mask-t-from-90\% { --dk-mask-top-from-position: 90%; }
-.mask-t-from-95\% { --dk-mask-top-from-position: 95%; }
-.mask-t-from-100\% { --dk-mask-top-from-position: 100%; }
-.mask-t-to-0\% { --dk-mask-top-to-position: 0%; }
-.mask-t-to-5\% { --dk-mask-top-to-position: 5%; }
-.mask-t-to-10\% { --dk-mask-top-to-position: 10%; }
-.mask-t-to-15\% { --dk-mask-top-to-position: 15%; }
-.mask-t-to-20\% { --dk-mask-top-to-position: 20%; }
-.mask-t-to-25\% { --dk-mask-top-to-position: 25%; }
-.mask-t-to-30\% { --dk-mask-top-to-position: 30%; }
-.mask-t-to-35\% { --dk-mask-top-to-position: 35%; }
-.mask-t-to-40\% { --dk-mask-top-to-position: 40%; }
-.mask-t-to-45\% { --dk-mask-top-to-position: 45%; }
-.mask-t-to-50\% { --dk-mask-top-to-position: 50%; }
-.mask-t-to-55\% { --dk-mask-top-to-position: 55%; }
-.mask-t-to-60\% { --dk-mask-top-to-position: 60%; }
-.mask-t-to-65\% { --dk-mask-top-to-position: 65%; }
-.mask-t-to-70\% { --dk-mask-top-to-position: 70%; }
-.mask-t-to-75\% { --dk-mask-top-to-position: 75%; }
-.mask-t-to-80\% { --dk-mask-top-to-position: 80%; }
-.mask-t-to-85\% { --dk-mask-top-to-position: 85%; }
-.mask-t-to-90\% { --dk-mask-top-to-position: 90%; }
-.mask-t-to-95\% { --dk-mask-top-to-position: 95%; }
-.mask-t-to-100\% { --dk-mask-top-to-position: 100%; }
-.mask-r-from-0\% { --dk-mask-right-from-position: 0%; }
-.mask-r-from-5\% { --dk-mask-right-from-position: 5%; }
-.mask-r-from-10\% { --dk-mask-right-from-position: 10%; }
-.mask-r-from-15\% { --dk-mask-right-from-position: 15%; }
-.mask-r-from-20\% { --dk-mask-right-from-position: 20%; }
-.mask-r-from-25\% { --dk-mask-right-from-position: 25%; }
-.mask-r-from-30\% { --dk-mask-right-from-position: 30%; }
-.mask-r-from-35\% { --dk-mask-right-from-position: 35%; }
-.mask-r-from-40\% { --dk-mask-right-from-position: 40%; }
-.mask-r-from-45\% { --dk-mask-right-from-position: 45%; }
-.mask-r-from-50\% { --dk-mask-right-from-position: 50%; }
-.mask-r-from-55\% { --dk-mask-right-from-position: 55%; }
-.mask-r-from-60\% { --dk-mask-right-from-position: 60%; }
-.mask-r-from-65\% { --dk-mask-right-from-position: 65%; }
-.mask-r-from-70\% { --dk-mask-right-from-position: 70%; }
-.mask-r-from-75\% { --dk-mask-right-from-position: 75%; }
-.mask-r-from-80\% { --dk-mask-right-from-position: 80%; }
-.mask-r-from-85\% { --dk-mask-right-from-position: 85%; }
-.mask-r-from-90\% { --dk-mask-right-from-position: 90%; }
-.mask-r-from-95\% { --dk-mask-right-from-position: 95%; }
-.mask-r-from-100\% { --dk-mask-right-from-position: 100%; }
-.mask-r-to-0\% { --dk-mask-right-to-position: 0%; }
-.mask-r-to-5\% { --dk-mask-right-to-position: 5%; }
-.mask-r-to-10\% { --dk-mask-right-to-position: 10%; }
-.mask-r-to-15\% { --dk-mask-right-to-position: 15%; }
-.mask-r-to-20\% { --dk-mask-right-to-position: 20%; }
-.mask-r-to-25\% { --dk-mask-right-to-position: 25%; }
-.mask-r-to-30\% { --dk-mask-right-to-position: 30%; }
-.mask-r-to-35\% { --dk-mask-right-to-position: 35%; }
-.mask-r-to-40\% { --dk-mask-right-to-position: 40%; }
-.mask-r-to-45\% { --dk-mask-right-to-position: 45%; }
-.mask-r-to-50\% { --dk-mask-right-to-position: 50%; }
-.mask-r-to-55\% { --dk-mask-right-to-position: 55%; }
-.mask-r-to-60\% { --dk-mask-right-to-position: 60%; }
-.mask-r-to-65\% { --dk-mask-right-to-position: 65%; }
-.mask-r-to-70\% { --dk-mask-right-to-position: 70%; }
-.mask-r-to-75\% { --dk-mask-right-to-position: 75%; }
-.mask-r-to-80\% { --dk-mask-right-to-position: 80%; }
-.mask-r-to-85\% { --dk-mask-right-to-position: 85%; }
-.mask-r-to-90\% { --dk-mask-right-to-position: 90%; }
-.mask-r-to-95\% { --dk-mask-right-to-position: 95%; }
-.mask-r-to-100\% { --dk-mask-right-to-position: 100%; }
-.mask-b-from-0\% { --dk-mask-bottom-from-position: 0%; }
-.mask-b-from-5\% { --dk-mask-bottom-from-position: 5%; }
-.mask-b-from-10\% { --dk-mask-bottom-from-position: 10%; }
-.mask-b-from-15\% { --dk-mask-bottom-from-position: 15%; }
-.mask-b-from-20\% { --dk-mask-bottom-from-position: 20%; }
-.mask-b-from-25\% { --dk-mask-bottom-from-position: 25%; }
-.mask-b-from-30\% { --dk-mask-bottom-from-position: 30%; }
-.mask-b-from-35\% { --dk-mask-bottom-from-position: 35%; }
-.mask-b-from-40\% { --dk-mask-bottom-from-position: 40%; }
-.mask-b-from-45\% { --dk-mask-bottom-from-position: 45%; }
-.mask-b-from-50\% { --dk-mask-bottom-from-position: 50%; }
-.mask-b-from-55\% { --dk-mask-bottom-from-position: 55%; }
-.mask-b-from-60\% { --dk-mask-bottom-from-position: 60%; }
-.mask-b-from-65\% { --dk-mask-bottom-from-position: 65%; }
-.mask-b-from-70\% { --dk-mask-bottom-from-position: 70%; }
-.mask-b-from-75\% { --dk-mask-bottom-from-position: 75%; }
-.mask-b-from-80\% { --dk-mask-bottom-from-position: 80%; }
-.mask-b-from-85\% { --dk-mask-bottom-from-position: 85%; }
-.mask-b-from-90\% { --dk-mask-bottom-from-position: 90%; }
-.mask-b-from-95\% { --dk-mask-bottom-from-position: 95%; }
-.mask-b-from-100\% { --dk-mask-bottom-from-position: 100%; }
-.mask-b-to-0\% { --dk-mask-bottom-to-position: 0%; }
-.mask-b-to-5\% { --dk-mask-bottom-to-position: 5%; }
-.mask-b-to-10\% { --dk-mask-bottom-to-position: 10%; }
-.mask-b-to-15\% { --dk-mask-bottom-to-position: 15%; }
-.mask-b-to-20\% { --dk-mask-bottom-to-position: 20%; }
-.mask-b-to-25\% { --dk-mask-bottom-to-position: 25%; }
-.mask-b-to-30\% { --dk-mask-bottom-to-position: 30%; }
-.mask-b-to-35\% { --dk-mask-bottom-to-position: 35%; }
-.mask-b-to-40\% { --dk-mask-bottom-to-position: 40%; }
-.mask-b-to-45\% { --dk-mask-bottom-to-position: 45%; }
-.mask-b-to-50\% { --dk-mask-bottom-to-position: 50%; }
-.mask-b-to-55\% { --dk-mask-bottom-to-position: 55%; }
-.mask-b-to-60\% { --dk-mask-bottom-to-position: 60%; }
-.mask-b-to-65\% { --dk-mask-bottom-to-position: 65%; }
-.mask-b-to-70\% { --dk-mask-bottom-to-position: 70%; }
-.mask-b-to-75\% { --dk-mask-bottom-to-position: 75%; }
-.mask-b-to-80\% { --dk-mask-bottom-to-position: 80%; }
-.mask-b-to-85\% { --dk-mask-bottom-to-position: 85%; }
-.mask-b-to-90\% { --dk-mask-bottom-to-position: 90%; }
-.mask-b-to-95\% { --dk-mask-bottom-to-position: 95%; }
-.mask-b-to-100\% { --dk-mask-bottom-to-position: 100%; }
-.mask-l-from-0\% { --dk-mask-left-from-position: 0%; }
-.mask-l-from-5\% { --dk-mask-left-from-position: 5%; }
-.mask-l-from-10\% { --dk-mask-left-from-position: 10%; }
-.mask-l-from-15\% { --dk-mask-left-from-position: 15%; }
-.mask-l-from-20\% { --dk-mask-left-from-position: 20%; }
-.mask-l-from-25\% { --dk-mask-left-from-position: 25%; }
-.mask-l-from-30\% { --dk-mask-left-from-position: 30%; }
-.mask-l-from-35\% { --dk-mask-left-from-position: 35%; }
-.mask-l-from-40\% { --dk-mask-left-from-position: 40%; }
-.mask-l-from-45\% { --dk-mask-left-from-position: 45%; }
-.mask-l-from-50\% { --dk-mask-left-from-position: 50%; }
-.mask-l-from-55\% { --dk-mask-left-from-position: 55%; }
-.mask-l-from-60\% { --dk-mask-left-from-position: 60%; }
-.mask-l-from-65\% { --dk-mask-left-from-position: 65%; }
-.mask-l-from-70\% { --dk-mask-left-from-position: 70%; }
-.mask-l-from-75\% { --dk-mask-left-from-position: 75%; }
-.mask-l-from-80\% { --dk-mask-left-from-position: 80%; }
-.mask-l-from-85\% { --dk-mask-left-from-position: 85%; }
-.mask-l-from-90\% { --dk-mask-left-from-position: 90%; }
-.mask-l-from-95\% { --dk-mask-left-from-position: 95%; }
-.mask-l-from-100\% { --dk-mask-left-from-position: 100%; }
-.mask-l-to-0\% { --dk-mask-left-to-position: 0%; }
-.mask-l-to-5\% { --dk-mask-left-to-position: 5%; }
-.mask-l-to-10\% { --dk-mask-left-to-position: 10%; }
-.mask-l-to-15\% { --dk-mask-left-to-position: 15%; }
-.mask-l-to-20\% { --dk-mask-left-to-position: 20%; }
-.mask-l-to-25\% { --dk-mask-left-to-position: 25%; }
-.mask-l-to-30\% { --dk-mask-left-to-position: 30%; }
-.mask-l-to-35\% { --dk-mask-left-to-position: 35%; }
-.mask-l-to-40\% { --dk-mask-left-to-position: 40%; }
-.mask-l-to-45\% { --dk-mask-left-to-position: 45%; }
-.mask-l-to-50\% { --dk-mask-left-to-position: 50%; }
-.mask-l-to-55\% { --dk-mask-left-to-position: 55%; }
-.mask-l-to-60\% { --dk-mask-left-to-position: 60%; }
-.mask-l-to-65\% { --dk-mask-left-to-position: 65%; }
-.mask-l-to-70\% { --dk-mask-left-to-position: 70%; }
-.mask-l-to-75\% { --dk-mask-left-to-position: 75%; }
-.mask-l-to-80\% { --dk-mask-left-to-position: 80%; }
-.mask-l-to-85\% { --dk-mask-left-to-position: 85%; }
-.mask-l-to-90\% { --dk-mask-left-to-position: 90%; }
-.mask-l-to-95\% { --dk-mask-left-to-position: 95%; }
-.mask-l-to-100\% { --dk-mask-left-to-position: 100%; }
-.mask-x-from-0\% { --dk-mask-left-from-position: 0%; --dk-mask-right-from-position: 0%; }
-.mask-x-from-5\% { --dk-mask-left-from-position: 5%; --dk-mask-right-from-position: 5%; }
-.mask-x-from-10\% { --dk-mask-left-from-position: 10%; --dk-mask-right-from-position: 10%; }
-.mask-x-from-15\% { --dk-mask-left-from-position: 15%; --dk-mask-right-from-position: 15%; }
-.mask-x-from-20\% { --dk-mask-left-from-position: 20%; --dk-mask-right-from-position: 20%; }
-.mask-x-from-25\% { --dk-mask-left-from-position: 25%; --dk-mask-right-from-position: 25%; }
-.mask-x-from-30\% { --dk-mask-left-from-position: 30%; --dk-mask-right-from-position: 30%; }
-.mask-x-from-35\% { --dk-mask-left-from-position: 35%; --dk-mask-right-from-position: 35%; }
-.mask-x-from-40\% { --dk-mask-left-from-position: 40%; --dk-mask-right-from-position: 40%; }
-.mask-x-from-45\% { --dk-mask-left-from-position: 45%; --dk-mask-right-from-position: 45%; }
-.mask-x-from-50\% { --dk-mask-left-from-position: 50%; --dk-mask-right-from-position: 50%; }
-.mask-x-from-55\% { --dk-mask-left-from-position: 55%; --dk-mask-right-from-position: 55%; }
-.mask-x-from-60\% { --dk-mask-left-from-position: 60%; --dk-mask-right-from-position: 60%; }
-.mask-x-from-65\% { --dk-mask-left-from-position: 65%; --dk-mask-right-from-position: 65%; }
-.mask-x-from-70\% { --dk-mask-left-from-position: 70%; --dk-mask-right-from-position: 70%; }
-.mask-x-from-75\% { --dk-mask-left-from-position: 75%; --dk-mask-right-from-position: 75%; }
-.mask-x-from-80\% { --dk-mask-left-from-position: 80%; --dk-mask-right-from-position: 80%; }
-.mask-x-from-85\% { --dk-mask-left-from-position: 85%; --dk-mask-right-from-position: 85%; }
-.mask-x-from-90\% { --dk-mask-left-from-position: 90%; --dk-mask-right-from-position: 90%; }
-.mask-x-from-95\% { --dk-mask-left-from-position: 95%; --dk-mask-right-from-position: 95%; }
-.mask-x-from-100\% { --dk-mask-left-from-position: 100%; --dk-mask-right-from-position: 100%; }
-.mask-x-to-0\% { --dk-mask-left-to-position: 0%; --dk-mask-right-to-position: 0%; }
-.mask-x-to-5\% { --dk-mask-left-to-position: 5%; --dk-mask-right-to-position: 5%; }
-.mask-x-to-10\% { --dk-mask-left-to-position: 10%; --dk-mask-right-to-position: 10%; }
-.mask-x-to-15\% { --dk-mask-left-to-position: 15%; --dk-mask-right-to-position: 15%; }
-.mask-x-to-20\% { --dk-mask-left-to-position: 20%; --dk-mask-right-to-position: 20%; }
-.mask-x-to-25\% { --dk-mask-left-to-position: 25%; --dk-mask-right-to-position: 25%; }
-.mask-x-to-30\% { --dk-mask-left-to-position: 30%; --dk-mask-right-to-position: 30%; }
-.mask-x-to-35\% { --dk-mask-left-to-position: 35%; --dk-mask-right-to-position: 35%; }
-.mask-x-to-40\% { --dk-mask-left-to-position: 40%; --dk-mask-right-to-position: 40%; }
-.mask-x-to-45\% { --dk-mask-left-to-position: 45%; --dk-mask-right-to-position: 45%; }
-.mask-x-to-50\% { --dk-mask-left-to-position: 50%; --dk-mask-right-to-position: 50%; }
-.mask-x-to-55\% { --dk-mask-left-to-position: 55%; --dk-mask-right-to-position: 55%; }
-.mask-x-to-60\% { --dk-mask-left-to-position: 60%; --dk-mask-right-to-position: 60%; }
-.mask-x-to-65\% { --dk-mask-left-to-position: 65%; --dk-mask-right-to-position: 65%; }
-.mask-x-to-70\% { --dk-mask-left-to-position: 70%; --dk-mask-right-to-position: 70%; }
-.mask-x-to-75\% { --dk-mask-left-to-position: 75%; --dk-mask-right-to-position: 75%; }
-.mask-x-to-80\% { --dk-mask-left-to-position: 80%; --dk-mask-right-to-position: 80%; }
-.mask-x-to-85\% { --dk-mask-left-to-position: 85%; --dk-mask-right-to-position: 85%; }
-.mask-x-to-90\% { --dk-mask-left-to-position: 90%; --dk-mask-right-to-position: 90%; }
-.mask-x-to-95\% { --dk-mask-left-to-position: 95%; --dk-mask-right-to-position: 95%; }
-.mask-x-to-100\% { --dk-mask-left-to-position: 100%; --dk-mask-right-to-position: 100%; }
-.mask-y-from-0\% { --dk-mask-top-from-position: 0%; --dk-mask-bottom-from-position: 0%; }
-.mask-y-from-5\% { --dk-mask-top-from-position: 5%; --dk-mask-bottom-from-position: 5%; }
-.mask-y-from-10\% { --dk-mask-top-from-position: 10%; --dk-mask-bottom-from-position: 10%; }
-.mask-y-from-15\% { --dk-mask-top-from-position: 15%; --dk-mask-bottom-from-position: 15%; }
-.mask-y-from-20\% { --dk-mask-top-from-position: 20%; --dk-mask-bottom-from-position: 20%; }
-.mask-y-from-25\% { --dk-mask-top-from-position: 25%; --dk-mask-bottom-from-position: 25%; }
-.mask-y-from-30\% { --dk-mask-top-from-position: 30%; --dk-mask-bottom-from-position: 30%; }
-.mask-y-from-35\% { --dk-mask-top-from-position: 35%; --dk-mask-bottom-from-position: 35%; }
-.mask-y-from-40\% { --dk-mask-top-from-position: 40%; --dk-mask-bottom-from-position: 40%; }
-.mask-y-from-45\% { --dk-mask-top-from-position: 45%; --dk-mask-bottom-from-position: 45%; }
-.mask-y-from-50\% { --dk-mask-top-from-position: 50%; --dk-mask-bottom-from-position: 50%; }
-.mask-y-from-55\% { --dk-mask-top-from-position: 55%; --dk-mask-bottom-from-position: 55%; }
-.mask-y-from-60\% { --dk-mask-top-from-position: 60%; --dk-mask-bottom-from-position: 60%; }
-.mask-y-from-65\% { --dk-mask-top-from-position: 65%; --dk-mask-bottom-from-position: 65%; }
-.mask-y-from-70\% { --dk-mask-top-from-position: 70%; --dk-mask-bottom-from-position: 70%; }
-.mask-y-from-75\% { --dk-mask-top-from-position: 75%; --dk-mask-bottom-from-position: 75%; }
-.mask-y-from-80\% { --dk-mask-top-from-position: 80%; --dk-mask-bottom-from-position: 80%; }
-.mask-y-from-85\% { --dk-mask-top-from-position: 85%; --dk-mask-bottom-from-position: 85%; }
-.mask-y-from-90\% { --dk-mask-top-from-position: 90%; --dk-mask-bottom-from-position: 90%; }
-.mask-y-from-95\% { --dk-mask-top-from-position: 95%; --dk-mask-bottom-from-position: 95%; }
-.mask-y-from-100\% { --dk-mask-top-from-position: 100%; --dk-mask-bottom-from-position: 100%; }
-.mask-y-to-0\% { --dk-mask-top-to-position: 0%; --dk-mask-bottom-to-position: 0%; }
-.mask-y-to-5\% { --dk-mask-top-to-position: 5%; --dk-mask-bottom-to-position: 5%; }
-.mask-y-to-10\% { --dk-mask-top-to-position: 10%; --dk-mask-bottom-to-position: 10%; }
-.mask-y-to-15\% { --dk-mask-top-to-position: 15%; --dk-mask-bottom-to-position: 15%; }
-.mask-y-to-20\% { --dk-mask-top-to-position: 20%; --dk-mask-bottom-to-position: 20%; }
-.mask-y-to-25\% { --dk-mask-top-to-position: 25%; --dk-mask-bottom-to-position: 25%; }
-.mask-y-to-30\% { --dk-mask-top-to-position: 30%; --dk-mask-bottom-to-position: 30%; }
-.mask-y-to-35\% { --dk-mask-top-to-position: 35%; --dk-mask-bottom-to-position: 35%; }
-.mask-y-to-40\% { --dk-mask-top-to-position: 40%; --dk-mask-bottom-to-position: 40%; }
-.mask-y-to-45\% { --dk-mask-top-to-position: 45%; --dk-mask-bottom-to-position: 45%; }
-.mask-y-to-50\% { --dk-mask-top-to-position: 50%; --dk-mask-bottom-to-position: 50%; }
-.mask-y-to-55\% { --dk-mask-top-to-position: 55%; --dk-mask-bottom-to-position: 55%; }
-.mask-y-to-60\% { --dk-mask-top-to-position: 60%; --dk-mask-bottom-to-position: 60%; }
-.mask-y-to-65\% { --dk-mask-top-to-position: 65%; --dk-mask-bottom-to-position: 65%; }
-.mask-y-to-70\% { --dk-mask-top-to-position: 70%; --dk-mask-bottom-to-position: 70%; }
-.mask-y-to-75\% { --dk-mask-top-to-position: 75%; --dk-mask-bottom-to-position: 75%; }
-.mask-y-to-80\% { --dk-mask-top-to-position: 80%; --dk-mask-bottom-to-position: 80%; }
-.mask-y-to-85\% { --dk-mask-top-to-position: 85%; --dk-mask-bottom-to-position: 85%; }
-.mask-y-to-90\% { --dk-mask-top-to-position: 90%; --dk-mask-bottom-to-position: 90%; }
-.mask-y-to-95\% { --dk-mask-top-to-position: 95%; --dk-mask-bottom-to-position: 95%; }
-.mask-y-to-100\% { --dk-mask-top-to-position: 100%; --dk-mask-bottom-to-position: 100%; }
+[class^="mask-t-"], [class*=" mask-t-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-top: linear-gradient(to top, var(--dk-mask-t-from-c) var(--dk-mask-t-from-p), var(--dk-mask-t-to-c) var(--dk-mask-t-to-p)); }
+[class^="mask-r-"], [class*=" mask-r-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-right: linear-gradient(to right, var(--dk-mask-r-from-c) var(--dk-mask-r-from-p), var(--dk-mask-r-to-c) var(--dk-mask-r-to-p)); }
+[class^="mask-b-"], [class*=" mask-b-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-bottom: linear-gradient(to bottom, var(--dk-mask-b-from-c) var(--dk-mask-b-from-p), var(--dk-mask-b-to-c) var(--dk-mask-b-to-p)); }
+[class^="mask-l-"], [class*=" mask-l-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-left: linear-gradient(to left, var(--dk-mask-l-from-c) var(--dk-mask-l-from-p), var(--dk-mask-l-to-c) var(--dk-mask-l-to-p)); }
+[class^="mask-x-"], [class*=" mask-x-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-left: linear-gradient(to left, var(--dk-mask-l-from-c) var(--dk-mask-l-from-p), var(--dk-mask-l-to-c) var(--dk-mask-l-to-p)); --dk-mask-right: linear-gradient(to right, var(--dk-mask-r-from-c) var(--dk-mask-r-from-p), var(--dk-mask-r-to-c) var(--dk-mask-r-to-p)); }
+[class^="mask-y-"], [class*=" mask-y-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: var(--dk-mask-left), var(--dk-mask-right), var(--dk-mask-bottom), var(--dk-mask-top); --dk-mask-top: linear-gradient(to top, var(--dk-mask-t-from-c) var(--dk-mask-t-from-p), var(--dk-mask-t-to-c) var(--dk-mask-t-to-p)); --dk-mask-bottom: linear-gradient(to bottom, var(--dk-mask-b-from-c) var(--dk-mask-b-from-p), var(--dk-mask-b-to-c) var(--dk-mask-b-to-p)); }
+.mask-t-from-0\% { --dk-mask-t-from-p: 0%; }
+.mask-t-from-5\% { --dk-mask-t-from-p: 5%; }
+.mask-t-from-10\% { --dk-mask-t-from-p: 10%; }
+.mask-t-from-15\% { --dk-mask-t-from-p: 15%; }
+.mask-t-from-20\% { --dk-mask-t-from-p: 20%; }
+.mask-t-from-25\% { --dk-mask-t-from-p: 25%; }
+.mask-t-from-30\% { --dk-mask-t-from-p: 30%; }
+.mask-t-from-35\% { --dk-mask-t-from-p: 35%; }
+.mask-t-from-40\% { --dk-mask-t-from-p: 40%; }
+.mask-t-from-45\% { --dk-mask-t-from-p: 45%; }
+.mask-t-from-50\% { --dk-mask-t-from-p: 50%; }
+.mask-t-from-55\% { --dk-mask-t-from-p: 55%; }
+.mask-t-from-60\% { --dk-mask-t-from-p: 60%; }
+.mask-t-from-65\% { --dk-mask-t-from-p: 65%; }
+.mask-t-from-70\% { --dk-mask-t-from-p: 70%; }
+.mask-t-from-75\% { --dk-mask-t-from-p: 75%; }
+.mask-t-from-80\% { --dk-mask-t-from-p: 80%; }
+.mask-t-from-85\% { --dk-mask-t-from-p: 85%; }
+.mask-t-from-90\% { --dk-mask-t-from-p: 90%; }
+.mask-t-from-95\% { --dk-mask-t-from-p: 95%; }
+.mask-t-from-100\% { --dk-mask-t-from-p: 100%; }
+.mask-t-to-0\% { --dk-mask-t-to-p: 0%; }
+.mask-t-to-5\% { --dk-mask-t-to-p: 5%; }
+.mask-t-to-10\% { --dk-mask-t-to-p: 10%; }
+.mask-t-to-15\% { --dk-mask-t-to-p: 15%; }
+.mask-t-to-20\% { --dk-mask-t-to-p: 20%; }
+.mask-t-to-25\% { --dk-mask-t-to-p: 25%; }
+.mask-t-to-30\% { --dk-mask-t-to-p: 30%; }
+.mask-t-to-35\% { --dk-mask-t-to-p: 35%; }
+.mask-t-to-40\% { --dk-mask-t-to-p: 40%; }
+.mask-t-to-45\% { --dk-mask-t-to-p: 45%; }
+.mask-t-to-50\% { --dk-mask-t-to-p: 50%; }
+.mask-t-to-55\% { --dk-mask-t-to-p: 55%; }
+.mask-t-to-60\% { --dk-mask-t-to-p: 60%; }
+.mask-t-to-65\% { --dk-mask-t-to-p: 65%; }
+.mask-t-to-70\% { --dk-mask-t-to-p: 70%; }
+.mask-t-to-75\% { --dk-mask-t-to-p: 75%; }
+.mask-t-to-80\% { --dk-mask-t-to-p: 80%; }
+.mask-t-to-85\% { --dk-mask-t-to-p: 85%; }
+.mask-t-to-90\% { --dk-mask-t-to-p: 90%; }
+.mask-t-to-95\% { --dk-mask-t-to-p: 95%; }
+.mask-t-to-100\% { --dk-mask-t-to-p: 100%; }
+.mask-r-from-0\% { --dk-mask-r-from-p: 0%; }
+.mask-r-from-5\% { --dk-mask-r-from-p: 5%; }
+.mask-r-from-10\% { --dk-mask-r-from-p: 10%; }
+.mask-r-from-15\% { --dk-mask-r-from-p: 15%; }
+.mask-r-from-20\% { --dk-mask-r-from-p: 20%; }
+.mask-r-from-25\% { --dk-mask-r-from-p: 25%; }
+.mask-r-from-30\% { --dk-mask-r-from-p: 30%; }
+.mask-r-from-35\% { --dk-mask-r-from-p: 35%; }
+.mask-r-from-40\% { --dk-mask-r-from-p: 40%; }
+.mask-r-from-45\% { --dk-mask-r-from-p: 45%; }
+.mask-r-from-50\% { --dk-mask-r-from-p: 50%; }
+.mask-r-from-55\% { --dk-mask-r-from-p: 55%; }
+.mask-r-from-60\% { --dk-mask-r-from-p: 60%; }
+.mask-r-from-65\% { --dk-mask-r-from-p: 65%; }
+.mask-r-from-70\% { --dk-mask-r-from-p: 70%; }
+.mask-r-from-75\% { --dk-mask-r-from-p: 75%; }
+.mask-r-from-80\% { --dk-mask-r-from-p: 80%; }
+.mask-r-from-85\% { --dk-mask-r-from-p: 85%; }
+.mask-r-from-90\% { --dk-mask-r-from-p: 90%; }
+.mask-r-from-95\% { --dk-mask-r-from-p: 95%; }
+.mask-r-from-100\% { --dk-mask-r-from-p: 100%; }
+.mask-r-to-0\% { --dk-mask-r-to-p: 0%; }
+.mask-r-to-5\% { --dk-mask-r-to-p: 5%; }
+.mask-r-to-10\% { --dk-mask-r-to-p: 10%; }
+.mask-r-to-15\% { --dk-mask-r-to-p: 15%; }
+.mask-r-to-20\% { --dk-mask-r-to-p: 20%; }
+.mask-r-to-25\% { --dk-mask-r-to-p: 25%; }
+.mask-r-to-30\% { --dk-mask-r-to-p: 30%; }
+.mask-r-to-35\% { --dk-mask-r-to-p: 35%; }
+.mask-r-to-40\% { --dk-mask-r-to-p: 40%; }
+.mask-r-to-45\% { --dk-mask-r-to-p: 45%; }
+.mask-r-to-50\% { --dk-mask-r-to-p: 50%; }
+.mask-r-to-55\% { --dk-mask-r-to-p: 55%; }
+.mask-r-to-60\% { --dk-mask-r-to-p: 60%; }
+.mask-r-to-65\% { --dk-mask-r-to-p: 65%; }
+.mask-r-to-70\% { --dk-mask-r-to-p: 70%; }
+.mask-r-to-75\% { --dk-mask-r-to-p: 75%; }
+.mask-r-to-80\% { --dk-mask-r-to-p: 80%; }
+.mask-r-to-85\% { --dk-mask-r-to-p: 85%; }
+.mask-r-to-90\% { --dk-mask-r-to-p: 90%; }
+.mask-r-to-95\% { --dk-mask-r-to-p: 95%; }
+.mask-r-to-100\% { --dk-mask-r-to-p: 100%; }
+.mask-b-from-0\% { --dk-mask-b-from-p: 0%; }
+.mask-b-from-5\% { --dk-mask-b-from-p: 5%; }
+.mask-b-from-10\% { --dk-mask-b-from-p: 10%; }
+.mask-b-from-15\% { --dk-mask-b-from-p: 15%; }
+.mask-b-from-20\% { --dk-mask-b-from-p: 20%; }
+.mask-b-from-25\% { --dk-mask-b-from-p: 25%; }
+.mask-b-from-30\% { --dk-mask-b-from-p: 30%; }
+.mask-b-from-35\% { --dk-mask-b-from-p: 35%; }
+.mask-b-from-40\% { --dk-mask-b-from-p: 40%; }
+.mask-b-from-45\% { --dk-mask-b-from-p: 45%; }
+.mask-b-from-50\% { --dk-mask-b-from-p: 50%; }
+.mask-b-from-55\% { --dk-mask-b-from-p: 55%; }
+.mask-b-from-60\% { --dk-mask-b-from-p: 60%; }
+.mask-b-from-65\% { --dk-mask-b-from-p: 65%; }
+.mask-b-from-70\% { --dk-mask-b-from-p: 70%; }
+.mask-b-from-75\% { --dk-mask-b-from-p: 75%; }
+.mask-b-from-80\% { --dk-mask-b-from-p: 80%; }
+.mask-b-from-85\% { --dk-mask-b-from-p: 85%; }
+.mask-b-from-90\% { --dk-mask-b-from-p: 90%; }
+.mask-b-from-95\% { --dk-mask-b-from-p: 95%; }
+.mask-b-from-100\% { --dk-mask-b-from-p: 100%; }
+.mask-b-to-0\% { --dk-mask-b-to-p: 0%; }
+.mask-b-to-5\% { --dk-mask-b-to-p: 5%; }
+.mask-b-to-10\% { --dk-mask-b-to-p: 10%; }
+.mask-b-to-15\% { --dk-mask-b-to-p: 15%; }
+.mask-b-to-20\% { --dk-mask-b-to-p: 20%; }
+.mask-b-to-25\% { --dk-mask-b-to-p: 25%; }
+.mask-b-to-30\% { --dk-mask-b-to-p: 30%; }
+.mask-b-to-35\% { --dk-mask-b-to-p: 35%; }
+.mask-b-to-40\% { --dk-mask-b-to-p: 40%; }
+.mask-b-to-45\% { --dk-mask-b-to-p: 45%; }
+.mask-b-to-50\% { --dk-mask-b-to-p: 50%; }
+.mask-b-to-55\% { --dk-mask-b-to-p: 55%; }
+.mask-b-to-60\% { --dk-mask-b-to-p: 60%; }
+.mask-b-to-65\% { --dk-mask-b-to-p: 65%; }
+.mask-b-to-70\% { --dk-mask-b-to-p: 70%; }
+.mask-b-to-75\% { --dk-mask-b-to-p: 75%; }
+.mask-b-to-80\% { --dk-mask-b-to-p: 80%; }
+.mask-b-to-85\% { --dk-mask-b-to-p: 85%; }
+.mask-b-to-90\% { --dk-mask-b-to-p: 90%; }
+.mask-b-to-95\% { --dk-mask-b-to-p: 95%; }
+.mask-b-to-100\% { --dk-mask-b-to-p: 100%; }
+.mask-l-from-0\% { --dk-mask-l-from-p: 0%; }
+.mask-l-from-5\% { --dk-mask-l-from-p: 5%; }
+.mask-l-from-10\% { --dk-mask-l-from-p: 10%; }
+.mask-l-from-15\% { --dk-mask-l-from-p: 15%; }
+.mask-l-from-20\% { --dk-mask-l-from-p: 20%; }
+.mask-l-from-25\% { --dk-mask-l-from-p: 25%; }
+.mask-l-from-30\% { --dk-mask-l-from-p: 30%; }
+.mask-l-from-35\% { --dk-mask-l-from-p: 35%; }
+.mask-l-from-40\% { --dk-mask-l-from-p: 40%; }
+.mask-l-from-45\% { --dk-mask-l-from-p: 45%; }
+.mask-l-from-50\% { --dk-mask-l-from-p: 50%; }
+.mask-l-from-55\% { --dk-mask-l-from-p: 55%; }
+.mask-l-from-60\% { --dk-mask-l-from-p: 60%; }
+.mask-l-from-65\% { --dk-mask-l-from-p: 65%; }
+.mask-l-from-70\% { --dk-mask-l-from-p: 70%; }
+.mask-l-from-75\% { --dk-mask-l-from-p: 75%; }
+.mask-l-from-80\% { --dk-mask-l-from-p: 80%; }
+.mask-l-from-85\% { --dk-mask-l-from-p: 85%; }
+.mask-l-from-90\% { --dk-mask-l-from-p: 90%; }
+.mask-l-from-95\% { --dk-mask-l-from-p: 95%; }
+.mask-l-from-100\% { --dk-mask-l-from-p: 100%; }
+.mask-l-to-0\% { --dk-mask-l-to-p: 0%; }
+.mask-l-to-5\% { --dk-mask-l-to-p: 5%; }
+.mask-l-to-10\% { --dk-mask-l-to-p: 10%; }
+.mask-l-to-15\% { --dk-mask-l-to-p: 15%; }
+.mask-l-to-20\% { --dk-mask-l-to-p: 20%; }
+.mask-l-to-25\% { --dk-mask-l-to-p: 25%; }
+.mask-l-to-30\% { --dk-mask-l-to-p: 30%; }
+.mask-l-to-35\% { --dk-mask-l-to-p: 35%; }
+.mask-l-to-40\% { --dk-mask-l-to-p: 40%; }
+.mask-l-to-45\% { --dk-mask-l-to-p: 45%; }
+.mask-l-to-50\% { --dk-mask-l-to-p: 50%; }
+.mask-l-to-55\% { --dk-mask-l-to-p: 55%; }
+.mask-l-to-60\% { --dk-mask-l-to-p: 60%; }
+.mask-l-to-65\% { --dk-mask-l-to-p: 65%; }
+.mask-l-to-70\% { --dk-mask-l-to-p: 70%; }
+.mask-l-to-75\% { --dk-mask-l-to-p: 75%; }
+.mask-l-to-80\% { --dk-mask-l-to-p: 80%; }
+.mask-l-to-85\% { --dk-mask-l-to-p: 85%; }
+.mask-l-to-90\% { --dk-mask-l-to-p: 90%; }
+.mask-l-to-95\% { --dk-mask-l-to-p: 95%; }
+.mask-l-to-100\% { --dk-mask-l-to-p: 100%; }
+.mask-x-from-0\% { --dk-mask-l-from-p: 0%; --dk-mask-r-from-p: 0%; }
+.mask-x-from-5\% { --dk-mask-l-from-p: 5%; --dk-mask-r-from-p: 5%; }
+.mask-x-from-10\% { --dk-mask-l-from-p: 10%; --dk-mask-r-from-p: 10%; }
+.mask-x-from-15\% { --dk-mask-l-from-p: 15%; --dk-mask-r-from-p: 15%; }
+.mask-x-from-20\% { --dk-mask-l-from-p: 20%; --dk-mask-r-from-p: 20%; }
+.mask-x-from-25\% { --dk-mask-l-from-p: 25%; --dk-mask-r-from-p: 25%; }
+.mask-x-from-30\% { --dk-mask-l-from-p: 30%; --dk-mask-r-from-p: 30%; }
+.mask-x-from-35\% { --dk-mask-l-from-p: 35%; --dk-mask-r-from-p: 35%; }
+.mask-x-from-40\% { --dk-mask-l-from-p: 40%; --dk-mask-r-from-p: 40%; }
+.mask-x-from-45\% { --dk-mask-l-from-p: 45%; --dk-mask-r-from-p: 45%; }
+.mask-x-from-50\% { --dk-mask-l-from-p: 50%; --dk-mask-r-from-p: 50%; }
+.mask-x-from-55\% { --dk-mask-l-from-p: 55%; --dk-mask-r-from-p: 55%; }
+.mask-x-from-60\% { --dk-mask-l-from-p: 60%; --dk-mask-r-from-p: 60%; }
+.mask-x-from-65\% { --dk-mask-l-from-p: 65%; --dk-mask-r-from-p: 65%; }
+.mask-x-from-70\% { --dk-mask-l-from-p: 70%; --dk-mask-r-from-p: 70%; }
+.mask-x-from-75\% { --dk-mask-l-from-p: 75%; --dk-mask-r-from-p: 75%; }
+.mask-x-from-80\% { --dk-mask-l-from-p: 80%; --dk-mask-r-from-p: 80%; }
+.mask-x-from-85\% { --dk-mask-l-from-p: 85%; --dk-mask-r-from-p: 85%; }
+.mask-x-from-90\% { --dk-mask-l-from-p: 90%; --dk-mask-r-from-p: 90%; }
+.mask-x-from-95\% { --dk-mask-l-from-p: 95%; --dk-mask-r-from-p: 95%; }
+.mask-x-from-100\% { --dk-mask-l-from-p: 100%; --dk-mask-r-from-p: 100%; }
+.mask-x-to-0\% { --dk-mask-l-to-p: 0%; --dk-mask-r-to-p: 0%; }
+.mask-x-to-5\% { --dk-mask-l-to-p: 5%; --dk-mask-r-to-p: 5%; }
+.mask-x-to-10\% { --dk-mask-l-to-p: 10%; --dk-mask-r-to-p: 10%; }
+.mask-x-to-15\% { --dk-mask-l-to-p: 15%; --dk-mask-r-to-p: 15%; }
+.mask-x-to-20\% { --dk-mask-l-to-p: 20%; --dk-mask-r-to-p: 20%; }
+.mask-x-to-25\% { --dk-mask-l-to-p: 25%; --dk-mask-r-to-p: 25%; }
+.mask-x-to-30\% { --dk-mask-l-to-p: 30%; --dk-mask-r-to-p: 30%; }
+.mask-x-to-35\% { --dk-mask-l-to-p: 35%; --dk-mask-r-to-p: 35%; }
+.mask-x-to-40\% { --dk-mask-l-to-p: 40%; --dk-mask-r-to-p: 40%; }
+.mask-x-to-45\% { --dk-mask-l-to-p: 45%; --dk-mask-r-to-p: 45%; }
+.mask-x-to-50\% { --dk-mask-l-to-p: 50%; --dk-mask-r-to-p: 50%; }
+.mask-x-to-55\% { --dk-mask-l-to-p: 55%; --dk-mask-r-to-p: 55%; }
+.mask-x-to-60\% { --dk-mask-l-to-p: 60%; --dk-mask-r-to-p: 60%; }
+.mask-x-to-65\% { --dk-mask-l-to-p: 65%; --dk-mask-r-to-p: 65%; }
+.mask-x-to-70\% { --dk-mask-l-to-p: 70%; --dk-mask-r-to-p: 70%; }
+.mask-x-to-75\% { --dk-mask-l-to-p: 75%; --dk-mask-r-to-p: 75%; }
+.mask-x-to-80\% { --dk-mask-l-to-p: 80%; --dk-mask-r-to-p: 80%; }
+.mask-x-to-85\% { --dk-mask-l-to-p: 85%; --dk-mask-r-to-p: 85%; }
+.mask-x-to-90\% { --dk-mask-l-to-p: 90%; --dk-mask-r-to-p: 90%; }
+.mask-x-to-95\% { --dk-mask-l-to-p: 95%; --dk-mask-r-to-p: 95%; }
+.mask-x-to-100\% { --dk-mask-l-to-p: 100%; --dk-mask-r-to-p: 100%; }
+.mask-y-from-0\% { --dk-mask-t-from-p: 0%; --dk-mask-b-from-p: 0%; }
+.mask-y-from-5\% { --dk-mask-t-from-p: 5%; --dk-mask-b-from-p: 5%; }
+.mask-y-from-10\% { --dk-mask-t-from-p: 10%; --dk-mask-b-from-p: 10%; }
+.mask-y-from-15\% { --dk-mask-t-from-p: 15%; --dk-mask-b-from-p: 15%; }
+.mask-y-from-20\% { --dk-mask-t-from-p: 20%; --dk-mask-b-from-p: 20%; }
+.mask-y-from-25\% { --dk-mask-t-from-p: 25%; --dk-mask-b-from-p: 25%; }
+.mask-y-from-30\% { --dk-mask-t-from-p: 30%; --dk-mask-b-from-p: 30%; }
+.mask-y-from-35\% { --dk-mask-t-from-p: 35%; --dk-mask-b-from-p: 35%; }
+.mask-y-from-40\% { --dk-mask-t-from-p: 40%; --dk-mask-b-from-p: 40%; }
+.mask-y-from-45\% { --dk-mask-t-from-p: 45%; --dk-mask-b-from-p: 45%; }
+.mask-y-from-50\% { --dk-mask-t-from-p: 50%; --dk-mask-b-from-p: 50%; }
+.mask-y-from-55\% { --dk-mask-t-from-p: 55%; --dk-mask-b-from-p: 55%; }
+.mask-y-from-60\% { --dk-mask-t-from-p: 60%; --dk-mask-b-from-p: 60%; }
+.mask-y-from-65\% { --dk-mask-t-from-p: 65%; --dk-mask-b-from-p: 65%; }
+.mask-y-from-70\% { --dk-mask-t-from-p: 70%; --dk-mask-b-from-p: 70%; }
+.mask-y-from-75\% { --dk-mask-t-from-p: 75%; --dk-mask-b-from-p: 75%; }
+.mask-y-from-80\% { --dk-mask-t-from-p: 80%; --dk-mask-b-from-p: 80%; }
+.mask-y-from-85\% { --dk-mask-t-from-p: 85%; --dk-mask-b-from-p: 85%; }
+.mask-y-from-90\% { --dk-mask-t-from-p: 90%; --dk-mask-b-from-p: 90%; }
+.mask-y-from-95\% { --dk-mask-t-from-p: 95%; --dk-mask-b-from-p: 95%; }
+.mask-y-from-100\% { --dk-mask-t-from-p: 100%; --dk-mask-b-from-p: 100%; }
+.mask-y-to-0\% { --dk-mask-t-to-p: 0%; --dk-mask-b-to-p: 0%; }
+.mask-y-to-5\% { --dk-mask-t-to-p: 5%; --dk-mask-b-to-p: 5%; }
+.mask-y-to-10\% { --dk-mask-t-to-p: 10%; --dk-mask-b-to-p: 10%; }
+.mask-y-to-15\% { --dk-mask-t-to-p: 15%; --dk-mask-b-to-p: 15%; }
+.mask-y-to-20\% { --dk-mask-t-to-p: 20%; --dk-mask-b-to-p: 20%; }
+.mask-y-to-25\% { --dk-mask-t-to-p: 25%; --dk-mask-b-to-p: 25%; }
+.mask-y-to-30\% { --dk-mask-t-to-p: 30%; --dk-mask-b-to-p: 30%; }
+.mask-y-to-35\% { --dk-mask-t-to-p: 35%; --dk-mask-b-to-p: 35%; }
+.mask-y-to-40\% { --dk-mask-t-to-p: 40%; --dk-mask-b-to-p: 40%; }
+.mask-y-to-45\% { --dk-mask-t-to-p: 45%; --dk-mask-b-to-p: 45%; }
+.mask-y-to-50\% { --dk-mask-t-to-p: 50%; --dk-mask-b-to-p: 50%; }
+.mask-y-to-55\% { --dk-mask-t-to-p: 55%; --dk-mask-b-to-p: 55%; }
+.mask-y-to-60\% { --dk-mask-t-to-p: 60%; --dk-mask-b-to-p: 60%; }
+.mask-y-to-65\% { --dk-mask-t-to-p: 65%; --dk-mask-b-to-p: 65%; }
+.mask-y-to-70\% { --dk-mask-t-to-p: 70%; --dk-mask-b-to-p: 70%; }
+.mask-y-to-75\% { --dk-mask-t-to-p: 75%; --dk-mask-b-to-p: 75%; }
+.mask-y-to-80\% { --dk-mask-t-to-p: 80%; --dk-mask-b-to-p: 80%; }
+.mask-y-to-85\% { --dk-mask-t-to-p: 85%; --dk-mask-b-to-p: 85%; }
+.mask-y-to-90\% { --dk-mask-t-to-p: 90%; --dk-mask-b-to-p: 90%; }
+.mask-y-to-95\% { --dk-mask-t-to-p: 95%; --dk-mask-b-to-p: 95%; }
+.mask-y-to-100\% { --dk-mask-t-to-p: 100%; --dk-mask-b-to-p: 100%; }
 /* mask-image, linear: mask-linear-<angle>, mask-linear-from-<%>, mask-linear-to-<%> */
 .mask-linear-0 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops, var(--dk-mask-linear-position))); --dk-mask-linear-position: 0deg; }
 .mask-linear-45 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops, var(--dk-mask-linear-position))); --dk-mask-linear-position: 45deg; }
@@ -2810,93 +2810,93 @@
 .-mask-linear-270 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops, var(--dk-mask-linear-position))); --dk-mask-linear-position: -270deg; }
 .mask-linear-315 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops, var(--dk-mask-linear-position))); --dk-mask-linear-position: 315deg; }
 .-mask-linear-315 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops, var(--dk-mask-linear-position))); --dk-mask-linear-position: -315deg; }
-[class^="mask-linear-from-"], [class*=" mask-linear-from-"], [class^="mask-linear-to-"], [class*=" mask-linear-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear-stops: var(--dk-mask-linear-position), var(--dk-mask-linear-from-color) var(--dk-mask-linear-from-position), var(--dk-mask-linear-to-color) var(--dk-mask-linear-to-position); --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops)); }
-.mask-linear-from-0\% { --dk-mask-linear-from-position: 0%; }
-.mask-linear-from-5\% { --dk-mask-linear-from-position: 5%; }
-.mask-linear-from-10\% { --dk-mask-linear-from-position: 10%; }
-.mask-linear-from-15\% { --dk-mask-linear-from-position: 15%; }
-.mask-linear-from-20\% { --dk-mask-linear-from-position: 20%; }
-.mask-linear-from-25\% { --dk-mask-linear-from-position: 25%; }
-.mask-linear-from-30\% { --dk-mask-linear-from-position: 30%; }
-.mask-linear-from-35\% { --dk-mask-linear-from-position: 35%; }
-.mask-linear-from-40\% { --dk-mask-linear-from-position: 40%; }
-.mask-linear-from-45\% { --dk-mask-linear-from-position: 45%; }
-.mask-linear-from-50\% { --dk-mask-linear-from-position: 50%; }
-.mask-linear-from-55\% { --dk-mask-linear-from-position: 55%; }
-.mask-linear-from-60\% { --dk-mask-linear-from-position: 60%; }
-.mask-linear-from-65\% { --dk-mask-linear-from-position: 65%; }
-.mask-linear-from-70\% { --dk-mask-linear-from-position: 70%; }
-.mask-linear-from-75\% { --dk-mask-linear-from-position: 75%; }
-.mask-linear-from-80\% { --dk-mask-linear-from-position: 80%; }
-.mask-linear-from-85\% { --dk-mask-linear-from-position: 85%; }
-.mask-linear-from-90\% { --dk-mask-linear-from-position: 90%; }
-.mask-linear-from-95\% { --dk-mask-linear-from-position: 95%; }
-.mask-linear-from-100\% { --dk-mask-linear-from-position: 100%; }
-.mask-linear-to-0\% { --dk-mask-linear-to-position: 0%; }
-.mask-linear-to-5\% { --dk-mask-linear-to-position: 5%; }
-.mask-linear-to-10\% { --dk-mask-linear-to-position: 10%; }
-.mask-linear-to-15\% { --dk-mask-linear-to-position: 15%; }
-.mask-linear-to-20\% { --dk-mask-linear-to-position: 20%; }
-.mask-linear-to-25\% { --dk-mask-linear-to-position: 25%; }
-.mask-linear-to-30\% { --dk-mask-linear-to-position: 30%; }
-.mask-linear-to-35\% { --dk-mask-linear-to-position: 35%; }
-.mask-linear-to-40\% { --dk-mask-linear-to-position: 40%; }
-.mask-linear-to-45\% { --dk-mask-linear-to-position: 45%; }
-.mask-linear-to-50\% { --dk-mask-linear-to-position: 50%; }
-.mask-linear-to-55\% { --dk-mask-linear-to-position: 55%; }
-.mask-linear-to-60\% { --dk-mask-linear-to-position: 60%; }
-.mask-linear-to-65\% { --dk-mask-linear-to-position: 65%; }
-.mask-linear-to-70\% { --dk-mask-linear-to-position: 70%; }
-.mask-linear-to-75\% { --dk-mask-linear-to-position: 75%; }
-.mask-linear-to-80\% { --dk-mask-linear-to-position: 80%; }
-.mask-linear-to-85\% { --dk-mask-linear-to-position: 85%; }
-.mask-linear-to-90\% { --dk-mask-linear-to-position: 90%; }
-.mask-linear-to-95\% { --dk-mask-linear-to-position: 95%; }
-.mask-linear-to-100\% { --dk-mask-linear-to-position: 100%; }
+[class^="mask-linear-from-"], [class*=" mask-linear-from-"], [class^="mask-linear-to-"], [class*=" mask-linear-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-linear-stops: var(--dk-mask-linear-position), var(--dk-mask-linear-from-c) var(--dk-mask-linear-from-p), var(--dk-mask-linear-to-c) var(--dk-mask-linear-to-p); --dk-mask-linear: linear-gradient(var(--dk-mask-linear-stops)); }
+.mask-linear-from-0\% { --dk-mask-linear-from-p: 0%; }
+.mask-linear-from-5\% { --dk-mask-linear-from-p: 5%; }
+.mask-linear-from-10\% { --dk-mask-linear-from-p: 10%; }
+.mask-linear-from-15\% { --dk-mask-linear-from-p: 15%; }
+.mask-linear-from-20\% { --dk-mask-linear-from-p: 20%; }
+.mask-linear-from-25\% { --dk-mask-linear-from-p: 25%; }
+.mask-linear-from-30\% { --dk-mask-linear-from-p: 30%; }
+.mask-linear-from-35\% { --dk-mask-linear-from-p: 35%; }
+.mask-linear-from-40\% { --dk-mask-linear-from-p: 40%; }
+.mask-linear-from-45\% { --dk-mask-linear-from-p: 45%; }
+.mask-linear-from-50\% { --dk-mask-linear-from-p: 50%; }
+.mask-linear-from-55\% { --dk-mask-linear-from-p: 55%; }
+.mask-linear-from-60\% { --dk-mask-linear-from-p: 60%; }
+.mask-linear-from-65\% { --dk-mask-linear-from-p: 65%; }
+.mask-linear-from-70\% { --dk-mask-linear-from-p: 70%; }
+.mask-linear-from-75\% { --dk-mask-linear-from-p: 75%; }
+.mask-linear-from-80\% { --dk-mask-linear-from-p: 80%; }
+.mask-linear-from-85\% { --dk-mask-linear-from-p: 85%; }
+.mask-linear-from-90\% { --dk-mask-linear-from-p: 90%; }
+.mask-linear-from-95\% { --dk-mask-linear-from-p: 95%; }
+.mask-linear-from-100\% { --dk-mask-linear-from-p: 100%; }
+.mask-linear-to-0\% { --dk-mask-linear-to-p: 0%; }
+.mask-linear-to-5\% { --dk-mask-linear-to-p: 5%; }
+.mask-linear-to-10\% { --dk-mask-linear-to-p: 10%; }
+.mask-linear-to-15\% { --dk-mask-linear-to-p: 15%; }
+.mask-linear-to-20\% { --dk-mask-linear-to-p: 20%; }
+.mask-linear-to-25\% { --dk-mask-linear-to-p: 25%; }
+.mask-linear-to-30\% { --dk-mask-linear-to-p: 30%; }
+.mask-linear-to-35\% { --dk-mask-linear-to-p: 35%; }
+.mask-linear-to-40\% { --dk-mask-linear-to-p: 40%; }
+.mask-linear-to-45\% { --dk-mask-linear-to-p: 45%; }
+.mask-linear-to-50\% { --dk-mask-linear-to-p: 50%; }
+.mask-linear-to-55\% { --dk-mask-linear-to-p: 55%; }
+.mask-linear-to-60\% { --dk-mask-linear-to-p: 60%; }
+.mask-linear-to-65\% { --dk-mask-linear-to-p: 65%; }
+.mask-linear-to-70\% { --dk-mask-linear-to-p: 70%; }
+.mask-linear-to-75\% { --dk-mask-linear-to-p: 75%; }
+.mask-linear-to-80\% { --dk-mask-linear-to-p: 80%; }
+.mask-linear-to-85\% { --dk-mask-linear-to-p: 85%; }
+.mask-linear-to-90\% { --dk-mask-linear-to-p: 90%; }
+.mask-linear-to-95\% { --dk-mask-linear-to-p: 95%; }
+.mask-linear-to-100\% { --dk-mask-linear-to-p: 100%; }
 /* mask-image, radial: mask-radial-from-<%>, -to-<%>; shape mask-circle / mask-ellipse; size mask-radial-closest-side…; position mask-radial-at-<side> */
-[class^="mask-radial-from-"], [class*=" mask-radial-from-"], [class^="mask-radial-to-"], [class*=" mask-radial-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-radial-stops: var(--dk-mask-radial-shape) var(--dk-mask-radial-size) at var(--dk-mask-radial-position), var(--dk-mask-radial-from-color) var(--dk-mask-radial-from-position), var(--dk-mask-radial-to-color) var(--dk-mask-radial-to-position); --dk-mask-radial: radial-gradient(var(--dk-mask-radial-stops)); }
-.mask-radial-from-0\% { --dk-mask-radial-from-position: 0%; }
-.mask-radial-from-5\% { --dk-mask-radial-from-position: 5%; }
-.mask-radial-from-10\% { --dk-mask-radial-from-position: 10%; }
-.mask-radial-from-15\% { --dk-mask-radial-from-position: 15%; }
-.mask-radial-from-20\% { --dk-mask-radial-from-position: 20%; }
-.mask-radial-from-25\% { --dk-mask-radial-from-position: 25%; }
-.mask-radial-from-30\% { --dk-mask-radial-from-position: 30%; }
-.mask-radial-from-35\% { --dk-mask-radial-from-position: 35%; }
-.mask-radial-from-40\% { --dk-mask-radial-from-position: 40%; }
-.mask-radial-from-45\% { --dk-mask-radial-from-position: 45%; }
-.mask-radial-from-50\% { --dk-mask-radial-from-position: 50%; }
-.mask-radial-from-55\% { --dk-mask-radial-from-position: 55%; }
-.mask-radial-from-60\% { --dk-mask-radial-from-position: 60%; }
-.mask-radial-from-65\% { --dk-mask-radial-from-position: 65%; }
-.mask-radial-from-70\% { --dk-mask-radial-from-position: 70%; }
-.mask-radial-from-75\% { --dk-mask-radial-from-position: 75%; }
-.mask-radial-from-80\% { --dk-mask-radial-from-position: 80%; }
-.mask-radial-from-85\% { --dk-mask-radial-from-position: 85%; }
-.mask-radial-from-90\% { --dk-mask-radial-from-position: 90%; }
-.mask-radial-from-95\% { --dk-mask-radial-from-position: 95%; }
-.mask-radial-from-100\% { --dk-mask-radial-from-position: 100%; }
-.mask-radial-to-0\% { --dk-mask-radial-to-position: 0%; }
-.mask-radial-to-5\% { --dk-mask-radial-to-position: 5%; }
-.mask-radial-to-10\% { --dk-mask-radial-to-position: 10%; }
-.mask-radial-to-15\% { --dk-mask-radial-to-position: 15%; }
-.mask-radial-to-20\% { --dk-mask-radial-to-position: 20%; }
-.mask-radial-to-25\% { --dk-mask-radial-to-position: 25%; }
-.mask-radial-to-30\% { --dk-mask-radial-to-position: 30%; }
-.mask-radial-to-35\% { --dk-mask-radial-to-position: 35%; }
-.mask-radial-to-40\% { --dk-mask-radial-to-position: 40%; }
-.mask-radial-to-45\% { --dk-mask-radial-to-position: 45%; }
-.mask-radial-to-50\% { --dk-mask-radial-to-position: 50%; }
-.mask-radial-to-55\% { --dk-mask-radial-to-position: 55%; }
-.mask-radial-to-60\% { --dk-mask-radial-to-position: 60%; }
-.mask-radial-to-65\% { --dk-mask-radial-to-position: 65%; }
-.mask-radial-to-70\% { --dk-mask-radial-to-position: 70%; }
-.mask-radial-to-75\% { --dk-mask-radial-to-position: 75%; }
-.mask-radial-to-80\% { --dk-mask-radial-to-position: 80%; }
-.mask-radial-to-85\% { --dk-mask-radial-to-position: 85%; }
-.mask-radial-to-90\% { --dk-mask-radial-to-position: 90%; }
-.mask-radial-to-95\% { --dk-mask-radial-to-position: 95%; }
-.mask-radial-to-100\% { --dk-mask-radial-to-position: 100%; }
+[class^="mask-radial-from-"], [class*=" mask-radial-from-"], [class^="mask-radial-to-"], [class*=" mask-radial-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-radial-stops: var(--dk-mask-radial-shape) var(--dk-mask-radial-size) at var(--dk-mask-radial-position), var(--dk-mask-radial-from-c) var(--dk-mask-radial-from-p), var(--dk-mask-radial-to-c) var(--dk-mask-radial-to-p); --dk-mask-radial: radial-gradient(var(--dk-mask-radial-stops)); }
+.mask-radial-from-0\% { --dk-mask-radial-from-p: 0%; }
+.mask-radial-from-5\% { --dk-mask-radial-from-p: 5%; }
+.mask-radial-from-10\% { --dk-mask-radial-from-p: 10%; }
+.mask-radial-from-15\% { --dk-mask-radial-from-p: 15%; }
+.mask-radial-from-20\% { --dk-mask-radial-from-p: 20%; }
+.mask-radial-from-25\% { --dk-mask-radial-from-p: 25%; }
+.mask-radial-from-30\% { --dk-mask-radial-from-p: 30%; }
+.mask-radial-from-35\% { --dk-mask-radial-from-p: 35%; }
+.mask-radial-from-40\% { --dk-mask-radial-from-p: 40%; }
+.mask-radial-from-45\% { --dk-mask-radial-from-p: 45%; }
+.mask-radial-from-50\% { --dk-mask-radial-from-p: 50%; }
+.mask-radial-from-55\% { --dk-mask-radial-from-p: 55%; }
+.mask-radial-from-60\% { --dk-mask-radial-from-p: 60%; }
+.mask-radial-from-65\% { --dk-mask-radial-from-p: 65%; }
+.mask-radial-from-70\% { --dk-mask-radial-from-p: 70%; }
+.mask-radial-from-75\% { --dk-mask-radial-from-p: 75%; }
+.mask-radial-from-80\% { --dk-mask-radial-from-p: 80%; }
+.mask-radial-from-85\% { --dk-mask-radial-from-p: 85%; }
+.mask-radial-from-90\% { --dk-mask-radial-from-p: 90%; }
+.mask-radial-from-95\% { --dk-mask-radial-from-p: 95%; }
+.mask-radial-from-100\% { --dk-mask-radial-from-p: 100%; }
+.mask-radial-to-0\% { --dk-mask-radial-to-p: 0%; }
+.mask-radial-to-5\% { --dk-mask-radial-to-p: 5%; }
+.mask-radial-to-10\% { --dk-mask-radial-to-p: 10%; }
+.mask-radial-to-15\% { --dk-mask-radial-to-p: 15%; }
+.mask-radial-to-20\% { --dk-mask-radial-to-p: 20%; }
+.mask-radial-to-25\% { --dk-mask-radial-to-p: 25%; }
+.mask-radial-to-30\% { --dk-mask-radial-to-p: 30%; }
+.mask-radial-to-35\% { --dk-mask-radial-to-p: 35%; }
+.mask-radial-to-40\% { --dk-mask-radial-to-p: 40%; }
+.mask-radial-to-45\% { --dk-mask-radial-to-p: 45%; }
+.mask-radial-to-50\% { --dk-mask-radial-to-p: 50%; }
+.mask-radial-to-55\% { --dk-mask-radial-to-p: 55%; }
+.mask-radial-to-60\% { --dk-mask-radial-to-p: 60%; }
+.mask-radial-to-65\% { --dk-mask-radial-to-p: 65%; }
+.mask-radial-to-70\% { --dk-mask-radial-to-p: 70%; }
+.mask-radial-to-75\% { --dk-mask-radial-to-p: 75%; }
+.mask-radial-to-80\% { --dk-mask-radial-to-p: 80%; }
+.mask-radial-to-85\% { --dk-mask-radial-to-p: 85%; }
+.mask-radial-to-90\% { --dk-mask-radial-to-p: 90%; }
+.mask-radial-to-95\% { --dk-mask-radial-to-p: 95%; }
+.mask-radial-to-100\% { --dk-mask-radial-to-p: 100%; }
 .mask-circle { --dk-mask-radial-shape: circle; }
 .mask-ellipse { --dk-mask-radial-shape: ellipse; }
 .mask-radial-closest-corner { --dk-mask-radial-size: closest-corner; }
@@ -2928,49 +2928,49 @@
 .-mask-conic-270 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-conic: conic-gradient(var(--dk-mask-conic-stops, var(--dk-mask-conic-position))); --dk-mask-conic-position: -270deg; }
 .mask-conic-315 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-conic: conic-gradient(var(--dk-mask-conic-stops, var(--dk-mask-conic-position))); --dk-mask-conic-position: 315deg; }
 .-mask-conic-315 { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-conic: conic-gradient(var(--dk-mask-conic-stops, var(--dk-mask-conic-position))); --dk-mask-conic-position: -315deg; }
-[class^="mask-conic-from-"], [class*=" mask-conic-from-"], [class^="mask-conic-to-"], [class*=" mask-conic-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-conic-stops: from var(--dk-mask-conic-position), var(--dk-mask-conic-from-color) var(--dk-mask-conic-from-position), var(--dk-mask-conic-to-color) var(--dk-mask-conic-to-position); --dk-mask-conic: conic-gradient(var(--dk-mask-conic-stops)); }
-.mask-conic-from-0\% { --dk-mask-conic-from-position: 0%; }
-.mask-conic-from-5\% { --dk-mask-conic-from-position: 5%; }
-.mask-conic-from-10\% { --dk-mask-conic-from-position: 10%; }
-.mask-conic-from-15\% { --dk-mask-conic-from-position: 15%; }
-.mask-conic-from-20\% { --dk-mask-conic-from-position: 20%; }
-.mask-conic-from-25\% { --dk-mask-conic-from-position: 25%; }
-.mask-conic-from-30\% { --dk-mask-conic-from-position: 30%; }
-.mask-conic-from-35\% { --dk-mask-conic-from-position: 35%; }
-.mask-conic-from-40\% { --dk-mask-conic-from-position: 40%; }
-.mask-conic-from-45\% { --dk-mask-conic-from-position: 45%; }
-.mask-conic-from-50\% { --dk-mask-conic-from-position: 50%; }
-.mask-conic-from-55\% { --dk-mask-conic-from-position: 55%; }
-.mask-conic-from-60\% { --dk-mask-conic-from-position: 60%; }
-.mask-conic-from-65\% { --dk-mask-conic-from-position: 65%; }
-.mask-conic-from-70\% { --dk-mask-conic-from-position: 70%; }
-.mask-conic-from-75\% { --dk-mask-conic-from-position: 75%; }
-.mask-conic-from-80\% { --dk-mask-conic-from-position: 80%; }
-.mask-conic-from-85\% { --dk-mask-conic-from-position: 85%; }
-.mask-conic-from-90\% { --dk-mask-conic-from-position: 90%; }
-.mask-conic-from-95\% { --dk-mask-conic-from-position: 95%; }
-.mask-conic-from-100\% { --dk-mask-conic-from-position: 100%; }
-.mask-conic-to-0\% { --dk-mask-conic-to-position: 0%; }
-.mask-conic-to-5\% { --dk-mask-conic-to-position: 5%; }
-.mask-conic-to-10\% { --dk-mask-conic-to-position: 10%; }
-.mask-conic-to-15\% { --dk-mask-conic-to-position: 15%; }
-.mask-conic-to-20\% { --dk-mask-conic-to-position: 20%; }
-.mask-conic-to-25\% { --dk-mask-conic-to-position: 25%; }
-.mask-conic-to-30\% { --dk-mask-conic-to-position: 30%; }
-.mask-conic-to-35\% { --dk-mask-conic-to-position: 35%; }
-.mask-conic-to-40\% { --dk-mask-conic-to-position: 40%; }
-.mask-conic-to-45\% { --dk-mask-conic-to-position: 45%; }
-.mask-conic-to-50\% { --dk-mask-conic-to-position: 50%; }
-.mask-conic-to-55\% { --dk-mask-conic-to-position: 55%; }
-.mask-conic-to-60\% { --dk-mask-conic-to-position: 60%; }
-.mask-conic-to-65\% { --dk-mask-conic-to-position: 65%; }
-.mask-conic-to-70\% { --dk-mask-conic-to-position: 70%; }
-.mask-conic-to-75\% { --dk-mask-conic-to-position: 75%; }
-.mask-conic-to-80\% { --dk-mask-conic-to-position: 80%; }
-.mask-conic-to-85\% { --dk-mask-conic-to-position: 85%; }
-.mask-conic-to-90\% { --dk-mask-conic-to-position: 90%; }
-.mask-conic-to-95\% { --dk-mask-conic-to-position: 95%; }
-.mask-conic-to-100\% { --dk-mask-conic-to-position: 100%; }
+[class^="mask-conic-from-"], [class*=" mask-conic-from-"], [class^="mask-conic-to-"], [class*=" mask-conic-to-"] { mask-image: var(--dk-mask-linear), var(--dk-mask-radial), var(--dk-mask-conic); mask-composite: intersect; --dk-mask-conic-stops: from var(--dk-mask-conic-position), var(--dk-mask-conic-from-c) var(--dk-mask-conic-from-p), var(--dk-mask-conic-to-c) var(--dk-mask-conic-to-p); --dk-mask-conic: conic-gradient(var(--dk-mask-conic-stops)); }
+.mask-conic-from-0\% { --dk-mask-conic-from-p: 0%; }
+.mask-conic-from-5\% { --dk-mask-conic-from-p: 5%; }
+.mask-conic-from-10\% { --dk-mask-conic-from-p: 10%; }
+.mask-conic-from-15\% { --dk-mask-conic-from-p: 15%; }
+.mask-conic-from-20\% { --dk-mask-conic-from-p: 20%; }
+.mask-conic-from-25\% { --dk-mask-conic-from-p: 25%; }
+.mask-conic-from-30\% { --dk-mask-conic-from-p: 30%; }
+.mask-conic-from-35\% { --dk-mask-conic-from-p: 35%; }
+.mask-conic-from-40\% { --dk-mask-conic-from-p: 40%; }
+.mask-conic-from-45\% { --dk-mask-conic-from-p: 45%; }
+.mask-conic-from-50\% { --dk-mask-conic-from-p: 50%; }
+.mask-conic-from-55\% { --dk-mask-conic-from-p: 55%; }
+.mask-conic-from-60\% { --dk-mask-conic-from-p: 60%; }
+.mask-conic-from-65\% { --dk-mask-conic-from-p: 65%; }
+.mask-conic-from-70\% { --dk-mask-conic-from-p: 70%; }
+.mask-conic-from-75\% { --dk-mask-conic-from-p: 75%; }
+.mask-conic-from-80\% { --dk-mask-conic-from-p: 80%; }
+.mask-conic-from-85\% { --dk-mask-conic-from-p: 85%; }
+.mask-conic-from-90\% { --dk-mask-conic-from-p: 90%; }
+.mask-conic-from-95\% { --dk-mask-conic-from-p: 95%; }
+.mask-conic-from-100\% { --dk-mask-conic-from-p: 100%; }
+.mask-conic-to-0\% { --dk-mask-conic-to-p: 0%; }
+.mask-conic-to-5\% { --dk-mask-conic-to-p: 5%; }
+.mask-conic-to-10\% { --dk-mask-conic-to-p: 10%; }
+.mask-conic-to-15\% { --dk-mask-conic-to-p: 15%; }
+.mask-conic-to-20\% { --dk-mask-conic-to-p: 20%; }
+.mask-conic-to-25\% { --dk-mask-conic-to-p: 25%; }
+.mask-conic-to-30\% { --dk-mask-conic-to-p: 30%; }
+.mask-conic-to-35\% { --dk-mask-conic-to-p: 35%; }
+.mask-conic-to-40\% { --dk-mask-conic-to-p: 40%; }
+.mask-conic-to-45\% { --dk-mask-conic-to-p: 45%; }
+.mask-conic-to-50\% { --dk-mask-conic-to-p: 50%; }
+.mask-conic-to-55\% { --dk-mask-conic-to-p: 55%; }
+.mask-conic-to-60\% { --dk-mask-conic-to-p: 60%; }
+.mask-conic-to-65\% { --dk-mask-conic-to-p: 65%; }
+.mask-conic-to-70\% { --dk-mask-conic-to-p: 70%; }
+.mask-conic-to-75\% { --dk-mask-conic-to-p: 75%; }
+.mask-conic-to-80\% { --dk-mask-conic-to-p: 80%; }
+.mask-conic-to-85\% { --dk-mask-conic-to-p: 85%; }
+.mask-conic-to-90\% { --dk-mask-conic-to-p: 90%; }
+.mask-conic-to-95\% { --dk-mask-conic-to-p: 95%; }
+.mask-conic-to-100\% { --dk-mask-conic-to-p: 100%; }
 /* mask-mode */
 .mask-alpha { mask-mode: alpha; }
 .mask-luminance { mask-mode: luminance; }
@@ -5180,167 +5180,167 @@
 .backdrop-opacity-85 { --dk-backdrop-opacity: opacity(var(--opacity-85)); }
 /* mask-image: -from-/-to- at spacing steps */
 @each spacing- not(px) {
-  .mask-t-from-{k} { --dk-mask-top-from-position: var(--{t}); }
+  .mask-t-from-{k} { --dk-mask-t-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-t-to-{k} { --dk-mask-top-to-position: var(--{t}); }
+  .mask-t-to-{k} { --dk-mask-t-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-r-from-{k} { --dk-mask-right-from-position: var(--{t}); }
+  .mask-r-from-{k} { --dk-mask-r-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-r-to-{k} { --dk-mask-right-to-position: var(--{t}); }
+  .mask-r-to-{k} { --dk-mask-r-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-b-from-{k} { --dk-mask-bottom-from-position: var(--{t}); }
+  .mask-b-from-{k} { --dk-mask-b-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-b-to-{k} { --dk-mask-bottom-to-position: var(--{t}); }
+  .mask-b-to-{k} { --dk-mask-b-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-l-from-{k} { --dk-mask-left-from-position: var(--{t}); }
+  .mask-l-from-{k} { --dk-mask-l-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-l-to-{k} { --dk-mask-left-to-position: var(--{t}); }
+  .mask-l-to-{k} { --dk-mask-l-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-x-from-{k} { --dk-mask-left-from-position: var(--{t}); --dk-mask-right-from-position: var(--{t}); }
+  .mask-x-from-{k} { --dk-mask-l-from-p: var(--{t}); --dk-mask-r-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-x-to-{k} { --dk-mask-left-to-position: var(--{t}); --dk-mask-right-to-position: var(--{t}); }
+  .mask-x-to-{k} { --dk-mask-l-to-p: var(--{t}); --dk-mask-r-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-y-from-{k} { --dk-mask-top-from-position: var(--{t}); --dk-mask-bottom-from-position: var(--{t}); }
+  .mask-y-from-{k} { --dk-mask-t-from-p: var(--{t}); --dk-mask-b-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-y-to-{k} { --dk-mask-top-to-position: var(--{t}); --dk-mask-bottom-to-position: var(--{t}); }
+  .mask-y-to-{k} { --dk-mask-t-to-p: var(--{t}); --dk-mask-b-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-linear-from-{k} { --dk-mask-linear-from-position: var(--{t}); }
+  .mask-linear-from-{k} { --dk-mask-linear-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-linear-to-{k} { --dk-mask-linear-to-position: var(--{t}); }
+  .mask-linear-to-{k} { --dk-mask-linear-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-radial-from-{k} { --dk-mask-radial-from-position: var(--{t}); }
+  .mask-radial-from-{k} { --dk-mask-radial-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-radial-to-{k} { --dk-mask-radial-to-position: var(--{t}); }
+  .mask-radial-to-{k} { --dk-mask-radial-to-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-conic-from-{k} { --dk-mask-conic-from-position: var(--{t}); }
+  .mask-conic-from-{k} { --dk-mask-conic-from-p: var(--{t}); }
 }
 @each spacing- not(px) {
-  .mask-conic-to-{k} { --dk-mask-conic-to-position: var(--{t}); }
+  .mask-conic-to-{k} { --dk-mask-conic-to-p: var(--{t}); }
 }
 /* mask-image: -from-/-to- colors */
-.mask-t-from-inherit { --dk-mask-top-from-color: inherit; }
-.mask-t-from-current { --dk-mask-top-from-color: currentcolor; }
-.mask-t-from-transparent { --dk-mask-top-from-color: transparent; }
+.mask-t-from-inherit { --dk-mask-t-from-c: inherit; }
+.mask-t-from-current { --dk-mask-t-from-c: currentcolor; }
+.mask-t-from-transparent { --dk-mask-t-from-c: transparent; }
 @each color {
-  .mask-t-from-{k} { --dk-mask-top-from-color: var(--{t}); }
+  .mask-t-from-{k} { --dk-mask-t-from-c: var(--{t}); }
 }
-.mask-t-to-inherit { --dk-mask-top-to-color: inherit; }
-.mask-t-to-current { --dk-mask-top-to-color: currentcolor; }
-.mask-t-to-transparent { --dk-mask-top-to-color: transparent; }
+.mask-t-to-inherit { --dk-mask-t-to-c: inherit; }
+.mask-t-to-current { --dk-mask-t-to-c: currentcolor; }
+.mask-t-to-transparent { --dk-mask-t-to-c: transparent; }
 @each color {
-  .mask-t-to-{k} { --dk-mask-top-to-color: var(--{t}); }
+  .mask-t-to-{k} { --dk-mask-t-to-c: var(--{t}); }
 }
-.mask-r-from-inherit { --dk-mask-right-from-color: inherit; }
-.mask-r-from-current { --dk-mask-right-from-color: currentcolor; }
-.mask-r-from-transparent { --dk-mask-right-from-color: transparent; }
+.mask-r-from-inherit { --dk-mask-r-from-c: inherit; }
+.mask-r-from-current { --dk-mask-r-from-c: currentcolor; }
+.mask-r-from-transparent { --dk-mask-r-from-c: transparent; }
 @each color {
-  .mask-r-from-{k} { --dk-mask-right-from-color: var(--{t}); }
+  .mask-r-from-{k} { --dk-mask-r-from-c: var(--{t}); }
 }
-.mask-r-to-inherit { --dk-mask-right-to-color: inherit; }
-.mask-r-to-current { --dk-mask-right-to-color: currentcolor; }
-.mask-r-to-transparent { --dk-mask-right-to-color: transparent; }
+.mask-r-to-inherit { --dk-mask-r-to-c: inherit; }
+.mask-r-to-current { --dk-mask-r-to-c: currentcolor; }
+.mask-r-to-transparent { --dk-mask-r-to-c: transparent; }
 @each color {
-  .mask-r-to-{k} { --dk-mask-right-to-color: var(--{t}); }
+  .mask-r-to-{k} { --dk-mask-r-to-c: var(--{t}); }
 }
-.mask-b-from-inherit { --dk-mask-bottom-from-color: inherit; }
-.mask-b-from-current { --dk-mask-bottom-from-color: currentcolor; }
-.mask-b-from-transparent { --dk-mask-bottom-from-color: transparent; }
+.mask-b-from-inherit { --dk-mask-b-from-c: inherit; }
+.mask-b-from-current { --dk-mask-b-from-c: currentcolor; }
+.mask-b-from-transparent { --dk-mask-b-from-c: transparent; }
 @each color {
-  .mask-b-from-{k} { --dk-mask-bottom-from-color: var(--{t}); }
+  .mask-b-from-{k} { --dk-mask-b-from-c: var(--{t}); }
 }
-.mask-b-to-inherit { --dk-mask-bottom-to-color: inherit; }
-.mask-b-to-current { --dk-mask-bottom-to-color: currentcolor; }
-.mask-b-to-transparent { --dk-mask-bottom-to-color: transparent; }
+.mask-b-to-inherit { --dk-mask-b-to-c: inherit; }
+.mask-b-to-current { --dk-mask-b-to-c: currentcolor; }
+.mask-b-to-transparent { --dk-mask-b-to-c: transparent; }
 @each color {
-  .mask-b-to-{k} { --dk-mask-bottom-to-color: var(--{t}); }
+  .mask-b-to-{k} { --dk-mask-b-to-c: var(--{t}); }
 }
-.mask-l-from-inherit { --dk-mask-left-from-color: inherit; }
-.mask-l-from-current { --dk-mask-left-from-color: currentcolor; }
-.mask-l-from-transparent { --dk-mask-left-from-color: transparent; }
+.mask-l-from-inherit { --dk-mask-l-from-c: inherit; }
+.mask-l-from-current { --dk-mask-l-from-c: currentcolor; }
+.mask-l-from-transparent { --dk-mask-l-from-c: transparent; }
 @each color {
-  .mask-l-from-{k} { --dk-mask-left-from-color: var(--{t}); }
+  .mask-l-from-{k} { --dk-mask-l-from-c: var(--{t}); }
 }
-.mask-l-to-inherit { --dk-mask-left-to-color: inherit; }
-.mask-l-to-current { --dk-mask-left-to-color: currentcolor; }
-.mask-l-to-transparent { --dk-mask-left-to-color: transparent; }
+.mask-l-to-inherit { --dk-mask-l-to-c: inherit; }
+.mask-l-to-current { --dk-mask-l-to-c: currentcolor; }
+.mask-l-to-transparent { --dk-mask-l-to-c: transparent; }
 @each color {
-  .mask-l-to-{k} { --dk-mask-left-to-color: var(--{t}); }
+  .mask-l-to-{k} { --dk-mask-l-to-c: var(--{t}); }
 }
-.mask-x-from-inherit { --dk-mask-left-from-color: inherit; --dk-mask-right-from-color: inherit; }
-.mask-x-from-current { --dk-mask-left-from-color: currentcolor; --dk-mask-right-from-color: currentcolor; }
-.mask-x-from-transparent { --dk-mask-left-from-color: transparent; --dk-mask-right-from-color: transparent; }
+.mask-x-from-inherit { --dk-mask-l-from-c: inherit; --dk-mask-r-from-c: inherit; }
+.mask-x-from-current { --dk-mask-l-from-c: currentcolor; --dk-mask-r-from-c: currentcolor; }
+.mask-x-from-transparent { --dk-mask-l-from-c: transparent; --dk-mask-r-from-c: transparent; }
 @each color {
-  .mask-x-from-{k} { --dk-mask-left-from-color: var(--{t}); --dk-mask-right-from-color: var(--{t}); }
+  .mask-x-from-{k} { --dk-mask-l-from-c: var(--{t}); --dk-mask-r-from-c: var(--{t}); }
 }
-.mask-x-to-inherit { --dk-mask-left-to-color: inherit; --dk-mask-right-to-color: inherit; }
-.mask-x-to-current { --dk-mask-left-to-color: currentcolor; --dk-mask-right-to-color: currentcolor; }
-.mask-x-to-transparent { --dk-mask-left-to-color: transparent; --dk-mask-right-to-color: transparent; }
+.mask-x-to-inherit { --dk-mask-l-to-c: inherit; --dk-mask-r-to-c: inherit; }
+.mask-x-to-current { --dk-mask-l-to-c: currentcolor; --dk-mask-r-to-c: currentcolor; }
+.mask-x-to-transparent { --dk-mask-l-to-c: transparent; --dk-mask-r-to-c: transparent; }
 @each color {
-  .mask-x-to-{k} { --dk-mask-left-to-color: var(--{t}); --dk-mask-right-to-color: var(--{t}); }
+  .mask-x-to-{k} { --dk-mask-l-to-c: var(--{t}); --dk-mask-r-to-c: var(--{t}); }
 }
-.mask-y-from-inherit { --dk-mask-top-from-color: inherit; --dk-mask-bottom-from-color: inherit; }
-.mask-y-from-current { --dk-mask-top-from-color: currentcolor; --dk-mask-bottom-from-color: currentcolor; }
-.mask-y-from-transparent { --dk-mask-top-from-color: transparent; --dk-mask-bottom-from-color: transparent; }
+.mask-y-from-inherit { --dk-mask-t-from-c: inherit; --dk-mask-b-from-c: inherit; }
+.mask-y-from-current { --dk-mask-t-from-c: currentcolor; --dk-mask-b-from-c: currentcolor; }
+.mask-y-from-transparent { --dk-mask-t-from-c: transparent; --dk-mask-b-from-c: transparent; }
 @each color {
-  .mask-y-from-{k} { --dk-mask-top-from-color: var(--{t}); --dk-mask-bottom-from-color: var(--{t}); }
+  .mask-y-from-{k} { --dk-mask-t-from-c: var(--{t}); --dk-mask-b-from-c: var(--{t}); }
 }
-.mask-y-to-inherit { --dk-mask-top-to-color: inherit; --dk-mask-bottom-to-color: inherit; }
-.mask-y-to-current { --dk-mask-top-to-color: currentcolor; --dk-mask-bottom-to-color: currentcolor; }
-.mask-y-to-transparent { --dk-mask-top-to-color: transparent; --dk-mask-bottom-to-color: transparent; }
+.mask-y-to-inherit { --dk-mask-t-to-c: inherit; --dk-mask-b-to-c: inherit; }
+.mask-y-to-current { --dk-mask-t-to-c: currentcolor; --dk-mask-b-to-c: currentcolor; }
+.mask-y-to-transparent { --dk-mask-t-to-c: transparent; --dk-mask-b-to-c: transparent; }
 @each color {
-  .mask-y-to-{k} { --dk-mask-top-to-color: var(--{t}); --dk-mask-bottom-to-color: var(--{t}); }
+  .mask-y-to-{k} { --dk-mask-t-to-c: var(--{t}); --dk-mask-b-to-c: var(--{t}); }
 }
-.mask-linear-from-inherit { --dk-mask-linear-from-color: inherit; }
-.mask-linear-from-current { --dk-mask-linear-from-color: currentcolor; }
-.mask-linear-from-transparent { --dk-mask-linear-from-color: transparent; }
+.mask-linear-from-inherit { --dk-mask-linear-from-c: inherit; }
+.mask-linear-from-current { --dk-mask-linear-from-c: currentcolor; }
+.mask-linear-from-transparent { --dk-mask-linear-from-c: transparent; }
 @each color {
-  .mask-linear-from-{k} { --dk-mask-linear-from-color: var(--{t}); }
+  .mask-linear-from-{k} { --dk-mask-linear-from-c: var(--{t}); }
 }
-.mask-linear-to-inherit { --dk-mask-linear-to-color: inherit; }
-.mask-linear-to-current { --dk-mask-linear-to-color: currentcolor; }
-.mask-linear-to-transparent { --dk-mask-linear-to-color: transparent; }
+.mask-linear-to-inherit { --dk-mask-linear-to-c: inherit; }
+.mask-linear-to-current { --dk-mask-linear-to-c: currentcolor; }
+.mask-linear-to-transparent { --dk-mask-linear-to-c: transparent; }
 @each color {
-  .mask-linear-to-{k} { --dk-mask-linear-to-color: var(--{t}); }
+  .mask-linear-to-{k} { --dk-mask-linear-to-c: var(--{t}); }
 }
-.mask-radial-from-inherit { --dk-mask-radial-from-color: inherit; }
-.mask-radial-from-current { --dk-mask-radial-from-color: currentcolor; }
-.mask-radial-from-transparent { --dk-mask-radial-from-color: transparent; }
+.mask-radial-from-inherit { --dk-mask-radial-from-c: inherit; }
+.mask-radial-from-current { --dk-mask-radial-from-c: currentcolor; }
+.mask-radial-from-transparent { --dk-mask-radial-from-c: transparent; }
 @each color {
-  .mask-radial-from-{k} { --dk-mask-radial-from-color: var(--{t}); }
+  .mask-radial-from-{k} { --dk-mask-radial-from-c: var(--{t}); }
 }
-.mask-radial-to-inherit { --dk-mask-radial-to-color: inherit; }
-.mask-radial-to-current { --dk-mask-radial-to-color: currentcolor; }
-.mask-radial-to-transparent { --dk-mask-radial-to-color: transparent; }
+.mask-radial-to-inherit { --dk-mask-radial-to-c: inherit; }
+.mask-radial-to-current { --dk-mask-radial-to-c: currentcolor; }
+.mask-radial-to-transparent { --dk-mask-radial-to-c: transparent; }
 @each color {
-  .mask-radial-to-{k} { --dk-mask-radial-to-color: var(--{t}); }
+  .mask-radial-to-{k} { --dk-mask-radial-to-c: var(--{t}); }
 }
-.mask-conic-from-inherit { --dk-mask-conic-from-color: inherit; }
-.mask-conic-from-current { --dk-mask-conic-from-color: currentcolor; }
-.mask-conic-from-transparent { --dk-mask-conic-from-color: transparent; }
+.mask-conic-from-inherit { --dk-mask-conic-from-c: inherit; }
+.mask-conic-from-current { --dk-mask-conic-from-c: currentcolor; }
+.mask-conic-from-transparent { --dk-mask-conic-from-c: transparent; }
 @each color {
-  .mask-conic-from-{k} { --dk-mask-conic-from-color: var(--{t}); }
+  .mask-conic-from-{k} { --dk-mask-conic-from-c: var(--{t}); }
 }
-.mask-conic-to-inherit { --dk-mask-conic-to-color: inherit; }
-.mask-conic-to-current { --dk-mask-conic-to-color: currentcolor; }
-.mask-conic-to-transparent { --dk-mask-conic-to-color: transparent; }
+.mask-conic-to-inherit { --dk-mask-conic-to-c: inherit; }
+.mask-conic-to-current { --dk-mask-conic-to-c: currentcolor; }
+.mask-conic-to-transparent { --dk-mask-conic-to-c: transparent; }
 @each color {
-  .mask-conic-to-{k} { --dk-mask-conic-to-color: var(--{t}); }
+  .mask-conic-to-{k} { --dk-mask-conic-to-c: var(--{t}); }
 }
 
 /* ---------------------------------------------------------------
