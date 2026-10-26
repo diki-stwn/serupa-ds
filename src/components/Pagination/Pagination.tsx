@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, oneOf, omit } from "../../internal/cn";
+import { cn, oneOf, omit, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
@@ -25,9 +25,9 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>,
   getHref?: (page: number) => string;
   /** With getHref, what renders each page link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
   linkAs?: React.ElementType;
-  /** Pages shown on each side of the current one. Default: 1. */
+  /** Pages shown on each side of the current one. Default: 1. Fewer show when the row wouldn't fit on one line. */
   siblings?: number;
-  /** Pages always shown at the start and the end. Default: 1. */
+  /** Pages always shown at the start and the end. Default: 1. Fewer show, after the siblings, when the row wouldn't fit. */
   boundaries?: number;
   /** 'md' (default, 32px) or 'sm' (24px). */
   size?: 'sm' | 'md';
@@ -60,6 +60,24 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   const page = Math.min(Math.max(int(controlled ? props.page : own, 1, 1), 1), Math.max(count, 1));
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const label = props.pageLabel || sds.labels.page;
+  // ET1: the row stays on one line. When it's wider than its box, siblings and then boundaries step down (cut) until
+  // it fits, before paint; when the box grows they start over from what was asked.
+  const siblings = int(props.siblings, 0, 1), boundaries = int(props.boundaries, 0, 1);
+  const [cut, setCut] = React.useState(0);
+  const most = siblings + boundaries, list = React.useRef<HTMLUListElement | null>(null);
+  const over = () => { const l = list.current; return !!l && l.scrollWidth > l.clientWidth + 1; };
+  useIsoLayoutEffect(function () { if (cut < most && over()) setCut(cut + 1); });
+  useIsoLayoutEffect(function () {
+    const l = list.current;
+    if (!l || typeof ResizeObserver === "undefined") return;
+    let width = l.clientWidth;
+    const ro = new ResizeObserver(function () {
+      if (l.clientWidth > width) setCut(0); else if (over()) setCut((c) => Math.min(c + 1, most));
+      width = l.clientWidth;
+    });
+    ro.observe(l);
+    return () => ro.disconnect();
+  }, [most]);
   // An arrow that takes you to the first or last page turns disabled under focus (FJ1): focus goes to the other one.
   const handover = useFocusHandover();
   const go = (n: number, e: React.MouseEvent) => {
@@ -83,9 +101,9 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   };
   return (
     <nav aria-label={sds.labels.pagination} {...rest} ref={ref} data-component="pagination" className={cn("dk-pagination", size === "sm" && "dk-pagination--sm", props.className)}>
-      <ul className="dk-pagination__list">
+      <ul className="dk-pagination__list" ref={list}>
         {arrow("prev")}
-        {paginationRange(page, count, int(props.siblings, 0, 1), int(props.boundaries, 0, 1)).map((e) => typeof e === "number"
+        {paginationRange(page, count, Math.max(siblings - cut, 0), Math.max(boundaries - Math.max(cut - siblings, 0), 0)).map((e) => typeof e === "number"
           ? <li key={e}>{item(e, displayNumber(e, locale), { "aria-label": label(e), "aria-current": e === page ? "page" : undefined }, false, e === page ? "dk-pagination__item--current" : "")}</li>
           : <li key={e} className="dk-pagination__ellipsis" aria-hidden="true">…</li>)}
         {arrow("next")}
