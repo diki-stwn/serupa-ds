@@ -4,6 +4,7 @@ import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
 import { addMonths, compare, datePattern, formatDate, isoDate, parseDate, sameDay, startOfMonth, toDay } from "../../internal/dates";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
@@ -141,6 +142,8 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
     setPicking(value.start && !value.end ? "end" : "start");
     setOpen(true);
   };
+  // The calendar stays (inert) while the popup fades out (DZ1).
+  const exit = useExit(open, panel);
   useAnchoredLayer(open, panel, box, { placement: "bottom-start", offsetVar: "--dk-drp-offset", onOutside: () => close(false), onFocusOutside: () => close(false), inside: button });
 
   const pick = (d: Date) => {
@@ -188,10 +191,10 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
       </button>
       {startName ? <input type="hidden" name={startName} form={form} value={value.start ? isoDate(value.start) : ""} disabled={disabled} /> : null}
       {endName ? <input type="hidden" name={endName} form={form} value={value.end ? isoDate(value.end) : ""} disabled={disabled} /> : null}
-      <div ref={panel} id={popId} role="dialog" aria-label={buttonLabel || sds.labels.chooseDates} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-date-picker__popup dk-date-range-picker__popup"
+      <div ref={panel} id={popId} role="dialog" aria-label={buttonLabel || sds.labels.chooseDates} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-date-picker__popup dk-date-range-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}
         onMouseLeave={() => setHover(null)}>
-        {open ? <>
+        {open || exit.leaving ? <>
           <div className="dk-date-range-picker__months">{cal(base, true)}{two ? cal(addMonths(base, 1), false) : null}</div>
           <p className="dk-date-range-picker__status" aria-live="polite">{picking === "start" ? sds.labels.chooseStartDate : sds.labels.chooseEndDate}</p>
         </> : null}
