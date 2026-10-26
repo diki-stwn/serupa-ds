@@ -124,7 +124,10 @@ describe('ColorPicker', () => {
     await userEvent.fill(hex(), '');
     const data = new DataTransfer();
     data.setData('text/plain', ' #7C3AED\n');
-    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+    // Firefox gives a ClipboardEvent made in script an empty copy of the clipboardData passed in, so the paste carries it as its own.
+    const ev = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'clipboardData', { value: data });
+    hex().dispatchEvent(ev);
     await expect.poll(() => calls.at(-1)).toBe('#7c3aed');
     expect([hex().value, hex().hasAttribute('aria-invalid')]).toEqual(['7C3AED', false]);
   });
