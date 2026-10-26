@@ -288,25 +288,28 @@ describe('SegmentedControl', () => {
       await press(seg('sr'), () => expect(css(seg('sr')).scale).toBe('none'));
     });
   });
-  test('a new choice slides the indicator from the last one on translate (compositor) and width, never scale, so its border and corners keep their shape between segments of different widths; it comes to rest on the segment (EG1, GL1)', async () => {
+  test('a new choice slides the indicator from the last one by clip-path (compositor), never scale or width, so its border and corners keep their shape between segments of different widths; it comes to rest on the segment (EG1, GL1)', async () => {
     await withMotion(async () => {
       await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
       const [a, b] = items('sl');
+      const ind = el('sl').firstElementChild as HTMLElement;
       await userEvent.click(b);
-      const moves = el('sl').firstElementChild!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
-      const start = moves.find((x) => x.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
-      expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['translate', 'width'], Math.round(a.offsetLeft - b.offsetLeft)]);
-      // Half way, the border is still 1px and the corners still round: nothing is stretched.
+      const moves = document.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition && (x.effect as KeyframeEffect).target === ind);
+      expect(moves.map((x) => [(x.effect as KeyframeEffect).pseudoElement, x.transitionProperty]).sort()).toEqual([['::after', 'clip-path'], ['::before', 'clip-path']]);
+      // The border layer starts cut to the first segment (nothing cut from its start, the second segment's extra width
+      // from its end) and ends cut to the second.
+      const insets = (k: Keyframe) => String(k.clipPath).match(/-?[\d.]+px/g)!.slice(0, 4).map((n) => Math.round(parseFloat(n)));
+      const border = moves.find((x) => (x.effect as KeyframeEffect).pseudoElement === '::before')!, [from, to] = (border.effect as KeyframeEffect).getKeyframes();
+      expect([insets(from), insets(to)]).toEqual([[0, Math.round(b.offsetLeft + b.offsetWidth - a.offsetLeft - a.offsetWidth), 0, 0], [0, 0, 0, Math.round(b.offsetLeft - a.offsetLeft)]]);
+      // Half way nothing is scaled, so the border is 1px and the corners round.
       moves.forEach((x) => { x.pause(); x.currentTime = Number(x.effect!.getComputedTiming().duration) / 2; });
-      const ind = el('sl').firstElementChild as HTMLElement, s = getComputedStyle(ind);
-      expect([s.scale, s.borderLeftWidth, s.borderRightWidth]).toEqual(['none', '1px', '1px']);
-      expect(ind.getBoundingClientRect().width).toBeGreaterThan(Math.min(a.offsetWidth, b.offsetWidth));
+      expect([css(ind).scale, css(ind).transform]).toEqual(['none', 'none']);
       moves.forEach((x) => x.play());
       await Promise.all(moves.map((x) => x.finished));
+      await expect.poll(() => ind.hasAttribute('data-slide')).toBe(false);
       expect(off('sl')).toEqual([0, 0]);
     });
   });
-
   test('before the script runs, the selected segment carries the indicator\'s surface itself (FC1)', () => {
     const host = document.createElement('div');
     host.innerHTML = renderToString(<SegmentedControl id="ssr" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="b" />);
