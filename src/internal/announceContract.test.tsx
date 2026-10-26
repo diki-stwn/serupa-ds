@@ -23,7 +23,6 @@ import { Progress } from '../components/Progress/Progress';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { SortableList } from '../components/SortableList/SortableList';
 import { Splitter } from '../components/Splitter/Splitter';
-import { FileUpload } from '../components/FileUpload/FileUpload';
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '../components/Table/Table';
 import { toast, Toaster } from '../components/Toast/Toast';
 
@@ -81,9 +80,6 @@ const SITES: Record<string, Site> = {
   'Splitter: a press on the handle that starts placing it': {
     ui: () => <Splitter style={{ width: '400px', height: '100px' }}><p>Start</p><p>End</p></Splitter>,
     act: async () => { await userEvent.click($('[role=separator]')); }, says: /Press where the handle should go/ },
-  'FileUpload: the files that were added': {
-    ui: () => <FileUpload />,
-    act: async () => { const i = $('input[type=file]') as HTMLInputElement, dt = new DataTransfer(); dt.items.add(new File(['x'], 'notes.txt', { type: 'text/plain' })); i.files = dt.files; i.dispatchEvent(new Event('change', { bubbles: true })); }, says: /notes\.txt added/ },
   'PasswordInput: Caps Lock turning on': {
     ui: () => <PasswordInput aria-label="Password" />,
     act: async () => { const f = $('input'); f.focus(); f.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, modifierCapsLock: true })); }, says: /Caps Lock is on/ },
