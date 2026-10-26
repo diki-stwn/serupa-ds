@@ -11,7 +11,7 @@ const pb = (id: string) => (el(id).querySelector('[role=progressbar]') || el(id)
 // How much of the track the fill covers, in whole percent.
 const share = (id: string) => {
   const tr = el(id).querySelector('.dk-progress__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-progress__fill')!.getBoundingClientRect();
-  return Math.round(f.width / tr.width * 100);
+  return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
 const thick = (id: string) => Math.round(el(id).querySelector('.dk-progress__track')!.getBoundingClientRect().height);
 const value = (id: string) => el(id).querySelector('.dk-progress__value')?.textContent ?? null;
@@ -142,6 +142,19 @@ describe('Progress: done', () => {
     watch.disconnect();
     expect([[...new Set(said)], dones]).toEqual([['Upload: complete', 'All files uploaded'], [100, 100]]);
     expect([idLabels.progressComplete('Unggah'), idLabels.progressComplete('')]).toEqual(['Unggah: selesai', 'Selesai']);
+  });
+  test('a new value moves the fill on translate, not its width, and right to left it fills from the right (FB1)', async () => {
+    const bar = (v: number) => <Wrap><div dir="rtl"><Progress id="mv" value={v} aria-label="mv" /></div></Wrap>;
+    const { rerender } = await render(bar(30));
+    await withMotion(async () => {
+      void css(el('mv').querySelector('.dk-progress__fill')).translate;   // where it starts from
+      await rerender(bar(70));
+      const moves = el('mv').querySelector('.dk-progress__fill')!.getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
+      expect(moves.map((a) => a.transitionProperty)).toEqual(['translate']);
+      await Promise.all(moves.map((a) => a.finished));
+    });
+    const tr = el('mv').querySelector('.dk-progress__track')!.getBoundingClientRect(), f = el('mv').querySelector('.dk-progress__fill')!.getBoundingClientRect();
+    expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
   });
 });
 
