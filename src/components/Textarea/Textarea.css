@@ -51,6 +51,9 @@
 .dk-textarea:focus-within { transition-duration: var(--duration-0); --dk-ta-bd: var(--dk-ta-ring); box-shadow: 0 0 0 var(--textarea-border-width, var(--border-width-1)) var(--dk-ta-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-textarea--invalid { --dk-ta-bd: var(--textarea-invalid, var(--danger)); --dk-ta-ring: var(--textarea-invalid, var(--danger)); }
 @media (hover: hover) { .dk-textarea--invalid:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
+/* A native constraint that fails after people edit it or try to send the form: as Input (:user-invalid). */
+.dk-textarea:has(.dk-textarea__field:user-invalid) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); --dk-ta-ring: var(--textarea-invalid, var(--danger)); }
+@media (hover: hover) { .dk-textarea:has(.dk-textarea__field:user-invalid):hover:not(:focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
 .dk-textarea--readonly { background: var(--textarea-bg-readonly, var(--surface-muted)); }
 /* Disabled by the prop, or by a <fieldset disabled> around it (the native field follows that on its own). */
 .dk-textarea--disabled, .dk-textarea:where(:has(.dk-textarea__field:disabled)) { background: var(--textarea-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }

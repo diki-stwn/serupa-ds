@@ -46,6 +46,10 @@
 .dk-input:focus-within { transition-duration: var(--duration-0); --dk-input-bd: var(--dk-input-ring); box-shadow: 0 0 0 var(--input-border-width, var(--border-width-1)) var(--dk-input-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-input--invalid { --dk-input-bd: var(--input-invalid, var(--danger)); --dk-input-ring: var(--input-invalid, var(--danger)); }
 @media (hover: hover) { .dk-input--invalid:hover:not(.dk-input--disabled, :has(.dk-input__field:disabled), .dk-input--readonly, :focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
+/* A native constraint (required, type="email", pattern, min…) that fails after people edit the field or try to send the
+   form takes the invalid look too (:user-invalid, never on first paint). Separate rules, so a browser without it skips only these. */
+.dk-input:has(.dk-input__field:user-invalid) { --dk-input-bd: var(--input-invalid, var(--danger)); --dk-input-ring: var(--input-invalid, var(--danger)); }
+@media (hover: hover) { .dk-input:has(.dk-input__field:user-invalid):hover:not(:focus-within) { --dk-input-bd: var(--input-invalid, var(--danger)); } }
 .dk-input--readonly { background: var(--input-bg-readonly, var(--surface-muted)); }
 /* Disabled by the prop, or by a <fieldset disabled> around it (the native field follows that on its own). */
 .dk-input--disabled, .dk-input:where(:has(.dk-input__field:disabled)) { background: var(--input-bg-readonly, var(--surface-muted)); opacity: var(--opacity-disabled); cursor: not-allowed; }

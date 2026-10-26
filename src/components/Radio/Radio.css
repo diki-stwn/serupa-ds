@@ -48,6 +48,9 @@
 /* Invalid (the radio's own prop or its group's): a danger border while unchecked, and a danger focus ring. */
 .dk-radio--invalid .dk-radio__input { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
 @media (hover: hover) { .dk-radio--invalid:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
+/* A required group with nothing picked once people try to send the form: as Input (:user-invalid). */
+.dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
+@media (hover: hover) { .dk-radio:hover .dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
 .dk-radio__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-radio__description { color: var(--radio-description-color, var(--text-muted)); }
 /* Disabled, by its own prop, the group's or a disabled fieldset (Field group). */
