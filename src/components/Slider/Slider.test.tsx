@@ -378,3 +378,23 @@ describe('Slider', () => {
     expect(low).toEqual([]);
   });
 });
+
+describe('Slider at 320px (GM2)', () => {
+  test('the value chip and the end labels stay inside the slider: nothing widens the page, in either direction, shown or hidden', async () => {
+    const money = (v: number) => 'IDR ' + (v * 10000).toLocaleString('en-US') + ' per month';
+    const marks = [{ value: 0, label: 'Nothing at all' }, { value: 50, label: 'Half' }, { value: 100, label: 'Everything there is' }];
+    await render(<div id="gm2" style={{ width: '288px' }}>
+      <Slider id="gm2-l" aria-label="Budget" defaultValue={100} showValue formatValue={money} marks={marks} />
+      <div dir="rtl"><Slider id="gm2-r" aria-label="Budget" defaultValue={0} showValue formatValue={money} marks={marks} /></div>
+    </div>);
+    for (const id of ['gm2-l', 'gm2-r']) {
+      const box = el(id).getBoundingClientRect();
+      const parts = [...el(id).querySelectorAll<HTMLElement>('.dk-slider__value > span, [aria-hidden] > span > span')].map((p) => p.getBoundingClientRect());
+      expect([parts.length, parts.every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5)]).toEqual([4, true]);
+    }
+    expect(el('gm2').scrollWidth).toBe(288);
+    // The middle label stays centered on its point.
+    const half = [...el('gm2-l').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')][1].getBoundingClientRect(), t = el('gm2-l').querySelector('.dk-slider__track')!.getBoundingClientRect();
+    expect(Math.round(half.left + half.width / 2)).toBe(Math.round(t.left + t.width / 2));
+  });
+});
