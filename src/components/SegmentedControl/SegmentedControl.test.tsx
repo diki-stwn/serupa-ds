@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { SegmentedControl, type SegmentedControlOption } from './SegmentedControl';
 
@@ -273,5 +274,26 @@ describe('SegmentedControl', () => {
       await expect.poll(() => css(seg('sp')).scale).toBe('none');
       await press(seg('sr'), () => expect(css(seg('sr')).scale).toBe('none'));
     });
+  });
+  test('a new choice slides the indicator from the last one on translate and scale, not left and width, and it comes to rest on the segment (EG1)', async () => {
+    await withMotion(async () => {
+      await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
+      const [a, b] = items('sl');
+      await userEvent.click(b);
+      const moves = el('sl').querySelector('.dk-segmented__indicator')!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
+      const start = moves.find((x) => x.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
+      expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(a.offsetLeft - b.offsetLeft)]);
+      await Promise.all(moves.map((x) => x.finished));
+      expect(off('sl')).toEqual([0, 0]);
+    });
+  });
+
+  test('before the script runs, the selected segment carries the indicator\'s surface itself (FC1)', () => {
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(<SegmentedControl id="ssr" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="b" />);
+    document.body.append(host);
+    try {
+      expect([el('ssr').querySelector('.dk-segmented__indicator'), css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual([null, color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
+    } finally { host.remove(); }
   });
 });
