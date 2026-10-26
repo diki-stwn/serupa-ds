@@ -77,7 +77,9 @@ describe('Image', () => {
     // The test server sends this picture after a second (vitest.config.ts), so it is still loading at first.
     await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('slow');
-    expect([f.dataset.state, css(f.querySelector('img')).opacity, css(f).backgroundColor]).toEqual(['loading', '0', color('var(--surface-muted)')]);
+    // Hidden from the first frame after mount (server HTML shows it: below).
+    await expect.poll(() => css(f.querySelector('img')).opacity).toBe('0');
+    expect([f.dataset.state, css(f).backgroundColor]).toEqual(['loading', color('var(--surface-muted)')]);
     await expect.poll(() => box('slow').state, { timeout: 5000 }).toBe('loaded');
     await expect.poll(() => css(f.querySelector('img')).opacity).toBe('1');
   });
@@ -202,11 +204,12 @@ describe('Image', () => {
 describe('Image loading motion', () => {
   keepMotion();
 
-  test('once the script runs, a lazy picture still loading is hidden and fades in (opacity, 200ms) when it arrives; a priority one is never hidden', async () => {
+  test('once the script runs, a lazy picture still loading a frame later is hidden and fades in (opacity, 200ms) when it arrives; a priority one is never hidden', async () => {
     await render(<><Pic id="lazy" alt="Lazy" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />
       <Pic id="hero" alt="Hero" ratio="square" priority src={`/__slow-picture__.svg?${crypto.randomUUID()}`} /></>);
     const img = (id: string) => frame(id).querySelector('img')!;
-    expect([frame('lazy').dataset.state, css(img('lazy')).opacity, frame('hero').dataset.state, css(img('hero')).opacity]).toEqual(['loading', '0', 'loading', '1']);
+    await expect.poll(() => css(img('lazy')).opacity).toBe('0');
+    expect([frame('lazy').dataset.state, frame('hero').dataset.state, css(img('hero')).opacity]).toEqual(['loading', 'loading', '1']);
     await expect.poll(() => frame('lazy').dataset.state, { timeout: 5000 }).toBe('loaded');
     expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
   });
