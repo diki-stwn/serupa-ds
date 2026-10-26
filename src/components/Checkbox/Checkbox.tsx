@@ -197,9 +197,9 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
     nameRef(node);
     setRef(ref, node);
   }, [ref, nameRef]);
-  // every render: a click clears it natively. The server markup can't carry the DOM property, so the box also renders
-  // data-indeterminate, which draws the dash until this runs (GI3); from then on the property alone draws it.
-  useIsoLayoutEffect(function () { const i = own.current; if (i) { i.indeterminate = mixed; i.removeAttribute("data-indeterminate"); } });
+  // The server markup can't carry the DOM property, so the box also renders data-indeterminate, which draws the
+  // dash until this runs (GI3); from then on the property alone draws it.
+  useIsoLayoutEffect(function () { const i = own.current; if (i) { i.indeterminate = mixed; i.removeAttribute("data-indeterminate"); } });   // every render: a click clears it natively
   const said = React.useRef(false);   // only clears a message it set
   // every render: whether the group needs a box checked changes with any box's state, not with this box's props.
   useIsoLayoutEffect(function () {
