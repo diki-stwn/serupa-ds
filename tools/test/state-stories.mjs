@@ -28,7 +28,6 @@ const KNOWN = {
   NumberInput: ['invalid', 'readOnly'],
   PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
-  Rating: ['invalid'],
   SearchInput: ['invalid', 'readOnly'],
   TimePicker: ['readOnly'],
 };

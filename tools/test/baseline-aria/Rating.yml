@@ -28,6 +28,16 @@
   - radio "4 stars"
   - radio "5 stars"
 
+# Invalid
+- text: How was your stay?
+- radiogroup "How was your stay?" [invalid]:
+  - radio "1 star"
+  - radio "2 stars"
+  - radio "3 stars"
+  - radio "4 stars"
+  - radio "5 stars"
+- text: Pick a rating to send your review.
+
 # Overflow
 - radiogroup "Your rating":
   - radio "1 star"
