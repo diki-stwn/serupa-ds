@@ -70,7 +70,7 @@ const [stars, setStars] = React.useState<number | null>(null);
 | `clearable` | `boolean` | `false` | Picking the current rating again, Backspace or Delete clears it. |
 | `readOnly` | `boolean` | `false` | Shows the rating as one image, with no choices; any fraction is drawn. |
 | `disabled` | `boolean` | `false` | Disables every choice. |
-| `invalid` | `boolean` | `false` | `aria-invalid` on the group. Field sets it from its error. |
+| `invalid` | `boolean` | `false` | `aria-invalid` on the group, and the empty stars turn the danger color (`--rating-invalid`). Field sets it from its error. |
 | `name` | `string` | a generated one | Sends the rating with a form. |
 | `form` | `string` | | The id of a form elsewhere on the page that the radios belong to. |
 | `required` | `boolean` | `false` | Marks the radios required. |

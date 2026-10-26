@@ -25,6 +25,18 @@ afterEach(() => { expect(errors).not.toHaveBeenCalled(); errors.mockRestore(); }
 const Wrap = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US"><div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>{children}</div></SerupaProvider>;
 
 describe('PhoneInput', () => {
+  test('a press on the box past the number field focuses it with the caret at the end; a disabled box stays put (GG2)', async () => {
+    await render(<Wrap><PhoneInput id="bx" size="lg" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" />
+      <PhoneInput id="bx-off" size="lg" aria-label="Off" disabled /><button id="bx-away">away</button></Wrap>);
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    (document.getElementById('bx-away') as HTMLElement).focus();
+    await userEvent.click(box('bx'), { position: { x: b.width - 2, y } });
+    expect([document.activeElement === field('bx'), field('bx').selectionStart]).toEqual([true, field('bx').value.length]);
+    (document.getElementById('bx-away') as HTMLElement).focus();
+    await userEvent.click(box('bx-off'), { position: { x: b.width - 4, y }, force: true });
+    expect(document.activeElement).not.toBe(field('bx-off'));
+  });
+
   test('Input\'s box around a country menu and a tel field (tel-national, inputmode tel); ref to the field, className and style to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="ID" ref={ref} className="extra" style={{ marginTop: '2px' }} /></Wrap>);
