@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
@@ -49,7 +49,7 @@ const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, title: 1, description: 1
 /** A modal dialog on the native <dialog>: a title, content and actions, over a dimmed page. */
 export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>("Dialog", function Dialog(props, ref) {
   const nameRef = useNameCheck("Dialog", NAME_HOW.title);   // warns when it has no accessible name
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, OWN);
   const base = domId("dk-dlg", React.useId());
   const el = React.useRef<HTMLDialogElement | null>(null);
