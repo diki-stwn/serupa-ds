@@ -40,7 +40,7 @@ const [open, setOpen] = React.useState(false);
 - With `modal={false}` it's opened with `show()` instead: no backdrop, the page stays usable and scrolls, focus moves inside but can leave it, and it isn't on the modal stack. Escape with focus inside it and the × close it; closing moves focus back only if focus was still inside.
 - Left and right drawers are full height. Top and bottom drawers are full width, as tall as their content up to the screen less 64px, and rounded on the open side.
 - The body scrolls on its own, so the header and footer stay in view. While it scrolls it takes Tab focus (with a focus ring), so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
-- It slides in over 300ms, and appears at once with `prefers-reduced-motion`.
+- It slides in over 300ms, and slides back out to its edge over 200ms. With `prefers-reduced-motion` it fades instead of sliding. The motion is a transition, so closing it while it slides in turns back from where it is. Focus goes back to what opened it at once, not after the slide, and presses reach the page while it leaves. A swipe moves the panel with the finger; let go short and it slides back, far enough and it slides out from where it is. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing modal drawer in the top layer yet, so there it closes at once; a non-modal one slides out everywhere.
 
 - On a phone with a notch or a home bar, the panel's padding and the footer clear them. This needs `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`; without `viewport-fit=cover` the browser keeps the page out of those areas itself.
 - Scrolling to the end of the body doesn't scroll the page behind it (`overscroll-behavior: contain`).
@@ -104,4 +104,4 @@ Each is an optional override: set it on the page, a container or one drawer. The
 | `--drawer-border-width` | `border-width-1` | The line above the footer (1px). |
 | `--drawer-radius` | `rounded-xl` | The corners on the open side of a top or bottom drawer (12px). |
 | `--drawer-title-weight` | `font-semibold` | The title's weight (600). |
-| `--drawer-duration` | `duration-300` | Sliding in (300ms). |
+| `--drawer-duration` | `duration-300` | Sliding in (300ms). Sliding out takes `motion-exit-lg` (200ms). |

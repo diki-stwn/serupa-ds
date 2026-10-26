@@ -95,6 +95,13 @@ describe('Tabs', () => {
     expect(state('ctl')).toMatch(/^One Two \*Three0/);
   });
 
+  test('keyboard table: Space selects the focused tab, as Enter does (FH1)', async () => {
+    await setup();
+    selected('dis').focus();
+    await userEvent.keyboard('{ArrowRight}[Space]');
+    expect(state('dis')).toMatch(/^One Two \*Three0/);
+  });
+
   test('manual activation: arrows only move (skipping a disabled tab), Enter selects', async () => {
     await setup();
     selected('dis').focus();
