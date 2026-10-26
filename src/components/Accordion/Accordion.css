@@ -32,17 +32,19 @@
    otherwise) its clip opens from the top over --accordion-duration with ease-enter. Closed: it keeps its height while
    it fades and folds back up over motion-exit-md with ease-exit; content-visibility turns hidden at the end
    (allow-discrete), which takes the height away. Transitions, so a quick second press turns back from where it is. */
+/* Closing: content-visibility waits out the fold (0s after a delay), so the panel keeps its height to the end;
+   as a plain discrete transition WebKit flips it halfway. */
 .dk-accordion__panel {
   --dk-accordion-motion: var(--motion-exit-md) var(--ease-exit);
   visibility: hidden; opacity: var(--opacity-0); content-visibility: hidden;
-  transition: opacity var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility var(--motion-exit-md) allow-discrete;
+  transition: opacity var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility 0s var(--motion-exit-md) allow-discrete;
 }
 .dk-accordion__item--open > .dk-accordion__panel {
   --dk-accordion-motion: var(--accordion-duration, var(--motion-change-md)) var(--ease-enter);
   visibility: visible; opacity: var(--opacity-100); content-visibility: visible; transition: opacity var(--dk-accordion-motion);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .dk-accordion__panel { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full)); transition: opacity var(--dk-accordion-motion), clip-path var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility var(--motion-exit-md) allow-discrete; }
+  .dk-accordion__panel { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full)); transition: opacity var(--dk-accordion-motion), clip-path var(--dk-accordion-motion), visibility var(--motion-exit-md), content-visibility 0s var(--motion-exit-md) allow-discrete; }
   .dk-accordion__item--open > .dk-accordion__panel { clip-path: inset(var(--spacing-0)); transition: opacity var(--dk-accordion-motion), clip-path var(--dk-accordion-motion); }
 }
 /* Closed and settled: hidden="until-found" hides the content (content-visibility) and lets find-in-page reach it,

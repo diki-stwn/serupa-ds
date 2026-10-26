@@ -103,6 +103,12 @@ describe('Accordion', () => {
     await userEvent.click(trigger('adef', 1));
     expect(runs().map(([p, d]) => `${String(p)} ${String(d)}`).filter((x) => /opacity|clip-path/.test(x))).toEqual(['clip-path 150', 'opacity 150']);
     expect(pn.getBoundingClientRect().height).toBe(full);
+    // Two thirds of the way through the fold the panel still has its height (WebKit flips a discrete
+    // content-visibility transition halfway, unless it waits out a delay).
+    const fold = pn.getAnimations();
+    fold.forEach((a) => { a.pause(); a.currentTime = 100; });
+    expect(pn.getBoundingClientRect().height).toBe(full);
+    fold.forEach((a) => a.play());
     await settled('adef');
     await expect.poll(() => pn.getBoundingClientRect().height).toBe(0);
     expect(pn.getAnimations().map((a) => (a as CSSTransition).transitionProperty).filter((p) => /height|grid|width|padding/.test(p))).toEqual([]);
