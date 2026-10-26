@@ -23,7 +23,6 @@ const KNOWN = {
   Badge: ['disabled'],
   ColorPicker: ['disabled', 'invalid'],
   DateRangePicker: ['invalid', 'readOnly'],
-  NumberInput: ['disabled', 'invalid', 'readOnly'],
   PhoneInput: ['readOnly'],
   PinInput: ['readOnly'],
   SegmentedControl: ['disabled'],
