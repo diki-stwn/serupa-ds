@@ -8418,6 +8418,36 @@
         }
       }
     },
+    "motion-change-sm": {
+      "$type": "duration",
+      "$value": "{transitions.duration-150}",
+      "$description": "A small part changing in place: a chevron turning, a slider thumb growing, a dot widening, a row gliding to its place.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-change-sm"
+        }
+      }
+    },
+    "motion-change-md": {
+      "$type": "duration",
+      "$value": "{transitions.duration-200}",
+      "$description": "A panel opening or collapsing in place, or an indicator sliding to the selected option: Accordion, Sidebar, SegmentedControl.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-change-md"
+        }
+      }
+    },
+    "motion-change-lg": {
+      "$type": "duration",
+      "$value": "{transitions.duration-300}",
+      "$description": "Something travelling far on screen: a progress or meter fill moving to its value, a carousel slide.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-change-lg"
+        }
+      }
+    },
     "motion-loop-spinner": {
       "$type": "duration",
       "$value": "{transitions.duration-1000}",
@@ -8435,6 +8465,46 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--motion-loop-placeholder"
+        }
+      }
+    },
+    "motion-loop-blink": {
+      "$type": "duration",
+      "$value": "{transitions.duration-1000}",
+      "$description": "One blink of a text caret: PinInput.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-loop-blink"
+        }
+      }
+    },
+    "motion-loop-progress": {
+      "$type": "duration",
+      "$value": "{transitions.duration-1200}",
+      "$description": "One pass of an indeterminate progress bar.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-loop-progress"
+        }
+      }
+    },
+    "motion-ripple": {
+      "$type": "duration",
+      "$value": "{transitions.duration-500}",
+      "$description": "A press ripple spreading out from the pointer: Button and Badge.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-ripple"
+        }
+      }
+    },
+    "motion-ripple-fade": {
+      "$type": "duration",
+      "$value": "{transitions.duration-300}",
+      "$description": "A press ripple fading once it has spread.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-ripple-fade"
         }
       }
     },
@@ -8465,6 +8535,16 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-move"
+        }
+      }
+    },
+    "ease-settle": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-out}",
+      "$description": "Something answering the hand or arriving at a new value: a press, a fill, a slide let go. Fast at first, settling at the end.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-settle"
         }
       }
     }

@@ -24,7 +24,7 @@
 .dk-image--cover .dk-image__img { object-fit: cover; }
 .dk-image--contain .dk-image__img { object-fit: contain; }
 .dk-image--loading .dk-image__img { opacity: var(--opacity-0); }
-.dk-image--loading { animation: dk-image-pulse var(--duration-1000) var(--ease-in-out) infinite alternate; }
+.dk-image--loading { animation: dk-image-pulse var(--motion-loop-placeholder) var(--ease-move) infinite alternate; }
 @keyframes dk-image-pulse { to { opacity: var(--opacity-60); } }
 .dk-image__fallback { position: absolute; inset: var(--spacing-0); display: flex; align-items: center; justify-content: center; color: var(--image-fallback-color, var(--text-muted)); }
 .dk-image__fallback .dk-icon { font-size: var(--image-fallback-icon, var(--spacing-6)); }

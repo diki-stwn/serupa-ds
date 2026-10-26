@@ -985,11 +985,19 @@
   --motion-exit-sm: var(--duration-100); /* A small surface leaving. An exit takes about two thirds of its enter, so what was closed gets out of the way. */
   --motion-exit-md: var(--duration-150); /* A medium surface leaving: dialogs and toasts. */
   --motion-exit-lg: var(--duration-200); /* A large surface leaving: drawers and sheets. */
+  --motion-change-sm: var(--duration-150); /* A small part changing in place: a chevron turning, a slider thumb growing, a dot widening, a row gliding to its place. */
+  --motion-change-md: var(--duration-200); /* A panel opening or collapsing in place, or an indicator sliding to the selected option: Accordion, Sidebar, SegmentedControl. */
+  --motion-change-lg: var(--duration-300); /* Something travelling far on screen: a progress or meter fill moving to its value, a carousel slide. */
   --motion-loop-spinner: var(--duration-1000); /* One turn of a spinner: Button, Switch and the circular Progress while they load. */
   --motion-loop-placeholder: var(--duration-1000); /* One pass of a loading placeholder's pulse: Image while it loads. */
+  --motion-loop-blink: var(--duration-1000); /* One blink of a text caret: PinInput. */
+  --motion-loop-progress: var(--duration-1200); /* One pass of an indeterminate progress bar. */
+  --motion-ripple: var(--duration-500); /* A press ripple spreading out from the pointer: Button and Badge. */
+  --motion-ripple-fade: var(--duration-300); /* A press ripple fading once it has spread. */
   --ease-enter: var(--ease-out); /* Something appearing: fast at first, settling at the end. */
   --ease-exit: var(--ease-in); /* Something leaving: slow at first, then out of the way. */
   --ease-move: var(--ease-in-out); /* Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. */
+  --ease-settle: var(--ease-out); /* Something answering the hand or arriving at a new value: a press, a fill, a slide let go. Fast at first, settling at the end. */
   --transition: opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events; /* `transition` (default) animates `transition-colors` plus these: opacity, shadow, transforms, filters and discrete properties like display. */
   --transition-colors: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --dk-gradient-from, --dk-gradient-via, --dk-gradient-to; /* `transition-colors`: hover and focus color changes, gradients included. */
   --transition-opacity: opacity; /* `transition-opacity`: fades. */

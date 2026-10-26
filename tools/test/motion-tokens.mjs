@@ -17,27 +17,7 @@ const RAW_EASE = /(?<![\w-])(?:linear|ease|ease-in|ease-out|ease-in-out)(?![\w-]
 // under the queue item that moves it onto a role; a KNOWN token no longer used fails too.
 const SCALE = /var\(--((?:duration-(?!0\))\d+)|ease-(?:in-out|in|out))\)/g;
 const KNOWN = Object.fromEntries(Object.entries({
-  Accordion: ['duration-200', 'ease-in-out'],   // the chevron turning and the panel opening: a change in place
-  Badge: ['ease-in-out', 'duration-500', 'duration-300', 'ease-out'],   // loading cross-fade, ripple
-  Button: ['ease-out', 'duration-150', 'ease-in-out', 'duration-500', 'duration-300'],   // press easing, loading, nudge, ripple
-  Card: ['ease-out'],   // the press
-  Carousel: ['duration-300', 'ease-out', 'duration-150'],   // the slides and the dots moving
-  Checkbox: ['ease-out'],   // the press
-  Combobox: ['duration-150', 'ease-in-out'],   // the chevron turning
-  Drawer: ['ease-out'],   // settling after a swipe
-  Image: ['duration-1000', 'ease-in-out'],   // the loading pulse
-  Loader: ['duration-1000', 'duration-500', 'ease-in-out', 'duration-1200', 'duration-150', 'duration-300', 'duration-75', 'duration-200', 'duration-100', 'duration-700'],   // loops
-  Meter: ['duration-300', 'ease-out'],   // the fill
-  PinInput: ['duration-1000', 'ease-in-out'],   // the caret blinking
-  Progress: ['duration-300', 'ease-out', 'duration-1200', 'ease-in-out'],   // the fill and the indeterminate slide
-  Radio: ['ease-out'],   // the press
-  SegmentedControl: ['duration-200', 'ease-out'],   // the indicator sliding, the press
-  Sidebar: ['duration-200', 'ease-in-out'],   // collapsing, the chevron turning
-  Slider: ['duration-150', 'ease-out'],   // the thumb growing, the value bubble
-  SortableList: ['duration-150'],   // rows gliding to their place
-  Stepper: ['ease-out'],   // the press
-  Switch: ['ease-out'],   // the press
-  TreeView: ['duration-200', 'ease-in-out'],   // the chevron turning
+  Loader: ['duration-1000', 'duration-500', 'ease-in-out', 'duration-1200', 'duration-150', 'duration-300', 'duration-75', 'duration-200', 'duration-100', 'duration-700'],   // its own art and rhythms: each animation is a sum of scale steps, tuned per variant
 }).flatMap(([c, ts]) => ts.map((t) => [`${c}:${t}`, 'FI1'])));
 
 const dir = path.join(PROJECT, 'src', 'components');
@@ -63,7 +43,7 @@ for (const name of fs.readdirSync(dir).sort()) {
 
 const tokens = JSON.parse(fs.readFileSync(path.join(PROJECT, 'tokens.json'), 'utf8')).transitions.tokens;
 const names = new Set(tokens.map((t) => t.name));
-const ROLES = ['motion-press', 'motion-hover', 'motion-enter-sm', 'motion-enter-md', 'motion-enter-lg', 'motion-exit-sm', 'motion-exit-md', 'motion-exit-lg', 'motion-loop-spinner', 'motion-loop-placeholder', 'ease-enter', 'ease-exit', 'ease-move'];
+const ROLES = ['motion-press', 'motion-hover', 'motion-enter-sm', 'motion-enter-md', 'motion-enter-lg', 'motion-exit-sm', 'motion-exit-md', 'motion-exit-lg', 'motion-change-sm', 'motion-change-md', 'motion-change-lg', 'motion-loop-spinner', 'motion-loop-placeholder', 'motion-loop-blink', 'motion-loop-progress', 'motion-ripple', 'motion-ripple-fade', 'ease-enter', 'ease-exit', 'ease-move', 'ease-settle'];
 const roles = ROLES.map((r) => [r, tokens.find((t) => t.name === r)]);
 const badRoles = roles.filter(([, t]) => !t || !/^\{(?:duration|ease)-[\w-]+\}$/.test(t.value) || !names.has(t.value.slice(1, -1))).map(([r, t]) => `${r}: ${t ? t.value : 'missing'}`);
 const value = (n) => { const t = tokens.find((x) => x.name === n); const v = t.value.slice(1, -1); return parseInt(tokens.find((x) => x.name === v)?.value, 10); };
@@ -72,7 +52,7 @@ const exitsShorter = ['sm', 'md', 'lg'].filter((s) => !(badRoles.length === 0 &&
 done(report('Motion tokens', [
   { name: 'component CSS takes its durations, delays and easings from the motion tokens', ok: found.length === 0, detail: `raw values: ${found.join(' | ')}. Use a motion role (motion-enter-sm, ease-enter, …) or a duration-*/ease-* token` },
   ...[...scale].map(([k, at]) => ({ name: KNOWN[k] ? `${k.replace(':', ': ')} from the scale, not a role yet (${KNOWN[k]})` : `${k.replace(':', ': ')} comes from a motion role`, ok: !!KNOWN[k],
-    detail: `${at} uses var(--${k.split(':')[1]}): use the role for what moves (motion-hover with ease-move for a hover color, motion-enter-sm with ease-enter for a popup, …)` })),
+    detail: `${at} uses var(--${k.split(':')[1]}): use the role for what moves (motion-hover with ease-move for a hover color, motion-enter-sm with ease-enter for a popup, motion-change-md for a panel opening, ease-settle for a press, …)` })),
   ...Object.keys(KNOWN).filter((k) => !scale.has(k)).map((k) => ({ name: `${k.replace(':', ': ')} still from the scale`, ok: false, detail: 'it uses a role now; take it out of KNOWN in tools/test/motion-tokens.mjs' })),
   { name: 'every motion role names a token of the duration or easing scale', ok: badRoles.length === 0, detail: badRoles.join(', ') },
   { name: 'each exit is shorter than its enter', ok: exitsShorter.length === 0, detail: `motion-exit-${exitsShorter.join(', motion-exit-')}` },

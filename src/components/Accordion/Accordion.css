@@ -25,11 +25,11 @@
 .dk-accordion--card .dk-accordion__trigger:focus-visible { outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-accordion__trigger:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-accordion__trigger[aria-disabled="true"] { cursor: default; }
-.dk-accordion__icon.dk-icon { flex-shrink: 0; color: var(--accordion-icon-color, var(--text-muted)); font-size: var(--accordion-icon-size, var(--spacing-5)); transition: rotate var(--accordion-duration, var(--duration-200)) var(--ease-in-out); }
+.dk-accordion__icon.dk-icon { flex-shrink: 0; color: var(--accordion-icon-color, var(--text-muted)); font-size: var(--accordion-icon-size, var(--spacing-5)); transition: rotate var(--accordion-duration, var(--motion-change-md)) var(--ease-move); }
 .dk-accordion__item--open > .dk-accordion__heading .dk-accordion__icon { rotate: var(--dk-accordion-turn); }
 .dk-accordion__panel {
   display: grid; grid-template-rows: 0fr; visibility: hidden;
-  transition: grid-template-rows var(--accordion-duration, var(--duration-200)) var(--ease-in-out), visibility var(--accordion-duration, var(--duration-200));
+  transition: grid-template-rows var(--accordion-duration, var(--motion-change-md)) var(--ease-move), visibility var(--accordion-duration, var(--motion-change-md));
 }
 .dk-accordion__item--open > .dk-accordion__panel { grid-template-rows: 1fr; visibility: visible; }
 /* Closed and settled: hidden="until-found" hides the content (content-visibility) and lets find-in-page reach it,
