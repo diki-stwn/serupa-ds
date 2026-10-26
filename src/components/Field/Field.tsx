@@ -20,7 +20,7 @@ export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'chi
   hint?: React.ReactNode;
   /** An error message under the control (danger-text, with an icon); makes the control invalid and is added to its aria-describedby. */
   error?: React.ReactNode;
-  /** A * after the label (hidden from screen readers) and aria-required on the control. Add the control's own required for the browser's check. */
+  /** A * after the label (hidden from screen readers) and aria-required on the control; with group, "Required" in words in the legend for screen readers. Add the control's own required for the browser's check. */
   required?: boolean;
   /** "(optional)" after the label, or your own words. Ignored with required. */
   optional?: boolean | string;
@@ -81,6 +81,9 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   };
   const labelKids = [props.label,
     props.required ? <span className="dk-field__required" aria-hidden key="req">*</span> : null,
+    // A fieldset can't carry aria-required, and the * is hidden: with group, the legend says it in words (FR1), so the
+    // group is read as "Contact by, Required" whatever it holds.
+    props.required && group ? <span className="dk-visually-hidden" key="req-said">{" " + sds.labels.required}</span> : null,
     !props.required && props.optional ? <span className="dk-field__optional" key="opt">{typeof props.optional === "string" ? props.optional : sds.labels.fieldOptional}</span> : null];
   const label = props.label == null ? null : group
     ? React.createElement("legend", { className: "dk-field__label", key: "label" }, ...labelKids)

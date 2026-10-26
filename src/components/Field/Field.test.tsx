@@ -2,12 +2,13 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { css, lowContrast } from '../../../tools/test/vitest/helpers';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { Combobox } from '../Combobox/Combobox';
 import { SegmentedControl } from '../SegmentedControl/SegmentedControl';
 import { Slider } from '../Slider/Slider';
 import { Input } from '../Input/Input';
+import { Radio, RadioGroup } from '../Radio/Radio';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Textarea } from '../Textarea/Textarea';
 import { Field } from './Field';
@@ -132,6 +133,19 @@ describe('Field', () => {
     expect(css(fs).borderTopWidth).toBe('0px');
     expect(fs.querySelector('.dk-field__hint')!.getBoundingClientRect().top).toBeGreaterThanOrEqual(legend.getBoundingClientRect().bottom);
     expect(el('c1').matches(':disabled')).toBe(true);
+  });
+
+  test('group required: the * stays hidden and the legend says "Required" in words, so the group is read as required whatever it holds; in the provider\'s words; not shown (FR1)', async () => {
+    await render(<>
+      <Field group required label="Contact by"><RadioGroup><Radio value="e">Email</Radio><Radio value="p">Phone</Radio></RadioGroup></Field>
+      <Field group required label="Extras"><label><input type="checkbox" id="x1" />Gift wrap</label></Field>
+      <SerupaProvider labels={idLabels}><Field group required label="Kontak"><label><input type="checkbox" />Surel</label></Field></SerupaProvider>
+      <Field group label="Optional set"><label><input type="checkbox" />Nothing</label></Field>
+    </>);
+    for (const name of ['Contact by Required', 'Extras Required', 'Kontak Wajib diisi']) await expect.element(page.getByRole('group', { name, exact: true })).toBeInTheDocument();
+    await expect.element(page.getByRole('group', { name: 'Optional set', exact: true })).toBeInTheDocument();
+    const legend = el('x1').closest('fieldset')!.querySelector('legend')!, said = legend.lastElementChild as HTMLElement;
+    expect([css(said).position, Math.round(said.getBoundingClientRect().width) <= 1]).toEqual(['absolute', true]);
   });
 
   test('no React warnings', async () => {
