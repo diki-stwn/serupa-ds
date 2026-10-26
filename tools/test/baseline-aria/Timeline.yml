@@ -36,6 +36,16 @@
     - text: Info
     - time: Last week
 
+# LongText
+- list "Order history":
+  - listitem:
+    - text: Order placed for delivery to the warehouse on the far side of town
+    - time: 12 Mar, 09:14
+    - text: Two items, paid by card. Donaudampfschifffahrtsgesellschaftskapitänskajüte.
+  - listitem:
+    - text: Donaudampfschifffahrtsgesellschaftskapitänskajüte
+    - time: 13 Mar, 18:40
+
 # Playground
 - list "Order history":
   - listitem:

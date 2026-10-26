@@ -25,6 +25,15 @@
       - text: Linus Torvalds linus@example.com
     - button "More for Linus Torvalds"
 
+# LongText
+- list "Members":
+  - listitem:
+    - img "Maria Magdalena von Hohenzollern"
+    - text: Maria Magdalena von Hohenzollern-Sigmaringen maria.magdalena.hohenzollern@example.com Administrator
+  - listitem:
+    - img "Grace Hopper"
+    - text: Donaudampfschifffahrtsgesellschaftskapitänskajüte no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example Editor
+
 # Playground
 - list "Members":
   - listitem:

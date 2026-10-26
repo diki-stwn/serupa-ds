@@ -22,6 +22,9 @@
 - button "Upload" [disabled]
 - button "Upload" [disabled]
 
+# LongLabel
+- button "Create a new project from a template"
+
 # Playground
 - button "New project"
 

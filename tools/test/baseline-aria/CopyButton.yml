@@ -1,6 +1,9 @@
 # IconOnly
 - button "Copy the API key"
 
+# LongLabel
+- button "Copy the secret API key to the clipboard"
+
 # Playground
 - button "Copy"
 

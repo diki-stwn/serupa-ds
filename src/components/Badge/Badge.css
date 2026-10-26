@@ -159,6 +159,7 @@
 @media (prefers-reduced-motion: reduce) {
   .dk-badge { --dk-badge-press: var(--scale-100); --dk-badge-loader-from: var(--scale-100); }
   .dk-badge__ripples { display: none; }
+  .dk-badge__loader { animation-name: dk-loader-in; }   /* only fades in: nothing grows */
 }
 /* Indicator: <Badge dot /> with no label, icon or count. A lone dot ("something new", no number) in the tone's solid
    fill (whatever the variant), 8px, with a ring in the surface color so it stays apart from

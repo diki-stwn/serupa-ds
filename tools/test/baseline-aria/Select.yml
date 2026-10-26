@@ -2,6 +2,13 @@
 - combobox "Country":
   - option "Pick a plan" [disabled] [selected]
 
+# LongOptions
+- combobox "Country":
+  - option "Choose a country" [disabled]
+  - option "The Democratic Republic of São Tomé and Príncipe" [selected]
+  - option "Saint Vincent and the Grenadines"
+  - option "Donaudampfschifffahrtsgesellschaftskapitänskajüte"
+
 # Playground
 - combobox "Country":
   - option "Choose a country" [disabled] [selected]
