@@ -276,6 +276,7 @@ describe('Table: stickyHeader and focus', () => {
     const covered: number[] = [];
     for (let i = 38; i >= 0; i--) {
       await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+      await new Promise((r) => requestAnimationFrame(r));   // where it is by the next frame, which is what people see
       expect(document.activeElement!.id).toBe('e' + i);
       // The header cells are what stick (the <thead> box itself scrolls away).
       if (document.activeElement!.getBoundingClientRect().top < head.querySelector('th')!.getBoundingClientRect().bottom - 1) covered.push(i);

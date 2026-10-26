@@ -14,9 +14,10 @@ if (arg('--browser')) process.env.SERUPA_BROWSER = arg('--browser');
 if (arg('--locale')) process.env.SERUPA_LOCALE = arg('--locale');
 // A full run on CI (main, the merge queue) runs the component tests a second time with the browser in one of these
 // languages, picked by the commit, so a component that reads the browser's language where it should take the
-// provider's, or a test that expects English without saying so, fails within a few merges. Right-to-left, comma
-// decimals, Thai and Japanese scripts. To repeat one: node tools/test/run.mjs --group components --locale id-ID.
-const LOCALES = ['ar', 'id-ID', 'th', 'ja'];
+// provider's, or a test that expects English without saying so, fails within a few merges. Right-to-left with Arabic
+// digits (ar-EG: Chromium writes plain ar in Latin ones, WebKit doesn't), comma decimals, Thai and Japanese scripts.
+// To repeat one: node tools/test/run.mjs --group components --locale id-ID.
+const LOCALES = ['ar-EG', 'id-ID', 'th', 'ja'];
 // The visual and Storybook steps, by group. They drive a browser through every preview and story, sharded across
 // CI jobs, so they stay scripts of their own.
 const GROUPS = {
@@ -34,7 +35,7 @@ if (arg('--since')) {
 }
 const only = onlyComponents();
 // The tests that check every story against a baseline or a rule: a change to one component can break its line in them.
-const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime', 'network', 'strictCsp', 'trustedTypes', 'activity', 'motion'].map((f) => `src/internal/${f}.test.tsx`);
+const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime', 'network', 'strictCsp', 'trustedTypes', 'activity', 'motion', 'listRole'].map((f) => `src/internal/${f}.test.tsx`);
 // They go through the covered components' stories, so with none to go through (ErrorBoundary alone: its stories are
 // left out there, SKIP in vitest/stories.tsx) most would find no test at all and fail for it.
 const storied = !!only && [...only].some((n) => n !== 'ErrorBoundary' && fs.existsSync(path.join(PROJECT, 'src', 'components', n, `${n}.stories.tsx`)));

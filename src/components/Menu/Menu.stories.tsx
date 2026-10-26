@@ -62,6 +62,26 @@ export const RightStart: Story = {
   name: 'Placement: right-start',
   args: { placement: 'right-start' },
 };
+export const RightEnd: Story = {
+  name: 'Placement: right-end',
+  args: { placement: 'right-end' },
+  decorators: [frame({ display: 'flex', alignItems: 'flex-end' })],
+};
+export const Left: Story = {
+  name: 'Placement: left',
+  args: { placement: 'left' },
+  decorators: [frame({ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' })],
+};
+export const LeftStart: Story = {
+  name: 'Placement: left-start',
+  args: { placement: 'left-start' },
+  decorators: [frame({ display: 'flex', justifyContent: 'flex-end' })],
+};
+export const LeftEnd: Story = {
+  name: 'Placement: left-end',
+  args: { placement: 'left-end' },
+  decorators: [frame({ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' })],
+};
 
 export const WithoutIcons: Story = {
   name: 'Without icons',

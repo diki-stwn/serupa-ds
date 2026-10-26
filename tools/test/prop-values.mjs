@@ -24,22 +24,7 @@ const NATIVE = new Set(['as', 'type', 'role', 'popoverTargetAction']);
 const real = (s) => (s.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(s) : s);
 
 // Values no story or test shows yet, each with why. One that comes to be shown fails too, so this list only shrinks.
-const GAPS = Object.fromEntries([
-  'Checkbox.orientation=horizontal',
-  'Container.size=2xl',
-  'CopyButton.size=lg', 'CopyButton.variant=link', 'CopyButton.variant=primary',
-  'Heading.size=sm', 'Heading.size=base', 'Heading.size=xl', 'Heading.size=2xl', 'Heading.size=3xl', 'Heading.size=5xl',
-  'IconButton.variant=link',
-  'Menu.placement=left', 'Menu.placement=right-end', 'Menu.placement=left-start', 'Menu.placement=left-end',
-  'Navbar.size=prose', 'Navbar.size=md', 'Navbar.size=2xl', 'Navbar.size=full',
-  'Popover.placement=top-end', 'Popover.placement=right-end', 'Popover.placement=left-start', 'Popover.placement=left-end',
-  'Stack.align=start', 'Stack.align=baseline',
-  'Table.align=center',
-  'Toast.position=top-start', 'Toast.position=bottom-center',
-  'ToggleButton.size=sm', 'ToggleButton.size=md', 'ToggleButton.size=lg',
-  'ToggleGroup.size=md',
-  'Tooltip.placement=bottom-start', 'Tooltip.placement=top-end', 'Tooltip.placement=right-end', 'Tooltip.placement=left-start', 'Tooltip.placement=left-end',
-].map((k) => [k, 'F8: no story or test shows it yet']));
+const GAPS = {};
 
 // The values a component falls back to, read from the code of its folder (not its stories or tests).
 function defaults(folder, options) {

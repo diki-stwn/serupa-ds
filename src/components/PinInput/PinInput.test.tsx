@@ -32,7 +32,7 @@ describe('PinInput', () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<PinInput id="p" ref={ref} aria-label="Code" name="code" className="extra" style={{ margin: '3px' }} data-x="y" />);
     const i = el('p'), r = root('p');
-    expect([page.getByRole('textbox', { name: 'Code' }).element() === i, ref.current === i, i.type, i.name, i.dataset.x, i.inputMode, i.autocomplete, i.pattern, r.className, r.style.margin, r.dataset.component, boxes('p').length, r.querySelector('.dk-pin-input__boxes')!.getAttribute('aria-hidden')])
+    expect([page.getByRole('textbox', { name: 'Code' }).element() === i, ref.current === i, i.type, i.name, i.dataset.x, i.inputMode, i.getAttribute('autocomplete'), i.pattern, r.className, r.style.margin, r.dataset.component, boxes('p').length, r.querySelector('.dk-pin-input__boxes')!.getAttribute('aria-hidden')])
       .toEqual([true, true, 'text', 'code', 'y', 'numeric', 'one-time-code', '[0-9]{6}', 'dk-pin-input dk-pin-input--size-md extra', '3px', 'pin-input', 6, 'true']);
   });
 

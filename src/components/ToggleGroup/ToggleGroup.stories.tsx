@@ -57,3 +57,9 @@ export const LongLabels: Story = {
   },
   render: (args) => <div style={{ width: 240 }}><ToggleGroup {...args} /></div>,
 };
+
+export const Sizes: Story = {
+  render: (args) => <div className="flex flex-col gap-3 items-start">
+    {(['sm', 'md', 'lg'] as const).map((size) => <ToggleGroup key={size} {...args} size={size} aria-label={`Text alignment, ${size}`} />)}
+  </div>,
+};

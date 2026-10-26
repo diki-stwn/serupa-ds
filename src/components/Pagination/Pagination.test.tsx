@@ -6,6 +6,9 @@ import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/
 import { SerupaProvider } from '../../internal/provider';
 import { Pagination, paginationRange } from './Pagination';
 
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
+
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (id: string, sel: string) => el(id).querySelector(sel) as HTMLElement;
 const named = (id: string, name: string) => q(id, `[aria-label="${name}"]`);
@@ -59,7 +62,7 @@ describe('Pagination', () => {
   });
 
   test('uncontrolled: starts on page 1 with previous disabled; clicking a page moves there; next moves one page on', async () => {
-    await render(<Pagination id="pdef" count={10} />);
+    await render(<Pagination id="pdef" count={10} />, { wrapper: EnUS });
     expect(shown('pdef')).toBe('(<) [1] 2 3 4 5 … 10 >');
     await userEvent.click(named('pdef', 'Page 5'));
     expect(shown('pdef')).toBe('< 1 … 4 [5] 6 … 10 >');
@@ -76,7 +79,7 @@ describe('Pagination', () => {
       const [p, setP] = React.useState(5);
       return <Pagination id="pc" count={10} page={p} onPageChange={(n) => { calls.push(n); setP(n); }} />;
     }
-    await render(<><Controlled /><Pagination id="pfixed" count={10} page={3} onPageChange={(n) => { calls.push('fixed' + n); }} /></>);
+    await render(<><Controlled /><Pagination id="pfixed" count={10} page={3} onPageChange={(n) => { calls.push('fixed' + n); }} /></>, { wrapper: EnUS });
     await userEvent.click(named('pc', 'Previous page'));
     expect(shown('pc')).toBe('< 1 2 3 [4] 5 … 10 >');
     expect(calls.join()).toBe('4');
@@ -89,7 +92,7 @@ describe('Pagination', () => {
 
   test('getHref: pages are links with your labels and rel prev/next; the next link at the end has no href and aria-disabled; a click follows the link and moves the page', async () => {
     await render(<Pagination id="plink" count={20} defaultPage={20} getHref={(n) => '#page-' + n} previousLabel="Newer" nextLabel="Older"
-      pageLabel={(n) => 'Go to ' + n} aria-label="Results" />);
+      pageLabel={(n) => 'Go to ' + n} aria-label="Results" />, { wrapper: EnUS });
     const n = el('plink');
     expect(n.getAttribute('aria-label')).toBe('Results');
     expect([...n.querySelectorAll('a')].map((a) => [a.getAttribute('aria-label'), a.getAttribute('href'), a.getAttribute('aria-disabled'), a.getAttribute('rel')].join(':')).join(' '))
@@ -101,7 +104,7 @@ describe('Pagination', () => {
   });
 
   test('keyboard: Tab to a page and Enter picks it; keyboard focus shows a 2px ring', async () => {
-    await render(<Pagination id="psm" count={3} size="sm" />);
+    await render(<Pagination id="psm" count={3} size="sm" />, { wrapper: EnUS });
     named('psm', 'Page 1').focus();
     await userEvent.keyboard('{Tab}{Enter}');
     expect(shown('psm')).toBe('< 1 [2] 3 >');
@@ -175,7 +178,7 @@ describe('Pagination', () => {
     await render(<>
       <Pagination id="pfb" count={3} defaultPage={2} />
       <Pagination id="pfl" count={3} defaultPage={2} getHref={(n) => '#p' + n} />
-    </>);
+    </>, { wrapper: EnUS });
     for (const id of ['pfb', 'pfl']) {
       const prev = named(id, 'Previous page'), next = named(id, 'Next page');
       next.focus();

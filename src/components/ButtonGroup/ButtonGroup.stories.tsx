@@ -25,6 +25,21 @@ export const Vertical: Story = {
   args: { orientation: 'vertical', 'aria-label': 'Zoom', children: [<IconButton key="i" variant="outline" icon="add" label="Zoom in" />, <IconButton key="o" variant="outline" icon="remove" label="Zoom out" />] },
 };
 
+/** Small icon-only buttons, in a row and a column: each keeps a 24px target where the next one overlaps it. */
+export const SmallIcons: Story = {
+  render: () => (
+    <div className="flex gap-4 items-start">
+      <ButtonGroup aria-label="Text alignment">
+        {['format_align_left', 'format_align_center', 'format_align_right'].map((i) => <IconButton key={i} variant="outline" size="sm" icon={i} label={i.replace('format_align_', 'Align ')} />)}
+      </ButtonGroup>
+      <ButtonGroup orientation="vertical" aria-label="Zoom">
+        <IconButton variant="outline" size="sm" icon="add" label="Zoom in" />
+        <IconButton variant="outline" size="sm" icon="remove" label="Zoom out" />
+      </ButtonGroup>
+    </div>
+  ),
+};
+
 export const SplitButton: Story = {
   args: { 'aria-label': 'Publish', children: [<Button key="p">Publish</Button>, <Menu key="m" placement="bottom-end" trigger={<IconButton variant="primary" icon="expand_more" label="More publish options" />}><MenuItem>Schedule</MenuItem><MenuItem>Save as draft</MenuItem></Menu>] },
 };

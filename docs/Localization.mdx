@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
 
 | Prop | What it changes |
 |---|---|
-| `locale` | Calendar, DatePicker, DateRangePicker and TimePicker: how dates and times are written and typed, month and weekday names, the first day of the week. Default: the browser's. |
+| `locale` | Every component that writes a date, time or number. Calendar, DatePicker, DateRangePicker and TimePicker: how dates and times are written and typed, month and weekday names, the first day of the week. NumberInput: how numbers are typed and shown. FormattedNumber, Meter, Progress, Badge counts, Pagination's page numbers, Stepper's step numbers, Input and Textarea's character counts, and ColorPicker's values: the locale's digits and signs. RelativeTime: "3 hari yang lalu". PhoneInput: country names. `useCollator`: how text sorts. Default: the browser's. A tag with an underscore, such as `en_US` from a server's `LANG`, is read as `en-US`; one Intl can't read at all is skipped for the browser's, with a warning in development, so a bad locale never breaks the page. |
 | `labels` | The built-in words: close and dismiss buttons, loading text, pagination, date and time buttons, file upload text and so on (the `SerupaLabels` type lists every key). Pass `idLabels` for Indonesian, or only the keys you want to change. |
 | `icons` | Icons that work by name inside it, in the shape `registerIcons` takes. |
 
@@ -31,13 +31,15 @@ What wins, in order: the component's own prop (`dismissLabel`, `locale`, …), t
 
 ## Server-rendered pages
 
-A server can't know the visitor's locale. Without a `locale`, the date and time components and NumberInput render the server HTML in `en-US`, hydrate in `en-US` too so React sees no mismatch, and switch to the browser's locale right after. To show the visitor's format from the first paint, set the provider's `locale` from the request, for example from the `Accept-Language` header or the user's saved setting. Without one, the server logs a warning once ("Serupa: rendered on the server without a locale…") so the change after hydration doesn't go unnoticed:
+A server can't know the visitor's locale. Without a `locale`, the components that write dates, times and numbers render the server HTML in `en-US`, hydrate in `en-US` too so React sees no mismatch, and switch to the browser's locale right after. To show the visitor's format from the first paint, set the provider's `locale` from the request, for example from the `Accept-Language` header or the user's saved setting. Without one, the server logs a warning once ("Serupa: rendered on the server without a locale…") so the change after hydration doesn't go unnoticed:
 
 ```tsx
 import { headers } from 'next/headers';
 
 export default async function RootLayout({ children }) {
-  const locale = (await headers()).get('accept-language')?.split(',')[0] || 'en-US';
+  // "id-ID,id;q=0.9,en;q=0.8" gives "id-ID". A "*", an empty header or none falls back to en-US.
+  const first = (await headers()).get('accept-language')?.split(',')[0]?.split(';')[0]?.trim();
+  const locale = first && first !== '*' ? first : 'en-US';
   return <html lang={locale}><body><SerupaProvider locale={locale}>{children}</SerupaProvider></body></html>;
 }
 ```
@@ -48,7 +50,7 @@ export default async function RootLayout({ children }) {
 
 ## In your own components
 
-`useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's. Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
+`useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's, always one Intl can read (`en_US` comes back as `en-US`). Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
 
 ## Accessibility
 

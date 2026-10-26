@@ -13,6 +13,7 @@ const ARGS: Record<string, unknown[]> = {
   colorName: ['blue', 'dark'],
   contrast: ['4.5'],
   fileMissing: [true],
+  filesAdded: [['cat.png', 'dog.png']],
   fileOnlyOne: ['cat.png'],
   fileTooLarge: ['cat.png', '2 MB'],
   fileTooMany: ['cat.png', 3],

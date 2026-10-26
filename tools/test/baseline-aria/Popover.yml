@@ -44,6 +44,26 @@
   - button "Cancel"
   - button "Invite"
 
+# LeftEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# LeftStart
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
 # LongContent
 - button "Plan details" [expanded]
 - dialog "What changes on the new plan":
@@ -64,7 +84,27 @@
   - button "Cancel"
   - button "Invite"
 
+# RightEnd
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
 # Top
+- button "Share" [expanded]
+- dialog "Share":
+  - heading "Share" [level=2]
+  - text: Email
+  - textbox "Email":
+    - /placeholder: name@example.com
+  - button "Cancel"
+  - button "Invite"
+
+# TopEnd
 - button "Share" [expanded]
 - dialog "Share":
   - heading "Share" [level=2]

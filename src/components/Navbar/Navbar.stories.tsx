@@ -39,3 +39,9 @@ export const Overflow: Story = {
   },
   render: (args) => <div style={{ width: 360 }}><Navbar {...args} /></div>,
 };
+
+export const Sizes: Story = {
+  render: (args) => <div className="flex flex-col gap-4">
+    {(['prose', 'md', 'lg', 'xl', '2xl', 'full'] as const).map((size) => <Navbar key={size} {...args} size={size} aria-label={`Main, ${size}`} brand={<a href="#" className="text-base font-semibold text-text no-underline">size="{size}"</a>} />)}
+  </div>,
+};

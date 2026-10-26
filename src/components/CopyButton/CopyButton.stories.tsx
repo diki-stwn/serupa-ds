@@ -29,3 +29,11 @@ export const LongLabel: Story = {
     </div>
   ),
 };
+
+export const VariantsAndSizes: Story = {
+  render: (args) => <div className="flex gap-3 items-center">
+    <CopyButton {...args} variant="primary">Copy, primary</CopyButton>
+    <CopyButton {...args} variant="link">Copy, link</CopyButton>
+    <CopyButton {...args} size="lg">Copy, lg</CopyButton>
+  </div>,
+};

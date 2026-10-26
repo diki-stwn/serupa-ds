@@ -6,10 +6,22 @@
 - button "Download"
 - tooltip "Saves a copy to your device"
 
+# BottomStart
+- button "Download"
+- tooltip "Download as PDF"
+
 # Disabled
 - button "Download"
 
 # Left
+- button "Download"
+- tooltip "Download as PDF"
+
+# LeftEnd
+- button "Download"
+- tooltip "Download as PDF"
+
+# LeftStart
 - button "Download"
 - tooltip "Download as PDF"
 
@@ -35,6 +47,14 @@
 - tooltip "Download as PDF"
 
 # Right
+- button "Download"
+- tooltip "Download as PDF"
+
+# RightEnd
+- button "Download"
+- tooltip "Download as PDF"
+
+# TopEnd
 - button "Download"
 - tooltip "Download as PDF"
 

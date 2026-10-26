@@ -28,7 +28,6 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 // a pull request's included, fails when the breach is gone and the line is still here).
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
-    'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
   },
   'paint loop': {
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
@@ -65,7 +64,9 @@ async function promoted(host: Element): Promise<string[]> {
   const ending = inside(host).filter((a) => !loops(a));
   await Promise.race([Promise.allSettled(ending.map((a) => a.finished)), new Promise((r) => setTimeout(r, 1500))]);
   await frame();
-  return [...document.body.querySelectorAll('*')].filter((el) => getComputedStyle(el).willChange !== 'auto').flatMap((el) => {
+  // Firefox's own stylesheet gives <option> will-change: -moz-fixed-pos-containing-block, which no component sets.
+  const own = (v: string) => v !== 'auto' && v.split(',').some((w) => !w.trim().startsWith('-moz-'));
+  return [...document.body.querySelectorAll('*')].filter((el) => own(getComputedStyle(el).willChange)).flatMap((el) => {
     const k = (el.className?.toString() || el.tagName).split(' ')[0];
     return note('will-change', k) ? [`${k}: keeps will-change: ${getComputedStyle(el).willChange} at rest; set it only while it moves`] : [];
   });

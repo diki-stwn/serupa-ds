@@ -46,6 +46,17 @@ describe('Icon', () => {
     warn.mockRestore();
   });
 
+  test('size: a number and a number as a string are px ("20" doesn\'t fall back to 24px); a CSS length is kept', async () => {
+    await render(<>
+      <Icon id="sn" name="close" size={20} />
+      <Icon id="ss" name="close" size="20" />
+      <Icon id="sd" name="close" size=" 18.5 " />
+      <Icon id="sl" name="close" size="2rem" />
+    </>);
+    const fs = (id: string) => getComputedStyle(document.getElementById(id)!).fontSize;
+    expect(['sn', 'ss', 'sd', 'sl'].map(fs)).toEqual(['20px', '20px', '18.5px', '32px']);
+  });
+
   test('a decorative Icon is aria-hidden; with aria-label it is role="img"', async () => {
     await render(<><Icon id="deco" name="home" /><Icon id="meaning" name="error" aria-label="Error" /></>);
     expect(document.getElementById('deco')!.getAttribute('aria-hidden')).toBe('true');

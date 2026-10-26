@@ -18,4 +18,9 @@
 .dk-button-group--attached:not(.dk-button-group--vertical) > :is(.dk-btn--primary, .dk-btn--primary + :not(.dk-btn)) + .dk-btn--primary { border-inline-start-color: color-mix(in srgb, currentColor var(--button-group-divider, var(--opacity-40)), transparent); }
 .dk-button-group--attached.dk-button-group--vertical > .dk-btn ~ .dk-btn { margin-top: calc(var(--spacing-0) - var(--button-group-overlap, var(--border-width-1))); border-start-start-radius: var(--spacing-0); border-start-end-radius: var(--spacing-0); }
 .dk-button-group--attached.dk-button-group--vertical > .dk-btn:has(~ .dk-btn) { border-end-start-radius: var(--spacing-0); border-end-end-radius: var(--spacing-0); }
+/* A small button is 24px across, the WCAG 2.2 minimum target (2.5.8). The buttons on either side overlap it by 1px (the
+   next one, and the one before when it comes to the front pressed, hovered or focused), which would leave 22px of it
+   showing: an icon-only one is wider by both overlaps in a row, and every one taller by them in a column. */
+.dk-button-group--attached:not(.dk-button-group--vertical) > .dk-btn--icon-only.dk-btn--size-sm { width: calc(var(--button-height-sm, var(--control-height-sm)) + var(--button-group-overlap, var(--border-width-1)) + var(--button-group-overlap, var(--border-width-1))); }
+.dk-button-group--attached.dk-button-group--vertical > .dk-btn--size-sm { height: calc(var(--button-height-sm, var(--control-height-sm)) + var(--button-group-overlap, var(--border-width-1)) + var(--button-group-overlap, var(--border-width-1))); }
 }

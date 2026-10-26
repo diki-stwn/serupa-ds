@@ -6,6 +6,10 @@ A Serupa component warns in the browser console, once, when it can see a mistake
 
 An Accordion with `type="single"` got a `value` with more than one item, so more than one item shows open. Pass one value, or use `type="multiple"`.
 
+## bad-locale
+
+A `locale` (on a component or SerupaProvider) that Intl can't read, so it's ignored and the next one is used: the provider's, else the browser's. An underscore is mended first ("en_US" works as "en-US"), so this is something like "english" or "en-". Use a BCP 47 tag such as "en-US" or "id-ID". See Localization.
+
 ## badge-indicator
 
 A dot Badge with no label, icon or count is an indicator: too small to click or to remove. Its `onClick`, `href` and `onRemove` are ignored. Name and handle the control it sits on instead.
@@ -45,6 +49,10 @@ A Link with `tone="neutral"` and `underline="hover"` looks like plain text until
 ## no-name
 
 A control (a slider, a dialog, a group…) has no accessible name, so a screen reader announces only its role. The warning says how to name that kind of control: a Field label, a `<label htmlFor>`, `aria-label` or `aria-labelledby`.
+
+## number-options
+
+FormattedNumber or `formatNumber` got options Intl rejects, such as a currency that isn't an ISO code ("US" for "USD"), a unit Intl doesn't know ("km/h" for "kilometer-per-hour"), or `minimumFractionDigits` above `maximumFractionDigits`. Rather than throw and unmount the page, the number is written in the locale's plain form. Fix the options; see FormattedNumber.
 
 ## phone-code
 
