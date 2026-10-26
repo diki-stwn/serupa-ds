@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, keepMotion } from '../../../tools/test/vitest/helpers';
 import { Image, type ImageProps } from './Image';
@@ -191,6 +192,18 @@ describe('Image loading motion', () => {
     expect([frame('lazy').dataset.state, frame('hero').dataset.state, css(img('hero')).opacity]).toEqual(['loading', 'loading', '1']);
     await expect.poll(() => frame('lazy').dataset.state, { timeout: 5000 }).toBe('loaded');
     expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
+  });
+
+  test('a server-rendered picture still loading when the page hydrates stays shown (it may have painted in part); one mounted later on the client is hidden', async () => {
+    const ui = <Image src={`/__slow-picture__.svg?${crypto.randomUUID()}`} alt="Hero" ratio="video" frameProps={{ style: { width: 200 } }} />;
+    const host = document.body.appendChild(document.createElement('div'));
+    host.innerHTML = renderToString(ui);
+    const root = hydrateRoot(host, ui);
+    await render(<Pic id="client" alt="Client" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('client').querySelector('img')).opacity).toBe('0');
+    const f = host.querySelector('[data-component=image]') as HTMLElement;
+    expect([f.dataset.state, css(f.querySelector('img')).opacity]).toEqual(['loading', '1']);
+    root.unmount(); host.remove();
   });
 
   test('a lazy picture that fails after it was hidden drops the fade class, so a broken frame is the same however late it fails', async () => {
