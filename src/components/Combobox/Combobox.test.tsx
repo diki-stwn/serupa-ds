@@ -46,6 +46,24 @@ describe('Combobox', () => {
     expect([box.dataset.component, box.offsetHeight, toggle.getAttribute('aria-label'), toggle.tabIndex]).toEqual(['combobox', 32, 'Show options', -1]);
   });
 
+  test('a press on the box (left icon, side padding, past the chevron) focuses the field with the caret at the end; a disabled box stays put (GG2)', async () => {
+    await render(<div style={{ width: '320px' }}>
+      <Combobox id="bx" size="lg" leftIcon="search" options={COUNTRIES} defaultValue="Canada" aria-label="Country" />
+      <Combobox id="bx-off" size="lg" leftIcon="search" options={COUNTRIES} disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const box = (id: string) => el(id).closest('[data-component=combobox]') as HTMLElement;
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    for (const x of [2, 20, b.width - 2]) {
+      el('bx-away').focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === el('bx'), el('bx').selectionStart]).toEqual([x, true, 6]);
+    }
+    el('bx-away').focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(el('bx-off'));
+  });
+
   test('the chevron and × names come from the labels: Indonesian under an id-ID provider, with the field\'s label', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><Field label="Negara"><Combobox id="cb-id" options={COUNTRIES} defaultValue="Brazil" clearable /></Field></SerupaProvider>);
     const names = [...el('cb-id').parentElement!.querySelectorAll('button')].map((b) => b.getAttribute('aria-label'));
