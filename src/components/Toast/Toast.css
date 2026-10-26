@@ -59,6 +59,10 @@
   .dk-toast[data-leaving="queued"] { translate: var(--dk-toast-fold); scale: var(--scale-95); }
   @starting-style { .dk-toast:not([data-instant]) { translate: var(--dk-toast-from); } }
 }
+/* Swipe to dismiss (Toast.tsx): sideways drags are the toast's, vertical ones still scroll; under the finger it
+   follows with no transition. */
+.dk-toast { touch-action: pan-y; }
+.dk-toast[data-dragging] { transition: none; }
 /* F8 moves focus to the newest toast itself, so a screen reader reads it and Tab reaches its buttons next. */
 .dk-toast:focus { outline: none; }
 .dk-toast:focus-visible { outline: var(--focus-ring-width) solid var(--toast-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
