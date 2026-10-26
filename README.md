@@ -362,14 +362,17 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 | `mask-clip-fill`, `-stroke`, `-view` and the same `mask-origin-*` | Safari |
 | `place-content-baseline` | Safari |
 | `mix-blend-plus-darker` | Everything but Safari |
+| `*-safe` alignment (`items-end-safe`, `justify-center-safe`, …) | Safari before 17.6 (they align as without `-safe`) |
+| `field-sizing-*` | Firefox, and Safari before 26.2 (Textarea's `autoResize` measures in script there) |
 
-Popover and command buttons (`popoverTarget`, `command`) and `text-wrap: balance` are progressive: older browsers ignore them and the page still works.
+Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
 
-Two features set the oldest versions that get the whole system:
+Three features set the oldest versions that get the whole system, so the baseline is Chrome and Edge 123, Safari 17.5 and Firefox 128. A check (`tools/test/browser-baseline.mjs`) holds every property, value and at-rule in `bundle.css` to it, with MDN's compatibility data, and lists what is newer on purpose:
 
 | Feature | Needs | Without it |
 | --- | --- | --- |
 | `light-dark()`, behind `data-brand` and `data-mode` | Chrome and Edge 123, Safari 17.5, Firefox 120 | A page or section themed only by `data-brand` / `data-mode` loses its theme colors (text and backgrounds fall back to the browser's). A page whose root has `data-theme`, which `theme.js` sets, keeps its colors, because the flat `[data-theme]` themes don't use `light-dark()`. |
+| `@property`, which gives the `--dk-*` variables their starting values | Chrome and Edge 85, Safari 16.4, Firefox 128 | The utilities that combine through those variables (`translate-*`, `rotate-*`, `scale-*`, `skew-*`, `shadow-*`, `ring-*`, gradients, filters and `mask-*`) do nothing unless every part is set. |
 | The `popover` attribute (the top layer) | Chrome and Edge 114, Safari 17, Firefox 125 | Menu, Popover, Tooltip and the picker lists still open where they belong, but in the page instead of the top layer, so a parent's `overflow: hidden` can clip them and a higher `z-index` can cover them. |
 
 ## Maintaining the system

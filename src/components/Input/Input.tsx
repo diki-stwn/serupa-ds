@@ -11,6 +11,7 @@ import { useLocale } from "../../internal/provider";
 import { useTextLimit } from "../../internal/textLimit";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { pressFocuses, useAffixes } from "../../internal/affix";
+import { applyMask, digitsOnly, isPlain, parseMask, unmask } from "../../internal/mask";
 
 const PLAIN = { useGrouping: false } as const;
 // Fields whose text isn't words: the phone keyboard shouldn't capitalize, correct or underline it.
@@ -33,6 +34,44 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   /** A character count at the end of the field, "12 / 50" with maxLength (text-colored once it's reached), read out
       only when few characters are left and at the limit. Linked to the field with aria-describedby. Default: false. */
   showCount?: boolean;
+  /** Keeps the text in a pattern as people type, paste or delete, with the caret where they left it: 9 takes a digit,
+      a a letter, A a letter in capitals, * a letter or digit; \ makes the next character plain; the rest shows as it is
+      ("9999 9999 9999 9999", "99/99/9999", "AA99 **** **** ****"). value, defaultValue and onChange's
+      event.target.value are the masked text. A digits-only mask gets the number keyboard on phones. */
+  mask?: string;
+}
+
+/* mask: the value shown in the pattern, and each edit put back into it with the caret after the same character it
+   was after (so typing in the middle, pasting or deleting doesn't throw it to the end). Backspace or Delete next to the
+   pattern's own text (a space, a /) removes the typed character beyond it, not the text the pattern puts back. */
+function useMask(rest: InputProps, mask: string | undefined): void {
+  const slots = React.useMemo(() => (mask ? parseMask(mask) : null), [mask]);
+  if (!slots) return;
+  const show = (v: unknown) => applyMask(slots, unmask(slots, String(v))).text;
+  if (rest.value != null && !Array.isArray(rest.value)) rest.value = show(rest.value);
+  if (rest.defaultValue != null && !Array.isArray(rest.defaultValue)) rest.defaultValue = show(rest.defaultValue);
+  if (rest.inputMode === undefined && digitsOnly(slots)) rest.inputMode = "numeric";
+  const change = rest.onChange, key = rest.onKeyDown;
+  rest.onChange = function (e) {
+    const el = e.target, v = el.value, at = el.selectionStart != null ? el.selectionStart : v.length;
+    const typed = unmask(slots, v), { text, ends } = applyMask(slots, typed);
+    if (text !== v) {
+      const n = Math.min(unmask(slots, v.slice(0, at)).length, ends.length);
+      el.value = text;
+      if (document.activeElement === el) el.setSelectionRange(n ? ends[n - 1] : 0, n ? ends[n - 1] : 0);
+    }
+    if (change) change(e);
+  };
+  rest.onKeyDown = function (e) {
+    const el = e.currentTarget, at = el.selectionStart;
+    if ((e.key === "Backspace" || e.key === "Delete") && at != null && at === el.selectionEnd) {
+      const back = e.key === "Backspace";
+      let p = at;
+      while (back ? p > 0 && isPlain(slots, el.value, p - 1) : p < el.value.length && isPlain(slots, el.value, p)) p += back ? -1 : 1;
+      if (p !== at && (back ? p > 0 : p < el.value.length)) el.setSelectionRange(p, p);
+    }
+    if (key) key(e);
+  };
 }
 
 /* Input: a single-line text field. size "sm", "md" (default) or "lg" (24, 32, 44px: the control heights, like
@@ -45,7 +84,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("Input", function Input(props, ref) {
   const nameRef = useNameCheck("Input", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, prefix: 1, suffix: 1, showCount: 1, className: 1, style: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, prefix: 1, suffix: 1, showCount: 1, mask: 1, className: 1, style: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -56,6 +95,7 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
     if (rest.spellCheck === undefined) rest.spellCheck = false;
   }
   const own = React.useRef<HTMLInputElement | null>(null);
+  useMask(rest, props.mask);
   const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
   useValidityMessages(rest, own);   // the browser's message for a failed constraint, in the provider's words
   const countId = domId("dk-in", React.useId());
