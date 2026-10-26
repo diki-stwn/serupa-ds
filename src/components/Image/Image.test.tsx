@@ -100,9 +100,24 @@ describe('Image', () => {
     </Row>);
     await expect.poll(() => [frame('broken').dataset.state, frame('custom').dataset.state]).toEqual(['error', 'error']);
     const f = frame('broken'), fb = f.querySelector('.dk-image__fallback')!;
-    expect([!!f.querySelector('img'), fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
-      .toEqual([false, 'img', 'Team photo', 'broken_image', 200]);
+    expect([css(f.querySelector('img')).visibility, fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
+      .toEqual(['hidden', 'img', 'Team photo', 'broken_image', 200]);
     expect(frame('custom').querySelector('.dk-image__fallback')!.textContent).toBe('No logo');
+  });
+
+  test('on error, what was passed to the picture stays: className, style, id, data-* and the ref, and the frame keeps the size they gave it (GJ1)', async () => {
+    const ref = React.createRef<HTMLImageElement>();
+    const size = (id: string) => { const r = document.getElementById(id)!.closest('.dk-image')!.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
+    await render(<Row>
+      <Image id="gcls" src={BROKEN} alt="Team" ratio="video" className="w-48" data-x="y" ref={ref} />
+      <Image id="gsty" src={BROKEN} alt="Team" ratio="video" style={{ width: 240 }} />
+      <Image id="gnone" src={BROKEN} alt="Team" ratio="video" />
+    </Row>);
+    await expect.poll(() => document.getElementById('gnone')?.closest('.dk-image')?.getAttribute('data-state')).toBe('error');
+    await expect.poll(() => document.getElementById('gcls')?.closest('.dk-image')?.getAttribute('data-state')).toBe('error');
+    const i = document.getElementById('gcls') as HTMLImageElement;
+    expect([ref.current === i, i.dataset.x, i.classList.contains('w-48'), size('gcls'), size('gsty'), size('gnone')[0] >= 48])
+      .toEqual([true, 'y', true, [192, 108], [240, 135], true]);
   });
 
   test('a new src starts over: a broken picture given a good src loads it; a slow one replaced before it arrives shows the new one, and the old answer changes nothing', async () => {
@@ -117,7 +132,8 @@ describe('Image', () => {
     await expect.poll(() => box('next').state).toBe('error');
     // The slow picture's answer comes after a second: by then nothing shows it, and the error stays.
     await new Promise((done) => setTimeout(done, 1300));
-    expect([box('next').state, !!frame('next').querySelector('img')]).toEqual(['error', false]);
+    const i = frame('next').querySelector('img');
+    expect([box('next').state, i?.getAttribute('src'), i && css(i).visibility]).toEqual(['error', BROKEN, 'hidden']);
   });
 
   test('viewable: the picture is a button named "View image: <alt>" with a zoom-in cursor; the remove button is "Remove image: <alt>"', async () => {

@@ -39,7 +39,7 @@ import { Image } from "serupa-ds";
 
 ## Accessibility
 
-- `alt` is required by the types. A failed picture's fallback is a `role="img"` named by the alt text.
+- `alt` is required by the types. A failed picture's fallback is a `role="img"` named by the alt text. The `<img>` stays in the frame, hidden under it, so its className, style, id, data-* and ref keep working and the frame keeps its size.
 - The view button is named "View image: <alt>" and has `aria-haspopup="dialog"`; the remove button is named "Remove image: <alt>". Both work with the keyboard and show a focus ring.
 - The fallback icon and the remove button keep 3:1 in all six themes (`Image.test.tsx`).
 - **Keyboard:** with `viewable`, the picture is a button: Enter or Space opens it full size in a Dialog, Escape closes it, and focus comes back. With `onRemove`, its × is a Tab stop too. A plain image adds no Tab stop.

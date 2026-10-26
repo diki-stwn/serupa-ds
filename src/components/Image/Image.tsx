@@ -76,7 +76,7 @@ function Full({ src, alt, fallback, shape }: { src: string; alt: string; fallbac
    placeholder, and if it fails, a fallback (a broken-image icon named by the alt text). viewable makes the
    picture a button that opens it full size in a Dialog (Escape, the × or the backdrop close it, focus comes
    back). onRemove adds a remove button in the corner. alt is required. ref, className and other img props go
-   to the <img>; frameProps to the frame. */
+   to the <img>, which stays (hidden) under the fallback if it fails; frameProps to the frame. */
 /** A picture in a frame with a ratio, a loading placeholder and an error fallback; optionally opens full size or can be removed. */
 export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Image", function Image(props, ref) {
   const restyle = useServerStyles<HTMLSpanElement>();
@@ -117,9 +117,12 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   }, [ratio, sized]);
   const shape = typeof ratio === "number" ? { "--dk-image-ratio": String(ratio) } : sized ? { "--dk-image-ratio": w + " / " + h, width: w } : null;
   const frameStyle = shape ? { ...shape, ...(frameProps && frameProps.style) } as React.CSSProperties : frameProps && frameProps.style;
-  const picture = state === "error"
+  // A picture that fails stays in the frame, hidden, under the fallback: what was passed to it (className, style, id,
+  // data-*, a ref) keeps working, and the frame keeps the size they give it (GJ1).
+  const failed = state === "error"
     ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
-    : <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={loading || (priority ? "eager" : "lazy")}
+    : null;
+  const picture = <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={loading || (priority ? "eager" : "lazy")}
         decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
         className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setLive(false); setState("error"); if (onError) onError(e); }} />;
   return (
@@ -129,6 +132,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
       {viewable && state !== "error"
         ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{picture}</button>
         : picture}
+      {failed}
       {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" noTitle onClick={onRemove} /> : null}
       {viewable ? (
         <Dialog open={open} onOpenChange={setOpen} size="lg" title={alt || undefined} aria-label={alt ? undefined : viewLabel || sds.labels.image} className="dk-image__viewer">

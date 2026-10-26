@@ -46,6 +46,10 @@
 }
 .dk-image--loading:dir(rtl)::before { --dk-image-sweep: calc(var(--sizing-full) * -2 / 3); }
 @keyframes dk-image-sweep { to { translate: var(--dk-image-sweep) 0; } }
+/* A picture that failed stays in the frame, hidden under the fallback, so the size its className or style gives the
+   frame is kept; with no size of its own the frame is at least --image-min-size wide, so the fallback shows (GJ1). */
+.dk-image--error { min-width: var(--image-min-size, var(--spacing-12)); }
+.dk-image--error .dk-image__img { visibility: hidden; }
 .dk-image__fallback { position: absolute; inset: var(--spacing-0); display: flex; align-items: center; justify-content: center; color: var(--image-fallback-color, var(--text-muted)); }
 .dk-image__fallback .dk-icon { font-size: var(--image-fallback-icon, var(--spacing-6)); }
 .dk-image__view { display: block; width: var(--sizing-full); margin: var(--spacing-0); padding: var(--spacing-0); border: var(--spacing-0); border-radius: inherit; background: transparent; cursor: zoom-in; }
