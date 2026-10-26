@@ -1,13 +1,15 @@
 /* ---------------------------------------------------------------
    SegmentedControl: segments side by side in a muted, outlined box (24, 32 or 44px tall, 2px inside it). Labels are
    text-muted and medium; the selected one is text, on a raised surface (outline, shadow-sm) that slides from
-   segment to segment. Equal segments when fullWidth. Invalid: a danger outline. Read-only: no pointer cursor or hover. Disabled: faded.
+   segment to segment. Segments share the width by content; equal segments when fullWidth. Invalid: a danger outline. Read-only: no pointer cursor or hover. Disabled: faded.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-segmented {
   --dk-seg-h: var(--segmented-control-height-md, var(--control-height-md));
   --dk-seg-inner: calc(var(--dk-seg-h) - 2 * var(--segmented-control-padding, var(--spacing-0\.5)) - 2 * var(--border-width-1));
-  position: relative; display: inline-flex; align-items: stretch; box-sizing: border-box; height: var(--dk-seg-h); max-width: var(--sizing-full);
+  /* Segments share the width by content: each column grows from nothing to its label's width, the space handed out
+     evenly, so when they don't all fit the short labels stay whole and the long ones give way (EU1). */
+  position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--spacing-0), max-content); align-items: stretch; box-sizing: border-box; height: var(--dk-seg-h); max-width: var(--sizing-full);
   padding: var(--segmented-control-padding, var(--spacing-0\.5));
   border: var(--border-width-1) solid var(--segmented-control-border, var(--field-border));
   border-radius: var(--segmented-control-radius, var(--rounded-md)); background: var(--segmented-control-bg, var(--surface-muted));
@@ -16,8 +18,7 @@
 .dk-segmented--size-sm { --dk-seg-h: var(--segmented-control-height-sm, var(--control-height-sm)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-segmented--size-lg { --dk-seg-h: var(--segmented-control-height-lg, var(--control-height-lg)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
 .dk-segmented--size-lg .dk-segmented__item { padding-inline: var(--segmented-control-padding-x-lg, var(--spacing-4)); }
-.dk-segmented--full { display: flex; width: var(--sizing-full); }
-.dk-segmented--full .dk-segmented__item { flex: auto; flex-basis: var(--spacing-0); }
+.dk-segmented--full { display: grid; grid-auto-columns: minmax(var(--spacing-0), 1fr); width: var(--sizing-full); }
 .dk-segmented__indicator {
   position: absolute; inset-block: var(--segmented-control-padding, var(--spacing-0\.5)); box-sizing: border-box;
   border: var(--border-width-1) solid var(--segmented-control-indicator-border, var(--field-border));

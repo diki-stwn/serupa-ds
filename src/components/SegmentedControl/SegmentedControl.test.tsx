@@ -191,6 +191,19 @@ describe('SegmentedControl', () => {
     expect([el('dis').getAttribute('aria-disabled'), items('dis').every((x) => x.disabled && x.tabIndex === -1), css(el('dis')).opacity]).toEqual(['true', true, '0.5']);
   });
 
+  test('long labels in 320px: the segments share the width by content, so short labels stay whole and the long one gives way, its full label as its title; the selection still sits on its segment (EU1)', async () => {
+    const opts: SegmentedControlOption[] = [{ value: 'n', label: 'Notifications' }, { value: 'i', label: 'Internationalisation-preferences' }, { value: 's', label: 'Security' }];
+    await render(<div style={{ width: '320px' }}><SegmentedControl id="lg" aria-label="Settings" options={opts} defaultValue="s" /><SegmentedControl id="ok" aria-label="Period" options={PERIODS} /></div>);
+    const label = (v: string) => seg('lg', v).querySelector<HTMLElement>('.dk-segmented__label')!;
+    const whole = (v: string) => label(v).scrollWidth <= label(v).clientWidth;
+    await expect.poll(() => seg('lg', 'i').title).toBe('Internationalisation-preferences');
+    expect([Math.round(el('lg').getBoundingClientRect().width) <= 320, whole('n'), whole('s'), whole('i'), seg('lg', 'n').title, seg('lg', 's').title, off('lg')])
+      .toEqual([true, true, true, false, '', '', [0, 0]]);
+    // Room to spare: no label cut, no title, and the control as wide as its segments need.
+    const l = items('ok').map((b) => b.querySelector<HTMLElement>('.dk-segmented__label')!);
+    expect([l.every((x) => x.scrollWidth <= x.clientWidth), items('ok').every((b) => !b.title), Math.round(el('ok').getBoundingClientRect().width) < 320]).toEqual([true, true, true]);
+  });
+
   test('right-to-left: segments run right to left and ArrowLeft goes to the next one', async () => {
     await render(<Col><div dir="rtl"><SegmentedControl id="rtl" aria-label="RTL" options={PERIODS.slice(0, 3)} /></div></Col>);
     seg('rtl', 'day').focus();
