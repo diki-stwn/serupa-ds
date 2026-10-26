@@ -1,0 +1,37 @@
+# Default
+- text: To confirm, type
+- strong: acme/web
+- textbox "To confirm, type acme/web"
+- button "Delete this repository" [disabled]
+
+# Disabled
+- text: To confirm, type
+- strong: acme/web
+- textbox "To confirm, type acme/web" [disabled]
+- button "Delete this repository" [disabled]
+
+# LongText
+- text: To confirm, type
+- strong: donaudampfschifffahrtsgesellschaftskapitaenswitwenrentenversicherung/production-eu-west
+- textbox "To confirm, type donaudampfschifffahrtsgesellschaftskapitaenswitwenrentenversicherung/production-eu-west"
+- button "Delete this organisation, its repositories, members and billing history for good" [disabled]
+
+# Playground
+- text: To confirm, type
+- strong: acme/web
+- textbox "To confirm, type acme/web"
+- button "Delete this repository" [disabled]
+
+# Slow
+- text: To confirm, type
+- strong: acme/web
+- textbox "To confirm, type acme/web"
+- button "Delete this repository" [disabled]
+
+# WithHint
+- text: To confirm, type
+- strong: acme/web
+- text: This deletes its issues, pull requests and releases. It can’t be undone.
+- textbox "To confirm, type acme/web"
+- button "Delete this repository" [disabled]
+

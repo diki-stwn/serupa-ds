@@ -203,6 +203,22 @@ describe('Sidebar', () => {
     expect(el('ihome').hasAttribute('aria-describedby')).toBe(false);
   });
 
+  test('collapsing or expanding keeps focus in the item it was in: a nested link\'s group button in the rail, a link itself (GM3)', async () => {
+    await render(<App />);
+    await userEvent.click(el('gproj'));
+    el('iweb').focus();
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
+    expect(document.activeElement).toBe(el('gproj'));
+    React.act(() => setCollapsed(false));
+    await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(256);
+    expect([document.activeElement, el('gproj').getAttribute('aria-expanded')]).toEqual([el('gproj'), 'true']);
+    el('ihome').focus();
+    React.act(() => setCollapsed(true));
+    await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
+    expect(document.activeElement).toBe(el('ihome'));
+  });
+
   test('collapsed: a group opens its items in a menu', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));

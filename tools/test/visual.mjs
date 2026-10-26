@@ -14,6 +14,11 @@
 // data-visual-target="hover" / ="focus" (one each); without one, hover is on the story's first enabled button, link
 // or field, and focus wherever the first Tab lands. Focus comes from pressing Tab, so :focus-visible applies.
 // Small anti-aliasing differences between machines are tolerated (TOLERANCE of pixels may differ).
+// The token blocks on the Foundations pages (each element marked data-token-sheet in docs/blocks.tsx: the palette,
+// the aliases, the type scale, the token tables) are shot too, as Foundations/<Page>-<sheet>.png, so a changed token
+// value fails like a changed component. One theme is enough: the alias table writes out every theme's value, and the
+// themes themselves are in every component picture. They run in the first shard, and not when the change
+// touches only components (SERUPA_ONLY), since a component can't change them.
 import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PAGES, PROJECT, browser, fixClock, inParallel, report, serve, suffix, onlyComponents } from './lib.mjs';
@@ -71,11 +76,12 @@ async function diff(page, a, bb) {   // share of differing pixels, computed in t
 
 // Screenshot once the page has stopped changing: two captures 100 ms apart must match, so a late paint
 // (a popover still placing itself, a glyph still loading on a slow runner) can't land in the image.
-async function stableShot(page) {
-  let last = await page.screenshot({ fullPage: true });
+async function stableShot(page, el) {
+  const shoot = () => (el ? el.screenshot() : page.screenshot({ fullPage: true }));
+  let last = await shoot();
   for (let i = 0; i < 10; i++) {
     await page.waitForTimeout(100);
-    const next = await page.screenshot({ fullPage: true });
+    const next = await shoot();
     if (next.equals(last)) return next;
     last = next;
   }
@@ -107,9 +113,10 @@ async function open(page, e, theme) {
   return '';
 }
 
-// Shoots the page and compares it with baseline-visual/<name>.png (or writes it, with --update). null when nothing to report.
-async function compare(page, name) {
-  const shot = await stableShot(page);
+// Shoots the page (or one element of it) and compares it with baseline-visual/<name>.png (or writes it, with --update).
+// null when nothing to report.
+async function compare(page, name, el) {
+  const shot = await stableShot(page, el);
   const file = path.join(DIR, `${name}.png`);
   // --update rewrites a baseline only when the new picture differs past the tolerance, so re-rendering on another
   // run doesn't commit hundreds of pictures that only changed in anti-aliasing.
@@ -170,15 +177,42 @@ async function checkStory(e, page) {
   return out;
 }
 R.push(...(await inParallel(stories, pages, checkStory)).flat());
+
+// The token sheets: each Foundations page, one picture per data-token-sheet element.
+const sheetPages = shard === 1 && !only ? Object.values(JSON.parse(fs.readFileSync(path.join(SB, 'index.json'), 'utf8')).entries)
+  .filter((e) => e.type === 'docs' && e.title.startsWith('Foundations/')).sort((a, b) => a.id.localeCompare(b.id)) : [];
+let sheetsFailed = false;
+async function checkSheets(e, page) {
+  const out = [];
+  const pageName = `Foundations/${e.title.split('/').pop().replace(/\s+/g, '-')}`;
+  fs.mkdirSync(path.join(DIR, 'Foundations'), { recursive: true });
+  const [brand, mode] = THEMES[0].split('-');
+  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=docs&globals=brand:${brand};mode:${mode}`);
+  const drawn = await page.waitForFunction(() => document.querySelector('#storybook-docs .sbdocs-content')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
+  if (!drawn) { sheetsFailed = true; return [{ name: pageName, ok: false, detail: 'did not render in 15 s' }]; }
+  await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });
+  await page.evaluate(async () => { await Promise.all([...document.fonts].map((f) => f.load())); await document.fonts.ready; });
+  await page.waitForTimeout(150);
+  // A page without token blocks (Accessibility, Icons) has nothing to shoot.
+  for (const sheet of await page.locator('[data-token-sheet]').evaluateAll((ns) => ns.map((n) => n.dataset.tokenSheet))) {
+    const name = `${pageName}-${sheet}`;
+    expected.add(`${name}.png`);
+    const r = await compare(page, name, page.locator(`[data-token-sheet="${sheet}"]`).first());
+    if (r) out.push(r);
+  }
+  return out;
+}
+R.push(...(await inParallel(sheetPages, pages, checkSheets)).flat());
 await b.close();
 close();
 // A baseline whose story is gone: --update (run whole, not sharded) removes it, and the check fails on it.
-const orphans = saved().filter((f) => !expected.has(f) && (!only || only.has(f.split('/')[0])));
+// Foundations/ pictures count only when the sheets ran, and none is removed when a page didn't render.
+const orphans = saved().filter((f) => !expected.has(f) && (!only || only.has(f.split('/')[0])) && (f.split('/')[0] !== 'Foundations' || (sheetPages.length && !sheetsFailed)));
 if (update) {
   if (shards === 1) for (const f of orphans) fs.rmSync(path.join(DIR, f));
-  console.log(`Visual baseline saved: ${stories.length} stories.`);
-  process.exit(0);
+  console.log(`Visual baseline saved: ${stories.length} stories, ${sheetPages.length} Foundations pages.`);
+  process.exit(sheetsFailed ? 1 : 0);
 }
 if (shard === 1) R.push({ name: 'every baseline belongs to a story', ok: !orphans.length, detail: `no story for: ${orphans.slice(0, 10).join(', ')}; add the "update-visual-baselines" label to remove them` });
-console.log(`(${stories.length} stories)`);
+console.log(`(${stories.length} stories, ${sheetPages.length} Foundations pages)`);
 process.exit(report('Visual', R) ? 0 : 1);
