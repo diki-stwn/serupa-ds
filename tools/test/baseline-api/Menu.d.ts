@@ -1,5 +1,5 @@
 // exports: ContextMenu, type ContextMenuProps, Menu, MenuCheckboxItem, type MenuCheckboxItemProps, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuRadioGroup, type MenuRadioGroupProps, MenuRadioItem, type MenuRadioItemProps, MenuSeparator, type MenuSeparatorProps, MenuSub, type MenuSubProps
-interface MenuProps {
+interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "role"> {
     trigger: React.ReactElement;
     children: React.ReactNode;
     placement?: Placement;
@@ -10,9 +10,7 @@ interface MenuProps {
     className?: string;
     style?: React.CSSProperties;
 }
-declare const Menu: ((props: MenuProps) => React.ReactElement) & {
-    displayName: string;
-};
+declare const Menu: React.ForwardRefExoticComponent<MenuProps & React.RefAttributes<HTMLDivElement>>;
 interface ContextMenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "role"> {
     target: React.ReactElement;
     children: React.ReactNode;

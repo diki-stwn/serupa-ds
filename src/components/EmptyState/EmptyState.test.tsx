@@ -5,6 +5,8 @@ import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { EmptyState } from './EmptyState';
 import { announcerIdle } from '../../internal/announce';
+import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const part = (id: string, name: string) => el(id).querySelector<HTMLElement>(`.dk-empty-state__${name}`);
@@ -89,6 +91,39 @@ describe('EmptyState', () => {
     } finally {
       watch.disconnect();
     }
+  });
+
+  test('suggestions: "Did you mean:" and a link button per search that calls onSuggestion, 24px tall; plain text without onSuggestion (64)', async () => {
+    const picked: string[] = [];
+    await render(<>
+      <EmptyState id="esug" title="No results for “marz”" suggestions={['mars', '', 'maze']} onSuggestion={(s) => picked.push(s)} />
+      <EmptyState id="etxt" title="No results" suggestions={['mars']} />
+    </>);
+    const line = part('esug', 'suggestions')!;
+    const buttons = [...line.querySelectorAll('button')];
+    expect([line.tagName, line.textContent, buttons.map((b) => b.textContent)]).toEqual(['P', 'Did you mean:marsmaze', ['mars', 'maze']]);
+    expect(line.parentElement!.className).toBe('dk-empty-state__text');
+    expect(buttons.every((b) => b.offsetHeight >= 24 && css(b).textDecorationLine === 'underline')).toBe(true);
+    buttons[1].click();
+    expect(picked).toEqual(['maze']);
+    const plain = part('etxt', 'suggestions')!;
+    expect([plain.querySelector('button'), plain.querySelector('strong')!.textContent]).toEqual([null, 'mars']);
+  });
+
+  test('onClearFilters: a "Clear filters" button after the actions (sm in a small empty state) that calls it; Indonesian labels (64)', async () => {
+    let cleared = 0;
+    await render(<>
+      <EmptyState id="eclr" size="sm" title="No results" actions={<Button id="other">New search</Button>} onClearFilters={() => cleared++} />
+      <EmptyState id="eonly" title="No results" onClearFilters={() => cleared++} />
+      <Button id="smref" size="sm">x</Button>
+      <SerupaProvider labels={idLabels}><EmptyState id="eid" title="Tidak ada hasil" suggestions={['mars']} onClearFilters={() => cleared++} /></SerupaProvider>
+    </>);
+    const btns = [...part('eclr', 'actions')!.querySelectorAll('button')];
+    expect([btns.map((b) => b.textContent.replace(/filter_alt_off/, '').trim()), btns[1].offsetHeight]).toEqual([['New search', 'Clear filters'], el('smref').offsetHeight]);
+    btns[1].click();
+    part('eonly', 'actions')!.querySelector('button')!.click();
+    expect(cleared).toBe(2);
+    expect([part('eid', 'suggestions')!.firstElementChild!.textContent, part('eid', 'actions')!.textContent.replace(/filter_alt_off/, '').trim()]).toEqual(['Mungkin maksud Anda:', 'Hapus filter']);
   });
 
   test('contrast: title and description 4.5:1 on surface, the icon 3:1 on its circle, in all six themes', async () => {

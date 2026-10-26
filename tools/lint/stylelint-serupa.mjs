@@ -10,6 +10,10 @@
 //   serupa/focus-ring-outline       a focus ring is an outline (focus-ring-width, focus-ring-offset), not a box-shadow
 //                                   ring, whose gap paints in one color and shows as a band on a tinted background.
 //                                   Inset rings, for elements a scrolling container would clip (Tabs), are allowed
+//   serupa/no-physical-shorthand    a box shorthand (padding, margin, inset, scroll-margin/padding, border-width/
+//                                   color/style) whose right and left values differ, or a border-radius whose corners
+//                                   differ left to right, is physical: it stays put in right-to-left text. Use the
+//                                   -block / -inline longhands (padding-block, padding-inline-start) instead
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -106,4 +110,28 @@ const focus = rule('serupa/focus-ring-outline', {
   });
 });
 
-export default [layer, raw, color, focus];
+// The box shorthands, top right bottom left, and border-radius, top-left top-right bottom-right bottom-left.
+const BOX = /^(padding|margin|inset|scroll-(margin|padding)|border-(width|color|style))$/;
+const physical = rule('serupa/no-physical-shorthand', {
+  box: (p) => `${p} sets different right and left values, which don't swap in right-to-left text; use ${p.replace(/^(border)-(\w+)$/, '$1-inline-$2').replace(/^(?!border)(.*)$/, '$1-inline')} (and -block) instead`,
+  radius: 'border-radius sets different corners on the left and right, which don\'t swap in right-to-left text; use border-start-start-radius and the other logical corners',
+}, (root, flag, m) => {
+  root.walkDecls((decl) => {
+    const prop = decl.prop.toLowerCase();
+    if (!BOX.test(prop) && prop !== 'border-radius') return;
+    // The values around a "/" (border-radius's vertical radii) are compared on their own.
+    const groups = [[]];
+    for (const n of valueParser(decl.value).nodes) {
+      if (n.type === 'div' && n.value === '/') groups.push([]);
+      else if (n.type !== 'space' && n.type !== 'comment') groups.at(-1).push(valueParser.stringify(n));
+    }
+    if (BOX.test(prop)) {
+      const v = groups[0];
+      if (v.length === 4 && v[1] !== v[3]) flag(decl, m.box(prop), decl.value);
+    } else if (groups.some((v) => (v.length === 2 && v[0] !== v[1]) || (v.length === 3 && v[0] !== v[1]) || (v.length === 4 && (v[0] !== v[1] || v[2] !== v[3])))) {
+      flag(decl, m.radius, decl.value);
+    }
+  });
+});
+
+export default [layer, raw, color, focus, physical];
