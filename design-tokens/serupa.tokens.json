@@ -8404,7 +8404,7 @@
         0.67,
         0
       ],
-      "$description": "Accelerates gently: surfaces leaving (`ease-exit`).",
+      "$description": "Accelerates gently from a standstill: something drifting off. Slower to get going than `ease-in`, so not for closing surfaces.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-in-cubic"
@@ -8703,8 +8703,8 @@
     },
     "ease-exit": {
       "$type": "cubicBezier",
-      "$value": "{transitions.ease-in-cubic}",
-      "$description": "Something leaving: eases away, then out of the way.",
+      "$value": "{transitions.ease-in}",
+      "$description": "Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-exit"

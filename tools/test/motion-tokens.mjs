@@ -16,7 +16,7 @@ const RAW_EASE = /(?<![\w-])(?:linear|ease|ease-in|ease-out|ease-in-out)(?![\w-]
 // so a change to the role reaches it. Allowed: duration-0 (no transition at all) and ease-linear (a spinner or a
 // bar turning at constant speed, as the Motion page says). What still uses the scale is in KNOWN, by component,
 // under the queue item that moves it onto a role; a KNOWN token no longer used fails too.
-const SCALE = /var\(--((?:duration-(?!0\))\d+)|ease-(?:in-out|in|out)(?:-(?:cubic|quart|expo|back))?|ease-spring-(?:soft|snappy))\)/g;
+const SCALE = /var\(--((?:duration-(?!0\))\d+)|ease-(?:in-out|in|out)(?:-(?:cubic|quart|expo|back))?|ease-spring-(?:soft|snappy)|ease-elastic)\)/g;
 const KNOWN = Object.fromEntries(Object.entries({
   Loader: ['duration-1000', 'duration-500', 'ease-in-out', 'duration-1200', 'duration-150', 'duration-300', 'duration-75', 'duration-200', 'duration-100', 'duration-700'],   // its own art and rhythms: each animation is a sum of scale steps, tuned per variant
 }).flatMap(([c, ts]) => ts.map((t) => [`${c}:${t}`, 'FI1'])));
@@ -44,7 +44,7 @@ for (const name of fs.readdirSync(dir).sort()) {
 
 const tokens = JSON.parse(fs.readFileSync(path.join(PROJECT, 'tokens.json'), 'utf8')).transitions.tokens;
 const names = new Set(tokens.map((t) => t.name));
-const ROLES = ['motion-press', 'motion-hover', 'motion-enter-sm', 'motion-enter-md', 'motion-enter-lg', 'motion-exit-sm', 'motion-exit-md', 'motion-exit-lg', 'motion-change-sm', 'motion-change-md', 'motion-change-lg', 'motion-loop-spinner', 'motion-loop-placeholder', 'motion-loop-blink', 'motion-loop-progress', 'motion-ripple', 'motion-ripple-fade', 'motion-stagger', 'motion-stagger-limit', 'ease-enter', 'ease-exit', 'ease-move', 'ease-settle', 'ease-pop', 'ease-spring'];
+const ROLES = ['motion-press', 'motion-hover', 'motion-enter-sm', 'motion-enter-md', 'motion-enter-lg', 'motion-exit-sm', 'motion-exit-md', 'motion-exit-lg', 'motion-change-sm', 'motion-change-md', 'motion-change-lg', 'motion-loop-spinner', 'motion-loop-placeholder', 'motion-loop-blink', 'motion-loop-progress', 'motion-ripple', 'motion-ripple-fade', 'motion-stagger', 'motion-stagger-limit', 'ease-enter', 'ease-exit', 'ease-move', 'ease-settle', 'ease-pop', 'ease-spring', 'ease-celebrate'];
 const roles = ROLES.map((r) => [r, tokens.find((t) => t.name === r)]);
 const badRoles = roles.filter(([, t]) => !t || !/^\{(?:duration|delay|ease)-[\w-]+\}$/.test(t.value) || !names.has(t.value.slice(1, -1))).map(([r, t]) => `${r}: ${t ? t.value : 'missing'}`);
 const value = (n) => { const t = tokens.find((x) => x.name === n); const v = t.value.slice(1, -1); return parseInt(tokens.find((x) => x.name === v)?.value, 10); };

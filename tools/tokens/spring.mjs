@@ -1,9 +1,9 @@
-// The spring easings (ease-spring-soft, ease-spring-snappy) as CSS linear() curves: a damped spring released from 0
+// The spring easings (ease-spring-soft, ease-spring-snappy, ease-elastic) as CSS linear() curves: a damped spring released from 0
 // toward 1, sampled until it settles. tokens.json holds the result; tools/test/motion-tokens.mjs checks it still
 // matches these springs, so a curve is changed here and copied over, never edited by hand.
 //   node tools/tokens/spring.mjs            prints each spring's linear()
 //
-// A spring is its damping ratio: below 1 it overshoots once and settles (0.85 barely, 0.6 by about 9%). Its
+// A spring is its damping ratio: below 1 it overshoots and settles (0.85 barely, 0.6 by about 9%, 0.3 by about 37% and wobbles a few times). Its
 // stiffness is chosen so it has settled to within 0.5% at the end of the curve, so the curve fits whatever
 // duration a transition gives it. Points are dropped where a straight line between their neighbours is within
 // 0.2% of the spring, which keeps each curve to a few dozen points.
@@ -11,6 +11,7 @@
 export const SPRINGS = {
   'ease-spring-soft': 0.85,
   'ease-spring-snappy': 0.6,
+  'ease-elastic': 0.3,
 };
 
 const position = (zeta, w, t) => {
