@@ -490,7 +490,8 @@ describe('Drawer: a body that scrolls', () => {
 });
 
 describe('Drawer: motion (DZ1)', () => {
-  const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && a.effect.pseudoElement === '::backdrop');
+  // WebKit reports a ::backdrop transition with no pseudoElement, on the dialog itself; the dialog has no opacity transition of its own.
+  const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && (a.effect.pseudoElement === '::backdrop' || (!a.effect.pseudoElement && a instanceof CSSTransition && a.transitionProperty === 'opacity')));
   const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
   const props = (l: Animation[]) => l.filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]);
   test('slides in with a transition (backdrop fading with it) and back out to its edge faster, shown until it has gone while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {

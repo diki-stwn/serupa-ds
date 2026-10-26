@@ -121,7 +121,7 @@ Icons take the text color (`currentColor`). Set it with an alias, never a palett
 | `id` | string | none | Goes to the root `<span>`. |
 | `name` | `IconName`: any Material Symbol's name, a custom icon's name, or a name you registered | | Give `name` or `icon`. A custom icon with the same name as a Material Symbol wins. All names autocomplete. |
 | `icon` | `IconData`: a Material Symbol imported from `serupa-ds/icons` | | Give `name` or `icon`: `icon={ArrowForward}`. |
-| `size` | `number \| string` | 24px, or the button's icon size inside a Button | Pixels as a number, or any CSS length. Sets the font size; the icon is 1em square. |
+| `size` | `number \| string` | 24px, or the button's icon size inside a Button | Pixels as a number (or a string of one: `"20"` is 20px), or any CSS length. Sets the font size; the icon is 1em square. |
 | `aria-label` | `string` | | Makes the icon meaningful: `role="img"` with this name. Without it (or `aria-labelledby`) the icon is `aria-hidden`. |
 
 `className`, `style`, `ref` and other `<span>` props go to the outer `<span>`, which has `data-icon` with the icon's name.

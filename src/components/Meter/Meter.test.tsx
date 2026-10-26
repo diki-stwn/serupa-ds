@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Meter, meterState } from './Meter';
@@ -10,7 +10,7 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const mt = (id: string) => el(id).querySelector('[role=meter]') as HTMLElement;
 const share = (id: string) => {
   const tr = el(id).querySelector('.dk-meter__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-meter__fill')!.getBoundingClientRect();
-  return Math.round(f.width / tr.width * 100);
+  return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
 const thick = (id: string) => Math.round(el(id).querySelector('.dk-meter__track')!.getBoundingClientRect().height);
 const value = (id: string) => el(id).querySelector('.dk-meter__value')?.textContent ?? null;
@@ -128,5 +128,19 @@ describe('Meter', () => {
   test('--meter-fill-poor overrides one meter', async () => {
     await render(<Wrap><Meter id="tok" value={90} low={30} high={70} optimum={0} aria-label="tok" style={{ '--meter-fill-poor': 'rgb(1, 2, 3)' } as React.CSSProperties} /></Wrap>);
     expect(fill('tok')).toBe('rgb(1, 2, 3)');
+  });
+  test('a new value moves the fill on translate, not its width, and right to left it fills from the right (FB1)', async () => {
+    const bar = (v: number) => <Wrap><div dir="rtl"><Meter id="mv" value={v} aria-label="mv" /></div></Wrap>;
+    const { rerender } = await render(bar(30));
+    const own = () => el('mv').querySelector('[role=meter]')!.firstElementChild as HTMLElement;
+    await withMotion(async () => {
+      void css(own()).translate;   // where it starts from
+      await rerender(bar(70));
+      const moves = own().getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
+      expect(moves.map((a) => a.transitionProperty)).toEqual(['translate']);
+      await Promise.all(moves.map((a) => a.finished));
+    });
+    const tr = own().parentElement!.getBoundingClientRect(), f = own().getBoundingClientRect();
+    expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
   });
 });
