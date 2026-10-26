@@ -15,7 +15,7 @@ const described = (b: HTMLElement) => (b.getAttribute('aria-describedby') || '')
 const Confirm = (p: Partial<TypeToConfirmProps> & { ref?: React.Ref<HTMLDivElement> }) => <TypeToConfirm id="t" phrase="acme/web" confirmLabel="Delete this repository" onConfirm={() => {}} {...p} />;
 
 describe('TypeToConfirm', () => {
-  test('a field labelled with the phrase and a destructive button; ref, className and other props reach the wrapper', async () => {
+  test('a field labelled with the phrase and a destructive button Tab reaches before it works; ref, className and other props reach the wrapper', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Confirm ref={ref} className="extra" data-x="y" hint="It can’t be undone." />);
     const { root, input, button } = parts('t');
@@ -25,6 +25,9 @@ describe('TypeToConfirm', () => {
     expect(described(input)).toContain('It can’t be undone.');
     expect([button.textContent.startsWith('Delete this repository'), button.getAttribute('aria-disabled'), button.disabled]).toEqual([true, 'true', false]);
     expect(described(button)).toContain('Type “acme/web” first');
+    input.focus();
+    await userEvent.tab();   // the button is focusable before it works, so Tab reaches it
+    expect(document.activeElement).toBe(button);
   });
 
   test('the button works only once the phrase is typed (spaces around it ignored); Enter confirms; onMatch on each change', async () => {

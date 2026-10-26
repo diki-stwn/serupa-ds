@@ -35,9 +35,15 @@ import { TypeToConfirm } from "serupa-ds";
 ## Accessibility
 
 - **Role and name:** a text field labelled "To confirm, type" and the phrase, then a button named by `confirmLabel`.
-- **Keyboard:** Tab reaches the field, then the button. The button is focusable before it works (`aria-disabled`), and its description says why ("Type “acme/web” first").
 - **Contrast:** the label and the destructive button read 4.5:1 in all six themes (Field and Button).
 - **What's still yours:** say what will be lost, and put it in a Dialog or a clearly separated danger zone.
+
+### Keyboard
+
+| Key | Does |
+| --- | --- |
+| Tab | To the field, then to the button. The button is focusable before it works (`aria-disabled`), and its description says why ("Type “acme/web” first") |
+| Enter | In the field: confirms, once the text matches the phrase |
 
 ## Props
 
