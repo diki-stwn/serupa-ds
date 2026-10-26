@@ -117,7 +117,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
 });
 
 /* AccordionItem: a heading holding a button (aria-expanded, aria-controls) and a region (aria-labelledby) that
-   opens at once and unfolds (a fade and a clip, on the compositor), and folds back before its height goes; closed content is hidden from everyone, but find-in-page can still
+   grows to its height as it unfolds (a fade and a clip), and folds back as it shrinks; closed content is hidden from everyone, but find-in-page can still
    find it (hidden="until-found"), which opens the item. */
 /** One item in an Accordion: a title button and the content it shows and hides. */
 export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, AccordionItemProps>("AccordionItem", function AccordionItem(props, ref) {
@@ -152,12 +152,36 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
     // The panel keeps its content shown until the fold ends. CSS alone (a discrete content-visibility transition)
     // isn't enough: WebKit sometimes drops it, and the panel lost its height at the start of the fold.
     const hold = (on: boolean) => { panel.style.contentVisibility = on ? "visible" : ""; };
-    const hide = () => { hold(false); if (findable) el.setAttribute("hidden", "until-found"); if (!keep) setMounted(false); };
+    const hide = () => { hold(false); if (grow.current) grow.current.cancel(); if (findable) el.setAttribute("hidden", "until-found"); if (!keep) setMounted(false); };
     if (ms) hold(true);
     if (!ms || !el.isConnected || panel.getBoundingClientRect().height === 0) { hide(); return; }
     const t = setTimeout(hide, ms);
     return () => { clearTimeout(t); hold(false); };
   }, [open, findable, keep]);
+  // The height glides too (EH2, revised): the panel grows from nothing to its content's height, or shrinks to
+  // nothing, over the same time as its fade (read from that transition), so what's below slides
+  // instead of jumping. It's the one layout a component animates on purpose: one panel, while it moves. A press
+  // mid-way turns back from the height it has. Not under reduced motion (the fade alone, and the height at once).
+  const grow = React.useRef<Animation | null>(null);
+  const was = React.useRef(open);
+  React.useLayoutEffect(function () {
+    const panel = content.current && content.current.closest<HTMLElement>(".dk-accordion__panel");
+    if (!panel || was.current === open) return;
+    was.current = open;
+    const from = grow.current ? panel.getBoundingClientRect().height : open ? 0 : panel.offsetHeight;
+    if (grow.current) { grow.current.cancel(); grow.current = null; }
+    const fade = typeof panel.getAnimations === "function" ? panel.getAnimations().find((a) => (a as CSSTransition).transitionProperty === "opacity") : null;
+    const timing = fade && fade.effect ? fade.effect.getTiming() : null;
+    if (!timing || !timing.duration || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const to = open ? panel.offsetHeight : 0;
+    if (from === to) return;
+    // Closing, it slows to a stop on ease-move rather than the fade's ease-exit, which would end what's below at full speed.
+    const easing = open ? timing.easing : getComputedStyle(panel).getPropertyValue("--ease-move").trim() || timing.easing;
+    grow.current = panel.animate({ height: [from + "px", to + "px"] }, { duration: timing.duration, easing, fill: open ? "none" : "forwards" });
+    grow.current.id = "dk-accordion-height";
+    if (open) grow.current.onfinish = () => { grow.current = null; };
+  }, [open]);
+  React.useEffect(() => () => { if (grow.current) grow.current.cancel(); }, []);
   React.useEffect(function () {
     const el = content.current;
     if (!el) return;

@@ -1,0 +1,29 @@
+{
+  "typeToConfirm": {
+    "$description": "TypeToConfirm's component tokens. Each one is an optional override: set the CSS variable (--type-to-confirm-<name>) on the page, a container or one TypeToConfirm, and every TypeToConfirm inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "spacing": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Space between the field and the button (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--type-to-confirm-gap"
+          }
+        }
+      }
+    },
+    "typography": {
+      "phrase-weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "The phrase's weight in the label.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--type-to-confirm-phrase-weight"
+          }
+        }
+      }
+    }
+  }
+}
