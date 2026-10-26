@@ -29,7 +29,6 @@ const KNOWN = {
   PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
   SearchInput: ['invalid', 'readOnly'],
-  TimePicker: ['readOnly'],
 };
 
 const config = ts.getParsedCommandLineOfConfigFile(path.join(PROJECT, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
