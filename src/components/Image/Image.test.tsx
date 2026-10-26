@@ -283,4 +283,26 @@ describe('Image loading motion', () => {
     expect(box('src')).toEqual({ ...box('plain') });
     expect([...frame('plain').querySelectorAll('picture')].length).toBe(0);
   });
+  test('saving data (196): only a priority picture loads at once, and each takes the smallest version in its srcSet', async () => {
+    const SMALL = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><rect width="200" height="100" fill="#22c55e"/></svg>');
+    const list = `${SMALL} 200w, ${PIC} 400w`;
+    Object.defineProperty(navigator, 'connection', { configurable: true, value: Object.assign(new EventTarget(), { saveData: true }) });
+    try {
+      await render(<Row>
+        <Pic id="eager" alt="" ratio="video" loading="eager" srcSet={list} sizes="200px" />
+        <Pic id="hero" alt="" ratio="video" priority srcSet={`${SMALL} 1x, ${PIC} 2x`} />
+        <Pic id="art" alt="" ratio="video" sources={[{ srcSet: list, media: '(min-width: 1px)' }]} />
+      </Row>);
+      const img = (id: string) => frame(id).querySelector('img')!;
+      expect([img('eager').getAttribute('loading'), img('eager').getAttribute('srcset'), img('eager').getAttribute('sizes')]).toEqual(['lazy', SMALL, null]);
+      expect([img('hero').getAttribute('loading'), img('hero').getAttribute('srcset')]).toEqual(['eager', SMALL]);
+      const source = frame('art').querySelector('source')!;
+      expect([source.getAttribute('srcset'), source.getAttribute('sizes')]).toEqual([SMALL, null]);
+      await expect.poll(() => img('hero').currentSrc).toBe(SMALL);
+    } finally {
+      delete (navigator as { connection?: unknown }).connection;
+    }
+    await render(<Pic id="normal" alt="" ratio="video" loading="eager" srcSet={list} sizes="200px" />);
+    expect([frame('normal').querySelector('img')!.getAttribute('loading'), frame('normal').querySelector('img')!.getAttribute('srcset')]).toEqual(['eager', list]);
+  });
 });
