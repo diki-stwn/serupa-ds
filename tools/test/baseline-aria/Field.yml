@@ -19,6 +19,12 @@
     - text: Pro
   - text: Choose a plan
 
+# LongText
+- text: The email address we should send every receipt and invoice to We send one receipt per payment, plus a monthly summary for Donaudampfschifffahrtsgesellschaftskapitänskajüte.
+- textbox "The email address we should send every receipt and invoice to" [invalid]:
+  - /placeholder: you@example.com
+- text: Enter an email address like name@example.com, without spaces before or after it
+
 # Optional
 - text: Company(optional)
 - textbox "Company(optional)":

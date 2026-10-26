@@ -33,3 +33,12 @@ export const WithStatus: Story = {
 };
 /** showMore: "+N" is a button that lists the people not shown, for keyboard and touch users too. */
 export const ShowMore: Story = { args: { max: 3, showMore: true } };
+
+export const Overflow: Story = {
+  args: { max: 3 },
+  render: (args) => (
+    <div style={{ width: 160 }}>
+      <AvatarGroup {...args}>{[...PEOPLE, ...PEOPLE.map((n) => n + ' II'), "Donaudampfschifffahrtsgesellschaftskapitänskajüte"].map((n) => <Avatar key={n} name={n} />)}</AvatarGroup>
+    </div>
+  ),
+};

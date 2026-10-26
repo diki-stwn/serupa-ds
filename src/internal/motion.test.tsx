@@ -28,7 +28,6 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 // a pull request's included, fails when the breach is gone and the line is still here).
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
-    'dk-switch__thumb': ['EG1: the thumb slides by left', ['Switch']],
     'dk-segmented__indicator': ['EG1: the indicator slides by left and width', ['SegmentedControl']],
     'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
     'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
