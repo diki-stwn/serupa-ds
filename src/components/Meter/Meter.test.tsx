@@ -68,7 +68,7 @@ describe('Meter', () => {
     expect(cases.map(([id]) => fill(id))).toEqual(cases.map((c) => tone[c[2]]));
   });
 
-  test('outside the best zone the read-out and shown value say where it falls ("92%, high"), so the zone isn't only a color (GH4); in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
+  test('outside the best zone the read-out and shown value say where it falls ("92%, high"), so the zone is not only a color (GH4); in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
     await render(<Wrap>
       <Meter id="z-high" value={92} high={80} optimum={10} showValue aria-label="Storage" />
       <Meter id="z-low" value={12} low={20} high={60} optimum={100} aria-label="Battery" />
