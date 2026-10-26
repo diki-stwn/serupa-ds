@@ -28,3 +28,8 @@ export const Sizes: Story = {
 };
 export const Invalid: Story = { args: { invalid: true } };
 export const Disabled: Story = { args: { disabled: true, defaultValue: '10:00' } };
+
+export const OverflowNarrow: Story = {
+  args: { defaultValue: '23:30' },
+  decorators: [(Story) => <div style={{ width: 120 }}><Story /></div>],
+};

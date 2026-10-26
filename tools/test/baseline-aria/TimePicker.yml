@@ -6,6 +6,10 @@
 - combobox "Time" [invalid]
 - button "Choose a time"
 
+# OverflowNarrow
+- combobox "Time": 11:30 PM
+- button "Choose a time"
+
 # Playground
 - combobox "Time"
 - button "Choose a time"
