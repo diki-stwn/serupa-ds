@@ -87,7 +87,20 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
     const ro = new ResizeObserver(set);
     ro.observe(head);
     set();
-    return () => { ro.disconnect(); el.style.removeProperty("--dk-table-head"); };
+    // Firefox leaves scroll-padding out when it decides whether a focused control needs scrolling, so one that is partly
+    // under the header stays there (WCAG 2.4.11). After the browser's own focus scroll, the frame moves by what's still covered.
+    let raf = 0;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target as HTMLElement;
+      if (t === el || head.contains(t)) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const covered = el.getBoundingClientRect().top + el.clientTop + head.getBoundingClientRect().height - t.getBoundingClientRect().top;
+        if (covered > 0) el.scrollTop -= covered;
+      });
+    };
+    el.addEventListener("focusin", onFocus);
+    return () => { ro.disconnect(); cancelAnimationFrame(raf); el.removeEventListener("focusin", onFocus); el.style.removeProperty("--dk-table-head"); };
   }, [sticky]);
   // A name on the frame belongs to its region role: a plain div that doesn't scroll can't carry one (axe aria-prohibited-attr).
   const { "aria-label": frameLabel, "aria-labelledby": frameLabelledBy, ...cp } = props.containerProps || {};
