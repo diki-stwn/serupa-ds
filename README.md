@@ -125,6 +125,7 @@ The package also exports what the components use themselves, so a component you 
 | `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
 | `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
 | `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
+| `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and simply applies the change where View Transitions are missing. |
 
 ```tsx
 import { announce, useLocale } from "serupa-ds";
@@ -135,6 +136,19 @@ function SavedAt({ at }: { at: Date }) {
 }
 
 announce("Draft saved");
+```
+
+```tsx
+import { withViewTransition } from "serupa-ds";
+
+function Cards({ items }: { items: { id: string; title: string }[] }) {
+  const [sorted, setSorted] = React.useState(items);
+  const sortByTitle = () => withViewTransition(() => setSorted((s) => [...s].sort((a, b) => a.title.localeCompare(b.title))));
+  return <>
+    <button onClick={sortByTitle}>Sort by title</button>
+    <ul className="stagger">{sorted.map((c) => <li key={c.id} className="view-transition-match animate-enter">{c.title}</li>)}</ul>
+  </>;
+}
 ```
 
 [Localization](docs/Localization.mdx) has more on the provider.
