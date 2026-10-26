@@ -7,7 +7,7 @@ const COLOR = /color|shadow|fill|stroke/;
 /** Runs `change` (such as setting data-theme on a section) and finishes the color transitions it starts in `element` and
  *  everything inside it, so the new theme's colors arrive at once instead of fading control by control. Motion (opacity,
  *  scale, translate) runs on. theme.js does this for the page. */
-export function withoutColorTransitions(change: () => void, element?: HTMLElement): void {
+export function withoutTransitions(change: () => void, element?: HTMLElement): void {
   change();
   const el = element || (typeof document !== "undefined" ? document.documentElement : null);
   if (!el || !el.getAnimations) return;

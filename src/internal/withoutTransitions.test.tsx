@@ -3,11 +3,11 @@ import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { Switch } from '../components/Switch/Switch';
 import { keepMotion } from '../../tools/test/vitest/helpers';
-import { withoutColorTransitions } from './withoutColorTransitions';
+import { withoutTransitions } from './withoutTransitions';
 
 const transitions = (el: Element) => el.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && a.playState === 'running').map((a) => a.transitionProperty).sort();
 
-describe('withoutColorTransitions', () => {
+describe('withoutTransitions', () => {
   keepMotion();
 
   test('a section switched to another theme inside it changes its colors at once (no color transition runs), while motion started in the same tick runs on', async () => {
@@ -18,7 +18,7 @@ describe('withoutColorTransitions', () => {
       + '<b style="display: block; background: var(--surface-muted)"></b>';
     const mover = sec.querySelector('i')!;
     void getComputedStyle(mover).translate;   // the light colors and the start position are in place
-    withoutColorTransitions(() => { sec.setAttribute('data-theme', 'blue-dark'); mover.style.translate = '16px'; mover.style.opacity = '0'; }, sec);
+    withoutTransitions(() => { sec.setAttribute('data-theme', 'blue-dark'); mover.style.translate = '16px'; mover.style.opacity = '0'; }, sec);
     expect(transitions(sec)).toEqual(['opacity', 'translate']);
     const dark = getComputedStyle(sec.querySelector('b')!).backgroundColor;   // no transition: the dark color itself
     expect([getComputedStyle(sec.firstElementChild!).backgroundColor, getComputedStyle(mover).backgroundColor]).toEqual([dark, dark]);
@@ -29,7 +29,7 @@ describe('withoutColorTransitions', () => {
     const p = document.body.appendChild(document.createElement('p'));
     p.style.cssText = 'transition: color 150ms; color: rgb(0, 0, 0)';
     void getComputedStyle(p).color;
-    withoutColorTransitions(() => { p.style.color = 'rgb(255, 255, 255)'; });
+    withoutTransitions(() => { p.style.color = 'rgb(255, 255, 255)'; });
     expect([transitions(document.documentElement), getComputedStyle(p).color]).toEqual([[], 'rgb(255, 255, 255)']);
     p.remove();
   });
@@ -38,7 +38,7 @@ describe('withoutColorTransitions', () => {
     await render(<section data-theme="blue-light"><Switch>Dark mode</Switch></section>);
     const input = document.querySelector<HTMLInputElement>('[role="switch"]')!, sec = input.closest('section')!;
     void getComputedStyle(input.nextElementSibling!).translate;   // the thumb's start position is in place
-    withoutColorTransitions(() => { sec.setAttribute('data-theme', 'blue-dark'); input.click(); }, sec);
+    withoutTransitions(() => { sec.setAttribute('data-theme', 'blue-dark'); input.click(); }, sec);
     expect([input.checked, transitions(sec)]).toEqual([true, ['translate']]);
   });
 });
