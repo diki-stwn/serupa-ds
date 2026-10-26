@@ -106,7 +106,9 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
       onPointerLeave={(e) => { if (onPointerLeave) onPointerLeave(e); setHover(null); }}
       onKeyDown={(e) => {
         if (onKeyDown) onKeyDown(e);
-        if (!e.defaultPrevented && clearable && !disabled && (e.key === "Backspace" || e.key === "Delete")) { e.preventDefault(); set(null); }
+        if (!e.defaultPrevented && clearable && !disabled && (e.key === "Backspace" || e.key === "Delete"
+          // a browser clicks a radio on Space only when it isn't checked yet, so Space on the picked star clears it here
+          || (e.key === " " && (e.target as HTMLInputElement).checked))) { e.preventDefault(); set(null); }
       }}>
       {stars.map((s) => box(radios(s.i), s.i, s.fill))}
     </div>
