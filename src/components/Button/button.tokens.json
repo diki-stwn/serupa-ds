@@ -531,7 +531,7 @@
       },
       "press-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-100}",
+        "$value": "{transitions.motion-press}",
         "$description": "How fast the press scales down and back (100ms).",
         "$extensions": {
           "com.serupa": {
@@ -561,7 +561,7 @@
       },
       "loading-duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-150}",
+        "$value": "{transitions.motion-enter-sm}",
         "$description": "Cross-fade between the content and the loading spinner (150ms).",
         "$extensions": {
           "com.serupa": {

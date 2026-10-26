@@ -18,7 +18,7 @@ const RAW_EASE = /(?<![\w-])(?:linear|ease|ease-in|ease-out|ease-in-out)(?![\w-]
 const SCALE = /var\(--((?:duration-(?!0\))\d+)|ease-(?:in-out|in|out))\)/g;
 const KNOWN = Object.fromEntries(Object.entries({
   Accordion: ['duration-200', 'ease-in-out'],   // the chevron turning and the panel opening: a change in place
-  Badge: ['duration-150', 'ease-in-out', 'duration-500', 'duration-300', 'ease-out'],   // loading cross-fade, ripple
+  Badge: ['ease-in-out', 'duration-500', 'duration-300', 'ease-out'],   // loading cross-fade, ripple
   Button: ['ease-out', 'duration-150', 'ease-in-out', 'duration-500', 'duration-300'],   // press easing, loading, nudge, ripple
   Card: ['ease-out'],   // the press
   Carousel: ['duration-300', 'ease-out', 'duration-150'],   // the slides and the dots moving

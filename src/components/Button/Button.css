@@ -146,10 +146,10 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
 .dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */
-.dk-btn__label { transition: opacity var(--button-loading-duration, var(--duration-150)) var(--ease-in-out); }
+.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-in-out); }
 .dk-btn__icon {
   transition-property: opacity, translate;
-  transition-duration: var(--button-loading-duration, var(--duration-150)), var(--button-icon-nudge-duration, var(--duration-150));
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--duration-150));
   transition-timing-function: var(--ease-in-out), var(--ease-out);
 }
 @media (hover: hover) {

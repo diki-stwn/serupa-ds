@@ -141,7 +141,7 @@
 .dk-badge--interactive:active:not(:disabled, [aria-disabled="true"]),
 .dk-badge--interactive[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-badge-press); }
 /* Loading: the content fades out while the ring fades and grows in. */
-.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--duration-150)) var(--ease-in-out); }
+.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-in-out); }
 .dk-badge__loader { animation: dk-badge-loader-in var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
 @keyframes dk-badge-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-badge-loader-from); } }
 /* Ripple: from the press point, in the text color at --badge-ripple-opacity; Badge adds the circles. */
