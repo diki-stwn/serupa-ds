@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { pressFocuses } from "../../internal/affix";
 import { cn, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import type { InputProps } from "../Input/Input";
@@ -201,7 +202,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const options = React.useMemo(() => list.map(({ c, name }) => <option key={(hydrated ? "" : "server-") + c.code} value={c.code} suppressHydrationWarning>{name + " (+" + c.dial + ")"}</option>), [list, hydrated]);
   return (
     <span className={cn("dk-input dk-phone-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="phone-input" data-size={size}>
+      style={props.style} data-component="phone-input" data-size={size} onMouseDown={pressFocuses(input)}>
       <span className="dk-phone-input__country">
         <span className="dk-phone-input__dial" aria-hidden>+{country.dial}</span>
         <Icon icon={icons.ExpandMore} className="dk-phone-input__chevron" />
