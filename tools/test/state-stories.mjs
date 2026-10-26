@@ -20,10 +20,8 @@ const SHOWN = {
 };
 // No story yet, each to get one in its own pull request (X1, with the "update-visual-baselines" label).
 const KNOWN = {
-  Badge: ['disabled'],
   ColorPicker: ['disabled', 'invalid'],
   DateRangePicker: ['invalid', 'readOnly'],
-  PhoneInput: ['readOnly'],
 };
 
 const config = ts.getParsedCommandLineOfConfigFile(path.join(PROJECT, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
