@@ -3,6 +3,7 @@ import * as React from "react";
 import { pressFocuses } from "../../internal/affix";
 import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { Icon } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Loader } from "../Loader/Loader";
@@ -321,6 +322,8 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   }, [open, typed, loading, count, text, sds.labels]);
 
   // Place the list under the field, in the top layer, as wide as the field at least.
+  // Closing: the options stay (inert) while the list fades out, as Menu's and DatePicker's do (GK1).
+  const exit = useExit(open, pop), shownList = open || exit.leaving;
   useAnchoredLayer(open, pop, box, { placement: "bottom-start", offsetVar: "--dk-combobox-offset", matchWidth: true });
   React.useEffect(() => {
     if (!open || active < 0 || !pop.current) return;
@@ -366,13 +369,13 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         disabled={locked} onMouseDown={keep} onClick={() => { if (open) hide(); else show("selected"); if (input.current) input.current.focus(); }}>
         <Icon icon={icons.ExpandMore} />
       </button>
-      <div ref={pop} className="dk-combobox__popup" {...{ popover: "manual" }} hidden={!open || undefined} onMouseDown={keep}>
+      <div ref={pop} className="dk-combobox__popup" {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} onMouseDown={keep}>
         {loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
         <div id={listId} role="listbox" className="dk-combobox__listbox" aria-multiselectable={multi || undefined} aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
-          {/* Only while open: a closed Combobox with thousands of options keeps none of them in the page. */}
-          {open ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
+          {/* Only while open (and fading out): a closed Combobox with thousands of options keeps none of them in the page. */}
+          {shownList ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
         </div>
-        {open && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
+        {shownList && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
         {!loading && failed ? <div className="dk-combobox__message" role="status">{sds.labels.loadFailed}</div> : null}
         {!loading && !failed && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
