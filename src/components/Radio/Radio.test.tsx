@@ -107,6 +107,25 @@ describe('Radio', () => {
     expect([document.activeElement!.id, changes.join()]).toEqual(['b', 'a:change,b:change']);
   });
 
+  test('keyboard table: Tab lands on the checked radio (or the first); every arrow moves the choice, wrapping and skipping disabled ones; Space checks the focused radio when none is (FH1)', async () => {
+    const seen: string[] = [];
+    await render(<Grid><button id="kb-before">Before</button><RadioGroup aria-label="Fruit" name="kb" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="kb-a" value="a">A</Radio><Radio id="kb-b" value="b" disabled>B</Radio><Radio id="kb-c" value="c">C</Radio><Radio id="kb-d" value="d">D</Radio>
+    </RadioGroup></Grid>);
+    input('kb-before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect([document.activeElement!.id, input('kb-a').checked]).toEqual(['kb-a', false]);   // none checked: the first, not checked yet
+    await userEvent.keyboard(' ');
+    await expect.poll(() => input('kb-a').checked).toBe(true);
+    const at = async (key: string) => { await userEvent.keyboard(`{${key}}`); return document.activeElement!.id + (input(document.activeElement!.id).checked ? '*' : ''); };
+    expect([await at('ArrowRight'), await at('ArrowDown'), await at('ArrowRight'), await at('ArrowUp'), await at('ArrowLeft'), await at('ArrowLeft')])
+      .toEqual(['kb-c*', 'kb-d*', 'kb-a*', 'kb-d*', 'kb-c*', 'kb-a*']);   // B is skipped, and the ends wrap
+    expect(seen.join()).toBe('a,c,d,a,d,c,a');
+    input('kb-before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement!.id).toBe('kb-a');   // back to the checked one
+  });
+
   test('onChange, deprecated: still called with (value, event) after onValueChange, and warns once', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const calls: string[] = [];
