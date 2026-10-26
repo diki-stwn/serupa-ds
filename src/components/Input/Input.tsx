@@ -9,7 +9,7 @@ import { displayNumber } from "../../internal/numbers";
 import { useLocale } from "../../internal/provider";
 import { useTextLimit } from "../../internal/textLimit";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
-import { useAffixes } from "../../internal/affix";
+import { pressFocuses, useAffixes } from "../../internal/affix";
 
 const PLAIN = { useGrouping: false } as const;
 // Fields whose text isn't words: the phone keyboard shouldn't capitalize, correct or underline it.
@@ -71,7 +71,7 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
     return node == null || node === false ? null : <span className={"dk-input__icon dk-input__icon--" + side} aria-hidden key={side}>{node}</span>;
   };
   return (
-    <span className={cn("dk-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)} style={props.style} data-component="input" data-size={size}>
+    <span className={cn("dk-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)} style={props.style} data-component="input" data-size={size} onMouseDown={pressFocuses(own)}>
       {icon(props.leftIcon, "left")}
       {affix.prefix}
       <input {...rest} ref={setRefs} className="dk-input__field" key="field" />

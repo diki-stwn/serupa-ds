@@ -29,7 +29,7 @@ import { Kbd } from "serupa-ds";
 
 ### Named keys
 
-These names (in any case) show as symbols on Apple devices and as words elsewhere, and screen readers hear the key's name:
+These names (in any case, and with any spaces, `_` or `-`: `page_up` and `Page Up` are `pageup`) show as symbols on Apple devices and as words elsewhere, and screen readers hear the key's name:
 
 | Name | Apple | Elsewhere |
 | --- | --- | --- |
@@ -42,6 +42,9 @@ These names (in any case) show as symbols on Apple devices and as words elsewher
 | `backspace`, `delete` | ⌫, ⌦ | Backspace, Del |
 | `tab`, `esc`, `space` | ⇥, Esc, Space | Tab, Esc, Space |
 | `up`, `down`, `left`, `right` | ↑ ↓ ← → | ↑ ↓ ← → |
+| `home`, `end` | ↖ ↘ | Home, End |
+| `pageup` (`pgup`), `pagedown` (`pgdn`) | ⇞ ⇟ | PgUp, PgDn |
+| `capslock`, `insert` (`ins`), `fn` | ⇪, Ins, fn | Caps Lock, Ins, Fn |
 
 Use `mod` for shortcuts that follow the platform. Any other text shows as it is, and single letters show in capitals.
 
