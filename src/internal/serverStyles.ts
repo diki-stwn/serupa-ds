@@ -17,7 +17,10 @@ export function useServerStyles<T extends Element>(ref?: React.ForwardedRef<T>):
       pending.current = false;
       for (const el of [node, ...node.querySelectorAll("[style]")]) {
         const text = el.getAttribute("style");
-        if (text && "style" in el) (el as HTMLElement).style.cssText = text;
+        if (!text || !("style" in el)) continue;
+        // Firefox skips a cssText that matches the attribute it ignored, so the attribute goes first.
+        el.removeAttribute("style");
+        (el as HTMLElement).style.cssText = text;
       }
     }
     if (ref) setRef(ref, node);
