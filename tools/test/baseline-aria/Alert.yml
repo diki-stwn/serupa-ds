@@ -3,6 +3,12 @@
   - text: Changes saved.
   - button "Dismiss"
 
+# LongText
+- status:
+  - paragraph: Your payment method was declined by the bank, so the renewal didn't go through
+  - text: We tried the card ending 4242 three times. Update it in Billing within 7 days to keep Donaudampfschifffahrtsgesellschaftskapitänskajüte and every other workspace running.
+  - button "Dismiss"
+
 # Playground
 - status:
   - paragraph: Heads up
