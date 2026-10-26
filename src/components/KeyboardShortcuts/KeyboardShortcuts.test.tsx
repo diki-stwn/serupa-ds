@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
@@ -66,6 +66,24 @@ describe('useShortcut', () => {
     el('text').focus();
     await userEvent.keyboard('/');
     expect([log, (el('text') as HTMLTextAreaElement).value]).toEqual([['search', 'slash'], '']);
+  });
+
+  test('keys that aren\'t one key with its modifiers (["G", "I"], ["mod"]) aren\'t set up: a lone I doesn\'t run it, it isn\'t listed, and it warns once (GQ3)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const log: string[] = [];
+      await render(<SerupaProvider platform="other">
+        <button id="gq3">Button</button>
+        <Shortcut keys={['G', 'I']} log={log} name="inbox" description="Go to inbox" />
+        <Shortcut keys={['mod']} log={log} name="mod" description="Nothing" />
+        <Shortcut keys={['Shift', 'I']} log={log} name="info" description="Show info" />
+        <KeyboardShortcuts />
+      </SerupaProvider>);
+      el('gq3').focus();
+      await userEvent.keyboard('gi{Control}{Shift>}i{/Shift}');
+      await userEvent.keyboard('?');
+      expect([log, listed(), warn.mock.calls.filter(([m]) => String(m).includes('shortcut-keys')).length]).toEqual([['info'], [['', [['Show info', 'Shift+I'], ['Show keyboard shortcuts', '?']]]], 2]);
+    } finally { warn.mockRestore(); }
   });
 });
 
