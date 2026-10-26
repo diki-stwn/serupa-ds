@@ -25,7 +25,7 @@
 .dk-carousel[data-dir="rtl"] .dk-carousel__slide[data-wrap="after"] { translate: calc(var(--spacing-0) - var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
 .dk-carousel[data-dir="rtl"] .dk-carousel__slide[data-wrap="before"] { translate: calc(var(--dk-carousel-count) * var(--dk-carousel-step)) 0; }
 .dk-carousel[data-dir="rtl"] .dk-carousel__track { transform: translateX(calc(var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px))); }
-.dk-carousel__viewport[data-dragging] .dk-carousel__track { transition: none; user-select: none; }
+.dk-carousel__viewport[data-dragging] .dk-carousel__track { transition: none; -webkit-user-select: none; user-select: none; }
 .dk-carousel__slide { flex: 0 0 calc(var(--dk-carousel-step) - var(--dk-carousel-space)); min-width: var(--spacing-0); }
 .dk-carousel__arrow { position: absolute; inset-block-start: var(--sizing-1-2); translate: 0 calc(var(--spacing-0) - var(--sizing-1-2)); box-shadow: var(--carousel-arrow-shadow, var(--shadow-sm)); }
 .dk-carousel__arrow--prev { inset-inline-start: var(--carousel-arrow-offset, var(--spacing-2)); }
