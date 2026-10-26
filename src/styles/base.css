@@ -86,14 +86,18 @@
   :where([data-theme$="-dark"]) { color-scheme: dark; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 
-/* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. Components and what's
-   inside them are left out: each has its own reduced-motion rules, which keep a short fade where it helps (a popup
-   appearing), and this !important in an earlier layer would beat them. */
+/* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. A component (a dk- class)
+   keeps only its fades: its own reduced-motion rules leave a short opacity fade where it helps (a popup appearing),
+   which a 0s duration here would beat, since an !important in an earlier layer wins over the later ones. Colors,
+   moves and scales still stop. */
 @media (prefers-reduced-motion: reduce) {
   :where(html) { scroll-behavior: auto; }
   :where(*) { scroll-behavior: auto !important; }
-  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *)),
-  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *))::before,
-  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *))::after { transition-duration: var(--duration-0) !important; }
+  :where(:not([class^="dk-"], [class*=" dk-"])),
+  :where(:not([class^="dk-"], [class*=" dk-"]))::before,
+  :where(:not([class^="dk-"], [class*=" dk-"]))::after { transition-duration: var(--duration-0) !important; }
+  :where([class^="dk-"], [class*=" dk-"]),
+  :where([class^="dk-"], [class*=" dk-"])::before,
+  :where([class^="dk-"], [class*=" dk-"])::after { transition-property: opacity, visibility, display, overlay, content-visibility !important; }
 }
 }

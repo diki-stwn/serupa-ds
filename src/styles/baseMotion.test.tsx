@@ -20,13 +20,15 @@ function reduceMotion() {
 
 describe('base.css: reduced motion', () => {
   // GD6: the page-wide rule was !important in dk.base, so it beat every component's own reduced-motion fade.
-  test('page elements lose their transitions; a component keeps the short fade its own reduced-motion rule gives it, and its contents are left alone', () => withMotion(() => {
+  test('page elements lose their transitions; a component keeps the short fade its own reduced-motion rule gives it, but no color or movement', () => withMotion(() => {
     const host = document.body.appendChild(document.createElement('div'));
-    host.innerHTML = '<p id="bm-page" style="transition: opacity 300ms"></p><div class="dk-combobox__popup" id="bm-popup"><span id="bm-inner" style="transition: opacity 300ms"></span></div>';
+    host.innerHTML = '<p id="bm-page" style="transition: opacity 300ms"></p><div class="dk-combobox__popup" id="bm-popup"><span id="bm-inner" style="transition: opacity 300ms"></span></div><b class="dk-zz" id="bm-color" style="transition: background-color 300ms, translate 300ms"></b>';
     const restore = reduceMotion();
     try {
       const dur = (id: string) => getComputedStyle(document.getElementById(id)!).transitionDuration;
-      expect([dur('bm-page'), dur('bm-popup'), dur('bm-inner')]).toEqual(['0s', '0.15s', '0.3s']);
+      const props = (id: string) => getComputedStyle(document.getElementById(id)!).transitionProperty;
+      expect([dur('bm-page'), dur('bm-popup'), props('bm-popup').split(', ')[0], dur('bm-inner')]).toEqual(['0s', '0.15s', 'opacity', '0s']);
+      expect(props('bm-color')).not.toMatch(/background-color|translate/);
       expect(getComputedStyle(document.getElementById('bm-page')!).scrollBehavior).toBe('auto');
     } finally { restore(); host.remove(); }
   }));
