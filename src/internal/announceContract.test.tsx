@@ -21,6 +21,7 @@ import { NumberInput } from '../components/NumberInput/NumberInput';
 import { Progress } from '../components/Progress/Progress';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { SortableList } from '../components/SortableList/SortableList';
+import { Splitter } from '../components/Splitter/Splitter';
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '../components/Table/Table';
 import { toast, Toaster } from '../components/Toast/Toast';
 
@@ -69,6 +70,9 @@ const SITES: Record<string, Site> = {
   'SortableList: picking an item up with Space': {
     ui: () => <SortableList items={ITEMS} getKey={(t) => t.id} getLabel={(t) => t.name} renderItem={(t) => t.name} onReorder={() => {}} />,
     act: async () => { $('button[aria-label$=" Gemini"]').focus(); await userEvent.keyboard(' '); }, says: /Gemini.*2.*3/ },
+  'Splitter: a press on the handle that starts placing it': {
+    ui: () => <Splitter style={{ width: '400px', height: '100px' }}><p>Start</p><p>End</p></Splitter>,
+    act: async () => { await userEvent.click($('[role=separator]')); }, says: /Press where the handle should go/ },
   'PasswordInput: Caps Lock turning on': {
     ui: () => <PasswordInput aria-label="Password" />,
     act: async () => { const f = $('input'); f.focus(); f.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, modifierCapsLock: true })); }, says: /Caps Lock is on/ },
