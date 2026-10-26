@@ -107,14 +107,14 @@ describe('Image', () => {
 
   test('on error, what was passed to the picture stays: className, style, id, data-* and the ref, and the frame keeps the size they gave it (GJ1)', async () => {
     const ref = React.createRef<HTMLImageElement>();
-    const size = (id: string) => { const r = document.getElementById(id)!.closest('.dk-image')!.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
+    const size = (id: string) => { const r = document.getElementById(id)!.closest('[data-component="image"]')!.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
     await render(<Row>
       <Image id="gcls" src={BROKEN} alt="Team" ratio="video" className="w-48" data-x="y" ref={ref} />
       <Image id="gsty" src={BROKEN} alt="Team" ratio="video" style={{ width: 240 }} />
       <Image id="gnone" src={BROKEN} alt="Team" ratio="video" />
     </Row>);
-    await expect.poll(() => document.getElementById('gnone')?.closest('.dk-image')?.getAttribute('data-state')).toBe('error');
-    await expect.poll(() => document.getElementById('gcls')?.closest('.dk-image')?.getAttribute('data-state')).toBe('error');
+    await expect.poll(() => document.getElementById('gnone')?.closest('[data-component="image"]')?.getAttribute('data-state')).toBe('error');
+    await expect.poll(() => document.getElementById('gcls')?.closest('[data-component="image"]')?.getAttribute('data-state')).toBe('error');
     const i = document.getElementById('gcls') as HTMLImageElement;
     expect([ref.current === i, i.dataset.x, i.classList.contains('w-48'), size('gcls'), size('gsty'), size('gnone')[0] >= 48])
       .toEqual([true, 'y', true, [192, 108], [240, 135], true]);
