@@ -27,6 +27,23 @@ describe('RelativeTime', () => {
       .toEqual(['1 day ago', '3 min. ago', new Intl.RelativeTimeFormat('en-US', { style: 'narrow' }).format(-3, 'minute'), '']);
   });
 
+  test('numeric auto counts yesterday, last month and last year on the viewer\'s calendar, not by elapsed time (GL2)', () => {
+    // Local times: the viewer's calendar is the one that says what yesterday is.
+    const L = (mo: number, d: number, h: number, mi = 0) => new Date(2026, mo, d, h, mi).getTime();
+    const f = (d: number, now: number, numeric?: 'always') => relativeTime(d, now, 'en-US', numeric ? { numeric } : undefined);
+    expect([
+      f(L(9, 26, 1), L(9, 26, 23)),          // the same day, 22 hours before
+      f(L(9, 24, 23, 30), L(9, 26, 1)),      // two calendar days back, 25.5 hours before
+      f(L(9, 25, 9), L(9, 26, 8)),           // the day before, 23 hours before
+      f(L(9, 1, 12), L(9, 27, 12)),          // the same month, 26 days before
+      f(L(8, 30, 12), L(9, 27, 12)),         // the month before, 27 days before
+      f(L(0, 5, 12), L(11, 20, 12)),         // the same year, 349 days before
+      f(L(9, 27, 23), L(9, 26, 1)),          // 46 hours ahead, on the next calendar day
+    ]).toEqual(['22 hours ago', '2 days ago', 'yesterday', '26 days ago', 'last month', '11 months ago', 'tomorrow']);
+    // numeric always keeps elapsed time.
+    expect(f(L(9, 26, 1), L(9, 26, 23), 'always')).toBe('1 day ago');
+  });
+
   test('the words follow the locale: Indonesian, Arabic digits, Japanese', async () => {
     const at = ago(3 * 3600);
     await render(<>{['id-ID', 'ar-EG', 'ja-JP'].map((l) => <RelativeTime key={l} id={'l-' + l} locale={l} date={at} />)}</>);
@@ -53,12 +70,13 @@ describe('RelativeTime', () => {
       .toEqual([new Intl.DateTimeFormat('en-US', { dateStyle: 'short' }).format(at), '1 day ago', false, 'yesterday', 'Sent on Friday']);
   });
 
-  test('an invalid date renders an empty <time> without datetime, and no errors', async () => {
-    const error = vi.spyOn(console, 'error');
-    await render(<RelativeTime id="bad" date="not a date" />);
+  test('an invalid date renders an empty <time> without datetime, no errors, and one development warning naming the date (GL3)', async () => {
+    const error = vi.spyOn(console, 'error'), warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<><RelativeTime id="bad" date="not a date" /><RelativeTime id="bad2" date="2026-13-45" /></>);
     expect([el('bad').textContent, el('bad').hasAttribute('datetime'), el('bad').hasAttribute('title')]).toEqual(['', false, false]);
     expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    expect(warn.mock.calls.map((c) => String(c[0]))).toEqual([expect.stringMatching(/^RelativeTime: date "not a date" isn't a date.*relative-time-date/)]);
+    error.mockRestore(); warn.mockRestore();
   });
 
   test('server-rendered HTML hydrates without a mismatch error, then shows the browser\'s words', async () => {
