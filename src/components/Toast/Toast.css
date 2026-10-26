@@ -14,9 +14,11 @@
   width: var(--toast-width, var(--container-sm));
   max-width: calc(var(--sizing-full) - var(--dk-toast-offset) - var(--dk-toast-offset));
   pointer-events: none;
-  /* The glide of the toasts left when one closes or arrives (Toast.tsx reads these, FLIP). */
+  /* The glide of the toasts left when one closes or arrives (Toast.tsx reads these, FLIP). On the arriving toast's
+     own time and curve, so the stack makes room as fast as it comes in: on ease-move (slow to start) a new toast
+     was in place, over the one below it, before that one had moved. */
   --dk-toast-move: var(--motion-enter-md);
-  --dk-toast-move-ease: var(--ease-move);
+  --dk-toast-move-ease: var(--ease-enter);
 }
 /* Clear of a phone's notch and home indicator too (the safe area, with viewport-fit=cover). */
 .dk-toaster--top-start, .dk-toaster--top-center, .dk-toaster--top-end { inset-block-start: max(var(--dk-toast-offset), env(safe-area-inset-top)); }
@@ -24,7 +26,7 @@
 .dk-toaster--top-start, .dk-toaster--bottom-start { inset-inline-start: max(var(--dk-toast-offset), env(safe-area-inset-left)); }
 .dk-toaster--top-end, .dk-toaster--bottom-end { inset-inline-end: max(var(--dk-toast-offset), env(safe-area-inset-right)); }
 .dk-toaster--top-center, .dk-toaster--bottom-center { inset-inline: var(--spacing-0); margin-inline: auto; }
-.dk-toaster__list { display: flex; flex-direction: column; gap: var(--toast-stack-gap, var(--spacing-2)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-toaster__list { position: relative; display: flex; flex-direction: column; gap: var(--toast-stack-gap, var(--spacing-2)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-toast {
   box-sizing: border-box;
   display: flex;
@@ -49,6 +51,8 @@
 .dk-toaster--top-start .dk-toast, .dk-toaster--top-center .dk-toast, .dk-toaster--top-end .dk-toast { --dk-toast-from: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); }
 .dk-toast[data-leaving] { opacity: var(--opacity-0); pointer-events: none; transition: opacity var(--motion-exit-md) var(--ease-exit), translate var(--motion-exit-md) var(--ease-exit); }
 @starting-style { .dk-toast:not([data-instant]) { opacity: var(--opacity-0); } }
+/* Leaving, it's out of the flow at the top it had (Toast.tsx), so the others close up while it fades. */
+.dk-toast[data-gone] { position: absolute; inset-inline: var(--spacing-0); }
 /* Pushed into the waiting line by a newer one (data-leaving="queued", FO1): it folds toward the line, shrinking
    and fading on its far side, rather than leaving by its edge like one that was closed. */
 .dk-toast { --dk-toast-fold: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); transform-origin: top center; }

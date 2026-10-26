@@ -335,6 +335,9 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
   useIsoLayoutEffect(() => {
     const e = self.current;
     if (!leaving || !e) return;
+    // It leaves the flow where it is (data-gone, at its own top), so the toasts and the waiting line close up at once,
+    // in the same glide as everything else, rather than in a second one once its fade ends.
+    if (!e.hasAttribute("data-gone")) { e.style.top = e.offsetTop + "px"; e.setAttribute("data-gone", ""); }
     const runs = typeof e.getAnimations === "function" ? e.getAnimations().filter((a) => a.id !== "dk-toast-move") : [];
     if (!runs.length) { onGone(t.id); return; }
     let on = true;
