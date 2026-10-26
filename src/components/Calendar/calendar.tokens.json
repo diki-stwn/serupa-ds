@@ -12,6 +12,26 @@
           }
         }
       },
+      "menu-border": {
+        "$type": "color",
+        "$value": "{color.field-border}",
+        "$description": "The Month and Year menus' border (monthYearPicker).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--calendar-menu-border"
+          }
+        }
+      },
+      "menu-bg": {
+        "$type": "color",
+        "$value": "{color.field}",
+        "$description": "The Month and Year menus' fill (monthYearPicker).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--calendar-menu-bg"
+          }
+        }
+      },
       "weekday-color": {
         "$type": "color",
         "$value": "{color.text-muted}",

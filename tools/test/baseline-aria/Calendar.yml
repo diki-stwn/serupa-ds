@@ -423,6 +423,207 @@
       - gridcell "Saturday, April 5, 2025":
         - button "Saturday, April 5, 2025" [disabled]: "5"
 
+# MonthYearPicker
+- button "Previous month"
+- heading "March 2025" [level=2]
+- combobox "Month":
+  - option "January"
+  - option "February"
+  - option "March" [selected]
+  - option "April"
+  - option "May"
+  - option "June"
+  - option "July"
+  - option "August"
+  - option "September"
+  - option "October"
+  - option "November"
+  - option "December"
+- combobox "Year":
+  - option "1950"
+  - option "1951"
+  - option "1952"
+  - option "1953"
+  - option "1954"
+  - option "1955"
+  - option "1956"
+  - option "1957"
+  - option "1958"
+  - option "1959"
+  - option "1960"
+  - option "1961"
+  - option "1962"
+  - option "1963"
+  - option "1964"
+  - option "1965"
+  - option "1966"
+  - option "1967"
+  - option "1968"
+  - option "1969"
+  - option "1970"
+  - option "1971"
+  - option "1972"
+  - option "1973"
+  - option "1974"
+  - option "1975"
+  - option "1976"
+  - option "1977"
+  - option "1978"
+  - option "1979"
+  - option "1980"
+  - option "1981"
+  - option "1982"
+  - option "1983"
+  - option "1984"
+  - option "1985"
+  - option "1986"
+  - option "1987"
+  - option "1988"
+  - option "1989"
+  - option "1990"
+  - option "1991"
+  - option "1992"
+  - option "1993"
+  - option "1994"
+  - option "1995"
+  - option "1996"
+  - option "1997"
+  - option "1998"
+  - option "1999"
+  - option "2000"
+  - option "2001"
+  - option "2002"
+  - option "2003"
+  - option "2004"
+  - option "2005"
+  - option "2006"
+  - option "2007"
+  - option "2008"
+  - option "2009"
+  - option "2010"
+  - option "2011"
+  - option "2012"
+  - option "2013"
+  - option "2014"
+  - option "2015"
+  - option "2016"
+  - option "2017"
+  - option "2018"
+  - option "2019"
+  - option "2020"
+  - option "2021"
+  - option "2022"
+  - option "2023"
+  - option "2024"
+  - option "2025" [selected]
+  - option "2026"
+  - option "2027"
+  - option "2028"
+  - option "2029"
+  - option "2030"
+- button "Next month"
+- grid "March 2025":
+  - rowgroup:
+    - row "Sunday Monday Tuesday Wednesday Thursday Friday Saturday":
+      - columnheader "Sunday"
+      - columnheader "Monday"
+      - columnheader "Tuesday"
+      - columnheader "Wednesday"
+      - columnheader "Thursday"
+      - columnheader "Friday"
+      - columnheader "Saturday"
+  - rowgroup:
+    - row "Sunday, February 23, 2025 Monday, February 24, 2025 Tuesday, February 25, 2025 Wednesday, February 26, 2025 Thursday, February 27, 2025 Friday, February 28, 2025 Saturday, March 1, 2025":
+      - gridcell "Sunday, February 23, 2025":
+        - button "Sunday, February 23, 2025": "23"
+      - gridcell "Monday, February 24, 2025":
+        - button "Monday, February 24, 2025": "24"
+      - gridcell "Tuesday, February 25, 2025":
+        - button "Tuesday, February 25, 2025": "25"
+      - gridcell "Wednesday, February 26, 2025":
+        - button "Wednesday, February 26, 2025": "26"
+      - gridcell "Thursday, February 27, 2025":
+        - button "Thursday, February 27, 2025": "27"
+      - gridcell "Friday, February 28, 2025":
+        - button "Friday, February 28, 2025": "28"
+      - gridcell "Saturday, March 1, 2025":
+        - button "Saturday, March 1, 2025": "1"
+    - row "Sunday, March 2, 2025 Monday, March 3, 2025 Tuesday, March 4, 2025 Wednesday, March 5, 2025 Thursday, March 6, 2025 Friday, March 7, 2025 Saturday, March 8, 2025":
+      - gridcell "Sunday, March 2, 2025":
+        - button "Sunday, March 2, 2025": "2"
+      - gridcell "Monday, March 3, 2025":
+        - button "Monday, March 3, 2025": "3"
+      - gridcell "Tuesday, March 4, 2025":
+        - button "Tuesday, March 4, 2025": "4"
+      - gridcell "Wednesday, March 5, 2025":
+        - button "Wednesday, March 5, 2025": "5"
+      - gridcell "Thursday, March 6, 2025":
+        - button "Thursday, March 6, 2025": "6"
+      - gridcell "Friday, March 7, 2025":
+        - button "Friday, March 7, 2025": "7"
+      - gridcell "Saturday, March 8, 2025":
+        - button "Saturday, March 8, 2025": "8"
+    - row "Sunday, March 9, 2025 Monday, March 10, 2025 Tuesday, March 11, 2025 Wednesday, March 12, 2025 Thursday, March 13, 2025 Friday, March 14, 2025 Saturday, March 15, 2025":
+      - gridcell "Sunday, March 9, 2025":
+        - button "Sunday, March 9, 2025": "9"
+      - gridcell "Monday, March 10, 2025" [selected]:
+        - button "Monday, March 10, 2025": "10"
+      - gridcell "Tuesday, March 11, 2025":
+        - button "Tuesday, March 11, 2025": "11"
+      - gridcell "Wednesday, March 12, 2025":
+        - button "Wednesday, March 12, 2025": "12"
+      - gridcell "Thursday, March 13, 2025":
+        - button "Thursday, March 13, 2025": "13"
+      - gridcell "Friday, March 14, 2025":
+        - button "Friday, March 14, 2025": "14"
+      - gridcell "Saturday, March 15, 2025":
+        - button "Saturday, March 15, 2025": "15"
+    - row "Sunday, March 16, 2025 Monday, March 17, 2025 Tuesday, March 18, 2025 Wednesday, March 19, 2025 Thursday, March 20, 2025 Friday, March 21, 2025 Saturday, March 22, 2025":
+      - gridcell "Sunday, March 16, 2025":
+        - button "Sunday, March 16, 2025": "16"
+      - gridcell "Monday, March 17, 2025":
+        - button "Monday, March 17, 2025": "17"
+      - gridcell "Tuesday, March 18, 2025":
+        - button "Tuesday, March 18, 2025": "18"
+      - gridcell "Wednesday, March 19, 2025":
+        - button "Wednesday, March 19, 2025": "19"
+      - gridcell "Thursday, March 20, 2025":
+        - button "Thursday, March 20, 2025": "20"
+      - gridcell "Friday, March 21, 2025":
+        - button "Friday, March 21, 2025": "21"
+      - gridcell "Saturday, March 22, 2025":
+        - button "Saturday, March 22, 2025": "22"
+    - row "Sunday, March 23, 2025 Monday, March 24, 2025 Tuesday, March 25, 2025 Wednesday, March 26, 2025 Thursday, March 27, 2025 Friday, March 28, 2025 Saturday, March 29, 2025":
+      - gridcell "Sunday, March 23, 2025":
+        - button "Sunday, March 23, 2025": "23"
+      - gridcell "Monday, March 24, 2025":
+        - button "Monday, March 24, 2025": "24"
+      - gridcell "Tuesday, March 25, 2025":
+        - button "Tuesday, March 25, 2025": "25"
+      - gridcell "Wednesday, March 26, 2025":
+        - button "Wednesday, March 26, 2025": "26"
+      - gridcell "Thursday, March 27, 2025":
+        - button "Thursday, March 27, 2025": "27"
+      - gridcell "Friday, March 28, 2025":
+        - button "Friday, March 28, 2025": "28"
+      - gridcell "Saturday, March 29, 2025":
+        - button "Saturday, March 29, 2025": "29"
+    - row "Sunday, March 30, 2025 Monday, March 31, 2025 Tuesday, April 1, 2025 Wednesday, April 2, 2025 Thursday, April 3, 2025 Friday, April 4, 2025 Saturday, April 5, 2025":
+      - gridcell "Sunday, March 30, 2025":
+        - button "Sunday, March 30, 2025": "30"
+      - gridcell "Monday, March 31, 2025":
+        - button "Monday, March 31, 2025": "31"
+      - gridcell "Tuesday, April 1, 2025":
+        - button "Tuesday, April 1, 2025": "1"
+      - gridcell "Wednesday, April 2, 2025":
+        - button "Wednesday, April 2, 2025": "2"
+      - gridcell "Thursday, April 3, 2025":
+        - button "Thursday, April 3, 2025": "3"
+      - gridcell "Friday, April 4, 2025":
+        - button "Friday, April 4, 2025": "4"
+      - gridcell "Saturday, April 5, 2025":
+        - button "Saturday, April 5, 2025": "5"
+
 # NoWeekends
 - button "Previous month"
 - heading "March 2025" [level=2]
