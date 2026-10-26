@@ -11,17 +11,19 @@
   --dk-pin-box: var(--pin-input-box-md, var(--control-height-md));
   --dk-pin-bd: var(--pin-input-border, var(--field-border));
   --dk-pin-ring: var(--pin-input-focus-ring, var(--focus-ring));
-  position: relative; display: inline-flex; vertical-align: middle; direction: ltr;
+  position: relative; display: inline-flex; max-width: var(--sizing-full); vertical-align: middle; direction: ltr;
   font-family: var(--font-sans); font-size: var(--text-base); line-height: var(--text-base--line-height); font-variant-numeric: tabular-nums;
 }
 .dk-pin-input--size-sm .dk-pin-input__box--caret::after { height: var(--spacing-3); }
 .dk-pin-input--size-lg .dk-pin-input__box--caret::after { height: var(--spacing-6); }
 .dk-pin-input--size-sm { --dk-pin-box: var(--pin-input-box-sm, var(--control-height-sm)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-pin-input--size-lg { --dk-pin-box: var(--pin-input-box-lg, var(--control-height-lg)); font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
-.dk-pin-input__boxes { display: inline-flex; gap: var(--pin-input-gap, var(--spacing-2)); }
+/* In a narrow container the boxes shrink together, staying square, down to 24px each, so six lg or eight md boxes
+   still fit a 320px screen (GJ3). */
+.dk-pin-input__boxes { display: inline-flex; align-items: flex-start; min-width: var(--spacing-0); gap: var(--pin-input-gap, var(--spacing-2)); }
 .dk-pin-input__box {
   position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
-  width: var(--dk-pin-box); height: var(--dk-pin-box);
+  flex: 0 1 var(--dk-pin-box); width: var(--dk-pin-box); min-width: var(--spacing-6); aspect-ratio: var(--aspect-square);
   border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
   background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
   transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
