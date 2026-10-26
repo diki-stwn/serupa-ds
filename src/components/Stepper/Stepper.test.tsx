@@ -82,10 +82,10 @@ describe('Stepper', () => {
     await render(<Back />);
     el('gn1').querySelector<HTMLElement>('li:nth-child(2) button')!.focus();
     await userEvent.keyboard('{Enter}');
-    const head = lis('gn1')[1].querySelector('.dk-stepper__head')!;
+    const head = lis('gn1')[1].querySelector('[tabindex="-1"]')!;
     expect([steps('gn1')[1].state, document.activeElement === head, head.tagName, head.getAttribute('tabindex')]).toEqual(['current', true, 'DIV', '-1']);
     await userEvent.click(lis('gn1')[0].querySelector('button')!);
-    expect([steps('gn1')[0].state, document.activeElement === lis('gn1')[0].querySelector('.dk-stepper__head')]).toEqual(['current', true]);
+    expect([steps('gn1')[0].state, document.activeElement === lis('gn1')[0].querySelector('[tabindex="-1"]')]).toEqual(['current', true]);
   });
 
   test('keyboard table: Tab goes to each completed step\'s button and skips the rest; Space on one goes to that step; without onStepClick nothing takes focus (FH1)', async () => {
