@@ -86,7 +86,8 @@ for (const name of fs.readdirSync(dir).sort()) {
   const missing = [...new Set(rows.flatMap((r) => keys(r.split('|')[1])))].filter((k) => !got.has(k));
   for (const k of missing) {
     seen.add(`${name}:${k}`);
-    results.push({ name: `${name}: a test presses ${k}, which the README's keyboard table lists`, ok: !!KNOWN[`${name}:${k}`],
+    const known = KNOWN[`${name}:${k}`];
+    results.push({ name: known ? `${name}: ${k} is in the README's keyboard table but no test presses it yet (${known})` : `${name}: a test presses ${k}, which the README's keyboard table lists`, ok: !!known,
       detail: `no test in src/components/${name}/ presses ${k}; add one that checks what the table says it does` });
   }
   if (!missing.length) results.push({ name: `${name}: a test presses every key its README's keyboard table lists`, ok: true });
