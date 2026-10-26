@@ -80,6 +80,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const focusOn = React.useRef<"first" | "last" | null>(null);
+  const pressed = React.useRef(0);
   const typed = React.useRef<Typed>({ text: "", at: 0 });
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
   const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
@@ -113,7 +114,28 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
     "aria-haspopup": "menu",
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
-    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented) return; if (!open) focusOn.current = "first"; set(!open, "trigger"); },
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      if (cp.onPointerDown) cp.onPointerDown(e);
+      // A mouse opens it on the press (a touch or pen, the keys, and a trigger with its own onClick, which may stop
+      // it, keep the click), so it can be dragged onto an item and let go there.
+      if (e.defaultPrevented || cp.onClick || e.pointerType !== "mouse" || e.button !== 0 || e.currentTarget.matches(':disabled, [aria-disabled="true"]')) return;
+      const at = pressed.current = e.timeStamp || 1;
+      if (open) close("trigger", true);
+      else { focusOn.current = "first"; set(true, "trigger"); }
+      const up = (u: PointerEvent) => {
+        document.removeEventListener("pointerup", up, true);
+        document.removeEventListener("pointercancel", up, true);
+        // The click that follows (on the button, or wherever the press and release meet) is this press's.
+        setTimeout(() => { pressed.current = 0; });
+        const item = !open && u.type === "pointerup" && u.timeStamp - at > 200 && u.target instanceof Element ? u.target.closest<HTMLElement>('[role^="menuitem"]') : null;
+        if (item && menuRef.current && menuRef.current.contains(item)) item.click();
+      };
+      document.addEventListener("pointerup", up, true);
+      document.addEventListener("pointercancel", up, true);
+    },
+    // Keeps the focus on the item the press put it on.
+    onMouseDown: (e: React.MouseEvent<HTMLElement>) => { if (cp.onMouseDown) cp.onMouseDown(e); if (pressed.current) e.preventDefault(); },
+    onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented || pressed.current) return; if (!open) focusOn.current = "first"; set(!open, "trigger"); },
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
       if (cp.onKeyDown) cp.onKeyDown(e);
       if (e.defaultPrevented) return;
