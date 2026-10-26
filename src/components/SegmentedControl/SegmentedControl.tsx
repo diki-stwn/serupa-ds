@@ -86,8 +86,14 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     if (!controlled) setOwn(v);
     if (props.onValueChange) props.onValueChange(v);
   };
+  // A label cut with an ellipsis shows in full as its segment's title on hover (the same words as its name, so nothing
+  // is read twice), as Button does.
+  const [cut, setCut] = React.useState("");
   const measure = React.useCallback(() => {
     const r = root.current, b = value != null ? buttons.current[value] : null;
+    let c = "";
+    for (const k in buttons.current) { const l = buttons.current[k]?.querySelector<HTMLElement>(".dk-segmented__label"); if (l && l.scrollWidth > l.clientWidth) c += k + "\n"; }
+    setCut(c);
     if (!r || !b) { setBox(null); return; }
     setBox({ x: b.offsetLeft, w: b.offsetWidth });
   }, [value]);
@@ -158,7 +164,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
         const tab = off ? -1 : on || (!checkedUsable && usable[0] && usable[0].value === o.value) ? 0 : -1;
         return (
           <button key={o.value} ref={(n) => { buttons.current[o.value] = n; }} type="button" role="radio" aria-checked={on}
-            aria-label={o["aria-label"]} disabled={off} tabIndex={tab} data-value={o.value}
+            aria-label={o["aria-label"]} title={typeof o.label === "string" && !o["aria-label"] && cut.split("\n").includes(o.value) ? o.label : undefined} disabled={off} tabIndex={tab} data-value={o.value}
             className={cn("dk-segmented__item", on && "dk-segmented__item--selected", !hasLabel && "dk-segmented__item--icon-only")}
             onClick={() => choose(o.value)} onKeyDown={onKeyDown}>
             {icon != null && icon !== false ? <span className="dk-segmented__icon" aria-hidden>{icon}</span> : null}
