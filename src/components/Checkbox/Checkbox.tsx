@@ -197,7 +197,9 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
     nameRef(node);
     setRef(ref, node);
   }, [ref, nameRef]);
-  useIsoLayoutEffect(function () { if (own.current) own.current.indeterminate = mixed; });   // every render: a click clears it natively
+  // every render: a click clears it natively. The server markup can't carry the DOM property, so the box also renders
+  // data-indeterminate, which draws the dash until this runs (GI3); from then on the property alone draws it.
+  useIsoLayoutEffect(function () { const i = own.current; if (i) { i.indeterminate = mixed; i.removeAttribute("data-indeterminate"); } });
   const said = React.useRef(false);   // only clears a message it set
   // every render: whether the group needs a box checked changes with any box's state, not with this box's props.
   useIsoLayoutEffect(function () {
@@ -214,7 +216,7 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   return (
     <label className={cn("dk-checkbox", "dk-checkbox--size-" + size, (invalid || (group && group.invalid)) && "dk-checkbox--invalid", rest.disabled && "dk-checkbox--disabled", readOnly && "dk-checkbox--readonly", !hasLabel && !hasDesc && "dk-checkbox--bare", props.className)} style={props.style} data-component="checkbox" data-size={size}>
       <span className="dk-checkbox__control" key="control">
-        <input {...rest} ref={setRefs} type="checkbox" className="dk-checkbox__input" key="input" />
+        <input {...rest} ref={setRefs} type="checkbox" className="dk-checkbox__input" data-indeterminate={mixed ? "" : undefined} key="input" />
         <span className="dk-checkbox__icon" aria-hidden key="icon"><Icon icon={mixed ? icons.Remove : icons.Check} /></span>
       </span>
       {hasLabel || hasDesc ? <span className="dk-checkbox__text" key="text">

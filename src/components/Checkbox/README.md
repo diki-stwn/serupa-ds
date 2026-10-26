@@ -73,6 +73,7 @@ const [tags, setTags] = React.useState(["news"]);
 - For a set, use `Field group`: a `<fieldset>` and `<legend>`, so the question is read with each option.
 - `CheckboxGroup` is a `role="group"` with `aria-invalid`, `aria-required` and `aria-disabled` from its props. `required` means at least one: every box is `required` while none is checked, so the browser won't submit the form, and none is once one is. The browser says "Select at least one option." (the `selectAtLeastOne` label, in English and Indonesian) rather than its one-box message, which reads as if every box were mandatory.
 - A `selectAll` box is checked when every enabled box is, and indeterminate (announced as mixed) when only some are. A click checks every enabled box, or clears them when all are checked. Disabled boxes keep their state. It isn't submitted. Server-rendered, it already shows this state, counted from the Checkboxes among the group's children (a box inside a component of your own counts once it mounts).
+- Server-rendered, an `indeterminate` box (or a `selectAll` box with some checked) already shows its dash: the markup carries `data-indeterminate` until the script sets the native state, which is what screen readers announce as mixed.
 - The label and description keep 4.5:1, the border, checked fill, focus ring and invalid border 3:1, and the check 4.5:1 on its fill, in all six themes (`Checkbox.test.tsx`).
 
 ### Keyboard
