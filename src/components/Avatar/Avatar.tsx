@@ -3,9 +3,10 @@ import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { initials } from "./initials";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export { initials };
 
@@ -48,7 +49,7 @@ export const Avatar = /* @__PURE__ */ component<HTMLSpanElement, AvatarProps>("A
   const rest = omit(props, OWN);
   const size = React.useContext(AvatarGroupSize) || oneOf(SIZES, props.size, "md");
   const square = props.shape === "square";
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const status = props.status && STATUSES.indexOf(props.status) >= 0 ? props.status : null;
   // Remember which src failed rather than resetting a flag in an effect: a fast error (WebKit) can land
   // before that effect runs, and the reset would then bring back the broken picture.

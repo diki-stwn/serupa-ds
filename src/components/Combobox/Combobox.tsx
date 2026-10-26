@@ -10,7 +10,7 @@ import { Loader } from "../Loader/Loader";
 import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { FieldContext, useFieldControl } from "../../internal/field";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import { isComposing } from "../../internal/ime";
 import { fieldName } from "../../internal/fieldName";
@@ -19,6 +19,7 @@ import { fold } from "../../internal/fold";
 import { announce } from "../../internal/announce";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Badge } from "../Badge/Badge";
+import { en as words } from "./labels";
 
 export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
 interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
@@ -112,7 +113,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const nameRef = useNameCheck("Combobox", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // names the listbox when a Field's <label for> names the field
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1, loadOptions: 1, debounce: 1 } as const);
   const multi = props.multiple === true;
   const size = oneOf(SIZES, props.size, "md");
