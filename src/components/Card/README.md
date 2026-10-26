@@ -62,7 +62,7 @@ The hover border fades in 150ms (`duration-150`, `ease-in-out`), at once with `p
 - A card is a plain container: give it `as="section"` with a title when it's a landmark-worthy region, or `as="article"` for a self-contained item.
 - The title is a real heading, so screen reader users can jump between cards. Set `headingLevel` to fit the page.
 - A linked card has one link, around its `CardHeader` title (the "stretched link" pattern): it's named by the title, it's the card's first tab stop, and its clickable area covers the card. The card shows its focus ring. Without a direct `CardHeader` title, the link is empty, laid over the card and named by the card's text (or the card's `aria-label`).
-- The body text and the header's description sit above the link's area, so they can be selected and copied with the mouse. A plain click on them still follows the link. A click that ends a text selection doesn't.
+- The body text and the header's description sit above the link's area, so they can be selected and copied with the mouse. A plain click on them still follows the link. A click that ends a text selection doesn't. A Ctrl, Cmd or Shift click, or a middle click, on them opens the link in a new tab, as it would on the title.
 - The card itself stays a `<div>` (or `as`), so buttons and links inside are never nested in a link, which is invalid HTML.
 - In forced-colors mode every card gets a visible border.
 - The title, description and body text keep 4.5:1 on every variant, in all six themes (`Card.test.tsx`).
