@@ -213,6 +213,16 @@ describe('Table', () => {
     expect([f.getAttribute('tabindex'), f.getAttribute('role'), f.getAttribute('aria-labelledby') === q('#twide caption').id, f.scrollWidth > f.clientWidth]).toEqual(['0', 'region', true, true]);
   });
 
+  test('keyboard table: with focus on the scrolling frame, the arrow keys scroll the table (FH1)', async () => {
+    await setup();
+    const f = el('twide').parentElement!;
+    f.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => f.scrollLeft).toBeGreaterThan(0);
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => f.scrollLeft).toBe(0);
+  });
+
   test('stickyHeader: the header stays at the top while the frame scrolls; the region takes its name from containerProps', async () => {
     await setup();
     const f = el('tsticky').parentElement!, th = f.querySelector('th')!;

@@ -113,6 +113,14 @@ describe('Calendar', () => {
     expect([focused(), months.slice(-2).join('|')]).toEqual(['2025-04-20', 'Thu May 01 2025|Tue Apr 01 2025']);
   });
 
+  test('keyboard table: Space picks the focused day, as Enter does (FH1)', async () => {
+    const picks: string[] = [];
+    await render(<Cal picks={picks} defaultMonth={new Date(2025, 3, 1)} />);
+    cal('[data-date="2025-04-08"]').focus();
+    await userEvent.keyboard('{ArrowRight}[Space]');
+    expect(picks.join('|')).toBe('Wed Apr 09 2025');
+  });
+
   test('Enter and a click pick a day: onValueChange, aria-selected moves', async () => {
     const picks: string[] = [];
     await render(<Cal picks={picks} defaultMonth={new Date(2025, 3, 1)} />);
