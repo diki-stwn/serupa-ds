@@ -39,6 +39,7 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 
 ## Accessibility
 
+- The calendar fades and grows in out of the field over 150ms, and fades and shrinks back over 100ms when it closes; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. The calendar stays while it fades out, inert, and focus goes back to the field at once. Firefox and Safari can't keep a closing popup in the top layer yet, so there it closes at once.
 - The box is a `role="group"`; name it with `aria-label` when it has no Field. Each field has its own name.
 - The popup is a `role="dialog"` holding one or two Calendars (see Calendar's keyboard table); a polite live line says which end to pick next.
 - Each field's description ends with the format to type ("Format: mm/dd/yyyy"), after a Field hint, so it's heard once the placeholder is gone (the `formatHint` label).

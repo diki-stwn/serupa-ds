@@ -25,11 +25,11 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;   /* no double-tap zoom delay on touch screens */
-  /* the properties a button changes, each with its own timing: colors and the focus ring at duration-150,
+  /* the properties a button changes, each with its own timing: colors and the focus ring at motion-hover,
      the press (scale) at --button-press-duration (see Micro-interactions below) */
   transition-property: background-color, color, border-color, text-decoration-color, box-shadow, scale;
-  transition-duration: var(--duration-150), var(--duration-150), var(--duration-150), var(--duration-150), var(--duration-150), var(--button-press-duration, var(--duration-100));
-  transition-timing-function: var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-in-out), var(--ease-out);
+  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--button-press-duration, var(--motion-press));
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-settle);
   position: relative;
   --dk-btn-press: var(--button-press-scale, var(--scale-97));
   --dk-btn-nudge: var(--button-icon-nudge, var(--spacing-0));   /* off by default; opt in with --button-icon-nudge */
@@ -146,18 +146,18 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
 .dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */
-.dk-btn__label { transition: opacity var(--button-loading-duration, var(--duration-150)) var(--ease-in-out); }
+.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
 .dk-btn__icon {
   transition-property: opacity, translate;
-  transition-duration: var(--button-loading-duration, var(--duration-150)), var(--button-icon-nudge-duration, var(--duration-150));
-  transition-timing-function: var(--ease-in-out), var(--ease-out);
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--motion-change-sm));
+  transition-timing-function: var(--ease-move), var(--ease-settle);
 }
 @media (hover: hover) {
   .dk-btn:hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: var(--dk-btn-nudge) 0; }
   .dk-btn:dir(rtl):hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: calc(var(--spacing-0) - var(--dk-btn-nudge)) 0; }
 }
 /* Loading: the content fades out (transition above) while the spinner fades and grows in. */
-.dk-btn__loader { animation: dk-btn-loader-in var(--button-loading-duration, var(--duration-150)) var(--ease-out) both; }
+.dk-btn__loader { animation: dk-btn-loader-in var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
 @keyframes dk-btn-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-btn-loader-from); } }
 /* Ripple: from the press point, in the text color at --button-ripple-opacity; Button adds the circles. */
 .dk-btn__ripples { position: absolute; inset: var(--spacing-0); border-radius: inherit; overflow: hidden; pointer-events: none; }
@@ -166,8 +166,8 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
   border-radius: var(--rounded-full);
   background-color: currentColor;
   opacity: var(--button-ripple-opacity, var(--opacity-20));
-  animation: dk-btn-ripple var(--button-ripple-duration, var(--duration-500)) var(--ease-in-out) both;   /* even spread: reads as a wave, not a flash */
-  transition: opacity var(--button-ripple-fade-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-btn-ripple var(--button-ripple-duration, var(--motion-ripple)) var(--ease-move) both;   /* even spread: reads as a wave, not a flash */
+  transition: opacity var(--button-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
 }
 .dk-btn__ripple--out { opacity: var(--opacity-0); }
 @keyframes dk-btn-ripple { from { scale: var(--scale-0); } }

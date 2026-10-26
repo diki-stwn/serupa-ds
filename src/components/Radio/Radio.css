@@ -22,7 +22,7 @@
 .dk-radio--bare .dk-radio__control { height: var(--dk-radio-box); }
 /* Pressed: the circle shrinks a little while the row is held (pointer, or Space on it) and springs back, as
    Checkbox's box does. Only scale moves; not when disabled, and not under reduced motion. */
-.dk-radio__control { transition: scale var(--motion-press) var(--ease-out); }
+.dk-radio__control { transition: scale var(--motion-press) var(--ease-settle); }
 .dk-radio:active:not(:has(.dk-radio__input:disabled)) .dk-radio__control { scale: var(--radio-press-scale, var(--scale-90)); }
 @media (prefers-reduced-motion: reduce) { .dk-radio__control { transition: none; } .dk-radio:active .dk-radio__control { scale: none; } }
 .dk-radio__input {
@@ -35,7 +35,7 @@
   border: var(--radio-border-width, var(--border-width-1)) solid var(--dk-radio-bd);
   border-radius: var(--rounded-full);
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-radio:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-border-hover, var(--field-border-hover)); --dk-radio-fill: var(--radio-bg-checked-hover, var(--primary-hover)); } }
 .dk-radio__input:checked { background: var(--dk-radio-fill); border-color: var(--dk-radio-fill); }

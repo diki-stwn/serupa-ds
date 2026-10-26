@@ -88,7 +88,7 @@ describe('Radio', () => {
     await render(<Grid><Letters changes={[]} /></Grid>);
     const prim = color('var(--primary)');
     expect([input('a').checked, input('b').checked]).toEqual([false, true]);
-    // The fill eases in over 150ms.
+    // The fill eases in over 100ms (motion-press).
     await expect.poll(() => [css(input('b')).backgroundColor, css(input('b')).borderTopColor]).toEqual([prim, prim]);
     expect([css(dot('b')).visibility, css(dot('a')).visibility, dot('b').getBoundingClientRect().width, css(dot('b')).backgroundColor]).toEqual(['visible', 'hidden', 6, color('var(--on-primary)')]);
     const dr = dot('b').getBoundingClientRect(), ir = input('b').getBoundingClientRect();

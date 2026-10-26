@@ -10,9 +10,9 @@
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: var(--spacing-1);
   border: var(--spacing-0); border-radius: var(--rounded-sm); background: transparent;
   color: var(--combobox-chevron, var(--text-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
-.dk-combobox__button .dk-icon { font-size: var(--dk-input-icon); transition: rotate var(--duration-150) var(--ease-in-out); }
+.dk-combobox__button .dk-icon { font-size: var(--dk-input-icon); transition: rotate var(--motion-change-sm) var(--ease-move); }
 @media (hover: hover) { .dk-combobox__button:hover:not(:disabled) { background: var(--combobox-chevron-bg-hover, var(--secondary)); color: var(--combobox-chevron-hover, var(--text)); } }
 .dk-combobox__button:disabled { cursor: not-allowed; }
 .dk-combobox[data-state="open"] .dk-combobox__toggle .dk-icon { --dk-combobox-turn: 180deg; rotate: var(--dk-combobox-turn); }

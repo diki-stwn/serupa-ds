@@ -17,7 +17,7 @@
   border-radius: var(--textarea-radius, var(--rounded-md));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
   cursor: text; vertical-align: middle;
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-textarea--size-sm { --dk-ta-px: var(--textarea-padding-x-sm, var(--spacing-2)); --dk-ta-py: var(--textarea-padding-y-sm, var(--spacing-1)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-textarea--size-lg { --dk-ta-px: var(--textarea-padding-x-lg, var(--spacing-4)); --dk-ta-py: var(--textarea-padding-y-lg, var(--spacing-2\.5)); font-size: var(--text-base); line-height: var(--text-base--line-height); }

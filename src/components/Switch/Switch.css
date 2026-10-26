@@ -29,7 +29,7 @@
   box-sizing: border-box; flex-shrink: 0; width: var(--dk-switch-w); height: var(--dk-switch-h); margin: var(--spacing-0);
   border: 0; border-radius: var(--rounded-full); background: var(--dk-switch-track);
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-switch:not(.dk-switch--pending):hover .dk-switch__input:not(:disabled, [readonly]) { --dk-switch-track: var(--switch-track-hover, var(--field-border-hover)); --dk-switch-on: var(--switch-track-checked-hover, var(--primary-hover)); } }
 .dk-switch__input:checked { background: var(--dk-switch-on); }
@@ -38,7 +38,7 @@
   width: var(--dk-switch-thumb); height: var(--dk-switch-thumb); margin-block: auto;
   border-radius: var(--rounded-full); background: var(--switch-thumb, var(--field));
   pointer-events: none;
-  transition: translate var(--duration-150) var(--ease-in-out), background-color var(--duration-150) var(--ease-in-out), scale var(--motion-press) var(--ease-out);
+  transition: translate var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-press) var(--ease-settle);
 }
 .dk-switch__input:checked + .dk-switch__thumb { background: var(--switch-thumb-checked, var(--on-primary)); }
 /* On, the thumb moves to the end by translate, which the compositor runs without laying out the row each frame

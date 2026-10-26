@@ -108,4 +108,4 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-icon-size` | `spacing-5` | The chevron (20px). |
 | `--accordion-border-width` | `border-width-1` | Lines and frame (1px). |
 | `--accordion-radius` | `rounded-lg` | The corners of variant="card" (8px). |
-| `--accordion-duration` | `duration-200` | Opening and closing (200ms). |
+| `--accordion-duration` | `motion-change-md` | Opening and closing (200ms). |

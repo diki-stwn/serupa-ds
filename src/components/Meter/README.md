@@ -92,4 +92,4 @@ Each is an optional override: set it on the page, a container or one meter. The 
 | `--meter-radius` | `rounded-full` | The bar's ends. |
 | `--meter-gap` | `spacing-1_5` | Space between the label row and the bar (6px). |
 | `--meter-label-weight` | `font-medium` | The label's weight. |
-| `--meter-duration` | `duration-300` | How long the fill takes to move to a new value. |
+| `--meter-duration` | `motion-change-lg` | How long the fill takes to move to a new value. |

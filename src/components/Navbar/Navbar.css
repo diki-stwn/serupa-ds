@@ -17,7 +17,7 @@
   display: flex; align-items: center; padding: var(--navbar-link-padding-y, var(--spacing-2)) var(--navbar-link-padding-x, var(--spacing-3));
   border-radius: var(--navbar-link-radius, var(--rounded-md)); color: var(--navbar-link-text, var(--text-muted));
   font-size: var(--navbar-link-size, var(--text-sm)); line-height: var(--text-sm--line-height); font-weight: var(--navbar-link-weight, var(--font-medium)); text-decoration: none; white-space: nowrap;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
 @media (hover: hover) { .dk-navbar__link:hover { background: var(--navbar-link-bg-hover, var(--secondary)); color: var(--navbar-link-text-hover, var(--text)); } }
 /* Pressed: one step past hover while held, at once (no fade in); letting go fades back. */

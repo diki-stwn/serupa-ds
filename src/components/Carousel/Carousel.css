@@ -16,7 +16,7 @@
 .dk-carousel__track {
   display: flex; gap: var(--dk-carousel-space);
   transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px)));
-  transition: transform var(--dk-carousel-settle, var(--duration-300)) var(--ease-out);
+  transition: transform var(--dk-carousel-settle, var(--motion-change-lg)) var(--ease-settle);
 }
 /* A loop carrying on past an end: the slides it wraps to stand in again beyond it (Carousel.tsx), then the track snaps back. */
 .dk-carousel__track[data-snap] { transition: none; }
@@ -52,7 +52,7 @@
   height: var(--carousel-dot-size, var(--spacing-2));
   border-radius: var(--rounded-full);
   background: var(--carousel-dot, var(--field-border));
-  transition: width var(--duration-150) var(--ease-out);
+  transition: width var(--motion-change-sm) var(--ease-settle);
 }
 .dk-carousel__dot[aria-current="true"]::before { width: var(--carousel-dot-active-width, var(--spacing-6)); background: var(--carousel-dot-active, var(--primary)); }
 @media (hover: hover) { .dk-carousel__dot:hover:not([aria-current="true"])::before { background: var(--carousel-dot-hover, var(--text-muted)); } }

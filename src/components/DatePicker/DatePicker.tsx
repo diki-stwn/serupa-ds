@@ -4,6 +4,7 @@ import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
 import { compare, datePattern, formatDate, isoDate, parseDate, toDay } from "../../internal/dates";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
@@ -99,6 +100,8 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   const close = (focusField: boolean) => { setOpen(false); if (focusField && field.current) field.current.focus(); };
 
   // A press outside the calendar and its button, or focus moving past them (Tab), closes it.
+  // The calendar stays (inert) while the popup fades out (DZ1).
+  const exit = useExit(open, panel);
   useAnchoredLayer(open, panel, box, { placement: "bottom-start", offsetVar: "--dk-dp-offset", onOutside: () => close(false), onFocusOutside: () => close(false), inside: button });
 
   const typed = parseDate(text, locale);
@@ -123,9 +126,9 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
       {/* The format to type, read after the field's name: a placeholder is gone once something is typed, and not every screen reader reads it. */}
       <span id={id + "-format"} hidden>{sds.labels.formatHint(datePattern(locale))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value ? isoDate(value) : ""} disabled={disabled} /> : null}
-      <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-date-picker__popup"
+      <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-date-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}>
-        {open ? <Calendar value={value} defaultMonth={(typed && allowed(typed) ? typed : null) || value || undefined} min={min} max={max} isDateDisabled={isDateDisabled} locale={locale} weekStartsOn={weekStartsOn} autoFocus
+        {open || exit.leaving ? <Calendar value={value} defaultMonth={(typed && allowed(typed) ? typed : null) || value || undefined} min={min} max={max} isDateDisabled={isDateDisabled} locale={locale} weekStartsOn={weekStartsOn} autoFocus
           onValueChange={(d) => { commit(d); close(true); }} /> : null}
       </div>
     </span>
