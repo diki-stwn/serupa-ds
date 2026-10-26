@@ -1,3 +1,9 @@
+# Disabled
+- radiogroup "Period" [disabled]:
+  - radio "Day" [disabled]
+  - radio "Week" [checked] [disabled]
+  - radio "Month" [disabled]
+
 # FullWidth
 - radiogroup "Period":
   - radio "Day"
