@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    Accordion: items separated by 1px lines (card: inside a bordered, rounded frame). A title is a full-width
    text-sm font-medium button with a chevron that turns over when open, an underline on hover, and the pressed fill while held. Content
-   (muted text-sm) takes its height at once and unfolds over it (a fade and an opening clip); closed, it's hidden.
+   (muted text-sm) unfolds (a fade and an opening clip) as its height grows (Accordion.tsx); closed, it's hidden.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-accordion { --dk-accordion-turn: 180deg; font-family: var(--font-sans); }
@@ -27,8 +27,8 @@
 .dk-accordion__trigger[aria-disabled="true"] { cursor: default; }
 .dk-accordion__icon.dk-icon { flex-shrink: 0; color: var(--accordion-icon-color, var(--text-muted)); font-size: var(--accordion-icon-size, var(--spacing-5)); transition: rotate var(--accordion-duration, var(--motion-change-md)) var(--ease-move); }
 .dk-accordion__item--open > .dk-accordion__heading .dk-accordion__icon { rotate: var(--dk-accordion-turn); }
-/* Motion (EH2): the height changes at once, in one layout, and the content unfolds over it on the compositor, so
-   nothing lays the page out on every frame. Open: shown at once, then it fades in and (unless reduced motion asks
+/* Motion (EH2): the content unfolds on the compositor while Accordion.tsx grows or shrinks the panel's height over
+   the same time (the one layout animated on purpose, so what's below slides instead of jumping). Open: shown at once, then it fades in and (unless reduced motion asks
    otherwise) its clip opens from the top over --accordion-duration with ease-enter. Closed: it keeps its height while
    it fades and folds back up over motion-exit-md with ease-exit; content-visibility turns hidden at the end
    (allow-discrete), which takes the height away. Transitions, so a quick second press turns back from where it is. */
