@@ -389,12 +389,12 @@ describe('Slider at 320px (GM2)', () => {
     </div>);
     for (const id of ['gm2-l', 'gm2-r']) {
       const box = el(id).getBoundingClientRect();
-      const parts = [...el(id).querySelectorAll<HTMLElement>('.dk-slider__value > span, [aria-hidden] > span > span')].map((p) => p.getBoundingClientRect());
+      const parts = [...el(id).querySelectorAll<HTMLElement>('[role="slider"] > [aria-hidden] > span, [aria-hidden] > span > span')].map((p) => p.getBoundingClientRect());
       expect([parts.length, parts.every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5)]).toEqual([4, true]);
     }
     expect(el('gm2').scrollWidth).toBe(288);
     // The middle label stays centered on its point.
-    const half = [...el('gm2-l').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')][1].getBoundingClientRect(), t = el('gm2-l').querySelector('.dk-slider__track')!.getBoundingClientRect();
+    const half = [...el('gm2-l').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')][1].getBoundingClientRect(), t = el('gm2-l').querySelector('[role="slider"]')!.parentElement!.getBoundingClientRect();
     expect(Math.round(half.left + half.width / 2)).toBe(Math.round(t.left + t.width / 2));
   });
 });
