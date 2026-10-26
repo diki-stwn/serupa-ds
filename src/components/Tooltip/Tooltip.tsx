@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn, domId, elementRef, omit, setRef } from "../../internal/cn";
 import { oneElement, useTriggerRef } from "../../internal/trigger";
-import { type Placement } from "../../internal/position";
+import type { Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";

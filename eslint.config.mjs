@@ -16,6 +16,9 @@ export default tseslint.config(
       // A leading underscore marks a value that is pulled out on purpose and not used.
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none', ignoreRestSiblings: true }],
       '@typescript-eslint/no-explicit-any': 'error',
+      // import { type X } keeps a bare import "…" in dist under verbatimModuleSyntax, which bundlers then warn about
+      // (FD1); import type { X } leaves nothing.
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       'no-empty': ['error', { allowEmptyCatch: true }],
       // New in ESLint 10's recommended set; off so the upgrade keeps lint behaving as it did on ESLint 9.
       'no-unassigned-vars': 'off',
