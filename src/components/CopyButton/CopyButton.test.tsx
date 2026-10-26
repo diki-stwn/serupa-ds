@@ -37,6 +37,20 @@ describe('CopyButton', () => {
     expect([shown('c1'), icon('c1')]).toEqual(['Copy', 'content_copy']);
   });
 
+  test('keyboard table: Tab reaches the button; Enter copies, and Space copies again once it\'s back; "Copied" is said each time (FH1)', async () => {
+    await render(<div><button id="cb-before">before</button><CopyButton id="ck" value="k1" timeout={300} /></div>);
+    el('cb-before').focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('ck').hasAttribute('data-copied')).toBe(true);
+    await expect.poll(() => announcerIdle() && said()).toBe('Copied');
+    await expect.poll(() => el('ck').hasAttribute('data-copied'), { timeout: 2000 }).toBe(false);
+    await userEvent.keyboard(' ');
+    await expect.poll(() => el('ck').hasAttribute('data-copied')).toBe(true);
+    expect([at, clip]).toEqual(['ck', ['k1', 'k1']]);
+  });
+
   test('the width stays the same while it shows "Copied" (both labels share one cell, the hidden one isn\'t read out)', async () => {
     await render(<CopyButton id="w" value="x">OK</CopyButton>);
     await document.fonts.ready; // a font that finishes loading between the two reads changes the width

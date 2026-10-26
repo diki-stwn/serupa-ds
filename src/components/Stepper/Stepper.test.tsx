@@ -74,6 +74,17 @@ describe('Stepper', () => {
     expect(clicks.join()).toBe('0,1');
   });
 
+  test('keyboard table: Tab goes to each completed step\'s button and skips the rest; Space on one goes to that step; without onStepClick nothing takes focus (FH1)', async () => {
+    const got: number[] = [];
+    await render(<div><button id="kb-before">before</button><Stepper id="kb-st" steps={STEPS} current={2} onStepClick={(i) => got.push(i)} /><Stepper id="kb-plain" steps={STEPS} current={2} /><button id="kb-after">after</button></div>);
+    el('kb-before').focus();
+    const order: string[] = [];
+    for (let i = 0; i < 3; i++) { await userEvent.tab(); order.push(document.activeElement?.closest('li')?.textContent?.slice(0, 7) || document.activeElement!.id); }
+    await userEvent.tab({ shift: true });
+    await userEvent.keyboard(' ');
+    expect([order, got]).toEqual([['Account', 'Profile', 'kb-after'], [1]]);
+  });
+
   test('horizontal: 32px circles; each 2px line sits level with the circles\' middle, 8px from the text and the next circle', async () => {
     await setup();
     const geo = lis('st').slice(0, 3).map((li) => {

@@ -57,6 +57,15 @@ describe('InlineEdit', () => {
     expect(calls).toEqual(['Apollo 11']);
   });
 
+  test('keyboard table: Tab leaves the field, which saves (FH1)', async () => {
+    const calls: string[] = [];
+    await render(<Box><InlineEdit id="kt" label="Name" defaultValue="Apollo" onValueChange={(v) => calls.push(v)} /><button id="kt-next">Next</button></Box>);
+    view('kt').focus();
+    await userEvent.keyboard('{Enter}{Control>}a{/Control}Orion');
+    await userEvent.tab();
+    expect([input('kt'), document.activeElement?.id, view('kt').textContent, calls]).toEqual([null, 'kt-next', 'Name: Orion, Edit', ['Orion']]);
+  });
+
   test('controlled: value and onValueChange', async () => {
     const calls: string[] = [];
     await render(<Controlled calls={calls} />);

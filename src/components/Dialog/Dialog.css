@@ -2,7 +2,8 @@
    Dialog: a native <dialog> shown with showModal(). The <dialog> fills the screen (its padding is the backdrop
    you can click), the panel inside is centered: surface, 12px corners, shadow-xl, 24px padding, 384, 512 or
    672px wide and never wider or taller than the screen less 16px a side (the body scrolls). The page behind
-   is dimmed (--dialog-overlay) and doesn't scroll. Fades and grows in; at once with reduced motion.
+   is dimmed (--dialog-overlay) and doesn't scroll. Fades and grows in (motion-enter-md), and fades and shrinks out
+   faster (motion-exit-md); the fade alone with reduced motion.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-dialog {
@@ -43,11 +44,24 @@
   background: var(--dialog-bg, var(--surface-overlay));
   border-radius: var(--dialog-radius, var(--rounded-xl));
   box-shadow: var(--dialog-shadow, var(--shadow-xl));
-  animation: dk-dialog-in var(--duration-200) var(--ease-out);
 }
-.dk-dialog[open]::backdrop { animation: dk-dialog-fade var(--duration-200) var(--ease-out); }
-@keyframes dk-dialog-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
-@keyframes dk-dialog-fade { from { opacity: var(--opacity-0); } }
+/* Motion (DZ1): transitions, not keyframes, so closing while it opens turns back from where it is. In from
+   @starting-style; out, the <dialog> stays shown and in the top layer (display and overlay, allow-discrete) until
+   the panel and backdrop have faded, together, so the backdrop never trails the panel. Focus goes back at once, and
+   presses go through to the page while it fades. A browser that can't keep it in the top layer (no overlay) closes it
+   at once, rather than fading it out under the page's own layers. */
+@supports (overlay: auto) { .dk-dialog { transition: display var(--motion-exit-md) allow-discrete, overlay var(--motion-exit-md) allow-discrete; } }
+.dk-dialog:not([open]), .dk-dialog:not([open])::backdrop { pointer-events: none; }
+.dk-dialog__panel, .dk-dialog::backdrop { transition: opacity var(--motion-exit-md) var(--ease-exit), scale var(--motion-exit-md) var(--ease-exit); }
+.dk-dialog[open] .dk-dialog__panel, .dk-dialog[open]::backdrop { transition: opacity var(--motion-enter-md) var(--ease-enter), scale var(--motion-enter-md) var(--ease-enter); }
+.dk-dialog:not([open]) .dk-dialog__panel, .dk-dialog:not([open])::backdrop { opacity: var(--opacity-0); }
+@starting-style { .dk-dialog[open] .dk-dialog__panel, .dk-dialog[open]::backdrop { opacity: var(--opacity-0); } }
+/* Open on arrival (data-instant): shown from the first frame, not faded in. */
+.dk-dialog[data-instant] .dk-dialog__panel, .dk-dialog[data-instant]::backdrop { transition: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-dialog:not([open]) .dk-dialog__panel { scale: var(--scale-95); }
+  @starting-style { .dk-dialog[open] .dk-dialog__panel { scale: var(--scale-95); } }
+}
 .dk-dialog__header { display: flex; align-items: flex-start; gap: var(--spacing-3); }
 /* Long words wrap inside the panel rather than overflow it. */
 .dk-dialog__panel { overflow-wrap: anywhere; }
@@ -76,6 +90,5 @@
   }
   .dk-dialog--full-mobile .dk-dialog__body { flex: auto; }
 }
-@media (prefers-reduced-motion: reduce) { .dk-dialog__panel, .dk-dialog[open]::backdrop { animation: none; } }
 @media (forced-colors: active) { .dk-dialog__panel { border: var(--border-width-1) solid CanvasText; } }
 }

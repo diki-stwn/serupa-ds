@@ -48,6 +48,15 @@ describe('ToggleButton', () => {
     expect(pressed('tbold')).toBe('false');
   });
 
+  test('keyboard table: Tab reaches the button; Enter and Space each turn it on or off (FH1)', async () => {
+    await render(<div><button id="tb-before">before</button><Formatting /></div>);
+    el('tb-before').focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id, seen: Array<string | null> = [];
+    for (const k of ['{Enter}', '{Enter}', ' ', ' ']) { await userEvent.keyboard(k); seen.push(pressed('tbold')); }
+    expect([at, seen]).toEqual(['tbold', ['true', 'false', 'true', 'false']]);
+  });
+
   test('defaultPressed starts on; variant="ghost"; an unknown variant falls back to outline', async () => {
     await render(<>
       <Formatting />
