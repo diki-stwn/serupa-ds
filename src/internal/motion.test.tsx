@@ -39,7 +39,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
   keyframes: Object.fromEntries([
-    ['dk-popover-in', 'Popover'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
+    ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
   ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],

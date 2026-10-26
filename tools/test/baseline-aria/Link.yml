@@ -5,6 +5,16 @@
     - /url: https://example.com
   - text: before you start.
 
+# LongText
+- paragraph:
+  - text: Read
+  - link "the complete guide to setting up single sign-on for your organisation":
+    - /url: "#"
+  - text: first, or
+  - link "Donaudampfschifffahrtsgesellschaft (opens in a new tab)":
+    - /url: https://example.com
+  - text: .
+
 # Neutral
 - paragraph:
   - text: By signing up you agree to the

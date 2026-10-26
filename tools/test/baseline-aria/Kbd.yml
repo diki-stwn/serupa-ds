@@ -1,6 +1,9 @@
 # InText
 - paragraph: Press / to search, or Control Shift P for commands.
 
+# LongKeys
+- paragraph: Press Control Shift Alt P to open every command, or Page Down to move on.
+
 # NamedKeys
 - text: Control Control Alt Shift Enter Backspace Tab Escape Space Up arrow Down arrow Left arrow Right arrow
 
