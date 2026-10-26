@@ -1,7 +1,7 @@
 // A story for every state (X1): each component whose Props take a state as a boolean (disabled, invalid, error,
 // loading, checked, selected, readOnly) has a story that sets it, so its visual baselines in every theme and the
 // Storybook axe pass cover that state too, not only the default look. A story sets it in its args (disabled: true)
-// or in its JSX (<Select disabled …>). What has no story yet is in KNOWN, which only shrinks: an entry that gets its
+// or in its JSX (<Select disabled …>); disabled: false or disabled={false} doesn't count. What has no story yet is in KNOWN, which only shrinks: an entry that gets its
 // story fails until it's taken out.
 //   node tools/test/state-stories.mjs
 import fs from 'node:fs';
@@ -22,14 +22,13 @@ const SHOWN = {
 const KNOWN = {
   Badge: ['disabled'],
   ColorPicker: ['disabled', 'invalid'],
-  Combobox: ['readOnly'],
   DatePicker: ['readOnly'],
-  DateRangePicker: ['readOnly'],
-  NumberInput: ['invalid', 'readOnly'],
+  DateRangePicker: ['invalid', 'readOnly'],
+  NumberInput: ['disabled', 'invalid', 'readOnly'],
   PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
-  Rating: ['invalid'],
-  SearchInput: ['invalid', 'readOnly'],
+  PinInput: ['readOnly'],
+  SegmentedControl: ['disabled'],
   TimePicker: ['readOnly'],
 };
 
@@ -62,7 +61,7 @@ for (const name of fs.readdirSync(DIR).sort()) {
     const own = (p.declarations || []).some((d) => d.getSourceFile().fileName.startsWith(DIR));
     if (!boolean || (!own && !new RegExp(String.raw`\b${state}\b`).test(source))) continue;
     if (SHOWN[`${name}.${state}`]) continue;
-    const set = [state, ...(ALSO[state] || [])].some((x) => new RegExp(String.raw`\b${x}(?:\s*[:=]\s*(?!false\b)|(?=[\s/>]))`).test(text));
+    const set = [state, ...(ALSO[state] || [])].some((x) => new RegExp(String.raw`\b${x}(?:\s*[:=]\s*(?![\s{]*false\b)|(?=[\s/>]))`).test(text));
     if (!set) (missing[name] ||= []).push(state);
   }
 }
