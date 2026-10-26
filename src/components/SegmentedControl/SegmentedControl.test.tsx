@@ -280,7 +280,7 @@ describe('SegmentedControl', () => {
       await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
       const [a, b] = items('sl');
       await userEvent.click(b);
-      const moves = el('sl').querySelector('.dk-segmented__indicator')!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
+      const moves = el('sl').firstElementChild!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
       const start = moves.find((x) => x.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
       expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(a.offsetLeft - b.offsetLeft)]);
       await Promise.all(moves.map((x) => x.finished));
@@ -293,7 +293,7 @@ describe('SegmentedControl', () => {
     host.innerHTML = renderToString(<SegmentedControl id="ssr" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board' }]} defaultValue="b" />);
     document.body.append(host);
     try {
-      expect([el('ssr').querySelector('.dk-segmented__indicator'), css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual([null, color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
+      expect([el('ssr').firstElementChild!.tagName, css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual(['BUTTON', color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
     } finally { host.remove(); }
   });
 });
