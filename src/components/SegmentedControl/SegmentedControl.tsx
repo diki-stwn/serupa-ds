@@ -17,6 +17,7 @@ export interface SegmentedControlOption {
   icon?: IconSource;
   /** The segment's name when it shows only an icon. */
   "aria-label"?: string;
+  /** Turns this segment off. */
   disabled?: boolean;
 }
 export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -32,6 +33,7 @@ export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDiv
   size?: 'sm' | 'md' | 'lg';
   /** Stretches to its container, with equal segments. Default: false. */
   fullWidth?: boolean;
+  /** Turns every segment off, as a disabled native control. */
   disabled?: boolean;
   /** Submits the value with a form, in a hidden input. */
   name?: string;

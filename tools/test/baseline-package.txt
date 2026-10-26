@@ -1,4 +1,5 @@
 CHANGELOG.md
+LICENSE
 README.md
 bin/serupa-purge.mjs
 design-tokens/css-values.json

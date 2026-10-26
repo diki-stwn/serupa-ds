@@ -28,6 +28,7 @@ export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
   /** The earliest and latest days that can be chosen, as Dates or "yyyy-mm-dd". */
   min?: Date | string;
+  /** The latest day that can be chosen, as a Date or "yyyy-mm-dd". */
   max?: Date | string;
   /** Days that can't be chosen, such as weekends. */
   isDateDisabled?: (date: Date) => boolean;

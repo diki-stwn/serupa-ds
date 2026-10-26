@@ -2,6 +2,7 @@
   "name": "serupa-ds",
   "version": "9.7.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "description": "Serupa, a design system by Diki: tokens, utility classes, page defaults, automatic dark mode and React components. Import the components as ES modules (React 19 is a peer dependency), or load dist/serupa.iife.js on a plain page, where it reads window.React (React 19 ships in dist/lib/).",
   "author": "Diki (https://github.com/diki-stwn)",

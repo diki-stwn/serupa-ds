@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { settle } from '../../../tools/test/vitest/helpers';
+import { iconPoints, settle } from '../../../tools/test/vitest/helpers';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { loadIcon } from '../../icons';
@@ -55,6 +55,17 @@ describe('Icon', () => {
     </>);
     const fs = (id: string) => getComputedStyle(document.getElementById(id)!).fontSize;
     expect(['sn', 'ss', 'sd', 'sl'].map(fs)).toEqual(['20px', '20px', '18.5px', '32px']);
+  });
+
+  test('mirror: in right-to-left text a directional icon (arrow_forward, chevron_right) flips to point the way reading goes; others don\'t; true flips any, false none', async () => {
+    const fwd = { name: 'arrow_forward', d: 'M0 0' }, home = { name: 'home', d: 'M0 0' };
+    await render(<>
+      <p dir="rtl"><Icon id="r1" icon={fwd} /><Icon id="r2" icon={Close} /><Icon id="r3" icon={fwd} mirror={false} /><Icon id="r4" icon={home} mirror /></p>
+      <p><Icon id="l1" icon={fwd} /><Icon id="l2" icon={home} mirror /></p>
+    </>);
+    const scale = (id: string) => getComputedStyle(document.querySelector(`#${id} svg`)!).scale;
+    expect([iconPoints(document.getElementById('r1')!), scale('r2'), scale('r3'), scale('r4'), iconPoints(document.getElementById('l1')!), scale('l2')])
+      .toEqual(['left', 'none', 'none', '-1 1', 'right', 'none']);
   });
 
   test('a decorative Icon is aria-hidden; with aria-label it is role="img"', async () => {

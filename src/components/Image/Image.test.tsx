@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, keepMotion } from '../../../tools/test/vitest/helpers';
 import { Image, type ImageProps } from './Image';
@@ -76,9 +77,19 @@ describe('Image', () => {
     // The test server sends this picture after a second (vitest.config.ts), so it is still loading at first.
     await render(<Pic id="slow" alt="Slow" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('slow');
-    expect([f.dataset.state, css(f.querySelector('img')).opacity, css(f).backgroundColor]).toEqual(['loading', '0', color('var(--surface-muted)')]);
+    // Hidden from the first frame after mount (server HTML shows it: below).
+    await expect.poll(() => css(f.querySelector('img')).opacity).toBe('0');
+    expect([f.dataset.state, css(f).backgroundColor]).toEqual(['loading', color('var(--surface-muted)')]);
     await expect.poll(() => box('slow').state, { timeout: 5000 }).toBe('loaded');
     await expect.poll(() => css(f.querySelector('img')).opacity).toBe('1');
+  });
+
+  test('server HTML, before any script runs: the picture isn\'t hidden (it paints as it arrives, also with no JavaScript), above the loading sweep', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    host.innerHTML = renderToString(<Image src={`/__slow-picture__.svg?${crypto.randomUUID()}`} alt="Hero" ratio="video" frameProps={{ style: { width: 200 } }} />);
+    const f = host.querySelector('[data-component=image]') as HTMLElement, i = f.querySelector('img')!;
+    expect([f.dataset.state, css(i).opacity, css(i).position]).toEqual(['loading', '1', 'relative']);
+    host.remove();
   });
 
   test('on error: a broken-image icon named by the alt text (role="img") keeps the frame; fallback replaces the icon', async () => {
@@ -171,6 +182,23 @@ describe('Image', () => {
 
 describe('Image loading motion', () => {
   keepMotion();
+
+  test('once the script runs, a lazy picture still loading a frame later is hidden and fades in (opacity, 200ms) when it arrives; a priority one is never hidden', async () => {
+    await render(<><Pic id="lazy" alt="Lazy" ratio="square" src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />
+      <Pic id="hero" alt="Hero" ratio="square" priority src={`/__slow-picture__.svg?${crypto.randomUUID()}`} /></>);
+    const img = (id: string) => frame(id).querySelector('img')!;
+    await expect.poll(() => css(img('lazy')).opacity).toBe('0');
+    expect([frame('lazy').dataset.state, frame('hero').dataset.state, css(img('hero')).opacity]).toEqual(['loading', 'loading', '1']);
+    await expect.poll(() => frame('lazy').dataset.state, { timeout: 5000 }).toBe('loaded');
+    expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
+  });
+
+  test('a lazy picture that fails after it was hidden drops the fade class, so a broken frame is the same however late it fails', async () => {
+    await render(<Pic id="late" alt="Late" ratio="square" src={`/__slow-picture__.svg?broken&${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('late').querySelector('img')).opacity).toBe('0');
+    await expect.poll(() => frame('late').dataset.state, { timeout: 5000 }).toBe('error');
+    expect(frame('late').classList.contains('dk-image--fades')).toBe(false);
+  });
 
   test('while loading: a lighter band sweeps through the fill every 2s (ease-in-out, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
     await render(<Pic id="sweep" alt="Slow" ratio="square" onRemove={() => {}} src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);

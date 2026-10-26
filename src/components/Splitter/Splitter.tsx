@@ -20,6 +20,7 @@ export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onSizeChange?: (size: number) => void;
   /** The first pane's least and largest size, in percent. Default: 10 and 90. */
   min?: number;
+  /** The first pane's largest size, in percent. Default: 90. */
   max?: number;
   /** How far an arrow key moves the handle, in percent. Default: 5. */
   step?: number;
@@ -113,8 +114,8 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     if (e.button !== 0) return;
     e.preventDefault();   // no text selection while dragging; focus moves to the handle below
     e.currentTarget.focus();
-    if (typeof e.currentTarget.setPointerCapture === "function") e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;

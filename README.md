@@ -83,7 +83,7 @@ Set the brand and mode on `<html>` and load `theme.js` first in `<head>`, so the
 
 A server-rendered app can save the request by pasting the text of `dist/theme.js` into an inline `<script>` in `<head>` (give it a nonce under a strict Content Security Policy); the file is written so it works inline. If both the inline copy and the file end up on a page, the second one does nothing, so the first keeps running the theme.
 
-Or set one theme directly on any element: `data-theme="violet-dark"`. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
+Or set one theme directly on any element: `data-theme="violet-dark"`. A theme switch with theme.js changes every color at once: it turns transitions off for two frames, so controls don't each fade on their own. To switch a section yourself, do it inside `withoutTransitions(() => section.setAttribute("data-theme", "violet-dark"), section)` for the same effect. With theme.js loaded, a `data-theme` on `<html>` (and no `data-brand` or `data-mode`) is the page default, so it isn't replaced. See Foundations › Themes in Storybook (`docs/foundations.md`).
 
 ### 4. Ship it
 
@@ -353,7 +353,7 @@ How to make a change, and a new component, step by step: [CONTRIBUTING.md](CONTR
 
 ## Credits
 
-Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4.
+Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4. It isn't open source: all rights are reserved ([LICENSE](LICENSE)), and `package.json` says so with `"license": "UNLICENSED"`.
 
 The system is self-contained: every file it needs is in it, and nothing loads from another server. It builds on these open-source works; their licenses are in `licenses/`.
 

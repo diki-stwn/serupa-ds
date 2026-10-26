@@ -18,9 +18,5 @@ interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defa
     autoFocus?: boolean;
     previousLabel?: string;
     nextLabel?: string;
-    dayClassName?: (date: Date) => string | undefined;
-    isDateSelected?: (date: Date) => boolean;
-    onDayHover?: (date: Date) => void;
-    hideOutside?: boolean;
 }
 declare const Calendar: React.ForwardRefExoticComponent<CalendarProps & React.RefAttributes<HTMLDivElement>>;

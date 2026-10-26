@@ -25,6 +25,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   onInvalidInput?: (text: string, reason: "unreadable" | "unavailable") => void;
   /** The earliest and latest times, as "HH:mm". */
   min?: string;
+  /** The latest time, as "HH:mm". */
   max?: string;
   /** Minutes between the times in the list (not seconds, as <input type="time"> counts its step: 15, not 900). Default: 30. Typed times don't have to fall on a step. */
   step?: number;
@@ -34,6 +35,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   hour12?: boolean;
   /** 'sm', 'md' (default) or 'lg', like Input. */
   size?: 'sm' | 'md' | 'lg';
+  /** Marks the field invalid (aria-invalid and the error border), as on Input. */
   invalid?: boolean;
   /** The list's name, and the button's. Default: "Choose a time". */
   listLabel?: string;
