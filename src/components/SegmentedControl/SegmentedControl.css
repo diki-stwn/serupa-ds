@@ -24,11 +24,13 @@
   border: var(--border-width-1) solid var(--segmented-control-indicator-border, var(--field-border));
   border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: var(--segmented-control-indicator, var(--surface));
   box-shadow: var(--segmented-control-indicator-shadow, var(--shadow-sm));
-  transform-origin: top left;
-  transition: translate var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), scale var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
+  contain: layout;
+  transition: translate var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), width var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
 }
-/* The indicator sits on the selected segment by left and width, which don't animate; a new choice moves it there at
-   once, puts it back where it was on translate and scale, and lets it slide on the compositor (EG1). */
+/* The indicator sits on the selected segment by left and width; a new choice moves it there at once, puts it back
+   where it was on translate and at the old width, and lets go (EG1). It slides on the compositor (translate) and grows
+   or shrinks by width, not scale, so its 1px border and corners keep their shape between segments of different widths
+   (GL1). Out of the flow and with layout containment, its width changes lay out nothing but itself. */
 .dk-segmented__indicator[data-flip] { transition: none; }
 /* Before the script runs, the selected segment carries the indicator's surface itself, so the first paint already
    shows the choice; the indicator takes over in the same place (FC1). */

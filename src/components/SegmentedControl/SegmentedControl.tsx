@@ -98,8 +98,9 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     setBox({ x: b.offsetLeft, w: b.offsetWidth });
   }, [value]);
   useIsoLayoutEffect(measure, [measure, options.length, size, props.fullWidth]);
-  // A new choice slides the indicator from the last one (CSS above it, EG1): it's already at the new segment by left and
-  // width, so it starts back where it was on translate and scale with no transition, then lets go of both.
+  // A new choice slides the indicator from the last one (CSS above it, EG1, GL1): it's already at the new segment by left
+  // and width, so it starts back where it was, on translate and at the old width, with no transition, then lets go of
+  // both. Width rather than scale, so its border and corners keep their shape between segments of different widths.
   const indicator = React.useRef<HTMLSpanElement | null>(null);
   const last = React.useRef<{ x: number; w: number; v: string | undefined } | null>(null);
   useIsoLayoutEffect(() => {
@@ -108,11 +109,11 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w)) return;
     el.setAttribute("data-flip", "");
     el.style.translate = was.x - box.x + "px 0";
-    el.style.scale = was.w / box.w + " 1";
+    el.style.width = was.w + "px";
     void el.offsetWidth;
     el.removeAttribute("data-flip");
     el.style.translate = "";
-    el.style.scale = "";
+    el.style.width = box.w + "px";
   }, [box]);
   React.useEffect(() => {
     const r = root.current;

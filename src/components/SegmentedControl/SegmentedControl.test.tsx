@@ -288,14 +288,20 @@ describe('SegmentedControl', () => {
       await press(seg('sr'), () => expect(css(seg('sr')).scale).toBe('none'));
     });
   });
-  test('a new choice slides the indicator from the last one on translate and scale, not left and width, and it comes to rest on the segment (EG1)', async () => {
+  test('a new choice slides the indicator from the last one on translate (compositor) and width, never scale, so its border and corners keep their shape between segments of different widths; it comes to rest on the segment (EG1, GL1)', async () => {
     await withMotion(async () => {
       await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
       const [a, b] = items('sl');
       await userEvent.click(b);
       const moves = el('sl').firstElementChild!.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition);
       const start = moves.find((x) => x.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
-      expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(a.offsetLeft - b.offsetLeft)]);
+      expect([moves.map((x) => x.transitionProperty).sort(), Math.round(shift)]).toEqual([['translate', 'width'], Math.round(a.offsetLeft - b.offsetLeft)]);
+      // Half way, the border is still 1px and the corners still round: nothing is stretched.
+      moves.forEach((x) => { x.pause(); x.currentTime = Number(x.effect!.getComputedTiming().duration) / 2; });
+      const ind = el('sl').firstElementChild as HTMLElement, s = getComputedStyle(ind);
+      expect([s.scale, s.borderLeftWidth, s.borderRightWidth]).toEqual(['none', '1px', '1px']);
+      expect(ind.getBoundingClientRect().width).toBeGreaterThan(Math.min(a.offsetWidth, b.offsetWidth));
+      moves.forEach((x) => x.play());
       await Promise.all(moves.map((x) => x.finished));
       expect(off('sl')).toEqual([0, 0]);
     });
