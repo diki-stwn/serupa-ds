@@ -18,7 +18,7 @@
   border-radius: var(--select-radius, var(--rounded-md));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
   vertical-align: middle;
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-select--size-sm { --dk-select-h: var(--select-height-sm, var(--control-height-sm)); --dk-select-px: var(--select-padding-x-sm, var(--spacing-2)); --dk-select-icon: var(--select-icon-size-sm, var(--spacing-3\.5)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-select--size-lg { --dk-select-h: var(--select-height-lg, var(--control-height-lg)); --dk-select-px: var(--select-padding-x-lg, var(--spacing-4)); --dk-select-icon: var(--select-icon-size-lg, var(--spacing-5)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
