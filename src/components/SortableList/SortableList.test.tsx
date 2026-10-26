@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, drag } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, drag, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { SortableList } from './SortableList';
@@ -164,6 +164,24 @@ describe('SortableList', () => {
     await render(<SortableList id="sl" autoFocus items={ITEMS} getKey={(i) => i.id} getLabel={(i) => i.name} renderItem={(i) => i.name} onReorder={() => undefined} />);
     await expect.poll(() => document.activeElement).toBe(handle('Apollo'));
     expect(document.getElementById('sl')!.hasAttribute('autofocus')).toBe(false);
+  });
+
+  test('moves glide (EP1): the rows that change place start where they were and slide to their slot on translate; at rest nothing is offset', async () => {
+    await withMotion(async () => {
+      await render(<List />);
+      const row = (name: string) => handle(name).closest('li') as HTMLElement;
+      const top = (name: string) => row(name).getBoundingClientRect().top;
+      const before = { gemini: top('Gemini'), mercury: top('Mercury') };
+      handle('Gemini').focus();
+      await userEvent.keyboard(' {ArrowDown}');
+      const moving = ['Gemini', 'Mercury'].map((n) => row(n).getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty));
+      // A frame in, each is still near its old place: Gemini above its new slot, Mercury below its new one.
+      expect([moving, Math.abs(top('Gemini') - before.gemini) < Math.abs(top('Gemini') - before.mercury), row('Apollo').getAnimations().length])
+        .toEqual([[['translate'], ['translate']], true, 0]);
+      await Promise.all(document.getAnimations().map((a) => a.finished));
+      expect([names(), Math.round(top('Gemini')), Math.round(top('Mercury')), css(row('Gemini')).translate])
+        .toEqual([['Apollo', 'Mercury', 'Gemini', 'Artemis'], Math.round(before.mercury), Math.round(before.gemini), 'none']);
+    });
   });
 
 });
