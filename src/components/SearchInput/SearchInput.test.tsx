@@ -61,6 +61,19 @@ describe('SearchInput', () => {
     expect(field('q').value).toBe('');
   });
 
+  test('keyboard table: Tab reaches the field, then the × once there\'s text, then goes on (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><SearchInput id="kb-q" aria-label="Search" /><button id="kb-after">after</button></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const empty = document.activeElement?.id;
+    await userEvent.keyboard('road');
+    await expect.poll(() => clearBtn('kb-q')).not.toBeNull();
+    await userEvent.tab();
+    const x = document.activeElement === clearBtn('kb-q');
+    await userEvent.tab();
+    expect([empty, x, document.activeElement?.id]).toEqual(['kb-q', true, 'kb-after']);
+  });
+
   test('controlled: the × fires onChange with "" and then onClear, and the value follows; Escape clears it too, without reaching listeners outside (a dialog stays open)', async () => {
     const calls: string[] = [], now = { value: '' };
     await render(<Wrap><Controlled calls={calls} now={now} /></Wrap>);

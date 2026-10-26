@@ -65,6 +65,14 @@ describe('Textarea', () => {
     expect([ref.current === i, i.parentElement!.classList.contains('extra'), i.dataset.x, i.labels[0]?.textContent, i.placeholder]).toEqual([true, true, 'y', 'Notes', 'Dana']);
   });
 
+  test('keyboard table: Tab goes on out of the field without inserting a tab; Enter starts a new line (FH1)', async () => {
+    await render(<div><Textarea id="kb-ta" aria-label="Notes" /><button id="kb-after">after</button></div>);
+    el('kb-ta').focus();
+    await userEvent.keyboard('a{Enter}b');
+    await userEvent.tab();
+    expect([el('kb-ta').value, document.activeElement?.id]).toEqual(['a\nb', 'kb-after']);
+  });
+
   test('typing (with a new line) updates a controlled value through onChange', async () => {
     await setup();
     await userEvent.click(el('md'));

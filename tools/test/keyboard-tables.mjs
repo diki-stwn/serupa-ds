@@ -11,28 +11,18 @@ import { PROJECT, done, report } from './lib.mjs';
 const KNOWN = Object.fromEntries(Object.entries({
   Calendar: ['Space'],
   ColorPicker: ['ArrowUp'],
-  CopyButton: ['Tab', 'Enter', 'Space'],
   DateRangePicker: ['Space'],
   Dialog: ['Space'],
   Drawer: ['Space'],
-  InlineEdit: ['Tab'],
-  Input: ['Tab', 'Enter'],
-  Link: ['Enter'],
   Navbar: ['Enter', 'Space'],
   NumberInput: ['PageDown'],
   PasswordInput: ['Tab', 'CapsLock'],
-  PhoneInput: ['ArrowUp', 'ArrowDown', 'Delete'],
   Popover: ['Space'],
-  SearchInput: ['Tab'],
   Select: ['Tab', 'ArrowUp', 'ArrowDown', 'Space'],
   SortableList: ['ArrowUp', 'ArrowLeft', 'ArrowRight'],
-  Splitter: ['Tab'],
-  Stepper: ['Tab', 'Space'],
   Table: ['arrow'],
   Tabs: ['Space'],
-  Textarea: ['Tab'],
   TimePicker: ['PageUp'],
-  ToggleButton: ['Tab', 'Enter'],
 }).flatMap(([c, ks]) => ks.map((k) => [`${c}:${k}`, 'FH1'])));
 
 const ARROWS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];

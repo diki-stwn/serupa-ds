@@ -16,15 +16,15 @@ const DRAGS = {
   Carousel: { drag: 'swipe to the next or previous slide', press: ['Carousel.test.tsx', 'next moves one slide at a time'] },
   Drawer: { drag: 'swipe it toward its edge to close', press: ['Drawer.test.tsx', 'the ×, Escape and the browser close it'] },
   FileUpload: { drag: 'drag files onto the area', press: ['FileUpload.test.tsx', 'the button opens the file picker'] },
+  SortableList: { drag: 'drag a row by its handle', press: ['SortableList.test.tsx', 'a press without moving picks the row up'] },
   Splitter: { drag: 'drag the handle to resize the panes', press: ['Splitter.test.tsx', 'a press on the handle without dragging, then a press elsewhere'] },
 };
 // Moves that aren't a drag: nothing is held down while the pointer moves.
 const NOT_DRAG = {
   Menu: 'onPointerMove only moves focus to the item under the pointer, as hover does',
 };
-const KNOWN = {
-  SortableList: ['FG1: a row moves only by dragging its handle (or by keyboard); a press on the handle does nothing'],
-};
+// What has no single-pointer way yet, by component: the queue item that adds one, and why. Empty since FG1.
+const KNOWN = {};
 
 const dir = path.join(PROJECT, 'src', 'components');
 const dragging = fs.readdirSync(dir).filter((n) => fs.statSync(path.join(dir, n)).isDirectory()).filter((n) =>

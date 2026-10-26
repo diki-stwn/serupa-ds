@@ -27,6 +27,18 @@ describe('Link', () => {
     expect([el('ext-en').textContent, el('ext-id').textContent]).toEqual(['Docs (opens in a new tab)', 'Dokumen (terbuka di tab baru)']);
   });
 
+  test('keyboard table: Tab reaches the link; Enter follows it (FH1)', async () => {
+    location.hash = '';
+    await render(<div><button id="kb-before">before</button><Link id="kb-l" href="#kb-followed">Guide</Link></div>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => location.hash).toBe('#kb-followed');
+    expect(at).toBe('kb-l');
+    location.hash = '';
+  });
+
   test('defaults: an inline <a>; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLAnchorElement>();
     await render(<Para r={r} />);

@@ -28,6 +28,15 @@ describe('Splitter', () => {
     expect([wide('s'), h.offsetWidth]).toEqual([102, 8]);
   });
 
+  test('keyboard table: Tab reaches the handle between the first pane\'s content and the second\'s (FH1)', async () => {
+    await render(<Two />);
+    el('nav').querySelector('a')!.focus();
+    await userEvent.tab();
+    const at = document.activeElement === handle('s');
+    await userEvent.tab();
+    expect([at, document.activeElement?.textContent]).toEqual([true, 'Reply']);
+  });
+
   test('keyboard: ArrowRight and ArrowLeft move by step, Home and End go to min and max; ArrowUp does nothing on a side-by-side Splitter; onSizeChange gets each size', async () => {
     const calls: number[] = [];
     await render(<Two onSizeChange={(n) => calls.push(n)} min={20} max={70} step={10} />);

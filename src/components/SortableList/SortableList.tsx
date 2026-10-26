@@ -63,10 +63,14 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     } else announce(sds.labels.reorderCancelled(name, at + 1, total));
   };
 
-  // Keyboard (and screen readers, whose virtual click has detail 0): a click picks the item up or drops it.
-  const onClick = (key: string | number, index: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (e.detail !== 0 || props.disabled) return;   // a mouse or touch press is a drag, handled by the pointer events
-    if (drag && !drag.pointer) finish(drag, true);
+  // A click picks the item up or drops it: from the keyboard, a screen reader's virtual click, or a press that didn't
+  // move (WCAG 2.5.7: a single pointer can reorder without dragging). With one picked up, a click on another row's
+  // handle drops it in that row's place.
+  const dragged = React.useRef(false);
+  const onClick = (key: string | number, index: number) => () => {
+    if (props.disabled) return;
+    if (dragged.current) { dragged.current = false; return; }   // the click that ends a drag
+    if (drag && !drag.pointer) finish(key === drag.key ? drag : { ...drag, to: index }, true);
     else { setDrag({ key, from: index, to: index, pointer: false }); announce(sds.labels.reorderGrabbed(label(items[index]), index + 1, total)); }
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -106,6 +110,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const stop = React.useRef<(() => void) | null>(null);
   React.useEffect(() => () => { if (stop.current) stop.current(); }, []);
   const onPointerDown = (key: string | number) => (e: React.PointerEvent<HTMLButtonElement>) => {
+    dragged.current = false;
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
     const row = e.currentTarget.closest("li") as HTMLElement;
     pointer.current = { id: e.pointerId, key, startY: e.clientY, y: e.clientY, grab: e.clientY - row.getBoundingClientRect().top, moved: false };
@@ -153,6 +158,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       p.y = ev.clientY;
       if (!p.moved && Math.abs(p.y - p.startY) < 4) return;
       p.moved = true;
+      dragged.current = true;
       ev.preventDefault();
       placeAt(p);
       if (!frame) frame = requestAnimationFrame(tick);
@@ -161,6 +167,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       const p = pointer.current;
       if (!p || p.id !== ev.pointerId) return;
       off();
+      if (p.moved) setTimeout(() => { dragged.current = false; });   // no click came after it (let go off the handle)
       const d = current.current;
       if (p.moved && d && d.pointer) latest.current.finish(d, !cancel);
     };
