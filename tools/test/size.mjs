@@ -38,6 +38,10 @@ const TOTALS = {
 };
 // KiB, gzipped: [budget, the size it was set at]. The totals that count shared code move with the budget.
 const LABELS = [2.6, 1.9];
+// KiB, gzipped: PhoneInput's country table (PHONE_COUNTRIES in phone.ts, the calling codes, groupings and lengths;
+// 2.4 on 26 Oct 2026). It's data, not code, and grows a row at a time, so it has its own line: a country added is
+// a choice made here, not a few bytes lost in PhoneInput's own budget.
+const PHONE_DATA = 2.8;
 // Not made of component folders.
 const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
 // KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
@@ -118,6 +122,9 @@ totals.push({ name: `Button in a build without code splitting (the icon set come
     : `${kib(noSplit - NO_SPLIT * 1024)} KiB over: the icons drawn by name grew; if that's worth it, raise NO_SPLIT in tools/test/size.mjs` });
 totals.push({ name: `Built-in label text (enLabels): ${kib(labels)} KiB gzipped, within ${LABELS[0]} KiB`, ok: labels <= LABELS[0] * 1024 && labels >= 512,
   detail: labels < 512 ? 'not measured: enLabels should bundle every folder\'s labels.ts' : `${kib(labels - LABELS[0] * 1024)} KiB over; if the words are worth it, raise LABELS in tools/test/size.mjs (and its second number to the size now)` });
+const phoneData = gz((await esbuild.build({ stdin: { contents: "export { PHONE_COUNTRIES } from './src/components/PhoneInput/phone.ts';", resolveDir: PROJECT, loader: 'ts' }, bundle: true, minify: true, write: false, format: 'esm', logLevel: 'silent' })).outputFiles[0].contents);
+totals.push({ name: `PhoneInput's country table (PHONE_COUNTRIES): ${kib(phoneData)} KiB gzipped, within ${PHONE_DATA} KiB`, ok: phoneData <= PHONE_DATA * 1024 && phoneData >= 1024,
+  detail: phoneData < 1024 ? 'not measured: the table should bundle from src/components/PhoneInput/phone.ts' : `${kib(phoneData - PHONE_DATA * 1024)} KiB over; if the countries are worth it, raise PHONE_DATA in tools/test/size.mjs` });
 const LABEL = { alone: 'imported alone', share: 'adds to the whole package', css: 'adds to components.css' };
 const own = folders.flatMap((n) => (budgets[n]
   ? KEYS.map((k) => ({ name: `${n} ${LABEL[k]}: ${kib(measured[n][k])} KiB, within ${budgets[n][k]} KiB`, ok: measured[n][k] <= budgets[n][k] * 1024,
