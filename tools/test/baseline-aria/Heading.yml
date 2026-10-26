@@ -10,6 +10,10 @@
 - heading "Level 5, text-base" [level=5]
 - heading "Level 6, text-sm" [level=6]
 
+# LongText
+- heading "Quarterly results for every region, team and product line" [level=1]
+- heading "Donaudampfschifffahrtsgesellschaftskapitänskajüte" [level=2]
+
 # Playground
 - heading "Recent activity" [level=2]
 

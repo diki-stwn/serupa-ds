@@ -7,6 +7,12 @@
 - heading "Add a cover image" [level=3]
 - button "Upload"
 
+# LongText
+- heading "No projects match every one of the filters you picked" [level=3]
+- paragraph: Try fewer filters, or search for Donaudampfschifffahrtsgesellschaftskapitänskajüte by name instead.
+- button "New project"
+- button "Import"
+
 # NoResults
 - heading "No results" [level=3]
 - paragraph: Nothing matches "quarterly".
