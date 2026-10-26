@@ -217,7 +217,8 @@ describe('Tooltip warm-up (EC1)', () => {
     expect(performance.now() - t0).toBeGreaterThanOrEqual(400);   // a cold start waits for the delay
     expect(tipOf('wa').hasAttribute('data-warm')).toBe(false);
     await userEvent.hover(el('wb'));
-    expect([isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), tipOf('wb').getAnimations().length]).toEqual([true, false, true, 0]);
+    // at once, with no delay to wait out; WebKit can close the first one a frame after the pointer leaves it
+    await expect.poll(() => [isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), tipOf('wb').getAnimations().length], { timeout: 100 }).toEqual([true, false, true, 0]);
     // Off every tooltip for less than 300ms: still warm.
     await away(); await wait(150);
     await userEvent.hover(el('wc'));
