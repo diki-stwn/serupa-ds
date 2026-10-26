@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
 import { markDismissal } from "./layers";
-import { cssLength, hideLayer, placeLayer, showLayer, type Placement } from "./position";
+import { cssLength, hideLayer, isRtl, placeLayer, showLayer, type Placement } from "./position";
 
 type Ref = React.RefObject<HTMLElement | null>;
 
@@ -42,22 +42,27 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
     // from @starting-style keyed on data-side (Tooltip's slide) is fixed. placeLayer corrects it on a flip.
     if (!p.dataset.side) p.dataset.side = (placement || fallback || "bottom").split("-")[0];
     showLayer(p);
+    // The gap and the page's direction are style reads: once, and again only when sizes change (a density or
+    // theme switch), not on every scroll.
+    let offset = 0, rtl = false;
+    const measure = () => { offset = cssLength(p, offsetVar); rtl = isRtl(); };
     const update = () => {
       if (matchWidth) p.style.minWidth = a.offsetWidth + "px";
-      placeLayer(p, a, placement, cssLength(p, offsetVar), fallback);
+      placeLayer(p, a, placement, offset, fallback, rtl);
     };
+    const resized = () => { measure(); update(); };
     // Scrolling inside the layer doesn't move it.
     const scrolled = (e: Event) => { if (!(e.target instanceof Node && p.contains(e.target))) update(); };
-    update();
-    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
+    resized();
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(resized) : null;
     if (ro) { ro.observe(p); ro.observe(a); }
-    window.addEventListener("scroll", scrolled, true); window.addEventListener("resize", update);
+    window.addEventListener("scroll", scrolled, true); window.addEventListener("resize", resized);
     // A phone's keyboard opening, or pinch-zoom, moves the visual viewport without a window resize or scroll.
     const vv = window.visualViewport;
-    if (vv) { vv.addEventListener("resize", update); vv.addEventListener("scroll", update); }
+    if (vv) { vv.addEventListener("resize", resized); vv.addEventListener("scroll", update); }
     return () => {
-      if (ro) ro.disconnect(); window.removeEventListener("scroll", scrolled, true); window.removeEventListener("resize", update);
-      if (vv) { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); }
+      if (ro) ro.disconnect(); window.removeEventListener("scroll", scrolled, true); window.removeEventListener("resize", resized);
+      if (vv) { vv.removeEventListener("resize", resized); vv.removeEventListener("scroll", update); }
     };
   }, [open, layer, anchor, placement, fallback, offsetVar, matchWidth, watch]);
   React.useEffect(() => {
