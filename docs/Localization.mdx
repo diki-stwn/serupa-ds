@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
 
 | Prop | What it changes |
 |---|---|
-| `locale` | Calendar, DatePicker, DateRangePicker and TimePicker: how dates and times are written and typed, month and weekday names, the first day of the week. Default: the browser's. |
+| `locale` | Calendar, DatePicker, DateRangePicker and TimePicker: how dates and times are written and typed, month and weekday names, the first day of the week. Default: the browser's. A tag with an underscore, such as `en_US` from a server's `LANG`, is read as `en-US`; one Intl can't read at all is skipped for the browser's, with a warning in development, so a bad locale never breaks the page. |
 | `labels` | The built-in words: close and dismiss buttons, loading text, pagination, date and time buttons, file upload text and so on (the `SerupaLabels` type lists every key). Pass `idLabels` for Indonesian, or only the keys you want to change. |
 | `icons` | Icons that work by name inside it, in the shape `registerIcons` takes. |
 
@@ -48,7 +48,7 @@ export default async function RootLayout({ children }) {
 
 ## In your own components
 
-`useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's. Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
+`useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's, always one Intl can read (`en_US` comes back as `en-US`). Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
 
 ## Accessibility
 
