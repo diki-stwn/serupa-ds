@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { announce } from "../../internal/announce";
-import { cn, domId } from "../../internal/cn";
+import { cn, domId, useIsoLayoutEffect } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { useScrolls } from "../../internal/useScrolls";
@@ -155,11 +155,22 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   const [paneB, setPaneB] = React.useState<HTMLDivElement | null>(null);
   const scrollsA = useScrolls(paneA);
   const scrollsB = useScrolls(paneB);
+  // A parent that collapses the first pane (size 0) while focus is in it hides what has focus: focus goes to the
+  // handle, as with Enter on the handle, instead of dropping to the page (GN3). focusedIn notes it was there, for a
+  // browser that has already moved focus to the body by the time this runs.
+  const focusedIn = React.useRef(false);
+  useIsoLayoutEffect(() => {
+    if (!collapsed || !paneA || !handle.current) return;
+    const active = document.activeElement;
+    if (paneA.contains(active) || ((!active || active === document.body) && focusedIn.current)) handle.current.focus();
+    focusedIn.current = false;
+  }, [collapsed, paneA]);
   return (
     <div {...rest} ref={(n) => { root.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
       data-placing={placing || undefined} onPointerDownCapture={onPlace}>
-      <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}>{panes[0]}</div>
+      <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}
+        onFocus={() => { focusedIn.current = true; }} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null) && e.relatedTarget) focusedIn.current = false; }}>{panes[0]}</div>
       <div ref={handle} role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
         aria-valuenow={Math.round(size)} aria-valuemin={collapsible ? 0 : Math.round(min)} aria-valuemax={Math.round(max)} aria-controls={first}
         aria-label={separatorLabel || sds.labels.resizePanes} data-state={collapsed ? "collapsed" : undefined}
