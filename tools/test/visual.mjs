@@ -62,15 +62,22 @@ const pages = await Promise.all(Array.from({ length: PAGES }, async () => {
 }));
 const R = [];
 
-async function diff(page, a, bb) {   // share of differing pixels, computed in the browser (no image libraries needed)
+async function diff(page, a, bb) {   // share of differing pixels and the box they fall in, computed in the browser (no image libraries needed)
   return page.evaluate(async ([a, bb]) => {
     const load = (s) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = 'data:image/png;base64,' + s; });
     const [x, y] = await Promise.all([load(a), load(bb)]);
-    if (x.width !== y.width || x.height !== y.height) return 1;
+    if (x.width !== y.width || x.height !== y.height) return { share: 1, box: `${x.width}×${x.height} against ${y.width}×${y.height}` };
     const c = (i) => { const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height; const g = cv.getContext('2d'); g.drawImage(i, 0, 0); return g.getImageData(0, 0, i.width, i.height).data; };
     const d1 = c(x), d2 = c(y); let n = 0;
-    for (let k = 0; k < d1.length; k += 4) if (Math.abs(d1[k] - d2[k]) + Math.abs(d1[k + 1] - d2[k + 1]) + Math.abs(d1[k + 2] - d2[k + 2]) > 24) n++;
-    return n / (d1.length / 4);
+    // Where they differ too, so a failure in a log says which part of the picture changed.
+    let x0 = x.width, y0 = x.height, x1 = -1, y1 = -1;
+    for (let k = 0; k < d1.length; k += 4) {
+      if (Math.abs(d1[k] - d2[k]) + Math.abs(d1[k + 1] - d2[k + 1]) + Math.abs(d1[k + 2] - d2[k + 2]) <= 24) continue;
+      n++;
+      const px = (k / 4) % x.width, py = Math.floor(k / 4 / x.width);
+      x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+    }
+    return { share: n / (d1.length / 4), box: n ? `x ${x0}–${x1}, y ${y0}–${y1}` : '' };
   }, [a, bb]);
 }
 
@@ -119,7 +126,7 @@ async function compare(page, name) {
   // --update rewrites a baseline only when the new picture differs past the tolerance, so re-rendering on another
   // run doesn't commit hundreds of pictures that only changed in anti-aliasing.
   if (update) {
-    if (!fs.existsSync(file) || await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64')) > TOLERANCE) fs.writeFileSync(file, shot);
+    if (!fs.existsSync(file) || (await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'))).share > TOLERANCE) fs.writeFileSync(file, shot);
     return null;
   }
   // A missing baseline fails: only --update (or the "update-visual-baselines" label) writes one, so a
@@ -128,9 +135,9 @@ async function compare(page, name) {
     fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
     return { name, ok: false, detail: 'no baseline; add the "update-visual-baselines" label to the pull request (or run node tools/test/visual.mjs --update) and review the new images' };
   }
-  const share = await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'));
+  const { share, box } = await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'));
   if (share > TOLERANCE) fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
-  return { name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ; see ${name}.actual.png` };
+  return { name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ (${box}); see ${name}.actual.png` };
 }
 
 async function checkStory(e, page) {
