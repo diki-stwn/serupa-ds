@@ -39,10 +39,10 @@
   transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-border-hover, var(--field-border-hover)); --dk-checkbox-fill: var(--checkbox-bg-checked-hover, var(--primary-hover)); } }
-.dk-checkbox__input:checked, .dk-checkbox__input:indeterminate { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }
+.dk-checkbox__input:checked, .dk-checkbox__input:indeterminate, .dk-checkbox__input[data-indeterminate] { background: var(--dk-checkbox-fill); border-color: var(--dk-checkbox-fill); }
 .dk-checkbox__icon { position: absolute; inset: var(--spacing-0); display: flex; align-items: center; justify-content: center; color: var(--checkbox-icon-color, var(--on-primary)); pointer-events: none; visibility: hidden; }
 .dk-checkbox__icon .dk-icon { font-size: var(--dk-checkbox-icon); }
-.dk-checkbox__input:checked + .dk-checkbox__icon, .dk-checkbox__input:indeterminate + .dk-checkbox__icon { visibility: visible; }
+.dk-checkbox__input:checked + .dk-checkbox__icon, .dk-checkbox__input:indeterminate + .dk-checkbox__icon, .dk-checkbox__input[data-indeterminate] + .dk-checkbox__icon { visibility: visible; }
 /* Focus: the 2px focus-ring outline, 2px out, like Button. The gap is transparent, so it works on tinted backgrounds. */
 .dk-checkbox__input:focus-visible {
   outline: var(--focus-ring-width) solid var(--dk-checkbox-ring); outline-offset: var(--focus-ring-offset);
@@ -59,7 +59,7 @@
 .dk-checkbox--readonly { cursor: default; }
 /* Disabled, by its own prop or a disabled fieldset (Field group). */
 .dk-checkbox:has(.dk-checkbox__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
-.dk-checkbox__input:disabled:not(:checked, :indeterminate) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
+.dk-checkbox__input:disabled:not(:checked, :indeterminate, [data-indeterminate]) { background: var(--checkbox-bg-disabled, var(--surface-muted)); }
 @media (forced-colors: active) { .dk-checkbox__icon { color: CanvasText; } }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when the row is shorter or narrower, a box behind
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
