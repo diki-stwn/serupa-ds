@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
 import { config } from "../../internal/config";
-import { type IconSource } from "../Icon/Icon";
+import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 

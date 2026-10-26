@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
-import { type IconSource } from "../Icon/Icon";
+import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { warnOnce } from "../../internal/warn";
