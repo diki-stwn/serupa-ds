@@ -6,10 +6,11 @@ import { Dialog } from "../Dialog/Dialog";
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
 import { schemeOf, useThemeChanges } from "../../internal/scheme";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export type ImageRatio = 'auto' | 'square' | '4:3' | 'video' | number;
 
@@ -117,7 +118,7 @@ function Full({ src, alt, fallback, shape }: { src: string; alt: string; fallbac
 export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Image", function Image(props, ref) {
   const frame = React.useRef<HTMLSpanElement | null>(null);
   const restyle = useServerStyles<HTMLSpanElement>(frame);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { src, alt, ratio: _r, fit: _f, rounded, fallback, viewable, fullSrc, viewLabel, onRemove, removeLabel, frameProps, className, onLoad, onError, loading, priority, decoding, fetchPriority, sources, sizes, darkSrc, dim, ...rest } = props;
   const lazy = (loading || (priority ? "eager" : "lazy")) === "lazy";
   const ratio = typeof props.ratio === "number" && props.ratio > 0 ? props.ratio : oneOf(RATIOS, props.ratio as string, "auto");

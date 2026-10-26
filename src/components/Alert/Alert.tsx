@@ -5,7 +5,7 @@ import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Button } from "../Button/Button";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
 
@@ -52,7 +52,7 @@ function dismissAndRefocus(e: React.MouseEvent<HTMLElement>, onDismiss: () => vo
 
 /** A message about the page or a task: a tinted box with an icon, an optional title, actions and a close button. */
 export const Alert = /* @__PURE__ */ component<HTMLDivElement, AlertProps>("Alert", function Alert(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, OWN);
   const tone = oneOf(TONES, props.tone, "info");
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";

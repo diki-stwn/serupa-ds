@@ -6,10 +6,11 @@ import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
 import { Menu, MenuItem } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   /** BreadcrumbItems, from the top level down to the current page (the last one). */
@@ -73,7 +74,7 @@ export const BreadcrumbItem = BreadcrumbItemBase as {
    again, or with collapse="menu" opens a Menu of them. className and every other prop go to the <nav>. */
 /** Where the current page sits: links to the pages above it, separated by chevrons. maxItems collapses the middle. */
 export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps>("Breadcrumb", function Breadcrumb(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { separator: 1, maxItems: 1, collapse: 1, expandLabel: 1, className: 1, children: 1 });
   const asMenu = props.collapse === "menu";
   const separator = oneOf(["chevron", "slash"] as const, props.separator, "chevron");
