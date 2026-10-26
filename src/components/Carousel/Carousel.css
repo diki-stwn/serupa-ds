@@ -53,13 +53,14 @@
 .dk-carousel__dot::before {
   --dk-dot-h: var(--carousel-dot-size, var(--spacing-2));
   --dk-dot-w: var(--carousel-dot-active-width, var(--spacing-6));
+  --dk-dot-clip: calc((var(--dk-dot-w) - var(--dk-dot-h)) / 2);
   content: "";
   position: absolute; inset: var(--spacing-0); margin: auto;
   width: var(--dk-dot-w);
   height: var(--dk-dot-h);
   border-radius: var(--rounded-full);
   background: var(--carousel-dot, var(--field-border));
-  clip-path: inset(var(--spacing-0) calc((var(--dk-dot-w) - var(--dk-dot-h)) / 2) round var(--rounded-full));
+  clip-path: inset(var(--spacing-0) var(--dk-dot-clip) round var(--rounded-full));
   transition: clip-path var(--motion-change-sm) var(--ease-settle);
 }
 .dk-carousel__dot[aria-current="true"]::before { clip-path: inset(var(--spacing-0) round var(--rounded-full)); background: var(--carousel-dot-active, var(--primary)); }

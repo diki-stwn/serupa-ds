@@ -259,13 +259,13 @@ describe('Carousel', () => {
     expect([getComputedStyle(q('#tok .dk-carousel__dot[aria-current="true"]'), '::before').backgroundColor, getComputedStyle(q('#tok .dk-carousel__viewport')).borderTopLeftRadius]).toEqual(['rgb(1, 2, 3)', '3px']);
     const d = q('#car .dk-carousel__dot:not([aria-current])'), r = d.getBoundingClientRect(), a = getComputedStyle(d, '::before'), cur = getComputedStyle(q('#car .dk-carousel__dot[aria-current="true"]'), '::before');
     // Each dot is drawn 24px wide and clipped 8px in from both sides to an 8px circle; the current one isn't clipped.
-    const cr = q('#car .dk-carousel__dot[aria-current="true"]').getBoundingClientRect();
+    const cr = q('#car button[aria-current="true"]').getBoundingClientRect();
     expect([Math.round(r.width), Math.round(r.height), Math.round(cr.width), a.width, a.height, a.clipPath, cur.width, cur.clipPath]).toEqual([24, 24, 24, '24px', '8px', 'inset(0px 8px round 9999px)', '24px', 'inset(0px round 9999px)']);
   });
 
   test('the dot that becomes current widens by letting its clip go, on the compositor, and its neighbours stay where they are (FB1)', async () => {
     await render(<App />);
-    const left = () => [...el('car').querySelectorAll<HTMLElement>('.dk-carousel__dot')].map((d) => Math.round(d.getBoundingClientRect().left));
+    const left = () => [...el('car').querySelectorAll<HTMLElement>('button[aria-label$=" of 4"]')].map((d) => Math.round(d.getBoundingClientRect().left));
     const before = left();
     motion();
     try {
