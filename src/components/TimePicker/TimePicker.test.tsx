@@ -261,4 +261,24 @@ describe('TimePicker: autocomplete', () => {
       expect([css(list).opacity, css(list).scale]).toEqual(['1', 'none']);
     });
   });
+  test('exit: Escape fades and shrinks the list out over 100ms, kept (inert, times in place) until the fade ends, as DatePicker\'s does (GK1)', async () => {
+    await withMotion(async () => {
+      const ms = (x: Animation) => Number(x.effect!.getComputedTiming().duration);
+      const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition && /^(opacity|scale)$/.test(x.transitionProperty)).map((x) => [(x as CSSTransition).transitionProperty, ms(x)]).sort();
+      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
+      await render(<Meeting />);
+      await openTp();
+      const list = listOf('tp'), n = list.querySelectorAll('[role=option]').length;
+      await settled(list);
+      await userEvent.keyboard('{Escape}');
+      expect([list.hidden, el('tp').getAttribute('aria-expanded'), n > 0]).toEqual([true, 'false', true]);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      if (CSS.supports('overlay', 'auto')) {
+        expect([css(list).display, list.inert, list.querySelectorAll('[role=option]').length, runs(list)]).toEqual(['block', true, n, [['opacity', 100], ['scale', 100]]]);
+        await settled(list);
+      }
+      await expect.poll(() => list.querySelectorAll('[role=option]').length).toBe(0);
+      expect(css(list).display).toBe('none');
+    });
+  });
 });

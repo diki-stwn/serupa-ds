@@ -62,6 +62,37 @@ describe('Toast', () => {
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
+  test('swipe to dismiss: a touch drag sideways past a third, or a flick, carries on at the finger\'s speed on ease-fling and closes it; a short slow drag, a vertical one or a mouse drag leave it', async () => {
+    await withMotion(async () => {
+      await render(<App />);
+      React.act(() => { toast({ title: 'Swipe me', duration: 0 }); });
+      await landed();
+      const t = () => toasts()[0];
+      const swipe = async (dx: number, dy: number, o: { type?: string; ms?: number; rest?: number } = {}) => {
+        const r = t().getBoundingClientRect(), x = r.left + 40, y = r.top + 10, steps = 5;
+        const ev = (name: string, cx: number, cy: number) => t().dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 9, isPrimary: true, pointerType: o.type || 'touch', clientX: cx, clientY: cy }));
+        ev('pointerdown', x, y);
+        for (let i = 1; i <= steps; i++) { await new Promise((f) => setTimeout(f, (o.ms ?? 100) / steps)); ev('pointermove', x + (dx * i) / steps, y + (dy * i) / steps); }
+        if (o.rest) await new Promise((f) => setTimeout(f, o.rest));
+        ev('pointerup', x + dx, y + dy);
+      };
+      const w = t().offsetWidth;
+      await swipe(40, 0, { ms: 400, rest: 150 });
+      await swipe(0, 200);
+      await swipe(200, 0, { type: 'mouse' });
+      await landed();
+      expect([titles(), t().style.translate, t().style.opacity]).toEqual([['Swipe me'], '', '']);
+      // Dragged past a third and held still: it still goes, briskly.
+      await swipe(-(w / 3 + 20), 0, { ms: 300, rest: 150 });
+      await expect.poll(titles).toEqual([]);
+      // A flick: it leaves on ease-fling, toward the side it was flicked, then closes.
+      React.act(() => { toast({ title: 'Flick me', duration: 0 }); });
+      await landed();
+      await swipe(80, 0, { ms: 60 });
+      expect([t().style.translate, t().style.transition.includes('var(--ease-fling)')]).toEqual([w + 'px', true]);
+      await expect.poll(titles).toEqual([]);
+    });
+  });
   test('a string is a neutral toast with no icon, newest at the bottom for bottom positions; the same id replaces a toast in place; the close button dismisses it', async () => {
     await render(<App />);
     let id = '';
@@ -399,7 +430,7 @@ describe('Toast: motion (DZ1)', () => {
   const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
   const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]).sort();
   const byTitle = (t: string) => toasts().find((x) => x.textContent.includes(t))!;
-  test('slides in with a transition; closed, it fades and slides back toward its edge (kept, inert, until it ends) and the one left glides into its place over 200ms; one there as the Toaster arrives is not slid in', async () => {
+  test('slides in with a transition; closed, it fades and slides back toward its edge (kept, inert, until it ends) and the one left glides into its place at once, over 200ms; one there as the Toaster arrives is not slid in', async () => {
     await withMotion(async () => {
       await render(<App />);
       React.act(() => { toast({ title: 'First', duration: 0 }); });
@@ -411,10 +442,11 @@ describe('Toast: motion (DZ1)', () => {
       React.act(() => { toast.dismiss(second.dataset.toast); });
       // Bottom-end: the newest is last, nearest the edge; it leaves downward, toward it, and the first glides down.
       expect([second.isConnected, second.hasAttribute('data-leaving'), second.inert, runs(second)]).toEqual([true, true, true, [['opacity', 150], ['translate', 150]]]);
-      await Promise.all(second.getAnimations().map((a) => a.finished));
-      await expect.poll(() => second.isConnected).toBe(false);
+      // It leaves the flow at once, so the first glides into its place now, not once the fade has ended.
       const glide = first.getAnimations().find((a) => a.id === 'dk-toast-move');
       expect(glide && ms(glide)).toBe(200);
+      await Promise.all(second.getAnimations().map((a) => a.finished));
+      await expect.poll(() => second.isConnected).toBe(false);
       await landed();
       expect(css(first).translate).toBe('none');
     });
@@ -454,7 +486,7 @@ describe('Toast: motion (DZ1)', () => {
     });
   });
 
-  test('the waiting line fades in, glides with the toasts, and fades out once none wait (FO1)', async () => {
+  test('the waiting line fades in where it stays (the toast pushed out leaves the flow at once), and fades out once none wait (FO1)', async () => {
     await withMotion(async () => {
       await render(<Toaster limit={1} />);
       React.act(() => { toast({ title: 'One', duration: 0 }); });
@@ -462,9 +494,9 @@ describe('Toast: motion (DZ1)', () => {
       React.act(() => { toast({ title: 'Two', duration: 0 }); });
       const more = q('.dk-toaster__more');
       expect(runs(more)).toEqual([['opacity', 200]]);
-      // Bottom-end: the line sits over the toasts, so it glides down into place once the one pushed out has gone.
-      await expect.poll(() => more.getAnimations().some((a) => a.id === 'dk-toast-move')).toBe(true);
+      // The one pushed out leaves the flow at once, so the line appears where it stays: nothing moves a second time.
       await landed();
+      expect(more.getAnimations().some((a) => a.id === 'dk-toast-move')).toBe(false);
       expect(Math.round(byTitle('Two').getBoundingClientRect().top - more.getBoundingClientRect().bottom)).toBe(8);
       React.act(() => { toast.dismiss(byTitle('Two').dataset.toast); });
       await expect.poll(() => more.hasAttribute('data-leaving')).toBe(true);
