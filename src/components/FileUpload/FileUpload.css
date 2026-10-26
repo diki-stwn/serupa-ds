@@ -12,7 +12,7 @@
   padding: var(--file-upload-zone-padding, var(--spacing-6));
   border: var(--border-width-1) dashed var(--file-upload-zone-border, var(--field-border)); border-radius: var(--file-upload-zone-radius, var(--rounded-lg));
   background: var(--file-upload-zone-bg, var(--surface-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), border-color var(--motion-hover) var(--ease-move);
 }
 .dk-file-upload__zone--over { border-style: solid; border-color: var(--file-upload-zone-border-active, var(--primary)); background: var(--file-upload-zone-bg-active, var(--primary-subtle)); }
 .dk-file-upload__zone--over .dk-file-upload__hint { color: var(--file-upload-title-color, var(--text)); }

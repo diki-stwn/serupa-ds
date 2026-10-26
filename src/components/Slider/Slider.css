@@ -25,7 +25,7 @@
   border: var(--slider-thumb-border-width, var(--border-width-2)) solid var(--slider-thumb-border, var(--primary));
   border-radius: var(--slider-radius, var(--rounded-full)); background: var(--slider-thumb-bg, var(--field));
   box-shadow: var(--slider-thumb-shadow, var(--shadow-sm));
-  cursor: grab; transition: scale var(--duration-150) var(--ease-out);
+  cursor: grab; transition: scale var(--motion-change-sm) var(--ease-settle);
 }
 .dk-slider__thumb:focus { outline: none; }
 .dk-slider__thumb:focus-visible { outline: var(--focus-ring-width) solid var(--slider-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
@@ -46,7 +46,7 @@
 .dk-slider__value {
   position: absolute; inset-block-end: calc(var(--sizing-full) + var(--spacing-1\.5)); inset-inline: var(--spacing-0);
   display: flex; justify-content: center; pointer-events: none; opacity: var(--opacity-0);
-  transition: opacity var(--duration-150) var(--ease-out);
+  transition: opacity var(--motion-change-sm) var(--ease-settle);
 }
 .dk-slider__value > span {
   flex: none; white-space: nowrap; padding: var(--spacing-0\.5) var(--spacing-1\.5); border-radius: var(--rounded-md);

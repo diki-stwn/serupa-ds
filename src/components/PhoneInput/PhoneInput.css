@@ -15,7 +15,7 @@
   border-inline-end: var(--input-border-width, var(--border-width-1)) solid var(--phone-input-divider, var(--border));
   border-start-start-radius: inherit; border-end-start-radius: inherit;
   color: var(--phone-input-dial, var(--text)); font-variant-numeric: tabular-nums; cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move);
 }
 .dk-phone-input__chevron { font-size: var(--dk-input-icon); color: var(--phone-input-chevron, var(--text-muted)); }
 .dk-phone-input__select {

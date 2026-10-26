@@ -216,7 +216,7 @@
     "transitions": {
       "duration": {
         "$type": "duration",
-        "$value": "{transitions.duration-200}",
+        "$value": "{transitions.motion-change-md}",
         "$description": "How long the selection takes to slide to a new segment.",
         "$extensions": {
           "com.serupa": {

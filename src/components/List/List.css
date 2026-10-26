@@ -7,7 +7,7 @@
 .dk-list { --dk-list-px: var(--list-padding-x, var(--spacing-3)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; font-family: var(--font-sans); }
 .dk-list--card { --dk-list-px: var(--list-padding-x-card, var(--spacing-4)); overflow: hidden; background: var(--list-bg, var(--surface)); border: var(--list-border-width, var(--border-width-1)) solid var(--list-border, var(--border)); border-radius: var(--list-radius, var(--rounded-lg)); }
 .dk-list--divided > .dk-list__item + .dk-list__item { border-top: var(--list-border-width, var(--border-width-1)) solid var(--list-border, var(--border)); }
-.dk-list__item { position: relative; display: flex; align-items: center; gap: var(--list-gap, var(--spacing-3)); padding-inline-end: var(--dk-list-px); transition: background-color var(--duration-150) var(--ease-in-out); }
+.dk-list__item { position: relative; display: flex; align-items: center; gap: var(--list-gap, var(--spacing-3)); padding-inline-end: var(--dk-list-px); transition: background-color var(--motion-hover) var(--ease-move); }
 .dk-list__main {
   box-sizing: border-box; display: flex; align-items: center; gap: var(--list-gap, var(--spacing-3)); flex: auto; min-width: var(--spacing-0);
   padding: var(--list-padding-y, var(--spacing-3)) var(--spacing-0) var(--list-padding-y, var(--spacing-3)) var(--dk-list-px);
