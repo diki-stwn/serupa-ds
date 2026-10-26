@@ -37,6 +37,21 @@ describe('Rating', () => {
     expect([stars('s')[0].offsetWidth, stars('l')[0].offsetWidth]).toEqual([20, 32]);
   });
 
+  test('keyboard table: ArrowDown picks the next star and ArrowUp the one before; Space picks the focused star, and with clearable clears the picked one (FH1)', async () => {
+    const calls: (number | null)[] = [];
+    await render(<div><Rating id="ku" aria-label="Up down" defaultValue={2} /><Rating id="ks" aria-label="Space" clearable onValueChange={(v) => calls.push(v)} /></div>);
+    radios('ku')[1].focus();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    const down = picked('ku');
+    await userEvent.keyboard('{ArrowUp}');
+    expect([down, picked('ku')]).toEqual([['4'], ['3']]);
+    radios('ks')[2].focus();   // nothing picked yet
+    await userEvent.keyboard(' ');
+    const first = picked('ks');
+    await userEvent.keyboard(' ');
+    expect([first, picked('ks'), calls]).toEqual([['3'], [], [3, null]]);
+  });
+
   test('allowHalf: two choices per star ("2.5 stars"), the start half of a star picks the half; right to left, the half fills from the right', async () => {
     await render(<div><Rating id="h" aria-label="Half" allowHalf max={4} /><div dir="rtl"><Rating id="rt" aria-label="RTL" allowHalf defaultValue={1.5} max={3} /></div></div>);
     expect(radios('h').map((r) => r.getAttribute('aria-label'))).toEqual(['0.5 stars', '1 star', '1.5 stars', '2 stars', '2.5 stars', '3 stars', '3.5 stars', '4 stars']);
