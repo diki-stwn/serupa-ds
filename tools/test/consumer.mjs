@@ -23,13 +23,15 @@ const run = (args, cwd) => {
 if (!fs.existsSync(path.join(PROJECT, 'dist', 'index.js'))) { console.log('FAIL  nothing built: run npm run build first'); process.exit(1); }
 
 // The package exactly as a release ships it (as in package-lint.mjs): the files package.json lists, and a
-// package.json without scripts or devDependencies.
+// package.json without scripts, devDependencies or devEngines (as tools/publish.mjs ships it: devEngines asks for the
+// Node the repository builds with, and npm pack refuses to run on an older one).
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-consumer-'));
 const dir = path.join(tmp, 'package');
 for (const f of pkg.files) if (fs.existsSync(path.join(PROJECT, f))) fs.cpSync(path.join(PROJECT, f), path.join(dir, f), { recursive: true });
 const shipped = { ...pkg };
 delete shipped.scripts;
 delete shipped.devDependencies;
+delete shipped.devEngines;
 fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(shipped, null, 2) + '\n');
 const tarball = path.join(tmp, JSON.parse(run(['pack', '--json', '--pack-destination', tmp], dir))[0].filename);
 

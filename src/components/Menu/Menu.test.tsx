@@ -637,17 +637,16 @@ describe('Menu: motion (DZ1)', () => {
     });
   });
 
-  test('stagger: opening, the items fade and drop into place 50ms (motion-stagger) apart, counted across groups, capped at motion-enter-sm; closing fades the menu as one', async () => {
+  test('opening, the items arrive with the menu as one: no item waits or moves on its own', async () => {
     await withMotion(async () => {
       await render(<Actions chosen={[]} />);
       await userEvent.click(el('mb'));
       const m = menuOf('mb'), items = [...m.querySelectorAll('[role="menuitem"]')];
-      const timing = (e: Element) => { const s = getComputedStyle(e); return `${s.transitionProperty} ${s.transitionDuration} ${s.transitionDelay}`; };
-      expect(items.map(timing)).toEqual(['0s', '0.05s', '0.1s', '0.15s', '0.15s'].map((d) => `opacity, translate 0.15s, 0.15s ${d}, ${d}`));
+      const moves = (e: Element) => e.getAnimations().map((a) => (a as CSSTransition).transitionProperty).filter((p) => p === 'opacity' || p === 'translate');
+      expect(items.flatMap(moves)).toEqual([]);
+      expect(items.map((i) => getComputedStyle(i).transitionDelay)).toEqual(items.map(() => '0s'));
       await settled(m);
       expect(items.map((i) => getComputedStyle(i).opacity)).toEqual(['1', '1', '0.5', '1', '1']);   // Archive is disabled
-      await userEvent.keyboard('{Escape}');
-      expect(items.flatMap((i) => i.getAnimations())).toEqual([]);
     });
   });
 
