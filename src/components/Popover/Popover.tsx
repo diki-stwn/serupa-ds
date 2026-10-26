@@ -40,7 +40,7 @@ export interface PopoverProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
   style?: React.CSSProperties;
 }
 
-const OWN = { trigger: 1, children: 1, title: 1, headingLevel: 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, initialFocus: 1, className: 1, style: 1, onKeyDown: 1, onBlur: 1 } as const;
+const OWN = { trigger: 1, children: 1, title: 1, "aria-label": 1, "aria-labelledby": 1, headingLevel: 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, initialFocus: 1, className: 1, style: 1, onKeyDown: 1, onBlur: 1 } as const;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /* Popover: a small non-modal dialog next to its trigger, for content people interact with (a form, filters,
