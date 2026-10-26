@@ -60,7 +60,7 @@ function recovered(was: Spot): HTMLElement | null {
   }
   if (first && !first.hasAttribute("tabindex")) {
     first.tabIndex = -1;
-    first.addEventListener("blur", () => first!.removeAttribute("tabindex"), { once: true });
+    first.addEventListener("blur", () => first.removeAttribute("tabindex"), { once: true });
   }
   return first;
 }
