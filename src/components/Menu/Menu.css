@@ -59,6 +59,7 @@
   color: var(--menu-item-text, var(--text));
   text-decoration: none;
   cursor: pointer; touch-action: manipulation;
+  -webkit-user-select: none;
   user-select: none;
 }
 .dk-menu__item:focus { outline: none; background: var(--menu-item-bg-active, var(--highlight)); }

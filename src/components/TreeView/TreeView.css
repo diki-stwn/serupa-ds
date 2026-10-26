@@ -24,7 +24,7 @@
   padding-block: var(--spacing-1);
   padding-inline: calc(var(--tree-view-indent, var(--spacing-4)) * var(--dk-tree-level, 0) + var(--tree-view-item-padding-x, var(--spacing-1))) var(--tree-view-item-padding-x, var(--spacing-1));
   border-radius: var(--tree-view-item-radius, var(--rounded-sm));
-  cursor: pointer; touch-action: manipulation; user-select: none;
+  cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none;
 }
 @media (hover: hover) { .dk-tree-view__row:hover { background: var(--tree-view-item-bg-hover, var(--secondary)); } }
 /* Pressed: one step past hover while held, at once. Not on the picked row or a disabled one. */
