@@ -32,6 +32,12 @@ export const Sizes: Story = {
     <Rating aria-label="Large" size="lg" defaultValue={4} />
   </div>,
 };
+export const Invalid: Story = {
+  args: { 'aria-label': undefined, defaultValue: undefined },
+  render: (args) => <Field label="How was your stay?" error="Pick a rating to send your review." required>
+    <Rating {...args} name="stay" />
+  </Field>,
+};
 export const Disabled: Story = { args: { disabled: true, defaultValue: 2 } };
 
 export const Overflow: Story = {

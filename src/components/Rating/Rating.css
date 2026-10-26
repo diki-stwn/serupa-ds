@@ -19,6 +19,7 @@
 /* The radios share the star's width in its row: one covers it, or two cover a half each (from the start side). */
 .dk-rating__choice { position: relative; flex: auto; align-self: stretch; width: var(--spacing-0); margin: var(--spacing-0); appearance: none; opacity: var(--opacity-0); cursor: pointer; touch-action: manipulation; }
 .dk-rating__star:has(.dk-rating__choice:focus-visible) { outline: var(--focus-ring-width) solid var(--rating-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
+.dk-rating[aria-invalid="true"] .dk-rating__empty { color: var(--rating-invalid, var(--danger)); }   /* the error shows on the stars, as on a field's border */
 .dk-rating--disabled { opacity: var(--opacity-disabled); }
 .dk-rating--disabled .dk-rating__choice { cursor: not-allowed; }
 @media (forced-colors: active) {
