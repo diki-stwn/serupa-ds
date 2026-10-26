@@ -63,8 +63,9 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
   // The open tooltip is the warm one: opening another closes it, and closing it keeps others warm for WARM_MS.
   const self = React.useRef({});
-  // Opened warm: no fade, so moving along a toolbar swaps one tooltip for the next without a flicker.
-  const [instant, setInstant] = React.useState(false);
+  // Opened warm: no fade, so moving along a toolbar swaps one tooltip for the next without a flicker. One open on
+  // arrival is there from the start, so it doesn't fade in either.
+  const [instant, setInstant] = React.useState(open);
   React.useEffect(() => {
     if (!open) return;
     const me = self.current;
