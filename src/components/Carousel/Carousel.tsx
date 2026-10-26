@@ -10,6 +10,7 @@ import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { en as words } from "./labels";
+import { settleTime, speed, track as sample, type Samples } from "../../internal/fling";
 
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
@@ -99,7 +100,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const name = props.slideLabel || ((i: number, n: number) => sds.labels.slideOf(i + 1, n));
   const dotsRef = React.useRef<HTMLDivElement>(null);
   const viewport = React.useRef<HTMLDivElement>(null);
-  const drag = React.useRef<{ x: number; y: number; id: number; s: { t: number; x: number }[] } | null>(null);
+  const drag = React.useRef<{ x: number; y: number; id: number; s: Samples } | null>(null);
   const track = React.useRef<HTMLDivElement>(null);
   // How long the track takes to settle after a swipe (from the distance left and the speed); null: the CSS default.
   const [settle, setSettle] = React.useState<number | null>(null);
@@ -160,7 +161,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (last < 1 || (e.pointerType === "mouse" && e.button !== 0)) return;
-    drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId, s: [{ t: e.timeStamp, x: e.clientX }] };
+    drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId, s: [{ t: e.timeStamp, p: e.clientX }] };
     dragged.current = false;
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -171,9 +172,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     if (offset === 0 && Math.abs(e.clientY - d.y) > Math.abs(dx)) { drag.current = null; return; }
     if (offset === 0 && viewport.current) try { viewport.current.setPointerCapture(e.pointerId); } catch { /* the pointer is already gone */ }
     dragged.current = true;
-    // The samples of the last 100ms (at least two), for the speed the finger had as it let go.
-    d.s.push({ t: e.timeStamp, x: e.clientX });
-    while (d.s.length > 2 && d.s[0].t < e.timeStamp - 100) d.s.shift();
+    sample(d.s, e.timeStamp, e.clientX);   // for the speed the finger had as it let go
     const forward = (dx < 0) !== rtl(), w = viewport.current ? viewport.current.clientWidth : 0;
     setOffset(!loop && (forward ? index >= last : index <= 0) ? rubber(dx, w) : dx);
   };
@@ -181,17 +180,17 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     const d = drag.current;
     if (!d || d.id !== e.pointerId) return;
     drag.current = null;
-    const dx = e.clientX - d.x, first = d.s[0], end = d.s[d.s.length - 1];
-    const v = (end.x - first.x) / Math.max(1, end.t - first.t);   // px per ms, signed like dx
+    const dx = e.clientX - d.x;
+    const v = speed(d.s);   // px per ms, signed like dx
     const flick = Math.abs(dx) > 10 && Math.abs(v) > FLICK && Math.sign(v) === Math.sign(dx);
     const step = (viewport.current ? viewport.current.clientWidth : 0) / per;
     setOffset(0);
     if (Math.abs(dx) >= SWIPE || flick) {
-      // Carries on at the finger's speed: the time from the distance left, between 150 and 300ms.
-      const ms = Math.round(Math.min(300, Math.max(150, Math.max(0, step - Math.abs(dx)) / Math.max(Math.abs(v), 0.5))));
+      // Carries on at the finger's speed (fling.ts), over the distance left to the next slide.
+      const ms = settleTime(Math.max(0, step - Math.abs(dx)), Math.sign(v) === Math.sign(dx) ? v : 0);
       setSettle(ms);   // also when there's no slide that way, and the rubber band goes back
       go(index + ((dx < 0) !== rtl() ? 1 : -1), ms);
-    } else setSettle(offset ? Math.round(Math.min(300, Math.max(150, Math.abs(offset) / Math.max(Math.abs(v), 0.5)))) : null);
+    } else setSettle(offset ? settleTime(offset, 0) : null);   // back to where it was, briskly
   };
   // The track stopped after a loop carried on: put it at the real index at once, then let it move again.
   const onTrackEnd = (e: React.TransitionEvent) => {
@@ -208,7 +207,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const onPointerLeave = (e: React.PointerEvent) => { if (offset === 0) onPointerCancel(e); };
 
   const style = { ...props.style, "--dk-carousel-index": wrap ? wrap.virt : index, "--dk-carousel-count": count,
-    ...(settle != null ? { "--dk-carousel-settle": settle + "ms" } : null), "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
+    ...(settle != null ? { "--dk-carousel-settle": settle + "ms", "--dk-carousel-ease": "var(--ease-fling)" } : null), "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
   const shown = (i: number) => i >= index && i < index + per;
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 

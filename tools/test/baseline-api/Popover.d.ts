@@ -1,5 +1,5 @@
 // exports: Popover, type PopoverProps
-interface PopoverProps {
+interface PopoverProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "role" | "title"> {
     trigger: React.ReactElement;
     children: ((close: () => void) => React.ReactNode) | React.ReactNode;
     title?: React.ReactNode;
@@ -13,6 +13,4 @@ interface PopoverProps {
     className?: string;
     style?: React.CSSProperties;
 }
-declare const Popover: ((props: PopoverProps) => React.ReactElement) & {
-    displayName: string;
-};
+declare const Popover: React.ForwardRefExoticComponent<PopoverProps & React.RefAttributes<HTMLDivElement>>;

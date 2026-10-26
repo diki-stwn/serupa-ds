@@ -10,6 +10,7 @@ import { useScrolls } from "../../internal/useScrolls";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
+import { settleTime, speed, track, type Samples } from "../../internal/fling";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -133,18 +134,18 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   // its size, or flick it, and it asks to close; otherwise it goes back. A drag across instead (a scroll, a
   // carousel), or one that starts in a field, is left alone; top and bottom drawers start it outside the body.
   // The speed is the finger's over the last 100ms, so a slow drag that ends in a flick counts, and a flick back
-  // keeps it open. Let go, the panel carries on from under the finger: out past its edge and then closed, or back,
-  // over a time from the distance left and the speed (no motion when reduced).
+  // keeps it open. Let go, the panel carries on from under the finger at the finger's speed (fling.ts): out past its
+  // edge and then closed, or back (no motion when reduced).
   const swipe = props.swipeToClose !== false;
   const horiz = side === "left" || side === "right", away = side === "right" || side === "bottom" ? 1 : -1;
   const settling = React.useRef<(() => void) | null>(null);
   const shift = (d: number) => horiz ? d * away + "px 0" : "0 " + d * away + "px";
-  const drag = React.useRef<{ id: number; x: number; y: number; d: number; on: boolean; s: { t: number; d: number }[] } | null>(null);
+  const drag = React.useRef<{ id: number; x: number; y: number; d: number; on: boolean; s: Samples } | null>(null);
   const onSwipeDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const t = e.target as Element;
     if (!swipe || e.pointerType !== "touch" || !e.isPrimary || t.closest("input, textarea, select, [contenteditable]")) return;
     if (!horiz && t.closest(".dk-drawer__body")) return;
-    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, d: 0, on: false, s: [{ t: e.timeStamp, d: 0 }] };
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, d: 0, on: false, s: [{ t: e.timeStamp, p: 0 }] };
   };
   const onSwipeMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const g = drag.current;
@@ -160,9 +161,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       if (settling.current) settling.current();
     }
     g.d = d;
-    // The samples cover the last 100ms, and one from before it, so the speed spans the whole window.
-    g.s.push({ t: e.timeStamp, d });
-    while (g.s.length > 2 && g.s[1].t <= e.timeStamp - 100) g.s.shift();
+    track(g.s, e.timeStamp, d);
     e.currentTarget.style.translate = shift(d);
   };
   const onSwipeEnd = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -172,8 +171,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     const p = e.currentTarget, size = horiz ? p.offsetWidth : p.offsetHeight;
     p.removeAttribute("data-dragging");
     if (!g.on) { p.style.translate = ""; return; }
-    const first = g.s[0], last = g.s[g.s.length - 1];
-    const v = (last.d - first.d) / Math.max(1, last.t - first.t);   // px per ms, toward the edge
+    const v = speed(g.s);   // px per ms, toward the edge
     const out = e.type === "pointerup" && (v > 0.5 || (g.d > size / 3 && v > -0.1));
     const left = out ? size - g.d : g.d;
     const done = () => {
@@ -183,7 +181,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       // Back in place once it's closed (two frames: the close renders first), so it opens from the edge next time.
       requestAnimationFrame(() => requestAnimationFrame(() => { if (!drag.current) p.style.translate = ""; }));
     };
-    p.style.setProperty("--dk-drawer-settle", Math.round(Math.min(300, Math.max(120, left / Math.max(Math.abs(v), 0.6)))) + "ms");
+    // Carries on at the finger's speed when it was moving that way; from a stop or a flick back, briskly.
+    p.style.setProperty("--dk-drawer-settle", settleTime(left, (out ? v : -v) > 0 ? v : 0) + "ms");
     p.dataset.settling = "";
     if (!left || !parseFloat(getComputedStyle(p).transitionDuration)) { done(); return; }
     const end = (ev: TransitionEvent) => { if (ev.target === p && ev.propertyName === "translate") { stop(); done(); } };
