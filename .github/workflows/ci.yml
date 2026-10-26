@@ -20,7 +20,7 @@ on:
 # A new push to a pull request cancels the run for the push before it, which nothing would read; runs on main
 # all finish, so every commit there keeps its result.
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.event.pull_request.number || (github.event_name == 'push' && github.sha) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # CI only reads the repository, so a bad test dependency can't push or change pull requests.
