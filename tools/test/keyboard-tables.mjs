@@ -7,23 +7,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PROJECT, done, report } from './lib.mjs';
 
-// What no test presses yet, by component: FH1 adds a test for each, checking what the table says the key does.
-const KNOWN = Object.fromEntries(Object.entries({
-  Calendar: ['Space'],
-  ColorPicker: ['ArrowUp'],
-  DateRangePicker: ['Space'],
-  Dialog: ['Space'],
-  Drawer: ['Space'],
-  Navbar: ['Enter', 'Space'],
-  NumberInput: ['PageDown'],
-  PasswordInput: ['Tab', 'CapsLock'],
-  Popover: ['Space'],
-  Select: ['Tab', 'ArrowUp', 'ArrowDown', 'Space'],
-  SortableList: ['ArrowUp', 'ArrowLeft', 'ArrowRight'],
-  Table: ['arrow'],
-  Tabs: ['Space'],
-  TimePicker: ['PageUp'],
-}).flatMap(([c, ks]) => ks.map((k) => [`${c}:${k}`, 'FH1'])));
+// What no test presses yet, as "Component:Key" and the queue item that adds its test. Empty since FH1 tested them all.
+const KNOWN = {};
 
 const ARROWS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 const NAMES = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight', Up: 'ArrowUp', Down: 'ArrowDown', Left: 'ArrowLeft', Right: 'ArrowRight', Esc: 'Escape', 'Caps Lock': 'CapsLock', Spacebar: 'Space' };
