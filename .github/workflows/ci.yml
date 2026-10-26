@@ -33,6 +33,7 @@ jobs:
     name: build
     if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     # The commit it built. A pull request's merge commit is made again whenever main moves, so a test job that checked
     # out the pull request by name could get a newer one than the build it downloads (reproducible.mjs then fails).
     outputs:
@@ -69,6 +70,7 @@ jobs:
     name: types and lint
     if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -114,6 +116,7 @@ jobs:
           - { group: storybook, shard: 4/4 }
     # Pinned so font rendering, and with it the visual snapshots, stays the same between runs.
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -174,6 +177,7 @@ jobs:
     needs: build
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       actions: write
     steps:
@@ -188,6 +192,7 @@ jobs:
     needs: static
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       actions: write
     steps:
@@ -202,6 +207,7 @@ jobs:
     needs: suite
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       actions: write
     steps:
@@ -212,11 +218,37 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: gh run cancel "$RUN_ID"
 
+  # The package installed into an empty project on the oldest Node that package.json allows, and the one between
+  # (tools/test/consumer.mjs): the repository builds on Node 26 (.nvmrc), so nothing else runs 22 or 24. No npm ci:
+  # the repository's dependencies ask for Node 26, and the check needs only Node and the build.
+  consumer:
+    name: consumer (Node ${{ matrix.node }})
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.build.outputs.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build
+      - run: node tools/test/consumer.mjs
+
   # One check that passes only when every group passed, under the name the single job used to have.
   test:
-    needs: [build, static, suite]
+    needs: [build, static, suite, consumer]
     if: always()
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - if: github.head_ref != 'changeset-release/main'
-        run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success
+        run: test "${{ needs.build.result }}" = success && test "${{ needs.static.result }}" = success && test "${{ needs.suite.result }}" = success && test "${{ needs.consumer.result }}" = success
