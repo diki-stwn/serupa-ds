@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { css } from '../../../tools/test/vitest/helpers';
-import { IconButton } from './IconButton';
+import { IconButton, type IconButtonProps } from './IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -86,6 +86,14 @@ describe('IconButton', () => {
     const s = css(e);
     expect(e.matches(':focus-visible')).toBe(true);
     expect([s.outlineStyle, s.outlineWidth, s.outlineOffset, s.outlineColor]).toEqual(['solid', '2px', '2px', ring]);
+  });
+
+  test('aria-label instead of label (from JavaScript, or a spread made for Button) still names it, and nothing warns (GQ2)', async () => {
+    const before = warns.length;
+    const plain = { id: 'iaria', icon: 'close', 'aria-label': 'Close' } as unknown as IconButtonProps;
+    await render(<IconButton {...plain} />);
+    expect([el('iaria').getAttribute('aria-label'), el('iaria').title]).toEqual(['Close', 'Close']);
+    await expect.poll(() => warns.slice(before).filter((m) => /aria-label|label/.test(m))).toEqual([]);
   });
 
   test('no warnings about missing labels', () => {
