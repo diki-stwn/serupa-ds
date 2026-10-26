@@ -151,7 +151,7 @@ describe('Combobox', () => {
   test('a typed full label picks that option when focus leaves ("brazil" then Tab, "cote d’ivoire" without accents then a click elsewhere); onValueChange gets it; a disabled option\'s label doesn\'t pick it', async () => {
     const calls: Array<string | null> = [];
     await render(<div style={{ width: '320px' }}><button id="before">Before</button>
-      <Combobox id="cb" aria-label="Country" options={COUNTRIES} onValueChange={(v) => calls.push(v)} /></div>);
+      <Combobox id="cb" aria-label="Country" options={COUNTRIES} onValueChange={(v) => calls.push(v)} /><button>After</button></div>);   // Tab stays on the page: Firefox fires no blur when it leaves
     el('cb').focus();
     await userEvent.keyboard('brazil{Tab}');
     await expect.poll(() => [el('cb').value, calls]).toEqual(['Brazil', ['Brazil']]);

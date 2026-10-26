@@ -26,12 +26,14 @@ export default defineConfig({
   optimizeDeps: { include: ['react/jsx-dev-runtime', 'react/jsx-runtime', 'axe-core'] },
   plugins: [{
     // /__slow-picture__.svg answers after a second, so a test can see a picture while it loads in every engine
-    // (lazy loading below the fold can't do that: each engine starts lazy pictures at its own distance).
+    // (lazy loading below the fold can't do that: each engine starts lazy pictures at its own distance). With
+    // ?broken it answers with something that isn't a picture, so the picture fails a second late.
     name: 'slow-picture',
     configureServer(server) {
-      server.middlewares.use('/__slow-picture__.svg', (_req, res) => setTimeout(() => {
+      server.middlewares.use('/__slow-picture__.svg', (req, res) => setTimeout(() => {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'no-store');
+        if (req.url?.includes('broken')) { res.end('not a picture'); return; }
         res.end('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#3b82f6"/></svg>');
       }, 1000));
     },
