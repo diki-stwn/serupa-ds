@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ErrorSummary — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface); color: var(--text); font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var T = window.Serupa, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(T.ErrorSummary, { autoFocus: false, errors: [
+    { field: 'name', message: 'Enter your full name' },
+    { field: 'email', message: 'Enter an email address in the right format, like name@example.com' }
+  ] }));
+</script>
+</body>
+</html>
