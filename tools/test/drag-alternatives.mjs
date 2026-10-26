@@ -15,6 +15,7 @@ const DRAGS = {
   Slider: { drag: 'drag a thumb along the track', press: ['Slider.test.tsx', 'a press on the track jumps there'] },
   Carousel: { drag: 'swipe to the next or previous slide', press: ['Carousel.test.tsx', 'next moves one slide at a time'] },
   Drawer: { drag: 'swipe it toward its edge to close', press: ['Drawer.test.tsx', 'the ×, Escape and the browser close it'] },
+  Toast: { drag: 'swipe it sideways to dismiss', press: ['Toast.test.tsx', 'the close button dismisses it'] },
   FileUpload: { drag: 'drag files onto the area', press: ['FileUpload.test.tsx', 'the button opens the file picker'] },
   SortableList: { drag: 'drag a row by its handle', press: ['SortableList.test.tsx', 'a press without moving picks the row up'] },
   Splitter: { drag: 'drag the handle to resize the panes', press: ['Splitter.test.tsx', 'a press on the handle without dragging, then a press elsewhere'] },
