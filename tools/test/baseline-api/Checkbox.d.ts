@@ -1,4 +1,7 @@
 // exports: Checkbox, CheckboxGroup, type CheckboxGroupProps, type CheckboxProps
+interface CheckboxLabels {
+    selectAtLeastOne: string;
+}
 interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size" | "type"> {
     size?: "lg" | "md" | "sm";
     children?: React.ReactNode;

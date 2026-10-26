@@ -5,6 +5,8 @@ import { page, userEvent } from 'vitest/browser';
 import { color, css, lowContrast, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Checkbox, CheckboxGroup } from './Checkbox';
+import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
 const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
@@ -273,6 +275,20 @@ describe('CheckboxGroup', () => {
     expect([document.getElementById('grp')!.getAttribute('aria-required'), box('mail').required, box('sms').required, form.checkValidity()]).toEqual(['true', true, true, false]);
     await userEvent.click(box('sms'));
     expect([box('mail').required, box('sms').required, form.checkValidity()]).toEqual([false, false, true]);
+  });
+
+  test('required: the browser says "Select at least one option." (the group\'s message, in the provider\'s words), not its one-box message, until a box is checked; a box\'s own message is left alone (EW1)', async () => {
+    const bx = (v: string) => document.querySelector<HTMLInputElement>(`input[value="${v}"]`)!;
+    await render(<><form id="rqm"><CheckboxGroup aria-label="Contact" name="via" required>
+      <Checkbox value="mail">Email</Checkbox><Checkbox value="sms">SMS</Checkbox>
+    </CheckboxGroup></form><SerupaProvider locale="id-ID" labels={idLabels}><CheckboxGroup aria-label="Kontak" required><Checkbox value="wa">WhatsApp</Checkbox></CheckboxGroup></SerupaProvider>
+    <CheckboxGroup aria-label="Own"><Checkbox value="own">Own</Checkbox></CheckboxGroup></>);
+    bx('own').setCustomValidity('Mine');
+    expect([bx('mail').validationMessage, bx('sms').validationMessage, bx('wa').validationMessage]).toEqual(['Select at least one option.', 'Select at least one option.', 'Pilih setidaknya satu opsi.']);
+    await userEvent.click(bx('mail'));
+    expect([bx('mail').validationMessage, bx('sms').validationMessage, (document.getElementById('rqm') as HTMLFormElement).checkValidity(), bx('own').validationMessage]).toEqual(['', '', true, 'Mine']);
+    await userEvent.click(bx('mail'));   // none again
+    expect(bx('sms').validationMessage).toBe('Select at least one option.');
   });
 
   test('a form gets every checked value under the name, and a reset brings back defaultValue', async () => {
