@@ -29,12 +29,26 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   text-align: start;
-  animation: dk-menu-in var(--motion-enter-sm) var(--ease-enter);
   transform-origin: var(--dk-layer-origin, top);   /* grows out of its trigger (placeLayer sets the point) */
 }
 .dk-menu[hidden] { display: none; }
 .dk-menu:focus { outline: none; }
-@keyframes dk-menu-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
+/* Motion (DZ1): transitions, not keyframes, so closing while it opens turns back from where it is. In from
+   @starting-style over motion-enter-sm; out over motion-exit-sm, kept shown and in the top layer (display and overlay,
+   allow-discrete) until it has faded, inert meanwhile (Menu.tsx) so presses and focus go past it. A submenu open
+   when its menu closes closes and fades with it (Menu.tsx). A browser that can't keep it in the top layer (no overlay) closes it at once.
+   Open on arrival (data-instant), no starting style. Reduced motion: the fade alone. */
+.dk-menu { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit); }
+.dk-menu:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-menu[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-menu[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+@starting-style { .dk-menu:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-menu[hidden] { scale: var(--scale-95); }
+  @starting-style { .dk-menu:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
+}
 .dk-menu__item {
   display: flex;
   align-items: center;
@@ -78,6 +92,5 @@
 .dk-menu__item:dir(rtl) .dk-menu__rtl { display: inline-block; }
 .dk-menu__group-label { padding: var(--spacing-1\.5) var(--menu-item-padding-x, var(--spacing-2)) var(--spacing-1); color: var(--menu-muted, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
 .dk-menu__separator { height: var(--border-width-1); margin: var(--spacing-1) var(--spacing-0); background: var(--menu-separator, var(--border)); }
-@media (prefers-reduced-motion: reduce) { .dk-menu { animation: none; } }
 @media (forced-colors: active) { .dk-menu__item:focus { outline-color: Highlight; } }
 }

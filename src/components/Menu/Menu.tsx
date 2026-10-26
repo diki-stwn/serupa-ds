@@ -6,6 +6,7 @@ import { config } from "../../internal/config";
 import type { Placement } from "../../internal/position";
 import { typeahead, type Typed } from "../../internal/typeahead";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component, named } from "../../internal/component";
@@ -35,7 +36,7 @@ export interface MenuProps {
   style?: React.CSSProperties;
 }
 
-interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void }
+interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
@@ -81,10 +82,12 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
   const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
   const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
-  const ctx = React.useMemo(() => ({ close }), [close]);
+  const ctx = React.useMemo(() => ({ close, open }), [close, open]);
   const items = () => itemsOf(menuRef.current);
 
   // A press outside the menu and its button closes it (focus stays where the press put it).
+  // Its items stay, inert, while it fades out (DZ1); one open on arrival doesn't fade in.
+  const exit = useExit(open, menuRef);
   useAnchoredLayer(open, menuRef, triggerRef, { placement: props.placement, fallback: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), inside: triggerRef });
   // On open, focus goes to the first item (or the last, opened with ↑).
   useIsoLayoutEffect(() => {
@@ -120,8 +123,9 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
       {trigger}
       <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] ? undefined : cp.id || (triggerRef.current && triggerRef.current.id) || id + "-button"}
-        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={onMenuKey}>
-        {open ? props.children : null}
+        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        inert={!open || undefined} onKeyDown={onMenuKey}>
+        {open || exit.leaving ? props.children : null}
       </div>
     </MenuContext.Provider>
   );
@@ -167,10 +171,12 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
     const to = back.current || targetRef.current;
     if (focusBack && to) to.focus();
   }, [set]);
-  const ctx = React.useMemo(() => ({ close }), [close]);
+  const ctx = React.useMemo(() => ({ close, open }), [close, open]);
   // Opened from outside (controlled) before any right-click: at the target's corner.
   const spot = at || (open && targetRef.current ? (() => { const r = targetRef.current.getBoundingClientRect(); return { x: r.left, y: r.top }; })() : null);
 
+  // Its items stay, inert, while it fades out (DZ1); one open on arrival doesn't fade in.
+  const exit = useExit(open, menuRef);
   useAnchoredLayer(open && !!spot, menuRef, point, { placement: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), watch: spot && spot.x + "," + spot.y });
   useIsoLayoutEffect(() => {
     const menu = menuRef.current;
@@ -211,8 +217,9 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
       {target}
       <span ref={point} className="dk-menu__point" aria-hidden style={spot ? { left: spot.x + "px", top: spot.y + "px" } : undefined} />
       <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-label={props["aria-label"]}
-        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={menuKeys(menuRef, typed, close)}>
-        {open ? props.children : null}
+        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        inert={!open || undefined} onKeyDown={menuKeys(menuRef, typed, close)}>
+        {open || exit.leaving ? props.children : null}
       </div>
     </MenuContext.Provider>
   );
@@ -373,7 +380,11 @@ const SUB_DELAY = 150;
 export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("MenuSub", function MenuSub(props, ref) {
   const id = domId("dk-menu-sub", React.useId());
   const rest = omit(props, { label: 1, icon: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1, onPointerLeave: 1 });
-  const [open, setOpen] = React.useState(false);
+  const [own, setOpen] = React.useState(false);
+  // Closed with its menu: a submenu open when its menu closes fades out with it rather than stay open inside it.
+  const parent = React.useContext(MenuContext);
+  const open = own && (!parent || parent.open);
+  React.useEffect(() => { if (parent && !parent.open) setOpen(false); }, [parent]);
   const itemRef = React.useRef<HTMLElement | null>(null);
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const focusFirst = React.useRef(false);
@@ -391,6 +402,8 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
   const hide = (focusItem: boolean) => { stop(); setOpen(false); if (focusItem && itemRef.current) itemRef.current.focus(); };
   React.useEffect(() => stop, []);
 
+  // Its items stay, inert, while it fades out (DZ1).
+  const exit = useExit(open, panelRef);
   useAnchoredLayer(open, panelRef, itemRef, { placement: open && rtl() ? "left-start" : "right-start", fallback: "right-start", offsetVar: "--dk-menu-sub-offset" });
   useIsoLayoutEffect(() => {
     if (!open || !focusFirst.current) return;
@@ -441,8 +454,8 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
         <span className="dk-menu__label" id={id + "-label"}>{props.label}</span>,
         <span className="dk-menu__chevron" aria-hidden="true"><Icon icon={icons.ChevronRight} className="dk-menu__ltr" /><Icon icon={icons.ChevronLeft} className="dk-menu__rtl" /></span>)}
       <div ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-labelledby={id + "-label"}
-        className="dk-menu dk-menu--sub" data-component="menu" data-state={open ? "open" : "closed"} onKeyDown={onPanelKey}>
-        {open ? props.children : null}
+        className="dk-menu dk-menu--sub" data-component="menu" data-state={open ? "open" : "closed"} inert={!open || undefined} onKeyDown={onPanelKey}>
+        {open || exit.leaving ? props.children : null}
       </div>
     </>
   );

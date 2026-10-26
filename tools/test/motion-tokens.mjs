@@ -37,6 +37,7 @@ const KNOWN = Object.fromEntries(Object.entries({
   SortableList: ['duration-150'],   // rows gliding to their place
   Stepper: ['ease-out'],   // the press
   Switch: ['ease-out'],   // the press
+  Tabs: ['duration-200'],   // the indicator sliding
   TreeView: ['duration-200', 'ease-in-out'],   // the chevron turning
 }).flatMap(([c, ts]) => ts.map((t) => [`${c}:${t}`, 'FI1'])));
 
