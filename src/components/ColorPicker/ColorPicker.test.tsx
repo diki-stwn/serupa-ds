@@ -49,6 +49,19 @@ describe('ColorPicker', () => {
     expect([group().getAttribute('aria-invalid'), group().getAttribute('aria-errormessage') === err.id]).toEqual(['true', true]);
   });
 
+  test('invalid shows on the swatches: their border takes the danger color, 3:1 on the page in all six themes', async () => {
+    await render(<><div id="ok"><ColorPicker aria-label="Fine" swatches={SW} /></div><div id="bad"><ColorPicker aria-label="Wrong" swatches={SW} invalid /></div></>);
+    const ring = (id: string) => css(document.querySelector(`#${id} [role="radio"]`)).boxShadow.match(/^(\w+\([^)]*\)|#\w+|\w+)/)![1];
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const r = contrast(ring('bad'), css(document.body).backgroundColor);
+      if (ring('bad') === ring('ok') || r < 3) low.push(`${th}: ${ring('bad')} ${r.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
   test('a radiogroup of swatches named by their labels (a bare hex by a name from its color, with its code as the tooltip), the picked one checked with a check icon; one Tab stop', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<ColorPicker ref={ref} id="cp" className="extra" aria-label="Label color" swatches={SW} defaultValue="#1d4ed8" />);
