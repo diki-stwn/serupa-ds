@@ -169,7 +169,7 @@ describe('ColorPicker', () => {
 
   test('controlled, a parent that turns down a typed color: on blur the hex field shows the color it kept, not the rejected text (AF2)', async () => {
     const seen: string[] = [];
-    await render(<ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} />);
+    await render(<><ColorPicker aria-label="C" swatches={SW} value="#1d4ed8" custom onValueChange={(x) => { seen.push(x); }} /><button>After</button></>);   // Tab stays on the page: Firefox fires no blur when it leaves
     await userEvent.clear(hex());
     await userEvent.type(hex(), '00ff00');
     await userEvent.tab();
