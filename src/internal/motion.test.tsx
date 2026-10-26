@@ -40,8 +40,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],
   },
-  'reduced motion': {
-  },
+  'reduced motion': {},
   origin: {},
   'will-change': {},
 };
