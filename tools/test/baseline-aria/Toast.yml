@@ -30,6 +30,7 @@
 - button "Warning"
 - button "Danger"
 - button "With an action"
+- button "Stays until closed"
 
 # Tones
 - region "Notifications":

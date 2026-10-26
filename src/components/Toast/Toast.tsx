@@ -25,8 +25,12 @@ export interface ToastOptions {
   tone?: ToastTone;
   /** One button in the toast, such as Undo. Choosing it also closes the toast. */
   action?: { label: string; onClick: () => void };
-  /** Milliseconds before it goes. Default: 5000, or 0 with an action, so there's time to reach it; 0 keeps it until it's closed. The time stops while it's hovered or focused, or the window is in the background. */
+  /** Milliseconds before it goes. Default: the Toaster's duration, 5000 unless set. 0 keeps it, as autoDismiss false does. The time stops while it's hovered or focused, or the window is in the background. */
   duration?: number;
+  /** Whether it goes by itself after its duration. Default: the Toaster's autoDismiss, true unless set, with an action
+   *  too (its time stops while it's hovered or focused, and F8 reaches it). false keeps it until it's closed: for a
+   *  message someone has to act on, such as a failed upload with Retry. */
+  autoDismiss?: boolean;
   /** What screen readers announce. Default: the title and description, when they're text. */
   announcement?: string;
   /** Reuse an id to replace a toast that's showing (say, "Saving…" → "Saved"). */
@@ -110,7 +114,7 @@ function promise<T>(work: Promise<T> | (() => Promise<T>), messages: ToastPromis
   const p = typeof work === "function" ? work() : work;
   // Its own id, so a second promise with the same words gets its own toast rather than a count on this one.
   const id = "dk-toast-" + ++next;
-  show(Object.assign({ duration: 0 }, asOptions(messages.loading), { id: id }));
+  show(Object.assign({ autoDismiss: false }, asOptions(messages.loading), { id: id }));
   const settle = <A,>(m: Message<A>, arg: A, tone: ToastTone) => {
     const o = asOptions(typeof m === "function" ? m(arg) : m);
     show(Object.assign({ tone: tone }, o, { id: id }));
@@ -130,19 +134,23 @@ export interface ToasterProps extends React.HTMLAttributes<HTMLElement> {
   dismissLabel?: string;
   /** The most toasts shown at once; the newest show, and older ones wait under a "+2 more" line until there's room. Default: 3. */
   limit?: number;
+  /** How long each toast stays, in milliseconds, unless it sets its own duration. Default: 5000. */
+  duration?: number;
+  /** Whether toasts go by themselves, unless one sets its own autoDismiss. Default: true. */
+  autoDismiss?: boolean;
 }
 
 const POSITIONS: readonly ToasterPosition[] = ["top-start", "top-center", "top-end", "bottom-start", "bottom-center", "bottom-end"];
 const ICONS: Record<ToastTone, IconData | null> = { neutral: null, info: icons.Info, success: icons.CheckCircle, warning: icons.Warning, danger: icons.Error };
 
 /* Toaster: where toast() messages appear. Render one, once, near the root. Each toast has a title, an optional
-   description, tone icon, action and close button, and goes after its duration (one with an action stays); the
+   description, tone icon, action and close button, and goes after its duration unless autoDismiss is false; the
    time stops while it's hovered or focused. New toasts are announced through the shared polite live region. F8
    moves focus to the newest toast, and F8 or Escape takes it back to where it was. */
 /** The place toast() messages appear: render one, once, near the root of the app. */
 export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: ToasterProps): React.ReactElement {
   const sds = useSerupa();
-  const { position, label, dismissLabel, limit, className, ...rest } = props;
+  const { position, label, dismissLabel, limit, duration, autoDismiss, className, ...rest } = props;
   // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
   const [list, setList] = React.useState<Item[]>([]);
   const self = React.useRef<HTMLElement | null>(null);
@@ -304,7 +312,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     <section {...rest} ref={self} onFocus={onFocus} onBlur={onBlur} onPointerDown={onPointerDown} aria-label={label || sds.labels.notifications} className={cn("dk-toaster", "dk-toaster--" + pos, className)} data-component="toaster" data-position={pos}>
       <ol className="dk-toaster__list">
         {pos.startsWith("top") ? null : more}
-        {rows.map((r) => <ToastView key={r.item.id} item={r.item} leaving={r.leaving} clocks={clocks.current} instant={early.current.has(r.item.id)} onGone={done} dismissLabel={dismissLabel || sds.labels.dismiss} />)}
+        {rows.map((r) => <ToastView key={r.item.id} item={r.item} leaving={r.leaving} clocks={clocks.current} instant={early.current.has(r.item.id)} onGone={done} dismissLabel={dismissLabel || sds.labels.dismiss} time={(r.item.autoDismiss ?? autoDismiss ?? true) ? Math.max(0, r.item.duration ?? duration ?? 5000) : 0} />)}
         {pos.startsWith("top") ? more : null}
       </ol>
     </section>
@@ -317,7 +325,7 @@ interface Clock { item: Item; left: number; since: number | null }
 const timeLeft = (c: Clock) => c.left - (c.since == null ? 0 : Date.now() - c.since);
 const MOVES = "[data-toast], .dk-toaster__more";
 
-function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; instant: boolean; clocks: Map<string, Clock>; onGone: (id: string) => void; dismissLabel: string }): React.ReactElement {
+function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; instant: boolean; clocks: Map<string, Clock>; onGone: (id: string) => void; dismissLabel: string; time: number }): React.ReactElement {
   const t = props.item;
   const self = React.useRef<HTMLLIElement | null>(null);
   // Closed: gone once its fade and slide end, or at once when nothing runs.
@@ -332,7 +340,7 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     return () => { on = false; };
   }, [leaving]);
   const sds = useSerupa();
-  const duration = t.duration == null ? (t.action ? 0 : 5000) : t.duration;
+  const duration = props.time;   // 0 when it stays
   // Each reason to stop the time is kept apart, so leaving with the mouse doesn't restart it while focus is still inside.
   const [hovered, setHovered] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
