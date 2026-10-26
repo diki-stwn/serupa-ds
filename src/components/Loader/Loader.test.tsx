@@ -544,8 +544,14 @@ describe('Loader', () => {
     const w = b.getBoundingClientRect().width;
     expect([Math.round(parseFloat(s.width) / w), css(b).overflow]).toEqual([3, 'hidden']);
     const moves = b.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-sweep');
-    const end = (moves[0].effect as KeyframeEffect).getKeyframes().at(-1)!;
-    expect(Math.round(parseFloat(String(end.translate)) / 100 * parseFloat(s.width) / w)).toBe(2);
+    // read the band where the sweep ends (Firefox hands back the keyframe's var() unresolved): two bones on,
+    // a percentage of the band or a length
+    moves[0].pause();
+    moves[0].currentTime = 1999;
+    const t = getComputedStyle(b, '::after').translate;
+    const moved = t.endsWith('%') ? parseFloat(t) / 100 * parseFloat(s.width) / w : parseFloat(t) / w;
+    moves[0].play();
+    expect(Math.round(moved)).toBe(2);
   });
 
   test('delay: for the first 300ms nothing shows or is announced, but its space is kept (a waiting skeleton keeps its shapes); then it fades in, becomes a progressbar and is announced', async () => {
