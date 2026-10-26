@@ -90,6 +90,25 @@ describe('Kbd', () => {
     expect([spoken('combo'), spoken('sm')]).toEqual(['Command + Shift + P', 'Option + F4']);
   });
 
+  test('Home, End, Page Up/Down, Caps Lock, Insert and Fn are named keys, written any way ("page_up", "Page Up")', async () => {
+    const More = () => <div>
+      <Kbd id="nav" keys={['home', 'End', 'page_up', 'Page Down', 'pgup']} />
+      <Kbd id="locks" keys={['capslock', 'ins', 'fn', 'caps-lock']} />
+      <Kbd id="dash" keys={['mod', '-']} />
+    </div>;
+    windows();
+    const s = await render(<More />);
+    expect(keys('nav')).toBe('Home End PgUpPage Up(Page Up) PgDnPage Down(Page Down) PgUpPage Up(Page Up)');
+    expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
+    expect(spoken('dash')).toBe('Control + -');
+    await s.unmount();
+    vi.restoreAllMocks();
+    device('MacIntel', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
+    await render(<More />);
+    expect(keys('nav')).toBe('↖Home(Home) ↘End(End) ⇞Page Up(Page Up) ⇟Page Down(Page Down) ⇞Page Up(Page Up)');
+    expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
+  });
+
   test('inline in a sentence it sits with the text (centered within 3px of the words)', async () => {
     windows();
     await render(<p id="para" style={{ margin: 0 }}>Press <Kbd id="inline">/</Kbd> to search.</p>);
