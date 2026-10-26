@@ -32,7 +32,6 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-switch__thumb': ['EG1: the thumb slides by left', ['Switch']],
     'dk-segmented__indicator': ['EG1: the indicator slides by left and width', ['SegmentedControl']],
     'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
-    'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
     'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
   },
   'paint loop': {
