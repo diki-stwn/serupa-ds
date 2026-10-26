@@ -8,6 +8,7 @@ import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
+import { pressFocuses } from "../../internal/affix";
 import { useFormReset } from "../../internal/useFormReset";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
@@ -66,7 +67,7 @@ export const SearchInput = /* @__PURE__ */ component<HTMLInputElement, SearchInp
   };
   return (
     <span className={cn("dk-input dk-search-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="search-input" data-size={size}>
+      style={props.style} data-component="search-input" data-size={size} onMouseDown={pressFocuses(el)}>
       <span className="dk-input__icon dk-input__icon--left dk-search-input__icon" aria-hidden={props.loading ? undefined : true}>
         {props.loading ? <Loader size="sm" delay={0} label={props.loadingLabel ?? sds.labels.searching} /> : <Icon icon={icons.Search} />}
       </span>
