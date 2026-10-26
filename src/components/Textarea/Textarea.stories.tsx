@@ -23,3 +23,11 @@ export const States: Story = {
     <Textarea aria-label="Disabled" disabled defaultValue="Disabled" />
   </div>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 220 }}>
+      <Textarea {...args} showCount maxLength={280} defaultValue={'Please call before delivery. Donaudampfschifffahrtsgesellschaftskapitänskajüte is the building at the end of the lane, past the second gate.'} />
+    </div>
+  ),
+};
