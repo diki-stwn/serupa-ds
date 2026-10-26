@@ -6,6 +6,9 @@ import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../..
 import { SerupaProvider } from '../../internal/provider';
 import { Stepper, type StepperStep } from './Stepper';
 
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
+
 const STEPS: StepperStep[] = [{ title: 'Account', description: 'Email and password' }, { title: 'Profile', optional: true }, { title: 'Billing' }, { title: 'Review' }];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const lis = (id: string) => [...el(id).querySelectorAll('li')];
@@ -30,7 +33,7 @@ function App(props: { sref?: React.Ref<HTMLElement> }) {
     <Stepper id="tok" steps={STEPS.slice(0, 2)} current={0} style={{ '--stepper-active-bg': 'rgb(1, 2, 3)' } as React.CSSProperties} />
   </div>;
 }
-const setup = async (sref?: React.Ref<HTMLElement>) => { clicks = []; await render(<App sref={sref} />); };
+const setup = async (sref?: React.Ref<HTMLElement>) => { clicks = []; await render(<App sref={sref} />, { wrapper: EnUS }); };
 
 describe('Stepper', () => {
   test('step numbers are written in the digits of the locale, as Calendar writes its days: ٣ ٤ in ar-EG', async () => {

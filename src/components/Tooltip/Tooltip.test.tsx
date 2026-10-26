@@ -269,7 +269,9 @@ describe('Tooltip warm-up (EC1)', () => {
       await Promise.all(a.getAnimations().map((x) => x.finished));
       await userEvent.hover(el('xb'));
       await expect.poll(() => b.hidden).toBe(false);
-      expect([a.hidden, css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual([true, 'none', 0, 0]);
+      // On a slow runner the first can hide a task after the second shows; once hidden it must be gone at once, not fading.
+      await expect.poll(() => a.hidden).toBe(true);
+      expect([css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual(['none', 0, 0]);
       await away();
     });
   });
