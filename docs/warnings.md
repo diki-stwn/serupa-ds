@@ -50,6 +50,10 @@ A Link with `tone="neutral"` and `underline="hover"` looks like plain text until
 
 A control (a slider, a dialog, a group…) has no accessible name, so a screen reader announces only its role. The warning says how to name that kind of control: a Field label, a `<label htmlFor>`, `aria-label` or `aria-labelledby`.
 
+## number-options
+
+FormattedNumber or `formatNumber` got options Intl rejects, such as a currency that isn't an ISO code ("US" for "USD"), a unit Intl doesn't know ("km/h" for "kilometer-per-hour"), or `minimumFractionDigits` above `maximumFractionDigits`. Rather than throw and unmount the page, the number is written in the locale's plain form. Fix the options; see FormattedNumber.
+
 ## phone-code
 
 PhoneInput was given a number starting with `+` or `00` and a calling code it doesn't know, so it reads the digits as a number in the current country. Add the country's row to `countries`.
