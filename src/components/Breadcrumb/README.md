@@ -38,7 +38,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 
 ## Accessibility
 
-- Each link, and the "…" button, takes a press over at least 24×24px (WCAG 2.5.8) without moving the trail.
+- Each link, and the "…" button, takes a press over at least 24×24px (WCAG 2.5.8) without moving the trail. On a touch screen it's 44px high, as Apple and Material ask (the width stays, so links never overlap).
 - A long unbroken label, such as a file name or a URL slug, wraps inside the trail rather than running past a 320px screen (WCAG 1.4.10).
 - An item with only an `icon` needs an `aria-label`. Without one it's a link a screen reader can only call "link", and it warns once in the console.
 - A Breadcrumb with no items renders nothing, so it doesn't leave an empty nav landmark.
