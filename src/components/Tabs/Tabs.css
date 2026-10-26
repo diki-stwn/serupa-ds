@@ -66,18 +66,27 @@
 /* The fill is a layer of its own under the label, so it can slide from the tab selected before (below). */
 .dk-tabs--pill .dk-tabs__tab { isolation: isolate; }
 .dk-tabs--pill .dk-tabs__tab[aria-selected="true"] { color: var(--tabs-pill-text-selected, var(--on-primary)); }
-.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { content: ""; position: absolute; inset: var(--spacing-0); z-index: calc(var(--z-0) - var(--z-10)); border-radius: inherit; background: var(--tabs-pill-bg-selected, var(--primary)); }
-.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]:focus-visible::before { box-shadow: inset 0 0 0 var(--focus-ring-width) var(--tabs-focus-ring, var(--focus-ring)), inset 0 0 0 var(--spacing-1) var(--tabs-focus-gap-color, var(--surface)); }
+/* The fill spans this tab and the one selected before it (Tabs.tsx sets the span), cut to this tab by clip-path with
+   the tab's round corners (GO1). */
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before {
+  content: ""; position: absolute; z-index: calc(var(--z-0) - var(--z-10)); background: var(--tabs-pill-bg-selected, var(--primary));
+  inset: calc(var(--spacing-0) - var(--dk-tabs-span-t, var(--spacing-0))) calc(var(--spacing-0) - var(--dk-tabs-span-r, var(--spacing-0))) calc(var(--spacing-0) - var(--dk-tabs-span-b, var(--spacing-0))) calc(var(--spacing-0) - var(--dk-tabs-span-l, var(--spacing-0)));
+  clip-path: inset(var(--dk-tabs-span-t, var(--spacing-0)) var(--dk-tabs-span-r, var(--spacing-0)) var(--dk-tabs-span-b, var(--spacing-0)) var(--dk-tabs-span-l, var(--spacing-0)) round var(--tabs-radius, var(--rounded-md)));
+}
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]:focus-visible::after { content: ""; position: absolute; inset: var(--spacing-0); border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 var(--focus-ring-width) var(--tabs-focus-ring, var(--focus-ring)), inset 0 0 0 var(--spacing-1) var(--tabs-focus-gap-color, var(--surface)); }
 
-/* The selected tab's line or fill slides and stretches from where the last one was (EG1): TabList sets where that
-   was, and the new one starts there and moves into place. Reduced motion: it's there at once. */
-.dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after, .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before {
+/* The selected tab's line or fill slides from where the last one was (EG1): TabList sets where that was, and the new
+   one starts there and moves into place. The line stretches as it goes (scale); the pill's fill is cut from the last
+   tab's shape to the new one's (clip-path), so its round corners stay round (GO1). Reduced motion: it's there at once. */
+.dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after {
   transform-origin: top left;
   transition: translate var(--motion-change-md) var(--ease-move), scale var(--motion-change-md) var(--ease-move);
 }
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { transition: clip-path var(--motion-change-md) var(--ease-move); }
 @media (prefers-reduced-motion: no-preference) {
   @starting-style {
-    .dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after, .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { translate: var(--dk-tabs-from-shift, none); scale: var(--dk-tabs-from-scale, none); }
+    .dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after { translate: var(--dk-tabs-from-shift, none); scale: var(--dk-tabs-from-scale, none); }
+    .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { clip-path: inset(var(--dk-tabs-from-t, var(--spacing-0)) var(--dk-tabs-from-r, var(--spacing-0)) var(--dk-tabs-from-b, var(--spacing-0)) var(--dk-tabs-from-l, var(--spacing-0)) round var(--tabs-radius, var(--rounded-md))); }
   }
 }
 
