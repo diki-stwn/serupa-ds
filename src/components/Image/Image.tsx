@@ -65,7 +65,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
   // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
   // and fades in when it arrives; one that arrives within QUICK ms of mount just appears (no fade as a page
-  // opens); a priority one never hides.
+  // opens); a priority one never hides. A broken one drops it too, so its frame is the same whenever it fails.
   const [live, setLive] = React.useState(false);
   const since = React.useRef(0);
   React.useEffect(() => { setState("loading"); }, [src]);
@@ -92,7 +92,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
     ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
     : <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={loading || (priority ? "eager" : "lazy")}
         decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
-        className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setState("error"); if (onError) onError(e); }} />;
+        className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setLive(false); setState("error"); if (onError) onError(e); }} />;
   return (
     <span {...frameProps} ref={restyle} style={frameStyle}
       className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}

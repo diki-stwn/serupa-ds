@@ -193,6 +193,13 @@ describe('Image loading motion', () => {
     expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
   });
 
+  test('a lazy picture that fails after it was hidden drops the fade class, so a broken frame is the same however late it fails', async () => {
+    await render(<Pic id="late" alt="Late" ratio="square" src={`/__slow-picture__.svg?broken&${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('late').querySelector('img')).opacity).toBe('0');
+    await expect.poll(() => frame('late').dataset.state, { timeout: 5000 }).toBe('error');
+    expect(frame('late').classList.contains('dk-image--fades')).toBe(false);
+  });
+
   test('while loading: a lighter band sweeps through the fill every 2s (ease-in-out, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
     await render(<Pic id="sweep" alt="Slow" ratio="square" onRemove={() => {}} src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('sweep'), s = getComputedStyle(f, '::before');
