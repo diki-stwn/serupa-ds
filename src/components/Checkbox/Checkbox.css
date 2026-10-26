@@ -50,6 +50,9 @@
 /* Invalid: a danger border while unchecked, and a danger focus ring. A checked box keeps its fill. */
 .dk-checkbox--invalid .dk-checkbox__input { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
 @media (hover: hover) { .dk-checkbox--invalid:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
+/* A required box left unticked after people untick it or try to send the form: as Input (:user-invalid). */
+.dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
+@media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
 .dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-checkbox__description { color: var(--checkbox-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't change it. */
