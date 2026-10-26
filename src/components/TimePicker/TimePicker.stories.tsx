@@ -28,6 +28,7 @@ export const Sizes: Story = {
 };
 export const Invalid: Story = { args: { invalid: true } };
 export const Disabled: Story = { args: { disabled: true, defaultValue: '10:00' } };
+export const ReadOnly: Story = { name: 'Read-only', args: { readOnly: true, defaultValue: '10:00' } };
 
 export const OverflowNarrow: Story = {
   args: { defaultValue: '23:30' },
