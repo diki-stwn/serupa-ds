@@ -1,9 +1,9 @@
 import * as React from "react";
 import { cn, oneOf, omit } from "../../internal/cn";
-import { announce } from "../../internal/announce";
 import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
+import { AnnounceText } from "./AnnounceText";
 
 export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   /** A picture of what's missing: an icon name ('inbox', 'search_off') or an element (an illustration). */
@@ -20,7 +20,7 @@ export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   variant?: 'plain' | 'dashed';
   /** The title's heading level, to fit the page outline. Default: 3. */
   headingLevel?: 2 | 3 | 4 | 5 | 6;
-  /** Says the title and description to screen readers when it appears, politely: for a result shown after a search
+  /** Says the title and description to screen readers once, politely, as it appears: for a result shown after a search
       or a filter ("No results for “mars”"), which would otherwise appear in silence. Not for an empty page on arrival. Default: false. */
   announce?: boolean;
 }
@@ -32,14 +32,6 @@ export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 /** What to show when there's nothing yet: an icon, a title, a description and the action that fills it. */
 export const EmptyState = /* @__PURE__ */ component<HTMLDivElement, EmptyStateProps>("EmptyState", function EmptyState(props, ref) {
   const rest = omit(props, { icon: 1, title: 1, description: 1, actions: 1, size: 1, variant: 1, headingLevel: 1, announce: 1, className: 1 });
-  const text = React.useRef<HTMLDivElement | null>(null);
-  // Said once as it appears (or as announce turns on), the title and description as sentences.
-  React.useEffect(() => {
-    const t = text.current;
-    if (!props.announce || !t) return;
-    const said = [...t.children].map((c) => (c.textContent || "").trim()).filter(Boolean).map((x) => (/[.!?…。]$/.test(x) ? x : x + ".")).join(" ");
-    if (said) announce(said);
-  }, [props.announce]);
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const variant = oneOf(["plain", "dashed"] as const, props.variant, "plain");
   const level = [2, 3, 4, 5, 6].indexOf(props.headingLevel as number) >= 0 ? props.headingLevel : 3;
@@ -48,9 +40,10 @@ export const EmptyState = /* @__PURE__ */ component<HTMLDivElement, EmptyStatePr
   return (
     <div {...rest} ref={ref} data-component="empty-state" className={cn("dk-empty-state", size === "sm" && "dk-empty-state--sm", variant === "dashed" && "dk-empty-state--dashed", props.className)}>
       {icon != null ? <div className={cn("dk-empty-state__icon", typeof props.icon !== "string" && "dk-empty-state__icon--custom")} aria-hidden="true">{icon}</div> : null}
-      <div className="dk-empty-state__text" ref={text}>
+      <div className="dk-empty-state__text">
         <H className="dk-empty-state__title">{props.title}</H>
         {props.description != null ? <p className="dk-empty-state__description">{props.description}</p> : null}
+        {props.announce ? <AnnounceText /> : null}
       </div>
       {props.actions != null ? <div className="dk-empty-state__actions">{props.actions}</div> : null}
     </div>
