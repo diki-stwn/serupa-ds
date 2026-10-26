@@ -24,8 +24,23 @@
 .dk-image--cover .dk-image__img { object-fit: cover; }
 .dk-image--contain .dk-image__img { object-fit: contain; }
 .dk-image--loading .dk-image__img { opacity: var(--opacity-0); }
-.dk-image--loading { animation: dk-image-pulse var(--motion-loop-placeholder) var(--ease-move) infinite alternate; }
-@keyframes dk-image-pulse { to { opacity: var(--opacity-60); } }
+/* While loading, a lighter band sweeps through the placeholder fill every 2s (ease-in-out), like Loader's skeleton: a layer
+   three frames wide slides on translate (the compositor) from its last third on the frame to its first. Right to left, it
+   sweeps from the right. It's ::before, so the remove button stays above it. */
+.dk-image--loading::before {
+  --dk-image-glint: color-mix(in srgb, var(--surface) var(--opacity-60), transparent);
+  --dk-image-sweep: calc(var(--sizing-full) * 2 / 3);
+  content: "";
+  position: absolute;
+  inset-block: var(--spacing-0);
+  inset-inline-end: var(--spacing-0);
+  width: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full));
+  pointer-events: none;
+  background-image: linear-gradient(to right, transparent, transparent, transparent, transparent, transparent, transparent, var(--dk-image-glint), transparent, transparent, transparent, transparent, transparent, transparent);
+  animation: dk-image-sweep calc(var(--motion-loop-placeholder) + var(--motion-loop-placeholder)) var(--ease-in-out) infinite;
+}
+.dk-image--loading:dir(rtl)::before { --dk-image-sweep: calc(var(--sizing-full) * -2 / 3); }
+@keyframes dk-image-sweep { to { translate: var(--dk-image-sweep) 0; } }
 .dk-image__fallback { position: absolute; inset: var(--spacing-0); display: flex; align-items: center; justify-content: center; color: var(--image-fallback-color, var(--text-muted)); }
 .dk-image__fallback .dk-icon { font-size: var(--image-fallback-icon, var(--spacing-6)); }
 .dk-image__view { display: block; width: var(--sizing-full); margin: var(--spacing-0); padding: var(--spacing-0); border: var(--spacing-0); border-radius: inherit; background: transparent; cursor: zoom-in; }
@@ -37,6 +52,6 @@
 .dk-image__viewer { --dk-image-full-max: calc(var(--sizing-dvh) - var(--spacing-40)); }
 .dk-image__viewer .dk-dialog__body { display: flex; justify-content: center; }
 .dk-image__full { display: block; max-width: var(--sizing-full); max-height: var(--dk-image-full-max); height: auto; object-fit: contain; border-radius: var(--image-radius, var(--rounded-lg)); }
-@media (prefers-reduced-motion: reduce) { .dk-image--loading { animation: none; } }
-@media (forced-colors: active) { .dk-image { border: var(--border-width-1) solid CanvasText; } }
+@media (prefers-reduced-motion: reduce) { .dk-image--loading::before { display: none; } }   /* a still fill */
+@media (forced-colors: active) { .dk-image { border: var(--border-width-1) solid CanvasText; } .dk-image--loading::before { display: none; } }
 }
