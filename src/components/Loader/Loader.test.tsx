@@ -400,26 +400,32 @@ describe('Loader', () => {
     expect([l.getAttribute('aria-hidden'), e.getAttribute('role'), e.getAttribute('aria-label')]).toEqual(['true', 'progressbar', 'Loading projects']);
   });
 
-  test('shine: the words are clipped from a gradient of the text color, resting at 65% (label-dim) with a full-strength band, sweeping left to right every 2s with ease-in-out, forever', async () => {
+  test('shine: the words rest at 65% of the text color (label-dim); a soft-edged window half the words wide holds a full-color copy (not read: the label is hidden, and the copy is generated content), sweeping every 2s with ease-in-out, forever, on translate (EE1)', async () => {
     await render(<span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>);
-    const l = q('#lab .dk-loader__label'), s = css(l);
-    expect(s.backgroundClip || s.webkitBackgroundClip).toBe('text');
-    expect(s.webkitTextFillColor).toMatch(/transparent|rgba\(0, 0, 0, 0\)/);
-    expect(s.backgroundImage).toMatch(/linear-gradient/);
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-shine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
-    const dim = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
-    expect(dim.length).toBeGreaterThanOrEqual(13);
-    expect(dim[0]).toMatch(/0\.65\)?$|0\.65\)/);
-    expect(dim.some((c) => !/0\.65/.test(c))).toBe(true);
+    const l = q('#lab .dk-loader__label'), g = l.firstElementChild as HTMLElement, s = css(l), w = css(g), copy = getComputedStyle(g, '::after');
+    expect(s.webkitTextFillColor).toMatch(/0\.65\)$/);
+    expect([l.textContent, g.dataset.words, copy.content, copy.webkitTextFillColor, s.overflow]).toEqual(['Loading projects', 'Loading projects', '"Loading projects"', 'rgb(15, 23, 42)', 'hidden']);
+    expect(w.maskImage || w.webkitMaskImage).toMatch(/linear-gradient/);
+    expect(Math.round(g.getBoundingClientRect().width * 2)).toBe(Math.round(l.getBoundingClientRect().width));
+    for (const a of [w, copy]) expect(`${a.animationName} ${a.animationDuration} ${a.animationTimingFunction} ${a.animationIterationCount}`).toBe('dk-loader-glint 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
   });
 
-  test('shine: the band starts off the left of the words and ends off the right (seamless loop), past halfway at half time (ease-in-out)', async () => {
+  test('shine: the window starts off the left of the words and ends off the right (seamless loop), past halfway at half time (ease-in-out), while the copy moves back by as much so it stays on the words', async () => {
     await render(<Loader id="lab" variant="text" label="Loading projects" delay={0} />);
-    const pos = at(q('#lab .dk-loader__label'), 'dk-loader-shine', [0, 1000, 1999], (n) => getComputedStyle(n).backgroundPosition);
-    expect(pos[0].startsWith('100%'), pos[0]).toBe(true);
-    expect(parseFloat(pos[1])).toBeGreaterThan(0);
-    expect(parseFloat(pos[1])).toBeLessThan(50);
-    expect(parseFloat(pos[2])).toBeLessThan(1);
+    const l = q('#lab .dk-loader__label'), g = l.firstElementChild!, lw = l.getBoundingClientRect().width;
+    const runs = g.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-glint');
+    expect(runs.length).toBe(2);
+    const left = (ms: number) => { runs.forEach((a) => { a.pause(); a.currentTime = ms; }); return (g.getBoundingClientRect().left - l.getBoundingClientRect().left) / lw; };
+    const [start, mid, end] = [left(0), left(1000), left(1999)];
+    expect(start).toBeCloseTo(-0.5, 1);
+    expect(mid).toBeGreaterThan(0.25);
+    expect(end).toBeGreaterThan(0.99);
+    // The copy's translate is the window's, undone: in the copy's own width (twice the window's), half as many percent, the other way.
+    const pct = (el: Element, pseudo?: string) => parseFloat(getComputedStyle(el, pseudo).translate);
+    runs.forEach((a) => { a.currentTime = 700; });
+    const gw = g.getBoundingClientRect().width;
+    expect(pct(g) / 100 * gw + pct(g, '::after') / 100 * gw * 2).toBeCloseTo(0, 0);
+    runs.forEach((a) => a.play());
   });
 
   test('shine: the resting words (text at 65%) keep 4.5:1 on surface in all six themes', () => {
@@ -468,9 +474,9 @@ describe('Loader', () => {
     const r = await forcedColors(async (active) => {
       if (!active) return null;
       const bone = css(q('#fcs .dk-loader__bone')), page = css(q('#fcs').parentElement);
-      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', bone.backgroundImage, bone.animationName];
+      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', getComputedStyle(q('#fcs .dk-loader__bone'), '::after').display];
     });
-    if (r) expect(r).toEqual([true, 'none', 'none']);
+    if (r) expect(r).toEqual([true, 'none']);
   });
 
   function Skeletons() {
@@ -535,18 +541,20 @@ describe('Loader', () => {
     expect([css(el('skp')).color, css(el('skinv')).color]).toEqual(['rgb(15, 23, 42)', 'rgb(255, 255, 255)']);
   });
 
-  test('skeleton fill: the text color at 10%, with a lighter band (5%) sweeping left to right every 2s, ease-in-out, like the text variant', async () => {
+  test('skeleton fill: the text color at 10%, with a lighter band (5%) sweeping left to right every 2s, ease-in-out, on translate (EE1)', async () => {
     await render(<Skeletons />);
-    const b = q('#sk1 .dk-loader__bone'), s = css(b), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
+    const b = q('#sk1 .dk-loader__bone'), s = getComputedStyle(b, '::after'), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
     expect(stops.length).toBe(13);
     expect(stops[0]).toMatch(/15 23 42|0\.0588/);
     expect(stops[0]).toMatch(/\/ 0\.1\)|, 0\.1\)/);
     expect(stops[6]).toMatch(/\/ 0\.05\)|, 0\.05\)/);
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-shine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
-    expect(s.backgroundSize).toBe('300% 100%');
-    const pos = at(b, 'dk-loader-shine', [0, 1999], (n) => getComputedStyle(n).backgroundPosition);
-    expect(pos[0].startsWith('100%'), pos[0]).toBe(true);
-    expect(parseFloat(pos[1])).toBeLessThan(1);
+    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    // Three bones wide, it starts with its last third on the bone and ends with its first: the band passes through.
+    const w = b.getBoundingClientRect().width;
+    expect([Math.round(parseFloat(s.width) / w), css(b).overflow]).toEqual([3, 'hidden']);
+    const moves = b.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-sweep');
+    const end = (moves[0].effect as KeyframeEffect).getKeyframes().at(-1)!;
+    expect(Math.round(parseFloat(String(end.translate)) / 100 * parseFloat(s.width) / w)).toBe(2);
   });
 
   test('delay: for the first 300ms nothing shows or is announced, but its space is kept (a waiting skeleton keeps its shapes); then it fades in, becomes a progressbar and is announced', async () => {
@@ -600,7 +608,7 @@ describe('Loader', () => {
     const restore = reduceMotion();
     try {
       const l = css(q('#lab .dk-loader__label'));
-      expect([l.animationName, l.backgroundImage, l.webkitTextFillColor]).toEqual(['none', 'none', l.color]);
+      expect([l.webkitTextFillColor, css(q('#lab .dk-loader__glint')).display]).toEqual([l.color, 'none']);
       const arc = css(q('#ring .dk-loader__arc'));
       expect([css(q('#ring svg')).animationDuration, arc.animationName]).toEqual(['3s', 'none']);
       expect(arc.strokeDasharray).toMatch(/^25(px)?,? 150/);
@@ -630,7 +638,7 @@ describe('Loader', () => {
     try {
       const s = css(q('#sk1 .dk-loader__bone'));
       expect([s.animationName, s.backgroundImage]).toEqual(['none', 'none']);
-      expect(s.backgroundColor).toMatch(/0\.1\)$/);
+      expect([s.backgroundColor, getComputedStyle(q('#sk1 .dk-loader__bone'), '::after').display]).toEqual([expect.stringMatching(/0\.1\)$/), 'none']);
     } finally { restore(); }
   });
 });

@@ -34,7 +34,6 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   },
   'paint loop': {
     'dk-loader-arc': ['EE1: stroke-dasharray', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
-    'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
   keyframes: {},
   'on mount': {
