@@ -1,4 +1,4 @@
-// exports: Image, type ImageProps, type ImageRatio
+// exports: Image, type ImageProps, type ImageRatio, type ImageSource
 interface ImageLabels {
     viewImage: string;
     removeImage: string;
@@ -17,6 +17,15 @@ interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "al
     onRemove?: () => void;
     removeLabel?: string;
     priority?: boolean;
+    sources?: ImageSource[];
     frameProps?: React.HTMLAttributes<HTMLSpanElement>;
+}
+interface ImageSource {
+    srcSet: string;
+    media?: string;
+    type?: string;
+    sizes?: string;
+    width?: number;
+    height?: number;
 }
 declare const Image: React.ForwardRefExoticComponent<ImageProps & React.RefAttributes<HTMLImageElement>>;
