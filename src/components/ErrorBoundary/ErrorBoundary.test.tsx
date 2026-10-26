@@ -86,4 +86,50 @@ describe('ErrorBoundary', () => {
     const text = (id: string) => document.getElementById(id)!.textContent;
     expect([text('el'), text('fn'), text('txt'), text('id')]).toEqual(['Nope', 'boom', "Couldn't load the chartThe rest still works.Try again", 'Terjadi kesalahanBagian halaman ini tidak dapat dimuat.Coba lagi']);
   });
+
+  test('focus after recovering (FL1): Try again, a custom fallback\'s reset() and resetKeys move focus from the gone fallback to the first focusable part of what came back, not to <body>', async () => {
+    broken = true;
+    const r = await render(<div><input id="before" /><ErrorBoundary resetKeys={['/a']}><Widget /></ErrorBoundary><input id="after" /></div>);
+    const again = page.getByRole('button', { name: 'Try again' });
+    (again.element() as HTMLElement).focus();
+    broken = false;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('widget');
+    // A custom fallback's reset(); the recovered content has its focusable part inside a wrapper.
+    broken = true;
+    await r.rerender(<div><input id="before" /><ErrorBoundary key="fn" fallback={({ reset }) => <button id="retry" onClick={reset}>Retry</button>}><p><Widget label="Map" /></p></ErrorBoundary><input id="after" /></div>);
+    (document.getElementById('retry') as HTMLElement).focus();
+    broken = false;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => (document.activeElement as HTMLElement | null)?.textContent).toBe('Map');
+    // resetKeys while focus is in the fallback.
+    broken = true;
+    await r.rerender(<div><input id="before" /><ErrorBoundary key="keys" resetKeys={['/a']}><Widget /></ErrorBoundary><input id="after" /></div>);
+    (page.getByRole('button', { name: 'Try again' }).element() as HTMLElement).focus();
+    broken = false;
+    await r.rerender(<div><input id="before" /><ErrorBoundary key="keys" resetKeys={['/b']}><Widget /></ErrorBoundary><input id="after" /></div>);
+    await expect.poll(() => document.activeElement?.id).toBe('widget');
+  });
+
+  test('focus after recovering (FL1): content with nothing focusable takes focus itself for that one move (tabIndex -1, gone on blur); focus elsewhere on the page stays put', async () => {
+    broken = true;
+    function Text(): React.ReactElement { if (broken) throw new Error('boom'); return <p id="plain">Saved.</p>; }
+    const r = await render(<div><input id="before" /><ErrorBoundary resetKeys={['/a']}><Text /></ErrorBoundary></div>);
+    (page.getByRole('button', { name: 'Try again' }).element() as HTMLElement).focus();
+    broken = false;
+    await userEvent.keyboard('{Enter}');
+    const p = document.getElementById('plain') as HTMLElement;
+    await expect.poll(() => document.activeElement).toBe(p);
+    expect(p.tabIndex).toBe(-1);
+    (document.getElementById('before') as HTMLElement).focus();
+    expect(p.hasAttribute('tabindex')).toBe(false);
+    // Focus outside the fallback when resetKeys clear it: left where it is.
+    broken = true;
+    await r.rerender(<div><input id="before" /><ErrorBoundary key="b" resetKeys={['/a']}><Text /></ErrorBoundary></div>);
+    (document.getElementById('before') as HTMLElement).focus();
+    broken = false;
+    await r.rerender(<div><input id="before" /><ErrorBoundary key="b" resetKeys={['/b']}><Text /></ErrorBoundary></div>);
+    await expect.element(page.getByText('Saved.')).toBeInTheDocument();
+    expect(document.activeElement?.id).toBe('before');
+  });
 });
