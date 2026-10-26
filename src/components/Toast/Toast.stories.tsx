@@ -45,6 +45,14 @@ export const Tones: Story = {
 export const WithAction: Story = {
   render: (args) => <Showing position={args.position} toasts={[{ title: 'Moved to trash', description: 'Atlas and 3 files.', action: { label: 'Undo', onClick: () => {} } }]} />,
 };
+export const TopStart: Story = {
+  args: { position: 'top-start' },
+  render: (args) => <Showing position={args.position} toasts={['Copied to clipboard']} />,
+};
+export const BottomCenter: Story = {
+  args: { position: 'bottom-center' },
+  render: (args) => <Showing position={args.position} toasts={['Copied to clipboard']} />,
+};
 export const TopCenter: Story = {
   args: { position: 'top-center' },
   render: (args) => <Showing position={args.position} toasts={['Copied to clipboard', { title: 'Changes saved', tone: 'success' }]} />,

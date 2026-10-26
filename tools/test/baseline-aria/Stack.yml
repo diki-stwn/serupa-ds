@@ -1,3 +1,6 @@
+# Align
+- text: align="start" Tall align="center" Tall align="end" Tall align="baseline" Tall align="stretch" Tall
+
 # AsList
 - list:
   - listitem: Invoices

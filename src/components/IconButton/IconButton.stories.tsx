@@ -23,6 +23,7 @@ export const Variants: Story = {
     <IconButton icon="edit" label="Edit" variant="secondary" />
     <IconButton icon="share" label="Share" variant="outline" />
     <IconButton icon="more_vert" label="More actions" />
+    <IconButton icon="open_in_new" label="Open" variant="link" />
     <IconButton icon="delete" label="Delete" destructive />
   </div>,
 };

@@ -70,3 +70,14 @@ export const LongLabel: Story = {
     </div>
   ),
 };
+
+export const GroupHorizontal: Story = {
+  name: 'CheckboxGroup in a row',
+  render: () => <Field group label="Days">
+    <CheckboxGroup name="days" orientation="horizontal" defaultValue={['mon']}>
+      <Checkbox value="mon">Monday</Checkbox>
+      <Checkbox value="tue">Tuesday</Checkbox>
+      <Checkbox value="wed">Wednesday</Checkbox>
+    </CheckboxGroup>
+  </Field>,
+};

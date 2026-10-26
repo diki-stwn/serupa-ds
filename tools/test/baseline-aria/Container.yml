@@ -11,5 +11,5 @@
 - paragraph: Long text reads best at around 65 to 75 characters a line. The prose size keeps an article to that width on a wide screen, and the side padding keeps it off the edges on a phone.
 
 # Sizes
-- text: size="prose" size="md" size="lg" size="xl"
+- text: size="prose" size="md" size="lg" size="xl" size="2xl"
 
