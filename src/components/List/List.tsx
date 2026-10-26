@@ -47,8 +47,9 @@ export interface ListItemProps extends Omit<React.LiHTMLAttributes<HTMLLIElement
 export const List = /* @__PURE__ */ component<HTMLUListElement, ListProps>("List", function List(props, ref) {
   const rest = omit(props, { variant: 1, divided: 1, as: 1, className: 1 });
   const variant = oneOf(["plain", "card"] as const, props.variant, "plain");
+  // role="list": Safari drops list semantics from a <ul>/<ol> styled list-style: none, so VoiceOver stops saying "list, 6 items" (FU1).
   return React.createElement(oneOf(["ul", "ol"] as const, props.as, "ul"), Object.assign(rest, {
-    ref: ref, "data-component": "list",
+    ref: ref, "data-component": "list", role: rest.role ?? "list",
     className: cn("dk-list", variant === "card" && "dk-list--card", props.divided !== false && "dk-list--divided", props.className),
   }));
 });

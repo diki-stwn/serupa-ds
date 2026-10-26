@@ -35,7 +35,7 @@ import { Timeline, TimelineItem } from "serupa-ds";
 
 ## Accessibility
 
-- **Role and name:** an `<ol>`: screen readers announce a list and how many events it has. Name it with `aria-label` or `aria-labelledby` when the page has more than one list.
+- **Role and name:** an `<ol>`: screen readers announce a list and how many events it has (with `role="list"`, so Safari does too). Name it with `aria-label` or `aria-labelledby` when the page has more than one list.
 - **Keyboard:** nothing in the timeline itself is focusable. Links and buttons you put in the content keep their own focus.
 - **Contrast:** titles and content read 4.5:1 on the page, and times do too, in all six themes (`Timeline.test.tsx`).
 - **Markers:** the marker and line are `aria-hidden`. Color is decoration, so the title has to carry the status. In forced colors, the dots and line draw in the system text color.

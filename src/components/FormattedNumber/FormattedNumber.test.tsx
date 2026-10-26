@@ -17,11 +17,12 @@ describe('FormattedNumber', () => {
       .toEqual(['DATA', '1.234,5', '1234.5', true, 'dk-formatted-number extra', 'y', 'formatted-number', 'decimal', false]);
   });
 
+  // IDR shows no decimals in every engine (currency.ts pins it); WebKit's own default for IDR is two.
   test('each format: compact, percent, currency, bytes, unit', () => {
     const f = (v: number, o: Parameters<typeof formatNumber>[2]) => formatNumber(v, 'en-US', o);
     expect([f(1234567, { format: 'compact' }), f(0.456, { format: 'percent' }), f(150000, { format: 'currency', currency: 'IDR' }), f(19.5, { format: 'currency', currency: 'JPY' }),
       f(50, { format: 'unit', unit: 'kilometer-per-hour' }), f(1234.5, {})])
-      .toEqual(['1.2M', '46%', nf('en-US', { style: 'currency', currency: 'IDR' }, 150000), '¥20', '50 km/h', '1,234.5']);
+      .toEqual(['1.2M', '46%', nf('en-US', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }, 150000), '¥20', '50 km/h', '1,234.5']);
   });
 
   test('bytes step by 1024 like formatFileSize: one decimal under 10, none above or for bytes; negatives keep their sign', () => {
@@ -65,3 +66,42 @@ describe('FormattedNumber', () => {
     expect(renderToString(<SerupaProvider locale="en-US"><FormattedNumber value={0.5} format="percent" /></SerupaProvider>)).toContain('>50%</data>');
   });
 });
+
+describe('FormattedNumber: bad options, speed and byte rounding (FT1)', () => {
+  test('a currency, unit or digits Intl rejects writes the plain number with one warning, rather than throwing', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      expect(formatNumber(1234.5, 'en-US', { format: 'currency', currency: 'US' })).toBe('1,234.5');
+      expect(formatNumber(80, 'en-US', { format: 'unit', unit: 'km/h' })).toBe('80');
+      expect(formatNumber(2, 'en-US', { minimumFractionDigits: 3, maximumFractionDigits: 1 })).toBe('2');
+      formatNumber(1234.5, 'en-US', { format: 'currency', currency: 'US' });
+      const screen = await render(<FormattedNumber value={9} format="currency" currency="EURO" locale="en-US" />);
+      await expect.element(screen.getByText('9')).toBeInTheDocument();
+      expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.includes('number-options'))).toHaveLength(4);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  test('one formatter per locale and options: thousands of formats build it once', () => {
+    const Real = Intl.NumberFormat;
+    let built = 0;
+    const Counting = function (l?: string | string[], o?: Intl.NumberFormatOptions) { built++; return new Real(l, o); } as unknown as typeof Intl.NumberFormat;
+    Object.assign(Counting, { supportedLocalesOf: Real.supportedLocalesOf, prototype: Real.prototype });
+    Intl.NumberFormat = Counting;
+    try {
+      // Options no other test uses, so the count doesn't depend on what ran before.
+      for (let i = 0; i < 5000; i++) formatNumber(i, 'id-ID', { format: 'compact', minimumSignificantDigits: 2 });
+      formatNumber(1, 'id-ID', { format: 'percent', minimumSignificantDigits: 2 });
+    } finally {
+      Intl.NumberFormat = Real;
+    }
+    expect(built).toBe(2);
+  });
+
+  test('bytes step up when the rounded number reaches 1024, and fractional bytes round to whole ones', () => {
+    const b = (v: number) => formatNumber(v, 'en-US', { format: 'bytes' });
+    expect([b(1048575), b(1023.9), b(1.5), b(1048575 * 1024), b(-1048575), b(1023)]).toEqual(['1 MB', '1 kB', '2 byte', '1 GB', '-1 MB', '1,023 byte']);
+  });
+});
+

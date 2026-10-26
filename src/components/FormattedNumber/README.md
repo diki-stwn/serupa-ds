@@ -32,9 +32,11 @@ formatNumber(1234, "id-ID", { format: "compact" })                  // "1,2 rb",
 - The words follow the locale from `SerupaProvider` (or the `locale` prop, or the browser's), including its digits.
 - `percent` takes a fraction, as `Intl.NumberFormat` does: `0.45` is 45%. Divide by 100 first if your value is already a percentage.
 - `currency` needs `currency`, an ISO 4217 code. The amount uses that currency's usual minor units (2 for USD and EUR, 0 for JPY); pass `options={{ maximumFractionDigits: 0 }}` to drop them, or `minimumFractionDigits: 2` to show them. Without a code it writes a plain number.
-- `bytes` steps by 1024, like `formatFileSize`, with one decimal under 10 ("1.5 MB") and none above ("820 kB").
+- `bytes` steps by 1024, like `formatFileSize`, with one decimal under 10 ("1.5 MB") and none above ("820 kB"). A size that rounds up to 1024 takes the next unit (1,048,575 is "1 MB", not "1,024 kB"), and bytes are whole ("2 byte" for 1.5).
 - `unit` takes any unit `Intl.NumberFormat` knows (`"celsius"`, `"liter"`, `"kilometer-per-hour"`), written short.
 - `options` takes any other `Intl.NumberFormat` option and wins over the format's own: `maximumFractionDigits`, `signDisplay`, `currencyDisplay: "name"`, `compactDisplay: "long"`.
+- Options Intl rejects, such as a currency `"US"` or a unit `"km/h"`, write the plain number with a `number-options` warning in development, rather than throwing and unmounting the page.
+- Each locale and set of options builds its `Intl.NumberFormat` once and keeps it, so a long table of numbers re-renders without building thousands of formatters.
 - In a table column, numbers line up on tabular digits; align the column to the end too.
 
 ## Accessibility

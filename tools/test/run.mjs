@@ -35,7 +35,7 @@ if (arg('--since')) {
 }
 const only = onlyComponents();
 // The tests that check every story against a baseline or a rule: a change to one component can break its line in them.
-const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime', 'network', 'strictCsp', 'trustedTypes', 'activity', 'motion'].map((f) => `src/internal/${f}.test.tsx`);
+const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'leaks', 'mountTime', 'network', 'strictCsp', 'trustedTypes', 'activity', 'motion', 'listRole'].map((f) => `src/internal/${f}.test.tsx`);
 // They go through the covered components' stories, so with none to go through (ErrorBoundary alone: its stories are
 // left out there, SKIP in vitest/stories.tsx) most would find no test at all and fail for it.
 const storied = !!only && [...only].some((n) => n !== 'ErrorBoundary' && fs.existsSync(path.join(PROJECT, 'src', 'components', n, `${n}.stories.tsx`)));

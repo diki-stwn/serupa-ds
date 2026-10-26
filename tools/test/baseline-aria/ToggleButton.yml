@@ -15,6 +15,11 @@
 # Pressed
 - button "Show grid" [pressed]
 
+# Sizes
+- button "Show grid, sm"
+- button "Show grid, md"
+- button "Show grid, lg"
+
 # Toolbar
 - group "Text formatting":
   - button "Bold" [pressed]

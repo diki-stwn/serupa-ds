@@ -220,7 +220,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
 
   const name = props.reorderLabel || sds.labels.reorder;
   return (<>
-    <ul {...rest} ref={(n) => { list.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <ul role="list" {...rest} ref={(n) => { list.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-sortable-list", drag && "dk-sortable-list--sorting", props.disabled && "dk-sortable-list--disabled", props.className)} data-component="sortable-list">
       {shown.map((it, index) => {
         const key = getKey(it), dragging = !!drag && drag.key === key;

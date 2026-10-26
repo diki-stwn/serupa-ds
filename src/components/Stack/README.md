@@ -39,7 +39,7 @@ const { Stack, Button } = window.Serupa;
 ## Accessibility
 
 - Stack only lays things out: the reading and tab order stay the order of the children, so keep it the same as what people see.
-- Use `as="ul"` or `as="ol"` when the items are a list, so screen readers say how many there are.
+- Use `as="ul"` or `as="ol"` when the items are a list, so screen readers say how many there are. It then carries `role="list"`, since Safari stops calling a list without bullets a list.
 - **Keyboard:** none: a layout box, not focusable.
 
 ## Props

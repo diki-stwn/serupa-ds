@@ -104,3 +104,10 @@ export const Overflow: Story = {
     </div>
   ),
 };
+
+export const Align: Story = {
+  render: (args) => <Table {...args}>
+    <TableHead><TableRow><TableHeaderCell align="start">Start</TableHeaderCell><TableHeaderCell align="center">Center</TableHeaderCell><TableHeaderCell align="end">End</TableHeaderCell></TableRow></TableHead>
+    <TableBody><TableRow><TableCell align="start">Ada</TableCell><TableCell align="center">Active</TableCell><TableCell align="end">1,204</TableCell></TableRow></TableBody>
+  </Table>,
+};
