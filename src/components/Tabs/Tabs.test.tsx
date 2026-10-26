@@ -307,8 +307,8 @@ describe('Tabs on the server', () => {
         const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
         const [from, to] = id === 'un' ? [tabs[0], tabs[2]] : [tabs[2], tabs[0]];
         await userEvent.click(to);
-        const moves = to.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
-        const start = moves.find((a) => a.transitionProperty === 'translate')!, shift = parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate));
+        const moves = to.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
+        const start = moves.find((a) => a.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
         expect([moves.map((a) => a.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(from.offsetLeft - to.offsetLeft)]);
         await Promise.all(moves.map((a) => a.finished));
         expect([getComputedStyle(to, pseudo).translate, getComputedStyle(to, pseudo).scale]).toEqual(['none', 'none']);
