@@ -8701,6 +8701,16 @@
         }
       }
     },
+    "motion-sequence": {
+      "$type": "duration",
+      "$value": "{transitions.delay-50}",
+      "$description": "The offset between the steps of one entrance, so they read as a sequence: a dialog or drawer’s backdrop starts, then its panel. Exits don’t sequence; everything leaves together.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-sequence"
+        }
+      }
+    },
     "ease-enter": {
       "$type": "cubicBezier",
       "$value": "{transitions.ease-out-quart}",

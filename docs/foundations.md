@@ -792,6 +792,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
 | `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
+| `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
 | `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |
 | `ease-exit` | `ease-in` | Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once. A stronger ease-in starts too slowly and makes closing feel sluggish. |
 | `ease-move` | `ease-in-out-cubic` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
@@ -818,6 +819,8 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 - **Interruptible.** Animate opening and closing with transitions, not keyframes. A transition turns around from where it is when the state flips half way (a menu closed while it opens), where a keyframe animation jumps to its start. The overlays enter from `@starting-style` for this reason.
 
 **Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a list's items or a loader's dots, stagger them by `motion-stagger` (50ms) and cap the wait at `motion-stagger-limit` (300ms), so items past the sixth arrive together. The `stagger` utility does this: put it on the parent, and each child gets `animation-delay` and `--dk-stagger-delay` (for a transition of your own) from its place, with `sibling-index()` where the browser has it. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
+
+**Layout changes.** When things move to a new place (a list reordered or filtered, a card expanded, a grid switched to a list), let them glide there instead of jumping: run the change inside `withViewTransition(() => …)` and mark what should travel with `view-transition-name`, or the `view-transition-match` class, which names each element after itself. The browser does the measuring (FLIP), off the main thread, over `motion-change-md` with `ease-move` (set for every View Transition in `base.css`). Under reduced motion nothing travels; the old and new states crossfade. Where View Transitions are missing the change just happens. `view-transition-none` keeps an element out of it.
 
 **Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too.
 

@@ -25382,6 +25382,8 @@
 "via-zinc-800":"--dk-gradient-via:rgb(39, 39, 42)",
 "via-zinc-900":"--dk-gradient-via:rgb(24, 24, 27)",
 "via-zinc-950":"--dk-gradient-via:rgb(9, 9, 11)",
+"view-transition-match":"view-transition-name:match-element",
+"view-transition-none":"(no effect)",
 "visible":"(no effect)",
 "w-0":"inline-size:0px;perspective-origin:0px 10px;transform-origin:0px 10px;width:0px",
 "w-0.5":"inline-size:2px;perspective-origin:1px 10px;transform-origin:1px 10px;width:2px",

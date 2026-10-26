@@ -29,6 +29,7 @@ import { Image } from "serupa-ds";
 - With `viewable`, pass a larger `fullSrc` when `src` is a small thumbnail. Without it, the viewer shows the largest `srcSet` candidate, or `src`.
 - For a picture shown at many widths, pass `srcSet` with widths (`"hero-640.jpg 640w, hero-1280.jpg 1280w"`) so small screens load a small file. You can leave `sizes` out on a lazy picture: Image sets `sizes="auto"`, and the browser picks by the width the frame is laid out at. Give `sizes` for a `priority` picture, which loads before layout.
 - Use `sources` for another crop on phones (`media`) or a lighter format (`type: "image/avif"`): each becomes a `<source>` in a `<picture>` around the `<img>`, tried in order before `src`.
+- Use `darkSrc` for a version drawn for a dark page (a chart, a diagram, a logo on dark), and `dim` to darken a photo a shade on a dark page so a bright one doesn't glare.
 - Ask for confirmation yourself before `onRemove` removes something for good.
 
 ## Behavior
@@ -38,6 +39,8 @@ import { Image } from "serupa-ds";
 - While loading, the frame shows the placeholder fill with a lighter band sweeping through it every 2s, like Loader's skeleton (a still fill with reduced motion or forced colors). The band moves on `translate`, so it costs no repaints. In server-rendered HTML the picture is never hidden, so it paints as soon as it arrives, before your script runs or without it. A picture that hydrates from that HTML stays shown, since it may have painted in part already. A lazy picture that mounts on the client and is still loading a frame later is hidden and fades in over 200ms when it arrives (at once with reduced motion); a `priority` one is never hidden. A frame with `ratio="auto"` is at least 48px until the picture arrives, so give it a width and set `width` and `height` on the `<img>` to avoid a jump.
 - On a lazy picture whose `srcSet` (or a source's) lists widths, `sizes` gets `auto` in front: `"auto"` alone when none was given, or `"auto, <yours>"`, so a browser that doesn't know `auto` uses yours (or the whole screen width). An eager or `priority` picture, `x` descriptors, or a `sizes` that already starts with `auto` are left as given.
 - With `sources`, the `<picture>` is `display: contents`, so the frame and the `<img>` lay out exactly as without.
+- `darkSrc` is the first `<source>`, for `(prefers-color-scheme: dark)` in server HTML. In the browser, a theme that fixes the frame's color scheme (a `*-dark` or `*-light` `data-theme`, a `data-mode`) decides instead, and the picture swaps when any `data-theme`, `data-mode` or `data-brand` on the page changes. The viewer opens the version shown.
+- `dim` lays `--image-dim` at 20% over a loaded picture in a dark color scheme only (`light-dark()`); the remove button stays above it, and forced colors drop it.
 - For a reader saving data (Data Saver, `navigator.connection.saveData`, or `prefers-reduced-data: reduce`), only a `priority` picture loads at once; any other is lazy even with `loading="eager"`. Each `srcSet` (the `<img>`'s and each source's) is cut to its smallest version. Server HTML can't know this, so it changes once the page's script runs, before a lazy picture loads.
 - The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture. Its picture has the frame's placeholder while it loads (in the shape `width` and `height` give, or the thumbnail's) and the frame's fallback if it fails. Since the title already names it, the picture itself has `alt=""`, so it isn't read twice.
 - The remove button only calls `onRemove`; ask for confirmation yourself if removing can't be undone.
@@ -66,6 +69,8 @@ import { Image } from "serupa-ds";
 | `viewLabel` | `string` | `"View image: <alt>"` | The view button's name. |
 | `onRemove` | `() => void` | | Shows a remove button in the top end corner. |
 | `removeLabel` | `string` | `"Remove image: <alt>"` | The remove button's name. |
+| `darkSrc` | `string` | | A version for a dark color scheme: the page's dark theme, or the screen's preference where the theme follows it. |
+| `dim` | `boolean` | `false` | Darkens a loaded photo a shade in a dark color scheme. |
 | `sources` | `{ srcSet, media?, type?, sizes?, width?, height? }[]` | | Other versions, each a `<source>` in a `<picture>` ahead of `src`: for a media query (art direction) or a format. `width` and `height` for a version with another shape. |
 | `frameProps` | `HTMLAttributes` | | For the frame, such as `style={{ width: 240 }}`. |
 
@@ -79,6 +84,7 @@ Each is an optional override: set it on the page, a container or one image. The 
 | --- | --- | --- |
 | `--image-bg` | `surface-muted` | The frame's fill while the picture loads, and behind a failed one. |
 | `--image-shine` | `surface` | The lighter band that sweeps through the fill while the picture loads (at 60%). |
+| `--image-dim` | `black` | With dim, the layer that darkens a photo in a dark color scheme (at 20%). |
 | `--image-fallback-color` | `text-muted` | The broken-image icon (3:1 on bg). |
 | `--image-focus-ring` | `focus-ring` | A viewable picture's keyboard focus ring. |
 | `--image-radius` | `rounded-lg` | The frame's corners with rounded (8px). |
