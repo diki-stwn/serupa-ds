@@ -25,6 +25,26 @@ function Share() {
 }
 
 describe('Popover', () => {
+  test('the panel takes the other HTML attributes and a ref: id, data-testid, aria-describedby, and an onKeyDown that can keep Escape (GJ2)', async () => {
+    const ref = React.createRef<HTMLDivElement>();
+    let keep = true;
+    await render(<><p id="hint">Hint</p><Popover ref={ref} id="filters" data-testid="filters-pop" aria-describedby="hint" title="Filters" defaultOpen
+      onKeyDown={(e) => { if (keep && e.key === 'Escape') e.preventDefault(); }} trigger={<Button id="pt">Filters</Button>}>
+      <Button id="apply">Apply</Button>
+    </Popover></>);
+    const p = document.querySelector<HTMLElement>('[data-testid="filters-pop"]')!;
+    expect(ref.current).toBe(p);
+    expect(p.id).toBe('filters');
+    expect(p.getAttribute('role')).toBe('dialog');
+    expect(el('pt').getAttribute('aria-controls')).toBe('filters');
+    expect(p.getAttribute('aria-describedby')).toBe('hint');
+    expect(titleIn(p).textContent).toBe('Filters');
+    await userEvent.keyboard('{Escape}');
+    expect(isOpen('pt')).toBe(true);
+    keep = false;
+    await userEvent.keyboard('{Escape}');
+    expect(isOpen('pt')).toBe(false);
+  });
   test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
     const asks: boolean[] = [];
     await render(<Popover title="Share" defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="tdef">Share</Button>}><input aria-label="Email" /></Popover>);
