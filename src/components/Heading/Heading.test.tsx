@@ -47,6 +47,12 @@ describe('Heading', () => {
     expect([s.fontSize, s.color]).toEqual(['11px', 'rgb(1, 2, 3)']);
   });
 
+  test('--heading-line-height-1 sets the line height that goes with a --heading-size-1 override (an h1 at text-4xl gets 40px, not 36px)', async () => {
+    await render(<Heading id="hlh" level={1} style={{ '--heading-size-1': 'var(--text-4xl)', '--heading-line-height-1': 'var(--text-4xl--line-height)' } as React.CSSProperties}>Tall</Heading>);
+    const s = css(el('hlh'));
+    expect([s.fontSize, s.lineHeight]).toEqual(['36px', '40px']);
+  });
+
   test('contrast: a heading keeps 4.5:1 on surface in all six themes', async () => {
     await render(<Heading id="h1" level={1}>Level 1</Heading>);
     const low: string[] = [];

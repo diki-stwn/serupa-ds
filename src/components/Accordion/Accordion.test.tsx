@@ -56,8 +56,9 @@ describe('Accordion', () => {
     // What the browser does on a match: removes hidden, then fires beforematch on that element.
     content(4).removeAttribute('hidden');
     content(4).dispatchEvent(new Event('beforematch'));
-    await new Promise(requestAnimationFrame);
-    expect([state('adef'), content(4).hasAttribute('hidden')]).toEqual(['0001', false]);
+    // React runs an update from an event it doesn't handle itself in a scheduler task, which WebKit can run after the next frame.
+    await expect.poll(() => state('adef')).toBe('0001');
+    expect(content(4).hasAttribute('hidden')).toBe(false);
     // Item 2 is closing: still shown while it folds away, until-found after.
     expect(content(2).hasAttribute('hidden')).toBe(false);
     await settled('adef');

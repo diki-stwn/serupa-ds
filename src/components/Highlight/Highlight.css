@@ -1,6 +1,8 @@
 /* ---------------------------------------------------------------
    Highlight: matched parts in <mark>, a warning-subtle tint behind the text's own color, slightly bolder, with
-   the corners just rounded; Mark and MarkText in forced-colors mode.
+   the corners just rounded; Mark and MarkText in forced-colors mode. In an option or menu item, which is filtered
+   as people type, a bolder match would widen its letters on each keystroke (the text reflows and its ellipsis
+   jumps), so there it keeps the text's weight and is underlined instead: still not marked by color alone.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-highlight__mark {
@@ -8,6 +10,9 @@
   background: var(--highlight-bg, var(--warning-subtle)); color: var(--highlight-text, var(--text));
   font-weight: var(--highlight-weight, var(--font-semibold));
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+:is([role="option"], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"]) .dk-highlight__mark {
+  font-weight: inherit; text-decoration-line: underline; text-decoration-thickness: from-font;
 }
 @media (forced-colors: active) { .dk-highlight__mark { background: Mark; color: MarkText; forced-color-adjust: none; } }
 }
