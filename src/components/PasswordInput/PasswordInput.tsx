@@ -8,6 +8,7 @@ import { asIcon } from "../Icon/asIcon";
 import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
+import { pressFocuses } from "../../internal/affix";
 import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
@@ -81,7 +82,7 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
   };
   return (
     <span className={cn("dk-input dk-password-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="password-input" data-size={size}>
+      style={props.style} data-component="password-input" data-size={size} onMouseDown={pressFocuses(field)}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       <input {...rest} ref={fieldRef} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" />
       {caps ? <span className="dk-password-input__caps" id={capsId}>{sds.labels.capsLockOn}</span> : null}
