@@ -36,10 +36,15 @@ export const Link = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Lin
     "data-component": "link",
     className: cn("dk-link", tone === "neutral" && "dk-link--neutral", underline === "hover" && "dk-link--hover-underline", props.className),
   });
-  const children = <>{props.children}{props.external ? <>
-    <Icon icon={icons.OpenInNew} className="dk-link__icon" />
+  // The new-tab icon goes in a nowrap span with the last word of a text label, so it never starts a line alone (GF1).
+  const icon = <Icon icon={icons.OpenInNew} className="dk-link__icon" />;
+  const text = typeof props.children === "string" ? props.children : null;
+  const cut = text != null ? text.search(/\S+\s*$/) : -1;
+  const children = props.external ? <>
+    {cut > 0 ? text!.slice(0, cut) : cut < 0 ? props.children : null}
+    {cut >= 0 ? <span className="dk-link__last">{text!.slice(cut)}{icon}</span> : icon}
     <NewTabNote />
-  </> : null}</>;
+  </> : props.children;
   // React only autofocuses form controls: with autoFocus, a small client component focuses the link once it's mounted.
   if (props.autoFocus) return <AutoFocusLink as={props.as || config.link} linkRef={ref} attrs={attrs}>{children}</AutoFocusLink>;
   return React.createElement(props.as || config.link, Object.assign(attrs, { ref: ref }), children);
