@@ -31,9 +31,10 @@ describe('server HTML under a strict Content Security Policy', () => {
     const seen = (f: string, t: string) => { const a = document.querySelector(f)!.getBoundingClientRect(), b = document.querySelector(t)!.getBoundingClientRect(); return Math.round((Math.min(a.right, b.right) - Math.max(a.left, b.left)) / b.width * 100); };
     const share = () => seen(fill, '#p .dk-progress__track');
     expect(share()).toBe(100);   // the policy holds: the fill takes the whole track
+    const before = [document.querySelector(fill)!.getAttribute('style'), document.querySelector(fill)!.hasAttribute('style'), (document.querySelector(fill) as HTMLElement).style.length];
     let root: Root | undefined;
     flushSync(() => { root = hydrateRoot(host, ui); });
-    await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')], { message: `the fill's style: ${document.querySelector(fill)?.getAttribute('style')}` }).toEqual([40, 70]);
+    await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')], { message: `PROBE before ${JSON.stringify(before)} after ${JSON.stringify([document.querySelector(fill)?.getAttribute('style'), (document.querySelector(fill) as HTMLElement).style.cssText])}` }).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
     root?.unmount(); host.remove();
