@@ -9,16 +9,20 @@ export interface ToastLabels {
   moreToasts: (count: number) => string;
   /** A toast shown again while it was still up: the count read with it and said once the burst stops ("12 times"). */
   toastRepeated: (count: number) => string;
+  /** toast.undo: the button that takes the action back. */
+  undo: string;
 }
 export const en: ToastLabels = {
   notifications: "Notifications",
   toastShortcut: (key) => "Press " + key + " to reach it.",
   moreToasts: (n) => "+" + n + " more",
   toastRepeated: (n) => n + " times",
+  undo: "Undo",
 };
 export const id: ToastLabels = {
   notifications: "Notifikasi",
   toastShortcut: (key) => "Tekan " + key + " untuk menjangkaunya.",
   moreToasts: (n) => "+" + n + " lainnya",
   toastRepeated: (n) => n + " kali",
+  undo: "Urungkan",
 };
