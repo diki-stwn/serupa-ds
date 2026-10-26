@@ -86,9 +86,14 @@
   :where([data-theme$="-dark"]) { color-scheme: dark; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 
-/* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. */
+/* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. Components and what's
+   inside them are left out: each has its own reduced-motion rules, which keep a short fade where it helps (a popup
+   appearing), and this !important in an earlier layer would beat them. */
 @media (prefers-reduced-motion: reduce) {
   :where(html) { scroll-behavior: auto; }
-  :where(*, *::before, *::after) { transition-duration: var(--duration-0) !important; scroll-behavior: auto !important; }
+  :where(*) { scroll-behavior: auto !important; }
+  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *)),
+  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *))::before,
+  :where(:not([class^="dk-"], [class*=" dk-"], [class^="dk-"] *, [class*=" dk-"] *))::after { transition-duration: var(--duration-0) !important; }
 }
 }
