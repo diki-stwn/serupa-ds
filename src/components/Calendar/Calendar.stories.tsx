@@ -25,3 +25,9 @@ export const Controlled: Story = {
     </div>;
   },
 };
+
+export const LongText: Story = {
+  name: 'Long month names (Portuguese), narrow',
+  args: { locale: 'pt-BR', defaultValue: new Date(2025, 8, 10), defaultMonth: new Date(2025, 8, 10) },
+  render: (args) => <div style={{ width: 240 }}><Calendar {...args} /></div>,
+};

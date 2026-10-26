@@ -25,6 +25,16 @@
     - /placeholder: mm/dd/yyyy
   - button "Choose dates"
 
+# OverflowNarrow
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 12/24/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 01/06/2026
+  - button "Choose dates"
+
 # Playground
 - group "Dates":
   - textbox "Start date":

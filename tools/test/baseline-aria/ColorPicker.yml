@@ -14,6 +14,14 @@
 - text: Contrast 5.0:1, below 7.0:1, which can be hard to read
 - paragraph: The quick brown fox
 
+# LongLabels
+- radiogroup "Label color":
+  - radio "Deep ocean blue for headings" [checked]
+  - radio "Forest green for success"
+  - radio "Signal red for errors"
+- textbox "Custom color": "#1d4ed8"
+- textbox "Hex code": 1d4ed8
+
 # Playground
 - radiogroup "Label color":
   - radio "Blue" [checked]

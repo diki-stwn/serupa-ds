@@ -110,6 +110,18 @@ describe('Splitter', () => {
     expect([el('s').hasAttribute('data-placing'), now('s')]).toEqual([false, want]);
   });
 
+  test('a pane whose content overflows takes Tab focus so it scrolls from the keyboard (2.1.1); one that fits doesn\'t', async () => {
+    await render(<Splitter id="s" style={{ width: '408px', height: '120px' }}>
+      <div id="long" style={{ height: '400px' }}>Every message</div>
+      <div id="short">One line</div>
+    </Splitter>);
+    const [a, b] = [el('long').parentElement!, el('short').parentElement!];
+    await expect.poll(() => a.tabIndex).toBe(0);
+    expect(b.hasAttribute('tabindex')).toBe(false);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(a);
+  });
+
   test('controlled size; storageKey keeps an uncontrolled size for the next visit; outside min..max is pulled in', async () => {
     function Ctl() {
       const [n, setN] = React.useState(40);
