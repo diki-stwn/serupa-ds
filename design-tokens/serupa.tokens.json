@@ -8431,7 +8431,7 @@
     "motion-change-md": {
       "$type": "duration",
       "$value": "{transitions.duration-200}",
-      "$description": "A panel opening or collapsing in place, or an indicator sliding to the selected option: Accordion, Sidebar, SegmentedControl.",
+      "$description": "A panel opening or collapsing in place, or an indicator sliding to the selected option: Accordion, Sidebar, SegmentedControl, Tabs.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--motion-change-md"

@@ -781,7 +781,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-enter-lg` | `duration-300` | A large surface appearing: drawers, sheets. |
 | `motion-exit-sm` / `-md` / `-lg` | `duration-100` / `150` / `200` | The same surfaces leaving. |
 | `motion-change-sm` | `duration-150` | A small part changing in place: a chevron turning, a slider thumb growing, a row gliding to its place. |
-| `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl. |
+| `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl, Tabs. |
 | `motion-change-lg` | `duration-300` | Something travelling far: a progress or meter fill moving to its value, a carousel slide. |
 | `motion-loop-spinner` | `duration-1000` | One turn of a spinner: Button, Switch and the circular Progress while they load. |
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |

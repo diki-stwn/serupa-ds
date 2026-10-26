@@ -57,7 +57,7 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 - Keep `disabled` items in place rather than hiding them, so people learn the action exists.
 - Use a `MenuSub` for a set of related choices that would make the menu long ("Share", "Move to"). Keep it to one level where you can: each level is one more step for keyboard and screen reader users, and harder to reach with a pointer. Never put the only way to do something two levels down.
 - Give a `ContextMenu` target `tabIndex={0}` (or use a focusable element), so keyboard users can reach it and press Shift+F10, and say in its hint or a Tooltip that it has one. Leave the browser's own menu where people expect it, such as on text they edit or links: `disabled` does that.
-- For settings, use `MenuCheckboxItem` (on or off, such as "Show grid") or a `MenuRadioGroup` of `MenuRadioItem`s (one of a set, such as a sort order). Put them in their own `MenuGroup` or `MenuRadioGroup`, so the checks line up. The menu's items unmount while it's closed, so you hold the state: `checked` with `onCheckedChange`, and `value` with `onValueChange`.
+- For settings, use `MenuCheckboxItem` (on or off, such as "Show grid") or a `MenuRadioGroup` of `MenuRadioItem`s (one of a set, such as a sort order). Put them in their own `MenuGroup` or `MenuRadioGroup`, so the checks line up. The menu's items unmount once it has closed, so you hold the state: `checked` with `onCheckedChange`, and `value` with `onValueChange`.
 - `shortcut` only shows a hint: wire the shortcut yourself, and show only shortcuts that work. Write it the way the platform does ("⌘K" on a Mac, "Ctrl+K" elsewhere).
 
 ## Accessibility
@@ -66,6 +66,7 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 - `role="menu"` with `menuitem`s, `group`s and `separator`s; only the highlighted item takes focus.
 - A `MenuCheckboxItem` is a `menuitemcheckbox` and a `MenuRadioItem` a `menuitemradio`, with `aria-checked`. The check before the label is hidden from assistive tech, which reads `aria-checked` instead.
 - A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Hyphens separate too ("Cmd-K" is `Meta+K`), a last `+` is the key ("Ctrl++" is `Control+Plus`), and "G then I" is two presses in a row (`G I`). Pass `aria-keyshortcuts` to set it yourself.
+- It fades and grows in out of its trigger over 150ms, and fades and shrinks back over 100ms when it closes; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Its items stay while it fades out, inert, and focus goes back at once; a submenu open when the menu closes closes and fades with it. A `ContextMenu` and a `MenuSub`'s submenu move the same way. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing menu in the top layer yet, so there it closes at once.
 - Labels, shortcuts and group headings keep 4.5:1 (also on the highlighted item) and icons 3:1, in all six themes (`Menu.test.tsx`).
 
 ### Keyboard

@@ -63,8 +63,23 @@
 /* pill */
 @media (hover: hover) { .dk-tabs--pill .dk-tabs__tab:hover:not(:disabled):not([aria-selected="true"]) { background: var(--tabs-pill-bg-hover, var(--secondary)); } }
 .dk-tabs--pill .dk-tabs__tab:active:not(:disabled):not([aria-selected="true"]) { background: var(--tabs-pill-bg-pressed, var(--pressed)); }
-.dk-tabs--pill .dk-tabs__tab[aria-selected="true"] { background: var(--tabs-pill-bg-selected, var(--primary)); color: var(--tabs-pill-text-selected, var(--on-primary)); }
-.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]:focus-visible { box-shadow: inset 0 0 0 var(--focus-ring-width) var(--tabs-focus-ring, var(--focus-ring)), inset 0 0 0 var(--spacing-1) var(--tabs-focus-gap-color, var(--surface)); }
+/* The fill is a layer of its own under the label, so it can slide from the tab selected before (below). */
+.dk-tabs--pill .dk-tabs__tab { isolation: isolate; }
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"] { color: var(--tabs-pill-text-selected, var(--on-primary)); }
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { content: ""; position: absolute; inset: var(--spacing-0); z-index: calc(var(--z-0) - var(--z-10)); border-radius: inherit; background: var(--tabs-pill-bg-selected, var(--primary)); }
+.dk-tabs--pill .dk-tabs__tab[aria-selected="true"]:focus-visible::before { box-shadow: inset 0 0 0 var(--focus-ring-width) var(--tabs-focus-ring, var(--focus-ring)), inset 0 0 0 var(--spacing-1) var(--tabs-focus-gap-color, var(--surface)); }
+
+/* The selected tab's line or fill slides and stretches from where the last one was (EG1): TabList sets where that
+   was, and the new one starts there and moves into place. Reduced motion: it's there at once. */
+.dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after, .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before {
+  transform-origin: top left;
+  transition: translate var(--motion-change-md) var(--ease-move), scale var(--motion-change-md) var(--ease-move);
+}
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after, .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { translate: var(--dk-tabs-from-shift, none); scale: var(--dk-tabs-from-scale, none); }
+  }
+}
 
 .dk-tabs__panel { padding-top: var(--tabs-panel-gap, var(--spacing-4)); }
 
