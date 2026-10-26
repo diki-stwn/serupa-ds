@@ -17,6 +17,16 @@
     - /placeholder: mm/dd/yyyy
   - button "Choose dates"
 
+# Invalid
+- group "Dates":
+  - textbox "Start date" [invalid]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - textbox "End date" [invalid]:
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - button "Choose dates"
+
 # OneMonth
 - group "Dates":
   - textbox "Start date":
@@ -42,6 +52,16 @@
   - textbox "End date":
     - /placeholder: mm/dd/yyyy
   - button "Choose dates"
+
+# ReadOnly
+- group "Dates":
+  - textbox "Start date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/10/2025
+  - textbox "End date":
+    - /placeholder: mm/dd/yyyy
+    - text: 03/14/2025
+  - button "Choose dates" [disabled]
 
 # Sizes
 - group "sm":

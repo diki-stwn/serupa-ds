@@ -43,6 +43,9 @@
 .dk-select:focus-within { transition-duration: var(--duration-0); --dk-select-bd: var(--dk-select-ring); box-shadow: 0 0 0 var(--select-border-width, var(--border-width-1)) var(--dk-select-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-select--invalid { --dk-select-bd: var(--select-invalid, var(--danger)); --dk-select-ring: var(--select-invalid, var(--danger)); }
 @media (hover: hover) { .dk-select--invalid:hover:not(.dk-select--disabled, :has(.dk-select__field:disabled), :focus-within) { --dk-select-bd: var(--select-invalid, var(--danger)); } }
+/* A required select left on its empty option after people change it or try to send the form: as Input (:user-invalid). */
+.dk-select:has(.dk-select__field:user-invalid) { --dk-select-bd: var(--select-invalid, var(--danger)); --dk-select-ring: var(--select-invalid, var(--danger)); }
+@media (hover: hover) { .dk-select:has(.dk-select__field:user-invalid):hover:not(:focus-within) { --dk-select-bd: var(--select-invalid, var(--danger)); } }
 /* Disabled by the prop, or by a <fieldset disabled> around it (the native select follows that on its own). */
 .dk-select--disabled, .dk-select:where(:has(.dk-select__field:disabled)) { background: var(--select-bg-disabled, var(--surface-muted)); opacity: var(--opacity-disabled); }
 .dk-select--disabled .dk-select__field, .dk-select__field:where(:disabled) { cursor: not-allowed; }
