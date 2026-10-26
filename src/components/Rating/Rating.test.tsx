@@ -107,6 +107,19 @@ describe('Rating', () => {
     expect([group.getAttribute('aria-invalid'), document.getElementById(group.getAttribute('aria-describedby')!.split(' ')[0])!.textContent]).toEqual(['true', 'Pick again to clear.']);
   });
 
+  test('invalid shows on the stars: the empty ones take the danger color, 3:1 on the page in all six themes', async () => {
+    await render(<><Rating id="ok" aria-label="Fine" defaultValue={1} /><Rating id="bad" aria-label="Wrong" invalid defaultValue={1} /></>);
+    const empty = (id: string) => css(stars(id)[4].children[0]).color;
+    const low: string[] = [];
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      const r = contrast(empty('bad'), css(document.body).backgroundColor);
+      if (empty('bad') === empty('ok') || r < 3) low.push(`${th}: ${empty('bad')} ${r.toFixed(2)}`);
+    }
+    document.documentElement.removeAttribute('data-theme');
+    expect(low).toEqual([]);
+  });
+
   test('the filled and empty star colors are 3:1 on the page in all six themes; Indonesian names ("2,5 bintang", "4,5 dari 5")', async () => {
     await render(<Rating id="t" aria-label="Theme" defaultValue={1} />);
     const low: string[] = [];
