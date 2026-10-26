@@ -21,7 +21,6 @@ const KNOWN = Object.fromEntries(Object.entries({
   Navbar: ['Enter', 'Space'],
   NumberInput: ['PageDown'],
   PasswordInput: ['Tab', 'CapsLock'],
-  PhoneInput: ['ArrowUp', 'ArrowDown', 'Delete'],
   Popover: ['Space'],
   Radio: ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'Space'],
   Rating: ['ArrowDown', 'ArrowUp', 'Space'],
