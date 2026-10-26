@@ -35,7 +35,7 @@
   border: var(--radio-border-width, var(--border-width-1)) solid var(--dk-radio-bd);
   border-radius: var(--rounded-full);
   cursor: inherit;
-  transition: background-color var(--duration-150) var(--ease-in-out), border-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-press) var(--ease-move), border-color var(--motion-press) var(--ease-move);
 }
 @media (hover: hover) { .dk-radio:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-border-hover, var(--field-border-hover)); --dk-radio-fill: var(--radio-bg-checked-hover, var(--primary-hover)); } }
 .dk-radio__input:checked { background: var(--dk-radio-fill); border-color: var(--dk-radio-fill); }
