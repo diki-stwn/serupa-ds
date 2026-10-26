@@ -8,10 +8,11 @@ import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { named } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { onModalChange, topModal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
+import { en as ownWords } from "./labels";
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type ToasterPosition = 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
@@ -149,7 +150,7 @@ const ICONS: Record<ToastTone, IconData | null> = { neutral: null, info: icons.I
    moves focus to the newest toast, and F8 or Escape takes it back to where it was. */
 /** The place toast() messages appear: render one, once, near the root of the app. */
 export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: ToasterProps): React.ReactElement {
-  const sds = useSerupa();
+  const sds = useSettings(ownWords);
   const { position, label, dismissLabel, limit, duration, autoDismiss, className, ...rest } = props;
   // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
   const [list, setList] = React.useState<Item[]>([]);
@@ -339,7 +340,7 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     void Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => { if (on) onGone(t.id); });
     return () => { on = false; };
   }, [leaving]);
-  const sds = useSerupa();
+  const sds = useSettings(ownWords);
   const duration = props.time;   // 0 when it stays
   // Each reason to stop the time is kept apart, so leaving with the mouse doesn't restart it while focus is still inside.
   const [hovered, setHovered] = React.useState(false);
