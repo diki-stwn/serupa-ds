@@ -177,7 +177,7 @@ describe('Progress: done', () => {
     const r = await forcedColors((active) => {
       if (!active) return null;
       const ring = el('rg');
-      const track = css(ring.querySelector('.dk-progress__track')).stroke, arc = css(ring.querySelector('.dk-progress__arc')).stroke;
+      const [track, arc] = [...ring.querySelectorAll('circle')].map((c) => css(c).stroke);   // the track, then the arc
       return [track === css(el('gt')).color, arc === css(el('hl')).color, track !== css(el('ct')).color];
     });
     if (r) expect(r).toEqual([true, true, true]);
