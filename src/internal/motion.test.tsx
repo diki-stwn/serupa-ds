@@ -37,7 +37,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   },
   keyframes: Object.fromEntries([
     ['dk-dialog-in', 'Dialog'], ['dk-dialog-fade', 'Dialog'], ['dk-drawer-in', 'Drawer'], ['dk-drawer-fade', 'Drawer'], ['dk-menu-in', 'Menu'],
-    ['dk-popover-in', 'Popover'], ['dk-tooltip-in', 'Tooltip'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
+    ['dk-popover-in', 'Popover'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
   ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],

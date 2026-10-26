@@ -36,8 +36,8 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 
 - The swatches are one radio group: Tab reaches the picked swatch (or the first), the arrow keys move and pick (wrapping), and Home and End go to the ends.
 - A form reset puts the first color (`defaultValue`) back, in the swatches, the hex field and the submitted value.
-- The hex field picks the color as soon as six digits are typed, and a three-digit code (`f0a`) on Enter or blur. A code that isn't a color is marked invalid while typed and goes back to the picked color on blur. The `#` is optional.
-- The browser's color picker (the square before the field) picks any color too; when the picked color isn't a swatch, no swatch is checked.
+- The hex field picks the color as soon as six digits are typed, and a three-digit code (`f0a`) on Enter or blur. A code on its way to six digits isn't marked invalid; one that can't be a color (`1g`, seven digits) is marked at once, and a short one (`1d4e`) when Enter is pressed. A bad code goes back to the picked color on blur. The `#` is optional, and a pasted code is trimmed first, so ` #1d4ed8 ` copied with spaces works.
+- The browser's color picker (the square before the field) picks any color too; when the picked color isn't a swatch, no swatch is checked. With nothing picked, its square shows empty rather than black, and black chosen there is picked when it closes.
 - The contrast ratio is rounded down to one decimal, so 4.49 shows as 4.4 and never looks like a pass. It's written in the locale's numbers ("4,5:1" in Indonesian).
 
 ## Accessibility

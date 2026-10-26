@@ -87,6 +87,39 @@ describe('ColorPicker', () => {
     expect(hex().hasAttribute('aria-invalid')).toBe(false);
   });
 
+  test('the hex field (EY1): a code on its way to six digits isn\'t marked invalid until Enter, one that can\'t be a color is at once; a pasted code with spaces round it picks', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    for (const t of ['1', '1d', '1d4e', '1d4ed']) {
+      await userEvent.fill(hex(), t);
+      expect([t, hex().hasAttribute('aria-invalid')]).toEqual([t, false]);
+    }
+    await userEvent.keyboard('{Enter}');
+    expect(hex().getAttribute('aria-invalid')).toBe('true');
+    await userEvent.keyboard('{Backspace}');   // typing again clears it until the next Enter
+    expect(hex().hasAttribute('aria-invalid')).toBe(false);
+    await userEvent.fill(hex(), '1g');
+    expect(hex().getAttribute('aria-invalid')).toBe('true');
+    await userEvent.fill(hex(), '');
+    const data = new DataTransfer();
+    data.setData('text/plain', ' #7C3AED\n');
+    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+    await expect.poll(() => calls.at(-1)).toBe('#7c3aed');
+    expect([hex().value, hex().hasAttribute('aria-invalid')]).toEqual(['7C3AED', false]);
+  });
+
+  test('the browser\'s well (EY1): empty with nothing picked, and black chosen there is picked when it closes, though the well already held #000000', async () => {
+    const changes: string[] = [], commits: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} onValueChange={(v) => changes.push(v)} onValueCommit={(v) => commits.push(v)} />);
+    const native = document.querySelector('input[type="color"]') as HTMLInputElement;
+    expect([native.value, native.hasAttribute('data-empty')]).toEqual(['#000000', true]);
+    native.focus();
+    native.dispatchEvent(new Event('input', { bubbles: true }));   // a drag that ends on black: input, and no change
+    native.blur();
+    await expect.poll(() => commits).toEqual(['#000000']);
+    expect([changes, native.hasAttribute('data-empty')]).toEqual([['#000000'], false]);
+  });
+
   test('the browser\'s color input picks too, and is named', async () => {
     const calls: string[] = [];
     await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
