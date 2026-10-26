@@ -10,7 +10,7 @@
 .dk-list__item { position: relative; display: flex; align-items: center; gap: var(--list-gap, var(--spacing-3)); padding-inline-end: var(--dk-list-px); transition: background-color var(--motion-hover) var(--ease-move); }
 .dk-list__main {
   box-sizing: border-box; display: flex; align-items: center; gap: var(--list-gap, var(--spacing-3)); flex: auto; min-width: var(--spacing-0);
-  padding: var(--list-padding-y, var(--spacing-3)) var(--spacing-0) var(--list-padding-y, var(--spacing-3)) var(--dk-list-px);
+  padding-block: var(--list-padding-y, var(--spacing-3)); padding-inline: var(--dk-list-px) var(--spacing-0);
   border: var(--spacing-0); background: transparent; color: inherit; font: inherit; text-align: start; text-decoration: none;
 }
 .dk-list__item:not(:has(.dk-list__trailing)) .dk-list__main { margin-inline-end: calc(var(--spacing-0) - var(--dk-list-px)); padding-inline-end: var(--dk-list-px); }
