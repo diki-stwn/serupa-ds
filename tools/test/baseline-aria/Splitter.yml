@@ -2,6 +2,11 @@
 - separator "Sidebar"
 - text: Press Enter on the handle to bring the sidebar back.
 
+# LongText
+- text: Donaudampfschifffahrtsgesellschaftskapitänskajüte
+- separator "Folders"
+- text: Messages from every team, with long subjects that wrap over several lines
+
 # Playground
 - text: Folders
 - separator "Folders"

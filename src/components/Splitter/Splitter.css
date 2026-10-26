@@ -29,6 +29,7 @@
 .dk-splitter[data-placing] { cursor: col-resize; }
 .dk-splitter--vertical[data-placing] { cursor: row-resize; }
 .dk-splitter__handle:focus-visible, .dk-splitter__handle:active, .dk-splitter[data-placing] > .dk-splitter__handle { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); }
+.dk-splitter__pane:focus-visible { outline: var(--focus-ring-width) solid var(--splitter-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-splitter__handle:focus-visible { outline: var(--focus-ring-width) solid var(--splitter-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 @media (prefers-reduced-motion: reduce) { .dk-splitter__handle::before { transition: none; } }
 @media (forced-colors: active) {
