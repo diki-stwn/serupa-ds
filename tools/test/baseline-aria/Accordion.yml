@@ -21,6 +21,14 @@
   - button "Is there a warranty?"
 - text: Every product has a one-year warranty against defects.
 
+# LongText
+- heading "How long does shipping take to every region outside the European Union?" [level=3]:
+  - button "How long does shipping take to every region outside the European Union?" [expanded]
+- region "How long does shipping take to every region outside the European Union?": Orders ship within 2 business days. Donaudampfschifffahrtsgesellschaftskapitänskajüte customers get theirs within a week.
+- heading "Donaudampfschifffahrtsgesellschaftskapitänskajüte" [level=3]:
+  - button "Donaudampfschifffahrtsgesellschaftskapitänskajüte"
+- text: A title with no place to break.
+
 # Multiple
 - heading "How long does shipping take?" [level=3]:
   - button "How long does shipping take?" [expanded]

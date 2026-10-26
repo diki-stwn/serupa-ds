@@ -4,6 +4,18 @@
   - button "Move"
   - button "Delete"
 
+# Overflow
+- toolbar "Text formatting":
+  - group "Style":
+    - button "Bold" [pressed]
+    - button "Italic"
+    - button "Underline"
+  - separator
+  - button "Insert link"
+  - button "Insert image" [disabled]
+  - separator
+  - button "More"
+
 # Playground
 - toolbar "Text formatting":
   - group "Style":

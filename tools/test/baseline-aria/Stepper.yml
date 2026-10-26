@@ -8,6 +8,14 @@
 - button "Back" [disabled]
 - button "Next"
 
+# LongLabels
+- navigation "Progress":
+  - list:
+    - listitem: Account and sign-in details , completed Email address, password and two-step verification
+    - listitem: Donaudampfschifffahrtsgesellschaftskapitänskajüte Optional
+    - listitem: Billing Card or invoice
+    - listitem: Review everything and confirm
+
 # Narrow
 - navigation "Progress":
   - list:

@@ -33,3 +33,13 @@ export const Dots: Story = {
 };
 /** From 768px up, events take turns on either side of a centered line. */
 export const Alternate: Story = { args: { align: 'alternate' } };
+
+export const LongText: Story = {
+  args: {
+    children: <>
+      <TimelineItem title="Order placed for delivery to the warehouse on the far side of town" time="12 Mar, 09:14" dateTime="2026-03-12T09:14" status="primary" icon="shopping_cart">Two items, paid by card. Donaudampfschifffahrtsgesellschaftskapitänskajüte.</TimelineItem>
+      <TimelineItem title="Donaudampfschifffahrtsgesellschaftskapitänskajüte" time="13 Mar, 18:40" dateTime="2026-03-13T18:40" status="warning" icon="schedule" />
+    </>,
+  },
+  render: (args) => <div style={{ width: 240 }}><Timeline {...args} /></div>,
+};

@@ -83,3 +83,8 @@ export const InAFieldWithAnError: Story = {
   name: 'In a field, with an error',
   render: () => <Field label="Country" error="Pick the country on your passport." required><Combobox options={COUNTRIES} placeholder="Pick a country" /></Field>,
 };
+
+export const LongOptions: Story = {
+  args: { options: ['The Democratic Republic of São Tomé and Príncipe', 'Saint Vincent and the Grenadines', 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', ...COUNTRIES], defaultValue: 'The Democratic Republic of São Tomé and Príncipe' },
+  decorators: [(Story) => <div style={{ width: 200, minHeight: 'var(--spacing-80)' }}><Story /></div>],
+};

@@ -116,7 +116,7 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
 });
 
 /* AccordionItem: a heading holding a button (aria-expanded, aria-controls) and a region (aria-labelledby) that
-   opens and closes with a height animation; closed content is hidden from everyone, but find-in-page can still
+   opens at once and unfolds (a fade and a clip, on the compositor), and folds back before its height goes; closed content is hidden from everyone, but find-in-page can still
    find it (hidden="until-found"), which opens the item. */
 /** One item in an Accordion: a title button and the content it shows and hides. */
 export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, AccordionItemProps>("AccordionItem", function AccordionItem(props, ref) {
@@ -132,7 +132,7 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
   const H = ("h" + (ctx ? ctx.level : 3)) as "h3";
   // Closed content is hidden="until-found": hidden from everyone, but the browser's find-in-page still searches it,
   // and on a match fires beforematch, which opens the item. It's set once the closing animation ends, so the
-  // content stays visible while it shrinks. React renders any hidden value as hidden="", so it's set here.
+  // content stays visible while it folds away. React renders any hidden value as hidden="", so it's set here.
   const content = React.useRef<HTMLDivElement>(null);
   const toggle = React.useRef<(() => void) | null>(null);
   toggle.current = ctx && !open && !props.disabled ? () => ctx.toggle(value) : null;

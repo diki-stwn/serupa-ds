@@ -33,3 +33,8 @@ export const States: Story = {
     <Select aria-label="Disabled" disabled options={['Disabled']} />
   </div>,
 };
+
+export const LongOptions: Story = {
+  args: { options: ['The Democratic Republic of São Tomé and Príncipe', 'Saint Vincent and the Grenadines', 'Donaudampfschifffahrtsgesellschaftskapitänskajüte'], defaultValue: 'The Democratic Republic of São Tomé and Príncipe' },
+  decorators: [(Story) => <div style={{ width: 200 }}><Story /></div>],
+};
