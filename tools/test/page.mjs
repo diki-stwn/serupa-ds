@@ -120,6 +120,8 @@ for (const scheme of ['light', 'dark']) {
   const p = await b.newPage();
   const rows = '<p class="row" style="transition: background-color 150ms, color 150ms; background: var(--surface-muted); color: var(--text)">Row</p>'.repeat(20);
   await p.goto(writePage('theme-switch.html', rows, { theme: true, htmlAttrs: 'data-brand="blue" data-mode="light"', extraHead: '<link rel="stylesheet" href="../tokens.css">' }));
+  // theme.js applies the theme at load too, so wait for that switch's two frames before reading the rows.
+  await p.waitForFunction(() => !document.documentElement.hasAttribute('data-theme-switching'));
   const before = await p.evaluate(() => getComputedStyle(document.querySelector('.row')).transitionDuration);
   const r = await p.evaluate(async () => {
     Serupa.theme.set({ mode: 'dark' });
