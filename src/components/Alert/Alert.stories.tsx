@@ -39,3 +39,13 @@ export const Dismissible: Story = {
     return <Col>{show ? <Alert tone="success" onDismiss={() => setShow(false)}>Changes saved.</Alert> : <Button variant="secondary" onClick={() => setShow(true)}>Show again</Button>}</Col>;
   },
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 280 }}>
+      <Alert {...args} title="Your payment method was declined by the bank, so the renewal didn't go through" onDismiss={() => {}}>
+        We tried the card ending 4242 three times. Update it in Billing within 7 days to keep {"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} and every other workspace running.
+      </Alert>
+    </div>
+  ),
+};

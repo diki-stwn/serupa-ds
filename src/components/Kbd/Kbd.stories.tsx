@@ -19,3 +19,9 @@ export const NamedKeys: Story = {
     {['mod', 'ctrl', 'alt', 'shift', 'enter', 'backspace', 'tab', 'esc', 'space', 'up', 'down', 'left', 'right'].map((k) => <Kbd key={k} keys={[k]} />)}
   </div>,
 };
+
+export const LongKeys: Story = {
+  render: () => (
+    <p style={{ margin: 0, width: 200 }}>Press <Kbd keys={['mod', 'shift', 'alt', 'P']} /> to open every command, or <Kbd>Page Down</Kbd> to move on.</p>
+  ),
+};
