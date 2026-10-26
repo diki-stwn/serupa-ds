@@ -149,6 +149,10 @@ describe('Pagination', () => {
     await vi.waitFor(() => expect(shown('fit')).toBe('< … [10] … >'));
     await s.rerender(<Box w={600} />);
     await vi.waitFor(() => expect(shown('fit')).toBe('< 1 … 9 [10] 11 … 20 >'));
+    // A shrink and a grow back in the same frame, before any resize is reported, still end with the full row.
+    await s.rerender(<Box w={200} />);
+    await s.rerender(<Box w={600} />);
+    await vi.waitFor(() => expect(shown('fit')).toBe('< 1 … 9 [10] 11 … 20 >'));
   });
 
   test('right to left: the arrows point the other way', async () => {

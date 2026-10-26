@@ -66,21 +66,27 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   const [cut, setCut] = React.useState(0);
   const most = siblings + boundaries, list = React.useRef<HTMLUListElement | null>(null);
   const over = () => { const l = list.current; return !!l && l.scrollWidth > l.clientWidth + 1; };
+  // The box's width when the last cut was made: once it's wider than that, the cuts start over. A width is kept
+  // rather than trusting each resize to be seen, since a shrink and a grow back can land in one frame.
+  const cutAt = React.useRef(0);
   // A new page or count may need fewer cuts (60 → 9 is narrower): start over, and the next effect cuts again if needed.
   useIsoLayoutEffect(function () { setCut(0); }, [page, count]);
-  // every render: any change (page, count, labels, the locale's digits) can widen the row, so it is measured each time.
-  useIsoLayoutEffect(function () { if (cut < most && over()) setCut(cut + 1); });
+  // every render: any change (page, count, labels, the locale's digits, the box) can change the room, so it is measured each time.
+  useIsoLayoutEffect(function () {
+    const l = list.current;
+    if (!l) return;
+    if (cut > 0 && l.clientWidth > cutAt.current + 1) setCut(0);
+    else if (cut < most && over()) { cutAt.current = l.clientWidth; setCut(cut + 1); }
+  });
+  // A box that resizes without a render (a window or a panel) renders again, and the effect above measures.
+  const [, remeasure] = React.useReducer((n: number) => n + 1, 0);
   useIsoLayoutEffect(function () {
     const l = list.current;
     if (!l || typeof ResizeObserver === "undefined") return;
-    let width = l.clientWidth;
-    const ro = new ResizeObserver(function () {
-      if (l.clientWidth > width) setCut(0); else if (over()) setCut((c) => Math.min(c + 1, most));
-      width = l.clientWidth;
-    });
+    const ro = new ResizeObserver(remeasure);
     ro.observe(l);
     return () => ro.disconnect();
-  }, [most]);
+  }, []);
   // An arrow that takes you to the first or last page turns disabled under focus (FJ1): focus goes to the other one.
   const handover = useFocusHandover();
   const go = (n: number, e: React.MouseEvent) => {
