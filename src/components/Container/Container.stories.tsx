@@ -35,3 +35,7 @@ export const NotPadded: Story = {
   name: 'No side padding',
   args: { size: 'md', padded: false, children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text">padded={'{false}'}: no padding at the sides, for content that brings its own.</div> },
 };
+
+export const LongText: Story = {
+  args: { size: 'prose', children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text">A long paragraph keeps to the container's width and wraps, and an unbroken word like DonaudampfschifffahrtsgesellschaftskapitänskajüteDonaudampfschifffahrtsgesellschaftskapitänskajüte breaks rather than pushing the page sideways.</div> },
+};

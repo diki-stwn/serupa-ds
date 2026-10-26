@@ -53,3 +53,8 @@ export const Skeleton: Story = {
     </div>
   </div>,
 };
+
+export const LongLabel: Story = {
+  args: { variant: 'text', label: 'Loading every report for the last twelve months' },
+  render: (args) => <div style={{ width: 160 }}><Loader {...args} /></div>,
+};

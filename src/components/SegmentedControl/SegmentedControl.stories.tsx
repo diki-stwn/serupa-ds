@@ -19,3 +19,7 @@ export const IconOnly: Story = { args: { 'aria-label': 'Text alignment', size: '
 export const FullWidth: Story = { args: { fullWidth: true }, decorators: [(Story) => <div style={{ maxWidth: 'var(--container-sm)' }}><Story /></div>] };
 export const ReadOnly: Story = { args: { readOnly: true } };
 export const Invalid: Story = { render: (args) => <Field label="Period" required error="Pick the period to report on"><SegmentedControl {...args} /></Field> };
+export const LongLabels: Story = {
+  args: { 'aria-label': 'Report', defaultValue: 'long', options: [{ value: 'long', label: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte' }, { value: 'wrap', label: 'Quarterly revenue by region and product line' }, { value: 'short', label: 'Day' }] },
+  decorators: [(Story) => <div style={{ maxWidth: '16rem' }}><Story /></div>],
+};

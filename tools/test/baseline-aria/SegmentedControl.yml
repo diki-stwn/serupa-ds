@@ -18,6 +18,12 @@
   - radio "Month"
 - text: Pick the period to report on
 
+# LongLabels
+- radiogroup "Report":
+  - radio "Donaudampfschifffahrtsgesellschaftskapitänskajüte" [checked]
+  - radio "Quarterly revenue by region and product line"
+  - radio "Day"
+
 # Playground
 - radiogroup "Period":
   - radio "Day"
