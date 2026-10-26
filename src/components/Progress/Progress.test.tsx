@@ -143,5 +143,18 @@ describe('Progress: done', () => {
     expect([[...new Set(said)], dones]).toEqual([['Upload: complete', 'All files uploaded'], [100, 100]]);
     expect([idLabels.progressComplete('Unggah'), idLabels.progressComplete('')]).toEqual(['Unggah: selesai', 'Selesai']);
   });
-});
 
+  test('reduced motion: the indeterminate circle stands still and breathes (opacity, 2s), as Loader\'s ring does (EE1)', async () => {
+    await render(<Progress id="crm" variant="circle" aria-label="Loading" />);
+    const ring = el('crm').querySelector('svg') as SVGElement;
+    const rules = [...document.styleSheets].flatMap((sh) => { try { return [...sh.cssRules]; } catch { return []; } });
+    const flat = (rs: CSSRule[]): CSSRule[] => rs.flatMap((r) => (r instanceof CSSGroupingRule ? [r, ...flat([...r.cssRules])] : [r]));
+    const rm = flat(rules).filter((r): r is CSSMediaRule => r instanceof CSSMediaRule && /prefers-reduced-motion:\s*reduce/.test(r.conditionText) && /dk-progress/.test(r.cssText));
+    const was = rm.map((r) => r.media.mediaText);
+    rm.forEach((r) => { r.media.mediaText = '(min-width: 0px)'; });
+    try {
+      expect(withMotion(() => { const s = css(ring); return `${s.animationName} ${s.animationDuration}`; })).toBe('dk-progress-breathe 2s');
+    } finally { rm.forEach((r, i) => { r.media.mediaText = was[i]; }); }
+  });
+
+});

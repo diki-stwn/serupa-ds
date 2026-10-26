@@ -28,25 +28,18 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 // a pull request's included, fails when the breach is gone and the line is still here).
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
-    'dk-segmented__indicator': ['EG1: the indicator slides by left and width', ['SegmentedControl']],
     'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
     'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
     'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
   },
   'paint loop': {
-    'dk-loader-arc': ['EE1: stroke-dasharray', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
   keyframes: {},
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],
   },
-  'reduced motion': {
-    spin: ['EE1: spinners keep turning, slower', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
-    'dk-loader-tick': ['EE1: the spokes keep ticking', ['Loader']],
-    'dk-btn-loader-in': ['EE1: scales in', ['Button', 'IconButton', 'Fab']],
-    'dk-badge-loader-in': ['EE1: scales in', ['Badge']],
-  },
+  'reduced motion': {},
   origin: {},
   'will-change': {},
 };

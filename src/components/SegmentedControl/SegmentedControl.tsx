@@ -90,6 +90,22 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     setBox({ x: b.offsetLeft, w: b.offsetWidth });
   }, [value]);
   useIsoLayoutEffect(measure, [measure, options.length, size, props.fullWidth]);
+  // A new choice slides the indicator from the last one (CSS above it, EG1): it's already at the new segment by left and
+  // width, so it starts back where it was on translate and scale with no transition, then lets go of both.
+  const indicator = React.useRef<HTMLSpanElement | null>(null);
+  const last = React.useRef<{ x: number; w: number; v: string | undefined } | null>(null);
+  useIsoLayoutEffect(() => {
+    const was = last.current, el = indicator.current;
+    last.current = box ? { ...box, v: value } : null;
+    if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w)) return;
+    el.setAttribute("data-flip", "");
+    el.style.translate = was.x - box.x + "px 0";
+    el.style.scale = was.w / box.w + " 1";
+    void el.offsetWidth;
+    el.removeAttribute("data-flip");
+    el.style.translate = "";
+    el.style.scale = "";
+  }, [box]);
   React.useEffect(() => {
     const r = root.current;
     if (!r || typeof ResizeObserver === "undefined") return;
@@ -132,7 +148,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
       aria-labelledby={props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel)}
       className={cn("dk-segmented", "dk-segmented--size-" + size, props.fullWidth && "dk-segmented--full", disabled && "dk-segmented--disabled", invalid && "dk-segmented--invalid", readOnly && "dk-segmented--readonly", props.className)}
       data-component="segmented-control" data-size={size} onKeyDown={undefined} onFocus={onFocus} onBlur={onBlur}>
-      {box ? <span className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
+      {box ? <span ref={indicator} className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
       {options.map((o) => {
         const on = o.value === value, off = disabled || !!o.disabled;
         const icon = asIcon(o.icon);

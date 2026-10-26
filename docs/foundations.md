@@ -783,7 +783,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-change-sm` | `duration-150` | A small part changing in place: a chevron turning, a slider thumb growing, a row gliding to its place. |
 | `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl, Tabs. |
 | `motion-change-lg` | `duration-300` | Something travelling far: a progress or meter fill moving to its value, a carousel slide. |
-| `motion-loop-spinner` | `duration-1000` | One turn of a spinner: Button, Switch and the circular Progress while they load. |
+| `motion-loop-spinner` | `duration-1000` | One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this. |
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
@@ -808,7 +808,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 
 **Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too.
 
-**Reduced motion.** When the viewer prefers reduced motion (`prefers-reduced-motion: reduce`), surfaces appear and leave with a fade or not at all, with no sliding or scaling. Loops slow down (`animate-spin-reduced` turns three times slower) or stop. Progress still shows, because a spinner that stops completely reads as stuck. `bundle.css` stops `ping`, `pulse` and `bounce` and slows `spin`. Every component's own animations do the same, and yours should too.
+**Reduced motion.** When the viewer prefers reduced motion (`prefers-reduced-motion: reduce`), surfaces appear and leave with a fade or not at all, with no sliding or scaling. Loops stop moving: the components' spinners stand still and breathe (opacity) over twice `motion-loop-spinner`, so progress still shows, because a spinner that stops completely reads as stuck; the `animate-spin` utility turns three times slower (`animate-spin-reduced`). `bundle.css` stops `ping`, `pulse` and `bounce` and slows `spin`. Every component's own animations do the same, and yours should too.
 
 **Scales.** These are what the roles point at, and what utility classes use.
 
