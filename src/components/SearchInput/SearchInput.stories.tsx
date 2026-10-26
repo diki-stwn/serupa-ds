@@ -26,3 +26,11 @@ export const Filtering: Story = {
     </div>;
   },
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <SearchInput {...args} defaultValue={"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} />
+    </div>
+  ),
+};

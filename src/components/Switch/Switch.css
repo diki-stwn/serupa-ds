@@ -38,9 +38,13 @@
   width: var(--dk-switch-thumb); height: var(--dk-switch-thumb); margin-block: auto;
   border-radius: var(--rounded-full); background: var(--switch-thumb, var(--field));
   pointer-events: none;
-  transition: inset-inline-start var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-press) var(--ease-settle);
+  transition: translate var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-press) var(--ease-settle);
 }
-.dk-switch__input:checked + .dk-switch__thumb { inset-inline-start: calc(var(--dk-switch-w) - var(--dk-switch-thumb) - var(--dk-switch-pad)); background: var(--switch-thumb-checked, var(--on-primary)); }
+.dk-switch__input:checked + .dk-switch__thumb { background: var(--switch-thumb-checked, var(--on-primary)); }
+/* On, the thumb moves to the end by translate, which the compositor runs without laying out the row each frame
+   (EG1); right to left, the end is on the left. */
+.dk-switch__input:checked + .dk-switch__thumb { translate: calc(var(--dk-switch-w) - var(--dk-switch-thumb) - var(--dk-switch-pad) - var(--dk-switch-pad)) var(--spacing-0); }
+.dk-switch__input:checked + .dk-switch__thumb:dir(rtl) { translate: calc(var(--dk-switch-thumb) + var(--dk-switch-pad) + var(--dk-switch-pad) - var(--dk-switch-w)) var(--spacing-0); }
 /* Focus: the 2px focus-ring outline, 2px out, like Button. The gap is transparent, so it works on tinted backgrounds. */
 .dk-switch__input:focus-visible {
   outline: var(--focus-ring-width) solid var(--dk-switch-ring); outline-offset: var(--focus-ring-offset);

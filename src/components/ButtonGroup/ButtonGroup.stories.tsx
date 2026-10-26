@@ -34,3 +34,15 @@ export const Narrow: Story = {
   args: { 'aria-label': 'Format', children: ['Bold', 'Italic', 'Underline', 'Strike', 'Code', 'Link'].map((t) => <Button key={t} variant="outline">{t}</Button>) },
   decorators: [(Story) => <div style={{ width: '288px' }}><Story /></div>],
 };
+
+export const LongLabels: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <ButtonGroup {...args}>
+        <Button variant="outline">Copy every selected row</Button>
+        <Button variant="outline">Cut</Button>
+        <Button variant="outline">{"Donaudampfschifffahrtsgesellschaft"}</Button>
+      </ButtonGroup>
+    </div>
+  ),
+};

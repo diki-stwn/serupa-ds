@@ -28,3 +28,11 @@ export const Neutral: Story = {
 export const UnderlineOnHover: Story = {
   render: () => <nav aria-label="Footer"><ul className="flex gap-4 text-sm">{['Pricing', 'Docs', 'Blog'].map((l) => <li key={l}><Link href="#" underline="hover">{l}</Link></li>)}</ul></nav>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <Text>Read <Link {...args}>the complete guide to setting up single sign-on for your organisation</Link> first, or <Link {...args} href="https://example.com" external>{"Donaudampfschifffahrtsgesellschaft"}</Link>.</Text>
+    </div>
+  ),
+};

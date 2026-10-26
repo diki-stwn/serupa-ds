@@ -39,3 +39,12 @@ export const WithName: Story = {
   name: 'Next to a name',
   render: () => <div className="flex items-center gap-2 text-sm"><Avatar src={PHOTO} name="Ada Lovelace" alt="" size="sm" />Ada Lovelace</div>,
 };
+
+export const LongName: Story = {
+  render: (args) => (
+    <div style={{ display: 'flex', gap: 8 }}>
+      <Avatar {...args} name="Maria Magdalena Wilhelmina von Hohenzollern-Sigmaringen" />
+      <Avatar {...args} name={"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} />
+    </div>
+  ),
+};

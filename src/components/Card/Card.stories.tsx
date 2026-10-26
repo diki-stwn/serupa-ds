@@ -71,3 +71,16 @@ export const FooterLayouts: Story = {
     <Card><CardBody>Step 2 of 3</CardBody><CardFooter justify="between"><Button variant="ghost">Back</Button><div className="flex gap-2"><Button variant="secondary">Skip</Button><Button>Next</Button></div></CardFooter></Card>
   </div>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <Card {...args} style={{ maxWidth: 280 }}>
+      <CardHeader title="Enterprise plan for the whole organisation, billed yearly" description={"Donaudampfschifffahrtsgesellschaftskapitänskajüte"} action={<Badge tone="warning">Renewing soon</Badge>} />
+      <CardBody>Renews on 1 March. You're using 96 of 100 seats across 14 teams, and 3 invitations are still waiting for an answer.</CardBody>
+      <CardFooter>
+        <Button variant="secondary">Manage every seat</Button>
+        <Button>Upgrade the plan</Button>
+      </CardFooter>
+    </Card>
+  ),
+};
