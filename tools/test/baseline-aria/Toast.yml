@@ -19,6 +19,15 @@
       - paragraph: Network error , 3 times
       - button "Dismiss"
 
+# LongText
+- region "Notifications":
+  - list:
+    - listitem "Your export of every project, task and comment from the last year is ready":
+      - paragraph: Your export of every project, task and comment from the last year is ready
+      - paragraph: Download it within 7 days from Settings. Donaudampfschifffahrtsgesellschaftskapitänskajüte.
+      - button "Download the export"
+      - button "Dismiss"
+
 # Playground
 - region "Notifications":
   - list

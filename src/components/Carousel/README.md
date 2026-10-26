@@ -69,7 +69,7 @@ import { Carousel, Image } from "serupa-ds";
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<section>`. |
 | `children` | `ReactNode` | | One slide per child. |
-| `label` | `string` | | Required. What the carousel shows; it names the region. |
+| `label` | `string` | | What the carousel shows; it names the region. Required unless you give `aria-label`, or `aria-labelledby` pointing at a visible heading. |
 | `index` | `number` | | The slide shown (from 0), when you control it. |
 | `defaultIndex` | `number` | `0` | The first slide shown when you don't. |
 | `onIndexChange` | `(index) => void` | | Called with the new slide's index. |

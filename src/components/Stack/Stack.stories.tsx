@@ -50,3 +50,8 @@ export const Align: Story = {
     </Stack>
   ))}</Stack>,
 };
+
+export const Overflow: Story = {
+  args: { direction: 'row', wrap: true, gap: 2, children: [<Box key="1">Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="2">A box with a long label</Box>, <Box key="3">Three</Box>, <Box key="4">Four</Box>] },
+  render: (args) => <div style={{ width: 240 }}><Stack {...args} /></div>,
+};

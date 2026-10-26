@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, keepMotion } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
+import { resetWarnings } from '../../internal/warn';
 import { SerupaProvider } from '../../internal/provider';
 import { Carousel } from './Carousel';
 
@@ -113,6 +114,22 @@ describe('Carousel', () => {
     expect(ref.current).toBe(c);
     expect(c.className).toMatch(/extra/);
     expect(Math.round(s.getBoundingClientRect().width)).toBe(Math.round(c.getBoundingClientRect().width));
+  });
+
+  test('named by aria-label or aria-labelledby instead of label (FP1): the region keeps that name, with no missing-name warning', async () => {
+    resetWarnings();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await render(<>
+        <Carousel id="al" aria-label="Featured"><div>A</div><div>B</div></Carousel>
+        <h2 id="hd">New arrivals</h2>
+        <Carousel id="lb" aria-labelledby="hd"><div>A</div><div>B</div></Carousel>
+      </>);
+      await expect.element(page.getByRole('region', { name: 'Featured' })).toBeInTheDocument();
+      await expect.element(page.getByRole('region', { name: 'New arrivals' })).toBeInTheDocument();
+      expect([el('al').getAttribute('aria-label'), el('lb').hasAttribute('aria-label')]).toEqual(['Featured', false]);
+      expect(warn.mock.calls.filter((c) => String(c[0]).includes('Carousel has no accessible name'))).toEqual([]);
+    } finally { warn.mockRestore(); }
   });
 
   test('starts on the first slide: only it is shown and reachable (the rest inert and hidden), its dot is current and the only one in the Tab order; previous is hidden, not just greyed', async () => {
@@ -258,7 +275,23 @@ describe('Carousel', () => {
     await render(<App />);
     expect([getComputedStyle(q('#tok .dk-carousel__dot[aria-current="true"]'), '::before').backgroundColor, getComputedStyle(q('#tok .dk-carousel__viewport')).borderTopLeftRadius]).toEqual(['rgb(1, 2, 3)', '3px']);
     const d = q('#car .dk-carousel__dot:not([aria-current])'), r = d.getBoundingClientRect(), a = getComputedStyle(d, '::before'), cur = getComputedStyle(q('#car .dk-carousel__dot[aria-current="true"]'), '::before');
-    expect([Math.round(r.width), Math.round(r.height), a.width, a.height, cur.width]).toEqual([24, 24, '8px', '8px', '24px']);
+    // Each dot is drawn 24px wide and clipped 8px in from both sides to an 8px circle; the current one isn't clipped.
+    const cr = q('#car button[aria-current="true"]').getBoundingClientRect();
+    expect([Math.round(r.width), Math.round(r.height), Math.round(cr.width), a.width, a.height, a.clipPath, cur.width, cur.clipPath]).toEqual([24, 24, 24, '24px', '8px', 'inset(0px 8px round 9999px)', '24px', 'inset(0px round 9999px)']);
+  });
+
+  test('the dot that becomes current widens by letting its clip go, on the compositor, and its neighbours stay where they are (FB1)', async () => {
+    await render(<App />);
+    const left = () => [...el('car').querySelectorAll<HTMLElement>('button[aria-label$=" of 4"]')].map((d) => Math.round(d.getBoundingClientRect().left));
+    const before = left();
+    motion();
+    try {
+      await userEvent.click(dot('car', 2));
+      const moves = dot('car', 2).getAnimations({ subtree: true }).filter((x): x is CSSTransition => x instanceof CSSTransition && (x.effect as KeyframeEffect).pseudoElement === '::before');
+      expect(moves.map((x) => x.transitionProperty)).toEqual(['clip-path']);
+      await Promise.all(moves.map((x) => x.finished));
+    } finally { motion = emulate(REDUCE, NO_PREF); }
+    expect(left()).toEqual(before);
   });
 
   test('contrast: the dots and the button icons keep 3:1 in all six themes', async () => {

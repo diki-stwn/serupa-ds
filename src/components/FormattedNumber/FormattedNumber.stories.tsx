@@ -31,3 +31,11 @@ export const Locales: Story = {
     {['en-US', 'id-ID', 'de-DE', 'fr-FR', 'ar-EG', 'hi-IN'].map((l) => <li key={l} style={row}><span>{l}</span><FormattedNumber value={1234567.89} locale={l} /></li>)}
   </ul>,
 };
+
+export const LongValue: Story = {
+  render: () => (
+    <p style={{ margin: 0, width: 120 }}>
+      Total: <FormattedNumber value={123456789012345.67} format="currency" currency="IDR" /> this year.
+    </p>
+  ),
+};
