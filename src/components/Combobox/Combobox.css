@@ -29,15 +29,31 @@
   color: var(--combobox-option-color, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
 }
 .dk-combobox__popup[hidden] { display: none; }
-/* Entry (EF1): the list fades in and grows from the edge facing the field, as Menu and Popover do, in motion-enter-sm.
-   A transition from @starting-style rather than keyframes, so a list closed mid-way never restarts from the top.
-   Reduced motion: the fade alone. */
-.dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+/* Motion (EF1, GK1): the list fades in and grows from the edge facing the field, as Menu and Popover do, in
+   motion-enter-sm, and fades and shrinks back out over motion-exit-sm. Transitions from @starting-style rather than
+   keyframes, so a list closed mid-way turns back from where it is. On close it's kept shown and in the top layer
+   (display and overlay, allow-discrete) until it has faded, inert meanwhile (its options stay, Combobox.tsx); a
+   browser that can't keep it in the top layer (no overlay) closes it at once. Reduced motion: the fade alone. */
+.dk-combobox__popup { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit); }
+.dk-combobox__popup:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-combobox__popup[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-combobox__popup[hidden] { opacity: var(--opacity-0); pointer-events: none; }
 .dk-combobox__popup[data-side="bottom"] { transform-origin: top; }
 .dk-combobox__popup[data-side="top"] { transform-origin: bottom; }
 @starting-style { .dk-combobox__popup:not([hidden]) { opacity: var(--opacity-0); } }
-@media (prefers-reduced-motion: no-preference) { @starting-style { .dk-combobox__popup:not([hidden]) { scale: var(--scale-95); } } }
-@media (prefers-reduced-motion: reduce) { .dk-combobox__popup { transition: opacity var(--motion-enter-sm) var(--ease-enter); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-combobox__popup[hidden] { scale: var(--scale-95); }
+  @starting-style { .dk-combobox__popup:not([hidden]) { scale: var(--scale-95); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dk-combobox__popup { transition: opacity var(--motion-exit-sm) var(--ease-exit); }
+  .dk-combobox__popup:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter); }
+  @supports (overlay: auto) {
+    .dk-combobox__popup[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+  }
+}
 .dk-combobox__option {
   display: flex; align-items: center; gap: var(--spacing-2); box-sizing: border-box; min-height: var(--combobox-option-height, var(--control-height-md));
   padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2));

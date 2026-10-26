@@ -71,16 +71,32 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   // The column's width changes once, not on every frame (EA1): expanding widens it at the start, collapsing narrows
   // it at the end, and in between a clip-path (with a line for the edge) slides, which the compositor runs alone.
   // shown is the layout (rail or full); slide is the clip: "rail" or "full" while it moves, "" at rest.
-  const [shown, setShown] = React.useState(collapsed);
+  const [shown, setShownNow] = React.useState(collapsed);
   const [slide, setSlide] = React.useState<"" | "rail" | "full">("");
   const nav = React.useRef<HTMLElement | null>(null);
+  // Switching between the rail and the full list re-renders the items (a group's nested list becomes a Menu, a
+  // link gets its tooltip), so the focused one goes away and focus would fall to <body>. The top-level item it was
+  // in is kept, and focus goes to that item's link or button once the switch has rendered (GM3).
+  const keep = React.useRef<Element | null>(null);
+  const setShown = React.useCallback((v: boolean) => {
+    const n = nav.current, a = document.activeElement;
+    let li = n && a && n.contains(a) ? a.closest(".dk-sidebar__li") : null;
+    for (let up = li && li.parentElement ? li.parentElement.closest(".dk-sidebar__li") : null; up && n && n.contains(up); up = up.parentElement ? up.parentElement.closest(".dk-sidebar__li") : null) li = up;
+    keep.current = li;
+    setShownNow(v);
+  }, []);
+  useIsoLayoutEffect(() => {
+    const li = keep.current, n = nav.current;
+    keep.current = null;
+    if (li && li.isConnected && n && !n.contains(document.activeElement)) { const to = li.querySelector<HTMLElement>("a[href], button"); if (to) to.focus(); }
+  }, [shown]);
   const want = React.useRef(collapsed);
   const timer = React.useRef<{ raf?: number; end?: ReturnType<typeof setTimeout> }>({});
   const settle = React.useCallback(() => {
     clearTimeout(timer.current.end);
     if (want.current) setShown(true);
     setSlide("");
-  }, []);
+  }, [setShown]);
   useIsoLayoutEffect(() => {
     if (want.current === collapsed) return;
     want.current = collapsed;

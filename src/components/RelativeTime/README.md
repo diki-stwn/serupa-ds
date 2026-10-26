@@ -25,7 +25,8 @@ import { RelativeTime } from "serupa-ds";
 
 - Pass `date` as a `Date`, a timestamp in ms or an ISO string. Strings without a time zone (`"2026-10-24 09:30"`) are read in the browser's time zone, so prefer ISO strings with `Z` or an offset.
 - The words follow the locale from `SerupaProvider` (or the `locale` prop, or the browser's): "3 menit yang lalu" in Indonesian, "٣ ساعات" digits in Egyptian Arabic. `relativeTime(date, now, locale)` gives the same words outside React.
-- Use `numeric="always"` where "yesterday" could be misread across midnight, such as in logs.
+- Use `numeric="always"` where elapsed time matters more than the calendar, such as in logs.
+- An invalid `date` shows nothing; in development it warns once in the console.
 
 ## Behavior
 
@@ -47,7 +48,7 @@ import { RelativeTime } from "serupa-ds";
 | `id` | string | none | Goes to the root `<time>`. |
 | `date` | `Date \| number \| string` | | The moment. An invalid date renders an empty `<time>`. |
 | `format` | `'long' \| 'short' \| 'narrow'` | `'long'` | "3 minutes ago", "3 min. ago", "3m ago". |
-| `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". |
+| `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". With `'auto'`, days, months and years are counted on the reader's calendar: 01:00 seen at 23:00 the same day is "22 hours ago", and the 1st seen on the 27th is "26 days ago", not "last month". `'always'` counts elapsed time. |
 | `titleFormat` | `Intl.DateTimeFormatOptions \| false` | `{ dateStyle: 'long', timeStyle: 'short' }` | The tooltip's date; `false` leaves it out. Your own `title` wins. |
 | `locale` | `string` | the provider's, else the browser's | When it differs from the provider's, the element carries `lang`, so screen readers read the words in that language. |
 Every other prop, `className` and `ref` go to the `<time>`, which has `data-component="relative-time"`.

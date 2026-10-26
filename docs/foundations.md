@@ -790,7 +790,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
 | `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
-| `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. |
+| `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
 | `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
 | `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |
@@ -824,7 +824,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 
 **Layout changes.** When things move to a new place (a list reordered or filtered, a card expanded, a grid switched to a list), let them glide there instead of jumping: run the change inside `withViewTransition(() => …)` and mark what should travel with `view-transition-name`, or the `view-transition-match` class, which names each element after itself. The browser does the measuring (FLIP), off the main thread, over `motion-change-md` with `ease-move` (set for every View Transition in `base.css`). Under reduced motion nothing travels; the old and new states crossfade. Where View Transitions are missing the change just happens. `view-transition-none` keeps an element out of it.
 
-**Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too.
+**Performance.** Animate `opacity`, `transform`, `translate`, `scale` and `rotate`, which the compositor runs without laying the page out again. Animate colors only on small controls. Never animate `width`, `height`, `top`, `left`, margins or padding, and avoid `transition-all`, which animates them too. The one exception is a disclosure panel's height (Accordion), where a jump of everything below reads as a glitch: one panel, only while it moves, never under reduced motion.
 
 **Reduced motion.** When the viewer prefers reduced motion (`prefers-reduced-motion: reduce`), surfaces appear and leave with a fade or not at all, with no sliding or scaling. Loops stop moving: the components' spinners stand still and breathe (opacity) over twice `motion-loop-spinner`, so progress still shows, because a spinner that stops completely reads as stuck; the `animate-spin` utility turns three times slower (`animate-spin-reduced`). `bundle.css` stops `ping`, `pulse` and `bounce`, slows `spin`, turns `animate-enter` into a plain fade and drops the `stagger` delays. Every component's own animations do the same, and yours should too.
 

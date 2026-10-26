@@ -13,6 +13,7 @@ permissions: {}
 jobs:
   merge:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - run: |
           pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head changeset-release/main --state open --json number --jq '.[0].number')

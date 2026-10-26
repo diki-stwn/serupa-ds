@@ -22,6 +22,7 @@ jobs:
   changeset:
     name: changeset
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     # The Release pull request is the one that removes the changesets.
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-changeset') && !startsWith(github.head_ref, 'changeset-release/') }}
     steps:
