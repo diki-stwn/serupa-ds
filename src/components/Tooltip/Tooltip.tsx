@@ -27,7 +27,9 @@ export interface TooltipProps {
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Never shows it, for example while the element is disabled. */
   disabled?: boolean;
+  /** Classes on the tooltip. */
   className?: string;
+  /** Styles on the tooltip. */
   style?: React.CSSProperties;
 }
 

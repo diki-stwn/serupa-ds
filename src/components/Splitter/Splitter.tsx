@@ -20,6 +20,7 @@ export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onSizeChange?: (size: number) => void;
   /** The first pane's least and largest size, in percent. Default: 10 and 90. */
   min?: number;
+  /** The first pane's largest size, in percent. Default: 90. */
   max?: number;
   /** How far an arrow key moves the handle, in percent. Default: 5. */
   step?: number;
