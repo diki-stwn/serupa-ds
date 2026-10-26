@@ -12,7 +12,7 @@
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: var(--search-input-clear-padding, var(--spacing-1));
   border: var(--spacing-0); border-radius: var(--search-input-clear-radius, var(--rounded-sm)); background: transparent;
   color: var(--search-input-clear, var(--text-muted)); cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
 .dk-search-input__clear .dk-icon { font-size: var(--dk-input-icon); }
 @media (hover: hover) { .dk-search-input__clear:hover { background: var(--search-input-clear-bg-hover, var(--secondary)); color: var(--search-input-clear-hover, var(--text)); } }

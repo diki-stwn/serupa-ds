@@ -318,13 +318,13 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-press-scale` | `scale-97` | Size while pressed (97%). 1 turns press feedback off. |
-| `--button-press-duration` | `duration-100` | How fast the press scales down and back (100ms). |
+| `--button-press-duration` | `motion-press` | How fast the press scales down and back (100ms). |
 | `--button-icon-nudge` | `spacing-0` | How far a right icon slides on hover. Off by default (0); set it to `var(--spacing-0\.5)` (2px) where right icons are forward arrows. |
-| `--button-icon-nudge-duration` | `duration-150` | How fast the right icon slides (150ms). |
-| `--button-loading-duration` | `duration-150` | Cross-fade between the content and the loading spinner (150ms). |
+| `--button-icon-nudge-duration` | `motion-change-sm` | How fast the right icon slides (150ms). |
+| `--button-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading spinner (150ms). |
 | `--button-ripple-opacity` | `opacity-20` | Strength of the ripple from the press point, in the text color (20%). 0 turns the ripple off. |
-| `--button-ripple-duration` | `duration-500` | How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave. |
-| `--button-ripple-fade-duration` | `duration-300` | How long the ripple takes to fade after release (300ms). |
+| `--button-ripple-duration` | `motion-ripple` | How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave. |
+| `--button-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms). |
 
 ### All tokens Button reads
 

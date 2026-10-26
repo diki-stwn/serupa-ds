@@ -90,7 +90,7 @@
   padding: var(--spacing-0); border: 0; background: transparent; color: inherit; cursor: pointer; touch-action: manipulation;
   outline: none;
   opacity: var(--opacity-70);
-  transition: opacity var(--duration-150) var(--ease-in-out);
+  transition: opacity var(--motion-hover) var(--ease-move);
 }
 .dk-badge__remove::after {
   content: ""; position: absolute; inset-block: calc(var(--spacing-0) - var(--dk-badge-rm-reach-y));
@@ -109,7 +109,7 @@
   content: ""; position: absolute; pointer-events: none;
   inset: calc(var(--spacing-0) - var(--badge-border-width, var(--border-width-1)));
   border-radius: inherit; background: var(--dk-badge-layer, currentColor); opacity: var(--opacity-0);
-  transition: opacity var(--duration-150) var(--ease-in-out);
+  transition: opacity var(--motion-hover) var(--ease-move);
 }
 .dk-badge--interactive > :not(.dk-badge__ripples, .dk-badge__loader) { position: relative; }   /* positioned, so the content paints above the layer and the ripple (which come first) */
 @media (hover: hover) { .dk-badge--interactive:hover:not(:disabled, [aria-disabled="true"])::before { opacity: var(--badge-hover-layer, var(--opacity-10)); } }
@@ -135,14 +135,14 @@
 .dk-badge { --dk-badge-press: var(--badge-press-scale, var(--scale-97)); --dk-badge-loader-from: var(--scale-50); }
 .dk-badge--interactive {
   transition-property: color, scale;
-  transition-duration: var(--duration-150), var(--badge-press-duration, var(--duration-100));
-  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--motion-hover), var(--badge-press-duration, var(--motion-press));
+  transition-timing-function: var(--ease-move);
 }
 .dk-badge--interactive:active:not(:disabled, [aria-disabled="true"]),
 .dk-badge--interactive[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-badge-press); }
 /* Loading: the content fades out while the ring fades and grows in. */
-.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--duration-150)) var(--ease-in-out); }
-.dk-badge__loader { animation: dk-badge-loader-in var(--badge-loading-duration, var(--duration-150)) var(--ease-out) both; }
+.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
+.dk-badge__loader { animation: dk-badge-loader-in var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
 @keyframes dk-badge-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-badge-loader-from); } }
 /* Ripple: from the press point, in the text color at --badge-ripple-opacity; Badge adds the circles. */
 .dk-badge__ripples { position: absolute; inset: var(--spacing-0); border-radius: inherit; overflow: hidden; pointer-events: none; }
@@ -151,8 +151,8 @@
   border-radius: var(--rounded-full);
   background-color: currentColor;
   opacity: var(--badge-ripple-opacity, var(--opacity-20));
-  animation: dk-badge-ripple var(--badge-ripple-duration, var(--duration-500)) var(--ease-in-out) both;
-  transition: opacity var(--badge-ripple-fade-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-badge-ripple var(--badge-ripple-duration, var(--motion-ripple)) var(--ease-move) both;
+  transition: opacity var(--badge-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
 }
 .dk-badge__ripple--out { opacity: var(--opacity-0); }
 @keyframes dk-badge-ripple { from { scale: var(--scale-0); } }
