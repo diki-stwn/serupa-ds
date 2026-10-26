@@ -4,9 +4,10 @@ import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
 import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import type { MeterZone } from "./labels";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 export type MeterState = 'optimum' | 'suboptimal' | 'poor' | 'none';
 export interface MeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -76,7 +77,7 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
   const share = max > min ? (value - min) / (max - min) : 0;
   const state = meterState(value, min, max, num(props.low), num(props.high), num(props.optimum));
   const tone = TONE[state];
-  const labels = useSerupa().labels;
+  const labels = useSettings(words).labels;
   const text = props.formatValue ? props.formatValue(value, min, max) : displayNumber(share, locale, PERCENT);
   // Outside the best zone, the default words say where the value falls, shown and read out, so the warning isn't
   // only a color (WCAG 1.4.1).

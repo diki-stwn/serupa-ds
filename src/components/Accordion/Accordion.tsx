@@ -5,9 +5,10 @@ import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import * as icons from "../../material/builtin";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
 import { buttonClass } from "../Button/buttonClass";
+import { en as words } from "./labels";
 
 export interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
   /** 'single' (default): opening one closes the others. 'multiple': any number can be open. */
@@ -54,7 +55,7 @@ const AccordionContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 /** Items that show and hide their content under heading buttons; one open at a time, or several. */
 export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProps>("Accordion", function Accordion(props, ref) {
   const rest = omit(props, { type: 1, value: 1, defaultValue: 1, onValueChange: 1, collapsible: 1, variant: 1, headingLevel: 1, showExpandAll: 1, className: 1, children: 1, onKeyDown: 1 });
-  const labels = useSerupa().labels;
+  const labels = useSettings(words).labels;
   const single = props.type !== "multiple";
   const controlled = props.value !== undefined;
   const [inner, setInner] = React.useState<string[]>(() => (props.defaultValue || []).slice(0, single ? 1 : undefined));

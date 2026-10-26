@@ -95,25 +95,38 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     for (const k in buttons.current) { const l = buttons.current[k]?.querySelector<HTMLElement>(".dk-segmented__label"); if (l && l.scrollWidth > l.clientWidth) c += k + "\n"; }
     setCut(c);
     if (!r || !b) { setBox(null); return; }
-    setBox({ x: b.offsetLeft, w: b.offsetWidth });
+    const x = b.offsetLeft, w = b.offsetWidth;
+    setBox((p) => (p && p.x === x && p.w === w ? p : { x, w }));   // the same box when nothing moved, so a slide under way runs on
   }, [value]);
   useIsoLayoutEffect(measure, [measure, options.length, size, props.fullWidth]);
-  // A new choice slides the indicator from the last one (CSS above it, EG1): it's already at the new segment by left and
-  // width, so it starts back where it was on translate and scale with no transition, then lets go of both.
+  // A new choice slides the indicator from the last one (CSS above it, EG1, GL1): for the slide it spans both segments,
+  // cut to the last one's shape at once (data-flip, no transition), then to the new one's, which the CSS animates.
+  // When the cut has arrived (or straight away, when nothing animates) it sits on the new segment alone again. A new
+  // choice mid-slide starts from where the last one was going.
   const indicator = React.useRef<HTMLSpanElement | null>(null);
   const last = React.useRef<{ x: number; w: number; v: string | undefined } | null>(null);
+  const sliding = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const settle = (el: HTMLElement, at: { x: number; w: number }) => { el.removeAttribute("data-slide"); el.style.left = at.x + "px"; el.style.width = at.w + "px"; };
   useIsoLayoutEffect(() => {
     const was = last.current, el = indicator.current;
     last.current = box ? { ...box, v: value } : null;
+    clearTimeout(sliding.current);
+    if (el && box && el.hasAttribute("data-slide")) settle(el, box);
     if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w)) return;
+    const l = Math.min(was.x, box.x), r = Math.max(was.x + was.w, box.x + box.w);
+    const cut = (at: { x: number; w: number }) => { el.style.setProperty("--dk-seg-l", at.x - l + "px"); el.style.setProperty("--dk-seg-r", r - at.x - at.w + "px"); };
     el.setAttribute("data-flip", "");
-    el.style.translate = was.x - box.x + "px 0";
-    el.style.scale = was.w / box.w + " 1";
+    el.setAttribute("data-slide", "");
+    el.style.left = l + "px";
+    el.style.width = r - l + "px";
+    cut(was);
     void el.offsetWidth;
     el.removeAttribute("data-flip");
-    el.style.translate = "";
-    el.style.scale = "";
+    const t = getComputedStyle(el, "::after"), ms = (parseFloat(t.transitionDuration) + parseFloat(t.transitionDelay)) * 1000 || 0;
+    cut(box);
+    if (ms > 0) sliding.current = setTimeout(() => settle(el, box), ms); else settle(el, box);
   }, [box]);
+  React.useEffect(() => () => clearTimeout(sliding.current), []);
   React.useEffect(() => {
     const r = root.current;
     if (!r || typeof ResizeObserver === "undefined") return;

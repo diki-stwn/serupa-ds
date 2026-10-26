@@ -8,11 +8,12 @@ import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { FieldContext } from "../../internal/field";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFormReset } from "../../internal/useFormReset";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
 import { Input } from "../Input/Input";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 /** A swatch: its color as hex, and its name in words ("Ocean"), which is what screen readers say. */
 export interface ColorSwatch { value: string; label: string }
@@ -65,7 +66,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const nameRef = useNameCheck("ColorPicker", NAME_HOW.group);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
-  const sds = useSerupa(), locale = useLocale();
+  const sds = useSettings(words), locale = useLocale();
   // A swatch without a name (a hex string, or an empty label) is named from its color: "Dark blue", not "#1e3a8a".
   const swatches: Swatch[] = (props.swatches || []).map((s) => {
     const sw = typeof s === "string" ? { value: s, label: "" } : s;

@@ -2,10 +2,11 @@
 import * as React from "react";
 import { cn } from "../../internal/cn";
 import { named } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
-import type { SerupaLabels } from "../../internal/labels";
+import { useSettings } from "../../internal/provider";
+import type { ErrorBoundaryLabels } from "./labels";
 import { Alert } from "../Alert/Alert";
 import { Button } from "../Button/Button";
+import { en as words } from "./labels";
 
 export interface ErrorBoundaryFallbackProps {
   /** What was thrown. */
@@ -34,7 +35,7 @@ export interface ErrorBoundaryProps {
   className?: string;
 }
 
-interface BoundaryProps extends ErrorBoundaryProps { labels: SerupaLabels }
+interface BoundaryProps extends ErrorBoundaryProps { labels: ErrorBoundaryLabels }
 interface BoundaryState { error: unknown; failed: boolean }
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
@@ -123,6 +124,6 @@ const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<B
    route those to boundaries): handle those where they happen. */
 /** Catches a render error in its children and shows a fallback with "Try again", so one broken part doesn't take the page down. */
 export const ErrorBoundary = /* @__PURE__ */ named("ErrorBoundary", function ErrorBoundary(props: ErrorBoundaryProps): React.ReactElement {
-  const labels = useSerupa().labels;
+  const labels = useSettings(words).labels;
   return <Boundary {...props} labels={labels} />;
 });
