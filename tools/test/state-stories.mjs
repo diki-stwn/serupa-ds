@@ -24,7 +24,6 @@ const KNOWN = {
   ColorPicker: ['disabled', 'invalid'],
   Combobox: ['readOnly'],
   DatePicker: ['readOnly'],
-  DateRangePicker: ['readOnly'],
   NumberInput: ['invalid', 'readOnly'],
   PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
