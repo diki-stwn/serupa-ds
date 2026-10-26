@@ -1,5 +1,6 @@
 // In its own module, without "use client", so a Server Component can call it (a function from a client module is
 // only a reference there). FormattedNumber.tsx re-exports it.
+import { canonicalLocale } from "../../internal/locale";
 
 /** How FormattedNumber writes a number: as is, short (1.2K), a share (45%), money, a file size or a unit. */
 export type NumberFormat = 'decimal' | 'compact' | 'percent' | 'currency' | 'bytes' | 'unit';
@@ -39,5 +40,5 @@ function resolve(value: number | bigint, o: FormatNumberOptions): [number | bigi
 export function formatNumber(value: number | bigint, locale?: string, options?: FormatNumberOptions): string {
   if (typeof value === "number" && Number.isNaN(value)) return "";
   const [n, o] = resolve(value, options || {});
-  return new Intl.NumberFormat(locale, o).format(n);
+  return new Intl.NumberFormat(locale ? canonicalLocale(locale) : undefined, o).format(n);
 }

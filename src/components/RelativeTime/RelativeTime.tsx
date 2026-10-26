@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { canonicalLocale } from "../../internal/locale";
 import { useLocale, useOwnLang } from "../../internal/provider";
 
 export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTimeElement>, 'children' | 'dateTime'> {
@@ -57,7 +58,7 @@ export function relativeTime(date: Date | number | string, now: number, locale?:
   const t = new Date(date).getTime();
   if (!isFinite(t)) return "";
   const secs = (t - now) / 1000, abs = Math.abs(secs);
-  const rtf = new Intl.RelativeTimeFormat(locale, { style: options?.format || "long", numeric: options?.numeric || "auto" });
+  const rtf = new Intl.RelativeTimeFormat(locale ? canonicalLocale(locale) : undefined, { style: options?.format || "long", numeric: options?.numeric || "auto" });
   const [unit, size] = UNITS.find(([, , under]) => abs < under)!;
   // Under 45 seconds is "now" ("0 seconds ago" with numeric always): a timer every 15s can't keep seconds honest.
   return unit === "second" ? rtf.format(0, "second") : rtf.format(Math.round(secs / size), unit);
