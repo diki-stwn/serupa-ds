@@ -23,6 +23,12 @@
 - textbox "Email":
   - /placeholder: A placeholder far longer than the input is wide
 
+# Masked
+- textbox "Card number": 4242 4242 4242 4242
+- textbox "Expiry date, MM/YY":
+  - /placeholder: MM/YY
+- textbox "IBAN": DE89 3704 0044 0532 0130 00
+
 # Playground
 - textbox "Email":
   - /placeholder: you@example.com

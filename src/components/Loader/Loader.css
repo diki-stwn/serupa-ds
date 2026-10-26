@@ -129,55 +129,50 @@
 /* Text variant: the words in the text color, dimmed to --loader-label-dim, with a band of full color
    sweeping left to right through them every 2s (ease-in-out: easing in and out), a shine. The dimmed text keeps 4.5:1 on surface in every
    theme. The band is a window (.dk-loader__glint, a soft-edged half of the label) that slides across on translate, holding a full-color
-   copy of the words (::after, the label's width) that slides back by as much, so the copy stays on the words: both run on the compositor.
-   Browsers without color-mix() show the plain text. */
-.dk-loader__label { font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); overflow-wrap: anywhere; }
+   copy of the words (::after, the label's width) that slides back by as much, so the copy stays on the words: both run on the compositor. */
+.dk-loader__label {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium); overflow-wrap: anywhere;
+  -webkit-text-fill-color: color-mix(in srgb, currentColor var(--loader-label-dim, var(--opacity-65)), transparent);
+}
 .dk-loader--size-sm .dk-loader__label { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-loader--size-lg .dk-loader__label { font-size: var(--text-base); line-height: var(--text-base--line-height); }
-.dk-loader__glint { display: none; }
-@supports (color: color-mix(in srgb, currentColor 50%, transparent)) {
-  .dk-loader__label {
-    position: relative;
-    overflow: hidden;
-    -webkit-text-fill-color: color-mix(in srgb, currentColor var(--loader-label-dim, var(--opacity-65)), transparent);
-  }
-  .dk-loader__glint {
-    --dk-loader-glint-from: calc(var(--sizing-full) * -1);
-    --dk-loader-glint-to: calc(var(--sizing-full) * 2);
-    --dk-loader-glint-edge: linear-gradient(to right, transparent, black 40%, black 60%, transparent);
-    display: block;
-    position: absolute;
-    inset-block: var(--spacing-0);
-    inset-inline-start: var(--spacing-0);
-    width: var(--sizing-1-2);
-    overflow: hidden;   /* the copy shows only through the window */
-    pointer-events: none;
-    -webkit-mask-image: var(--dk-loader-glint-edge);
-    mask-image: var(--dk-loader-glint-edge);
-    animation: dk-loader-glint calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;   /* ease-in-out: the shine eases in, glides through, eases out */
-  }
-  .dk-loader__glint::after {
-    --dk-loader-glint-from: calc(var(--sizing-full) / 2);
-    --dk-loader-glint-to: calc(var(--sizing-full) * -1);
-    content: attr(data-words);
-    position: absolute;
-    inset-block: var(--spacing-0);
-    inset-inline-start: var(--spacing-0);
-    width: calc(var(--sizing-full) + var(--sizing-full));   /* the label's width, so the words wrap the same */
-    -webkit-text-fill-color: currentColor;
-    animation: inherit;
-  }
-  .dk-loader__glint:dir(rtl) { --dk-loader-glint-from: var(--sizing-full); --dk-loader-glint-to: calc(var(--sizing-full) * -2); }
-  .dk-loader__glint:dir(rtl)::after { --dk-loader-glint-from: calc(var(--sizing-full) / -2); --dk-loader-glint-to: var(--sizing-full); }
+.dk-loader__glint {
+  --dk-loader-glint-from: calc(var(--sizing-full) * -1);
+  --dk-loader-glint-to: calc(var(--sizing-full) * 2);
+  --dk-loader-glint-edge: linear-gradient(to right, transparent, black 40%, black 60%, transparent);
+  display: block;
+  position: absolute;
+  inset-block: var(--spacing-0);
+  inset-inline-start: var(--spacing-0);
+  width: var(--sizing-1-2);
+  overflow: hidden;   /* the copy shows only through the window */
+  pointer-events: none;
+  -webkit-mask-image: var(--dk-loader-glint-edge);
+  mask-image: var(--dk-loader-glint-edge);
+  animation: dk-loader-glint calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;   /* ease-in-out: the shine eases in, glides through, eases out */
 }
+.dk-loader__glint::after {
+  --dk-loader-glint-from: calc(var(--sizing-full) / 2);
+  --dk-loader-glint-to: calc(var(--sizing-full) * -1);
+  content: attr(data-words);
+  position: absolute;
+  inset-block: var(--spacing-0);
+  inset-inline-start: var(--spacing-0);
+  width: calc(var(--sizing-full) + var(--sizing-full));   /* the label's width, so the words wrap the same */
+  -webkit-text-fill-color: currentColor;
+  animation: inherit;
+}
+.dk-loader__glint:dir(rtl) { --dk-loader-glint-from: var(--sizing-full); --dk-loader-glint-to: calc(var(--sizing-full) * -2); }
+.dk-loader__glint:dir(rtl)::after { --dk-loader-glint-from: calc(var(--sizing-full) / -2); --dk-loader-glint-to: var(--sizing-full); }
 @keyframes dk-loader-glint { from { translate: var(--dk-loader-glint-from) 0; } to { translate: var(--dk-loader-glint-to) 0; } }
 /* Skeleton variant: placeholder shapes in the place of content that is loading, with the same shine as the text
    variant (a lighter band sweeping left to right every 2s, ease-in-out). Shapes: "text" (lines as tall as the
    size's text line, the last of several shorter), "circle" (an avatar, the loader's size) and "rect" (an image or
    a card, full width). Width and height follow utility classes (w-48, size-12, h-40, aspect-video…), which come
    later in this file and win. Structure: .dk-loader--skeleton > .dk-loader__line > .dk-loader__bone (text), or
-   > .dk-loader__bone (circle, rect). The fill is the text color at --loader-skeleton-fill, so it fits any surface;
-   browsers without color-mix() use the secondary color. */
+   > .dk-loader__bone (circle, rect). The fill is the text color at --loader-skeleton-fill, so it fits any surface. */
 .dk-loader--skeleton { min-height: var(--spacing-0); gap: var(--spacing-0); flex-shrink: initial; min-width: var(--spacing-0); }   /* lines and rects shrink in a row (next to an avatar) */
 .dk-loader--shape-text { display: flex; flex-direction: column; align-items: stretch; width: var(--sizing-full); }
 .dk-loader--shape-rect { display: flex; width: var(--sizing-full); height: var(--loader-skeleton-rect-height, var(--spacing-24)); }
@@ -185,32 +180,28 @@
 .dk-loader__line { display: flex; align-items: center; font-size: var(--text-sm); height: var(--text-sm--line-height); }
 .dk-loader--size-sm .dk-loader__line { font-size: var(--text-xs); height: var(--text-xs--line-height); }
 .dk-loader--size-lg .dk-loader__line { font-size: var(--text-base); height: var(--text-base--line-height); }
-/* stylelint-disable-next-line serupa/color-through-component-token -- the fill where color-mix() is missing: the text color at --loader-skeleton-fill would need it */
-.dk-loader__bone { display: block; flex-shrink: 0; width: var(--sizing-full); height: var(--sizing-full); background-color: var(--secondary); border-radius: var(--loader-skeleton-radius, var(--rounded-md)); }
+.dk-loader__bone {
+  --dk-loader-fill: color-mix(in srgb, currentColor var(--loader-skeleton-fill, var(--opacity-10)), transparent);
+  --dk-loader-glint: color-mix(in srgb, currentColor var(--loader-skeleton-shine, var(--opacity-5)), transparent);
+  position: relative;
+  overflow: hidden;
+  display: block; flex-shrink: 0; width: var(--sizing-full); height: var(--sizing-full); border-radius: var(--loader-skeleton-radius, var(--rounded-md));
+}
 .dk-loader__line > .dk-loader__bone { height: 1em; border-radius: var(--loader-skeleton-text-radius, var(--rounded-sm)); }
 .dk-loader__line:last-child:not(:first-child) > .dk-loader__bone { width: var(--sizing-3-5); }   /* a paragraph's last line: 3/5 wide */
 .dk-loader--shape-circle > .dk-loader__bone { border-radius: var(--rounded-full); }
-@supports (color: color-mix(in srgb, currentColor 50%, transparent)) {
-  .dk-loader__bone {
-    --dk-loader-fill: color-mix(in srgb, currentColor var(--loader-skeleton-fill, var(--opacity-10)), transparent);
-    --dk-loader-glint: color-mix(in srgb, currentColor var(--loader-skeleton-shine, var(--opacity-5)), transparent);
-    position: relative;
-    overflow: hidden;
-    background-color: transparent;
-  }
-  /* The shine is a layer three bones wide, sliding on translate (the compositor) from its last third on the bone to its first. */
-  .dk-loader__bone::after {
-    --dk-loader-sweep: calc(var(--sizing-full) * 2 / 3);
-    content: "";
-    position: absolute;
-    inset-block: var(--spacing-0);
-    inset-inline-end: var(--spacing-0);
-    width: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full));
-    background-image: linear-gradient(to right, var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-glint), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill));   /* evenly spaced stops: a band about half the bone wide */
-    animation: dk-loader-sweep calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;
-  }
-  .dk-loader__bone:dir(rtl)::after { --dk-loader-sweep: calc(var(--sizing-full) * -2 / 3); }
+/* The shine is a layer three bones wide, sliding on translate (the compositor) from its last third on the bone to its first. */
+.dk-loader__bone::after {
+  --dk-loader-sweep: calc(var(--sizing-full) * 2 / 3);
+  content: "";
+  position: absolute;
+  inset-block: var(--spacing-0);
+  inset-inline-end: var(--spacing-0);
+  width: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full));
+  background-image: linear-gradient(to right, var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-glint), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill), var(--dk-loader-fill));   /* evenly spaced stops: a band about half the bone wide */
+  animation: dk-loader-sweep calc(var(--duration-1000) + var(--duration-1000)) var(--ease-in-out) infinite;
 }
+.dk-loader__bone:dir(rtl)::after { --dk-loader-sweep: calc(var(--sizing-full) * -2 / 3); }
 @keyframes dk-loader-sweep { to { translate: var(--dk-loader-sweep) 0; } }
 /* Reduced motion: the ring and the spokes stand still and breathe (opacity, twice the spinner's period: 2s);
    the dots only fade, without growing; the pixel patterns slow to half speed; the label is plain text and the skeleton a still fill, without the shine. */
@@ -224,7 +215,7 @@
   .dk-loader--pattern-cross .dk-loader__px, .dk-loader--pattern-checker .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000)); }   /* 2s */
   .dk-loader--pattern-random .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000) + var(--duration-1000) + var(--duration-1000)); }   /* 4s, one shared clock: the scattered starts keep it random */
   /* stylelint-disable-next-line serupa/color-through-component-token -- as above */
-  .dk-loader__bone { background-color: var(--dk-loader-fill, var(--secondary)); }   /* a still fill */
+  .dk-loader__bone { background-color: var(--dk-loader-fill); }   /* a still fill */
   .dk-loader__bone::after { display: none; }
 }
 /* Forced colors (Windows high contrast) drop background colors, which would leave a skeleton screen blank: the
