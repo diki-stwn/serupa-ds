@@ -17,6 +17,7 @@ export const Playground: Story = {};
 export const WithIcons: Story = { args: { 'aria-label': 'View', defaultValue: 'list', options: [{ value: 'list', icon: 'list', label: 'List' }, { value: 'board', icon: 'view_kanban', label: 'Board' }, { value: 'calendar', icon: 'calendar_month', label: 'Calendar' }] } };
 export const IconOnly: Story = { args: { 'aria-label': 'Text alignment', size: 'sm', defaultValue: 'left', options: [{ value: 'left', icon: 'format_align_left', 'aria-label': 'Left' }, { value: 'center', icon: 'format_align_center', 'aria-label': 'Center' }, { value: 'right', icon: 'format_align_right', 'aria-label': 'Right' }] } };
 export const FullWidth: Story = { args: { fullWidth: true }, decorators: [(Story) => <div style={{ maxWidth: 'var(--container-sm)' }}><Story /></div>] };
+export const Disabled: Story = { args: { disabled: true } };
 export const ReadOnly: Story = { args: { readOnly: true } };
 export const Invalid: Story = { render: (args) => <Field label="Period" required error="Pick the period to report on"><SegmentedControl {...args} /></Field> };
 export const LongLabels: Story = {

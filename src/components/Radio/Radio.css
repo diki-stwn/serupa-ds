@@ -48,6 +48,9 @@
 /* Invalid (the radio's own prop or its group's): a danger border while unchecked, and a danger focus ring. */
 .dk-radio--invalid .dk-radio__input { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
 @media (hover: hover) { .dk-radio--invalid:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
+/* A required group with nothing picked once people try to send the form: as Input (:user-invalid). */
+.dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
+@media (hover: hover) { .dk-radio:hover .dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
 .dk-radio__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-radio__description { color: var(--radio-description-color, var(--text-muted)); }
 /* Disabled, by its own prop, the group's or a disabled fieldset (Field group). */
@@ -58,4 +61,14 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-radio { position: relative; isolation: isolate; }
 .dk-radio::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px to press, as Apple and Material ask. In a group it stops halfway into the gap
+   to a neighbour, so two never overlap. */
+@media (pointer: coarse) {
+  .dk-radio::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); --dk-half-gap: calc(var(--spacing-0) - var(--radio-group-gap, var(--spacing-2)) / 2); }
+  .dk-radio-group--horizontal > .dk-radio::after { --dk-half-gap: calc(var(--spacing-0) - var(--radio-group-gap-horizontal, var(--spacing-4)) / 2); }
+  .dk-radio-group--vertical > .dk-radio:not(:first-child)::after { inset-block-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--vertical > .dk-radio:not(:last-child)::after { inset-block-end: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--horizontal > .dk-radio:not(:first-child)::after { inset-inline-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--horizontal > .dk-radio:not(:last-child)::after { inset-inline-end: max(var(--dk-reach), var(--dk-half-gap)); }
+}
 }

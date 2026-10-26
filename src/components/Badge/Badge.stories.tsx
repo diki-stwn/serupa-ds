@@ -50,6 +50,7 @@ export const Interactive: Story = {
     <Badge onClick={() => {}}>Filter: Open</Badge>
     <Badge href="#tag" tone="violet">Link badge</Badge>
     <Badge onClick={() => {}} loading>Saving</Badge>
+    <Badge onClick={() => {}} disabled>Archived</Badge>
   </Row>,
 };
 

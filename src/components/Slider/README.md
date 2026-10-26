@@ -40,7 +40,7 @@ const [price, setPrice] = React.useState<[number, number]>([20, 80]);
 
 ## Accessibility
 
-- The slider takes a press over at least 24px of height (WCAG 2.5.8), past the 20px thumb, without taking more room.
+- The slider takes a press over at least 24px of height (WCAG 2.5.8), past the 20px thumb, without taking more room, and 44px on a touch screen, as Apple and Material ask.
 - Each thumb is `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-orientation`. A range's thumbs limit each other, and the pair is a named `group`.
 - The track, the fill and the thumb's ring keep 3:1 on the page in all six themes, so the control can be seen (`Slider.test.tsx`). In forced-colors mode it uses system colors.
 - In a [Field](../Field/README.md), the label names the thumb (a range's group) through `aria-labelledby`, and the hint and error describe it. Its own `aria-label` or `aria-labelledby` wins.

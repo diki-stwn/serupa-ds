@@ -15,7 +15,8 @@
 .dk-rating__empty, .dk-rating__fill { position: absolute; inset-block: var(--spacing-0); inset-inline-start: var(--spacing-0); display: block; overflow: hidden; pointer-events: none; }
 .dk-rating__empty { inset-inline-end: var(--spacing-0); color: var(--rating-empty, var(--field-border)); }
 .dk-rating__fill { width: var(--dk-rating-share); color: var(--rating-fill, var(--warning)); }
-.dk-rating svg { display: block; width: var(--dk-rating-size); height: var(--dk-rating-size); fill: currentColor; }
+/* Every star is drawn whole and the fill span clips it to its share; base.css's max-width on svg would shrink it to the share instead (GI1). */
+.dk-rating svg { display: block; flex: none; width: var(--dk-rating-size); max-width: none; height: var(--dk-rating-size); fill: currentColor; }
 /* The radios share the star's width in its row: one covers it, or two cover a half each (from the start side). */
 .dk-rating__choice { position: relative; flex: auto; align-self: stretch; width: var(--spacing-0); margin: var(--spacing-0); appearance: none; opacity: var(--opacity-0); cursor: pointer; touch-action: manipulation; }
 .dk-rating__star:has(.dk-rating__choice:focus-visible) { outline: var(--focus-ring-width) solid var(--rating-focus-ring, var(--focus-ring)); outline-offset: var(--spacing-0); }
