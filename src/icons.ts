@@ -21,7 +21,8 @@ export function hasIcon(name: unknown): name is string {
 /* Material Symbols by name. Components import the icons they draw (src/material/builtin.ts), so a bundle keeps only
    those. A name drawn as a string loads on first use: the components' icons from a small chunk (src/material/named.ts),
    any other from the full set (src/material/icons.ts). Names a project registers win over both. */
-// module state: icons by name, the same for every request; the two loads below run once per process.
+// module state: icons by name, the same for every request; the two loads below run once per process (a failed one is
+// forgotten, so the next call tries again: a network blip, or a deploy that removed the old chunk).
 const NAMED = new Map<string, IconData>();
 let loading: Promise<void> | undefined;
 let loadingNamed: Promise<void> | undefined;
@@ -30,22 +31,24 @@ let loadingNamed: Promise<void> | undefined;
 // after another).
 const LOADED = new Set<string>();
 const loaded = (v: IconData) => { if (!NAMED.has(v.name)) { NAMED.set(v.name, v); LOADED.add(v.name); } };
+// The two chunks, as an object so a test can make a load fail (Icon's IconLoad.test.tsx).
+export const iconChunks = { named: () => import("./material/named"), all: () => import("./material/icons") };
 
 /** Loads the icon for a name (Icon calls it when it meets a name it doesn't know yet): the components' own icons first,
  * from a small chunk, then every Material Symbol. Resolves to the icon, or undefined if no icon has that name. */
 export function loadIcon(name: string): Promise<IconData | undefined> {
   const found = () => NAMED.get(name);
-  if (!loadingNamed) loadingNamed = import("./material/named").then((m) => {
+  if (!loadingNamed) loadingNamed = iconChunks.named().then((m) => {
     for (const v of m.NAMED_ICONS) loaded(v);
-  });
+  }).catch((err: unknown) => { loadingNamed = undefined; throw err; });
   return loadingNamed.then(() => found() || loadAllIcons().then(found));
 }
 
 /** Loads every Material Symbol so its name works (once; Icon calls it when it meets a name it doesn't know yet). */
 export function loadAllIcons(): Promise<void> {
-  return loading || (loading = import("./material/icons").then((all) => {
+  return loading || (loading = iconChunks.all().then((all) => {
     for (const v of Object.values(all)) if (isIconData(v)) loaded(v);
-  }));
+  }).catch((err: unknown) => { loading = undefined; throw err; }));
 }
 
 /** Adds icons that work by name. Every Material Symbol already does; use this for an icon of your own in the same shape
