@@ -37,6 +37,8 @@
 .dk-inline-edit__view:focus-visible .dk-inline-edit__icon { opacity: var(--opacity-100); }
 /* Touch screens have no hover: the pencil always shows, so people can tell the text is editable. */
 @media (hover: none) { .dk-inline-edit__icon { opacity: var(--opacity-100); } }
+/* An empty value with no placeholder has no text to show: the pencil always shows, or the button would be invisible. */
+.dk-inline-edit__view--blank .dk-inline-edit__icon { opacity: var(--opacity-100); }
 /* Muted rather than faded: the text stays readable (4.5:1), since there is no control here for WCAG to exempt. */
 .dk-inline-edit--disabled .dk-inline-edit__view, .dk-inline-edit__view:disabled { color: var(--inline-edit-text-disabled, var(--text-muted)); }
 /* In a <fieldset disabled> the button is disabled: no pointer, and no pencil even on touch screens. */
