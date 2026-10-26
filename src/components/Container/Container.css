@@ -4,7 +4,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 /* The maximum is the content's: the box's own maximum is that plus the padding on both sides (FF1), so prose keeps
-   its 672px line from any screen width. Each side's padding is at least the screen's safe area there, so on a phone
+   its 672px line from any screen width. The padding is at least the screen's safe area on either side (the same on both, so the content stays centered), so on a phone
    with a notch, held sideways, the content stays clear of it. The padding follows the screen's width, not the
    space the Container is in. */
 .dk-container { --dk-container-pad: var(--spacing-0); --dk-container-max: none; box-sizing: border-box; width: var(--sizing-full); max-width: calc(var(--dk-container-max) + var(--dk-container-pad) + var(--dk-container-pad)); margin-inline: auto; }
@@ -14,7 +14,7 @@
 .dk-container--lg { --dk-container-max: var(--screen-lg); }
 .dk-container--xl { --dk-container-max: var(--screen-xl); }
 .dk-container--2xl { --dk-container-max: var(--screen-2xl); }
-.dk-container--padded { --dk-container-pad: var(--container-padding-x, var(--spacing-4)); padding-left: max(var(--dk-container-pad), env(safe-area-inset-left, var(--spacing-0))); padding-right: max(var(--dk-container-pad), env(safe-area-inset-right, var(--spacing-0))); }
+.dk-container--padded { --dk-container-pad: var(--container-padding-x, var(--spacing-4)); padding-inline: max(var(--dk-container-pad), env(safe-area-inset-left, var(--spacing-0)), env(safe-area-inset-right, var(--spacing-0))); }
 @media (min-width: 640px) { .dk-container--padded { --dk-container-pad: var(--container-padding-x-sm, var(--spacing-6)); } }
 @media (min-width: 1024px) { .dk-container--padded { --dk-container-pad: var(--container-padding-x-lg, var(--spacing-8)); } }
 }
