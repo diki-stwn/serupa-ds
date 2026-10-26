@@ -9,6 +9,9 @@
 - slider "Volume" [invalid]
 - text: Keep it under 80 for hearing safety
 
+# LongMarks
+- slider "Volume"
+
 # Marks
 - slider "Temperature"
 

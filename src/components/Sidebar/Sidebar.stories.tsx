@@ -52,3 +52,15 @@ export const Toggle: Story = {
     );
   },
 };
+
+export const LongLabels: Story = {
+  args: {
+    children: [
+      <SidebarSection key="a" title="Workspace settings for every team">
+        <SidebarItem href="#" icon="home" label="Home and recent activity across projects" active />
+        <SidebarItem href="#" icon="inbox" label="Donaudampfschifffahrtsgesellschaftskapitänskajüte" badge={<Badge count={1234} />} />
+      </SidebarSection>,
+    ],
+  },
+  render: (args) => <div style={{ display: 'flex', height: 320, width: 200 }}><Sidebar {...args} /></div>,
+};
