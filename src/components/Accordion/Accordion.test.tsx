@@ -89,28 +89,26 @@ describe('Accordion', () => {
     expect([state('aall'), onChange.mock.lastCall?.[0]]).toEqual(['000', []]);
   });
 
-  test('opening takes the height at once and unfolds over it (opacity and clip-path, 200ms, ease-enter); closing keeps the height while it folds back (150ms, ease-exit), then gives it up; nothing animates layout (EH2)', () => withMotion(async () => {
+  test('opening unfolds the content (opacity and clip-path, 200ms, ease-enter) while the panel grows to its height over the same time, so what\'s below slides down; closing folds it back (150ms, ease-exit) while the height shrinks on ease-move, then it\'s hidden (EH2)', () => withMotion(async () => {
     await render(<Faq />);
     const pn = panel('adef');
-    const runs = () => pn.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, a.effect?.getComputedTiming().duration, (a.effect?.getComputedTiming() as { easing?: string }).easing]).sort((x, y) => String(x[0]).localeCompare(String(y[0])));
+    const root = (name: string) => css(document.documentElement).getPropertyValue(name).trim();
+    const runs = () => pn.getAnimations().map((a) => [(a as CSSTransition).transitionProperty ?? a.id, a.effect?.getComputedTiming().duration, (a.effect?.getComputedTiming() as { easing?: string }).easing]).sort((x, y) => String(x[0]).localeCompare(String(y[0])));
+    const half = (ms: number) => { const all = pn.getAnimations(); all.forEach((a) => { a.pause(); a.currentTime = ms; }); const h = pn.getBoundingClientRect().height; all.forEach((a) => a.play()); return h; };
     await userEvent.click(trigger('adef', 1));
-    const full = pn.getBoundingClientRect().height;
-    expect(full).toBeGreaterThan(0);
-    expect(runs()).toEqual([['clip-path', 200, css(document.documentElement).getPropertyValue('--ease-enter').trim()], ['opacity', 200, css(document.documentElement).getPropertyValue('--ease-enter').trim()]]);
+    expect(runs()).toEqual([['clip-path', 200, root('--ease-enter')], ['dk-accordion-height', 200, root('--ease-enter')], ['opacity', 200, root('--ease-enter')]]);
+    const mid = half(100);
     await settled('adef');
-    expect([pn.getBoundingClientRect().height, css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate])
-      .toEqual([full, '1', 'inset(0px)', 'visible', 'true', '180deg']);
+    const full = pn.getBoundingClientRect().height;
+    expect([full > 0, mid > 0 && mid < full]).toEqual([true, true]);
+    expect([css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate])
+      .toEqual(['1', 'inset(0px)', 'visible', 'true', '180deg']);
     await userEvent.click(trigger('adef', 1));
-    expect(runs().map(([p, d]) => `${String(p)} ${String(d)}`).filter((x) => /opacity|clip-path/.test(x))).toEqual(['clip-path 150', 'opacity 150']);
-    expect(pn.getBoundingClientRect().height).toBe(full);
-    // Two thirds of the way through the fold the panel still has its height.
-    const fold = pn.getAnimations();
-    fold.forEach((a) => { a.pause(); a.currentTime = 100; });
-    expect(pn.getBoundingClientRect().height).toBe(full);
-    fold.forEach((a) => a.play());
+    expect(runs().map(([p, d, e]) => `${String(p)} ${String(d)}${p === 'dk-accordion-height' ? ' ' + String(e) : ''}`).filter((x) => /opacity|clip-path|height/.test(x))).toEqual(['clip-path 150', 'dk-accordion-height 150 ' + root('--ease-move'), 'opacity 150']);
+    const back = half(75);
+    expect(back > 0 && back < full).toBe(true);
     await settled('adef');
     await expect.poll(() => pn.getBoundingClientRect().height).toBe(0);
-    expect(pn.getAnimations().map((a) => (a as CSSTransition).transitionProperty).filter((p) => /height|grid|width|padding/.test(p))).toEqual([]);
   }));
 
   test('type="single": opening one closes the other; collapsible (default): the open one closes again; a disabled item doesn\'t open, and fades to 50%', async () => {

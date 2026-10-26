@@ -1,0 +1,10 @@
+/* ---------------------------------------------------------------
+   TypeToConfirm: a field with the phrase in bold in its label, and a destructive button under it at its start edge.
+   The phrase can be long (a repository or account name), so it breaks anywhere. Every value reads one of its own
+   tokens (type-to-confirm.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-type-to-confirm { display: flex; flex-direction: column; align-items: flex-start; gap: var(--type-to-confirm-gap, var(--spacing-3)); }
+.dk-type-to-confirm > .dk-field { align-self: stretch; }
+.dk-type-to-confirm__phrase { font-weight: var(--type-to-confirm-phrase-weight, var(--font-semibold)); overflow-wrap: anywhere; }
+}

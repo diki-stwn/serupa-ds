@@ -581,4 +581,24 @@ describe('Combobox loadOptions (DG1)', () => {
       expect([css(pop).opacity, css(pop).scale]).toEqual(['1', 'none']);
     });
   });
+  test('exit: Escape fades and shrinks the list out over 100ms, kept (inert, options in place) until the fade ends, as DatePicker\'s does (GK1)', async () => {
+    await withMotion(async () => {
+      const ms = (x: Animation) => Number(x.effect!.getComputedTiming().duration);
+      const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition && /^(opacity|scale)$/.test(x.transitionProperty)).map((x) => [(x as CSSTransition).transitionProperty, ms(x)]).sort();
+      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
+      await render(<Countries />);
+      await userEvent.click(toggleOf('cb'));
+      const pop = popOf('cb');
+      await settled(pop);
+      await userEvent.keyboard('{Escape}');
+      expect([pop.hidden, toggleOf('cb').getAttribute('aria-expanded')]).toEqual([true, 'false']);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      if (CSS.supports('overlay', 'auto')) {
+        expect([css(pop).display, pop.inert, pop.querySelectorAll('[role=option]').length, runs(pop)]).toEqual(['block', true, 7, [['opacity', 100], ['scale', 100]]]);
+        await settled(pop);
+      }
+      await expect.poll(() => pop.querySelectorAll('[role=option]').length).toBe(0);
+      expect(css(pop).display).toBe('none');
+    });
+  });
 });
