@@ -162,7 +162,7 @@ describe('InlineEdit', () => {
 
   test('an empty value with no placeholder shows its pencil, so the button can be found (GD4); with text or a placeholder the pencil waits for hover or focus', async () => {
     await render(<Box><InlineEdit id="eb" label="Notes" defaultValue="" /><InlineEdit id="ep" label="Notes" defaultValue="" placeholder="Add notes" /><InlineEdit id="et" label="Notes" defaultValue="Ready" /></Box>);
-    const pencil = (id: string) => css(view(id).querySelector('svg, .dk-icon')!).opacity;
+    const pencil = (id: string) => css(view(id).querySelector('svg, .dk-icon')).opacity;
     expect([pencil('eb'), pencil('ep'), pencil('et')]).toEqual(['1', '0', '0']);
   });
 
