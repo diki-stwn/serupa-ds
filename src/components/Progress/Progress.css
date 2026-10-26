@@ -60,6 +60,6 @@
   .dk-progress--bar .dk-progress__track { border: var(--border-width-1) solid CanvasText; }
   .dk-progress__fill { background: Highlight; }
   .dk-progress__arc { stroke: Highlight; }
-  .dk-progress__ring .dk-progress__track { stroke: CanvasText; }
+  .dk-progress__ring .dk-progress__track { stroke: GrayText; }
 }
 }
