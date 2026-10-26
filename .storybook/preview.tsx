@@ -17,13 +17,21 @@ registerIcons(ALL_ICONS);
 const BRANDS = [...new Set(tokens.color.themes.map((t: { id: string }) => t.id.replace(/-(light|dark)$/, '')))];
 const DEFAULT_BRAND = BRANDS[0];
 
-// The toolbar picks a brand and a mode; together they are the page's data-theme, as theme.js sets it.
+// The toolbar picks a brand and a mode; together they are the page's data-theme, as theme.js sets it. Contrast
+// and density set data-contrast and data-density, the page's other theme axes; their defaults leave the attribute off,
+// so the system's own "more contrast" setting still applies, as it would in an app.
 // Docs pages without stories (Foundations, Introduction) run no decorator, so the globals are also followed
 // straight from the channel; the theme then paints the whole page (see docs.css).
 const apply = (g: Record<string, unknown> | undefined) => {
   if (!g) return;
   document.documentElement.setAttribute('data-theme', `${g.brand || DEFAULT_BRAND}-${g.mode || 'light'}`);
   document.documentElement.setAttribute('dir', g.dir === 'rtl' ? 'rtl' : 'ltr');
+  axes(g);
+};
+const axes = (g: Record<string, unknown>) => {
+  const html = document.documentElement;
+  if (g.contrast === 'more') html.setAttribute('data-contrast', 'more'); else html.removeAttribute('data-contrast');
+  if (g.density === 'compact' || g.density === 'comfortable') html.setAttribute('data-density', g.density); else html.removeAttribute('data-density');
 };
 const channel = addons.getChannel();
 channel.on('setGlobals', (e: { globals?: Record<string, unknown> }) => apply(e.globals));   // already merged, with a story's own globals on top
@@ -32,10 +40,12 @@ channel.on('globalsUpdated', (e: { globals?: Record<string, unknown> }) => apply
 const WithTheme: Decorator = (Story, context) => {
   const theme = `${context.globals.brand || DEFAULT_BRAND}-${context.globals.mode || 'light'}`;
   const dir = context.globals.dir === 'rtl' ? 'rtl' : 'ltr';
+  const { contrast, density } = context.globals;
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('dir', dir);
-  }, [theme, dir]);
+    axes({ contrast, density });
+  }, [theme, dir, contrast, density]);
   return <Story />;
 };
 
@@ -57,8 +67,18 @@ const preview: Preview = {
       toolbar: { title: 'Direction', icon: 'transfer', dynamicTitle: true, items: [
         { value: 'ltr', title: 'Left to right' }, { value: 'rtl', title: 'Right to left' }] },
     },
+    contrast: {
+      description: 'Contrast',
+      toolbar: { title: 'Contrast', icon: 'eye', dynamicTitle: true, items: [
+        { value: 'default', title: 'Default contrast' }, { value: 'more', title: 'More contrast' }] },
+    },
+    density: {
+      description: 'Density',
+      toolbar: { title: 'Density', icon: 'component', dynamicTitle: true, items: [
+        { value: 'compact', title: 'Compact' }, { value: 'default', title: 'Default density' }, { value: 'comfortable', title: 'Comfortable' }] },
+    },
   },
-  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr' },
+  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr', contrast: 'default', density: 'default' },
   decorators: [WithTheme],
   parameters: {
     layout: 'padded',
