@@ -37,6 +37,10 @@ const bundlesAll = /import \* as Serupa from "\.\/index";/.test(browserTs) && /O
 const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
+// dist/index.d.ts imports React's types: a TypeScript project needs @types/react, a JavaScript one doesn't.
+const typeImports = [...new Set([...read('dist/index.d.ts').matchAll(/from ['"]([^'"./][^'"]*)['"]/g)].map((m) => m[1]))];
+const untypedPeers = typeImports.filter((m) => !pkg.peerDependencies?.[`@types/${m}`] || !pkg.peerDependenciesMeta?.[`@types/${m}`]?.optional);
+t('every package dist/index.d.ts imports types from has its @types package as an optional peer', typeImports.length && !untypedPeers.length, `${untypedPeers.map((m) => `@types/${m}`).join(', ')} (imports: ${typeImports.join(', ')})`);
 
 // A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
 // is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
