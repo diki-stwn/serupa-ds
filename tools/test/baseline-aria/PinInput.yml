@@ -21,3 +21,6 @@
 # Playground
 - textbox "Verification code"
 
+# ReadOnly
+- textbox "Verification code": "1234"
+

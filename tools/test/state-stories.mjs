@@ -25,7 +25,6 @@ const KNOWN = {
   DateRangePicker: ['invalid', 'readOnly'],
   NumberInput: ['disabled', 'invalid', 'readOnly'],
   PhoneInput: ['readOnly'],
-  PinInput: ['readOnly'],
   SegmentedControl: ['disabled'],
 };
 
