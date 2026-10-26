@@ -132,14 +132,15 @@ describe('Meter', () => {
   test('a new value moves the fill on translate, not its width, and right to left it fills from the right (FB1)', async () => {
     const bar = (v: number) => <Wrap><div dir="rtl"><Meter id="mv" value={v} aria-label="mv" /></div></Wrap>;
     const { rerender } = await render(bar(30));
+    const own = () => el('mv').querySelector('[role=meter]')!.firstElementChild as HTMLElement;
     await withMotion(async () => {
-      void css(el('mv').querySelector('.dk-meter__fill')).translate;   // where it starts from
+      void css(own()).translate;   // where it starts from
       await rerender(bar(70));
-      const moves = el('mv').querySelector('.dk-meter__fill')!.getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
+      const moves = own().getAnimations().filter((a): a is CSSTransition => a instanceof CSSTransition);
       expect(moves.map((a) => a.transitionProperty)).toEqual(['translate']);
       await Promise.all(moves.map((a) => a.finished));
     });
-    const tr = el('mv').querySelector('.dk-meter__track')!.getBoundingClientRect(), f = el('mv').querySelector('.dk-meter__fill')!.getBoundingClientRect();
+    const tr = own().parentElement!.getBoundingClientRect(), f = own().getBoundingClientRect();
     expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
   });
 });
