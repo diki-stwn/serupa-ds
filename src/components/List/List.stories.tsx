@@ -56,3 +56,13 @@ export const Settings: Story = {
     ],
   },
 };
+
+export const LongText: Story = {
+  args: {
+    children: [
+      <ListItem key="a" leading={<Avatar name="Maria Magdalena von Hohenzollern" size="sm" />} title="Maria Magdalena von Hohenzollern-Sigmaringen" description="maria.magdalena.hohenzollern@example.com" trailing={<Badge>Administrator</Badge>} />,
+      <ListItem key="b" leading={<Avatar name="Grace Hopper" size="sm" />} title="Donaudampfschifffahrtsgesellschaftskapitänskajüte" description="no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example" trailing={<Badge>Editor</Badge>} />,
+    ],
+  },
+  render: (args) => <div style={{ width: 260 }}><List {...args} /></div>,
+};

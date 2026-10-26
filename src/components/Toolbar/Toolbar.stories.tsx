@@ -49,3 +49,7 @@ export const Actions: Story = {
     <Button key="x" variant="outline" leftIcon="delete" destructive>Delete</Button>,
   ] },
 };
+
+export const Overflow: Story = {
+  render: (args) => <div style={{ width: 200 }}><Toolbar {...args} /></div>,
+};
