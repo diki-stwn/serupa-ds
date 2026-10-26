@@ -334,7 +334,7 @@ describe('CheckboxGroup', () => {
     host.innerHTML = renderToString(tree);
     document.body.append(host);
     try {
-      const shown = (id: string) => [input(id).indeterminate, input(id).hasAttribute('data-indeterminate'), css(input(id)).backgroundColor, css(input(id).nextElementSibling as HTMLElement).visibility];
+      const shown = (id: string) => [input(id).indeterminate, input(id).hasAttribute('data-indeterminate'), css(input(id)).backgroundColor, css(input(id).nextElementSibling).visibility];
       expect([shown('ssr-m'), shown('ssr-all')]).toEqual([[false, true, color('var(--primary)'), 'visible'], [false, true, color('var(--primary)'), 'visible']]);
     } finally { host.remove(); }
     await render(tree);
