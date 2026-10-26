@@ -1,0 +1,25 @@
+# Failed
+- text: Couldn’t save
+- button "Try again"
+
+# Idle
+
+
+# LongText
+- text: "Couldn’t save: Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung rejected the change because the connection dropped"
+- button "Try again"
+
+# Playground
+- text: Saved
+- time: 2 minutes ago
+
+# Saved
+- text: Saved
+- time: 2 minutes ago
+
+# SavedNoTime
+- text: Saved
+
+# Saving
+- text: Saving…
+

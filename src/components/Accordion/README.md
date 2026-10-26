@@ -46,7 +46,7 @@ const { Accordion, AccordionItem } = window.Serupa;
 - Closed content is `hidden="until-found"`, so it's out of the tab order and screen readers skip it, but find-in-page still finds it: a match fires `beforematch`, which opens that item (in `single`, closing the open one). It's set once the closing animation ends. A disabled item's content stays `visibility: hidden` and isn't searchable. Before hydration, and in browsers without `until-found`, closed content is `visibility: hidden` as before.
 - The Expand all button is a plain `<button>` that says "Expand all" or, once every enabled item is open, "Collapse all" (the `expandAll` and `collapseAll` labels in `SerupaProvider`). Disabled items stay as they are.
 - With `collapsible={false}` the open item's button has `aria-disabled`, since pressing it does nothing.
-- Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). Opening, the content takes its height at once and unfolds over it (a fade and an opening clip), and closing it folds back before the height goes, so the page is laid out once, not on every frame. With reduced motion it only fades.
+- Titles and content keep 4.5:1, the chevron 3:1, on `surface` in all six themes (`Accordion.test.tsx`). Opening, the panel grows to its content's height while the content unfolds (a fade and an opening clip), so what's below slides down instead of jumping. Closing, it folds back while the height shrinks. A second press mid-way turns back from where it is. With reduced motion it only fades, and the height changes at once.
 
 ### Keyboard
 
@@ -108,4 +108,4 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-icon-size` | `spacing-5` | The chevron (20px). |
 | `--accordion-border-width` | `border-width-1` | Lines and frame (1px). |
 | `--accordion-radius` | `rounded-lg` | The corners of variant="card" (8px). |
-| `--accordion-duration` | `motion-change-md` | Opening: the fade and unfold (200ms), and the chevron turning. Closing folds back over motion-exit-md (150ms). |
+| `--accordion-duration` | `motion-change-md` | Opening: the fade, unfold and height (200ms), and the chevron turning. Closing folds back and shrinks over motion-exit-md (150ms). |
