@@ -1,5 +1,6 @@
 // In its own module, without "use client", so a Server Component can call it (a function from a client module is
 // only a reference there). FormattedNumber.tsx re-exports it.
+import { warnOnce } from "../../internal/warn";
 
 /** How FormattedNumber writes a number: as is, short (1.2K), a share (45%), money, a file size or a unit. */
 export type NumberFormat = 'decimal' | 'compact' | 'percent' | 'currency' | 'bytes' | 'unit';
@@ -26,18 +27,42 @@ function resolve(value: number | bigint, o: FormatNumberOptions): [number | bigi
     case "bytes": {
       // Steps of 1024 with the short names (kB, MB), like formatFileSize, so a size reads the same in both;
       // one decimal under 10 (1.5 MB), none above (820 kB) or for bytes.
+      // A value that rounds up to 1024 steps up too, so 1,048,575 is "1 MB", not "1,024 kB".
       let n = Math.abs(Number(value)), i = 0;
-      while (n >= 1024 && i < BYTES.length - 1) { n /= 1024; i++; }
+      const digits = () => (own.maximumFractionDigits != null ? own.maximumFractionDigits : i && n < 10 ? 1 : 0);
+      const rounded = () => { const f = 10 ** Math.min(20, Math.max(0, digits())); return Math.round(n * f) / f; };
+      while ((n >= 1024 || rounded() >= 1024) && i < BYTES.length - 1) { n /= 1024; i++; }
       const signed = Number(value) < 0 ? -n : n;
-      return [signed, { style: "unit", unit: BYTES[i], unitDisplay: "short", maximumFractionDigits: i && n < 10 ? 1 : 0, ...own }];
+      return [signed, { style: "unit", unit: BYTES[i], unitDisplay: "short", maximumFractionDigits: digits(), ...own }];
     }
     default: return [value, own];
   }
+}
+
+/* Building an Intl.NumberFormat costs some 30 times a format with one, and a table of numbers re-renders often,
+   so each locale and set of options gets one, kept. Options Intl rejects (a currency "US", a unit "km/h",
+   minimumFractionDigits over maximumFractionDigits) throw RangeError, which would unmount the tree: those fall
+   back to the locale's plain number, with a warning in development.
+   module state: a cache of formatters; a NumberFormat holds no request's data, only how a locale writes numbers,
+   so every request can share them. */
+const formatters = new Map<string, Intl.NumberFormat>();
+function formatterFor(locale: string | undefined, o: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const key = (locale || "") + "|" + JSON.stringify(o);
+  let f = formatters.get(key);
+  if (!f) {
+    try { f = new Intl.NumberFormat(locale, o); } catch (e) {
+      if (process.env.NODE_ENV !== "production") warnOnce("number-options", `FormattedNumber: Intl can't use these options (${e instanceof Error ? e.message : String(e)}), so the number is written plainly. Check the currency (an ISO code such as "IDR") or unit (such as "kilometer-per-hour").`, "number-options:" + key);
+      f = new Intl.NumberFormat(locale);
+    }
+    if (formatters.size > 200) formatters.clear();
+    formatters.set(key, f);
+  }
+  return f;
 }
 
 /** A number in the locale's words: formatNumber(1234, "id-ID") is "1.234"; { format: "compact" } "1,2 rb"; "bytes" "1,5 MB". */
 export function formatNumber(value: number | bigint, locale?: string, options?: FormatNumberOptions): string {
   if (typeof value === "number" && Number.isNaN(value)) return "";
   const [n, o] = resolve(value, options || {});
-  return new Intl.NumberFormat(locale, o).format(n);
+  return formatterFor(locale, o).format(n);
 }
