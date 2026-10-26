@@ -174,7 +174,7 @@ describe('SortableList', () => {
       const before = { gemini: top('Gemini'), mercury: top('Mercury') };
       handle('Gemini').focus();
       await userEvent.keyboard(' {ArrowDown}');
-      const moving = ['Gemini', 'Mercury'].map((n) => row(n).getAnimations().filter((a) => a instanceof CSSTransition).map((a) => (a as CSSTransition).transitionProperty));
+      const moving = ['Gemini', 'Mercury'].map((n) => row(n).getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty));
       // A frame in, each is still near its old place: Gemini above its new slot, Mercury below its new one.
       expect([moving, Math.abs(top('Gemini') - before.gemini) < Math.abs(top('Gemini') - before.mercury), row('Apollo').getAnimations().length])
         .toEqual([[['translate'], ['translate']], true, 0]);
