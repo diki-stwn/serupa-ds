@@ -543,4 +543,31 @@ describe('Drawer: motion (DZ1)', () => {
       expect(getComputedStyle(pn).translate).toBe('none');
     });
   });
+
+  test('right and bottom: the panel slides straight in from its edge and straight back out to it, every frame, and the drawer never scrolls (FN1)', async () => {
+    if (!CSS.supports('overlay', 'auto')) return;
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      const d = drw(), pn = panel();
+      for (const side of ['right', 'bottom'] as const) {
+        React.act(() => ctl.setSide!(side));
+        const edge = () => { const r = pn.getBoundingClientRect(); return Math.round(side === 'right' ? r.left : r.top); };
+        const frames = async () => { const seen: number[] = []; do { seen.push(edge()); await new Promise(requestAnimationFrame); } while (pn.getAnimations().length); if (getComputedStyle(d).display !== 'none') seen.push(edge()); return seen; };
+        const scrolled: number[] = [];
+        const onScroll = () => scrolled.push(d.scrollLeft + d.scrollTop);
+        d.addEventListener('scroll', onScroll);
+        flushSync(() => ctl.setOpen!(true));
+        const enter = await frames();
+        flushSync(() => ctl.setOpen!(false));
+        const exit = await frames();
+        d.removeEventListener('scroll', onScroll);
+        // In: from past the screen's edge, only ever toward where it rests; out: only ever back past the edge.
+        const rest = enter[enter.length - 1], far = side === 'right' ? innerWidth : innerHeight;
+        expect([enter[0] >= far - 2, enter.every((v, i) => i === 0 || v <= enter[i - 1] + 1), rest < far]).toEqual([true, true, true]);
+        expect([exit[0] <= rest + 1, exit.every((v, i) => i === 0 || v >= exit[i - 1] - 1), exit.filter((v) => v < rest - 1)]).toEqual([true, true, []]);
+        expect([scrolled, d.scrollLeft, d.scrollTop]).toEqual([[], 0, 0]);
+      }
+    });
+  });
 });

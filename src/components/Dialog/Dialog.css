@@ -23,9 +23,11 @@
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  overflow: hidden;
+  overflow: clip;   /* clip, not hidden: not a scroll container, so focusing the panel's first control can't scroll it */
+  /* Centered whether open or closing (FM1): on [open] alone, the panel jumped to the top-left corner as it faded out. */
+  align-items: center; justify-content: center;
 }
-.dk-dialog[open] { display: flex; align-items: center; justify-content: center; }
+.dk-dialog[open] { display: flex; }
 .dk-dialog--sm { --dk-dialog-width: var(--dialog-width-sm, var(--container-sm)); }
 .dk-dialog--lg { --dk-dialog-width: var(--dialog-width-lg, var(--container-2xl)); }
 .dk-dialog::backdrop { background: var(--dialog-overlay, var(--overlay)); }

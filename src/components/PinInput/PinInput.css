@@ -36,7 +36,7 @@
 @media (hover: hover) { .dk-pin-input:hover:not(.dk-pin-input--disabled, .dk-pin-input--readonly, :focus-within) { --dk-pin-bd: var(--pin-input-border-hover, var(--field-border-hover)); } }
 /* The box the caret is in: the focus color on its border and a ring hugging it (2px in all), and a transparent
    outline that forced-colors mode draws, since box-shadow rings disappear there. */
-.dk-pin-input__box--active { --dk-pin-bd: var(--dk-pin-ring); box-shadow: 0 0 0 var(--pin-input-border-width, var(--border-width-1)) var(--dk-pin-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
+.dk-pin-input__box--active { transition-duration: var(--duration-0); --dk-pin-bd: var(--dk-pin-ring); box-shadow: 0 0 0 var(--pin-input-border-width, var(--border-width-1)) var(--dk-pin-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-pin-input__box--caret::after {
   content: ""; width: var(--border-width-1); height: var(--spacing-4); background: var(--pin-input-text, var(--text));
   animation: dk-pin-caret var(--motion-loop-blink) var(--ease-move) infinite alternate;

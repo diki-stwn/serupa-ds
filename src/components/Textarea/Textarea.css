@@ -48,7 +48,7 @@
 @media (hover: hover) { .dk-textarea:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-border-hover, var(--field-border-hover)); } }
 /* Focus: like Input, the border and a ring hugging it take the focus color (2px in all), and a transparent outline
    that forced-colors mode draws, since box-shadow rings disappear there. */
-.dk-textarea:focus-within { --dk-ta-bd: var(--dk-ta-ring); box-shadow: 0 0 0 var(--textarea-border-width, var(--border-width-1)) var(--dk-ta-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
+.dk-textarea:focus-within { transition-duration: var(--duration-0); --dk-ta-bd: var(--dk-ta-ring); box-shadow: 0 0 0 var(--textarea-border-width, var(--border-width-1)) var(--dk-ta-ring); outline: var(--focus-ring-width) solid transparent; outline-offset: var(--spacing-0); }
 .dk-textarea--invalid { --dk-ta-bd: var(--textarea-invalid, var(--danger)); --dk-ta-ring: var(--textarea-invalid, var(--danger)); }
 @media (hover: hover) { .dk-textarea--invalid:hover:not(.dk-textarea--disabled, :has(.dk-textarea__field:disabled), .dk-textarea--readonly, :focus-within) { --dk-ta-bd: var(--textarea-invalid, var(--danger)); } }
 .dk-textarea--readonly { background: var(--textarea-bg-readonly, var(--surface-muted)); }
