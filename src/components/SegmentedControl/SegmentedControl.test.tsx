@@ -197,8 +197,10 @@ describe('SegmentedControl', () => {
     const label = (v: string) => seg('lg', v).lastElementChild as HTMLElement;
     const whole = (v: string) => label(v).scrollWidth <= label(v).clientWidth;
     await expect.poll(() => seg('lg', 'i').title).toBe('Internationalisation-preferences');
-    expect([Math.round(el('lg').getBoundingClientRect().width) <= 320, whole('n'), whole('s'), whole('i'), seg('lg', 'n').title, seg('lg', 's').title, off('lg')])
-      .toEqual([true, true, true, false, '', '', [0, 0]]);
+    expect([Math.round(el('lg').getBoundingClientRect().width) <= 320, whole('n'), whole('s'), whole('i'), seg('lg', 'n').title, seg('lg', 's').title])
+      .toEqual([true, true, true, false, '', '']);
+    // The selection follows the last layout change (a late font can still move the columns), so poll for it.
+    await expect.poll(() => off('lg')).toEqual([0, 0]);
     // Room to spare: no label cut, no title, and the control as wide as its segments need.
     const l = items('ok').map((b) => b.lastElementChild as HTMLElement);
     expect([l.every((x) => x.scrollWidth <= x.clientWidth), items('ok').every((b) => !b.title), Math.round(el('ok').getBoundingClientRect().width) < 320]).toEqual([true, true, true]);
