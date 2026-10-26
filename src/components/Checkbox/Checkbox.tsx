@@ -199,6 +199,7 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   }, [ref, nameRef]);
   useIsoLayoutEffect(function () { if (own.current) own.current.indeterminate = mixed; });   // every render: a click clears it natively
   const said = React.useRef(false);   // only clears a message it set
+  // every render: whether the group needs a box checked changes with any box's state, not with this box's props.
   useIsoLayoutEffect(function () {
     if (!own.current || (!need && !said.current)) return;
     own.current.setCustomValidity(need ? labels.selectAtLeastOne : "");
