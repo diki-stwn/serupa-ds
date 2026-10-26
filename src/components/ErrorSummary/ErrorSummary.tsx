@@ -49,7 +49,7 @@ export const ErrorSummary = /* @__PURE__ */ component<HTMLDivElement, ErrorSumma
     <div tabIndex={-1} aria-labelledby={heading} {...rest} ref={(n) => { box.current = n; setRef(ref, n); }} className={cn("dk-error-summary", className)} data-component="error-summary">
       {React.createElement("h" + level, { id: heading, className: "dk-error-summary__title" }, title != null ? title : sds.labels.errorSummaryTitle(list.length))}
       {description != null ? <div className="dk-error-summary__description">{description}</div> : null}
-      <ul className="dk-error-summary__list">
+      <ul className="dk-error-summary__list" role="list">
         {list.map((e, k) => (
           <li key={e.field + k} className="dk-error-summary__item">
             <a className="dk-error-summary__link" href={"#" + e.field} onClick={(ev) => go(ev, e.field)}>{e.message}</a>
