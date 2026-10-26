@@ -56,7 +56,7 @@ const { Input } = window.Serupa;
 - A `prefix` or `suffix` is added to the field's `aria-describedby` (after your own), so screen readers say "https://" or "kg" too. A press on it focuses the field. Its `text-muted` keeps 4.5:1 on the field in all six themes (`Input.test.tsx`).
 - Every input needs a name: a visible `<label htmlFor>` (best) or `aria-label`. A placeholder isn't a label: it disappears as soon as someone types.
 - `invalid` sets `aria-invalid`, but color alone doesn't explain the problem: put the message in text and link it with `aria-describedby`.
-- Icons are decorative (`aria-hidden`) and don't take clicks, so clicking one focuses nothing; keep meaning in the label.
+- Icons are decorative (`aria-hidden`). A press anywhere on the box, on an icon, the side padding or the count, focuses the field with the caret at the end, as the text cursor over the box promises; keep meaning in the label.
 - Text keeps 4.5:1 on `field`, the placeholder 4.5:1 and the border 3:1, in all six themes (`Input.test.tsx`).
 - Use the right `type` (`email`, `tel`, `url`, `search`) and `autoComplete` so phones show the right keyboard and browsers can fill it in. Email and URL fields, and ones with `autoComplete` `username`, `email`, `url` or `one-time-code`, get `autoCapitalize="off"`, `autoCorrect="off"` and `spellCheck={false}`, so a phone doesn't capitalize or "correct" an address. Any of the three you pass wins.
 - The count is linked with `aria-describedby` (after any ids you pass), so screen readers read it when the field gets focus. While typing it's read out only near the limit: once when a few characters are left (10, or a fifth of a short limit) and once when it's reached. The words are the `charactersLeft` label.

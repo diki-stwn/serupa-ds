@@ -33,6 +33,23 @@ describe('Input', () => {
     expect(document.activeElement).toBe(field('kg'));
   });
 
+  test('a press anywhere on the box (icons, side padding, the count) focuses the field with the caret at the end; a press on a disabled box does nothing (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}>
+      <Input id="bx" size="lg" leftIcon="search" rightIcon="mail" defaultValue="hello" aria-label="Find" />
+      <Input id="bx-off" size="lg" leftIcon="search" disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    for (const x of [2, 20, b.width - 20, b.width - 2]) {
+      (document.getElementById('bx-away') as HTMLElement).focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === field('bx'), field('bx').selectionStart]).toEqual([x, true, 5]);
+    }
+    (document.getElementById('bx-away') as HTMLElement).focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(field('bx-off'));
+  });
+
   test('keyboard table: Tab reaches the field; Enter submits the form it\'s in (FH1)', async () => {
     const sent: string[] = [];
     await render(<form onSubmit={(e) => { e.preventDefault(); sent.push(new FormData(e.currentTarget).get('who') as string); }}>

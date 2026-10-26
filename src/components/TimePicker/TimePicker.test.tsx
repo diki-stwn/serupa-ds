@@ -41,7 +41,7 @@ describe('TimePicker', () => {
 
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
-    await render(<TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await render(<><TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} /><button>After</button></>);   // Tab stays on the page: Firefox fires no blur when it leaves
     await fill('tpi', 'lunch');
     await fill('tpi', '22:00');
     expect([el('tpi').value, calls]).toEqual(['09:00', ['lunch:unreadable', '22:00:unavailable']]);

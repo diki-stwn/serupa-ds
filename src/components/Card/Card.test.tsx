@@ -186,7 +186,7 @@ describe('Card', () => {
     p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
     p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 2 }));   // a right click: nothing
     expect([location.hash, open.mock.calls, aux]).toEqual(['', Array(4).fill([href, '_blank', 'noopener']), [1, 2]]);
-    p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    await userEvent.click(p);   // a real click: Firefox doesn't follow a link from a click inside a synthetic one
     expect([location.hash, open.mock.calls.length]).toEqual(['#mod', 4]);
     history.replaceState(null, '', location.pathname + location.search);
     open.mockRestore();
