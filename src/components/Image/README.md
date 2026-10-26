@@ -26,7 +26,7 @@ import { Image } from "serupa-ds";
 
 - Write `alt` to say what the picture shows. Use `""` only for a picture that's there for decoration.
 - Use `fit="contain"` when the whole picture must show, such as a receipt or a document.
-- With `viewable`, pass a larger `fullSrc` when `src` is a small thumbnail.
+- With `viewable`, pass a larger `fullSrc` when `src` is a small thumbnail. Without it, the viewer shows the largest `srcSet` candidate, or `src`.
 - Ask for confirmation yourself before `onRemove` removes something for good.
 
 ## Behavior
@@ -34,7 +34,7 @@ import { Image } from "serupa-ds";
 - It loads lazily (`loading="lazy"`) and decodes off the main thread (`decoding="async"`) by default. For the main picture at the top of a page, pass `priority`: it loads at once with `fetchpriority="high"`, so it shows sooner (Largest Contentful Paint).
 - With `ratio="auto"`, pass the picture's `width` and `height`: the frame takes their shape before the picture arrives (at most as wide as its container), so the page doesn't jump when it loads. Without them, or a fixed ratio, the frame has no height until then, and Image warns in the console once.
 - While loading, the frame shows the placeholder fill with a lighter band sweeping through it every 2s, like Loader's skeleton (a still fill with reduced motion or forced colors). The band moves on `translate`, so it costs no repaints. In server-rendered HTML the picture is never hidden, so it paints as soon as it arrives, before your script runs or without it. A picture that hydrates from that HTML stays shown, since it may have painted in part already. A lazy picture that mounts on the client and is still loading a frame later is hidden and fades in over 200ms when it arrives (at once with reduced motion); a `priority` one is never hidden. A frame with `ratio="auto"` is at least 48px until the picture arrives, so give it a width and set `width` and `height` on the `<img>` to avoid a jump.
-- The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture.
+- The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture. Its picture has the frame's placeholder while it loads (in the shape `width` and `height` give, or the thumbnail's) and the frame's fallback if it fails. Since the title already names it, the picture itself has `alt=""`, so it isn't read twice.
 - The remove button only calls `onRemove`; ask for confirmation yourself if removing can't be undone.
 
 ## Accessibility
@@ -57,7 +57,7 @@ import { Image } from "serupa-ds";
 | `rounded` | `boolean` | `true` | Corners from `--image-radius`. |
 | `fallback` | `ReactNode` | a broken-image icon | Shown if the picture fails to load. |
 | `viewable` | `boolean` | `false` | Makes the picture a button that opens it full size in a Dialog. |
-| `fullSrc` | `string` | `src` | A larger version for the viewer. |
+| `fullSrc` | `string` | the largest `srcSet` candidate, or `src` | A larger version for the viewer. |
 | `viewLabel` | `string` | `"View image: <alt>"` | The view button's name. |
 | `onRemove` | `() => void` | | Shows a remove button in the top end corner. |
 | `removeLabel` | `string` | `"Remove image: <alt>"` | The remove button's name. |

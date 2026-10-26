@@ -133,11 +133,32 @@ describe('Image', () => {
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => dialog().open).toBe(true);
     await finished();
-    const d = dialog(), full = d.querySelector<HTMLImageElement>('.dk-image__full')!;
-    expect([d.querySelector('.dk-dialog__title')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.alt, d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, 'Harbor at dusk', true]);
+    const d = dialog(), full = d.querySelector<HTMLImageElement>('img')!;
+    // The Dialog is titled with the alt text, so the picture is alt="" (not read twice).
+    expect([d.querySelector('.dk-dialog__title')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.getAttribute('alt'), d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, '', true]);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => dialog().open).toBe(false);
     expect(document.activeElement).toBe(viewBtn());
+  });
+
+  test('the viewer: with no fullSrc it shows the largest srcSet candidate; its stage has the picture\'s shape (width and height, 2:1) and the placeholder fill while the picture loads', async () => {
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+    await render(<Pic id="set" alt="Harbor" ratio="video" viewable width={400} height={200} srcSet={`${PIC}#small 400w, ${slow} 1600w, ${PIC}#mid 800w`} />);
+    await userEvent.click(frame('set').querySelector('button')!);
+    const stage = () => frame('set').querySelector<HTMLElement>('dialog [data-state]')!;
+    await expect.poll(() => stage()).toBeTruthy();
+    const r = stage().getBoundingClientRect();
+    expect([stage().querySelector('img')!.getAttribute('src'), stage().dataset.state, css(stage()).backgroundColor, Math.round(r.width / r.height)]).toEqual([slow, 'loading', color('var(--surface-muted)'), 2]);
+    await expect.poll(() => stage().dataset.state, { timeout: 5000 }).toBe('loaded');
+  });
+
+  test('the viewer: a full-size picture that fails shows the fallback (named by the alt text), not the browser\'s broken image', async () => {
+    await render(<Pic id="vb" alt="Harbor" ratio="video" viewable fullSrc={BROKEN} />);
+    await expect.poll(() => frame('vb').dataset.state).toBe('loaded');
+    await userEvent.click(frame('vb').querySelector('button')!);
+    await expect.poll(() => frame('vb').querySelector<HTMLElement>('dialog [data-state]')?.dataset.state).toBe('error');
+    const fb = frame('vb').querySelector('dialog [role=img]')!;
+    expect([fb.getAttribute('role'), fb.getAttribute('aria-label'), !!fb.querySelector('svg'), frame('vb').querySelector('dialog img')]).toEqual(['img', 'Harbor', true, null]);
   });
 
   test('a click opens it too, and the × closes it', async () => {

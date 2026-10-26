@@ -76,6 +76,24 @@ describe('Textarea', () => {
     expect([el('kb-ta').value, document.activeElement?.id]).toEqual(['a\nb', 'kb-after']);
   });
 
+  test('a press on the box outside the field (the count row, its side) focuses the field with the caret at the end; a disabled one does nothing (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}>
+      <Textarea id="tp" aria-label="Bio" showCount maxLength={50} defaultValue="hello" />
+      <Textarea id="tp-off" aria-label="Off" showCount disabled />
+      <button id="tp-away">away</button>
+    </div>, { wrapper: EnUS });
+    const b = el('tp').parentElement!, f = el('tp').getBoundingClientRect(), r = b.getBoundingClientRect();
+    const below = f.bottom - r.top + (r.bottom - f.bottom) / 2;
+    for (const x of [8, r.width / 2, r.width - 8]) {
+      el('tp-away').focus();
+      await userEvent.click(b, { position: { x, y: below } });
+      expect([x, document.activeElement === el('tp'), el('tp').selectionStart]).toEqual([x, true, 5]);
+    }
+    el('tp-away').focus();
+    await userEvent.click(el('tp-off').parentElement!, { position: { x: 8, y: 4 }, force: true });
+    expect(document.activeElement).not.toBe(el('tp-off'));
+  });
+
   test('typing (with a new line) updates a controlled value through onChange', async () => {
     await setup();
     await userEvent.click(el('md'));
