@@ -21,6 +21,6 @@
 /* A small button is 24px across, the WCAG 2.2 minimum target (2.5.8). The buttons on either side overlap it by 1px (the
    next one, and the one before when it comes to the front pressed, hovered or focused), which would leave 22px of it
    showing: an icon-only one is wider by both overlaps in a row, and every one taller by them in a column. */
-.dk-button-group--attached:not(.dk-button-group--vertical) > .dk-btn--icon-only.dk-btn--size-sm { width: calc(var(--button-height-sm, var(--control-height-sm)) + 2 * var(--button-group-overlap, var(--border-width-1))); }
-.dk-button-group--attached.dk-button-group--vertical > .dk-btn--size-sm { height: calc(var(--button-height-sm, var(--control-height-sm)) + 2 * var(--button-group-overlap, var(--border-width-1))); }
+.dk-button-group--attached:not(.dk-button-group--vertical) > .dk-btn--icon-only.dk-btn--size-sm { width: calc(var(--button-height-sm, var(--control-height-sm)) + var(--button-group-overlap, var(--border-width-1)) + var(--button-group-overlap, var(--border-width-1))); }
+.dk-button-group--attached.dk-button-group--vertical > .dk-btn--size-sm { height: calc(var(--button-height-sm, var(--control-height-sm)) + var(--button-group-overlap, var(--border-width-1)) + var(--button-group-overlap, var(--border-width-1))); }
 }
