@@ -16,6 +16,12 @@ export interface FileUploadLabels {
   fileOnlyOne: (name: string) => string;
   /** FileUpload: shown when a form is submitted without a required file. */
   fileMissing: (multiple: boolean) => string;
+  /** FileUpload: a dropped folder (only files can be added), and a file that's already in the list. */
+  fileFolder: (name: string) => string;
+  fileAlreadyAdded: (name: string) => string;
+  /** FileUpload: said to screen readers as files are added (their names) and removed. */
+  filesAdded: (names: string[]) => string;
+  fileRemoved: (name: string) => string;
 }
 // "an image or PDF", "a PNG, JPG or GIF": "an" before a vowel sound ("an SVG", said "ess"; "an MP4").
 function anyOf(types: string[]): string {
@@ -35,6 +41,10 @@ export const en: FileUploadLabels = {
   fileTooMany: (name, max) => `${name} wasn't added: up to ${max} ${max === 1 ? "file" : "files"}.`,
   fileOnlyOne: (name) => `${name} wasn't added: one file only.`,
   fileMissing: (multiple) => multiple ? "Choose at least one file." : "Choose a file.",
+  fileFolder: (name) => `${name} is a folder: choose the files in it instead.`,
+  fileAlreadyAdded: (name) => `${name} is already added.`,
+  filesAdded: (names) => names.length === 1 ? `${names[0]} added.` : `${names.length} files added.`,
+  fileRemoved: (name) => `${name} removed.`,
 };
 const ID_KINDS: Record<string, string> = { image: "gambar", video: "video", "audio file": "file audio", "text file": "file teks" };
 export const id: FileUploadLabels = {
@@ -51,4 +61,8 @@ export const id: FileUploadLabels = {
   fileTooMany: (name, max) => `${name} tidak ditambahkan: maksimal ${max} file.`,
   fileOnlyOne: (name) => `${name} tidak ditambahkan: hanya satu file.`,
   fileMissing: (multiple) => multiple ? "Pilih setidaknya satu file." : "Pilih file.",
+  fileFolder: (name) => `${name} adalah folder: pilih file di dalamnya.`,
+  fileAlreadyAdded: (name) => `${name} sudah ditambahkan.`,
+  filesAdded: (names) => names.length === 1 ? `${names[0]} ditambahkan.` : `${names.length} file ditambahkan.`,
+  fileRemoved: (name) => `${name} dihapus.`,
 };

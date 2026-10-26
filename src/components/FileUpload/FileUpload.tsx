@@ -11,10 +11,11 @@ import * as icons from "../../material/builtin";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { announce } from "../../internal/announce";
 
 export { formatFileSize };
 
-export type FileRejection = { file: File; reason: 'type' | 'size' | 'count'; message: string };
+export type FileRejection = { file: File; reason: 'type' | 'size' | 'count' | 'folder' | 'duplicate'; message: string };
 export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue' | 'title'> {
   /** The chosen files (controlled). Use with onFilesChange. */
   files?: File[];
@@ -121,12 +122,14 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     if ((!first || first === e.currentTarget) && chooser.current) chooser.current.focus();
   };
   const set = (next: File[]) => { if (next.length) setMissing(false); if (!controlled) setOwn(next); if (props.onFilesChange) props.onFilesChange(next); };
-  const add = (list: FileList | File[] | null) => {
+  // folders: dropped entries that are folders (FQ1), which arrive as a File with no type and can't be read.
+  const add = (list: FileList | File[] | null, folders?: Set<File>) => {
     if (!list || still) return;
     const incoming = Array.from(list), ok: File[] = [], bad: FileRejection[] = [];
     const limit = props.maxSize != null ? formatFileSize(props.maxSize) : "";
     for (const f of incoming) {
-      if (!accepts(f, props.accept)) bad.push({ file: f, reason: "type", message: L.fileWrongType(f.name, acceptedTypes(props.accept || "")) });
+      if (folders && folders.has(f)) bad.push({ file: f, reason: "folder", message: L.fileFolder(f.name) });
+      else if (!accepts(f, props.accept)) bad.push({ file: f, reason: "type", message: L.fileWrongType(f.name, acceptedTypes(props.accept || "")) });
       else if (props.maxSize != null && f.size > props.maxSize) bad.push({ file: f, reason: "size", message: L.fileTooLarge(f.name, limit) });
       else ok.push(f);
     }
@@ -135,7 +138,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     else {
       next = files.slice();
       for (const f of ok) {
-        if (next.some((g) => same(f, g))) continue;
+        if (next.some((g) => same(f, g))) { bad.push({ file: f, reason: "duplicate", message: L.fileAlreadyAdded(f.name) }); continue; }
         if (props.maxFiles != null && next.length >= props.maxFiles) { bad.push({ file: f, reason: "count", message: L.fileTooMany(f.name, props.maxFiles) }); continue; }
         next.push(f);
       }
@@ -143,9 +146,43 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     if (!multiple && ok.length > 1) for (const f of ok.slice(1)) bad.push({ file: f, reason: "count", message: L.fileOnlyOne(f.name) });
     setRejected(bad);
     if (bad.length && props.onReject) props.onReject(bad);
-    if (next !== files) set(next);
+    if (next !== files) {
+      set(next);
+      // Said politely (FQ1): the picker hands focus back to the button, so the list grows out of sight.
+      const added = next.filter((f) => !files.includes(f));
+      if (added.length) announce(L.filesAdded(added.map((f) => f.name)));
+    }
   };
-  const remove = (f: File) => { set(files.filter((g) => g !== f)); setRejected([]); if (chooser.current) chooser.current.focus(); };   // the row and its button are gone
+  // Removed, focus moves to the next file's remove button (else the one before, else the choose button), so a
+  // keyboard user clearing several files stays in the list (FQ1); the change is said politely.
+  const list = React.useRef<HTMLUListElement | null>(null);
+  const [refocus, setRefocus] = React.useState<number | null>(null);
+  const remove = (f: File) => {
+    setRefocus(files.indexOf(f));
+    set(files.filter((g) => g !== f)); setRejected([]);
+    announce(L.fileRemoved(f.name));
+  };
+  React.useEffect(() => {
+    if (refocus == null) return;
+    setRefocus(null);
+    const left = list.current ? list.current.querySelectorAll<HTMLButtonElement>("li button") : [];
+    const to = left.length ? left[Math.min(refocus, left.length - 1)] : chooser.current;
+    if (to) to.focus();
+  }, [refocus, files]);
+
+  // A file dropped just outside the area would be opened by the browser in place of the page, losing what was
+  // typed (FQ1): while one can be added here, a file drop nothing else took is stopped on the document.
+  React.useEffect(() => {
+    if (still) return;
+    const stop = (e: DragEvent) => {
+      if (e.defaultPrevented || !e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+      e.preventDefault();
+      if (e.type === "dragover") e.dataTransfer.dropEffect = "none";
+    };
+    document.addEventListener("dragover", stop);
+    document.addEventListener("drop", stop);
+    return () => { document.removeEventListener("dragover", stop); document.removeEventListener("drop", stop); };
+  }, [still]);
 
   // Keep the native input's files in step with the list, so a form sends what's shown.
   React.useEffect(() => {
@@ -160,7 +197,14 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     onDragEnter: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); depth.current++; setOver(true); },
     onDragOver: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; },
     onDragLeave: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; depth.current = Math.max(0, depth.current - 1); if (!depth.current) setOver(false); },
-    onDrop: (e: React.DragEvent) => { if (still || !hasFiles(e)) return; e.preventDefault(); depth.current = 0; setOver(false); add(e.dataTransfer.files); },
+    onDrop: (e: React.DragEvent) => {
+      if (still || !hasFiles(e)) return;
+      e.preventDefault(); depth.current = 0; setOver(false);
+      // The file items line up with dataTransfer.files; a folder's entry says so.
+      const dropped = Array.from(e.dataTransfer.files), items = Array.from(e.dataTransfer.items || []).filter((it) => it.kind === "file"), folders = new Set<File>();
+      items.forEach((it, i) => { const entry = typeof it.webkitGetAsEntry === "function" ? it.webkitGetAsEntry() : null; if (entry && entry.isDirectory && dropped[i]) folders.add(dropped[i]); });
+      add(dropped, folders);
+    },
   };
   const hasHint = props.hint != null && props.hint !== "";
   // In a Field (whose <label for> reaches only the hidden input), the button is named "Due date, Choose a file" and
@@ -192,7 +236,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
         </div>
       ) : null}
       {files.length ? (
-        <ul className="dk-file-upload__list" aria-label={multiple ? sds.labels.chosenFiles : sds.labels.chosenFile}>
+        <ul ref={list} className="dk-file-upload__list" aria-label={multiple ? sds.labels.chosenFiles : sds.labels.chosenFile}>
           {files.map((f, i) => (
             <li key={f.name + f.size + f.lastModified + i} className="dk-file-upload__item">
               <Icon icon={iconFor(f)} className="dk-file-upload__file-icon" />
