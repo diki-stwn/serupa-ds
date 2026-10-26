@@ -58,6 +58,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
 
   // What a load added, said once count grows (with the labels and total of that render).
   const latest = React.useRef({ labels, total, locale });
+  // every render: keeps the latest labels and total for the announcement below.
   React.useEffect(() => { latest.current = { labels, total, locale }; });
   const before = React.useRef(count);
   React.useEffect(() => {

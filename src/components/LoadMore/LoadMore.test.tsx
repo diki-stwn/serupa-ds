@@ -11,6 +11,8 @@ import { LoadMore } from './LoadMore';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const button = (id: string) => el(id).querySelector('button') as HTMLButtonElement;
 const region = () => document.querySelector('[data-dk-announcer]') as HTMLElement;
+// The end text and the summary, found by what they say.
+const para = (id: string, text: string) => [...el(id).querySelectorAll('p')].find((p) => p.textContent === text) ?? null;
 const wait = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 // A list that loads `step` more per press, up to `all`, each load taking `ms`.
@@ -26,7 +28,7 @@ describe('LoadMore', () => {
     await render(<LoadMore id="x" ref={ref} className="extra" data-x="y" onLoadMore={() => {}} count={20} total={1340} />);
     const e = el('x');
     expect([e.tagName, ref.current === e, e.className, e.dataset.x, e.dataset.component]).toEqual(['DIV', true, 'dk-load-more extra', 'y', 'load-more']);
-    expect([e.querySelector('.dk-load-more__summary')!.textContent, button('x').textContent, button('x').className.includes('dk-btn--outline')]).toEqual(['Showing 20 of 1,340', 'Load more', true]);
+    expect([para('x', 'Showing 20 of 1,340')?.textContent, button('x').textContent, button('x').className.includes('dk-btn--outline')]).toEqual(['Showing 20 of 1,340', 'Load more', true]);
   });
 
   test('pressing it loads (one press until the promise settles), says what was added, keeps focus on the button, and focuses the end text when the last page leaves no button', async () => {
@@ -42,8 +44,8 @@ describe('LoadMore', () => {
     await expect.poll(() => region().textContent, { timeout: 3000 }).toBe('10 more loaded. Showing 20 of 30.');
     expect(document.activeElement).toBe(button('lm'));
     await userEvent.keyboard('{Enter}');
-    await expect.poll(() => el('lm').querySelector('.dk-load-more__end') !== null, { timeout: 3000 }).toBe(true);
-    const end = el('lm').querySelector('.dk-load-more__end') as HTMLElement;
+    await expect.poll(() => para('lm', 'You’ve reached the end') !== null, { timeout: 3000 }).toBe(true);
+    const end = para('lm', 'You’ve reached the end')!;
     expect([end.textContent, document.activeElement === end, loads]).toEqual(['You’ve reached the end', true, 2]);
   });
 
@@ -61,7 +63,7 @@ describe('LoadMore', () => {
   test('infinite: loads as it nears the viewport, again only after count changes, and not past the end', async () => {
     let loads = 0;
     await render(<div style={{ height: 120, overflow: 'auto' }}><Paged id="inf" step={2} all={6} infinite onLoad={() => loads++} /></div>);
-    await expect.poll(() => el('inf').querySelector('.dk-load-more__end') !== null, { timeout: 3000 }).toBe(true);
+    await expect.poll(() => para('inf', 'You’ve reached the end') !== null, { timeout: 3000 }).toBe(true);
     await wait(200);
     expect(loads).toBe(2);
   });
