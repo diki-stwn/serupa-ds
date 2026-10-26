@@ -5,6 +5,7 @@ import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import type { Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
@@ -57,21 +58,9 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
   const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const focusFirst = props.initialFocus !== "panel";
 
-  // Closing: the content stays (inert) while the panel fades out, so it doesn't fade an empty box; once its
-  // transitions end, or at once where none run, it goes. Open on arrival: there from the first frame, no fade.
-  const [leaving, setLeaving] = React.useState(false), [was, setWas] = React.useState(open);
-  if (was !== open) { setWas(open); setLeaving(!open); }
-  const arrived = React.useRef(open); if (!open) arrived.current = false;
+  // Closing: the content stays (inert) while the panel fades out (DZ1); one open on arrival doesn't fade in.
+  const exit = useExit(open, panelRef);
   useAnchoredLayer(open, panelRef, triggerRef, { placement: props.placement, offsetVar: "--dk-popover-offset", onOutside: () => close("outside", false), inside: triggerRef });
-  useIsoLayoutEffect(() => {
-    const p = panelRef.current;
-    if (!leaving || !p) return;
-    const runs = typeof p.getAnimations === "function" ? p.getAnimations() : [];
-    if (!runs.length) { setLeaving(false); return; }
-    let on = true;
-    void Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => { if (on) setLeaving(false); });
-    return () => { on = false; };
-  }, [leaving]);
   // On open, focus moves inside (a press outside the panel and its trigger closes it; focus stays where the press put it).
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
@@ -111,9 +100,9 @@ export const Popover = /* @__PURE__ */ named("Popover", function Popover(props: 
       {trigger}
       <div ref={(n) => { panelRef.current = n; if (!titled) nameRef(n); }} id={id} role="dialog" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-labelledby={titled ? id + "-title" : undefined} aria-label={titled ? undefined : props["aria-label"]}
-        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"} data-instant={arrived.current ? "" : undefined}
+        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
         inert={!open || undefined} onKeyDown={onKeyDown} onBlur={onBlur}>
-        {open || leaving ? <>
+        {open || exit.leaving ? <>
           {titled ? <H id={id + "-title"} className="dk-popover__title">{props.title}</H> : null}
           <div className="dk-popover__body">{content}</div>
         </> : null}
