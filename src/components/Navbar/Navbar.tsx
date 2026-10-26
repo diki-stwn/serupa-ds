@@ -62,7 +62,21 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     set();
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(set) : null;
     if (ro) ro.observe(h);
-    return () => { if (ro) ro.disconnect(); root.style.removeProperty("--dk-navbar-offset"); };
+    // Safari doesn't always take the whole scroll-padding when it scrolls a focused field into view, and leaves a few
+    // pixels of it under the bar. After the browser's own focus scroll, the page moves by what's still covered. Not for
+    // a field in a dialog or popover: those sit above the page, not under the bar.
+    let raf = 0;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target;
+      if (!(t instanceof Element) || h.contains(t) || t.closest("dialog, [popover]")) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const covered = h.getBoundingClientRect().bottom - t.getBoundingClientRect().top;
+        if (covered > 0 && document.activeElement === t) window.scrollBy(0, -covered);
+      });
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => { if (ro) ro.disconnect(); cancelAnimationFrame(raf); document.removeEventListener("focusin", onFocus); root.style.removeProperty("--dk-navbar-offset"); };
   }, [props.sticky]);
   // closes when the screen grows past the breakpoint, so it isn't open the next time it shrinks
   React.useEffect(() => {
