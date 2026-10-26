@@ -101,7 +101,7 @@ describe('Kbd', () => {
     expect(keys('nav')).toBe('Home End PgUpPage Up(Page Up) PgDnPage Down(Page Down) PgUpPage Up(Page Up)');
     expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
     expect(spoken('dash')).toBe('Control + -');
-    s.unmount();
+    await s.unmount();
     vi.restoreAllMocks();
     device('MacIntel', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)');
     await render(<More />);
