@@ -65,7 +65,7 @@ export const AvatarGroup = /* @__PURE__ */ component<HTMLDivElement, AvatarGroup
         <span className="dk-avatar-group__item" style={{ zIndex: 1 }}>
           {props.onMore || !props.showMore ? plus(props.onMore) : (
             <Popover trigger={plus()} aria-label={moreName} placement="bottom-start">
-              <ul className="dk-avatar-group__list">
+              <ul className="dk-avatar-group__list" role="list">
                 {all.slice(shown.length).map((el, i) => {
                   const name = (el.props as { name?: string }).name;
                   // An Avatar is shown with its name written next to it (alt="", so it isn't read twice); a wrapped one as it is.

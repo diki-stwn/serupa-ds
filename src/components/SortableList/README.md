@@ -43,7 +43,7 @@ const [tasks, setTasks] = React.useState(initialTasks);
 
 ## Accessibility
 
-- A `<ul>` of `<li>` rows. Each handle is a button named "Reorder" and the item's name, described by the keyboard instructions, with `aria-pressed` while its row is picked up.
+- A `<ul role="list">` of `<li>` rows (the role keeps it a list in Safari). Each handle is a button named "Reorder" and the item's name, described by the keyboard instructions, with `aria-pressed` while its row is picked up.
 - Screen readers hear each step in a polite live region: "Picked up Gemini, position 2 of 4.", "Gemini, position 3 of 4.", "Dropped Gemini at position 4 of 4." or "Cancelled. Gemini is back at position 2 of 4." The words come from `SerupaProvider` labels (Indonesian in `idLabels`).
 - Screen reader users in browse mode activate the handle with Enter, which picks the row up the same way.
 - The handle is at least 24 by 24px, and it keeps 3:1 (the text 4.5:1) on the row in all six themes (`SortableList.test.tsx`). In forced-colors mode the moving row gets a Highlight outline.

@@ -236,7 +236,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
         </div>
       ) : null}
       {files.length ? (
-        <ul ref={list} className="dk-file-upload__list" aria-label={multiple ? sds.labels.chosenFiles : sds.labels.chosenFile}>
+        <ul ref={list} role="list" className="dk-file-upload__list" aria-label={multiple ? sds.labels.chosenFiles : sds.labels.chosenFile}>
           {files.map((f, i) => (
             <li key={f.name + f.size + f.lastModified + i} className="dk-file-upload__item">
               <Icon icon={iconFor(f)} className="dk-file-upload__file-icon" />

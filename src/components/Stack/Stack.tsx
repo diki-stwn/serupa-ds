@@ -29,8 +29,10 @@ export const Stack = /* @__PURE__ */ component<HTMLElement, StackProps>("Stack",
   const align = oneOf(["stretch", "start", "center", "end", "baseline"] as const, props.align, row ? "center" : "stretch");
   const justify = oneOf(["start", "center", "end", "between"] as const, props.justify, "start");
   const gap = space(props.gap);
-  return React.createElement(oneOf(TAGS, props.as, "div"), Object.assign(rest, {
-    ref: ref, "data-component": "stack",
+  const tag = oneOf(TAGS, props.as, "div");
+  // role="list": Safari drops list semantics from a <ul>/<ol> styled list-style: none, so VoiceOver stops saying "list, 6 items" (FU1).
+  return React.createElement(tag, Object.assign(rest, {
+    ref: ref, "data-component": "stack", role: rest.role ?? (tag === "ul" || tag === "ol" ? "list" : undefined),
     className: cn("dk-stack", row && "dk-stack--row", "dk-stack--align-" + align, justify !== "start" && "dk-stack--justify-" + justify, props.wrap && "dk-stack--wrap", props.className),
     style: gap ? Object.assign({ "--dk-stack-gap": gap }, props.style) : props.style,
   }));
