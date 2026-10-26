@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { page, userEvent } from 'vitest/browser';
+import { cdp, page, server, userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { PinInput } from './PinInput';
@@ -14,6 +14,20 @@ const resolve = (name: string) => { const s = document.createElement('span'); s.
 const shown = (id: string) => boxes(id).map((b) => b.textContent || '_').join('');
 
 describe('PinInput', () => {
+  // EI1: forced colors repainted the hidden field's selected code ("381") in HighlightText over the first box.
+  test('forced colors: the hidden field stays transparent with its code selected, so the boxes show only their own digits', async () => {
+    if (server.browser !== 'chromium') return;
+    const session = cdp() as unknown as { send: (m: string, p: object) => Promise<unknown> };
+    await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
+    try {
+      await render(<PinInput aria-label="Code" length={4} defaultValue="381" />);
+      const f = document.querySelector<HTMLInputElement>('input[aria-label="Code"]')!;
+      f.focus(); f.select();
+      const sel = getComputedStyle(f, '::selection');
+      expect([getComputedStyle(f).color, sel.color, sel.backgroundColor]).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
+    } finally { await session.send('Emulation.setEmulatedMedia', { features: [] }); }
+  });
+
   test('one native text field over six aria-hidden boxes; ref and props go to the <input>, className and style to the wrapper', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<PinInput id="p" ref={ref} aria-label="Code" name="code" className="extra" style={{ margin: '3px' }} data-x="y" />);
