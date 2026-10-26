@@ -12,6 +12,16 @@
           }
         }
       },
+      "shine": {
+        "$type": "color",
+        "$value": "{color.surface}",
+        "$description": "The lighter band that sweeps through the fill while the picture loads (at 60%).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--image-shine"
+          }
+        }
+      },
       "fallback-color": {
         "$type": "color",
         "$value": "{color.text-muted}",

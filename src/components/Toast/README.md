@@ -52,10 +52,10 @@ toast.dismiss(id);   // or toast.dismiss() for all
 
 - Each new toast is read out through the shared polite live region, so it doesn't interrupt. A repeat that only adds to a toast's count isn't read each time: once the burst stops (a second with no repeat), the message is read once more with the count ("Network error. 12 times.", `labels.toastRepeated`). The count reads as "12 times" with the title, not "×12".
 - The time stops while a toast is hovered or anything in it has focus, and while the window is in the background (WCAG 2.2.1). A toast with an `action` stays until it's closed, unless you give it a `duration`, so there's time to reach the button. For anything people must act on, an Alert or a Dialog is still better.
-- F8 moves focus to the newest toast (a screen reader reads it, and Tab reaches its buttons), and F8 or Escape takes focus back to where it was. The first toast with an action adds "Press F8 to reach it." to what's announced (`labels.toastShortcut`), while a Toaster is in the page. When a toast closes with focus in it (its ×, its action, or `toast.dismiss()`), focus goes back where F8 came from, or else to the toast next to it.
+- F8 moves focus to the newest toast (a screen reader reads it, and Tab reaches its buttons), and F8 or Escape takes focus back to where it was. The first toast with an action adds "Press F8 to reach it." to what's announced (`labels.toastShortcut`), while a Toaster is in the page. When a toast closes with keyboard focus in it (its ×, its action, or `toast.dismiss()`), focus goes back where F8 came from, or else to the toast next to it. Closed with the mouse, focus isn't moved to the next toast, so that one's time keeps running.
 - Each toast has a close button; the Toaster is a named region people can find.
 - Titles and descriptions keep 4.5:1 and icons 3:1 in all six themes (`Toast.test.tsx`).
-- Toasts fade and slide in from their edge over 200ms, and fade and slide back toward it over 150ms when they close; the toasts left glide to their new place over 200ms instead of jumping. With `prefers-reduced-motion` toasts only fade, and the others move at once. The motion is a transition, so a toast shown again while it fades out turns back. A closing toast is inert while it fades, and focus moves on at once. Toasts already there as the Toaster arrives (shown from its first render) don't slide in.
+- Toasts fade and slide in from their edge over 200ms, and fade and slide back toward it over 150ms when they close; the toasts left glide to their new place over 200ms instead of jumping, each keeping its place in the stack. One pushed into the waiting line by a newer toast shrinks and fades toward the "+2 more" line instead, and that line fades in and out and glides with the toasts. With `prefers-reduced-motion` toasts only fade, and the others move at once. The motion is a transition, so a toast shown again while it fades out turns back. A closing toast is inert while it fades, and focus moves on at once. Toasts already there as the Toaster arrives (shown from its first render) don't slide in.
 
 ### Keyboard
 
@@ -93,7 +93,7 @@ Shows `messages.loading` while `work` (a promise, or a function that returns one
 | `position` | `'bottom-end'` \| `'bottom-start'` \| `'bottom-center'` \| `'top-start'` \| `'top-center'` \| `'top-end'` | `'bottom-end'` | Where toasts appear, 16px from the edges; start and end follow the text direction. The newest is nearest the edge |
 | `label` | string | `'Notifications'` | The region's name |
 | `dismissLabel` | string | `'Dismiss'` | The close buttons' name |
-| `limit` | number | `3` | The most toasts shown at once. The newest show; older ones wait under a "+2 more" line, with their time not yet started, and come back as others close |
+| `limit` | number | `3` | The most toasts shown at once. The newest show; older ones wait under a "+2 more" line and come back as others close. One never shown waits with its time not yet started; one already seen keeps its time running while it waits, so toasts still go in the order they came |
 
 `className`, `style` and other props go to the `<section>`, which has `data-component="toaster"` and `data-position`.
 
