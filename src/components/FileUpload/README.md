@@ -32,15 +32,16 @@ import { FileUpload } from "serupa-ds";
 
 ## Behavior
 
-- The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it. Text or a link dragged across it doesn't highlight it.
+- The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it. Text or a link dragged across it doesn't highlight it. While it can take files, a file dropped just outside the area is ignored rather than opened by the browser in place of the page. A dropped folder is refused ("Invoices is a folder: choose the files in it instead."), and a file that's already in the list is skipped with a message ("report.pdf is already added.").
 - Files that don't fit are listed under the area in danger text and passed to `onReject`; the same file picked twice is skipped quietly.
-- Removing a file moves focus to the Choose button, since the row is gone.
+- Removing a file moves focus to the next file's remove button, or the one before it, so clearing several files stays in the list; with none left, focus goes to the choose button.
 - The native input always holds the listed files, including dropped ones, so a form sends exactly what's shown.
 - `readOnly` shows the files without remove buttons and ignores the button and drops; the files are still submitted. `disabled` also fades it and leaves the files out of the form.
 
 ## Accessibility
 
-- The button is the keyboard and screen-reader way in; dragging is an extra. Messages about refused files are `role="alert"`, so they're announced. They come from labels (`fileWrongType`, `fileTooLarge`, `fileTooMany`, `fileOnlyOne`), Indonesian in `idLabels`, and `onReject` gets the same text.
+- The button is the keyboard and screen-reader way in; dragging is an extra. Messages about refused files are `role="alert"`, so they're announced. They come from labels (`fileWrongType`, `fileTooLarge`, `fileTooMany`, `fileOnlyOne`, `fileFolder`, `fileAlreadyAdded`), Indonesian in `idLabels`, and `onReject` gets the same text.
+- Adding and removing files are said politely, since the list changes away from focus: "report.pdf added.", "3 files added.", "report.pdf removed." (`filesAdded`, `fileRemoved`).
 - Submitted without a required file, FileUpload doesn't let the browser point its bubble at the hidden input: it shows "Choose a file." (`fileMissing`) in the same alert area, makes the button invalid and described by it, and focuses the button when it's the first invalid field. Choosing a file clears it.
 - In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. With the Field's `error` the button gets `aria-invalid`; with `required` it's described by "Required" first (`labels.required`), since a button can't carry `aria-required`.
 - Text keeps 4.5:1 (also while dragging), and the icons and dashed outline 3:1, in all six themes (`FileUpload.test.tsx`).
@@ -53,7 +54,7 @@ import { FileUpload } from "serupa-ds";
 | --- | --- | --- | --- |
 | `files` | `File[]` | | Controlled. |
 | `onFilesChange` | `(files: File[]) => void` | | When files are added or removed. |
-| `onReject` | `(rejections) => void` | | Files that weren't added, each with `reason` (`'type'`, `'size'` or `'count'`) and a `message`. |
+| `onReject` | `(rejections) => void` | | Files that weren't added, each with `reason` (`'type'`, `'size'`, `'count'`, `'folder'` or `'duplicate'`) and a `message`. |
 | `accept` | `string` | | As for `<input accept>`: MIME types, `image/*` or extensions. |
 | `multiple` | `boolean` | `false` | Without it, a new file replaces the old one. |
 | `maxSize` | `number` | | The largest file, in bytes. |

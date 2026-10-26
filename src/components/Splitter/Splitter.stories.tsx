@@ -25,3 +25,14 @@ export const Collapsed: Story = {
     <Pane>Sidebar</Pane><Pane>Press Enter on the handle to bring the sidebar back.</Pane>
   </Splitter>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 280, height: 'var(--sizing-full)' }}>
+      <Splitter {...args} style={{ height: 'var(--sizing-full)' }}>
+        <Pane>Donaudampfschifffahrtsgesellschaftskapitänskajüte</Pane>
+        <Pane>Messages from every team, with long subjects that wrap over several lines</Pane>
+      </Splitter>
+    </div>
+  ),
+};

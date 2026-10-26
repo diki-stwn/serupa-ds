@@ -6,6 +6,12 @@
   - time: in 15 minutes
   - text: .
 
+# LongText
+- paragraph:
+  - text: Edited
+  - time: 1 year ago
+  - text: ", by someone else."
+
 # Playground
 - time: 3 minutes ago
 

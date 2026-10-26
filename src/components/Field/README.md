@@ -47,7 +47,7 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 - Say what went wrong and how to fix it, not just "Invalid". The error icon is decorative; the words carry the meaning.
 - With an error, the control also points at it with `aria-errormessage`, at any depth. The error stays in the description too, because not every screen reader reads `aria-errormessage` yet.
 - Clicking the label focuses the control, as with an input, also for Slider, SegmentedControl and ColorPicker. Their root is a `<div>`, which a label can't focus by itself, so Field moves focus to their thumb or checked option.
-- The `*` is hidden from screen readers, which hear `aria-required` instead. Explain it once at the top of a long form ("Fields marked * are required"), or when most fields are required, mark the optional ones instead.
+- The `*` is hidden from screen readers, which hear `aria-required` instead. A fieldset can't carry `aria-required`, so with `group` the legend also says "Required" in words, hidden from sight (the `required` label, "Wajib diisi" in `idLabels`): the set is read as "Contact by, Required, group" whatever it holds. Explain it once at the top of a long form ("Fields marked * are required"), or when most fields are required, mark the optional ones instead.
 - An error that appears or changes after the Field mounts (after a submit, for example) is announced politely, since focus is usually elsewhere and a description is only read on focus. An error already there on first render isn't announced.
 - If nothing on the page has the control's id (a control Field can't reach, with no `id` passed), Field warns once in the console: the label would name nothing.
 - For radios and checkboxes use `group`: screen readers announce the legend when focus enters the set.
@@ -61,7 +61,7 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 | `label` | text or element | | A `<label>` linked to the control; with `group`, the fieldset's `<legend>` |
 | `hint` | text or element | | Help under the label, before the control, in `text-muted`; added to the control's `aria-describedby` |
 | `error` | text or element | | A message under the control, in `danger-text` with an icon; makes the control invalid (`invalid` on Serupa components, `aria-invalid` on DOM elements) and is added to its `aria-describedby` |
-| `required` | boolean | `false` | A `*` after the label (hidden from screen readers) and `aria-required` on the control. Add the control's own `required` too if you want the browser's check |
+| `required` | boolean | `false` | A `*` after the label (hidden from screen readers) and `aria-required` on the control; with `group`, "Required" in words in the legend for screen readers. Add the control's own `required` too if you want the browser's check |
 | `optional` | boolean or text | `false` | "(optional)" after the label (the `fieldOptional` label, "(opsional)" in `idLabels`), or your own words. Ignored with `required` |
 | `disabled` | boolean | `false` | Disables the control (with `group`, every control in the fieldset) and dims the label and hint |
 | `group` | boolean | `false` | A `<fieldset>` and `<legend>` around a set of controls; the hint and error describe the fieldset |
