@@ -68,7 +68,7 @@ describe('Meter', () => {
     expect(cases.map(([id]) => fill(id))).toEqual(cases.map((c) => tone[c[2]]));
   });
 
-  test('outside the best zone the read-out value says where it falls ("92%, high"), the shown value stays "92%"; in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
+  test('outside the best zone the read-out and shown value say where it falls ("92%, high"), so the zone isn't only a color (GH4); in the best zone, without zones, or with formatValue, it is the value alone; Indonesian words from the provider', async () => {
     await render(<Wrap>
       <Meter id="z-high" value={92} high={80} optimum={10} showValue aria-label="Storage" />
       <Meter id="z-low" value={12} low={20} high={60} optimum={100} aria-label="Battery" />
@@ -81,7 +81,7 @@ describe('Meter', () => {
     const pct = (l: string) => new Intl.NumberFormat(l, { style: 'percent' }).format(0.92);
     expect(['z-high', 'z-low', 'z-mid', 'z-best', 'z-none', 'z-own', 'z-id'].map((id) => mt(id).getAttribute('aria-valuetext')))
       .toEqual([pct('en-US') + ', high', '12%, low', '45%, medium', '85%', pct('en-US'), 'Almost full', pct('id-ID') + ', tinggi']);
-    expect(value('z-high')).toBe(pct('en-US'));
+    expect(value('z-high')).toBe(pct('en-US') + ', high');
   });
 
   test('meterState: no zones without low and high; edges as the HTML spec sets them (low and high clamped into min..max, high never under low, optimum clamped)', () => {
