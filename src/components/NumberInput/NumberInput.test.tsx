@@ -86,6 +86,14 @@ describe('NumberInput', () => {
     expect([minus('qty').disabled, plus('qty').disabled]).toEqual([true, false]);
   });
 
+  test('keyboard table: PageDown goes down largeStep steps, as PageUp goes up, within min (FH1)', async () => {
+    await render(<Qty />);
+    field('qty').focus();
+    const seen: string[] = [];
+    for (const k of ['{PageUp}{PageUp}', '{PageDown}', '{PageDown}{PageDown}']) { await userEvent.keyboard(k); seen.push(field('qty').value); }
+    expect(seen).toEqual(['25', '15', '0']);
+  });
+
   test('on blur: 250 is clamped to 100, " 7 " becomes 7, junk goes back to the last number, and empty stays empty', async () => {
     await render(<Qty />);
     const seen: string[] = [];

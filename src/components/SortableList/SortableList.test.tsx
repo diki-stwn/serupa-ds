@@ -56,6 +56,18 @@ describe('SortableList', () => {
       .toEqual([['Apollo', 'Mercury', 'Artemis', 'Gemini'], [{ from: 1, to: 3 }], 'false', true]);
   });
 
+  test('keyboard table: ArrowRight moves the picked-up row down a place, ArrowLeft and ArrowUp up one (FH1)', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
+    handle('Gemini').focus();
+    await userEvent.keyboard(' {ArrowRight}{ArrowRight}');
+    await said('Gemini, position 4 of 4.');
+    await userEvent.keyboard('{ArrowLeft}');
+    await said('Gemini, position 3 of 4.');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp} ');
+    expect([names(), moves]).toEqual([['Gemini', 'Apollo', 'Mercury', 'Artemis'], [{ from: 1, to: 0 }]]);
+  });
+
   test('Enter works like Space; Home and End move to the ends; Escape puts it back without reporting a move', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);
