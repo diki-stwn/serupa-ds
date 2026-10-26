@@ -33,6 +33,7 @@
   background: var(--avatar-bg, var(--secondary));
   color: var(--avatar-text, var(--text));
   font-weight: var(--avatar-weight, var(--font-medium));
+  -webkit-user-select: none;
   user-select: none;
 }
 .dk-avatar--square .dk-avatar__frame { border-radius: var(--avatar-radius-square, var(--rounded-lg)); }

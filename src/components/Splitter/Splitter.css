@@ -14,7 +14,7 @@
 .dk-splitter__handle {
   --dk-splitter-line: var(--splitter-line, var(--field-border));
   --dk-splitter-weight: var(--border-width-1);
-  display: flex; justify-content: center; flex: none; box-sizing: border-box; touch-action: none; user-select: none;
+  display: flex; justify-content: center; flex: none; box-sizing: border-box; touch-action: none; -webkit-user-select: none; user-select: none;
   width: var(--splitter-handle-size, var(--spacing-2)); cursor: col-resize;
 }
 .dk-splitter--vertical > .dk-splitter__handle { flex-direction: column; width: auto; height: var(--splitter-handle-size, var(--spacing-2)); cursor: row-resize; }

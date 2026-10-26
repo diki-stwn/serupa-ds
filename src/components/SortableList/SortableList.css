@@ -33,7 +33,7 @@
 .dk-sortable-list__item--dragging .dk-sortable-list__handle { cursor: grabbing; color: var(--sortable-list-handle-active, var(--text)); }
 @media (hover: hover) { .dk-sortable-list__handle:hover { color: var(--sortable-list-handle-active, var(--text)); background: var(--sortable-list-handle-bg-hover, var(--secondary)); } }
 .dk-sortable-list__handle:focus-visible { outline: var(--focus-ring-width) solid var(--sortable-list-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
-.dk-sortable-list--sorting { cursor: grabbing; user-select: none; }
+.dk-sortable-list--sorting { cursor: grabbing; -webkit-user-select: none; user-select: none; }
 .dk-sortable-list__content { flex: auto; min-width: var(--spacing-0); }
 @media (prefers-reduced-motion: reduce) { .dk-sortable-list__item { transition: none; } }
 @media (forced-colors: active) { .dk-sortable-list__item--dragging { outline: var(--border-width-2) solid Highlight; } }
