@@ -24,33 +24,20 @@ const EXEMPT = {
 const GAPS = Object.fromEntries([
   // G14: no stress story yet.
   'Calendar',
-  'Carousel',
   'ColorPicker',
   'Container',
-  'DatePicker',
   'DateRangePicker',
   'ErrorBoundary',
-  'FileUpload',
   'FormattedNumber',
   'Grid',
   'Icon',
-  'Image',
   'Loader',
-  'Navbar',
-  'PhoneInput',
   'PinInput',
-  'Rating',
   'RelativeTime',
   'SegmentedControl',
-  'Sidebar',
-  'Slider',
-  'SortableList',
   'Splitter',
   'Stack',
-  'Table',
-  'TimePicker',
   'Toast',
-  'ToggleGroup',
 ].map((c) => [c, { stress: 'G14' }]));
 const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();

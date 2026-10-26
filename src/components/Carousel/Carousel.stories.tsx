@@ -46,3 +46,14 @@ export const PerView: Story = {
     {['Desk', 'Chair', 'Lamp', 'Shelf', 'Rug', 'Plant', 'Clock'].map((n) => <Card key={n}><CardBody><strong>{n}</strong><p>Ships in two days.</p></CardBody></Card>)}
   </Carousel>,
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <Carousel {...args} label="Customer stories from every region we work in">
+        <Card><CardBody>Our team cut its release time in half, and Donaudampfschifffahrtsgesellschaftskapitänskajüte now ships every week.</CardBody></Card>
+        <Card><CardBody>A second slide with a much longer quote that wraps over several lines in a narrow column.</CardBody></Card>
+      </Carousel>
+    </div>
+  ),
+};

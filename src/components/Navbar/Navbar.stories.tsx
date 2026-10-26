@@ -31,3 +31,11 @@ export const Playground: Story = {};
 export const SmallScreen: Story = { parameters: { viewport: { defaultViewport: 'mobile1' } }, render: (args) => <div style={{ maxWidth: 375, minHeight: 280 }}><Navbar {...args} /></div> };
 
 export const SignedOut: Story = { args: { actions: <><Button variant="ghost" size="sm">Sign in</Button><Button size="sm">Sign up</Button></> } };
+
+export const Overflow: Story = {
+  args: {
+    brand: <a href="#" className="text-base font-semibold text-text no-underline">Acme Corporation International</a>,
+    children: [...links, <NavbarLink key="s" href="#">Settings and billing</NavbarLink>, <NavbarLink key="w" href="#">Donaudampfschifffahrtsgesellschaftskapitänskajüte</NavbarLink>],
+  },
+  render: (args) => <div style={{ width: 360 }}><Navbar {...args} /></div>,
+};
