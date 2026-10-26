@@ -1,0 +1,61 @@
+{
+  "keyboardShortcuts": {
+    "$description": "KeyboardShortcuts's component tokens. Each one is an optional override: set the CSS variable (--keyboard-shortcuts-<name>) on the page, a container or one KeyboardShortcuts, and every KeyboardShortcuts inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "heading": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "A group's heading (4.5:1 on the dialog).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--keyboard-shortcuts-heading"
+          }
+        }
+      },
+      "divider": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line between rows.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--keyboard-shortcuts-divider"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "row-padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space above and below each row (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--keyboard-shortcuts-row-padding"
+          }
+        }
+      },
+      "group-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-5}",
+        "$description": "Space between groups (20px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--keyboard-shortcuts-group-gap"
+          }
+        }
+      }
+    },
+    "typography": {
+      "heading-weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "A group's heading.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--keyboard-shortcuts-heading-weight"
+          }
+        }
+      }
+    }
+  }
+}

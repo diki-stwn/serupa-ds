@@ -19,7 +19,7 @@
 .dk-breadcrumb__more { padding: var(--spacing-0) var(--spacing-0\.5); border: var(--spacing-0); background: transparent; font: inherit; cursor: pointer; touch-action: manipulation; }
 .dk-breadcrumb__icon { display: inline-flex; }
 .dk-breadcrumb__icon .dk-icon { font-size: var(--breadcrumb-icon-size, var(--spacing-4)); }
-.dk-breadcrumb__separator { display: inline-flex; color: var(--breadcrumb-separator, var(--text-muted)); user-select: none; }
+.dk-breadcrumb__separator { display: inline-flex; color: var(--breadcrumb-separator, var(--text-muted)); -webkit-user-select: none; user-select: none; }
 .dk-breadcrumb__separator .dk-icon { font-size: var(--breadcrumb-separator-size, var(--spacing-4)); }
 @media (prefers-reduced-motion: reduce) { .dk-breadcrumb__item { transition: none; } }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when a link is shorter or narrower, a box behind

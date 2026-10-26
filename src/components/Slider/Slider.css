@@ -14,7 +14,7 @@
   position: relative; display: flex; align-items: center; box-sizing: border-box;
   width: var(--sizing-full); height: var(--dk-slider-thumb);
   padding: var(--spacing-0) var(--dk-slider-half);
-  touch-action: none; user-select: none; cursor: pointer;
+  touch-action: none; -webkit-user-select: none; user-select: none; cursor: pointer;
 }
 .dk-slider--size-sm { --dk-slider-track: var(--slider-track-height-sm, var(--spacing-1)); --dk-slider-thumb: var(--slider-thumb-size-sm, var(--spacing-4)); }
 .dk-slider__track { position: relative; flex: auto; height: var(--dk-slider-track); border-radius: var(--slider-radius, var(--rounded-full)); background: var(--slider-track, var(--field-border)); }

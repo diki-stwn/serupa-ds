@@ -22,5 +22,6 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "
     prefix?: React.ReactNode;
     suffix?: React.ReactNode;
     showCount?: boolean;
+    mask?: string;
 }
 declare const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HTMLInputElement>>;
