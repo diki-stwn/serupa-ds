@@ -32,6 +32,24 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('a press on the box (start padding, past the clock button) focuses the field with the caret at the end; a disabled box stays put (GG2)', async () => {
+    await render(<div style={{ width: '320px' }}>
+      <TimePicker id="bx" size="lg" locale="en-GB" defaultValue="09:30" aria-label="Start" />
+      <TimePicker id="bx-off" size="lg" disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const box = (id: string) => el(id).closest('[data-component=time-picker]') as HTMLElement;
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2;
+    for (const x of [2, b.width - 2]) {
+      el('bx-away').focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === el('bx'), el('bx').selectionStart]).toEqual([x, true, 5]);
+    }
+    el('bx-away').focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(el('bx-off'));
+  });
+
   test('the placeholder and the format in the description come from the locale: hh:mm AM/PM (en-US), hh.mm (id-ID), 오전/오후 hh:mm (ko), after a Field hint', async () => {
     await render(<><Field label="Start" hint="Office hours"><TimePicker id="tus" locale="en-US" /></Field><TimePicker id="tid" aria-label="Mulai" locale="id-ID" /><TimePicker id="tko" aria-label="시작" locale="ko" /></>);
     const f = (id: string) => document.getElementById(id) as HTMLInputElement;

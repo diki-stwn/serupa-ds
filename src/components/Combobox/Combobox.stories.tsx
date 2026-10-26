@@ -76,6 +76,7 @@ export const States: Story = {
     <Combobox aria-label="With an icon" options={COUNTRIES} defaultValue="Peru" leftIcon="public" />
     <Combobox aria-label="Invalid" options={COUNTRIES} defaultValue="Norway" invalid />
     <Combobox aria-label="Disabled" options={COUNTRIES} defaultValue="Egypt" disabled />
+    <Combobox aria-label="Read-only" options={COUNTRIES} defaultValue="Canada" readOnly />
   </Col>,
 };
 
