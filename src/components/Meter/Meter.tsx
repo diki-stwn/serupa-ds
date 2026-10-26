@@ -94,7 +94,7 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
       ) : null}
       <div ref={nameRef} className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
         aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || (hasLabel && !rest["aria-label"] ? base + "-label" : undefined)}>
-        <div className="dk-meter__fill" style={{ "--dk-meter-rest": (1 - share) * 100 + "%" } as React.CSSProperties} />
+        <div className="dk-meter__fill" style={{ "--dk-meter-rest": +((1 - share) * 100).toFixed(4) + "%" } as React.CSSProperties} />
       </div>
     </div>
   );
