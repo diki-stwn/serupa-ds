@@ -7,6 +7,7 @@ import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
 import { paginationRange } from "./paginationRange";
+import { useFocusHandover } from "../../internal/focus";
 import * as icons from "../../material/builtin";
 
 export { paginationRange };
@@ -59,8 +60,12 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   const page = Math.min(Math.max(int(controlled ? props.page : own, 1, 1), 1), Math.max(count, 1));
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const label = props.pageLabel || sds.labels.page;
+  // An arrow that takes you to the first or last page turns disabled under focus (FJ1): focus goes to the other one.
+  const handover = useFocusHandover();
   const go = (n: number, e: React.MouseEvent) => {
     if (n < 1 || n > count || n === page) { if (!props.getHref || n === page) e.preventDefault(); return; }
+    const from = e.currentTarget as HTMLElement;
+    if (from.classList.contains("dk-pagination__arrow")) handover(from, () => { const all = from.closest("nav")?.querySelectorAll<HTMLElement>(".dk-pagination__arrow"); return all && all[n < page ? all.length - 1 : 0]; });
     if (!controlled) setOwn(n);
     if (props.onPageChange) props.onPageChange(n);
   };

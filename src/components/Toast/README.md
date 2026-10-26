@@ -54,7 +54,8 @@ toast.dismiss(id);   // or toast.dismiss() for all
 - The time stops while a toast is hovered or anything in it has focus, and while the window is in the background (WCAG 2.2.1). A toast with an `action` stays until it's closed, unless you give it a `duration`, so there's time to reach the button. For anything people must act on, an Alert or a Dialog is still better.
 - F8 moves focus to the newest toast (a screen reader reads it, and Tab reaches its buttons), and F8 or Escape takes focus back to where it was. The first toast with an action adds "Press F8 to reach it." to what's announced (`labels.toastShortcut`), while a Toaster is in the page. When a toast closes with focus in it (its ×, its action, or `toast.dismiss()`), focus goes back where F8 came from, or else to the toast next to it.
 - Each toast has a close button; the Toaster is a named region people can find.
-- Titles and descriptions keep 4.5:1 and icons 3:1 in all six themes (`Toast.test.tsx`). Toasts slide in over 200ms, and appear at once with `prefers-reduced-motion`.
+- Titles and descriptions keep 4.5:1 and icons 3:1 in all six themes (`Toast.test.tsx`).
+- Toasts fade and slide in from their edge over 200ms, and fade and slide back toward it over 150ms when they close; the toasts left glide to their new place over 200ms instead of jumping. With `prefers-reduced-motion` toasts only fade, and the others move at once. The motion is a transition, so a toast shown again while it fades out turns back. A closing toast is inert while it fades, and focus moves on at once. Toasts already there as the Toaster arrives (shown from its first render) don't slide in.
 
 ### Keyboard
 
