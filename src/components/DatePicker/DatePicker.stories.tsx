@@ -29,6 +29,7 @@ export const Sizes: Story = {
 export const German: Story = { args: { locale: 'de-DE', defaultValue: new Date(2025, 10, 22), buttonLabel: 'Datum wählen' } };
 export const Invalid: Story = { args: { invalid: true } };
 export const Disabled: Story = { args: { disabled: true, defaultValue: new Date(2025, 10, 22) } };
+export const ReadOnly: Story = { name: 'Read-only', args: { readOnly: true, defaultValue: new Date(2025, 10, 22) } };
 
 export const OverflowNarrow: Story = {
   args: { defaultValue: '2026-12-31' },
