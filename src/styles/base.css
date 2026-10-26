@@ -86,6 +86,10 @@
   :where([data-theme$="-dark"]) { color-scheme: dark; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 
+/* View Transitions (withViewTransition, or your own document.startViewTransition): what moves glides with
+   motion-change-md and ease-move, and the old and new pictures crossfade over the same time. */
+::view-transition-group(*) { animation-duration: var(--motion-change-md); animation-timing-function: var(--ease-move); }
+
 /* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. A component (a dk- class)
    keeps only its fades: its own reduced-motion rules leave a short opacity fade where it helps (a popup appearing),
    which a 0s duration here would beat, since an !important in an earlier layer wins over the later ones. Colors,
@@ -99,5 +103,7 @@
   :where([class^="dk-"], [class*=" dk-"]),
   :where([class^="dk-"], [class*=" dk-"])::before,
   :where([class^="dk-"], [class*=" dk-"])::after { transition-property: opacity, display, overlay, content-visibility !important; }
+  /* A View Transition only crossfades: nothing travels or resizes. */
+  ::view-transition-group(*) { animation-name: none; }
 }
 }

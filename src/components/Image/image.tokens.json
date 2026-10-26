@@ -22,6 +22,16 @@
           }
         }
       },
+      "dim": {
+        "$type": "color",
+        "$value": "{color.black}",
+        "$description": "With dim, the layer that darkens a photo in a dark color scheme (at 20%).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--image-dim"
+          }
+        }
+      },
       "fallback-color": {
         "$type": "color",
         "$value": "{color.text-muted}",

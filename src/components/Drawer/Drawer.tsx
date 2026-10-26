@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
 import * as icons from "../../material/builtin";
 import { useScrolls } from "../../internal/useScrolls";
@@ -52,7 +52,7 @@ const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title:
 /** A modal panel that slides in from an edge: navigation, filters, details. */
 export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>("Drawer", function Drawer(props, ref) {
   const nameRef = useNameCheck("Drawer", NAME_HOW.title);   // warns when it has no accessible name
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, OWN);
   const base = domId("dk-drw", React.useId());
   const el = React.useRef<HTMLDialogElement | null>(null);

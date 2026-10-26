@@ -6,9 +6,10 @@ import { named } from "../../internal/component";
 import { FieldContext, type FieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
 import { FieldLabel } from "../../internal/fieldLabel";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { warnOnce } from "../../internal/warn";
+import { en as words } from "./labels";
 
 // module state: a fixed list, never changed.
 const LABELABLE = new Set(["select", "button", "meter", "output", "progress", "textarea"]);
@@ -28,6 +29,10 @@ export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'chi
   disabled?: boolean;
   /** A <fieldset> with a <legend> for a set of checkboxes or radios; the hint and error describe the fieldset. */
   group?: boolean;
+  /** 'vertical' (default): label, hint, control and error stacked. 'horizontal': the label in a column at the start
+   *  (--field-label-width) on the control's first line, with the control, hint and error beside it, for dense
+   *  settings forms; it stacks again when the field is too narrow for both. Not with group. */
+  layout?: 'vertical' | 'horizontal';
   /** The control's id; by default the control's own id, or a generated one. */
   id?: string;
   /** One control (Input, Textarea, Select or any element), or with group, the set. */
@@ -41,7 +46,7 @@ export interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, 'chi
 /** The props Field reads from and hands to its control (a component like Input, or a DOM element). */
 type ControlProps = { id?: string; invalid?: boolean; disabled?: boolean; "aria-describedby"?: string; "aria-errormessage"?: string; "aria-required"?: boolean | "true" | "false"; "aria-invalid"?: boolean };
 
-const OWN = { label: 1, hint: 1, error: 1, required: 1, optional: 1, disabled: 1, group: 1, id: 1, children: 1, className: 1 } as const;
+const OWN = { label: 1, hint: 1, error: 1, required: 1, optional: 1, disabled: 1, group: 1, layout: 1, id: 1, children: 1, className: 1 } as const;
 
 /** A label, an optional hint and an error message around one form control, wired up for screen readers. className and other attributes go to the outer element. */
 export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldProps): React.ReactElement {
@@ -52,7 +57,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   const hasError = props.error != null && props.error !== false && props.error !== "";
   const hintId = props.hint ? base + "-hint" : null, errorId = hasError ? base + "-error" : null;
   const group = !!props.group;
-  const sds = useSerupa();
+  const sds = useSettings(words);
   // An error that appears (or changes) after mount is said politely: it's only a description, which
   // screen readers read on focus, and focus is usually elsewhere (the submit button) when it shows.
   const errorRef = React.useRef<HTMLSpanElement>(null);
@@ -109,7 +114,8 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
     if (props.disabled && !group) add.disabled = true;
     return React.cloneElement(el, add);
   };
-  const cls = cn("dk-field", group && "dk-field--group", hasError && "dk-field--invalid", props.disabled && "dk-field--disabled", props.className);
+  const horizontal = !group && props.layout === "horizontal";
+  const cls = cn("dk-field", group && "dk-field--group", horizontal && "dk-field--horizontal", hasError && "dk-field--invalid", props.disabled && "dk-field--disabled", props.className);
   if (group) {
     return (
       <fieldset {...rest} className={cls} disabled={props.disabled || undefined} aria-describedby={described || undefined} data-component="field">
@@ -124,15 +130,18 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   }
   // The control can be any depth down (in a Tooltip, a wrapper component): it reads this.
   const control: FieldControl = { id: controlId, labelId: props.label == null ? undefined : base + "-label", describedBy: described || undefined, errorMessage: errorId || undefined, required: props.required || undefined, invalid: hasError || undefined, disabled: props.disabled || undefined };
+  const body = <FieldContext.Provider value={control} key="body">
+    <div className="dk-field__control" key="control">
+      <FieldLabel value={label ? { control: controlId, label: base + "-label" } : null}>{child ? pass(child, true) : props.children}</FieldLabel>
+    </div>
+  </FieldContext.Provider>;
+  // Horizontal: the label beside a column holding the control, then the hint and the error under it.
+  if (horizontal) return <div {...rest} className={cls} data-component="field" data-layout="horizontal">{label}<div className="dk-field__body">{body}{hint}{error}</div></div>;
   return (
     <div {...rest} className={cls} data-component="field">
       {label}
       {hint}
-      <FieldContext.Provider value={control}>
-        <div className="dk-field__control" key="control">
-          <FieldLabel value={label ? { control: controlId, label: base + "-label" } : null}>{child ? pass(child, true) : props.children}</FieldLabel>
-        </div>
-      </FieldContext.Provider>
+      {body}
       {error}
     </div>
   );

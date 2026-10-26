@@ -9,16 +9,16 @@
 //
 // Each component folder has its own budgets, in tools/test/baseline-size/<Name>.json, so a component pull request
 // edits only its own file (no two pull requests edit the same line):
-//   alone  what a project that imports only this folder's exports ships, less the built-in label text (below)
+//   alone  what a project that imports only this folder's exports ships, its own words (labels.ts) included
 //   share  what the folder adds to the whole package (all of index.js, less the same build without it)
 //   css    what its CSS adds to components.css
 // The totals grow with the folders' budgets: TOTALS below holds each total's budget and what the folders' shares
 // (or CSS) added up to when it was set, and the budget moves by however much that sum has moved since. So adding a
 // component, or raising one's budget, raises the totals too, and only a change to the shared code edits TOTALS.
-// The built-in label text (enLabels: every folder's labels.ts) goes into every component's bundle, so a new label
-// in one folder used to push other folders' "alone" over budget and send several pull requests to the same files.
-// It has one budget of its own instead, LABELS, with room for a few dozen more labels; while the text is within it,
-// a pull request that adds a label edits no budget, and the totals allow for it.
+// The built-in label text (enLabels: every folder's labels.ts) has one budget of its own, LABELS, with room for a few
+// dozen more labels; while the text is within it, a pull request that adds a label edits no total, and the totals
+// allow for it. A component's bundle carries only its own words and the shared ones (GL4, 26 Oct 2026): before, it
+// carried every folder's, about 1.9 KiB gzipped, so "alone" was measured without them.
 // CI writes the table to the run's summary page.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,7 +32,7 @@ import { HERE, PROJECT, done, report } from './lib.mjs';
 // when each was last set (index.js 62.2, serupa.iife.js 610.1 on 24 Oct 2026; components.css 27.3 once it shipped
 // without the source comments).
 const TOTALS = {
-  'All components (index.js)': [68.7, 59.3, 'share'],   // +0.2 KiB on 26 Oct 2026: Firefox strict-CSP server styles applied from React's props (internal/serverStyles.ts, FW1); +1.0 KiB on 25 Oct 2026: headroom for shared code (the trigger contract, internal/trigger.ts, G9, needs 0.2 with the total at its budget); +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
+  'All components (index.js)': [69.2, 59.3, 'share'],   // +0.5 KiB on 26 Oct 2026: headroom for shared code (main sat 0.2 KiB under, and #735, #777 and #781 each went 0.0 to 0.1 over it); +0.2 KiB on 26 Oct 2026: Firefox strict-CSP server styles applied from React's props (internal/serverStyles.ts, FW1); +1.0 KiB on 25 Oct 2026: headroom for shared code (the trigger contract, internal/trigger.ts, G9, needs 0.2 with the total at its budget); +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
   'components.css': [28.5, 53.6, 'css'],
   'serupa.iife.js': [630, 59.3, 'share'],
 };
@@ -72,7 +72,7 @@ const whole = await bundled(pick(all));
 const labels = await bundled(pick(['enLabels']));
 const cssWhole = cssWithout(null);
 const measured = Object.fromEntries(await Promise.all(folders.map(async (n) => [n, {
-  alone: await bundled(pick([...names[n], 'enLabels'])) - labels,   // with the label text added and taken off again, so a folder that has none isn't measured below its size
+  alone: await bundled(pick(names[n])),
   share: whole - await bundled(pick(all.filter((x) => !names[n].includes(x)))),
   css: cssWhole - cssWithout(n),
 }])));

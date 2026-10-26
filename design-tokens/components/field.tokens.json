@@ -85,6 +85,16 @@
             "cssVar": "--field-error-gap"
           }
         }
+      },
+      "column-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "layout=\"horizontal\": space between the label column and the control (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--field-column-gap"
+          }
+        }
       }
     },
     "sizing": {
@@ -95,6 +105,26 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-error-icon-size"
+          }
+        }
+      },
+      "label-width": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-48}",
+        "$description": "layout=\"horizontal\": the label column (192px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--field-label-width"
+          }
+        }
+      },
+      "control-min-width": {
+        "$type": "dimension",
+        "$value": "{sizing.container-3xs}",
+        "$description": "layout=\"horizontal\": the narrowest the control column gets before it wraps under the label (256px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--field-control-min-width"
           }
         }
       }

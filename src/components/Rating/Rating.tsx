@@ -2,10 +2,11 @@
 import * as React from "react";
 import { cn, domId, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { FieldContext, useFieldControl } from "../../internal/field";
+import { en as words } from "./labels";
 
 export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
   /** The rating (controlled), or null for none. Use with onValueChange. */
@@ -52,7 +53,7 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // a Field's <label for> can't name a group, so it's aria-labelledby
   const { invalid, value: valueIn, defaultValue, onValueChange, max: maxIn, allowHalf, clearable, readOnly, disabled, name, form, required, size: sizeIn, className, onKeyDown, onPointerLeave, ...rest } = props;
   const nameRef = useNameCheck("Rating", NAME_HOW.group);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const size = oneOf(SIZES, sizeIn, "md");
   const max = typeof maxIn === "number" && maxIn >= 1 ? Math.floor(maxIn) : 5;
   const step = allowHalf ? 0.5 : 1;

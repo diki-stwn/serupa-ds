@@ -74,7 +74,7 @@ const [stars, setStars] = React.useState<number | null>(null);
 | `name` | `string` | a generated one | Sends the rating with a form. |
 | `form` | `string` | | The id of a form elsewhere on the page that the radios belong to. |
 | `required` | `boolean` | `false` | Marks the radios required. |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Stars of 20, 24 or 32px. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Stars of 20, 24 or 32px. In a narrower box the stars shrink alike to fit, down to 20px, so ten `lg` stars fit a phone. |
 
 `className`, `style`, `ref` and other props go to the root `<div>`, which has `data-component="rating"` and `data-size`.
 

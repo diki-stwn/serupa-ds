@@ -26,10 +26,11 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;   /* no double-tap zoom delay on touch screens */
   /* the properties a button changes, each with its own timing: colors and the focus ring at motion-hover,
-     the press (scale) at --button-press-duration (see Micro-interactions below) */
+     the release (scale) springing back at motion-release with ease-spring; the press itself, below, at
+     --button-press-duration (see Micro-interactions below) */
   transition-property: background-color, color, border-color, text-decoration-color, box-shadow, scale;
-  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--button-press-duration, var(--motion-press));
-  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-settle);
+  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-release);
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-spring);
   position: relative;
   --dk-btn-press: var(--button-press-scale, var(--scale-97));
   --dk-btn-nudge: var(--button-icon-nudge, var(--spacing-0));   /* off by default; opt in with --button-icon-nudge */
@@ -142,7 +143,11 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
    Press: the button shrinks to --button-press-scale while held (pointer, Space, or Enter through the
    data-pressed attribute Button sets). Not on the link variant, which reads as text. */
 .dk-btn:not(.dk-btn--link):active:not(:disabled, [aria-disabled="true"]),
-.dk-btn:not(.dk-btn--link)[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-btn-press); }
+.dk-btn:not(.dk-btn--link)[data-pressed]:not(:disabled, [aria-disabled="true"]) {
+  scale: var(--dk-btn-press);
+  transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--button-press-duration, var(--motion-press));
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-settle);
+}
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
 .dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */

@@ -7,7 +7,7 @@ import type { ContainerSize } from "../Container/Container";
 import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import { flattenChildren } from "../../internal/children";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 
 export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
@@ -42,7 +42,7 @@ const NavbarContext = /* @__PURE__ */ React.createContext<{ close: () => void } 
    every other prop go to the <header>. */
 /** The bar across the top: brand, main links and actions. On small screens the links fold into a menu button. */
 export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navbar", function Navbar(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, { brand: 1, children: 1, actions: 1, sticky: 1, size: 1, menuLabel: 1, className: 1, "aria-label": 1, onKeyDown: 1, onBlur: 1 });
   const [open, setOpen] = React.useState(false);
   const toggle = React.useRef<HTMLButtonElement>(null);

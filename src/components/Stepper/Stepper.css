@@ -27,8 +27,8 @@ button.dk-stepper__head { cursor: pointer; touch-action: manipulation; border-ra
 @media (hover: hover) { button.dk-stepper__head:hover .dk-stepper__title { text-decoration: underline; text-underline-offset: var(--underline-offset-2); } }
 /* Pressed: the indicator shrinks a little while a step's head is held (pointer or Space), as a Button does, then
    springs back. Only scale moves; none under reduced motion. */
-button.dk-stepper__head .dk-stepper__indicator { transition: scale var(--motion-press) var(--ease-settle); }
-button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-press-scale, var(--scale-95)); }
+button.dk-stepper__head .dk-stepper__indicator { transition: scale var(--motion-release) var(--ease-spring); }
+button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-press-scale, var(--scale-95)); transition: scale var(--motion-press) var(--ease-settle); }
 @media (prefers-reduced-motion: reduce) { button.dk-stepper__head .dk-stepper__indicator { transition: none; } button.dk-stepper__head:active .dk-stepper__indicator { scale: none; } }
 button.dk-stepper__head:focus { outline: none; }
 button.dk-stepper__head:focus-visible { outline: var(--focus-ring-width) solid var(--stepper-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }

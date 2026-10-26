@@ -31,9 +31,12 @@ export interface SerupaLabels extends ComponentLabels {
   required: string;
 }
 
-/** The English words (the default). */
-// Object.assign marked pure, so a bundler drops the set a project doesn't import (see src/generated/labels.ts).
-export const DEFAULT_LABELS: SerupaLabels = /* @__PURE__ */ Object.assign({}, componentEn, {
+/** The shared words only (SerupaLabels less each component's own). */
+export type SharedLabels = Omit<SerupaLabels, keyof ComponentLabels>;
+
+/** The shared English words: the defaults every component starts from. A component's own words come from its
+    labels.ts through useLabels (internal/provider.tsx), so a bundle carries only the words of the components in it. */
+export const SHARED_LABELS: SharedLabels = {
   close: "Close",
   dismiss: "Dismiss",
   loading: "Loading…",
@@ -46,7 +49,11 @@ export const DEFAULT_LABELS: SerupaLabels = /* @__PURE__ */ Object.assign({}, co
   mainNavigation: "Main",
   menu: "Menu",
   required: "Required",
-} satisfies Omit<SerupaLabels, keyof ComponentLabels>);
+};
+
+/** Every English word, shared and each component's (enLabels). */
+// Object.assign marked pure, so a bundler drops the set a project doesn't import (see src/generated/labels.ts).
+export const DEFAULT_LABELS: SerupaLabels = /* @__PURE__ */ Object.assign({}, componentEn, SHARED_LABELS);
 
 /** The same words in Indonesian: `<SerupaProvider locale="id-ID" labels={idLabels}>`. */
 export const idLabels: SerupaLabels = /* @__PURE__ */ Object.assign({}, componentId, {
