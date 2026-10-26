@@ -46,7 +46,7 @@ Every heading is `font-semibold` in `text`, with no margins (space it with the l
 
 ## Component tokens
 
-Each is an optional override: set it on the page, a container or one heading. The list lives in `src/components/Heading/heading.tokens.json` (also in `design-tokens/components/`). A `--heading-size-*` override changes the size only; the line height stays the level's.
+Each is an optional override: set it on the page, a container or one heading. The list lives in `src/components/Heading/heading.tokens.json` (also in `design-tokens/components/`). A `--heading-size-*` override changes the size only: set the matching `--heading-line-height-*` with it (for an h1 at `text-4xl`, `--heading-line-height-1: var(--text-4xl--line-height)`), or a large size keeps the level's shorter line height and wrapped lines crowd.
 
 | Token | Default | Use |
 | --- | --- | --- |
@@ -58,3 +58,9 @@ Each is an optional override: set it on the page, a container or one heading. Th
 | `--heading-size-4` | `text-lg` | The size of a level 4 heading (text-lg). |
 | `--heading-size-5` | `text-base` | The size of a level 5 heading (text-base). |
 | `--heading-size-6` | `text-sm` | The size of a level 6 heading (text-sm). |
+| `--heading-line-height-1` | `text-3xl--line-height` | The line height of a level 1 heading (text-3xl's). Set it with --heading-size-1. |
+| `--heading-line-height-2` | `text-2xl--line-height` | The line height of a level 2 heading (text-2xl's). Set it with --heading-size-2. |
+| `--heading-line-height-3` | `text-xl--line-height` | The line height of a level 3 heading (text-xl's). Set it with --heading-size-3. |
+| `--heading-line-height-4` | `text-lg--line-height` | The line height of a level 4 heading (text-lg's). Set it with --heading-size-4. |
+| `--heading-line-height-5` | `text-base--line-height` | The line height of a level 5 heading (text-base's). Set it with --heading-size-5. |
+| `--heading-line-height-6` | `text-sm--line-height` | The line height of a level 6 heading (text-sm's). Set it with --heading-size-6. |
