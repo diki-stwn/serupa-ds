@@ -114,9 +114,24 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttri
   const [fade, setFade] = React.useState<{ before: boolean; after: boolean }>({ before: false, after: false });
   // Which ends have tabs past them: before is the left (or top) edge, after the right (or bottom). In RTL,
   // scrollLeft runs from 0 down to minus the overflow.
+  // Each tab carries where the selected tab's line (or fill) is, from where it sits: when it's selected next, its own
+  // line starts there and slides into place (Tabs.css, EG1). It's set ahead of time, on every tab, because a line
+  // starts from the style its tab had just before it was selected. Refreshed on each change (reveal measures) and as the tabs resize.
+  const place = () => {
+    const el = list.current;
+    if (!el) return;
+    const tabs = Array.from(el.querySelectorAll<HTMLElement>('[role="tab"]'));
+    const on = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+    for (const t of tabs) {
+      if (!on || t === on || !t.offsetWidth || !t.offsetHeight) { t.style.removeProperty("--dk-tabs-from-shift"); t.style.removeProperty("--dk-tabs-from-scale"); continue; }
+      t.style.setProperty("--dk-tabs-from-shift", on.offsetLeft - t.offsetLeft + "px " + (on.offsetTop - t.offsetTop) + "px");
+      t.style.setProperty("--dk-tabs-from-scale", on.offsetWidth / t.offsetWidth + " " + on.offsetHeight / t.offsetHeight);
+    }
+  };
   const measure = React.useCallback(() => {
     const el = list.current;
     if (!el) return;
+    place();
     const v = ctx.vertical, max = v ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
     let at = v ? el.scrollTop : el.scrollLeft;
     if (!v && getComputedStyle(el).direction === "rtl") at = max + at;
