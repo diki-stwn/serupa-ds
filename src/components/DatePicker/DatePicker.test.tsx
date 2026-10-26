@@ -23,6 +23,29 @@ function Ctl(props: { calls: string[]; setRef?: { set?: (d: Date | null) => void
 }
 
 describe('DatePicker', () => {
+  test('a press on the box (side padding, past the calendar button) focuses the field with the caret at the end; a press in the open calendar is not taken for one on the box; a disabled box stays put (GG2)', async () => {
+    await render(<div style={{ width: '320px' }}>
+      <DatePicker id="bx" size="lg" defaultValue={new Date(2026, 2, 14)} aria-label="Due" />
+      <DatePicker id="bx-off" size="lg" disabled aria-label="Off" />
+      <button id="bx-away">away</button>
+    </div>);
+    const box = (id: string) => el(id).closest('[data-component=date-picker]') as HTMLElement;
+    const b = box('bx').getBoundingClientRect(), y = b.height / 2, end = el('bx').value.length;
+    for (const x of [2, b.width - 2]) {
+      el('bx-away').focus();
+      await userEvent.click(box('bx'), { position: { x, y } });
+      expect([x, document.activeElement === el('bx'), el('bx').selectionStart]).toEqual([x, true, end]);
+    }
+    await userEvent.click(button('bx'));
+    await expect.poll(() => popup('bx').contains(document.activeElement)).toBe(true);
+    const p = popup('bx').getBoundingClientRect();
+    await userEvent.click(popup('bx'), { position: { x: 3, y: p.height - 3 } });
+    expect([document.activeElement === el('bx'), popup('bx').hidden]).toEqual([false, false]);   // the calendar's, not the box's
+    el('bx-away').focus();
+    await userEvent.click(box('bx-off'), { position: { x: 4, y }, force: true });
+    expect(document.activeElement).not.toBe(el('bx-off'));
+  });
+
   test('the format to type is part of the field\'s description, after a Field hint, in the locale\'s order: it stays when the placeholder is gone', async () => {
     await render(<><Field label="Due" hint="The last working day"><DatePicker id="fh" locale="en-US" /></Field><DatePicker id="fg" aria-label="Start" locale="de-DE" /></>);
     expect([described(el('fh')), described(el('fg'))]).toEqual(['The last working day | Format: mm/dd/yyyy', 'Format: dd.mm.yyyy']);

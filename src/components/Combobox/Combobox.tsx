@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { pressFocuses } from "../../internal/affix";
 import { cn, domId, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Icon } from "../Icon/Icon";
@@ -347,7 +348,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   );
   return (
     <span ref={box} className={cn("dk-input dk-combobox", multi && "dk-combobox--multiple", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
-      style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"}>
+      style={props.style} data-component="combobox" data-size={size} data-state={open ? "open" : "closed"} onMouseDown={pressFocuses(input)}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
       {multi ? <span className="dk-combobox__values">
         {values.length ? <span className="dk-combobox__tags" onMouseDown={keep}>
