@@ -8187,6 +8187,19 @@
         }
       }
     },
+    "delay-50": {
+      "$type": "duration",
+      "$value": {
+        "value": 50,
+        "unit": "ms"
+      },
+      "$description": "One step of a stagger: the gap between list items arriving (`motion-stagger`).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--delay-50"
+        }
+      }
+    },
     "delay-100": {
       "$type": "duration",
       "$value": {
@@ -8338,6 +8351,156 @@
         }
       }
     },
+    "ease-out-cubic": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.33,
+        1,
+        0.68,
+        1
+      ],
+      "$description": "Decelerates gently: a soft arrival.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-out-cubic"
+        }
+      }
+    },
+    "ease-out-quart": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.25,
+        1,
+        0.5,
+        1
+      ],
+      "$description": "Decelerates firmly: quick off the mark, a long smooth landing. Surfaces entering (`ease-enter`).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-out-quart"
+        }
+      }
+    },
+    "ease-out-expo": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.16,
+        1,
+        0.3,
+        1
+      ],
+      "$description": "Decelerates hard: almost all of the travel at once, then a long glide to rest. Values arriving and slides let go (`ease-settle`).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-out-expo"
+        }
+      }
+    },
+    "ease-in-cubic": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.32,
+        0,
+        0.67,
+        0
+      ],
+      "$description": "Accelerates gently from a standstill: something drifting off. Slower to get going than `ease-in`, so not for closing surfaces.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-cubic"
+        }
+      }
+    },
+    "ease-in-quart": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.5,
+        0,
+        0.75,
+        0
+      ],
+      "$description": "Accelerates firmly: something thrown off screen.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-quart"
+        }
+      }
+    },
+    "ease-in-expo": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.7,
+        0,
+        0.84,
+        0
+      ],
+      "$description": "Accelerates hard: barely moves, then gone. Rarely right for UI.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-expo"
+        }
+      }
+    },
+    "ease-in-out-cubic": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.65,
+        0,
+        0.35,
+        1
+      ],
+      "$description": "Smooth start and finish: something that stays on screen and changes (`ease-move`).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-out-cubic"
+        }
+      }
+    },
+    "ease-in-out-quart": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.76,
+        0,
+        0.24,
+        1
+      ],
+      "$description": "A pronounced start and finish: a large panel or page-level change.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-out-quart"
+        }
+      }
+    },
+    "ease-in-out-expo": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.87,
+        0,
+        0.13,
+        1
+      ],
+      "$description": "The most pronounced start and finish: a deliberate, dramatic move. Use rarely.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-in-out-expo"
+        }
+      }
+    },
+    "ease-out-back": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.34,
+        1.36,
+        0.64,
+        1
+      ],
+      "$description": "Decelerates past the end by about 4%, then comes back: something small popping into place (`ease-pop`).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-out-back"
+        }
+      }
+    },
     "motion-press": {
       "$type": "duration",
       "$value": "{transitions.duration-100}",
@@ -8345,6 +8508,16 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--motion-press"
+        }
+      }
+    },
+    "motion-release": {
+      "$type": "duration",
+      "$value": "{transitions.duration-300}",
+      "$description": "A press let go: the control springing back to its size with `ease-spring`. Longer than the press, because a spring spends its end settling; it is back in place in about a third of this.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-release"
         }
       }
     },
@@ -8508,10 +8681,40 @@
         }
       }
     },
+    "motion-stagger": {
+      "$type": "duration",
+      "$value": "{transitions.delay-50}",
+      "$description": "The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. Each item waits its index times this.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-stagger"
+        }
+      }
+    },
+    "motion-stagger-limit": {
+      "$type": "duration",
+      "$value": "{transitions.delay-300}",
+      "$description": "The longest any item of a staggered group waits, so a long list still arrives within a moment: items past the sixth arrive together.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-stagger-limit"
+        }
+      }
+    },
+    "motion-sequence": {
+      "$type": "duration",
+      "$value": "{transitions.delay-50}",
+      "$description": "The offset between the steps of one entrance, so they read as a sequence: a dialog or drawer’s backdrop starts, then its panel. Exits don’t sequence; everything leaves together.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-sequence"
+        }
+      }
+    },
     "ease-enter": {
       "$type": "cubicBezier",
-      "$value": "{transitions.ease-out}",
-      "$description": "Something appearing: fast at first, settling at the end.",
+      "$value": "{transitions.ease-out-quart}",
+      "$description": "Something appearing: quick off the mark, then a long smooth landing.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-enter"
@@ -8521,7 +8724,7 @@
     "ease-exit": {
       "$type": "cubicBezier",
       "$value": "{transitions.ease-in}",
-      "$description": "Something leaving: slow at first, then out of the way.",
+      "$description": "Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-exit"
@@ -8530,8 +8733,8 @@
     },
     "ease-move": {
       "$type": "cubicBezier",
-      "$value": "{transitions.ease-in-out}",
-      "$description": "Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing.",
+      "$value": "{transitions.ease-in-out-cubic}",
+      "$description": "Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. A smooth start and finish.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-move"
@@ -8540,11 +8743,21 @@
     },
     "ease-settle": {
       "$type": "cubicBezier",
-      "$value": "{transitions.ease-out}",
-      "$description": "Something answering the hand or arriving at a new value: a press, a fill, a slide let go. Fast at first, settling at the end.",
+      "$value": "{transitions.ease-out-expo}",
+      "$description": "Something arriving at a new value or let go by the hand: a fill, a slide, a drawer dropped. Most of the travel at once, then a long glide to rest.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-settle"
+        }
+      }
+    },
+    "ease-pop": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-out-back}",
+      "$description": "Something small popping into place: a check mark, a count, a dot. Overshoots a touch, then settles.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-pop"
         }
       }
     }

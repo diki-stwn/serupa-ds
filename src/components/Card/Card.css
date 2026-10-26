@@ -43,7 +43,7 @@
 
 /* Interactive (href): one link, around the title (or empty, over the card), whose area is stretched over the whole
    card. Buttons and links inside sit above it, so they work on their own. The card shows the link's focus ring. */
-.dk-card--link { position: relative; cursor: pointer; touch-action: manipulation; transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move), scale var(--motion-press) var(--ease-settle); }
+.dk-card--link { position: relative; cursor: pointer; touch-action: manipulation; transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move), scale var(--motion-release) var(--ease-spring); }
 .dk-card__link { color: inherit; text-decoration: none; outline: none; }
 .dk-card__link::after { content: ""; position: absolute; inset: var(--spacing-0); z-index: var(--z-0); border-radius: inherit; }
 .dk-card__link--cover { position: absolute; inset: var(--spacing-0); border-radius: inherit; }
@@ -54,7 +54,7 @@
 @media (hover: hover) { .dk-card--link:hover { border-color: var(--card-border-hover, var(--border-strong)); } }
 /* Pressed: the card shrinks a little while held and springs back, like a Button, but not while one of the buttons
    or links inside it is the thing being pressed. */
-.dk-card--link:active:not(:has(:is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-card__link):active)) { scale: var(--card-press-scale, var(--scale-97)); }
+.dk-card--link:active:not(:has(:is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-card__link):active)) { scale: var(--card-press-scale, var(--scale-97)); transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move), scale var(--motion-press) var(--ease-settle); }
 .dk-card--link:has(.dk-card__link:focus-visible) { outline: var(--focus-ring-width) solid var(--card-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 @media (prefers-reduced-motion: reduce) { .dk-card--link { transition: none; } .dk-card--link:active { scale: none; } }
 @media (forced-colors: active) { .dk-card { border-color: CanvasText; } }

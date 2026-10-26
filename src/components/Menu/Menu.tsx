@@ -43,6 +43,9 @@ const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
 const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
+// Each item's place in its menu, groups included, for the stagger as it opens (Menu.css). Set before anything
+// reads the menu's layout on opening, since that starts the items' transitions with the delay they have then.
+const placeItems = (open: boolean, panel: HTMLElement | null) => { if (open) itemsOf(panel).forEach((it, i) => it.style.setProperty("--dk-menu-i", String(i))); };
 
 /* The keys inside an open menu (or a submenu's panel, whose keys bubble to the menu's element): ↑ ↓ move,
    wrapping, Home and End jump, typing goes to the next item starting with what was typed, Escape closes and puts
@@ -91,6 +94,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   // A press outside the menu and its button closes it (focus stays where the press put it).
   // Its items stay, inert, while it fades out (DZ1); one open on arrival doesn't fade in.
   const exit = useExit(open, menuRef);
+  useIsoLayoutEffect(() => placeItems(open, menuRef.current), [open]);
   useAnchoredLayer(open, menuRef, triggerRef, { placement: props.placement, fallback: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), inside: triggerRef });
   // On open, focus goes to the first item (or the last, opened with ↑).
   useIsoLayoutEffect(() => {
@@ -203,6 +207,7 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
 
   // Its items stay, inert, while it fades out (DZ1); one open on arrival doesn't fade in.
   const exit = useExit(open, menuRef);
+  useIsoLayoutEffect(() => placeItems(open, menuRef.current), [open, at]);
   useAnchoredLayer(open && !!spot, menuRef, point, { placement: "bottom-start", offsetVar: "--dk-menu-offset", onOutside: () => close("outside", false), watch: spot && spot.x + "," + spot.y });
   useIsoLayoutEffect(() => {
     const menu = menuRef.current;
@@ -432,6 +437,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
 
   // Its items stay, inert, while it fades out (DZ1).
   const exit = useExit(open, panelRef);
+  useIsoLayoutEffect(() => placeItems(open, panelRef.current), [open]);
   useAnchoredLayer(open, panelRef, itemRef, { placement: open && rtl() ? "left-start" : "right-start", fallback: "right-start", offsetVar: "--dk-menu-sub-offset" });
   useIsoLayoutEffect(() => {
     if (!open || !focusFirst.current) return;

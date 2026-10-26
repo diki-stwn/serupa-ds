@@ -49,6 +49,16 @@
   .dk-menu[hidden] { scale: var(--scale-95); }
   @starting-style { .dk-menu:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
 }
+/* Items arrive one after another as the menu opens (stagger): each fades and drops 4px into place, motion-stagger
+   after the one before (its place, --dk-menu-i, comes from Menu.tsx), the whole menu in within twice motion-enter-sm.
+   Only on opening (closing fades the menu as one), and not under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .dk-menu:not([hidden]):not([data-instant]) .dk-menu__item {
+    --dk-menu-item-delay: min(calc(var(--motion-stagger) * var(--dk-menu-i, 0)), var(--motion-enter-sm));
+    transition: opacity var(--motion-enter-sm) var(--ease-enter) var(--dk-menu-item-delay), translate var(--motion-enter-sm) var(--ease-enter) var(--dk-menu-item-delay);
+  }
+  @starting-style { .dk-menu:not([hidden]):not([data-instant]) .dk-menu__item { opacity: var(--opacity-0); translate: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-1)); } }
+}
 .dk-menu__item {
   display: flex;
   align-items: center;
