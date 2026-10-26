@@ -21,6 +21,10 @@ export const InAField: Story = {
 
 export const Shown: Story = { args: { defaultValue: 'correct horse battery staple', defaultVisible: true } };
 
+// Disabled: the field and its show/hide button are both off. Read-only: the value can't change, but it can still be shown.
+export const Disabled: Story = { args: { defaultValue: 'correct horse', disabled: true } };
+export const ReadOnly: Story = { name: 'Read-only', args: { defaultValue: 'correct horse', readOnly: true } };
+
 export const Invalid: Story = {
   render: () => <div style={{ maxWidth: 320 }}><Field label="Password" error="That password is wrong."><PasswordInput defaultValue="hunter2" /></Field></div>,
 };

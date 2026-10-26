@@ -22,14 +22,10 @@ const SHOWN = {
 const KNOWN = {
   Badge: ['disabled'],
   ColorPicker: ['disabled', 'invalid'],
-  DatePicker: ['readOnly'],
   DateRangePicker: ['invalid', 'readOnly'],
-  NumberInput: ['disabled', 'invalid', 'readOnly'],
-  PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
   PinInput: ['readOnly'],
   SegmentedControl: ['disabled'],
-  TimePicker: ['readOnly'],
 };
 
 const config = ts.getParsedCommandLineOfConfigFile(path.join(PROJECT, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
