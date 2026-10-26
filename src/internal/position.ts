@@ -15,10 +15,13 @@ export function parsePlacement(p: string | undefined, fallback: Placement): [Sid
   return [m[1] as Side, (m[2] as Align) || "center"];
 }
 
+/** Whether the page runs right to left: a style read, so a caller placing often reads it once and passes it on. */
+export const isRtl = (): boolean => getComputedStyle(document.documentElement).direction === "rtl";
+
 /** Where to put the floating element (left, top in viewport px), the side it ended up on, and a maxHeight when it's
     taller than the room it has: then it takes that height and scrolls inside, so all of it stays on screen. On the
     left or right, a maxWidth too when it's wider than the room beside the anchor (its text wraps instead). */
-export function place(anchor: DOMRect, floating: { width: number; height: number }, placement: string | undefined, offset: number, fallback: Placement = "top", margin = 8): { x: number; y: number; side: Side; maxHeight?: number; maxWidth?: number } {
+export function place(anchor: DOMRect, floating: { width: number; height: number }, placement: string | undefined, offset: number, fallback: Placement = "top", margin = 8, rtl = isRtl()): { x: number; y: number; side: Side; maxHeight?: number; maxWidth?: number } {
   // The part of the page on screen: the visual viewport where there is one, which a phone's on-screen keyboard
   // shrinks and pinch-zoom moves; anchor and result are in layout-viewport px, as getBoundingClientRect gives them.
   const vv = typeof window !== "undefined" ? window.visualViewport : null;
@@ -26,7 +29,6 @@ export function place(anchor: DOMRect, floating: { width: number; height: number
   const R = vv ? L + vv.width : document.documentElement.clientWidth, B = vv ? T + vv.height : document.documentElement.clientHeight;
   const parsed = parsePlacement(placement, fallback), align = parsed[1];
   let side = parsed[0];
-  const rtl = getComputedStyle(document.documentElement).direction === "rtl";
   // The room on each side, between the anchor (and the gap) and the screen's margin.
   const space = (s: Side) => s === "top" ? anchor.top - offset - margin - T
     : s === "bottom" ? B - margin - anchor.bottom - offset
@@ -65,13 +67,13 @@ export function place(anchor: DOMRect, floating: { width: number; height: number
 // module state: browser elements, weakly held.
 const ownMaxWidth = new WeakMap<HTMLElement, string>();
 
-export function placeLayer(layer: HTMLElement, anchor: Element, placement: string | undefined, offset: number, fallback?: Placement): void {
+export function placeLayer(layer: HTMLElement, anchor: Element, placement: string | undefined, offset: number, fallback?: Placement, rtl?: boolean): void {
   const scroll = layer.scrollTop;
   if (!ownMaxWidth.has(layer)) ownMaxWidth.set(layer, layer.style.maxWidth);
   const own = ownMaxWidth.get(layer)!;
   layer.style.maxHeight = ""; layer.style.overflowY = ""; layer.style.maxWidth = own;
   const a = restingRect(anchor);
-  const r = place(a, { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback);
+  const r = place(a, { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback, undefined, rtl);
   layer.style.left = r.x + "px"; layer.style.top = r.y + "px"; layer.dataset.side = r.side;
   if (r.maxHeight !== undefined) { layer.style.maxHeight = r.maxHeight + "px"; layer.style.overflowY = "auto"; }
   if (r.maxWidth !== undefined) layer.style.maxWidth = own ? "min(" + own + ", " + r.maxWidth + "px)" : r.maxWidth + "px";
