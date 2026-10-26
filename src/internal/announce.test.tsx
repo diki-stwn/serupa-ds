@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { announce, ensureAnnouncer } from './announce';
 
 const region = () => document.querySelector('[data-dk-announcer]') as HTMLElement;
@@ -15,5 +15,19 @@ describe('announce', () => {
     announce('Saved');
     await expect.poll(() => region().textContent, { timeout: 3000 }).toBe('First. Picked up Apollo, position 1 of 3. Apollo, position 2 of 3. Saved');
     expect(region().textContent).not.toMatch(/\.\./);
+  });
+
+  test('a clock that goes back (a system time change, a fake clock in a test) doesn\'t hold the next message back', async () => {
+    ensureAnnouncer();
+    await settle();
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.now() + 60000 });
+    try {
+      announce('Ahead');
+      await expect.poll(() => region().textContent, { timeout: 3000 }).toBe('Ahead');
+    } finally {
+      vi.useRealTimers();
+    }
+    announce('Back');
+    await expect.poll(() => region().textContent, { timeout: 1500 }).toBe('Back');
   });
 });

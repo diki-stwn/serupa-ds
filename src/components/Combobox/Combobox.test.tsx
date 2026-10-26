@@ -514,6 +514,24 @@ describe('Combobox loadOptions (DG1)', () => {
     expect(idLabels.loadFailed).toBe('Gagal memuat pilihan. Ketik untuk mencoba lagi.');
   });
 
+  test('a request aborted by newer text that then rejects (as fetch does) says nothing; a loadOptions that throws at once says it failed', async () => {
+    const s = server();
+    await render(<div style={{ width: '320px' }}><Combobox id="x" aria-label="Country" loadOptions={s.loadOptions} debounce={0} /></div>);
+    el('x').focus();
+    await userEvent.keyboard('p');
+    await userEvent.keyboard('e');
+    expect(s.calls.map((c) => [c.text, c.signal.aborted])).toEqual([['p', true], ['pe', false]]);
+    s.calls[0].fail();
+    s.calls[1].ok(['Peru']);
+    await expect.poll(() => st('x').opts).toEqual(['Peru']);
+    expect(status('x')).not.toMatch(/load/i);
+    const thrown = () => { throw new Error('no network'); };
+    await render(<div style={{ width: '320px' }}><Combobox id="y" aria-label="Country" loadOptions={thrown} debounce={0} /></div>);
+    el('y').focus();
+    await userEvent.keyboard('a');
+    await expect.poll(() => status('y')).toBe("Couldn't load options. Type to try again.");
+  });
+
   test('a picked option keeps its label when later answers leave it out; unmounting aborts the request in flight', async () => {
     const s = server();
     const { unmount } = await render(<div style={{ width: '320px' }}><Combobox id="p" aria-label="Country" loadOptions={s.loadOptions} debounce={0} /></div>);

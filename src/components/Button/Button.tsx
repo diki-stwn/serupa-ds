@@ -141,7 +141,9 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
       if (ok && successText) won.current = successText;
       setWorking(false);
     };
-    r.then(function () { settle(true); }, function () { settle(false); });
+    // Rethrown, so a rejection Button watched still reaches window's unhandledrejection (Sentry, error reporting) once,
+    // as it would without Button.
+    r.then(function () { settle(true); }, function (err: unknown) { settle(false); throw err; });
   };
   // type="submit" in a <form action={fn}> that is being sent (React's form status): loading on its own, unless set.
   const form = useFormStatus();

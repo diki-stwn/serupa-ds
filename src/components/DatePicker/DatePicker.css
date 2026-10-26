@@ -22,6 +22,7 @@
   background: var(--date-picker-popup-bg, var(--surface-overlay)); color: var(--date-picker-popup-text, var(--text));
   box-shadow: var(--date-picker-popup-shadow, var(--shadow-lg));
   cursor: default; animation: dk-dp-in var(--duration-150) var(--ease-out);
+  transform-origin: var(--dk-layer-origin, top);
 }
 .dk-date-picker__popup[hidden] { display: none; }
 @keyframes dk-dp-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }

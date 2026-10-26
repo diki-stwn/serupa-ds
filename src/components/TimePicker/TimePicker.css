@@ -23,6 +23,15 @@
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start; cursor: default;
 }
 .dk-time-picker__list[hidden] { display: none; }
+/* Entry (EF1): the list fades in and grows from the edge facing the field, as Menu, Popover and Combobox do, in
+   motion-enter-sm. A transition from @starting-style rather than keyframes, so a list closed mid-way never restarts.
+   Reduced motion: the fade alone. */
+.dk-time-picker__list { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+.dk-time-picker__list[data-side="bottom"] { transform-origin: top; }
+.dk-time-picker__list[data-side="top"] { transform-origin: bottom; }
+@starting-style { .dk-time-picker__list:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) { @starting-style { .dk-time-picker__list:not([hidden]) { scale: var(--scale-95); } } }
+@media (prefers-reduced-motion: reduce) { .dk-time-picker__list { transition: opacity var(--motion-enter-sm) var(--ease-enter); } }
 .dk-time-picker__option {
   display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); box-sizing: border-box;
   min-height: var(--time-picker-option-height, var(--control-height-md)); padding: var(--spacing-0) var(--spacing-2);

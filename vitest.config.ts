@@ -74,9 +74,9 @@ export default defineConfig({
       test: {
         name: 'checks',
         include: ['tools/test/*.mjs'],
-        // Shared code, the cross-browser comparison (npm run test:safari) and the visual and Storybook steps, which
-        // run.mjs shards across CI jobs.
-        exclude: ['tools/test/{lib,run,webdriver,compat,visual,storybook}.mjs'],
+        // Shared code, the cross-browser comparison (npm run test:safari), the visual and Storybook steps, which
+        // run.mjs shards across CI jobs, and the install on older Node (consumer.mjs, its own CI job).
+        exclude: ['tools/test/{lib,run,webdriver,compat,visual,storybook,consumer}.mjs'],
         environment: 'node',
         // Several write their pages to the one .test-tmp/ folder and remove it when done: one file at a time.
         fileParallelism: false,
