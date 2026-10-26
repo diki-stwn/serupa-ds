@@ -10,6 +10,7 @@ interface FieldProps extends Omit<React.HTMLAttributes<HTMLElement>, "children">
     optional?: boolean | string;
     disabled?: boolean;
     group?: boolean;
+    layout?: "horizontal" | "vertical";
     id?: string;
     children?: React.ReactNode;
 }

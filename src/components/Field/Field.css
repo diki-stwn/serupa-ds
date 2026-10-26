@@ -15,5 +15,10 @@
 .dk-field__control { display: flex; flex-direction: column; gap: var(--spacing-2); min-width: var(--spacing-0); }
 .dk-field__error { display: flex; align-items: flex-start; gap: var(--field-error-gap, var(--spacing-1)); color: var(--field-error-color, var(--danger-text)); overflow-wrap: anywhere; }
 .dk-field__error .dk-field__error-icon { font-size: var(--field-error-icon-size, var(--spacing-4)); height: var(--text-sm--line-height); line-height: var(--text-sm--line-height); }   /* centered on the first line */
-.dk-field--disabled > .dk-field__label, .dk-field--disabled > .dk-field__hint { opacity: var(--opacity-disabled); }
+/* Horizontal: the label in a column of its own on the control's first line (baselines aligned), the control, hint and
+   error stacked beside it; once the field is narrower than both columns, the body wraps under the label. */
+.dk-field--horizontal { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: var(--field-column-gap, var(--spacing-4)); }
+.dk-field--horizontal > .dk-field__label { flex: none; flex-basis: var(--field-label-width, var(--spacing-48)); max-width: var(--sizing-full); }
+.dk-field__body { display: flex; flex: auto; flex-basis: var(--field-control-min-width, var(--container-3xs)); flex-direction: column; gap: var(--field-gap, var(--spacing-1\.5)); min-width: var(--spacing-0); }
+.dk-field--disabled > .dk-field__label, .dk-field--disabled .dk-field__body > .dk-field__hint, .dk-field--disabled > .dk-field__hint { opacity: var(--opacity-disabled); }
 }
