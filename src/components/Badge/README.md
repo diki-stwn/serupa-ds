@@ -177,6 +177,6 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
 | `--badge-press-duration` | `motion-press` | How fast the press scales (100ms) |
 | `--badge-ripple-opacity` | `opacity-20` | Ripple strength, in the text color (20%); `0` turns it off |
-| `--badge-ripple-duration` | `duration-500` | How long the ripple takes to spread (500ms) |
-| `--badge-ripple-fade-duration` | `duration-300` | How long the ripple takes to fade after release (300ms) |
+| `--badge-ripple-duration` | `motion-ripple` | How long the ripple takes to spread (500ms) |
+| `--badge-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms) |
 | `--badge-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading ring (150ms) |

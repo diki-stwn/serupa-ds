@@ -39,9 +39,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-loader-arc': ['EE1: stroke-dasharray', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
-  keyframes: Object.fromEntries([
-    ['dk-popover-in', 'Popover'],
-  ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
+  keyframes: {},
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],
   },

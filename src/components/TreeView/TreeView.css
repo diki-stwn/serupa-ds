@@ -37,7 +37,7 @@
 .dk-tree-view__item:focus-visible > .dk-tree-view__row { outline: var(--focus-ring-width) solid var(--tree-view-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-tree-view__item--disabled > .dk-tree-view__row { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-tree-view__toggle { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--spacing-5); height: var(--spacing-5); color: var(--tree-view-icon-color, var(--text-muted)); }
-.dk-tree-view__toggle .dk-icon { font-size: var(--spacing-4); rotate: var(--dk-tree-closed); transition: rotate var(--duration-200) var(--ease-in-out); }
+.dk-tree-view__toggle .dk-icon { font-size: var(--spacing-4); rotate: var(--dk-tree-closed); transition: rotate var(--motion-change-md) var(--ease-move); }
 .dk-tree-view__item[aria-expanded="true"] > .dk-tree-view__row .dk-tree-view__toggle .dk-icon { rotate: var(--dk-tree-open); }
 .dk-tree-view__icon { display: inline-flex; flex-shrink: 0; color: var(--tree-view-icon-color, var(--text-muted)); }
 .dk-tree-view__icon .dk-icon { font-size: var(--spacing-4); }

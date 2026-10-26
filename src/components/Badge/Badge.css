@@ -141,7 +141,7 @@
 .dk-badge--interactive:active:not(:disabled, [aria-disabled="true"]),
 .dk-badge--interactive[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-badge-press); }
 /* Loading: the content fades out while the ring fades and grows in. */
-.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-in-out); }
+.dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
 .dk-badge__loader { animation: dk-badge-loader-in var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
 @keyframes dk-badge-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-badge-loader-from); } }
 /* Ripple: from the press point, in the text color at --badge-ripple-opacity; Badge adds the circles. */
@@ -151,8 +151,8 @@
   border-radius: var(--rounded-full);
   background-color: currentColor;
   opacity: var(--badge-ripple-opacity, var(--opacity-20));
-  animation: dk-badge-ripple var(--badge-ripple-duration, var(--duration-500)) var(--ease-in-out) both;
-  transition: opacity var(--badge-ripple-fade-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-badge-ripple var(--badge-ripple-duration, var(--motion-ripple)) var(--ease-move) both;
+  transition: opacity var(--badge-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
 }
 .dk-badge__ripple--out { opacity: var(--opacity-0); }
 @keyframes dk-badge-ripple { from { scale: var(--scale-0); } }
