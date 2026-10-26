@@ -1,0 +1,61 @@
+# Empty
+- button "Notifications"
+- dialog "Notifications":
+  - heading "Notifications" [level=2]
+  - button "Close"
+  - paragraph: No notifications yet
+  - button "Mark all as read"
+  - button "Clear all"
+
+# LongText
+- button "Notifications 1"
+- dialog "Notifications for the Donaudampfschifffahrtsgesellschaft workspace":
+  - heading "Notifications for the Donaudampfschifffahrtsgesellschaft workspace" [level=2]
+  - button "Close"
+  - list:
+    - listitem:
+      - paragraph: "Unread: The Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung export could not be finished"
+      - paragraph: Three of the forty-two attachments were larger than the workspace allows, so they were left out of the archive.
+      - time: 5 min. ago
+      - button "Mark as read"
+  - button "Mark all as read"
+  - button "Clear all"
+
+# Open
+- button "Notifications 2"
+- dialog "Notifications":
+  - heading "Notifications" [level=2]
+  - button "Close"
+  - list:
+    - listitem:
+      - paragraph: "Unread: Payment failed"
+      - paragraph: The card ending 4242 was declined.
+      - time: 2 min. ago
+      - button "Mark as read"
+    - listitem:
+      - paragraph: "Unread: Invoice sent"
+      - time: 15 min. ago
+      - button "Mark as read"
+    - listitem:
+      - paragraph: Storage almost full
+      - paragraph: 9.6 GB of 10 GB used.
+      - time: 1 hr. ago
+    - listitem:
+      - paragraph: New comment on "Q3 plan"
+      - time: 3 hr. ago
+    - listitem:
+      - paragraph: Export ready
+      - time: yesterday
+  - button "Mark all as read"
+  - button "Clear all"
+
+# Playground
+- button "Notifications 2"
+
+# ToastHistory
+- region "Notifications":
+  - list
+- button "Show a toast"
+- button "Show an error"
+- button "Notifications"
+

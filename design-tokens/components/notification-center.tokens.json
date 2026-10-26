@@ -1,0 +1,111 @@
+{
+  "notificationCenter": {
+    "$description": "NotificationCenter's component tokens. Each one is an optional override: set the CSS variable (--notification-center-<name>) on the page, a container or one NotificationCenter, and every NotificationCenter inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "unread": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The unread dot (3:1 on the drawer).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-unread"
+          }
+        }
+      },
+      "divider": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line between notifications.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-divider"
+          }
+        }
+      },
+      "description": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "A notification's description and time (4.5:1 on the drawer).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-description"
+          }
+        }
+      },
+      "icon-info": {
+        "$type": "color",
+        "$value": "{color.info}",
+        "$description": "The info tone's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-icon-info"
+          }
+        }
+      },
+      "icon-success": {
+        "$type": "color",
+        "$value": "{color.success}",
+        "$description": "The success tone's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-icon-success"
+          }
+        }
+      },
+      "icon-warning": {
+        "$type": "color",
+        "$value": "{color.warning}",
+        "$description": "The warning tone's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-icon-warning"
+          }
+        }
+      },
+      "icon-danger": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "The danger tone's icon.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-icon-danger"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The ring around a notification focused after \"Mark as read\".",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-focus-ring"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "row-padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Space above and below each notification (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-row-padding"
+          }
+        }
+      }
+    },
+    "typography": {
+      "unread-weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "An unread notification's title.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--notification-center-unread-weight"
+          }
+        }
+      }
+    }
+  }
+}
