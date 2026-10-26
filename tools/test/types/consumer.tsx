@@ -21,7 +21,20 @@ is<Equal<RefOf<typeof Input>, HTMLInputElement>>();
 is<Equal<RefOf<typeof Checkbox>, HTMLInputElement>>();
 is<Equal<RefOf<typeof Select>, HTMLSelectElement>>();
 is<Equal<RefOf<typeof Dialog>, HTMLDialogElement>>();
-is<Equal<RefOf<typeof Link>, HTMLAnchorElement>>();
+
+// Link: an <a>'s props and ref by default; with `as`, the props and ref of the element it names (G10).
+const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string; className?: string; children?: React.ReactNode }>(function RouterLink() { return null; });
+export const links = [
+  <Link ref={React.createRef<HTMLAnchorElement>()} href="/docs">Docs</Link>,
+  <Link as={RouterLink} to="/settings" ref={React.createRef<HTMLAnchorElement>()}>Settings</Link>,
+  <Link as="button" type="button" ref={React.createRef<HTMLButtonElement>()}>Open</Link>,
+  // @ts-expect-error: an <a>'s ref can't be a button's
+  <Link ref={React.createRef<HTMLButtonElement>()} href="/docs">Docs</Link>,
+  // @ts-expect-error: RouterLink needs to
+  <Link as={RouterLink}>Settings</Link>,
+  // @ts-expect-error: an <a> has no to
+  <Link to="/settings">Settings</Link>,
+];
 
 // Button: a <button> without href, a link with it, and each one's ref and click event to match.
 const buttonRef = React.createRef<HTMLButtonElement>();

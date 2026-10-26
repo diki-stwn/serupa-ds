@@ -20,7 +20,7 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   /** Keeps the bar at the top while the page scrolls, and keeps what the keyboard focuses (or a #link jumps to)
    *  from scrolling under it. Default: false. */
   sticky?: boolean;
-  /** The content's maximum width, like Container: 'md', 'lg', 'xl' (default), '2xl' or 'full'. */
+  /** The content's maximum width, like Container: 'prose', 'md', 'lg', 'xl' (default), '2xl' or 'full'. */
   size?: ContainerSize;
   /** The links' nav name. Default: "Main". */
   "aria-label"?: string;

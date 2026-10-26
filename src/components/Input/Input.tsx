@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useValidityMessages } from "../../internal/validity";
 import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal/cn";
 import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -56,6 +57,7 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
   }
   const own = React.useRef<HTMLInputElement | null>(null);
   const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
+  useValidityMessages(rest, own);   // the browser's message for a failed constraint, in the provider's words
   const countId = domId("dk-in", React.useId());
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Textarea's

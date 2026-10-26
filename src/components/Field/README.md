@@ -36,10 +36,11 @@ const { Field, Input, Textarea } = window.Serupa;
 - Keep labels short and specific ("Work email", not "Please enter your email address"). Put format help in the hint, never only in the placeholder.
 - Show errors after someone leaves the field or submits, not on every keystroke, and on submit move focus to the first field with an error.
 - Stack fields with `gap-5` or `gap-6` between them.
+- For a dense settings page, use `layout="horizontal"`: the labels line up in a column at the start and the controls beside them. Keep labels short enough for the 192px column (`--field-label-width`). Give fields a full-width parent: a horizontal field stacks again on its own once it's too narrow for both columns. A set of checkboxes or radios (`group`) stays stacked.
 
 ### Layout
 
-Label, hint, control and error stack with 6px between them (`--field-gap`). The label is `text-sm` in `font-medium`; hint and error are `text-sm`. The error's 16px icon sits centered on its first line. A group's legend lays out exactly like a label.
+Label, hint, control and error stack with 6px between them (`--field-gap`). With `layout="horizontal"`, the label takes a 192px column (`--field-label-width`) 16px from the control (`--field-column-gap`). Its text sits on the control's first line (baselines aligned), and the hint and error go under the control. Once the control column would be narrower than 256px (`--field-control-min-width`), it wraps under the label, so the field is stacked again. The label is `text-sm` in `font-medium`; hint and error are `text-sm`. The error's 16px icon sits centered on its first line. A group's legend lays out exactly like a label.
 
 ## Accessibility
 
@@ -65,6 +66,7 @@ Label, hint, control and error stack with 6px between them (`--field-gap`). The 
 | `optional` | boolean or text | `false` | "(optional)" after the label (the `fieldOptional` label, "(opsional)" in `idLabels`), or your own words. Ignored with `required` |
 | `disabled` | boolean | `false` | Disables the control (with `group`, every control in the fieldset) and dims the label and hint |
 | `group` | boolean | `false` | A `<fieldset>` and `<legend>` around a set of controls; the hint and error describe the fieldset |
+| `layout` | `'vertical' \| 'horizontal'` | `'vertical'` | `'horizontal'`: the label in a column beside the control, the hint and error under the control. It stacks again when narrow. Not with `group` |
 | `id` | string | | The control's id; by default the control's own `id`, or a generated one |
 
 Field takes one control as its child (any number with `group`). The control keeps its own props, `ref` and `aria-describedby` (Field's ids are added after yours). `className` and any other attribute go to the outer element, which has `data-component="field"`.
@@ -82,5 +84,8 @@ Each is an optional override: set it on the page, a container or one field. The 
 | `--field-error-color` | `danger-text` | Error message and its icon |
 | `--field-required-color` | `danger-text` | The `*` |
 | `--field-gap` | `spacing-1.5` | Space between label, hint, control and error (6px) |
+| `--field-column-gap` | `spacing-4` | `layout="horizontal"`: label column to control (16px) |
+| `--field-label-width` | `spacing-48` | `layout="horizontal"`: the label column (192px) |
+| `--field-control-min-width` | `container-3xs` | `layout="horizontal"`: the narrowest control column before it wraps under the label (256px) |
 | `--field-error-gap` | `spacing-1` | Error icon to text (4px) |
 | `--field-error-icon-size` | `spacing-4` | Error icon (16px) |

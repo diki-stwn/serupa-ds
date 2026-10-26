@@ -62,6 +62,9 @@
 .dk-drawer__panel, .dk-drawer::backdrop { transition: opacity var(--motion-exit-lg) var(--ease-exit), translate var(--motion-exit-lg) var(--ease-exit); }
 .dk-drawer[open] .dk-drawer__panel, .dk-drawer[open]::backdrop { transition: opacity var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter), translate var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter); }
 .dk-drawer[open] .dk-drawer__panel[data-dragging] { transition: none; }
+/* In, as a sequence: the backdrop starts, then the panel motion-sequence later (modal only: a side panel has no
+   backdrop to wait for). Out, they leave together. */
+.dk-drawer[open]:not(.dk-drawer--nonmodal) .dk-drawer__panel:not([data-settling]) { transition-delay: var(--motion-sequence); }
 .dk-drawer:not([open])::backdrop { opacity: var(--opacity-0); }
 @starting-style { .dk-drawer[open]:not([data-instant])::backdrop { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: no-preference) {
