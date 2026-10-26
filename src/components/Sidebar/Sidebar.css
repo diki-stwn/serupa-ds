@@ -31,6 +31,21 @@
 .dk-sidebar__list { display: flex; flex-direction: column; gap: var(--spacing-0\.5); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-sidebar__list--nested { margin-top: var(--spacing-0\.5); }
 .dk-sidebar__list[hidden] { display: none; }
+/* A group's nested list (GM4), as Accordion's panel: its height comes and goes at once, in one layout, and the
+   items unfold over it on the compositor. Open: shown at once, then it fades in and its clip opens from the top
+   over motion-change-md with ease-move, with the chevron. Closed: it keeps its height, inert, while it fades and
+   folds back over motion-exit-md with ease-exit, then goes (hidden, Sidebar.tsx). One open on arrival is there from the first frame (data-instant). Transitions, so a quick second
+   press turns back from where it is. Reduced motion: the fade alone. */
+.dk-sidebar__list--nested { transition: opacity var(--motion-exit-md) var(--ease-exit); }
+.dk-sidebar__li[data-state="closed"] > .dk-sidebar__list--nested { opacity: var(--opacity-0); }
+.dk-sidebar__li[data-state="open"] > .dk-sidebar__list--nested { opacity: var(--opacity-100); transition: opacity var(--motion-change-md) var(--ease-move); }
+@starting-style { .dk-sidebar__li[data-state="open"] > .dk-sidebar__list--nested:not([data-instant]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-sidebar__list--nested { transition: opacity var(--motion-exit-md) var(--ease-exit), clip-path var(--motion-exit-md) var(--ease-exit); }
+  .dk-sidebar__li[data-state="closed"] > .dk-sidebar__list--nested { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full)); }
+  .dk-sidebar__li[data-state="open"] > .dk-sidebar__list--nested { clip-path: inset(var(--spacing-0)); transition: opacity var(--motion-change-md) var(--ease-move), clip-path var(--motion-change-md) var(--ease-move); }
+  @starting-style { .dk-sidebar__li[data-state="open"] > .dk-sidebar__list--nested:not([data-instant]) { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full)); } }
+}
 .dk-sidebar__item {
   box-sizing: border-box; display: flex; align-items: center; gap: var(--sidebar-item-gap, var(--spacing-3)); width: var(--sizing-full);
   padding: var(--sidebar-item-padding-y, var(--spacing-2)) var(--sidebar-item-padding-x, var(--spacing-3)); border: var(--spacing-0); border-radius: var(--sidebar-item-radius, var(--rounded-md));
