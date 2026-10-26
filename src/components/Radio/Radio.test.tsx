@@ -126,6 +126,20 @@ describe('Radio', () => {
     expect(document.activeElement!.id).toBe('kb-a');   // back to the checked one
   });
 
+  test('right to left: ArrowLeft is next and wraps from the last radio to the first, ArrowRight wraps back, in every engine', async () => {
+    const seen: string[] = [];
+    await render(<Grid><div dir="rtl"><RadioGroup aria-label="Fruit" name="rtl" defaultValue="c" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="rtl-a" value="a">A</Radio><Radio id="rtl-b" value="b">B</Radio><Radio id="rtl-c" value="c">C</Radio>
+    </RadioGroup></div></Grid>);
+    input('rtl-c').focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => input('rtl-a').checked).toBe(true);
+    expect(document.activeElement!.id).toBe('rtl-a');
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => input('rtl-c').checked).toBe(true);
+    expect([document.activeElement!.id, seen.join()]).toEqual(['rtl-c', 'a,c']);
+  });
+
   test('onChange, deprecated: still called with (value, event) after onValueChange, and warns once', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const calls: string[] = [];
