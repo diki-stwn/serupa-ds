@@ -58,6 +58,14 @@ describe('ColorPicker', () => {
       .toEqual([true, 'dk-color-picker dk-color-picker--size-md extra', 'color-picker', true, 'rgb(29, 78, 216)']);
   });
 
+  test('keyboard table: ArrowUp picks the previous swatch, as ArrowLeft does, and wraps (FH1)', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    swatch('Blue').focus();
+    await userEvent.keyboard('{ArrowRight}{ArrowUp}{ArrowUp}');
+    expect([calls, document.activeElement === swatch('Black')]).toEqual([['#fde047', '#1d4ed8', '#18181b'], true]);
+  });
+
   test('arrow keys, Home and End move and pick, wrapping; a click picks; onValueChange gets lowercase #rrggbb', async () => {
     const calls: string[] = [];
     await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);

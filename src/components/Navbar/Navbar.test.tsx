@@ -139,6 +139,15 @@ describe('Navbar', () => {
     expect(q('#nsticky .dk-navbar__toggle').getAttribute('aria-label')).toBe('Open the menu');
   });
 
+  test('keyboard table: Enter or Space on the menu button opens or closes the menu (FH1)', async () => {
+    await render(<Main />);
+    await resize(500);
+    toggle().focus();
+    const seen: Array<string | null> = [];
+    for (const k of ['{Enter}', '{Enter}', '[Space]', '[Space]']) { await userEvent.keyboard(k); seen.push(toggle().getAttribute('aria-expanded')); }
+    expect(seen).toEqual(['true', 'false', 'true', 'false']);
+  });
+
   test('pressing it opens the links in a full-width panel under the bar, one per line; the icon becomes close', async () => {
     await render(<Main />);
     await resize(500);

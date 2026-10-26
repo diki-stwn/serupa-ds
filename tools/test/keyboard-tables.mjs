@@ -9,32 +9,18 @@ import { PROJECT, done, report } from './lib.mjs';
 
 // What no test presses yet, by component: FH1 adds a test for each, checking what the table says the key does.
 const KNOWN = Object.fromEntries(Object.entries({
-  Calendar: ['Space'],
-  ColorPicker: ['ArrowUp'],
   CopyButton: ['Tab', 'Enter', 'Space'],
-  DateRangePicker: ['Space'],
-  Dialog: ['Space'],
-  Drawer: ['Space'],
   InlineEdit: ['Tab'],
   Input: ['Tab', 'Enter'],
   Link: ['Enter'],
-  Navbar: ['Enter', 'Space'],
-  NumberInput: ['PageDown'],
-  PasswordInput: ['Tab', 'CapsLock'],
   PhoneInput: ['ArrowUp', 'ArrowDown', 'Delete'],
-  Popover: ['Space'],
   Radio: ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'Space'],
   Rating: ['ArrowDown', 'ArrowUp', 'Space'],
   SearchInput: ['Tab'],
   SegmentedControl: ['ArrowDown', 'ArrowUp'],
-  Select: ['Tab', 'ArrowUp', 'ArrowDown', 'Space'],
-  SortableList: ['ArrowUp', 'ArrowLeft', 'ArrowRight'],
   Splitter: ['Tab'],
   Stepper: ['Tab', 'Space'],
-  Table: ['arrow'],
-  Tabs: ['Space'],
   Textarea: ['Tab'],
-  TimePicker: ['PageUp'],
   ToggleButton: ['Tab', 'Enter'],
 }).flatMap(([c, ks]) => ks.map((k) => [`${c}:${k}`, 'FH1'])));
 

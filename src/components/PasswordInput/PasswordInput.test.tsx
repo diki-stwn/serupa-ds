@@ -45,6 +45,22 @@ describe('PasswordInput', () => {
     expect([t.type, t.getAttribute('aria-label'), t.getAttribute('aria-pressed'), t.getAttribute('aria-controls'), eye('pw')]).toEqual(['button', 'Show password', 'false', 'pw', 'visibility']);
   });
 
+  test('keyboard table: Tab goes to the field, then the show button; pressing Caps Lock in the field shows "Caps Lock is on" (FH1)', async () => {
+    await render(<Wrap><button id="kb-before">before</button><PasswordInput id="kc" aria-label="Password" /></Wrap>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const order = [document.activeElement === field('kc')];
+    // The key itself, as a browser reports it: the keydown that turns Caps Lock on already has it on, the one that turns it off has it off.
+    const caps = (on: boolean) => field('kc').dispatchEvent(new KeyboardEvent('keydown', { key: 'CapsLock', bubbles: true, modifierCapsLock: on }));
+    caps(true);
+    await expect.poll(() => box('kc').querySelector('.dk-password-input__caps')?.textContent).toBe('Caps Lock is on');
+    caps(false);
+    await expect.poll(() => box('kc').querySelector('.dk-password-input__caps')).toBe(null);
+    await userEvent.tab();
+    order.push(document.activeElement === toggle('kc'));
+    expect(order).toEqual([true, true]);
+  });
+
   test('pressing it shows the text (type text, aria-pressed true, eye crossed out) and the field keeps focus; Enter and Space on the button toggle it; it shows a 2px focus ring', async () => {
     await render(<Wrap><Main /></Wrap>);
     await userEvent.fill(field('pw'), 'hunter2');

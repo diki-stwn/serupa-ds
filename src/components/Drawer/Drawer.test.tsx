@@ -154,6 +154,19 @@ describe('Drawer', () => {
     expect(why).toEqual(['swipe', 'escape', 'swipe']);
   });
 
+  test('keyboard table: Enter or Space on the × closes it, the same as Escape (FH1)', async () => {
+    await render(<App asks={[]} ctl={{}} />);
+    const closedBy: string[] = [];
+    for (const k of ['{Enter}', '[Space]']) {
+      await openDrw();
+      (drw().querySelector('button[aria-label="Close"]') as HTMLElement).focus();
+      await userEvent.keyboard(k);
+      await expect.poll(() => isOpen()).toBe(false);
+      closedBy.push(document.activeElement!.id);
+    }
+    expect(closedBy).toEqual(['opener', 'opener']);
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     await render(<Drawer id="daf" open title="Filters"><Input id="dafq" aria-label="Search" data-autofocus /></Drawer>);
     await expect.poll(() => (el('daf') as HTMLDialogElement).open).toBe(true);
