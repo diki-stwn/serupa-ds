@@ -111,7 +111,12 @@ describe('ColorPicker', () => {
     await userEvent.fill(hex(), '');
     const data = new DataTransfer();
     data.setData('text/plain', ' #7C3AED\n');
-    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+    const ev = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+    let seen: unknown[] = [];
+    hex().addEventListener('paste', (e) => { seen = [e.clipboardData === null, e.clipboardData?.getData('text'), e.clipboardData?.getData('text/plain'), [...(e.clipboardData?.types || [])], e.defaultPrevented]; }, { once: true });
+    const probe = [ev.clipboardData === null, ev.clipboardData === data, data.getData('text'), data.getData('text/plain'), [...data.types]];
+    hex().dispatchEvent(ev);
+    expect(['PROBE', probe, seen, ev.defaultPrevented]).toEqual(['PROBE']);
     await expect.poll(() => calls.at(-1)).toBe('#7c3aed');
     expect([hex().value, hex().hasAttribute('aria-invalid')]).toEqual(['7C3AED', false]);
   });
