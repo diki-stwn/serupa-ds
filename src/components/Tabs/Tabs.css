@@ -20,6 +20,8 @@
   --dk-tabs-fade-to: to right;
   --dk-tabs-fade-a: var(--spacing-0); --dk-tabs-fade-b: var(--spacing-0);
 }
+/* Safari before 18.2 ignores scrollbar-width; browsers that have it ignore this. */
+.dk-tabs__list::-webkit-scrollbar { display: none; }
 .dk-tabs__list[data-fade-before] { --dk-tabs-fade-a: var(--dk-tabs-fade); }
 .dk-tabs__list[data-fade-after] { --dk-tabs-fade-b: var(--dk-tabs-fade); }
 .dk-tabs__list:is([data-fade-before], [data-fade-after]) {
