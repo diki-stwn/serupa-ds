@@ -1,7 +1,8 @@
 /* ---------------------------------------------------------------
    EmptyState: a centered column, 48px padding (sm: 24px), 16px apart: a 24px muted icon in a 48px secondary
    circle (sm: 40px), a text-base font-semibold title (sm: text-sm) over a muted text-sm description no wider
-   than 384px, then the actions. dashed: in a 1px dashed, rounded frame.
+   than 384px, then the actions. dashed: in a 1px dashed, rounded frame. Suggestions: a muted
+   text-sm line of underlined link buttons under the description.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-empty-state { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: var(--empty-state-gap, var(--spacing-4)); padding: var(--empty-state-padding, var(--spacing-12)); text-align: center; font-family: var(--font-sans); }
@@ -16,5 +17,8 @@
 .dk-empty-state__title { margin: var(--spacing-0); color: var(--empty-state-title-color, var(--text)); font-size: var(--empty-state-title-size, var(--text-base)); line-height: var(--text-base--line-height); font-weight: var(--empty-state-title-weight, var(--font-semibold)); }
 .dk-empty-state--sm .dk-empty-state__title { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-empty-state__description { margin: var(--spacing-0); color: var(--empty-state-description-color, var(--text-muted)); font-size: var(--empty-state-description-size, var(--text-sm)); line-height: var(--text-sm--line-height); }
+.dk-empty-state__suggestions { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: var(--spacing-2); row-gap: var(--spacing-1); margin: var(--spacing-0); color: var(--empty-state-description-color, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-empty-state__suggestions .dk-empty-state__suggestion { height: auto; min-height: var(--spacing-6); padding-block: var(--spacing-0); padding-inline: var(--spacing-0); font-size: inherit; line-height: inherit; text-decoration: underline; }
+strong.dk-empty-state__suggestion { color: var(--empty-state-title-color, var(--text)); font-weight: var(--font-semibold); text-decoration: none; }
 .dk-empty-state__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--spacing-2); }
 }
