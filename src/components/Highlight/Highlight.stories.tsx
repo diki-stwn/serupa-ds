@@ -33,6 +33,25 @@ export const SearchResults: Story = {
   },
 };
 
+/** In an option (a command palette, a filtered list): the match keeps the text's weight and is underlined, so typing doesn't shift the letters. */
+export const InOptions: Story = {
+  render: function Render() {
+    const [q, setQ] = React.useState('sa');
+    return (
+      <div style={{ maxWidth: 200, display: 'grid', gap: 12 }}>
+        <Input aria-label="Filter cities" value={q} onChange={(e) => setQ(e.target.value)} />
+        <ul role="listbox" aria-label="Cities" style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 4 }}>
+          {CITIES.map((c) => (
+            <li key={c} role="option" aria-selected={false} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Highlight query={q}>{c}</Highlight>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  },
+};
+
 export const LongText: Story = {
   args: { query: 'kapitän' },
   render: (args) => (

@@ -1,3 +1,15 @@
+# InOptions
+- textbox "Filter cities": sa
+- listbox "Cities":
+  - option "São Paulo":
+    - mark: Sã
+    - text: o Paulo
+  - option "Straße des 17. Juni, Berlin"
+  - option "Đà Nẵng"
+  - option "Zürich"
+  - option "Ørsted, Copenhagen"
+  - option "Tokyo"
+
 # LongText
 - text: Donaudampfschifffahrtsgesellschafts
 - mark: kapitän
