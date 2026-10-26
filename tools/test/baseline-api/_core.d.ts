@@ -1,4 +1,4 @@
-// exports: announce, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions
+// exports: announce, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutColorTransitions
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -71,7 +71,7 @@ declare function announce(text: string, options?: {
 declare function useCollator(options?: Intl.CollatorOptions & {
     locale?: string;
 }): Intl.Collator;
-declare function withoutTransitions(change: () => void, element?: HTMLElement): void;
+declare function withoutColorTransitions(change: () => void, element?: HTMLElement): void;
 type CustomIconName = never;
 declare const customIcons: readonly CustomIconName[];
 declare function registerIcons(...icons: Array<IconData | Readonly<Record<string, IconData>>>): void;
@@ -93,7 +93,7 @@ declare global {
             useCollator: typeof useCollator;
             useLocale: typeof useLocale;
             useSerupa: typeof useSerupa;
-            withoutTransitions: typeof withoutTransitions;
+            withoutColorTransitions: typeof withoutColorTransitions;
             theme?: ThemeApi;
         };
     }

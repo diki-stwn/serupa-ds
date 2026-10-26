@@ -115,21 +115,23 @@ for (const scheme of ['light', 'dark']) {
 }
 
 {
-  // GD5: a theme switch starts no transitions (every control's colors change at once with the page's), and transitions
-  // are back two frames later.
+  // GD5, GF4: a theme switch changes every control's colors at once (each one's color transition finishes at once),
+  // while motion started in the same tick runs on: a menu fading out as "Dark" is picked, a switch thumb sliding.
   const p = await b.newPage();
-  const rows = '<p class="row" style="transition: background-color 150ms, color 150ms; background: var(--surface-muted); color: var(--text)">Row</p>'.repeat(20);
+  const rows = '<p class="row" style="transition: background-color 150ms, color 150ms; background: var(--surface-muted); color: var(--text)">Row</p>'.repeat(20)
+    + '<div class="menu" style="transition: opacity 150ms, scale 150ms; background: var(--surface)">Menu</div>'
+    + '<div class="thumb" style="width: 16px; transition: translate 150ms, background-color 150ms; background: var(--surface-muted)"></div>'
+    + '<p class="still" style="background: var(--surface-muted)">Row</p>';
   await p.goto(writePage('theme-switch.html', rows, { theme: true, htmlAttrs: 'data-brand="blue" data-mode="light"', extraHead: '<link rel="stylesheet" href="../tokens.css">' }));
-  // theme.js applies the theme at load too, so wait for that switch's two frames before reading the rows.
-  await p.waitForFunction(() => !document.documentElement.hasAttribute('data-theme-switching'));
-  const before = await p.evaluate(() => getComputedStyle(document.querySelector('.row')).transitionDuration);
-  const r = await p.evaluate(async () => {
+  const r = await p.evaluate(() => {
+    document.querySelector('.menu').style.cssText += ';opacity: 0; scale: 0.95';   // closing as "Dark" is picked
+    void getComputedStyle(document.querySelector('.menu')).opacity;   // its fade has started
     Serupa.theme.set({ mode: 'dark' });
-    const during = [document.getAnimations().length, document.documentElement.hasAttribute('data-theme-switching')];
-    await new Promise((f) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(f))));
-    return [...during, document.getAnimations().length, document.documentElement.hasAttribute('data-theme-switching'), getComputedStyle(document.querySelector('.row')).transitionDuration];
+    document.querySelector('.thumb').style.translate = '16px';
+    const bg = (s) => getComputedStyle(document.querySelector(s)).backgroundColor;
+    return [document.getAnimations().map((a) => a.transitionProperty).sort().join(' '), bg('.row') === bg('.still')];
   });
-  t('theme.js: switching theme starts no transitions on the page\'s controls, and they\'re back two frames later', before !== '0s' && r.join() === `0,true,0,false,${before}`, `${before} ${r.join()}`);
+  t('theme.js: switching theme changes every color at once, while a menu fading and a switch sliding in the same tick run on', r.join() === 'opacity scale translate,true', r.join());
   await p.close();
 }
 

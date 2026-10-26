@@ -64,7 +64,7 @@ For router links, set the link component once at startup: `configure({ link: Lin
 
 ## 3. Pick a theme
 
-`data-theme` on any element picks one of the six themes (`blue-light`, `blue-dark`, `violet-light`, `violet-dark`, `emerald-light`, `emerald-dark`). `theme.js` sets it on the page from `data-brand` and `data-mode`, follows the visitor's light or dark setting, and remembers a choice made with `Serupa.theme.set()`. Load it first in `<head>` so the page never flashes the wrong theme. A switch changes every color at once, with no control fading on its own (to switch a section yourself, use `withoutTransitions`). See [Themes](?path=/docs/foundations-themes--docs).
+`data-theme` on any element picks one of the six themes (`blue-light`, `blue-dark`, `violet-light`, `violet-dark`, `emerald-light`, `emerald-dark`). `theme.js` sets it on the page from `data-brand` and `data-mode`, follows the visitor's light or dark setting, and remembers a choice made with `Serupa.theme.set()`. Load it first in `<head>` so the page never flashes the wrong theme. A switch changes every color at once, with no control fading on its own, while motion such as a menu fading out runs on (to switch a section yourself, use `withoutColorTransitions`). See [Themes](?path=/docs/foundations-themes--docs).
 
 ## 4. Before you ship
 

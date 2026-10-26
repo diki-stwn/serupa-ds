@@ -49,9 +49,6 @@ export function buildTokensCss(t) {
   for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`, s.usage);
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
-  // While the theme switches (theme.js, withoutTransitions()), no transitions: every control's colors change at once
-  // with the page's instead of fading one by one. Removed two frames later.
-  css += `[data-theme-switching], [data-theme-switching] *, [data-theme-switching]::before, [data-theme-switching]::after, [data-theme-switching] *::before, [data-theme-switching] *::after { transition: none !important; }\n`;
   for (const s of styles) {
     css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
     if (s.fontStyle && s.fontStyle !== 'normal') css += `  font-style: ${s.fontStyle};\n`;
