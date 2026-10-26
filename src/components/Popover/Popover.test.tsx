@@ -92,6 +92,14 @@ describe('Popover', () => {
     expect(el('tshare').getAttribute('aria-expanded')).toBe('false');
   });
 
+  test('keyboard table: Space on the trigger opens it and moves focus inside (FH1)', async () => {
+    await render(<Share />);
+    el('tshare').focus();
+    await userEvent.keyboard(' ');
+    await expect.poll(() => isOpen('tshare')).toBe(true);
+    expect(panel('tshare').contains(document.activeElement)).toBe(true);
+  });
+
   test('Enter on the trigger opens it; a close() button inside closes it and returns focus; the trigger closes it again', async () => {
     await render(<Share />);
     el('tshare').focus();

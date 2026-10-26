@@ -32,6 +32,22 @@ describe('Select', () => {
     expect([b.height, f.fontSize, f.paddingLeft, f.paddingRight, b.borderTopWidth, b.borderRadius]).toEqual(['32px', '14px', '12px', '36px', '1px', '6px']);
   });
 
+  test('keyboard table: Tab reaches the select; ArrowDown and ArrowUp pick the next and previous option, skipping a disabled one; Space goes to the browser, which opens its list (FH1)', async () => {
+    const changes: string[] = [];
+    await render(<Grid><button id="kb-before">before</button><Select id="kb-s" aria-label="Pick" defaultValue="a" onChange={(e) => changes.push(e.target.value)} options={['a', { value: 'b', label: 'Bee', disabled: true }, 'c']} /></Grid>);
+    document.getElementById('kb-before')!.focus();
+    await userEvent.tab();
+    const at = document.activeElement?.id;
+    await userEvent.keyboard('{ArrowDown}{ArrowUp}');
+    let cancelled: boolean | null = null;
+    const watch = (e: KeyboardEvent) => { if (e.key === ' ') cancelled = e.defaultPrevented; };
+    window.addEventListener('keydown', watch);
+    await userEvent.keyboard(' ');
+    window.removeEventListener('keydown', watch);
+    await userEvent.keyboard('{Escape}');
+    expect([at, changes, cancelled]).toEqual(['kb-s', ['c', 'a'], false]);
+  });
+
   test('sizes: sm 24px text-xs, lg 44px text-base; an unknown size falls back to md; multiple is ignored with a warning', async () => {
     await render(<Grid>
       <Select id="sm" size="sm" options={['x']} aria-label="Small" />

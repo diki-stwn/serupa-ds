@@ -118,6 +118,16 @@ describe('DateRangePicker', () => {
     expect([vals('trip'), isOpen('trip'), focused()]).toEqual(['03/18/2025 – 04/02/2025', false, 'Start date']);
   });
 
+  test('keyboard table: Space on the calendar button opens the calendar, and Space in it picks the start, then the end (FH1)', async () => {
+    await render(<Trip value={{ start: new Date(2025, 2, 18), end: new Date(2025, 3, 2) }} />);
+    btn('trip').focus();
+    await userEvent.keyboard(' ');
+    await expect.poll(() => isOpen('trip')).toBe(true);
+    expect(focused()).toBe('2025-03-18');
+    await userEvent.keyboard('{ArrowRight}[Space]{ArrowDown}[Space]');
+    expect([vals('trip'), isOpen('trip')]).toEqual(['03/19/2025 – 03/26/2025', false]);
+  });
+
   test('Alt+ArrowDown opens it and the keyboard picks both ends; Escape closes it and returns focus; a click outside closes it', async () => {
     await render(<Trip value={{ start: new Date(2025, 2, 18), end: new Date(2025, 3, 2) }} />);
     fields('trip')[0].focus();
