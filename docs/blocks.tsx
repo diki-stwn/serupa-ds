@@ -56,7 +56,8 @@ const code = (s?: string) => (s || '').split(/`([^`]+)`/).map((x, i) => (i % 2 ?
 const cell: React.CSSProperties = { padding: '6px 10px', borderBottom: '1px solid var(--border)', verticalAlign: 'middle', textAlign: 'left' };
 const val = (v: Token['value']) => (typeof v === 'string' ? v : Object.values(v)[0]);
 
-/** Every token in a group, with its value, what it's for and a live preview. */
+/** Every token in a group, with its value, what it's for and a live preview. data-token-sheet marks each token block
+ * for the visual snapshots (tools/test/visual.mjs), so a changed token value shows as a changed picture. */
 export function TokenTable({ group, preview }: { group: string; preview?: 'space' | 'radius' | 'shadow' | 'duration' | 'none' }) {
   const g = T[group];
   const show = (t: Token) => {
@@ -67,7 +68,7 @@ export function TokenTable({ group, preview }: { group: string; preview?: 'space
     if (preview === 'duration' && /^(duration|delay)-/.test(t.name)) return <span className="dk-sb-pulse" style={{ display: 'inline-block', height: 12, width: 12, borderRadius: 6, background: 'var(--primary)', animationDuration: `calc(${v} * 2 + 200ms)` }} />;
     return null;
   };
-  return <div>
+  return <div data-token-sheet={group}>
     {g.note && <p>{code(g.note)}</p>}
     <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 14 }}>
       <thead><tr><th style={cell}>Token</th><th style={cell}>Value</th>{preview && preview !== 'none' && <th style={cell}>Preview</th>}<th style={cell}>Use</th></tr></thead>
@@ -82,11 +83,11 @@ const SHADES = /^([a-z]+)-(50|100|200|300|400|500|600|700|800|900|950)$/;
 /** The palette: every color family, 50 to 950. */
 export function Palette() {
   const fam: Record<string, Token[]> = {};
-  for (const t of T.color.tokens) { const m = SHADES.exec(t.name); if (m && typeof t.value === 'string') (fam[m[1]] ||= []).push(t); }
-  return <div style={{ display: 'grid', gap: 8 }}>
+  for (const t of T.color.tokens) { const m = SHADES.exec(t.name); if (m && (typeof t.value === 'string' || Object.keys(t.value).length === 1)) (fam[m[1]] ||= []).push(t); }
+  return <div data-token-sheet="palette" style={{ display: 'grid', gap: 8 }}>
     {Object.entries(fam).map(([f, list]) => <div key={f} style={{ display: 'grid', gridTemplateColumns: '80px repeat(11, 1fr)', gap: 4, alignItems: 'center', fontSize: 12 }}>
       <strong>{f}</strong>
-      {list.map((t) => <div key={t.name} title={`--${t.name}: ${t.value}`}><div style={{ height: 36, borderRadius: 6, background: `var(--${t.name})` }} /><div>{t.name.split('-')[1]}</div><code style={{ fontSize: 10 }}>{String(t.value)}</code></div>)}
+      {list.map((t) => <div key={t.name} title={`--${t.name}: ${val(t.value)}`}><div style={{ height: 36, borderRadius: 6, background: `var(--${t.name})` }} /><div>{t.name.split('-')[1]}</div><code style={{ fontSize: 10 }}>{val(t.value)}</code></div>)}
     </div>)}
   </div>;
 }
@@ -95,7 +96,7 @@ export function Palette() {
 export function Aliases() {
   const themes = T.color.themes;
   const list = T.color.tokens.filter((t) => typeof t.value === 'object' && Object.keys(t.value).length > 1);
-  return <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
+  return <table data-token-sheet="aliases" style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
     <thead><tr><th style={cell}>Alias</th><th style={cell}>Now</th>{themes.map((th) => <th key={th.id} style={cell}>{th.name}</th>)}<th style={cell}>Use</th></tr></thead>
     <tbody>{list.map((t) => <tr key={t.name}>
       <td style={cell}><code>--{t.name}</code></td>
@@ -107,7 +108,7 @@ export function Aliases() {
 
 /** The type scale: each type-* style rendered in its own family, size, line height and weight. */
 export function TypeScale() {
-  return <div>{T.type.groups.map((g) => <div key={g.name} style={{ marginBottom: 24 }}>
+  return <div data-token-sheet="type-scale">{T.type.groups.map((g) => <div key={g.name} style={{ marginBottom: 24 }}>
     <h3>{g.name}</h3>{g.note && <p>{code(g.note)}</p>}
     {g.styles.map((s) => <div key={s.name} style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 16, alignItems: 'baseline', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
       <div style={{ fontSize: 12 }}><code>{s.name}</code><br />{s.fontSize} / {s.lineHeight} · {s.fontWeight}</div>
@@ -190,7 +191,7 @@ const LEVELS: [string, string, string, string][] = [
 ];
 /** The elevation levels drawn with their tokens, on a light and a dark page side by side. */
 export function ElevationLevels() {
-  return <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, margin: '16px 0 24px' }}>
+  return <div data-token-sheet="elevation-levels" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, margin: '16px 0 24px' }}>
     {(['light', 'dark'] as const).map((mode) => <div key={mode} data-theme={`blue-${mode}`} style={{ background: 'var(--surface)', color: 'var(--text)', padding: 24, borderRadius: 8, border: '1px solid var(--border)', display: 'grid', gap: 16 }}>
       {LEVELS.map(([name, bg, edge, shadow]) => <div key={name} style={{ background: `var(--${bg})`, border: `1px solid ${edge === 'transparent' ? 'transparent' : `var(--${edge})`}`, boxShadow: shadow === 'none' ? 'none' : `var(--${shadow})`, borderRadius: 8, padding: '12px 16px', fontSize: 14 }}>
         <strong>{name}</strong> <span style={{ color: 'var(--text-muted)' }}>{mode}: <code>{bg}</code>{shadow !== 'none' && <>, <code>{shadow}</code></>}</span>

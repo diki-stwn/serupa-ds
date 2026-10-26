@@ -1,4 +1,8 @@
 // exports: EmptyState, type EmptyStateProps
+interface EmptyStateLabels {
+    didYouMean: string;
+    clearFilters: string;
+}
 interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
     icon?: IconSource;
     title: React.ReactNode;
@@ -8,5 +12,8 @@ interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "ti
     variant?: "dashed" | "plain";
     headingLevel?: 2 | 3 | 4 | 5 | 6;
     announce?: boolean;
+    suggestions?: string[];
+    onSuggestion?: (suggestion: string) => void;
+    onClearFilters?: () => void;
 }
 declare const EmptyState: React.ForwardRefExoticComponent<EmptyStateProps & React.RefAttributes<HTMLDivElement>>;

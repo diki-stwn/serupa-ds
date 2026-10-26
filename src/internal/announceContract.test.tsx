@@ -22,6 +22,7 @@ import { Loader } from '../components/Loader/Loader';
 import { LoadMore } from '../components/LoadMore/LoadMore';
 import { NumberInput } from '../components/NumberInput/NumberInput';
 import { Progress } from '../components/Progress/Progress';
+import { SaveStatus } from '../components/SaveStatus/SaveStatus';
 import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { SortableList } from '../components/SortableList/SortableList';
 import { Splitter } from '../components/Splitter/Splitter';
@@ -94,6 +95,12 @@ const SITES: Record<string, Site> = {
   'Progress: announceComplete when the value reaches max': {
     ui: (s) => <Progress label="Upload" value={s ? 100 : 60} announceComplete />,
     act: (next) => next(), says: /Upload: complete/ },
+  'SaveStatus: saved': {
+    ui: (s) => <SaveStatus status={s ? 'saved' : 'saving'} />,
+    act: (next) => next(), says: /Saved/ },
+  'SaveStatus: a failed save': {
+    ui: (s) => <SaveStatus status={s ? 'error' : 'saving'} errorText="Couldn’t save: you’re offline" />,
+    act: (next) => next(), says: /you’re offline/ },
   'Table: a new sort order': {
     ui: (s) => <Table><TableHead><TableRow><TableHeaderCell sort={s ? 'ascending' : 'none'} onSort={() => {}}>Name</TableHeaderCell></TableRow></TableHead><TableBody><TableRow><TableCell>Apollo</TableCell></TableRow></TableBody></Table>,
     act: (next) => next(), says: /Sorted by Name, ascending/ },
