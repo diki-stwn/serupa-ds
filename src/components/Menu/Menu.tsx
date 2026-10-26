@@ -9,7 +9,7 @@ import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { useExit } from "../../internal/useExit";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
-import { component, named } from "../../internal/component";
+import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import * as icons from "../../material/builtin";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
@@ -17,7 +17,7 @@ import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openCha
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
 
-export interface MenuProps {
+export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'role'> {
   /** The button that opens the menu: one element, such as a Button or IconButton. It gets aria-haspopup, aria-expanded and the keys. */
   trigger: React.ReactElement;
   /** MenuItem, MenuGroup and MenuSeparator. */
@@ -32,11 +32,12 @@ export interface MenuProps {
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** The menu's name for screen readers. Default: the trigger's text, by aria-labelledby. */
   'aria-label'?: string;
-  /** Classes on the menu panel. */
+  /** Classes on the menu panel. The other HTML attributes (id, data-*, aria-*) and the ref go on the panel too. */
   className?: string;
   /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
+const OWN_MENU = { trigger: 1, children: 1, "aria-label": 1, "aria-labelledby": 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1, style: 1, onKeyDown: 1 } as const;
 
 interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
@@ -72,8 +73,9 @@ function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.
    goes back to the button. Tab, a click outside or choosing an item closes it. It sits in the top layer next to the button.
    A MenuSub's panel sits inside the menu's element, so the keys bubble here and work on the panel the focus is in. */
 /** A list of actions behind a button: MenuItem, MenuGroup and MenuSeparator inside. */
-export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps): React.ReactElement {
-  const id = domId("dk-menu", React.useId());
+export const Menu = /* @__PURE__ */ component<HTMLDivElement, MenuProps>("Menu", function Menu(props, ref) {
+  const own = domId("dk-menu", React.useId());
+  const id = props.id || own;
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
@@ -102,7 +104,9 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
     if (target) target.focus(); else menu.focus();
   }, [open]);
 
-  const onMenuKey = menuKeys(menuRef, typed, close);
+  const keys = menuKeys(menuRef, typed, close);
+  const panelRef = React.useCallback((n: HTMLDivElement | null) => { menuRef.current = n; setRef(ref, n); }, [ref]);
+  const onMenuKey = (e: React.KeyboardEvent<HTMLDivElement>) => { if (props.onKeyDown) props.onKeyDown(e); if (!e.defaultPrevented) keys(e); };
 
   const child = oneElement<TriggerProps>(props.trigger, "Menu", "trigger");
   useTriggerRef(triggerRef, "Menu");
@@ -110,7 +114,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   const childRef = elementRef<HTMLElement>(child);
   const trigger = React.cloneElement(child, {
     ref: (n: HTMLElement | null) => { triggerRef.current = n; if (childRef) setRef(childRef, n); },
-    id: cp.id || id + "-button",
+    id: cp.id || own + "-button",
     "aria-haspopup": "menu",
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
@@ -145,8 +149,8 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   return (
     <MenuContext.Provider value={ctx}>
       {trigger}
-      <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
-        aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] ? undefined : cp.id || (triggerRef.current && triggerRef.current.id) || id + "-button"}
+      <div {...omit(props, OWN_MENU)} ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
+        aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] || props["aria-labelledby"] ? props["aria-labelledby"] : cp.id || (triggerRef.current && triggerRef.current.id) || own + "-button"}
         className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
         inert={!open || undefined} onKeyDown={onMenuKey}>
         {open || exit.leaving ? props.children : null}
