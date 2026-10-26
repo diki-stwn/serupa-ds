@@ -63,6 +63,40 @@ describe('CopyButton', () => {
     expect(el('f1').hasAttribute('data-copied')).toBe(true);
   });
 
+  test('an async value goes to the clipboard as a promise within the press (Safari refuses a write after it), and a second press while it\'s fetched does nothing (FE1)', async () => {
+    const items: ClipboardItem[] = [];
+    const write = vi.fn(async (x: ClipboardItem[]) => { items.push(...x); });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText, write }, configurable: true });
+    let calls = 0, ready!: (t: string) => void;
+    const copied: string[] = [];
+    await render(<CopyButton id="fa" value={() => { calls++; return new Promise<string>((ok) => { ready = ok; }); }} onCopy={(t) => copied.push(t)} />);
+    await userEvent.click(el('fa'));
+    expect([write.mock.calls.length, items.length]).toEqual([1, 1]);   // written in the press, before the value is there
+    await userEvent.click(el('fa'));
+    expect(calls).toBe(1);   // the second press waits for the first
+    ready('fetched');
+    const blob = await items[0].getType('text/plain');
+    expect(await blob.text()).toBe('fetched');
+    await expect.poll(() => copied).toEqual(['fetched']);
+    await expect.poll(announcerIdle).toBe(true);
+    expect([shown('fa'), said(), writeText.mock.calls.length]).toEqual(['Copied', 'Copied', 0]);
+  });
+
+  test('an async value the browser won\'t take as a promise is written once it\'s there; a rejected value says copyFailed (FE1)', async () => {
+    const write = vi.fn(async () => { throw new DOMException('no', 'NotAllowedError'); });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText, write }, configurable: true });
+    const errors: unknown[] = [];
+    await render(<>
+      <CopyButton id="fb" value={async () => 'later'} />
+      <CopyButton id="fc" value={() => Promise.reject(new Error('offline'))} onCopyError={(e) => errors.push(e)} />
+    </>);
+    await userEvent.click(el('fb'));
+    await expect.poll(() => clip).toEqual(['later']);
+    await userEvent.click(el('fc'));
+    await expect.poll(() => errors.length).toBe(1);
+    expect([(errors[0] as Error).message, el('fc').hasAttribute('data-copied')]).toEqual(['offline', false]);
+  });
+
   test('iconOnly: just the icon, named by children with a tooltip; the name becomes "Copied" while the check shows', async () => {
     await render(<CopyButton id="io" value="npm i serupa-ds" iconOnly variant="ghost">Copy the command</CopyButton>);
     const b = el('io');
