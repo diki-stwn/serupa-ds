@@ -43,6 +43,9 @@
 .dk-color-picker__native::-webkit-color-swatch-wrapper { padding: var(--spacing-0\.5); }
 .dk-color-picker__native::-webkit-color-swatch { border: 0; border-radius: var(--rounded-sm); }
 .dk-color-picker__native::-moz-color-swatch { border: 0; border-radius: var(--rounded-sm); }
+/* Nothing picked: the well holds #000000 but shows empty, not as black already chosen. */
+.dk-color-picker__native[data-empty]::-webkit-color-swatch { background: transparent !important; }
+.dk-color-picker__native[data-empty]::-moz-color-swatch { background: transparent !important; }
 .dk-color-picker__hex { inline-size: var(--color-picker-hex-width, var(--spacing-28)); font-family: var(--font-mono); text-transform: lowercase; }
 .dk-color-picker__hash { font-family: var(--font-mono); }
 .dk-color-picker__contrast { display: flex; align-items: flex-start; gap: var(--spacing-1); min-height: var(--text-sm--line-height); color: var(--color-picker-contrast, var(--text-muted)); font-variant-numeric: tabular-nums; }
