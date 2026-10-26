@@ -46,7 +46,7 @@ const { Switch } = window.Serupa;
 | Pending | A small `primary` ring turns on the thumb (3:1 on the thumb, on or off), with a `progress` cursor and no hover change |
 | Disabled | 50% opacity and a `not-allowed` cursor; also inside a disabled fieldset |
 
-The thumb slides in 150ms (`duration-150`, `ease-in-out`) and jumps with `prefers-reduced-motion`. It follows the text direction: in right-to-left pages it starts on the right.
+The thumb slides in 100ms (`motion-press`, `ease-move`: feedback for a toggle takes 100ms or less) and jumps with `prefers-reduced-motion`. It follows the text direction: in right-to-left pages it starts on the right.
 
 ## Accessibility
 

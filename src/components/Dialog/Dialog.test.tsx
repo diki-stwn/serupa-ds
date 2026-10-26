@@ -118,6 +118,19 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('dlg')).toBe(false);
   });
 
+  test('keyboard table: Enter or Space on the × closes it, the same as Escape (FH1)', async () => {
+    await render(<App asks={[]} ctl={{}} />);
+    const closedBy: string[] = [];
+    for (const k of ['{Enter}', '[Space]']) {
+      await openDlg();
+      (el('dlg').querySelector('button[aria-label="Close"]') as HTMLElement).focus();
+      await userEvent.keyboard(k);
+      await expect.poll(() => isOpen('dlg')).toBe(false);
+      closedBy.push(document.activeElement!.id);
+    }
+    expect(closedBy).toEqual(['opener', 'opener']);
+  });
+
   test('closed by the browser (dialog.close(), form method="dialog"): asks to close, and opens again next time', async () => {
     const asks: string[] = [];
     await render(<App asks={asks} ctl={{}} />);

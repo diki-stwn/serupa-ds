@@ -72,6 +72,13 @@ describe('TimePicker', () => {
     expect(st('tp').active).toBe('12:00 AM');
   });
 
+  test('keyboard table: PageUp goes four times up the list, as PageDown goes down (FH1)', async () => {
+    await render(<Meeting />);
+    await openTp();
+    await userEvent.keyboard('{PageDown}{PageDown}{PageUp}');
+    expect(st('tp').active).toBe('2:00 AM');
+  });
+
   test('Enter picks the highlighted time, closes the list and keeps focus in the field; reopening highlights and checks it (the check hidden from screen readers); Escape closes the list', async () => {
     await render(<Meeting />);
     await openTp();

@@ -77,6 +77,8 @@ type Story = StoryObj<typeof meta>;
 export const Playground: Story = {};
 // ${TODO}: a story for every state and variant (the visual baselines and the Storybook check cover each one).
 export const Default: Story = {};
+// The stress story (G14): long words, long labels, more items than fit; the visual baselines show how it copes.
+export const LongText: Story = { args: { children: 'Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung and a label long enough to wrap twice in a narrow column' } };
 `,
   [`${name}.test.tsx`]: `import * as React from 'react';
 import { describe, expect, test } from 'vitest';
