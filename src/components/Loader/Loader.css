@@ -11,7 +11,7 @@
   vertical-align: middle;
   min-height: var(--dk-loader-size);
   --dk-loader-size: var(--loader-size-md, var(--spacing-6));
-  animation: dk-loader-in var(--duration-150) var(--ease-out) both;   /* fades in once shown */
+  animation: dk-loader-in var(--motion-enter-sm) var(--ease-enter) both;   /* fades in once shown */
 }
 .dk-loader--text { min-height: var(--spacing-0); }   /* just the words: as tall as their line */
 .dk-loader__art { display: inline-flex; flex-shrink: 0; width: var(--dk-loader-size); height: var(--dk-loader-size); }
