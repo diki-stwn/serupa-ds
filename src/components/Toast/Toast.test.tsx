@@ -101,19 +101,20 @@ describe('Toast', () => {
     expect([undos, titles().length]).toEqual([1, 0]);
   });
 
-  test('with an action and no duration it stays (past the usual 5s), so there\'s time to reach the button; the first one tells screen readers about F8, once', async () => {
+  test('with an action it goes after the usual 5s like any other (FY1), unless autoDismiss is false; the first one tells screen readers about F8, once', async () => {
     await render(<App />);
     const said = new Set<string>();
     const watch = new MutationObserver(() => { const t = q('[data-dk-announcer]').textContent; if (t) said.add(t); });
     watch.observe(q('[data-dk-announcer]'), { childList: true, characterData: true, subtree: true });
-    React.act(() => { toast({ title: 'Message deleted', action: { label: 'Undo', onClick: () => {} } }); });
+    React.act(() => { toast({ title: 'Message deleted', action: { label: 'Undo', onClick: () => {} }, autoDismiss: false }); });
     await expect.poll(() => [...said].join(' | ')).toMatch(/Message deleted\. Press F8 to reach it\./);
     React.act(() => { toast({ title: 'Another deleted', action: { label: 'Undo', onClick: () => {} } }); });
     await expect.poll(() => [...said].join(' | ')).toMatch(/Another deleted/);
     expect([...said].some((t) => /Another deleted\. Press F8/.test(t))).toBe(false);
     watch.disconnect();
+    await away();
     await settle(5300);
-    expect(titles()).toEqual(['Message deleted', 'Another deleted']);
+    await expect.poll(titles).toEqual(['Message deleted']);
   });
 
   test('once the Toaster is gone, a toast with an action doesn\'t mention F8', async () => {
@@ -510,6 +511,43 @@ describe('Toast: time in the waiting line (FO1)', () => {
     await away();
     await expect.poll(titles).toEqual(['Stays a while']);
     expect(toasts()[0].contains(document.activeElement)).toBe(false);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
+  });
+});
+
+describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
+  const gone = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  test('the Toaster\'s duration is every toast\'s time unless one sets its own; duration 0 still keeps one up', async () => {
+    await render(<Toaster duration={300} limit={5} />);
+    await away();
+    React.act(() => { toast('Quick'); toast({ title: 'Own time', duration: 2000 }); toast({ title: 'Kept', duration: 0 }); toast({ title: 'Undo me', action: { label: 'Undo', onClick: () => {} } }); });
+    expect(titles()).toEqual(['Quick', 'Own time', 'Kept', 'Undo me']);
+    await gone(900);
+    expect(titles()).toEqual(['Own time', 'Kept']);
+  });
+
+  test('autoDismiss false keeps a toast until it\'s closed; on the Toaster it keeps them all, and a toast\'s own true wins', async () => {
+    const screen = await render(<Toaster duration={300} autoDismiss={false} />);
+    await away();
+    React.act(() => { toast('Stays'); toast({ title: 'Goes', autoDismiss: true }); });
+    await gone(900);
+    expect(titles()).toEqual(['Stays']);
+    // Back to the default on the Toaster: "Stays" now goes on time, and only a toast's own false keeps one up.
+    await screen.rerender(<Toaster duration={300} />);
+    React.act(() => { toast({ title: 'Must act', tone: 'danger', autoDismiss: false }); });
+    await gone(900);
+    expect(titles()).toEqual(['Must act']);
+  });
+
+  test('toast.promise keeps its loading toast up however short the Toaster\'s duration, then the result goes on time', async () => {
+    await render(<Toaster duration={300} />);
+    await away();
+    let finish: (v: string) => void = () => {};
+    React.act(() => { void toast.promise(new Promise<string>((r) => { finish = r; }), { loading: 'Saving…', success: 'Saved', error: 'Failed' }); });
+    await gone(900);
+    expect(titles()).toEqual(['Saving…']);
+    React.act(() => finish('ok'));
+    await expect.poll(titles).toEqual(['Saved']);
     await expect.poll(titles, { timeout: 2000 }).toEqual([]);
   });
 });

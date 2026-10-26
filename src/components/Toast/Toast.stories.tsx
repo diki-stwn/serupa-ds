@@ -7,7 +7,7 @@ const meta = {
   title: 'Components/Feedback/Toast',
   component: Toaster,
   args: { position: 'bottom-end' },
-  argTypes: { position: { control: 'select', options: ['bottom-end', 'bottom-start', 'bottom-center', 'top-start', 'top-center', 'top-end'] } },
+  argTypes: { position: { control: 'select', options: ['bottom-end', 'bottom-start', 'bottom-center', 'top-start', 'top-center', 'top-end'] }, duration: { control: 'number' }, autoDismiss: { control: 'boolean' } },
   render: (args) => (
     <div className="flex flex-wrap gap-2">
       <Toaster {...args} />
@@ -15,8 +15,10 @@ const meta = {
       <Button variant="secondary" onClick={() => toast({ title: 'Changes saved', tone: 'success' })}>Success</Button>
       <Button variant="secondary" onClick={() => toast({ title: 'New version available', description: 'Reload to update.', tone: 'info' })}>Info</Button>
       <Button variant="secondary" onClick={() => toast({ title: 'Storage almost full', tone: 'warning' })}>Warning</Button>
-      <Button variant="secondary" onClick={() => toast({ title: 'Upload failed', description: 'The file is over 10 MB.', tone: 'danger', duration: 0 })}>Danger</Button>
+      <Button variant="secondary" onClick={() => toast({ title: 'Upload failed', description: 'The file is over 10 MB.', tone: 'danger' })}>Danger</Button>
       <Button variant="secondary" onClick={() => toast({ title: 'Moved to trash', action: { label: 'Undo', onClick: () => toast('Restored') } })}>With an action</Button>
+      {/* autoDismiss: false, for a message someone has to act on: it stays until it's closed. */}
+      <Button variant="secondary" onClick={() => toast({ title: 'Couldn’t send the invoice', description: 'The connection dropped.', tone: 'danger', autoDismiss: false, action: { label: 'Retry', onClick: () => toast('Sending again') } })}>Stays until closed</Button>
     </div>
   ),
 } satisfies Meta<typeof Toaster>;
