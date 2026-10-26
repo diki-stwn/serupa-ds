@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Progress } from './Progress';
 import { idLabels } from '../../internal/labels';
@@ -171,4 +171,15 @@ describe('Progress: done', () => {
     } finally { rm.forEach((r, i) => { r.media.mediaText = was[i]; }); }
   });
 
+  test('forced colors: the ring\'s track is GrayText, apart from the Highlight arc and from CanvasText (GK3)', async () => {
+    await render(<><span id="gt" style={{ color: 'GrayText' }}>g</span><span id="ct" style={{ color: 'CanvasText' }}>c</span><span id="hl" style={{ color: 'Highlight' }}>h</span>
+      <div id="rg"><Progress variant="circle" value={20} label="Upload" /></div></>);
+    const r = await forcedColors((active) => {
+      if (!active) return null;
+      const ring = el('rg');
+      const track = css(ring.querySelector('.dk-progress__track')).stroke, arc = css(ring.querySelector('.dk-progress__arc')).stroke;
+      return [track === css(el('gt')).color, arc === css(el('hl')).color, track !== css(el('ct')).color];
+    });
+    if (r) expect(r).toEqual([true, true, true]);
+  });
 });
