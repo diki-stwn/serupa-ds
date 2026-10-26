@@ -2,8 +2,9 @@
    Toast: short messages in a corner (or the middle of an edge) of the screen, from toast(). The Toaster is a
    fixed list 16px from the edges; each toast is 384px (at most the screen less 32px): surface, a border,
    8px corners, shadow-lg, a tone icon (3:1 on surface), a semibold title and a muted description, an action
-   and a close button. They slide in from their edge and back out to it, and the others glide to their new
-   place; with reduced motion they fade, and the others move at once.
+   and a close button. They slide in from their edge and back out to it (one pushed into the waiting line folds
+   toward it), and the others and the waiting line glide to their new place; with reduced motion they fade, and
+   the others move at once.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-toaster {
@@ -48,8 +49,14 @@
 .dk-toaster--top-start .dk-toast, .dk-toaster--top-center .dk-toast, .dk-toaster--top-end .dk-toast { --dk-toast-from: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); }
 .dk-toast[data-leaving] { opacity: var(--opacity-0); pointer-events: none; transition: opacity var(--motion-exit-md) var(--ease-exit), translate var(--motion-exit-md) var(--ease-exit); }
 @starting-style { .dk-toast:not([data-instant]) { opacity: var(--opacity-0); } }
+/* Pushed into the waiting line by a newer one (data-leaving="queued", FO1): it folds toward the line, shrinking
+   and fading on its far side, rather than leaving by its edge like one that was closed. */
+.dk-toast { --dk-toast-fold: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); transform-origin: top center; }
+.dk-toaster--top-start .dk-toast, .dk-toaster--top-center .dk-toast, .dk-toaster--top-end .dk-toast { --dk-toast-fold: var(--spacing-0) var(--spacing-2); transform-origin: bottom center; }
+.dk-toast[data-leaving="queued"] { transition: opacity var(--motion-exit-md) var(--ease-exit), translate var(--motion-exit-md) var(--ease-exit), scale var(--motion-exit-md) var(--ease-exit); }
 @media (prefers-reduced-motion: no-preference) {
   .dk-toast[data-leaving] { translate: var(--dk-toast-from); }
+  .dk-toast[data-leaving="queued"] { translate: var(--dk-toast-fold); scale: var(--scale-95); }
   @starting-style { .dk-toast:not([data-instant]) { translate: var(--dk-toast-from); } }
 }
 /* F8 moves focus to the newest toast itself, so a screen reader reads it and Tab reaches its buttons next. */
@@ -66,7 +73,11 @@
 /* "×12": the same message came 12 times. */
 .dk-toast__count { margin-inline-start: var(--spacing-1\.5); color: var(--toast-description-color, var(--text-muted)); font-weight: var(--font-normal); font-variant-numeric: tabular-nums; }
 /* "+2 more": toasts waiting past the Toaster's limit. */
-.dk-toaster__more { align-self: center; padding: var(--spacing-0\.5) var(--spacing-2); border-radius: var(--rounded-full); background: var(--toast-bg, var(--surface-overlay)); color: var(--toast-description-color, var(--text-muted)); box-shadow: var(--shadow-sm); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height); pointer-events: auto; }
+.dk-toaster__more { align-self: center; padding: var(--spacing-0\.5) var(--spacing-2); border-radius: var(--rounded-full); background: var(--toast-bg, var(--surface-overlay)); color: var(--toast-description-color, var(--text-muted)); box-shadow: var(--shadow-sm); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height); pointer-events: auto;
+  transition: opacity var(--motion-enter-md) var(--ease-enter); }
+/* It fades in as toasts start to wait, and out once none do (FO1); there as the Toaster arrives, it's just there. */
+@starting-style { .dk-toaster__more:not([data-instant]) { opacity: var(--opacity-0); } }
+.dk-toaster__more[data-leaving] { opacity: var(--opacity-0); pointer-events: none; transition: opacity var(--motion-exit-md) var(--ease-exit); }
 .dk-toast__description { margin: var(--spacing-0); color: var(--toast-description-color, var(--text-muted)); }
 .dk-toast__action, .dk-toast__close { flex-shrink: 0; }
 @media (forced-colors: active) { .dk-toast { border-color: CanvasText; } .dk-toaster__more { border: var(--border-width-1) solid CanvasText; } }
