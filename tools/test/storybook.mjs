@@ -3,7 +3,8 @@
 // (text in a disabled control is exempt from contrast, as WCAG 1.4.3 says). In the first theme, each story also
 // takes the WCAG 1.4.12 text spacing (line height 1.5, letter spacing 0.12em, word spacing 0.16em, paragraph
 // spacing 2em) and no text may end up cut off by a box that hides its overflow (text ending in an ellipsis is
-// shortened on purpose and passes). And at 320 CSS pixels wide (1280 at 400% zoom, WCAG 1.4.10 reflow) the story
+// shortened on purpose and passes). The same goes for text at 200% (WCAG 1.4.4: the root font size doubled, as a
+// browser's text size setting does, and every rem with it). And at 320 CSS pixels wide (1280 at 400% zoom, WCAG 1.4.10 reflow) the story
 // may not make the page scroll sideways; a table, grid or code block that scrolls inside its own box is fine.
 //   node tools/test/storybook.mjs
 import fs from 'node:fs';
@@ -27,15 +28,21 @@ const RUNS = [...THEMES, 'blue-light+more'];
 
 const b = await browser();
 // Several pages at once (PAGES), each in its own context, collecting its own page errors.
-const workers = await Promise.all(Array.from({ length: PAGES }, async () => {
-  const context = await b.newContext({ viewport: { width: 1000, height: 800 } });
-  await fixClock(context);   // the same today as the screenshots (lib.mjs CLOCK)
-  const page = await context.newPage();
-  const w = { page, errors: [] };
-  page.on('pageerror', (e) => w.errors.push(e.message));
-  page.on('console', (m) => { if (m.type() === 'error') w.errors.push(m.text()); });
+async function fresh(w) {
+  await w.context?.close();
+  w.context = await b.newContext({ viewport: { width: 1000, height: 800 } });
+  await fixClock(w.context);   // the same today as the screenshots (lib.mjs CLOCK)
+  w.page = await w.context.newPage();
+  w.page.on('pageerror', (e) => w.errors.push(e.message));
+  w.page.on('console', (m) => { if (m.type() === 'error') w.errors.push(m.text()); });
+  w.used = 0;
   return w;
-}));
+}
+const workers = await Promise.all(Array.from({ length: PAGES }, () => fresh({ errors: [] })));
+// The browser keeps memory from page to page (a local run of every story grew past 10 GB and crashed a tab), so
+// each worker starts a new context every RECYCLE entries.
+const RECYCLE = 5;
+const recycled = (check) => async (e, w) => { if (++w.used > RECYCLE) await fresh(w); return check(e, w); };
 const R = [];
 const t = (name, ok, detail) => ({ name, ok: !!ok, detail });
 
@@ -113,6 +120,7 @@ const cutOff = () => {
     if (!r.width) continue;
     for (let a = el.parentElement; a && a.id !== 'storybook-root'; a = a.parentElement) {
       const cs = getComputedStyle(a);
+      if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) break;   // a box that scrolls: the text is still there to read
       if (!/hidden|clip/.test(cs.overflowX + cs.overflowY)) continue;
       const box = a.getBoundingClientRect();
       if (box.width < 3 || box.height < 3) break;   // visually hidden text
@@ -139,6 +147,9 @@ const REFLOW_KNOWN = new Set([
   'components-overlays-menu--submenus', 'guides-serupaprovider--default',
   'guides-serupaprovider--indonesian', 'guides-serupaprovider--nested',
 ]);
+// The stories whose text a box still cuts off at 200% (queue item TX1).
+const TEXT_200_KNOWN = new Set([
+]);
 async function checkStory(e, w) {
   const out = [];
   const problems = [];
@@ -162,19 +173,26 @@ async function checkStory(e, w) {
       const wide = await w.page.evaluate(() => document.documentElement.scrollWidth);
       await w.page.setViewportSize({ width: 1000, height: 800 });
       if ((wide > 321) !== REFLOW_KNOWN.has(e.id)) problems.push(wide > 321 ? `reflow (WCAG 1.4.10): at 320px wide the page scrolls sideways to ${wide}px` : 'reflow: no longer scrolls sideways at 320px; take it out of REFLOW_KNOWN');
-      // Only what the spacing cuts off: text already cut off without it is the story's own (a scrolled list).
+      // Only what the bigger text or the spacing cuts off: text already cut off without it is the story's own (a
+      // scrolled list).
       const before = await w.page.evaluate(cutOff);
+      const big = await w.page.addStyleTag({ content: 'html{font-size:200%!important}' });
+      await w.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+      const cutBig = (await w.page.evaluate(cutOff)).filter((x) => !before.includes(x));
+      if ((cutBig.length > 0) !== TEXT_200_KNOWN.has(e.id)) problems.push(cutBig.length ? `text at 200% (WCAG 1.4.4) cuts off ${cutBig.slice(0, 3).join(', ')}` : 'text at 200%: nothing cut off any more; take it out of TEXT_200_KNOWN');
+      await big.evaluate((n) => n.remove());
+      await big.dispose();
       await w.page.addStyleTag({ content: SPACING });
       await w.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
       const cut = (await w.page.evaluate(cutOff)).filter((x) => !before.includes(x));
       if (cut.length) problems.push(`text spacing (WCAG 1.4.12) cuts off ${cut.slice(0, 3).join(', ')}`);
     }
   }
-  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes and with more contrast, with wider text spacing and at 320px`, !problems.length, problems.slice(0, 3).join('\n      ')));
+  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes and with more contrast, with text at 200%, wider text spacing and at 320px`, !problems.length, problems.slice(0, 3).join('\n      ')));
   return out;
 }
-R.push(...(await inParallel(docs, workers, checkDocs)).flat(), ...(await inParallel(stories, workers, checkStory)).flat());
+R.push(...(await inParallel(docs, workers, recycled(checkDocs))).flat(), ...(await inParallel(stories, workers, recycled(checkStory))).flat());
 await b.close();
 close();
-console.log(`(${docs.length} docs pages, ${stories.length} stories × ${RUNS.length} runs: six themes and more contrast; text spacing and 320px in the first)`);
+console.log(`(${docs.length} docs pages, ${stories.length} stories × ${RUNS.length} runs: six themes and more contrast; 200% text, text spacing and 320px in the first)`);
 process.exit(report('Storybook', R) ? 0 : 1);
