@@ -15,6 +15,9 @@
 # Masked
 - textbox "PIN": "27"
 
+# Overflow
+- textbox "Verification code": "492817"
+
 # Playground
 - textbox "Verification code"
 
