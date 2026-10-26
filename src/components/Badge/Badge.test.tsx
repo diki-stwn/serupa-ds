@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, css, keepMotion, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, keepMotion, press, tabTo } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Badge, type BadgeTone, type BadgeVariant } from './Badge';
 
@@ -293,7 +293,7 @@ describe('Badge', () => {
 
   test('removable: the focus ring goes round the whole 24×24 target; click and keyboard (Enter) call onRemove', async () => {
     await show();
-    (q('#tags button')).focus();
+    await tabTo(q('#tags button'));
     const a = getComputedStyle(document.activeElement!, '::after');
     expect([a.outlineWidth, a.outlineStyle, css(document.activeElement).outlineStyle]).toEqual(['2px', 'solid', 'none']);
     await userEvent.click(q('#tags button'));
