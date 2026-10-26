@@ -21,7 +21,6 @@ const SHOWN = {
 // No story yet, each to get one in its own pull request (X1, with the "update-visual-baselines" label).
 const KNOWN = {
   DateRangePicker: ['invalid', 'readOnly'],
-  PinInput: ['readOnly'],
 };
 
 const config = ts.getParsedCommandLineOfConfigFile(path.join(PROJECT, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
