@@ -159,7 +159,7 @@ export const Menu = /* @__PURE__ */ named("Menu", function Menu(props: MenuProps
   );
 });
 
-export interface ContextMenuProps {
+export interface ContextMenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'role'> {
   /** The area the menu belongs to: one element, such as a Card, a table row or a canvas. A right-click (a long
       press on touch), Shift+F10 or the Menu key in it opens the menu. */
   target: React.ReactElement;
@@ -173,18 +173,20 @@ export interface ContextMenuProps {
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Leaves the browser's own menu in place: the target's right-click and keys do nothing. Default: false. */
   disabled?: boolean;
-  /** Classes on the menu panel. */
+  /** Classes on the menu panel. The other HTML attributes (id, data-*, aria-*) and the ref go on the panel too. */
   className?: string;
   /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
+const OWN_CONTEXT = { target: 1, children: 1, "aria-label": 1, open: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, onKeyDown: 1 } as const;
 
 /* ContextMenu: a Menu opened from an area instead of a button, at the pointer on a right-click (or a long press,
    which browsers turn into contextmenu) or at the focused element on Shift+F10 or the Menu key. Its items, keys,
    top layer and closing are Menu's; when it closes after a choice or Escape, focus goes back to where it was. */
 /** A Menu that opens at the pointer on a right-click, or at the focused element on Shift+F10 or the Menu key. */
-export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function ContextMenu(props: ContextMenuProps): React.ReactElement {
-  const id = domId("dk-ctxmenu", React.useId());
+export const ContextMenu = /* @__PURE__ */ component<HTMLDivElement, ContextMenuProps>("ContextMenu", function ContextMenu(props, ref) {
+  const own = domId("dk-ctxmenu", React.useId());
+  const id = props.id || own;
   const [inner, setInner] = React.useState(false);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
@@ -224,6 +226,10 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
   // From the keyboard, at the focused element's lower start corner.
   const fromElement = (el: EventTarget) => { const r = (el instanceof Element ? el : targetRef.current || document.body).getBoundingClientRect(); show(r.left, r.bottom); };
 
+  const keys = menuKeys(menuRef, typed, close);
+  const onMenuKey = (e: React.KeyboardEvent<HTMLDivElement>) => { if (props.onKeyDown) props.onKeyDown(e); if (!e.defaultPrevented) keys(e); };
+  const panelRef = React.useCallback((n: HTMLDivElement | null) => { menuRef.current = n; setRef(ref, n); }, [ref]);
+
   const child = oneElement<TriggerProps>(props.target, "ContextMenu", "target");
   useTriggerRef(targetRef, "ContextMenu");
   const cp = child.props;
@@ -247,9 +253,9 @@ export const ContextMenu = /* @__PURE__ */ named("ContextMenu", function Context
     <MenuContext.Provider value={ctx}>
       {target}
       <span ref={point} className="dk-menu__point" aria-hidden style={spot ? { left: spot.x + "px", top: spot.y + "px" } : undefined} />
-      <div ref={menuRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-label={props["aria-label"]}
+      <div {...omit(props, OWN_CONTEXT)} ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-label={props["aria-label"]}
         className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
-        inert={!open || undefined} onKeyDown={menuKeys(menuRef, typed, close)}>
+        inert={!open || undefined} onKeyDown={onMenuKey}>
         {open || exit.leaving ? props.children : null}
       </div>
     </MenuContext.Provider>
