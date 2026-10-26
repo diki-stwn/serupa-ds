@@ -2,7 +2,8 @@
 import * as React from "react";
 import type { IconData } from "../material/types";
 import { isIconData } from "../icons";
-import { DEFAULT_LABELS, type SerupaLabels } from "./labels";
+import { DEFAULT_LABELS, SHARED_LABELS, type SerupaLabels, type SharedLabels } from "./labels";
+import type { ComponentLabels } from "../generated/labels";
 import { canonicalLocale } from "./locale";
 import { warnOnce } from "./warn";
 
@@ -32,8 +33,15 @@ export interface SerupaSettings {
   platform: 'apple' | 'other' | undefined;
 }
 
-const NONE: SerupaSettings = { locale: undefined, labels: DEFAULT_LABELS, icons: new Map(), platform: undefined };
-const Context = /* @__PURE__ */ React.createContext<SerupaSettings>(NONE);
+/** What the context holds: the shared English words and whatever providers set. A component's own English words
+    aren't in it (useSettings(en) adds them), so a bundle carries only the words of the components in it (GL4). */
+interface Settings extends Omit<SerupaSettings, "labels"> {
+  /** At run time it also holds the component words a provider set; typed as the shared ones so a component can't
+      read its own words without passing them to useSettings. */
+  labels: SharedLabels;
+}
+const NONE: Settings = { locale: undefined, labels: SHARED_LABELS, icons: new Map(), platform: undefined };
+const Context = /* @__PURE__ */ React.createContext<Settings>(NONE);
 
 /* SerupaProvider: settings for every component inside it (ADR-0010), as React context rather than module state, so
    they reach client components from a server layout, differ between concurrent server requests, and can change for
@@ -45,8 +53,8 @@ export function SerupaProvider(props: SerupaProviderProps): React.ReactElement {
   const outer = React.useContext(Context);
   const { locale, platform } = props;
   const labels = useSameAsBefore(props.labels, 0), icons = useSameAsBefore(props.icons, 1);   // icons={[{ Star }]}: one level deeper
-  const value = React.useMemo<SerupaSettings>(() => {
-    const merged: SerupaLabels = { ...outer.labels };
+  const value = React.useMemo<Settings>(() => {
+    const merged: SharedLabels & Partial<ComponentLabels> = { ...outer.labels };
     if (labels) for (const k of Object.keys(labels) as (keyof SerupaLabels)[]) {
       const v = labels[k];
       if (v != null && v !== "") (merged as unknown as Record<string, unknown>)[k] = v;
@@ -82,9 +90,20 @@ function useSameAsBefore<T>(v: T, depth: number): T {
   return kept.current;
 }
 
+/** The components' view of the settings. The labels are the shared words, and a component's own words only where a
+    provider set them; pass the component's English (its labels.ts en) as own to have them under the providers' words.
+    own must be the same object every render (a module constant), so the merge is kept between renders. */
+export function useSettings(): Settings;
+export function useSettings<T extends object>(own: T): Settings & { labels: T & Settings["labels"] };
+export function useSettings(own?: object): Settings {
+  const settings = React.useContext(Context);
+  return React.useMemo(() => (own ? { ...settings, labels: Object.assign({}, own, settings.labels) } : settings), [settings, own]);
+}
+
 /** The nearest SerupaProvider's settings, or the defaults (browser locale, English words) without one. */
 export function useSerupa(): SerupaSettings {
-  return React.useContext(Context);
+  const settings = React.useContext(Context);
+  return React.useMemo(() => ({ ...settings, labels: Object.assign({}, DEFAULT_LABELS, settings.labels) }), [settings]);
 }
 
 /* With no locale from a prop or a provider, a component follows the browser's. The server can't know it, so

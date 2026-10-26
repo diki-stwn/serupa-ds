@@ -5,8 +5,9 @@ import { Icon } from "../Icon/Icon";
 import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface StepperStep {
   title: React.ReactNode;
@@ -48,7 +49,7 @@ const OWN = { steps: 1, current: 1, orientation: 1, size: 1, onStepClick: 1, cli
    under them, "Step 2 of 4: Profile"; the titles stay in the list for screen readers. */
 /** Where people are in a task split into steps: numbered circles joined by lines. */
 export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Stepper", function Stepper(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const locale = useLocale();
   const rest = omit(props, OWN);
   const steps = props.steps || [];
