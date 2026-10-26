@@ -32,7 +32,9 @@ export interface MenuProps {
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** The menu's name for screen readers. Default: the trigger's text, by aria-labelledby. */
   'aria-label'?: string;
+  /** Classes on the menu panel. */
   className?: string;
+  /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
 
@@ -145,7 +147,9 @@ export interface ContextMenuProps {
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
   /** Leaves the browser's own menu in place: the target's right-click and keys do nothing. Default: false. */
   disabled?: boolean;
+  /** Classes on the menu panel. */
   className?: string;
+  /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
 
@@ -242,7 +246,9 @@ export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, '
   href?: string;
   /** Makes it a link with this component, in place of the configure({ link }) one: a router's Link, with its own props (to). */
   as?: React.ElementType;
+  /** Where the link opens, as on <a>; with "_blank", rel defaults to "noopener noreferrer". */
   target?: string;
+  /** The link's relation to the page, as on <a>. */
   rel?: string;
 }
 
@@ -452,7 +458,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
       }),
         props.icon != null ? <span className="dk-menu__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null,
         <span className="dk-menu__label" id={id + "-label"}>{props.label}</span>,
-        <span className="dk-menu__chevron" aria-hidden="true"><Icon icon={icons.ChevronRight} className="dk-menu__ltr" /><Icon icon={icons.ChevronLeft} className="dk-menu__rtl" /></span>)}
+        <span className="dk-menu__chevron" aria-hidden="true"><Icon icon={icons.ChevronRight} /></span>)}
       <div ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-labelledby={id + "-label"}
         className="dk-menu dk-menu--sub" data-component="menu" data-state={open ? "open" : "closed"} inert={!open || undefined} onKeyDown={onPanelKey}>
         {open || exit.leaving ? props.children : null}
@@ -478,7 +484,9 @@ export const MenuGroup = /* @__PURE__ */ component<HTMLDivElement, MenuGroupProp
   );
 });
 
+export type MenuSeparatorProps = React.HTMLAttributes<HTMLDivElement>;
+
 /** A line between groups of items. */
-export const MenuSeparator = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>("MenuSeparator", function MenuSeparator(props, ref) {
+export const MenuSeparator = /* @__PURE__ */ component<HTMLDivElement, MenuSeparatorProps>("MenuSeparator", function MenuSeparator(props, ref) {
   return <div {...props} ref={ref} role="separator" className={cn("dk-menu__separator", props.className)} />;
 });

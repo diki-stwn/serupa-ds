@@ -88,8 +88,6 @@
 .dk-menu__chevron .dk-icon { font-size: var(--spacing-4); }
 .dk-menu__item:focus .dk-menu__chevron, .dk-menu__item--sub[aria-expanded="true"] .dk-menu__chevron { color: var(--menu-item-text, var(--text)); }
 .dk-menu__item--sub[aria-expanded="true"]:not(:focus) { background: var(--menu-item-bg-active, var(--highlight)); }
-.dk-menu__rtl, .dk-menu__item:dir(rtl) .dk-menu__ltr { display: none; }
-.dk-menu__item:dir(rtl) .dk-menu__rtl { display: inline-block; }
 .dk-menu__group-label { padding: var(--spacing-1\.5) var(--menu-item-padding-x, var(--spacing-2)) var(--spacing-1); color: var(--menu-muted, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
 .dk-menu__separator { height: var(--border-width-1); margin: var(--spacing-1) var(--spacing-0); background: var(--menu-separator, var(--border)); }
 @media (forced-colors: active) { .dk-menu__item:focus { outline-color: Highlight; } }

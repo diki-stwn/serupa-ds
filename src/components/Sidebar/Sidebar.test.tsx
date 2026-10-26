@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-react';
 import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
 import { cdp, server, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, tabTo } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
 
@@ -186,7 +186,7 @@ describe('Sidebar', () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
-    el('ihome').focus();
+    await tabTo(el('ihome'));   // keyboard focus: the tooltip shows on :focus-visible
     const tip = () => document.getElementById(el('ihome').getAttribute('aria-labelledby') || '');
     await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
     expect(tip()!.textContent).toBe('Home');
@@ -218,7 +218,7 @@ describe('Sidebar', () => {
     await render(<Sidebar id="stip" collapsed>
       <I icon="folder" label="Docs" id="gtip"><I href="#intro" label="Intro" /></I>
     </Sidebar>);
-    el('gtip').focus();
+    await tabTo(el('gtip'));
     const tip = () => document.getElementById((el('gtip').getAttribute('aria-labelledby') || '').split(' ').pop() || '');
     await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
     expect([tip()!.textContent, el('gtip').getAttribute('aria-haspopup')]).toEqual(['Docs', 'menu']);

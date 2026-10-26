@@ -34,7 +34,7 @@ export interface ListItemProps extends Omit<React.LiHTMLAttributes<HTMLLIElement
   as?: React.ElementType;
   /** Extra props for the link or button (to for a router link, target, aria-*). */
   linkProps?: Record<string, unknown>;
-  /** Shaded with a primary bar at its start, and aria-current="true" (or aria-pressed for a button). Default: false. */
+  /** Shaded with a primary bar at its start, and aria-current="true" (or aria-pressed for a button). For the current page in a nav list, also pass linkProps={{ "aria-current": "page" }}, which wins. Default: false. */
   selected?: boolean;
   /** Dims a link or button item and stops it. Default: false. */
   disabled?: boolean;
@@ -68,7 +68,7 @@ export const ListItem = /* @__PURE__ */ component<HTMLLIElement, ListItemProps>(
   const lp = Object.assign({}, props.linkProps);
   let main: React.ReactNode;
   if (props.href != null || props.as) {
-    const attrs: Record<string, unknown> = Object.assign(lp, { className: cn("dk-list__main", lp.className), "aria-current": props.selected ? "true" : undefined });
+    const attrs: Record<string, unknown> = Object.assign(lp, { className: cn("dk-list__main", lp.className), "aria-current": lp["aria-current"] !== undefined ? lp["aria-current"] : props.selected ? "true" : undefined });
     if (props.disabled) { attrs["aria-disabled"] = true; attrs.tabIndex = -1; attrs.onClick = (e: React.MouseEvent) => e.preventDefault(); }
     else { attrs.href = props.href; if (props.onClick) attrs.onClick = props.onClick; }
     main = React.createElement(props.as || config.link, attrs, body);

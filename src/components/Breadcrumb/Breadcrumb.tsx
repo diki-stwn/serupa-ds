@@ -80,7 +80,7 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
       if (a) a.focus();
     }
   }, [expanded]);
-  const sep = <span className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <><Icon icon={icons.ChevronRight} className="dk-breadcrumb__ltr" /><Icon icon={icons.ChevronLeft} className="dk-breadcrumb__rtl" /></>}</span>;
+  const sep = <span className="dk-breadcrumb__separator" aria-hidden="true">{separator === "slash" ? "/" : <Icon icon={icons.ChevronRight} />}</span>;
   const out: React.ReactNode[] = [];
   shown.forEach(({ el, i }, n) => {
     if (collapse && n === 1) {

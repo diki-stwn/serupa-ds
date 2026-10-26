@@ -31,6 +31,7 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   maxSize?: number;
   /** The most files allowed, with multiple. */
   maxFiles?: number;
+  /** Turns the drop area and its button off, as a disabled native control. */
   disabled?: boolean;
   /** A danger outline on the drop area, and aria-invalid on the choose button. In a Field with an error, it's set for you. */
   invalid?: boolean;

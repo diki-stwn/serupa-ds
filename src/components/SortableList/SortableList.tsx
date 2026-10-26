@@ -114,10 +114,10 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
     const row = e.currentTarget.closest("li") as HTMLElement;
     pointer.current = { id: e.pointerId, key, startY: e.clientY, y: e.clientY, grab: e.clientY - row.getBoundingClientRect().top, moved: false };
-    const placeAt = (p: NonNullable<typeof pointer.current>) => {
+    const placeAt = (p: NonNullable<typeof pointer.current>): Drag | undefined => {
       const { items: all, getKey: keyOf } = latest.current;
       const at = all.findIndex((it) => keyOf(it) === p.key);
-      if (at < 0) return;
+      if (at < 0) return undefined;
       // The new place: how many of the other rows have their middle above the dragged row's middle.
       const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
       const self = rows.find((r) => r.dataset.key === String(p.key));
@@ -125,7 +125,9 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       let to = 0;
       for (const r of rows) if (r !== self && r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 < middle) to++;
       // A new object every move, so the row is placed under the pointer again.
-      setDrag({ key: p.key, from: at, to, pointer: true });
+      const next = { key: p.key, from: at, to, pointer: true };
+      setDrag(next);
+      return next;
     };
     // Near the top or bottom edge of what scrolls (the list's scrolling container, or the page), it scrolls that way,
     // faster the closer the pointer is, so a long list can be reordered past the screen. touch-action: none on the
@@ -168,7 +170,10 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       if (!p || p.id !== ev.pointerId) return;
       off();
       if (p.moved) setTimeout(() => { dragged.current = false; });   // no click came after it (let go off the handle)
-      const d = current.current;
+      // Placed where it's let go, not where the last render put it: a release right after a move comes before that
+      // move's render.
+      let d = current.current;
+      if (p.moved) { p.y = ev.clientY; d = placeAt(p) || d; }
       if (p.moved && d && d.pointer) latest.current.finish(d, !cancel);
     };
     const up = end(false), cancel = end(true);

@@ -131,3 +131,11 @@ export async function forcedColors<T>(during: (active: boolean) => Promise<T> | 
     await commands.forcedColors(false);
   }
 }
+
+/** Which way a chevron or arrow icon points as drawn: its name's way ("chevron_left", "arrow_forward"), turned around
+ * when Icon flips it for right-to-left text (scale: -1 1 on its svg). */
+export function iconPoints(icon: Element): 'left' | 'right' {
+  const name = (icon as HTMLElement).dataset.icon || '';
+  const right = /right|forward|next|last/.test(name);
+  return right !== (getComputedStyle(icon.querySelector('svg')!).scale === '-1 1') ? 'right' : 'left';
+}

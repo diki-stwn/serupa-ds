@@ -1,4 +1,5 @@
-/* Icons: an inline SVG (Material Symbols Rounded, filled, or a custom icon) in a 1em box, drawn in the text color. */
+/* Icons: an inline SVG (Material Symbols Rounded, filled, or a custom icon) in a 1em box, drawn in the text color;
+   directional ones flip in right-to-left text. */
 @layer dk.components {
 .dk-icon {
   font-size: var(--spacing-6);            /* 24px default */
@@ -10,4 +11,18 @@
   user-select: none;
 }
 .dk-icon > svg { display: block; width: var(--sizing-full); height: var(--sizing-full); fill: currentColor; }
+/* A directional icon points the way reading goes, so it's flipped in right-to-left text: Material Symbols' arrows and
+   chevrons along the line, and the others Material mirrors (send, reply, undo, redo, open_in_new, logout, lists…),
+   unless mirror={false} (dk-icon--fixed); mirror (dk-icon--mirror) flips any icon. Icons of things (a clock, a check,
+   media controls) keep their direction. On the svg, so a transform on the box (Button's hover nudge) still applies. */
+.dk-icon:is([data-icon^="arrow_back"], [data-icon^="arrow_forward"], [data-icon^="arrow_left"], [data-icon^="arrow_right"],
+  [data-icon^="chevron_"], [data-icon^="navigate_"], [data-icon^="keyboard_arrow_left"], [data-icon^="keyboard_arrow_right"],
+  [data-icon^="keyboard_double_arrow_left"], [data-icon^="keyboard_double_arrow_right"], [data-icon="first_page"], [data-icon="last_page"],
+  [data-icon="east"], [data-icon="west"], [data-icon="start"], [data-icon="keyboard_tab"], [data-icon="keyboard_return"],
+  [data-icon^="send"], [data-icon^="reply"], [data-icon="forward"], [data-icon="undo"], [data-icon="redo"], [data-icon="logout"],
+  [data-icon="login"], [data-icon="exit_to_app"], [data-icon="input"], [data-icon="open_in_new"], [data-icon="launch"],
+  [data-icon="call_made"], [data-icon="call_received"], [data-icon="trending_flat"], [data-icon="read_more"], [data-icon="list"],
+  [data-icon="format_list_bulleted"], [data-icon^="format_indent_"], [data-icon="short_text"], [data-icon="notes"],
+  [data-icon="subject"], [data-icon="wrap_text"], [data-icon^="label"]):not(.dk-icon--fixed):dir(rtl) > svg,
+.dk-icon--mirror:dir(rtl) > svg { --dk-icon-flip: -1 1; scale: var(--dk-icon-flip); }
 }

@@ -214,13 +214,27 @@ describe('Image loading motion', () => {
     expect([css(img('lazy')).transitionProperty, css(img('lazy')).transitionDuration, css(img('hero')).transitionDuration]).toEqual(['opacity', '0.2s', '0s']);
   });
 
+  test('a lazy picture that fails after it was hidden drops the fade class, so a broken frame is the same however late it fails', async () => {
+    await render(<Pic id="late" alt="Late" ratio="square" src={`/__slow-picture__.svg?broken&${crypto.randomUUID()}`} />);
+    await expect.poll(() => css(frame('late').querySelector('img')).opacity).toBe('0');
+    await expect.poll(() => frame('late').dataset.state, { timeout: 5000 }).toBe('error');
+    expect(frame('late').classList.contains('dk-image--fades')).toBe(false);
+  });
+
   test('while loading: a lighter band sweeps through the fill every 2s (ease-in-out, forever) on translate, a layer three frames wide behind the remove button; the frame itself stays opaque (EE1)', async () => {
     await render(<Pic id="sweep" alt="Slow" ratio="square" onRemove={() => {}} src={`/__slow-picture__.svg?${crypto.randomUUID()}`} />);
     const f = frame('sweep'), s = getComputedStyle(f, '::before');
     expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-image-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
     expect([Math.round(parseFloat(s.width) / f.getBoundingClientRect().width), s.pointerEvents, css(f).opacity, css(f).animationName]).toEqual([3, 'none', '1', 'none']);
     const run = f.getAnimations({ subtree: true }).find((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-image-sweep')!;
-    expect(Math.round(parseFloat(String((run.effect as KeyframeEffect).getKeyframes().at(-1)!.translate)) / 100 * 3)).toBe(2);
+    // read the band where the sweep ends (Firefox hands back the keyframe's var() unresolved): two frames on,
+    // a percentage of the band, three frames wide, or a length
+    run.pause();
+    run.currentTime = 1999;
+    const t = getComputedStyle(f, '::before').translate;
+    const moved = t.endsWith('%') ? parseFloat(t) / 100 * 3 : parseFloat(t) / f.getBoundingClientRect().width;
+    run.play();
+    expect(Math.round(moved)).toBe(2);
     await expect.poll(() => f.dataset.state, { timeout: 5000 }).toBe('loaded');
     expect(getComputedStyle(f, '::before').content).toBe('none');
   });

@@ -21,8 +21,6 @@
 .dk-breadcrumb__icon .dk-icon { font-size: var(--breadcrumb-icon-size, var(--spacing-4)); }
 .dk-breadcrumb__separator { display: inline-flex; color: var(--breadcrumb-separator, var(--text-muted)); user-select: none; }
 .dk-breadcrumb__separator .dk-icon { font-size: var(--breadcrumb-separator-size, var(--spacing-4)); }
-.dk-breadcrumb__rtl, .dk-breadcrumb__ltr:dir(rtl) { display: none; }
-.dk-breadcrumb__rtl:dir(rtl) { display: inline-block; }
 @media (prefers-reduced-motion: reduce) { .dk-breadcrumb__item { transition: none; } }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when a link is shorter or narrower, a box behind
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */

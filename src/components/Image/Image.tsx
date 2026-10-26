@@ -43,6 +43,7 @@ export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElemen
 }
 
 const RATIOS = ["auto", "square", "4:3", "video"] as const;
+const QUICK = 250;   // ms: a picture that arrives this soon after mount appears without the fade
 
 // The largest candidate in a srcSet ("a.jpg 400w, b.jpg 1600w" or "a.jpg 1x, b.jpg 2x"), for the viewer when there's no fullSrc.
 function largest(srcSet: string | undefined): string | undefined {
@@ -87,16 +88,20 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const img = React.useRef<HTMLImageElement | null>(null);
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
   // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
-  // and fades in when it arrives (one that arrives sooner just appears); a priority one never hides.
+  // and fades in when it arrives; one that arrives within QUICK ms of mount just appears (no fade as a page
+  // opens); a priority one never hides. A broken one drops it too, so its frame is the same whenever it fails.
   const [live, setLive] = React.useState(false);
+  const since = React.useRef(0);
   React.useEffect(() => { setState("loading"); }, [src]);
   // An image already in the cache can finish before React listens.
   React.useEffect(() => {
     const i = img.current;
     if (i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
+    since.current = performance.now();
     const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
     return () => cancelAnimationFrame(f);
   }, [src]);
+  const arrived = () => { if (performance.now() - since.current < QUICK) setLive(false); };
   const named = (base: string) => (alt ? base + ": " + alt : base);
   // With ratio "auto", width and height (the picture's size) shape the frame before the picture arrives, so the
   // page doesn't jump when it loads.
@@ -111,7 +116,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
     ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
     : <img {...rest} ref={(n) => { img.current = n; setRef(ref, n); }} src={src} alt={alt} loading={loading || (priority ? "eager" : "lazy")}
         decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
-        className={cn("dk-image__img", className)} onLoad={(e) => { setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setState("error"); if (onError) onError(e); }} />;
+        className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setLive(false); setState("error"); if (onError) onError(e); }} />;
   return (
     <span {...frameProps} ref={restyle} style={frameStyle}
       className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
