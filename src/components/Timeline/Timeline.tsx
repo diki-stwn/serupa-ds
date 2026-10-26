@@ -38,7 +38,7 @@ export interface TimelineItemProps extends Omit<React.LiHTMLAttributes<HTMLLIEle
 export const Timeline = /* @__PURE__ */ component<HTMLOListElement, TimelineProps>("Timeline", function Timeline(props, ref) {
   const { className, align, ...rest } = props;
   const a = oneOf(ALIGNS, align, "start");
-  return <ol {...rest} ref={ref} className={cn("dk-timeline", a === "alternate" && "dk-timeline--alternate", className)} data-component="timeline" />;
+  return <ol role="list" {...rest} ref={ref} className={cn("dk-timeline", a === "alternate" && "dk-timeline--alternate", className)} data-component="timeline" />;
 });
 
 /* TimelineItem: an <li> with the marker (aria-hidden: the title says what happened), the title, a <time> and
