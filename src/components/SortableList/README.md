@@ -5,7 +5,7 @@ A list people put in their own order: tasks by priority, steps in a flow, column
 ```tsx
 import { SortableList } from "serupa-ds";
 
-const [tasks, setTasks] = React.useState(initialTasks);
+const [tasks, setTasks] = React.useState([{ id: "brief", title: "Write the brief" }, { id: "review", title: "Review the designs" }]);
 <SortableList
   aria-label="Launch tasks"
   items={tasks}
