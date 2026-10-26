@@ -36,6 +36,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 - The list opens on ↓ or ↑ in the field, or the clock button, with the chosen time (or the one nearest the typed text) highlighted and near the top.
 - A press anywhere on the box, on its start padding or past the clock button, focuses the field with the caret at the end, as the text cursor over the box promises.
 - In the list: ↑ ↓ move one time, PageUp and PageDown four, Ctrl+Home and Ctrl+End to the ends, Enter picks, Escape closes, Tab closes and moves on. Typing while the list is open moves the highlight to the nearest time, and Enter then keeps what was typed. Focus stays in the field throughout, the clock button included.
+- The list fades and grows in from the edge facing the field, and fades and shrinks back out a little faster on close, inert while it goes, as Menu, Popover and DatePicker do. Closed mid-way, it turns back from where it is. Under reduced motion it only fades.
 
 ## Accessibility
 
