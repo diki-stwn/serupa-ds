@@ -1,7 +1,9 @@
 // Visual snapshots: renders every Storybook story (from storybook-static/, npm run build-storybook) and compares it
 // with the saved image in baseline-visual/<Component>/: at rest in every theme, and hovered and focused in the
 // first theme (blue-light), and for the components in FORCED once more with forced colors on (Windows High Contrast),
-// where states shown only by colour disappear unless the CSS has a forced-colors rule.
+// where states shown only by colour disappear unless the CSS has a forced-colors rule. Every story is also shot once
+// on the page's other axes together (right to left, more contrast, compact density; <Story>-axes.png), so a mirroring,
+// contrast-token or control-height regression shows up too.
 //   node tools/test/visual.mjs            check
 //   node tools/test/visual.mjs --update   accept the current look as the new baseline (a picture that differs
 //                                         only within the tolerance keeps its old file)
@@ -30,6 +32,8 @@ const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emera
 const SKIP = ['VisuallyHidden'];  // nothing to see
 // Components whose states (checked, selected, current, progress, drag-over) are easy to lose in forced colors: each
 // story is also shot with forced-colors: active, as <Story>-forced-colors.png.
+// The other axes, all at once in blue-light at rest: one picture per story catches a change on any of them.
+const AXES = 'dir:rtl;contrast:more;density:compact';
 const FORCED = ['Checkbox', 'FileUpload', 'Loader', 'Progress', 'Radio', 'SegmentedControl', 'Slider', 'Switch', 'Table', 'Tabs'];
 
 const SB = path.join(PROJECT, 'storybook-static');
@@ -49,6 +53,7 @@ const stories = all.filter((e) => !only || only.has(component(e))).filter((_, i)
 const expected = new Set(all.flatMap((e) => [
   ...THEMES.flatMap((th) => ['rest', 'hover', 'focus'].map((s) => `${component(e)}/${e.exportName}-${th}-${s}.png`)),
   ...(FORCED.includes(component(e)) ? [`${component(e)}/${e.exportName}-forced-colors.png`] : []),
+  `${component(e)}/${e.exportName}-axes.png`,
 ]));
 const saved = () => fs.readdirSync(DIR, { recursive: true }).map((f) => String(f).split(path.sep).join('/')).filter((f) => f.endsWith('.png') && !f.endsWith('.actual.png'));
 
@@ -62,15 +67,24 @@ const pages = await Promise.all(Array.from({ length: PAGES }, async () => {
 }));
 const R = [];
 
-async function diff(page, a, bb) {   // share of differing pixels, computed in the browser (no image libraries needed)
+async function diff(page, a, bb) {   // share of differing pixels and the box they fall in, computed in the browser (no image libraries needed)
   return page.evaluate(async ([a, bb]) => {
     const load = (s) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = 'data:image/png;base64,' + s; });
     const [x, y] = await Promise.all([load(a), load(bb)]);
-    if (x.width !== y.width || x.height !== y.height) return 1;
+    if (x.width !== y.width || x.height !== y.height) return { share: 1, box: `${x.width}×${x.height} against ${y.width}×${y.height}` };
     const c = (i) => { const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height; const g = cv.getContext('2d'); g.drawImage(i, 0, 0); return g.getImageData(0, 0, i.width, i.height).data; };
     const d1 = c(x), d2 = c(y); let n = 0;
-    for (let k = 0; k < d1.length; k += 4) if (Math.abs(d1[k] - d2[k]) + Math.abs(d1[k + 1] - d2[k + 1]) + Math.abs(d1[k + 2] - d2[k + 2]) > 24) n++;
-    return n / (d1.length / 4);
+    // Where they differ too, so a failure in a log says which part of the picture changed.
+    let x0 = x.width, y0 = x.height, x1 = -1, y1 = -1, first = '';
+    const rgb = (d, k) => `rgb(${d[k]} ${d[k + 1]} ${d[k + 2]})`;
+    for (let k = 0; k < d1.length; k += 4) {
+      if (Math.abs(d1[k] - d2[k]) + Math.abs(d1[k + 1] - d2[k + 1]) + Math.abs(d1[k + 2] - d2[k + 2]) <= 24) continue;
+      n++;
+      const px = (k / 4) % x.width, py = Math.floor(k / 4 / x.width);
+      if (!first) first = `; at ${px},${py} ${rgb(d1, k)} is now ${rgb(d2, k)}`;
+      x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+    }
+    return { share: n / (d1.length / 4), box: n ? `x ${x0}–${x1}, y ${y0}–${y1}${first}` : '' };
   }, [a, bb]);
 }
 
@@ -100,9 +114,9 @@ async function tabTo(page, el) {
 }
 
 // Opens a story in a theme, with motion off, once it has drawn and its fonts have loaded. '' when ready.
-async function open(page, e, theme) {
+async function open(page, e, theme, more = '') {
   const [brand, mode] = theme.split('-');
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};a11y.manual:!true`);
+  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};${more ? `${more};` : ''}a11y.manual:!true`);
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) return 'did not render in 15 s';
   if (await page.evaluate(() => document.body.classList.contains('sb-show-errordisplay'))) return 'Storybook shows an error';
@@ -121,7 +135,7 @@ async function compare(page, name, el) {
   // --update rewrites a baseline only when the new picture differs past the tolerance, so re-rendering on another
   // run doesn't commit hundreds of pictures that only changed in anti-aliasing.
   if (update) {
-    if (!fs.existsSync(file) || await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64')) > TOLERANCE) fs.writeFileSync(file, shot);
+    if (!fs.existsSync(file) || (await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'))).share > TOLERANCE) fs.writeFileSync(file, shot);
     return null;
   }
   // A missing baseline fails: only --update (or the "update-visual-baselines" label) writes one, so a
@@ -130,9 +144,9 @@ async function compare(page, name, el) {
     fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
     return { name, ok: false, detail: 'no baseline; add the "update-visual-baselines" label to the pull request (or run node tools/test/visual.mjs --update) and review the new images' };
   }
-  const share = await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'));
+  const { share, box } = await diff(page, fs.readFileSync(file).toString('base64'), shot.toString('base64'));
   if (share > TOLERANCE) fs.writeFileSync(path.join(DIR, `${name}.actual.png`), shot);
-  return { name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ; see ${name}.actual.png` };
+  return { name, ok: share <= TOLERANCE, detail: `${(share * 100).toFixed(2)}% of pixels differ (${box}); see ${name}.actual.png` };
 }
 
 async function checkStory(e, page) {
@@ -163,6 +177,13 @@ async function checkStory(e, page) {
       const r = await compare(page, name);
       if (r) out.push(r);
     }
+  }
+  {
+    const name = `${c}/${e.exportName}-axes`;
+    const notReady = await open(page, e, THEMES[0], AXES);
+    const on = !notReady && await page.evaluate(() => { const h = document.documentElement; return h.dir === 'rtl' && h.dataset.contrast === 'more' && h.dataset.density === 'compact'; });
+    const r = notReady ? { name, ok: false, detail: notReady } : !on ? { name, ok: false, detail: 'the page did not take dir="rtl", data-contrast="more" and data-density="compact" from the globals' } : await compare(page, name);
+    if (r) out.push(r);
   }
   if (FORCED.includes(c)) {
     // Forced colors replace every colour with the system's few, so one pass is enough (the theme doesn't show).

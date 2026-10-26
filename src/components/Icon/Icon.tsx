@@ -31,6 +31,14 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const never = () => () => {}, yes = () => true, no = () => false;
 
+/* The names an icon name could have been meant as: Material Symbols are snake_case, so "Home" and "ArrowForward"
+   (the serupa-ds/icons export names), "arrow-forward" and "ARROW_FORWARD" all mean one, with a number its own word
+   ("Looks3" is looks_3) or not ("Rotate90DegreesCcw" is rotate_90_degrees_ccw). */
+function spellings(name: string): string[] {
+  const words = name.trim().replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[-\s]+/g, "_").toLowerCase();
+  return [words, words.replace(/([a-z])(\d)/g, "$1_$2")].filter((n, i, all) => n !== name && all.indexOf(n) === i);
+}
+
 
 /* A custom icon's markup as React elements, so it's never written as HTML: a page with Trusted Types on
    (require-trusted-types-for 'script') needs no policy for it. tools/icons/build.mjs writes the markup: <g> and shape
@@ -71,7 +79,12 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
     loadIcon(props.name as string).then((found) => {
       if (!live) return;
       if (found) again();
-      else if (process.env.NODE_ENV !== "production") warnOnce("icon-unknown", `Icon: "${props.name}" isn't a Material Symbol or one of your icons. Check the name on the Icons page (Foundations/Icons).`, "icon:" + props.name);
+      else if (process.env.NODE_ENV !== "production") {
+        // Every icon is loaded by now, so a name in another spelling ("Home", the export's, or "arrow-forward") can be looked up.
+        const known = (n: string) => hasIcon(n) || !!own.get(n) || !!getIcon(n);
+        const meant = spellings(props.name as string).find(known);
+        warnOnce("icon-unknown", `Icon: "${props.name}" isn't a Material Symbol or one of your icons. ${meant ? `Did you mean "${meant}"? Names are snake_case.` : "Check the name on the Icons page (Foundations/Icons)."}`, "icon:" + props.name);
+      }
     }, (err: unknown) => {
       if (!live) return;
       if (process.env.NODE_ENV !== "production") warnOnce("icon-load", `Icon: the icons drawn by name didn't load (${err instanceof Error ? err.message : String(err)}), so "${props.name}" is empty for now. It tries again when the browser is back online; pass icon={…} to draw an icon without loading it.`);
@@ -79,7 +92,7 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
       offline = () => window.removeEventListener("online", again);
     });
     return () => { live = false; offline(); };
-  }, [missing, props.name, tries]);
+  }, [missing, props.name, tries, own]);
   const rest = omit(props, { name: 1, icon: 1, size: 1, mirror: 1, className: 1, style: 1 } as const);
   const labelled = rest["aria-label"] || rest["aria-labelledby"];
   if (!labelled) rest["aria-hidden"] = true; else rest.role = "img";

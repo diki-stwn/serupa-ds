@@ -45,7 +45,7 @@ There's no font to load. Every icon is an SVG drawn in the page, so it shows at 
 - **Server rendering:** the components' own icons and imported icons (`icon={Close}`) render on the server. A name (`name="close"`, `leftIcon="close"`) shows its empty box until the page loads in the browser. To draw it on the server, pass the imported icon instead, or register what you draw by name once before rendering: `registerIcons(Close, Add)`, or `registerIcons(await import("serupa-ds/icons"))` for every name.
 - `registerIcons({ name, d })` adds an icon of your own in Material's shape (`d` on the 960-unit grid) under a name.
 
-A name that isn't a Material Symbol or one of your icons draws an empty 1em box and logs a console warning.
+A name that isn't a Material Symbol or one of your icons draws an empty 1em box and logs a console warning. Names are snake_case (`arrow_forward`); for a name in another spelling, such as the export name `Home` or `arrow-forward`, the warning says which name to use.
 
 ### Custom icons
 

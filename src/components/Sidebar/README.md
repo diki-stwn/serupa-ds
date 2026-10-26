@@ -66,7 +66,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | `children` | SidebarSections or SidebarItems | none | The items |
 | `header` | node | none | Above the items |
 | `footer` | node | none | Pinned to the bottom, under a line |
-| `collapsed` | boolean | `false` | A 64px rail of icons. Labels become tooltips (and stay the items' names); groups open their items in a menu. Switching keeps focus in the item it was in: a nested link's focus goes to its group's button |
+| `collapsed` | boolean | `false` | A 64px rail of icons. Labels, text or elements, become tooltips (and stay the items' names); groups open their items in a menu. Switching keeps focus in the item it was in: a nested link's focus goes to its group's button |
 | `aria-label` | string | `"Main"` | The nav's name |
 
 `className`, `style`, `ref` and everything else go to the `<nav>`, which has `data-component="sidebar"`.
