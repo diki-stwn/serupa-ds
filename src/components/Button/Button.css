@@ -22,6 +22,7 @@
   text-decoration: none;
   cursor: pointer;              /* default, hover, pressed, focused */
   outline: none;
+  -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;   /* no double-tap zoom delay on touch screens */

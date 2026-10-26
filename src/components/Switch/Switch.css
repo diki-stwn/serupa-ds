@@ -68,11 +68,8 @@
   --dk-switch-spin: calc(var(--dk-switch-thumb) - var(--dk-switch-pad) * 2);
   box-sizing: border-box; width: var(--dk-switch-spin); height: var(--dk-switch-spin);
   color: var(--switch-pending, var(--primary));
-  border: var(--border-width-2) solid transparent; border-block-start-color: currentColor; border-radius: var(--rounded-full);
+  border: var(--border-width-2) solid color-mix(in srgb, currentColor var(--opacity-20), transparent); border-block-start-color: currentColor; border-radius: var(--rounded-full);
   animation: spin var(--motion-loop-spinner) var(--ease-linear) infinite;
-}
-@supports (color: color-mix(in srgb, currentColor 50%, transparent)) {
-  .dk-switch__spinner { border-color: color-mix(in srgb, currentColor var(--opacity-20), transparent); border-block-start-color: currentColor; }
 }
 @keyframes dk-switch-breathe { 50% { opacity: var(--opacity-50); } }
 /* Disabled, by its own prop or a disabled fieldset (Field group). */

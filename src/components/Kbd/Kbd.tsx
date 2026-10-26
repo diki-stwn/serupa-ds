@@ -47,7 +47,8 @@ const NAMED: Record<string, [string, string, string, string]> = {
   ins: ["Ins", "Insert", "Ins", "Insert"],
   fn: ["fn", "Function", "Fn", "Function"],
 };
-const isApple = () => typeof navigator !== "undefined" && [(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform, navigator.platform, navigator.userAgent].some((s) => /Mac|iPhone|iPad|iPod/.test(s || ""));
+/** Whether this is an Apple device (⌘ rather than Ctrl); false on the server. */
+export const isApple = () => typeof navigator !== "undefined" && [(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform, navigator.platform, navigator.userAgent].some((s) => /Mac|iPhone|iPad|iPod/.test(s || ""));
 
 function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string) => string }) {
   // "page_up", "Page Up" and "page-up" all find pageup.
