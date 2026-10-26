@@ -32,7 +32,9 @@ export const IconButton = /* @__PURE__ */ component<IconButtonElement, IconButto
   const round = shape === "round";
   // No title when a Tooltip (or anything else) already describes or names it: the native tooltip would show on top of it.
   const shown = noTitle || rest["aria-describedby"] != null || rest["aria-labelledby"] != null;
-  const title = !shown && rest.title == null ? label : rest.title;
-  return <ButtonBase variant="ghost" {...rest} aria-label={label} data-shape={round ? "round" : "square"} title={title}
+  // aria-label isn't in the props, but from JavaScript (or a spread) it's taken as label, as Button takes it.
+  const name = label || (rest as { "aria-label"?: string })["aria-label"];
+  const title = !shown && rest.title == null ? name : rest.title;
+  return <ButtonBase variant="ghost" {...rest} aria-label={name} data-shape={round ? "round" : "square"} title={title}
     ref={ref} icon={icon} className={cn("dk-icon-btn", round && "dk-icon-btn--round", className)} />;
 });

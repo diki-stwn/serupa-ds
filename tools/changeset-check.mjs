@@ -5,7 +5,9 @@
 // says how to add one, or to label the pull request "no-changeset" when the change really ships nothing new.
 // The public API decides the smallest bump (E11): a change to tools/test/baseline-api/ (the exported types, which
 // api.mjs keeps) is never a patch, and an export that goes away is a major. So a changeset that says patch for a
-// new prop, or minor for a removed component, fails here rather than in the release.
+// new prop, or minor for a removed component, fails here rather than in the release. Tokens and utility classes are
+// public API too (README, Versioning): a token in tokens.json or a class in tools/test/baseline-utilities.json that
+// goes away is a major, and a new one at least a minor.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -34,15 +36,33 @@ if (changesets.length) {
   const api = changed.filter(([, f]) => /^tools\/test\/baseline-api\/[^/]+\.d\.ts$/.test(f));
   const exportsOf = (ref, f) => { try { return (/^\/\/ exports: (.*)$/m.exec(execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8' })) || [])[1]?.split(', ') ?? []; } catch { return []; } };
   const gone = api.flatMap(([, f]) => { const now = exportsOf('HEAD', f); return exportsOf(base, f).filter((e) => !now.includes(e)).map((e) => `${e} (${path.basename(f, '.d.ts')})`); });
-  const needs = gone.length ? 'major' : api.length ? 'minor' : 'patch';
+  // Token names (with the font-* and text-* families the type scale makes) and utility class names at a commit.
+  const json = (ref, f) => { try { return JSON.parse(execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] })); } catch { return null; } };
+  const tokensAt = (ref) => {
+    const t = json(ref, 'tokens.json');
+    if (!t) return new Set();
+    const names = Object.values(t).filter((g) => Array.isArray(g?.tokens)).flatMap((g) => g.tokens.map((x) => x.name));
+    return new Set([...names, ...Object.keys(t.type?.families || {}).map((k) => 'font-' + k), ...(t.type?.groups || []).flatMap((g) => g.styles.map((x) => 'text-' + x.name))]);
+  };
+  const classesAt = (ref) => new Set(Object.keys(json(ref, 'tools/test/baseline-utilities.json') || {}));
+  const diff = (was, now) => ({ gone: [...was].filter((n) => !now.has(n)), added: [...now].filter((n) => !was.has(n)) });
+  const touched = (f) => changed.some(([, g]) => g === f);
+  const tokens = touched('tokens.json') ? diff(tokensAt(base), tokensAt('HEAD')) : { gone: [], added: [] };
+  const classes = touched('tools/test/baseline-utilities.json') ? diff(classesAt(base), classesAt('HEAD')) : { gone: [], added: [] };
+  const few = (l) => l.slice(0, 8).join(', ') + (l.length > 8 ? ` and ${l.length - 8} more` : '');
+  const needs = gone.length || tokens.gone.length || classes.gone.length ? 'major' : api.length || tokens.added.length || classes.added.length ? 'minor' : 'patch';
   if (RANK[bump] < RANK[needs]) {
     console.log(`The changeset says ${bump}, but the public API changed, which needs at least ${needs}:`);
     if (gone.length) console.log(`  exports removed: ${gone.join(', ')}`);
-    else console.log(`  the exported types changed: ${api.map(([, f]) => path.basename(f, '.d.ts')).join(', ')} (tools/test/baseline-api/)`);
+    else if (api.length) console.log(`  the exported types changed: ${api.map(([, f]) => path.basename(f, '.d.ts')).join(', ')} (tools/test/baseline-api/)`);
+    if (tokens.gone.length) console.log(`  tokens removed or renamed: ${few(tokens.gone)}`);
+    if (classes.gone.length) console.log(`  utility classes removed or renamed: ${few(classes.gone)}`);
+    if (needs === 'minor' && tokens.added.length) console.log(`  new tokens: ${few(tokens.added)}`);
+    if (needs === 'minor' && classes.added.length) console.log(`  new utility classes: ${few(classes.added)}`);
     console.log(`\nRaise the bump in ${changesets.join(', ')}. A removal is a major with a migration note (README, Versioning); new props,\ncomponents and type changes that keep existing code compiling are a minor.`);
     process.exit(1);
   }
-  console.log(`Changeset: ${changesets.join(', ')} (${bump}, for ${shipping.length} shipped file${shipping.length > 1 ? 's' : ''}${api.length ? `; the API change needs at least ${needs}` : ''}).`);
+  console.log(`Changeset: ${changesets.join(', ')} (${bump}, for ${shipping.length} shipped file${shipping.length > 1 ? 's' : ''}${needs !== 'patch' ? `; the API change needs at least ${needs}` : ''}).`);
   process.exit(0);
 }
 console.log(`These files change what a project installs, and the pull request has no changeset:\n${shipping.map((f) => '  ' + f).join('\n')}`);
