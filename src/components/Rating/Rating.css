@@ -7,14 +7,16 @@
 @layer dk.components {
 .dk-rating {
   --dk-rating-size: var(--rating-size-md, var(--spacing-6));
-  display: inline-flex; align-items: center; gap: var(--rating-gap, var(--spacing-0\.5)); max-width: var(--sizing-full); vertical-align: middle;
+  display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--rating-size-sm, var(--spacing-5)), var(--dk-rating-size));
+  align-items: center; gap: var(--rating-gap, var(--spacing-0\.5)); max-width: var(--sizing-full); vertical-align: middle;
 }
 .dk-rating--size-sm { --dk-rating-size: var(--rating-size-sm, var(--spacing-5)); }
 .dk-rating--size-lg { --dk-rating-size: var(--rating-size-lg, var(--spacing-8)); }
 /* In a box narrower than the row (ten lg stars on a phone), the stars shrink alike, down to the sm size, rather than
-   push the page sideways (GK2). The size is a flex-basis, not a width, so a grid column the Rating sits in isn't held
-   at the full row's width by it (GM1). Each star is a container, so its drawing stays the star's width inside the clipped fill. */
-.dk-rating__star { position: relative; display: inline-flex; min-width: var(--rating-size-sm, var(--spacing-5)); flex-basis: var(--dk-rating-size); aspect-ratio: var(--aspect-square); border-radius: var(--rounded-sm); container-type: inline-size; }
+   push the page sideways (GK2). Each star is a column of the Rating's grid, between the sm size and its own, so the
+   Rating's narrowest width is the sm row's and a grid column it sits in isn't held at the full row's width (GM1).
+   Each star is a container, so its drawing stays the star's width inside the clipped fill. */
+.dk-rating__star { position: relative; display: flex; aspect-ratio: var(--aspect-square); border-radius: var(--rounded-sm); container-type: inline-size; }
 .dk-rating__empty, .dk-rating__fill { position: absolute; inset-block: var(--spacing-0); inset-inline-start: var(--spacing-0); display: block; overflow: hidden; pointer-events: none; }
 .dk-rating__empty { inset-inline-end: var(--spacing-0); color: var(--rating-empty, var(--field-border)); }
 .dk-rating__fill { width: var(--dk-rating-share); color: var(--rating-fill, var(--warning)); }
