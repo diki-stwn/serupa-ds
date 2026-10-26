@@ -31,6 +31,7 @@ import { SegmentedControl } from "serupa-ds";
 ## Usage
 
 - Keep labels to one or two words, so the segments stay short and even.
+- When the segments don't all fit, they share the width by content: short labels stay whole and a long one ends in an ellipsis, with its full label as its title on hover. That title isn't there for touch or the keyboard, so keep labels short enough to fit the narrowest screen, or use a [Select](../Select/README.md).
 - Give an icon-only segment an `aria-label`, and use icons alone only when they're widely understood.
 - Icon-only segments are at least 24px wide, so even in `sm` their centers are 24px apart, which meets WCAG 2.2's target size (2.5.8).
 - Use `fullWidth` in narrow spaces such as a panel or a phone layout, and match the `size` to the controls beside it.
