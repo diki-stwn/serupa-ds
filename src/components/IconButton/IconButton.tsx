@@ -13,7 +13,7 @@ interface IconButtonOwnProps {
   label: string;
   /** 'square' (default, the Button's corners) or 'round'. */
   shape?: 'square' | 'round';
-  /** Leaves out the title tooltip, for when a Tooltip or visible text already shows the label. Default: false. */
+  /** Leaves out the title tooltip, for when visible text already shows the label. A wrapping Tooltip (aria-describedby or aria-labelledby) leaves it out by itself. Default: false. */
   noTitle?: boolean;
 }
 
@@ -30,7 +30,9 @@ type IconButtonElement = HTMLButtonElement | HTMLAnchorElement;
 export const IconButton = /* @__PURE__ */ component<IconButtonElement, IconButtonProps>("IconButton", function IconButton(props, ref) {
   const { icon, label, shape, noTitle, className, ...rest } = props;
   const round = shape === "round";
-  const title = !noTitle && rest.title == null ? label : rest.title;
+  // No title when a Tooltip (or anything else) already describes or names it: the native tooltip would show on top of it.
+  const shown = noTitle || rest["aria-describedby"] != null || rest["aria-labelledby"] != null;
+  const title = !shown && rest.title == null ? label : rest.title;
   return <ButtonBase variant="ghost" {...rest} aria-label={label} data-shape={round ? "round" : "square"} title={title}
     ref={ref} icon={icon} className={cn("dk-icon-btn", round && "dk-icon-btn--round", className)} />;
 });
