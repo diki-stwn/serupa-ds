@@ -23,7 +23,7 @@
 .dk-pin-input__boxes { display: inline-flex; align-items: flex-start; min-width: var(--spacing-0); gap: var(--pin-input-gap, var(--spacing-2)); }
 .dk-pin-input__box {
   position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
-  flex: 0 1 var(--dk-pin-box); width: var(--dk-pin-box); min-width: var(--spacing-6); aspect-ratio: var(--aspect-square);
+  width: var(--dk-pin-box); min-width: var(--spacing-6); aspect-ratio: var(--aspect-square);
   border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
   background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
   transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
