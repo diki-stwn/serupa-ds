@@ -17,11 +17,12 @@ describe('FormattedNumber', () => {
       .toEqual(['DATA', '1.234,5', '1234.5', true, 'dk-formatted-number extra', 'y', 'formatted-number', 'decimal', false]);
   });
 
+  // IDR shows no decimals in every engine (currency.ts pins it); WebKit's own default for IDR is two.
   test('each format: compact, percent, currency, bytes, unit', () => {
     const f = (v: number, o: Parameters<typeof formatNumber>[2]) => formatNumber(v, 'en-US', o);
     expect([f(1234567, { format: 'compact' }), f(0.456, { format: 'percent' }), f(150000, { format: 'currency', currency: 'IDR' }), f(19.5, { format: 'currency', currency: 'JPY' }),
       f(50, { format: 'unit', unit: 'kilometer-per-hour' }), f(1234.5, {})])
-      .toEqual(['1.2M', '46%', nf('en-US', { style: 'currency', currency: 'IDR' }, 150000), '¥20', '50 km/h', '1,234.5']);
+      .toEqual(['1.2M', '46%', nf('en-US', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }, 150000), '¥20', '50 km/h', '1,234.5']);
   });
 
   test('bytes step by 1024 like formatFileSize: one decimal under 10, none above or for bytes; negatives keep their sign', () => {

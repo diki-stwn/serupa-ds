@@ -1,3 +1,10 @@
+# BottomCenter
+- region "Notifications":
+  - list:
+    - listitem "Copied to clipboard":
+      - paragraph: Copied to clipboard
+      - button "Dismiss"
+
 # Burst
 - region "Notifications":
   - list:
@@ -60,6 +67,13 @@
     - listitem "Changes saved":
       - paragraph: Changes saved
       - button "Dismiss"
+    - listitem "Copied to clipboard":
+      - paragraph: Copied to clipboard
+      - button "Dismiss"
+
+# TopStart
+- region "Notifications":
+  - list:
     - listitem "Copied to clipboard":
       - paragraph: Copied to clipboard
       - button "Dismiss"

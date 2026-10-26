@@ -29,8 +29,10 @@ export const Grid = /* @__PURE__ */ component<HTMLElement, GridProps>("Grid", fu
   if (gap) vars["--dk-grid-gap"] = gap;
   if (cols) vars["--dk-grid-cols"] = String(cols);
   if (!cols && props.minColumnWidth) vars["--dk-grid-min"] = /^[a-z][a-z0-9-]*$/.test(props.minColumnWidth) ? "var(--" + props.minColumnWidth + ")" : props.minColumnWidth;
-  return React.createElement(oneOf(TAGS, props.as, "div"), Object.assign(rest, {
-    ref: ref, "data-component": "grid", className: cn("dk-grid", cols ? "dk-grid--fixed" : "dk-grid--auto", props.className),
+  const tag = oneOf(TAGS, props.as, "div");
+  // role="list": Safari drops list semantics from a <ul>/<ol> styled list-style: none, so VoiceOver stops saying "list, 6 items" (FU1).
+  return React.createElement(tag, Object.assign(rest, {
+    ref: ref, "data-component": "grid", role: rest.role ?? (tag === "ul" || tag === "ol" ? "list" : undefined), className: cn("dk-grid", cols ? "dk-grid--fixed" : "dk-grid--auto", props.className),
     style: Object.assign(vars, props.style),
   }));
 });

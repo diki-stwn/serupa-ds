@@ -7,6 +7,11 @@
 # Playground
 - button "Copy"
 
+# VariantsAndSizes
+- button "Copy, primary"
+- button "Copy, link"
+- button "Copy, lg"
+
 # WithAField
 - textbox "Invite link": https://serupa.app/invite/7Hq2
 - button "Copy link"

@@ -49,7 +49,7 @@ export const Padding: Story = {
 
 export const AsLink: Story = {
   name: 'As a link',
-  render: () => <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
+  render: () => <ul role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
     <li><Card href="#atlas"><CardHeader title="Atlas" description="Updated 2 hours ago" /></Card></li>
     <li><Card href="#beacon"><CardHeader title="Beacon" description="Updated yesterday" /></Card></li>
   </ul>,

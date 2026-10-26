@@ -156,6 +156,8 @@ describe('AvatarGroup', () => {
     expect([pop.getAttribute('aria-label'), [...pop.querySelectorAll('li')].map((li) => li.lastChild!.textContent)]).toEqual(['4 more', ['Katherine Johnson', 'Linus Torvalds', '2 more']]);
     // The list's avatars have alt="", so each name is read once.
     expect(pop.querySelectorAll('[role="img"]').length).toBe(0);
+    // Unstyled, it keeps its list role in Safari too (FU1).
+    expect(pop.querySelector('ul')!.getAttribute('role')).toBe('list');
   });
 
   test('onMore: "+N" is a button that calls it (and wins over showMore); without either it stays one image', async () => {

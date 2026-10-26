@@ -17,3 +17,13 @@
 # Playground
 - heading "Recent activity" [level=2]
 
+# Sizes
+- heading "An h2 that looks sm" [level=2]
+- heading "An h2 that looks base" [level=2]
+- heading "An h2 that looks lg" [level=2]
+- heading "An h2 that looks xl" [level=2]
+- heading "An h2 that looks 2xl" [level=2]
+- heading "An h2 that looks 3xl" [level=2]
+- heading "An h2 that looks 4xl" [level=2]
+- heading "An h2 that looks 5xl" [level=2]
+

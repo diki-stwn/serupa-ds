@@ -14,7 +14,11 @@ meta.httpEquiv = 'Content-Security-Policy';
 meta.content = POLICY;
 document.head.prepend(meta);
 const violations: string[] = [];
-document.addEventListener('securitypolicyviolation', (e) => violations.push(`${e.effectiveDirective} blocked ${e.blockedURI || 'inline'}${e.sample ? ` (${e.sample})` : ''}`));
+// WebKit's own inner parts of a <select> carry an inline style, which it reports against the <select> as a
+// style-src-attr violation even for plain <select><option>a</option></select> (the page's styles are unaffected).
+// One on a <select> with no style attribute isn't the page's doing, so it's left out; a style attribute still counts.
+const browsers = (e: SecurityPolicyViolationEvent) => e.effectiveDirective === 'style-src-attr' && e.target instanceof HTMLSelectElement && !e.target.hasAttribute('style');
+document.addEventListener('securitypolicyviolation', (e) => { if (!browsers(e)) violations.push(`${e.effectiveDirective} blocked ${e.blockedURI || 'inline'}${e.sample ? ` (${e.sample})` : ''}`); });
 const { storiesToRun } = await import('../../tools/test/vitest/stories');
 
 // An inline handler is only reported when its event fires, which may be after the story is gone: the markup is

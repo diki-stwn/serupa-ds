@@ -310,7 +310,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const modal = React.useSyncExternalStore(onModalChange, topModal, () => null);
   const region = (
     <section {...rest} ref={self} onFocus={onFocus} onBlur={onBlur} onPointerDown={onPointerDown} aria-label={label || sds.labels.notifications} className={cn("dk-toaster", "dk-toaster--" + pos, className)} data-component="toaster" data-position={pos}>
-      <ol className="dk-toaster__list">
+      <ol className="dk-toaster__list" role="list">
         {pos.startsWith("top") ? null : more}
         {rows.map((r) => <ToastView key={r.item.id} item={r.item} leaving={r.leaving} clocks={clocks.current} instant={early.current.has(r.item.id)} onGone={done} dismissLabel={dismissLabel || sds.labels.dismiss} time={(r.item.autoDismiss ?? autoDismiss ?? true) ? Math.max(0, r.item.duration ?? duration ?? 5000) : 0} />)}
         {pos.startsWith("top") ? more : null}
