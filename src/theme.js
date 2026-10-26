@@ -26,19 +26,17 @@
   if (window.Serupa && window.Serupa.theme) return;
   var BRANDS = ["blue", "violet", "emerald"], MODES = ["auto", "light", "dark"], KEY = "serupa-theme";
   var root = document.documentElement;
-  // A page that sets data-theme itself ("violet-dark") and neither data-brand nor data-mode keeps it as its default.
   var own = !root.hasAttribute("data-brand") && !root.hasAttribute("data-mode") && /^([a-z]+)-(light|dark)$/.exec(root.getAttribute("data-theme") || "");
   var page = own && BRANDS.indexOf(own[1]) >= 0 ? { brand: own[1], mode: own[2] }
     : { brand: pick(root.getAttribute("data-brand"), BRANDS, "blue"), mode: pick(root.getAttribute("data-mode"), MODES, "auto") };
   var media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-  var listeners = [];
+  var listeners = [], switches = 0;
   var state = Object.assign({}, page, load());
 
   function pick(v, list, fallback) { return list.indexOf(v) >= 0 ? v : fallback; }
   function load() {
     try {
-      // Before 5.0.0 the choice was saved as "diki-theme": move it to the new key once, so visitors keep their
-      // theme and reset() forgets it for good.
+      // A 4.x choice ("diki-theme") moves to the new key once: kept, and reset() forgets it for good.
       var raw = localStorage.getItem(KEY);
       if (raw == null && (raw = localStorage.getItem("diki-theme")) != null) {
         localStorage.setItem(KEY, raw);
@@ -50,7 +48,7 @@
       if (BRANDS.indexOf(s.brand) >= 0) o.brand = s.brand;
       if (MODES.indexOf(s.mode) >= 0) o.mode = s.mode;
       return o;
-    } catch (e) { return {}; }   // storage blocked (private window, sandbox): use the page's defaults
+    } catch (e) { return {}; }   // storage blocked: the page's defaults
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ brand: state.brand, mode: state.mode })); } catch (e) {} }
   function resolved() { return state.mode === "auto" ? (media && media.matches ? "dark" : "light") : state.mode; }
@@ -58,7 +56,10 @@
   function apply(always) {
     var i = info();
     if (root.getAttribute("data-theme") === i.theme && !always) return;
+    var n = ++switches, A = "data-theme-switching", raf = requestAnimationFrame;
+    root.setAttribute(A, n);
     root.setAttribute("data-theme", i.theme);
+    raf(function () { raf(function () { if (root.getAttribute(A) == n) root.removeAttribute(A); }); });
     listeners.slice().forEach(function (fn) { try { fn(i); } catch (e) { if (window.console) console.error(e); } });
   }
 
