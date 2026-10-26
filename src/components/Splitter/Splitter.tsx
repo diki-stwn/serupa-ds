@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { announce } from "../../internal/announce";
 import { cn, domId } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
@@ -91,12 +92,17 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     else if (e.key === "Home") to = min;
     else if (e.key === "End") to = max;
     else if (e.key === "Enter" && collapsible) { e.preventDefault(); toggle(); return; }
+    else if (e.key === "Escape" && placing) { e.preventDefault(); e.stopPropagation(); setPlacing(false); return; }
     if (to == null) return;
     e.preventDefault();
     change(to);
   };
   // A drag sets the size from where the pointer is in the Splitter, kept between min and max.
-  const drag = React.useRef<{ id: number } | null>(null);
+  const drag = React.useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null);
+  // A press on the handle that doesn't drag it, then a press anywhere else in the Splitter, puts the handle there
+  // (WCAG 2.5.7: a single pointer resizes without dragging). Pressing the handle again, Escape or leaving it cancels.
+  const [placing, setPlacing] = React.useState(false);
+  const handle = React.useRef<HTMLDivElement | null>(null);
   const at = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = root.current!.getBoundingClientRect();
     const share = direction === "horizontal" ? (rtl(root.current!) ? r.right - e.clientX : e.clientX - r.left) / (r.width || 1) : (e.clientY - r.top) / (r.height || 1);
@@ -107,21 +113,49 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     e.preventDefault();   // no text selection while dragging; focus moves to the handle below
     e.currentTarget.focus();
     if (typeof e.currentTarget.setPointerCapture === "function") e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { id: e.pointerId };
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
   };
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current && drag.current.id === e.pointerId) change(at(e)); };
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current && drag.current.id === e.pointerId) drag.current = null; };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    if (!d.moved && Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) < 4) return;
+    d.moved = true;
+    setPlacing(false);
+    change(at(e));
+  };
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    drag.current = null;
+    if (d.moved || e.type === "pointercancel") return;
+    if (!placing) announce(sds.labels.splitterPlace);
+    setPlacing(!placing);
+  };
+  // The press that places the handle is the Splitter's: it doesn't reach what's under it, nor does its click.
+  const onPlace = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (rest.onPointerDownCapture) rest.onPointerDownCapture(e);
+    if (!placing || e.button !== 0 || (handle.current && handle.current.contains(e.target as Node))) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const swallow = (c: Event) => { c.preventDefault(); c.stopPropagation(); };
+    window.addEventListener("click", swallow, { capture: true, once: true });
+    setTimeout(() => window.removeEventListener("click", swallow, { capture: true }), 500);
+    setPlacing(false);
+    change(at(e));
+    if (handle.current) handle.current.focus();
+  };
 
   const first = base + "-first";
   return (
     <div {...rest} ref={(n) => { root.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-      className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}>
+      className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
+      data-placing={placing || undefined} onPointerDownCapture={onPlace}>
       <div id={first} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}>{panes[0]}</div>
-      <div role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
+      <div ref={handle} role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
         aria-valuenow={Math.round(size)} aria-valuemin={collapsible ? 0 : Math.round(min)} aria-valuemax={Math.round(max)} aria-controls={first}
         aria-label={separatorLabel || sds.labels.resizePanes} data-state={collapsed ? "collapsed" : undefined}
         onKeyDown={onKeyDown} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
-        onDoubleClick={toggle} />
+        onDoubleClick={toggle} onBlur={() => setPlacing(false)} />
       <div className="dk-splitter__pane dk-splitter__pane--second">{panes[1]}</div>
     </div>
   );
