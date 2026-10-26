@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Textarea } from './Textarea';
 
@@ -247,4 +247,14 @@ describe('Textarea', () => {
     (document.getElementById('tf') as HTMLFormElement).reset();
     await expect.poll(() => [el('trs').value, count('trs').textContent]).toEqual(['ab', '2 / 10']);
   });
+
+  test('the focus ring shows at once (no transition in), so a field focused as a popup opens doesn\'t animate on its first frame; it still fades out on blur', () => withMotion(async () => {
+    await render(<><Textarea id="ring" aria-label="Notes" /><button id="away">Away</button></>);
+    const f = el('ring'), b = el('ring').closest('[data-component=textarea]') as HTMLElement;
+    const shadows = () => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    f.focus();
+    expect([shadows(), css(b).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    (document.getElementById('away') as HTMLElement).focus();
+    expect(shadows()).toBe(1);
+  }));
 });

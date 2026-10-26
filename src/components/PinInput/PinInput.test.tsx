@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { cdp, page, server, userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { PinInput } from './PinInput';
 
@@ -147,4 +147,15 @@ describe('PinInput', () => {
       expect(contrast(resolve('--focus-ring'), surface), th + ' ring').toBeGreaterThanOrEqual(3);
     }
   });
+
+  test('the focus ring moves to the next box at once as you type (no transition in); the box it leaves fades out', () => withMotion(async () => {
+    await render(<PinInput id="pm" aria-label="Code" length={3} />);
+    const shadows = (b: HTMLElement) => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    el('pm').focus();
+    await expect.poll(() => boxes('pm')[0].classList.contains('dk-pin-input__box--active')).toBe(true);
+    expect([shadows(boxes('pm')[0]), css(boxes('pm')[0]).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    await userEvent.keyboard('7');
+    await expect.poll(() => boxes('pm')[1].classList.contains('dk-pin-input__box--active')).toBe(true);
+    expect([shadows(boxes('pm')[1]), shadows(boxes('pm')[0])]).toEqual([0, 1]);
+  }));
 });

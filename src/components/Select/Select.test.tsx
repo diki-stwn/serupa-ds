@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { color, css, lowContrast } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { Select } from './Select';
 
@@ -161,4 +161,14 @@ describe('Select', () => {
       ['invalid', 'var(--danger)', 'var(--field)', 3],
     ])).toEqual([]);
   });
+
+  test('the focus ring shows at once (no transition in), so a field focused as a popup opens doesn\'t animate on its first frame; it still fades out on blur', () => withMotion(async () => {
+    await render(<><Select id="ring" aria-label="Fruit" options={['Apple', 'Pear']} /><button id="away">Away</button></>);
+    const f = document.getElementById('ring') as HTMLSelectElement, b = document.getElementById('ring')!.closest('[data-component=select]') as HTMLElement;
+    const shadows = () => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    f.focus();
+    expect([shadows(), css(b).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    (document.getElementById('away') as HTMLElement).focus();
+    expect(shadows()).toBe(1);
+  }));
 });
