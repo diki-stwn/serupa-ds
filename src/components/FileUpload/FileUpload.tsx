@@ -5,13 +5,14 @@ import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { formatFileSize } from "./formatFileSize";
 import * as icons from "../../material/builtin";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { announce } from "../../internal/announce";
+import { en as words } from "./labels";
 
 export { formatFileSize };
 
@@ -86,7 +87,7 @@ const same = (a: File, b: File) => a.name === b.name && a.size === b.size && a.t
    files from onFilesChange. */
 /** A drop area and a button for choosing files, with the chosen files listed under it. */
 export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadProps>("FileUpload", function FileUpload(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   props = useFieldControl(props);   // invalid, aria-required and disabled from a surrounding Field, at any depth
   const rest = omit(props, OWN);
   const base = domId("dk-fu", React.useId());

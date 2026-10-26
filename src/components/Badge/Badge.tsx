@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { useShowAfter } from "../../internal/showAfter";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
@@ -93,7 +93,7 @@ const OWN = { variant: 1, tone: 1, size: 1, dot: 1, ping: 1, leftIcon: 1, count:
 
 /** A short label for status, counts and categories. A <span>; a <button> with onClick, a link with href. */
 export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge", function Badge(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   const locale = useLocale();
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "subtle");

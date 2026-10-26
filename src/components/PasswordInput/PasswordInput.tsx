@@ -9,8 +9,9 @@ import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { pressFocuses } from "../../internal/affix";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface PasswordInputProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "rightIcon"> {
   /** Shows the password as text (controlled). Use with onVisibleChange. */
@@ -36,7 +37,7 @@ const SIZES = ["sm", "md", "lg"] as const;
 export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, PasswordInputProps>("PasswordInput", function PasswordInput(props, ref) {
   const nameRef = useNameCheck("PasswordInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, visible: 1, defaultVisible: 1, onVisibleChange: 1, toggleLabel: 1, capsLockHint: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
@@ -62,21 +63,28 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
   if (caps) rest["aria-describedby"] = cn(rest["aria-describedby"], capsId);
   // Switching the type puts the caret at the start: keep where it was, so typing goes on where it stopped.
   const field = React.useRef<HTMLInputElement | null>(null);
-  const caret = React.useRef<[number, number, "forward" | "backward" | "none"] | null>(null);
+  const caret = React.useRef<[number, number, "forward" | "backward" | "none", number, number] | null>(null);
   const fieldRef = React.useCallback((n: HTMLInputElement | null) => { field.current = n; nameRef(n); setRef(ref, n); }, [ref, nameRef]);
   useIsoLayoutEffect(() => {
     const f = field.current, c = caret.current;
     caret.current = null;
     if (!f || !c) return;
-    // Chrome moves the caret once it has applied the new type, after this effect: put it back then too.
-    const put = () => { if (f.selectionStart !== null) f.setSelectionRange(c[0], c[1], c[2]); };
+    // Chrome moves the caret once it has applied the new type, after this effect: put it back then too. The new type
+    // also scrolls the field back to its start, so a long password's caret goes out of view: the caret is kept where it
+    // was in the view, its place in the text scaled to the new width (at the end, the field scrolls to the end) (GI4).
+    const put = () => {
+      if (f.selectionStart === null) return;
+      f.setSelectionRange(c[0], c[1], c[2]);
+      const at = (c[2] === "backward" ? c[0] : c[1]) / Math.max(f.value.length, 1);
+      f.scrollLeft = at * f.scrollWidth - (at * c[4] - c[3]);
+    };
     put();
     const frame = requestAnimationFrame(put);
     return () => { cancelAnimationFrame(frame); };
   }, [shown]);
   const toggle = () => {
     const f = field.current;
-    if (f && f.selectionStart !== null && f.selectionEnd !== null) caret.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none"];
+    if (f && f.selectionStart !== null && f.selectionEnd !== null) caret.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none", f.scrollLeft, f.scrollWidth];
     if (!controlled) setOwn(!shown);
     if (props.onVisibleChange) props.onVisibleChange(!shown);
   };

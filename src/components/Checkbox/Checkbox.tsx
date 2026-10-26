@@ -5,9 +5,10 @@ import { useFormReset } from "../../internal/useFormReset";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
   /** 'sm' (14px box, text-xs), 'md' (16px, text-sm, default) or 'lg' (20px, text-base). */
@@ -151,7 +152,7 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   const key = props.value == null ? "" : String(props.value);
   const all = !!(group && props.selectAll);
   const counted = !!group && !all && key !== "";
-  const labels = useSerupa().labels;
+  const labels = useSettings(words).labels;
   const boxDisabled = !!(rest.disabled || (group && group.disabled));
   useIsoLayoutEffect(function () { return counted && group ? group.register(props.value as string | number, boxDisabled) : undefined; }, [counted, key, boxDisabled]);
   if (group) {

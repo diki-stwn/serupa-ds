@@ -8760,6 +8760,16 @@
           "cssVar": "--ease-pop"
         }
       }
+    },
+    "ease-fling": {
+      "$type": "cubicBezier",
+      "$value": "{transitions.ease-out-cubic}",
+      "$description": "Something the hand let go of mid-motion carrying on to rest: a drawer or carousel slide flicked. It starts at three times its average speed, so a settle timed as 3 × distance ÷ the hand’s speed starts exactly at that speed and slows from there (`settleTime()` in the components).",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--ease-fling"
+        }
+      }
     }
   },
   "fontSize": {

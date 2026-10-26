@@ -6,13 +6,18 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { formatTime, parseTime, timePattern, toHHmm, toMinutes, uses12h } from "../../internal/times";
 import { reject } from "../../internal/rejectInput";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
+import { useExit } from "../../internal/useExit";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
+import { en as TimePickerWords } from "./labels";
+import { en as DatePickerWords } from "../DatePicker/labels";
+// This component's words and the ones it shares with DatePicker.
+const words = /* @__PURE__ */ Object.assign({}, TimePickerWords, DatePickerWords);
 
 export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step' | 'children'> {
   /** The chosen time as "HH:mm" (24-hour, controlled), or null. Use with onValueChange. */
@@ -52,7 +57,7 @@ export interface TimePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
 export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePickerProps>("TimePicker", function TimePicker(props, ref) {
   const nameRef = useNameCheck("TimePicker", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min, max, step: _st, locale: localeProp, hour12: _h, size: _s, invalid: _i, listLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
   const locale = useLocale(localeProp), lang = useOwnLang(localeProp);
   const size = oneOf(SIZES, props.size, "md");
@@ -108,6 +113,8 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   const show = () => { if (disabled || readOnly || !times.length) return; const n = parseTime(text, locale); setActive(nearest(n != null ? n : value)); typed.current = false; setOpen(true); };
   // The list is at least as wide as the field.
   useIsoLayoutEffect(() => { if (open && list.current && box.current) list.current.style.minWidth = box.current.offsetWidth + "px"; }, [open]);
+  // Closing: the times stay (inert) while the list fades out, as Menu's and DatePicker's do (GK1).
+  const exit = useExit(open, list);
   useAnchoredLayer(open, list, box, { placement: "bottom-start", offsetVar: "--dk-tp-offset", onOutside: () => setOpen(false), inside: box });
   // On open, the active time sits near the top; after that, moving keeps it in view.
   const wasOpen = React.useRef(false);
@@ -163,8 +170,8 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
       {/* The format to type, read after the field's name (a placeholder is gone once something is typed). */}
       <span id={id + "-format"} hidden>{sds.labels.formatHint(timePattern(locale, h12))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
-      <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} className="dk-time-picker__list">
-        {open ? times.map((n, i) => (
+      <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-time-picker__list">
+        {open || exit.leaving ? times.map((n, i) => (
           <li key={n} id={`${id}-${i}`} lang={lang} role="option" aria-selected={n === value} data-value={toHHmm(n)}
             className={cn("dk-time-picker__option", i === active && "dk-time-picker__option--active", n === value && "dk-time-picker__option--selected")}
             onMouseDown={(e) => e.preventDefault()} onMouseMove={() => { if (i !== active) { typed.current = false; setActive(i); } }} onClick={() => pick(n)}>

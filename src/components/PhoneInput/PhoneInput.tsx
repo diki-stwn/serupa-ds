@@ -7,12 +7,13 @@ import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { collatorFor } from "../../internal/collator";
 import * as icons from "../../material/builtin";
 import { warnOnce } from "../../internal/warn";
 import { useFormReset } from "../../internal/useFormReset";
 import { PHONE_COUNTRIES, formatNational, isPhoneComplete, parsePhone, phoneCountry, stripTrunk, toE164, type PhoneCountry } from "./phone";
+import { en as words } from "./labels";
 
 /** What onValueChange reports with the E.164 number. */
 export interface PhoneValueDetails {
@@ -68,7 +69,7 @@ const caretAfter = (text: string, n: number): number => {
 export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInputProps>("PhoneInput", function PhoneInput(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const nameRef = useNameCheck("PhoneInput", NAME_HOW.field);   // warns when it has no accessible name
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const locale = useLocale();
   const rest = omit(props, own);
   const size = oneOf(SIZES, props.size, "md");
