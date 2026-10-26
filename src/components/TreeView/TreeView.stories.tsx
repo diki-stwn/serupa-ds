@@ -38,3 +38,17 @@ export const NoSelection: Story = {
 export const RightToLeft: Story = {
   args: { dir: 'rtl' },
 };
+
+export const LongLabels: Story = {
+  args: {
+    items: [
+      { id: 'src', label: 'a-folder-with-a-very-long-name-for-every-component', icon: 'folder', children: [
+        { id: 'long', label: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte.tsx', icon: 'draft' },
+        { id: 'menu', label: 'Menu.tsx', icon: 'draft' },
+      ] },
+    ],
+    defaultExpanded: ['src'],
+    defaultValue: ['long'],
+    style: { maxWidth: '200px' },
+  },
+};

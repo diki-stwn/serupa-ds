@@ -1,3 +1,11 @@
+# LongLabels
+- tree "Files":
+  - treeitem "a-folder-with-a-very-long-name-for-every-component" [expanded] [level=1]:
+    - text: a-folder-with-a-very-long-name-for-every-component
+    - group:
+      - treeitem "Donaudampfschifffahrtsgesellschaftskapitänskajüte.tsx" [level=2] [selected]
+      - treeitem "Menu.tsx" [level=2]
+
 # Multiple
 - tree "Files":
   - treeitem "src" [expanded] [level=1]:

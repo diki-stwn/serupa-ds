@@ -41,3 +41,8 @@ export const Currency: Story = {
     </div>;
   },
 };
+
+export const LongValue: Story = {
+  args: { defaultValue: 123456789012, max: undefined },
+  decorators: [(Story) => <div style={{ width: 140 }}><Story /></div>],
+};

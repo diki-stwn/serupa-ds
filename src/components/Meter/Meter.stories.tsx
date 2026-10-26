@@ -40,3 +40,8 @@ export const Sizes: Story = {
     <Meter size="lg" value={30} aria-label="Large" />
   </div>,
 };
+
+export const LongLabel: Story = {
+  args: { label: 'Storage used by photos, videos and shared documents' },
+  decorators: [(Story) => <div style={{ width: 200 }}><Story /></div>],
+};
