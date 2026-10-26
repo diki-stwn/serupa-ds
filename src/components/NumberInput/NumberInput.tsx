@@ -12,7 +12,7 @@ import { isComposing } from "../../internal/ime";
 import { formatNumber, parseNumber } from "../../internal/numbers";
 import { gridPlaces, roundTo } from "../../internal/step";
 import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
-import { minorDigits } from "../../internal/currency";
+import { minorDigits, pinCurrencyDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
 import { reject } from "../../internal/rejectInput";
 import * as icons from "../../material/builtin";
@@ -73,7 +73,9 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   if (invalid) rest["aria-invalid"] = true;
   // Without a locale from the prop or a provider: en-US on the server and while hydrating, then the browser's.
   const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
-  const formatOptions: Intl.NumberFormatOptions | undefined = props.currency ? { style: "currency", currency: props.currency, ...props.formatOptions } : props.formatOptions;
+  // A currency's decimals are pinned (pinCurrencyDigits), so the server and every browser write the same amount.
+  const given: Intl.NumberFormatOptions | undefined = props.currency ? { style: "currency", currency: props.currency, ...props.formatOptions } : props.formatOptions;
+  const formatOptions = given && pinCurrencyDigits(given);
   // With minorUnits, the props are whole cents (1999) and the field works in the currency's units (19.99).
   const factor = props.minorUnits && formatOptions?.style === "currency" && formatOptions.currency ? 10 ** minorDigits(formatOptions.currency) : 1;
   const major = (n: number | null | undefined) => (n == null || factor === 1 ? n : n / factor);

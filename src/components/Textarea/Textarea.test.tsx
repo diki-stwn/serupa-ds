@@ -6,6 +6,9 @@ import { THEMES, color, contrast, css, withMotion } from '../../../tools/test/vi
 import { SerupaProvider } from '../../internal/provider';
 import { Textarea } from './Textarea';
 
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
+
 const el = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
 const box = (id: string) => {
   const i = el(id), w = i.parentElement as HTMLElement, c = css(w), f = css(i);
@@ -40,7 +43,7 @@ function App(props: { tref?: React.Ref<HTMLTextAreaElement> }) {
     <Textarea id="dis" disabled aria-label="Disabled" />
   </div>;
 }
-const setup = async (tref?: React.Ref<HTMLTextAreaElement>) => { changes = []; await render(<App tref={tref} />); await document.fonts.ready; };
+const setup = async (tref?: React.Ref<HTMLTextAreaElement>) => { changes = []; await render(<App tref={tref} />, { wrapper: EnUS }); await document.fonts.ready; };
 
 describe('Textarea', () => {
   test('a native <textarea> in a .dk-textarea box (data-component="textarea"); md text-sm, 12px side and 6px top padding, 1px border, 6px corners, 3 rows by default', async () => {
@@ -164,7 +167,7 @@ describe('Textarea', () => {
     await render(<>
       <Textarea id="emo" showCount maxLength={4} defaultValue="👨‍👩‍👧🇮🇩" aria-label="Emoji" />
       <Ctrl onValue={(v) => seen.push(v)} />
-    </>);
+    </>, { wrapper: EnUS });
     expect([count('emo').textContent, el('emo').hasAttribute('maxlength')]).toEqual(['2 / 4', false]);
     await userEvent.click(el('emo'));
     await userEvent.keyboard('{End}abc');
@@ -182,7 +185,7 @@ describe('Textarea', () => {
 
   test('maxLength with an input method: the text is cut once the composition is confirmed, not while it\'s being typed', async () => {
     const seen: string[] = [];
-    await render(<Textarea id="ime" showCount maxLength={3} defaultValue="あ" onChange={(e) => seen.push(e.target.value)} aria-label="IME" />);
+    await render(<Textarea id="ime" showCount maxLength={3} defaultValue="あ" onChange={(e) => seen.push(e.target.value)} aria-label="IME" />, { wrapper: EnUS });
     const t = el('ime'), set = (v: string) => { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(t, v); t.dispatchEvent(new Event('input', { bubbles: true })); };
     t.focus();
     React.act(() => {
@@ -241,7 +244,7 @@ describe('Textarea', () => {
   });
 
   test('a form reset puts the count back to the default (P2)', async () => {
-    await render(<form id="tf"><Textarea id="trs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>);
+    await render(<form id="tf"><Textarea id="trs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>, { wrapper: EnUS });
     await userEvent.type(el('trs'), 'cdef');
     expect(count('trs').textContent).toBe('6 / 10');
     (document.getElementById('tf') as HTMLFormElement).reset();
