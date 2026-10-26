@@ -72,6 +72,9 @@ function usePerView(per: CarouselProps["perView"]): number {
    buttons and swipe still move one slide, and the dots count pages. */
 const OWN = { children: 1, label: 1, index: 1, defaultIndex: 1, onIndexChange: 1, loop: 1, arrows: 1, dots: 1, previousLabel: 1, nextLabel: 1, slideLabel: 1, perView: 1, className: 1, style: 1 } as const;
 const SWIPE = 40; // px a swipe must travel to change the slide
+const FLICK = 0.3; // px per ms over the last 100ms: a shorter swipe this fast changes the slide too
+/** Past the first or last slide a drag meets resistance: it moves less the further it goes, never more than w. */
+const rubber = (d: number, w: number) => Math.sign(d) * (1 - 1 / (Math.abs(d) * 0.55 / Math.max(1, w) + 1)) * w;
 
 /** One slide at a time, with previous and next buttons, dots and swipe. */
 export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("Carousel", function Carousel(props, ref) {
@@ -95,15 +98,30 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const name = props.slideLabel || ((i: number, n: number) => sds.labels.slideOf(i + 1, n));
   const dotsRef = React.useRef<HTMLDivElement>(null);
   const viewport = React.useRef<HTMLDivElement>(null);
-  const drag = React.useRef<{ x: number; y: number; id: number } | null>(null);
+  const drag = React.useRef<{ x: number; y: number; id: number; s: { t: number; x: number }[] } | null>(null);
+  const track = React.useRef<HTMLDivElement>(null);
+  // How long the track takes to settle after a swipe (from the distance left and the speed); null: the CSS default.
+  const [settle, setSettle] = React.useState<number | null>(null);
+  // A loop going on past the last slide (or back past the first) carries on that way instead of rewinding: the
+  // first slides are shown again after the last (or the last before the first), the track moves there, and once it
+  // stops it's put back at the real index without a transition. virt is where the track stands meanwhile.
+  const [wrap, setWrap] = React.useState<{ virt: number; edge: "after" | "before" } | null>(null);
+  const [snap, setSnap] = React.useState(false);
   const [offset, setOffset] = React.useState(0);
   const dragged = React.useRef(false);   // a drag just ended: the click that follows it doesn't count
   const prevBtn = React.useRef<HTMLButtonElement>(null), nextBtn = React.useRef<HTMLButtonElement>(null);
   const refocus = React.useRef<"prev" | "next" | "dot" | null>(null);
 
-  const go = (i: number) => {
+  const go = (i: number, ms: number | null = null) => {
     const next = loop ? ((i % (last + 1)) + last + 1) % (last + 1) : clamp(i);
     if (next === index) return;
+    setSettle(ms);
+    const moves = !!track.current && parseFloat(getComputedStyle(track.current).transitionDuration) > 0;
+    // Only when the slides shown again are out of view, so none is in two places (count >= 2 per view).
+    if (loop && moves && !wrap && count >= 2 * per) {
+      if (i === last + 1 && index === last) setWrap({ virt: count, edge: "after" });
+      else if (i === -1 && index === 0) setWrap({ virt: -per, edge: "before" });
+    }
     if (!controlled) setOwn(next);
     if (props.onIndexChange) props.onIndexChange(next);
   };
@@ -141,7 +159,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (last < 1 || (e.pointerType === "mouse" && e.button !== 0)) return;
-    drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId, s: [{ t: e.timeStamp, x: e.clientX }] };
     dragged.current = false;
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -152,21 +170,44 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     if (offset === 0 && Math.abs(e.clientY - d.y) > Math.abs(dx)) { drag.current = null; return; }
     if (offset === 0 && viewport.current) try { viewport.current.setPointerCapture(e.pointerId); } catch { /* the pointer is already gone */ }
     dragged.current = true;
-    setOffset(dx);
+    // The samples of the last 100ms (at least two), for the speed the finger had as it let go.
+    d.s.push({ t: e.timeStamp, x: e.clientX });
+    while (d.s.length > 2 && d.s[0].t < e.timeStamp - 100) d.s.shift();
+    const forward = (dx < 0) !== rtl(), w = viewport.current ? viewport.current.clientWidth : 0;
+    setOffset(!loop && (forward ? index >= last : index <= 0) ? rubber(dx, w) : dx);
   };
   const onPointerEnd = (e: React.PointerEvent) => {
     const d = drag.current;
     if (!d || d.id !== e.pointerId) return;
     drag.current = null;
-    const dx = e.clientX - d.x;
+    const dx = e.clientX - d.x, first = d.s[0], end = d.s[d.s.length - 1];
+    const v = (end.x - first.x) / Math.max(1, end.t - first.t);   // px per ms, signed like dx
+    const flick = Math.abs(dx) > 10 && Math.abs(v) > FLICK && Math.sign(v) === Math.sign(dx);
+    const step = (viewport.current ? viewport.current.clientWidth : 0) / per;
     setOffset(0);
-    if (Math.abs(dx) >= SWIPE) go(index + ((dx < 0) !== rtl() ? 1 : -1));
+    if (Math.abs(dx) >= SWIPE || flick) {
+      // Carries on at the finger's speed: the time from the distance left, between 150 and 300ms.
+      const ms = Math.round(Math.min(300, Math.max(150, Math.max(0, step - Math.abs(dx)) / Math.max(Math.abs(v), 0.5))));
+      setSettle(ms);   // also when there's no slide that way, and the rubber band goes back
+      go(index + ((dx < 0) !== rtl() ? 1 : -1), ms);
+    } else setSettle(offset ? Math.round(Math.min(300, Math.max(150, Math.abs(offset) / Math.max(Math.abs(v), 0.5)))) : null);
   };
+  // The track stopped after a loop carried on: put it at the real index at once, then let it move again.
+  const onTrackEnd = (e: React.TransitionEvent) => {
+    if (e.target !== e.currentTarget || e.propertyName !== "transform" || !wrap) return;
+    setSnap(true); setWrap(null);
+  };
+  React.useEffect(() => {
+    if (!snap) return;
+    let f = requestAnimationFrame(() => { f = requestAnimationFrame(() => setSnap(false)); });   // two: one paints the snap
+    return () => cancelAnimationFrame(f);
+  }, [snap]);
   // The browser took the gesture (a scroll) or the pointer left before a drag began: put the slide back, change nothing.
   const onPointerCancel = (e: React.PointerEvent) => { if (drag.current && drag.current.id === e.pointerId) { drag.current = null; dragged.current = false; setOffset(0); } };
   const onPointerLeave = (e: React.PointerEvent) => { if (offset === 0) onPointerCancel(e); };
 
-  const style = { ...props.style, "--dk-carousel-index": index, "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
+  const style = { ...props.style, "--dk-carousel-index": wrap ? wrap.virt : index, "--dk-carousel-count": count,
+    ...(settle != null ? { "--dk-carousel-settle": settle + "ms" } : null), "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
   const shown = (i: number) => i >= index && i < index + per;
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 
@@ -178,10 +219,11 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
         onDragStart={(e) => e.preventDefault()}   // a picture's own drag would end the swipe
         onClickCapture={(e) => { if (dragged.current && e.detail) { dragged.current = false; e.preventDefault(); e.stopPropagation(); } }}   // a swipe across a link isn't a click
         data-dragging={offset ? "" : undefined}>
-        <div className="dk-carousel__track" aria-live="polite">
+        <div className="dk-carousel__track" aria-live="polite" ref={track} onTransitionEnd={onTrackEnd} data-snap={snap ? "" : undefined}>
           {slides.map((s, i) => (
             <div key={(s as React.ReactElement).key ?? i} className="dk-carousel__slide" role="group" aria-roledescription={sds.labels.slideRole} aria-label={name(i, count)}
-              aria-hidden={shown(i) ? undefined : true} inert={!shown(i)} data-active={shown(i) ? "" : undefined}>
+              aria-hidden={shown(i) ? undefined : true} inert={!shown(i)} data-active={shown(i) ? "" : undefined}
+              data-wrap={wrap && (wrap.edge === "after" ? i < per : i >= count - per) ? wrap.edge : undefined}>
               {s}
             </div>
           ))}

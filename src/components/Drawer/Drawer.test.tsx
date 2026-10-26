@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
@@ -403,7 +404,7 @@ describe('Drawer', () => {
     await render(<App asks={[]} ctl={ctl} />);
     await reopen(ctl, () => {});
     const s = getComputedStyle(panel()), ti = getComputedStyle(titleOf('drw'));
-    expect([s.paddingTop, s.rowGap, ti.fontSize, ti.fontWeight, withMotion(() => getComputedStyle(panel()).animationDuration)]).toEqual(['24px', '16px', '18px', '600', '0.3s']);
+    expect([s.paddingTop, s.rowGap, ti.fontSize, ti.fontWeight, withMotion(() => getComputedStyle(panel()).transitionDuration)]).toEqual(['24px', '16px', '18px', '600', '0.3s, 0.3s']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
     const low: string[] = []; let n = 0;
@@ -485,5 +486,61 @@ describe('Drawer: a body that scrolls', () => {
     await screen.rerender(<div><Drawer id="dn" open onOpenChange={() => {}} closeButton={false}>{text}</Drawer></div>);
     await expect.poll(() => body().hasAttribute('role')).toBe(false);
     expect([body().tabIndex, body().hasAttribute('aria-label')]).toEqual([0, false]);
+  });
+});
+
+describe('Drawer: motion (DZ1)', () => {
+  const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && a.effect.pseudoElement === '::backdrop');
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  const props = (l: Animation[]) => l.filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]);
+  test('slides in with a transition (backdrop fading with it) and back out to its edge faster, shown until it has gone while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {
+    await withMotion(async () => {
+      const ctl: Partial<Ctl> = {};
+      await render(<App asks={[]} ctl={ctl} />);
+      const d = drw(), pn = panel();
+      await userEvent.click(el('opener'));
+      expect([props(pn.getAnimations()), pn.getAnimations().some((a) => a instanceof CSSAnimation), props(backdropOf(d))]).toEqual([[['translate', 300]], false, [['opacity', 300]]]);
+      await settled();
+      expect(getComputedStyle(pn).translate).toBe('none');
+
+      React.act(() => ctl.setOpen!(false));
+      // Kept in the top layer while it slides out only where overlay can be held (Chromium); elsewhere it closes at once.
+      const holds = CSS.supports('overlay', 'auto');
+      expect([isOpen(), document.activeElement, getComputedStyle(d).display]).toEqual([false, el('opener'), holds ? 'flex' : 'none']);
+      if (!holds) return;
+      expect([getComputedStyle(pn).pointerEvents, props(pn.getAnimations()), props(backdropOf(d))]).toEqual(['none', [['translate', 200]], [['opacity', 200]]]);
+      await new Promise((ok) => setTimeout(ok, 80));
+      const mid = parseFloat(getComputedStyle(pn).translate);
+      expect(mid).toBeGreaterThan(5);
+      flushSync(() => ctl.setOpen!(true));
+      expect(isOpen()).toBe(true);
+      expect(Math.abs(parseFloat(getComputedStyle(pn).translate) - mid)).toBeLessThan(40);
+      await settled();
+      expect(getComputedStyle(pn).translate).toBe('none');
+      React.act(() => ctl.setOpen!(false));
+      await settled();
+      expect(getComputedStyle(d).display).toBe('none');
+    });
+  });
+
+  test('open on arrival (defaultOpen): there from the first frame, not slid in; a swipe follows the finger with no transition, and let go short it slides back', async () => {
+    await withMotion(async () => {
+      await render(<Drawer id="drw" defaultOpen title="Filters"><p>Body</p></Drawer>);
+      const d = drw(), pn = panel();
+      await expect.poll(() => d.open).toBe(true);
+      expect([pn.getAnimations().length, backdropOf(d).length, getComputedStyle(pn).translate]).toEqual([0, 0, 'none']);
+      const r = pn.getBoundingClientRect(), y = r.top + 40, x0 = r.left + 40;
+      const ev = (name: string, cx: number) => pn.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 7, isPrimary: true, pointerType: 'touch', clientX: cx, clientY: y }));
+      // A slow drag, 30px over 150ms, let go well short of a third: it goes back.
+      ev('pointerdown', x0); ev('pointermove', x0 + 20);
+      await new Promise((ok) => setTimeout(ok, 150));
+      ev('pointermove', x0 + 50);
+      expect([pn.hasAttribute('data-dragging'), getComputedStyle(pn).translate, pn.getAnimations().length]).toEqual([true, '50px', 0]);
+      ev('pointerup', x0 + 50);
+      expect([d.open, pn.hasAttribute('data-dragging')]).toEqual([true, false]);
+      expect(pn.getAnimations().length).toBeGreaterThan(0);
+      await settled();
+      expect(getComputedStyle(pn).translate).toBe('none');
+    });
   });
 });

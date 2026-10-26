@@ -40,7 +40,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
   keyframes: Object.fromEntries([
-    ['dk-drawer-in', 'Drawer'], ['dk-drawer-fade', 'Drawer'], ['dk-menu-in', 'Menu'],
+    ['dk-menu-in', 'Menu'],
     ['dk-popover-in', 'Popover'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
   ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
   'on mount': {
