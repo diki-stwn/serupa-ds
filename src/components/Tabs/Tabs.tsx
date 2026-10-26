@@ -107,8 +107,10 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
 
 /* TabList: the row (or column) of tabs. When the tabs don't fit, it scrolls with no scrollbar; the edge with more
    tabs past it fades out, so it's plain there's more, and the selected tab is scrolled into view whenever it changes. */
+export type TabListProps = React.HTMLAttributes<HTMLDivElement>;
+
 /** The row of tabs. Give it an aria-label when the page doesn't already say what the tabs are for. */
-export const TabList = /* @__PURE__ */ component<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>("TabList", function TabList(props, ref) {
+export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("TabList", function TabList(props, ref) {
   const ctx = useTabs("TabList");
   const list = React.useRef<HTMLDivElement | null>(null);
   const [fade, setFade] = React.useState<{ before: boolean; after: boolean }>({ before: false, after: false });

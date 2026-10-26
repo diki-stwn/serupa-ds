@@ -94,9 +94,8 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   };
   const arrow = (dir: "prev" | "next") => {
     const n = dir === "prev" ? page - 1 : page + 1;
-    const arrows = dir === "prev"
-      ? <><Icon icon={icons.ChevronLeft} className="dk-pagination__ltr" /><Icon icon={icons.ChevronRight} className="dk-pagination__rtl" /></>
-      : <><Icon icon={icons.ChevronRight} className="dk-pagination__ltr" /><Icon icon={icons.ChevronLeft} className="dk-pagination__rtl" /></>;
+    // The chevrons flip in right-to-left text by themselves (Icon's mirror).
+    const arrows = <Icon icon={dir === "prev" ? icons.ChevronLeft : icons.ChevronRight} />;
     return <li key={dir}>{item(n, arrows, { "aria-label": dir === "prev" ? props.previousLabel || sds.labels.previousPage : props.nextLabel || sds.labels.nextPage, rel: props.getHref ? dir : undefined }, n < 1 || n > count, "dk-pagination__arrow")}</li>;
   };
   return (

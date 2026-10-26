@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, iconPoints } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Pagination, paginationRange } from './Pagination';
 
@@ -153,8 +153,7 @@ describe('Pagination', () => {
 
   test('right to left: the arrows point the other way', async () => {
     await render(<div dir="rtl"><Pagination id="prtl" count={3} /></div>);
-    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => [...a.querySelectorAll<HTMLElement>('[data-icon]')]
-      .filter((i) => css(i).display !== 'none').map((i) => i.dataset.icon).join()).join()).toBe('chevron_right,chevron_left');
+    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => iconPoints(a.querySelector('[data-icon]')!)).join()).toBe('right,left');
   });
 
   test('Pagination tokens (--pagination-current-bg, --pagination-size) override one pagination', async () => {

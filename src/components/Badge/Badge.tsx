@@ -45,10 +45,13 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
   onClick?: React.MouseEventHandler<HTMLElement>;
   /** Makes it a link (the component set with Serupa.configure({ link }), <a> by default), with hover, focus and active states. */
   href?: string;
+  /** Where the link opens, as on <a>; with "_blank", rel defaults to "noopener noreferrer". */
   target?: string;
+  /** The link's relation to the page, as on <a>. */
   rel?: string;
   /** Native button attributes, when interactive. */
   disabled?: boolean;
+  /** 'button' (default, never submits by accident), 'submit' or 'reset', when interactive. */
   type?: 'button' | 'submit' | 'reset';
   /** A ring replaces the content (the width stays); aria-busy, and an interactive badge ignores clicks but keeps focus. */
   loading?: boolean;

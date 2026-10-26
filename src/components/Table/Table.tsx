@@ -117,18 +117,22 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
   );
 });
 
+export type TableHeadProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableFootProps = React.HTMLAttributes<HTMLTableSectionElement>;
+
 /** The header rows (<thead>). */
-export const TableHead = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableHead", function TableHead(props, ref) {
+export const TableHead = /* @__PURE__ */ component<HTMLTableSectionElement, TableHeadProps>("TableHead", function TableHead(props, ref) {
   return <thead {...props} ref={ref} className={cn("dk-table__head", props.className)} />;
 });
 
 /** The body rows (<tbody>). */
-export const TableBody = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableBody", function TableBody(props, ref) {
+export const TableBody = /* @__PURE__ */ component<HTMLTableSectionElement, TableBodyProps>("TableBody", function TableBody(props, ref) {
   return <tbody {...props} ref={ref} className={cn("dk-table__body", props.className)} />;
 });
 
 /** Footer rows such as totals (<tfoot>). */
-export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>("TableFoot", function TableFoot(props, ref) {
+export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, TableFootProps>("TableFoot", function TableFoot(props, ref) {
   return <tfoot {...props} ref={ref} className={cn("dk-table__foot", props.className)} />;
 });
 
