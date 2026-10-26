@@ -26,7 +26,6 @@ const KNOWN = {
   DatePicker: ['readOnly'],
   DateRangePicker: ['readOnly'],
   NumberInput: ['invalid', 'readOnly'],
-  PasswordInput: ['disabled', 'readOnly'],
   PhoneInput: ['readOnly'],
   Rating: ['invalid'],
   SearchInput: ['invalid', 'readOnly'],
