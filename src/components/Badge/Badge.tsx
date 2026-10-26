@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, oneOf, omit } from "../../internal/cn";
+import { cn, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSerupa } from "../../internal/provider";
@@ -108,6 +108,23 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     wasLoading.current = loading;
   }, [loading, loadingText]);
   const isCount = props.count != null;
+  // A text label cut with an ellipsis shows in full as the badge's title on hover, as Button's does (DV1): the same
+  // words as its text, so nothing is read twice. Not for a count, or a badge with a title or name of its own.
+  const text = !isCount && (typeof props.children === "string" || typeof props.children === "number") ? String(props.children) : "";
+  const tipOk = !!text && rest.title == null && !rest["aria-label"] && !rest["aria-labelledby"];
+  const node = React.useRef<HTMLElement | null>(null);
+  const [cut, setCut] = React.useState(false);
+  useIsoLayoutEffect(function () {
+    const own = node.current && node.current.querySelector<HTMLElement>(".dk-badge__label");
+    if (!tipOk || !own) { setCut(false); return; }
+    const check = () => setCut(own.scrollWidth > own.clientWidth);
+    check();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(check);
+    ro.observe(own);
+    return () => ro.disconnect();
+  }, [tipOk, text]);
+  const setNode = React.useCallback(function (n: HTMLElement | null) { node.current = n; setRef(ref, n); }, [ref]);
   let label: React.ReactNode = props.children;
   if (isCount) {
     const n = Math.max(0, Math.floor(Number(props.count)) || 0);
@@ -139,6 +156,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
     if (rest["aria-label"] || rest["aria-labelledby"]) rest.role = rest.role || "img"; else rest["aria-hidden"] = true;
     return <span {...rest} ref={ref} className={cn("dk-badge", "dk-badge--indicator", "dk-badge--tone-" + tone, props.ping && "dk-badge--ping", props.className)} />;
   }
+  if (cut && tipOk) rest.title = text;
   rest["data-component"] = "badge";
   rest["data-variant"] = variant;
   rest["data-tone"] = tone;
@@ -175,8 +193,8 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   if (isLink) {
     if (rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
     delete rest.type;
-    return React.createElement(config.link, Object.assign(rest, { ref: ref, className: classes }), ...content);
+    return React.createElement(config.link, Object.assign(rest, { ref: setNode, className: classes }), ...content);
   }
   if (interactive && rest.type === undefined) rest.type = "button";   // never submits a form by accident
-  return React.createElement(interactive ? "button" : "span", Object.assign(rest, { ref: ref, className: classes }), ...content);
+  return React.createElement(interactive ? "button" : "span", Object.assign(rest, { ref: setNode, className: classes }), ...content);
 });

@@ -583,4 +583,23 @@ describe('focus after removing a tag (179)', () => {
     await new Promise((r) => setTimeout(r, 30));
     expect(focused()).toBe('Remove Kept');
   });
+  test('a cut label shows in full as the title (EV1); one that fits, a count, or a badge with its own title or name gets none', async () => {
+    const LONG = 'Waiting for the design review to finish';
+    function Box() {
+      const [w, setW] = React.useState(400);
+      return <div style={{ width: w + 'px' }}>
+        <Badge id="grow" onClick={() => setW(120)}>{LONG}</Badge>
+        <Badge id="fits">New</Badge>
+        <Badge id="named" aria-label="Review pending">{LONG}</Badge>
+        <Badge id="own" title="Mine">{LONG}</Badge>
+        <span style={{ display: 'block', width: '120px' }}><Badge id="still" onRemove={() => {}}>{LONG}</Badge></span>
+      </div>;
+    }
+    await render(<Box />);
+    expect([el('grow').hasAttribute('title'), el('still').title]).toEqual([false, LONG]);
+    el('grow').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('grow').getAttribute('title')).toBe(LONG);
+    expect([el('fits').hasAttribute('title'), el('named').hasAttribute('title'), el('own').title, el('grow').textContent]).toEqual([false, false, 'Mine', LONG]);
+  });
 });
