@@ -89,7 +89,7 @@
 /* Respect reduced motion across the page: no smooth scrolling, near-instant transitions. A component (a dk- class)
    keeps only its fades: its own reduced-motion rules leave a short opacity fade where it helps (a popup appearing),
    which a 0s duration here would beat, since an !important in an earlier layer wins over the later ones. Colors,
-   moves and scales still stop. */
+   moves and scales still stop, and so does visibility: it changes at once (a hidden control can't stay on screen). */
 @media (prefers-reduced-motion: reduce) {
   :where(html) { scroll-behavior: auto; }
   :where(*) { scroll-behavior: auto !important; }
@@ -98,6 +98,6 @@
   :where(:not([class^="dk-"], [class*=" dk-"]))::after { transition-duration: var(--duration-0) !important; }
   :where([class^="dk-"], [class*=" dk-"]),
   :where([class^="dk-"], [class*=" dk-"])::before,
-  :where([class^="dk-"], [class*=" dk-"])::after { transition-property: opacity, visibility, display, overlay, content-visibility !important; }
+  :where([class^="dk-"], [class*=" dk-"])::after { transition-property: opacity, display, overlay, content-visibility !important; }
 }
 }
