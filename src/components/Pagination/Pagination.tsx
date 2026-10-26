@@ -66,6 +66,9 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   const [cut, setCut] = React.useState(0);
   const most = siblings + boundaries, list = React.useRef<HTMLUListElement | null>(null);
   const over = () => { const l = list.current; return !!l && l.scrollWidth > l.clientWidth + 1; };
+  // A new page or count may need fewer cuts (60 → 9 is narrower): start over, and the next effect cuts again if needed.
+  useIsoLayoutEffect(function () { setCut(0); }, [page, count]);
+  // every render: any change (page, count, labels, the locale's digits) can widen the row, so it is measured each time.
   useIsoLayoutEffect(function () { if (cut < most && over()) setCut(cut + 1); });
   useIsoLayoutEffect(function () {
     const l = list.current;

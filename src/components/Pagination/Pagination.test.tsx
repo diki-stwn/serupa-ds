@@ -138,7 +138,7 @@ describe('Pagination', () => {
   test('the row stays on one line: in 320px the defaults drop siblings, then boundaries, until it fits; with room again they come back (ET1)', async () => {
     const Box = ({ w }: { w: number }) => <div style={{ width: w + 'px' }}><Pagination id="fit" count={20} defaultPage={10} /></div>;
     const s = await render(<Box w={600} />, { wrapper: EnUS });
-    const fits = () => { const l = q('fit', 'ul'), a = [...l.querySelectorAll('.dk-pagination__arrow')].map((x) => x.getBoundingClientRect()); return l.scrollWidth <= l.clientWidth && a[0].top === a[1].top && a[1].right <= l.getBoundingClientRect().right + 0.5; };
+    const fits = () => { const l = q('fit', 'ul'), a = [named('fit', 'Previous page'), named('fit', 'Next page')].map((x) => x.getBoundingClientRect()); return l.scrollWidth <= l.clientWidth && a[0].top === a[1].top && a[1].right <= l.getBoundingClientRect().right + 0.5; };
     expect([shown('fit'), fits()]).toEqual(['< 1 … 9 [10] 11 … 20 >', true]);
     await s.rerender(<Box w={320} />);
     await vi.waitFor(() => expect(fits()).toBe(true));
