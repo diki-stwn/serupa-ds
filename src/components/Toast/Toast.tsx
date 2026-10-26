@@ -95,7 +95,7 @@ function show(options: ToastOptions | string): string {
   return id;
 }
 // module state: browser only: what an undo toast does when it closes without Undo (toast.undo's commit), by id.
-const onClose = new Map<string, () => void>();
+const onClose = /* @__PURE__ */ new Map<string, () => void>();
 /** Closes one toast, or every toast with no id. */
 function dismiss(id?: string): void {
   const gone = id == null ? items : items.filter((x) => x.id === id);
@@ -137,8 +137,8 @@ export interface ToastUndoOptions extends Omit<ToastOptions, "action" | "autoDis
   /** The button's text. Default: "Undo" (labels.undo). */
   undoLabel?: string;
 }
-// module state: browser only, set by the mounted Toaster: the Undo button's word in its labels.
-let undoWord = ownWords.undo;
+// module state: browser only, set by the mounted Toaster: the Undo button's word in its labels ("" before one mounts).
+let undoWord = "";
 /* toast.undo: the undo pattern. The action looks done at once (the item is gone from the list), and a toast says so
    with an Undo button; the action is done for good (commit) only when the toast closes without Undo, or when the
    page is left (pagehide), so nothing is lost and nothing needs a "Are you sure?" first. Undo runs onUndo instead.
@@ -153,7 +153,7 @@ function undo(options: ToastUndoOptions): string {
     if (f) f();
   };
   const keep = once(commit), back = once(onUndo);
-  const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord, onClick: back }, autoDismiss: true }));
+  const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord || ownWords.undo, onClick: back }, autoDismiss: true }));
   onClose.set(id, keep);
   window.addEventListener("pagehide", keep);
   return id;
@@ -216,7 +216,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const times = sds.labels.toastRepeated;
   React.useEffect(() => { repeated = times; return () => { repeated = null; }; }, [times]);
   const undoText = sds.labels.undo;
-  React.useEffect(() => { undoWord = undoText; return () => { undoWord = ownWords.undo; }; }, [undoText]);
+  React.useEffect(() => { undoWord = undoText; return () => { undoWord = ""; }; }, [undoText]);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
     const away = () => { const b = back.current; back.current = null; if (b && b.isConnected) b.focus(); };
