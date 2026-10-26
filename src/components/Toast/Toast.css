@@ -88,5 +88,14 @@
 .dk-toaster__more[data-leaving] { opacity: var(--opacity-0); pointer-events: none; transition: opacity var(--motion-exit-md) var(--ease-exit); }
 .dk-toast__description { margin: var(--spacing-0); color: var(--toast-description-color, var(--text-muted)); }
 .dk-toast__action, .dk-toast__close { flex-shrink: 0; }
+/* On a phone (the Toaster is the screen less 32px), an action beside the text left the text ~90px wide, breaking
+   words mid-word and making each toast twice as tall (GQ1). Below the Toaster's full width, the action goes under
+   the text, lined up with it, and × stays at the top end. */
+.dk-toaster { container: dk-toaster / inline-size; }
+@container dk-toaster (inline-size < 384px) {
+  .dk-toast:has(> .dk-toast__action) { display: grid; grid-template-columns: minmax(var(--spacing-0), 1fr) auto; }
+  .dk-toast:has(> .dk-toast__icon):has(> .dk-toast__action) { grid-template-columns: auto minmax(var(--spacing-0), 1fr) auto; }
+  .dk-toast__action { grid-row: 2; grid-column: -3 / -2; justify-self: start; }
+}
 @media (forced-colors: active) { .dk-toast { border-color: CanvasText; } .dk-toaster__more { border: var(--border-width-1) solid CanvasText; } }
 }
