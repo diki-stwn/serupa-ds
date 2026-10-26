@@ -37,7 +37,7 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'c
   /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
-const OWN_MENU = { trigger: 1, children: 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1, style: 1, onKeyDown: 1 } as const;
+const OWN_MENU = { trigger: 1, children: 1, "aria-label": 1, "aria-labelledby": 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1, style: 1, onKeyDown: 1 } as const;
 
 interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
