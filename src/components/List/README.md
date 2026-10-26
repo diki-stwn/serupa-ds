@@ -73,7 +73,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 | `onClick` | function | none | Makes the main area a button (without `href`) |
 | `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component; its props (such as `to`) go in `linkProps`. Set it once for the app with `configure({ link })`; `as` wins for one link. |
 | `linkProps` | object | none | Extra props for the link or button |
-| `selected` | boolean | `false` | Shaded with a primary bar; `aria-current="true"` on a link, `aria-pressed` on a button |
+| `selected` | boolean | `false` | Shaded with a primary bar; `aria-current="true"` on a link (an `aria-current` in `linkProps`, such as `"page"` for the current page of a nav list, wins), `aria-pressed` on a button |
 | `disabled` | boolean | `false` | Dims a link or button row and stops it |
 
 `className`, `ref` and everything else go to the `<li>`.
