@@ -22,3 +22,11 @@ export const InASentence: Story = {
   name: 'In a sentence',
   render: () => <p style={{ margin: 0 }}>Edited by Ada <RelativeTime date={minutes(42)} />. Next sync <RelativeTime date={minutes(-15)} />.</p>,
 };
+
+export const LongText: Story = {
+  render: () => (
+    <p style={{ margin: 0, width: 100 }}>
+      Edited <RelativeTime date={Date.now() - 400 * 24 * 60 * 60 * 1000} format="long" numeric="always" />, by someone else.
+    </p>
+  ),
+};

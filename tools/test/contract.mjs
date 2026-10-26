@@ -15,7 +15,7 @@ const SKIP = [];
 // Parts a component doesn't need, and why. Keep the reason: an exemption without one is a gap.
 const EXEMPT = {
   FormattedNumber: { tokens: 'inline text in the surrounding font and color; no visual values of its own' },
-  Icon: { tokens: 'draws in currentColor at 1em; no visual values of its own' },
+  Icon: { tokens: 'draws in currentColor at 1em; no visual values of its own', stress: 'one glyph at 1em: no text to grow or wrap' },
   RelativeTime: { tokens: 'inline text in the surrounding font and color; no visual values of its own' },
   ToggleGroup: { tokens: "a ButtonGroup of ToggleButtons: their tokens set its look, and it adds no visual values of its own" },
   VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see', stress: 'nothing to see' },
@@ -23,21 +23,7 @@ const EXEMPT = {
 // Known gaps, to be fixed. The check fails when one is fixed, so the entry gets removed and can't come back.
 const GAPS = Object.fromEntries([
   // G14: no stress story yet.
-  'Calendar',
-  'ColorPicker',
-  'Container',
-  'DateRangePicker',
-  'ErrorBoundary',
-  'FormattedNumber',
-  'Grid',
-  'Icon',
-  'Loader',
-  'PinInput',
-  'RelativeTime',
   'SegmentedControl',
-  'Splitter',
-  'Stack',
-  'Toast',
 ].map((c) => [c, { stress: 'G14' }]));
 const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();

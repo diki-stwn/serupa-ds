@@ -23,6 +23,9 @@
   - listitem: ar-EG ١٬٢٣٤٬٥٦٧٫٨٩
   - listitem: hi-IN 12,34,567.89
 
+# LongValue
+- paragraph: "Total: IDR 123,456,789,012,346 this year."
+
 # Playground
 - text: 1,234,567.891
 
