@@ -49,7 +49,7 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 
 ## Accessibility
 
-- A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves.
+- A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves. On a touch screen it's 44px high, as Apple and Material ask; in a group it stops halfway into the gap, so neighbours never share a point.
 - They're real radios: Tab moves to the group (to the picked one), arrow keys move the choice, and screen readers announce the position ("2 of 3").
 - Name the group: wrap it in `Field group` (a `<fieldset>` and `<legend>`, with the hint and error describing it), or give the RadioGroup an `aria-label` or `aria-labelledby`.
 - A radio's label names it; a description is read after it. The dot is decorative.
