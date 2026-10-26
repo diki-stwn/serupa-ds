@@ -72,6 +72,7 @@ Each is an optional override: set it on the page, a container or one image. The 
 | Token | Default | Use |
 | --- | --- | --- |
 | `--image-bg` | `surface-muted` | The frame's fill while the picture loads, and behind a failed one. |
+| `--image-shine` | `surface` | The lighter band that sweeps through the fill while the picture loads (at 60%). |
 | `--image-fallback-color` | `text-muted` | The broken-image icon (3:1 on bg). |
 | `--image-focus-ring` | `focus-ring` | A viewable picture's keyboard focus ring. |
 | `--image-radius` | `rounded-lg` | The frame's corners with rounded (8px). |

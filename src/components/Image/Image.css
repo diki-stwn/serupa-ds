@@ -28,7 +28,7 @@
    three frames wide slides on translate (the compositor) from its last third on the frame to its first. Right to left, it
    sweeps from the right. It's ::before, so the remove button stays above it. */
 .dk-image--loading::before {
-  --dk-image-glint: color-mix(in srgb, var(--surface) var(--opacity-60), transparent);
+  --dk-image-glint: color-mix(in srgb, var(--image-shine, var(--surface)) var(--opacity-60), transparent);
   --dk-image-sweep: calc(var(--sizing-full) * 2 / 3);
   content: "";
   position: absolute;
@@ -37,7 +37,7 @@
   width: calc(var(--sizing-full) + var(--sizing-full) + var(--sizing-full));
   pointer-events: none;
   background-image: linear-gradient(to right, transparent, transparent, transparent, transparent, transparent, transparent, var(--dk-image-glint), transparent, transparent, transparent, transparent, transparent, transparent);
-  animation: dk-image-sweep calc(var(--motion-loop-placeholder) + var(--motion-loop-placeholder)) var(--ease-in-out) infinite;
+  animation: dk-image-sweep calc(var(--motion-loop-placeholder) + var(--motion-loop-placeholder)) var(--ease-move) infinite;
 }
 .dk-image--loading:dir(rtl)::before { --dk-image-sweep: calc(var(--sizing-full) * -2 / 3); }
 @keyframes dk-image-sweep { to { translate: var(--dk-image-sweep) 0; } }
