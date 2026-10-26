@@ -1,5 +1,6 @@
 // Browser baseline: every property, value keyword, function, at-rule and pseudo-class in dist/bundle.css, and every
-// static built-in dist/serupa.iife.js reads, works in the oldest browsers the README's "Browser support" names (BASELINE), going by MDN's browser-compat-data.
+// static built-in dist/serupa.iife.js reads, works in the oldest browsers the README's "Browser support" names
+// (BASELINE), going by MDN's browser-compat-data.
 //
 //   node tools/test/browser-baseline.mjs
 //
