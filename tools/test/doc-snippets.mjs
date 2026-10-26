@@ -26,10 +26,8 @@ const HOOKS = ['useState', 'useEffect', 'useRef', 'useMemo', 'useCallback', 'use
 
 // Blocks that don't compile yet, and why. It only shrinks: a block listed here that compiles fails until it's taken out.
 const KNOWN = {
-  // `as` is React.ElementType, so the router link's own props (to) are a type error in a TypeScript project.
-  // #779 types `as` with the element's props for Link and BreadcrumbItem (a major); NavbarLink and SidebarItem next.
-  'src/components/Breadcrumb/README.md:5': 'as={RouterLink} to',
-  'src/components/Link/README.md:5': 'as={RouterLink} to',
+  // NavbarLink's and SidebarItem's `as` is React.ElementType, so the router link's own props (to) are a type error in
+  // a TypeScript project. Link and BreadcrumbItem type it with the element's props (#779, G10); these two are next.
   'src/components/Navbar/README.md:5': 'as={RouterLink} to',
   'src/components/Sidebar/README.md:5': 'as={RouterLink} to',
 };

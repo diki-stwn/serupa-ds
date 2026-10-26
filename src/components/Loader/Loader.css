@@ -23,7 +23,8 @@
 .dk-loader--muted > .dk-loader__art { color: var(--loader-muted, var(--text-muted)); }
 .dk-loader--inverse { color: var(--loader-inverse, var(--white)); }
 .dk-loader--waiting { visibility: hidden; animation: none; }   /* during the show-after delay: keeps its space, shows nothing */
-.dk-loader__art > svg { display: block; width: var(--sizing-full); height: var(--sizing-full); overflow: visible; }
+/* max-width: none, so base.css's svg max-width can't take a pixel off the drawing (a Button's loading ring, GI1). */
+.dk-loader__art > svg { display: block; width: var(--sizing-full); max-width: none; height: var(--sizing-full); overflow: visible; }
 .dk-loader__track, .dk-loader__arc { fill: none; stroke: currentColor; stroke-width: var(--loader-stroke-width, var(--stroke-width-2)); }
 .dk-loader__track { opacity: var(--loader-track-opacity, var(--opacity-20)); }
 .dk-loader__arc { stroke-linecap: round; }
@@ -55,6 +56,8 @@
 .dk-loader__px-cut { fill: none; stroke: black; stroke-width: var(--loader-pixel-divider-width, var(--stroke-width-1)); }
 .dk-loader__px-divider { fill: none; stroke: currentColor; stroke-width: var(--loader-pixel-divider-width, var(--stroke-width-1)); stroke-opacity: var(--loader-pixel-divider, var(--opacity-10)); }
 .dk-loader--pixel .dk-loader__art > svg { filter: drop-shadow(0 0 var(--loader-pixel-glow, var(--spacing-0)) currentColor); }
+/* Right to left, the grid is mirrored, so every pattern starts from the inline start, as the glint and the skeleton sweep do (GI2). */
+.dk-loader--pixel .dk-loader__art > svg:dir(rtl) { --dk-loader-flip: -1 1; scale: var(--dk-loader-flip); }
 .dk-loader__px--d1 { animation-delay: var(--loader-pixel-stagger, var(--delay-75)); }
 .dk-loader__px--d2 { animation-delay: calc(var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75))); }
 .dk-loader__px--d3 { animation-delay: calc(var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75)) + var(--loader-pixel-stagger, var(--delay-75))); }

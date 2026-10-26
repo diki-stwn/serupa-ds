@@ -7,6 +7,7 @@ import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
 import { NumberInput } from '../NumberInput/NumberInput';
+import { Textarea } from '../Textarea/Textarea';
 
 // The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
 const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
@@ -271,4 +272,51 @@ describe('Input', () => {
     (document.getElementById('away') as HTMLElement).focus();
     expect(shadows()).toBe(1);
   }));
+});
+
+describe('Input and Textarea: constraint messages in the provider\'s words (216)', () => {
+  const said = (id: string) => { const el = document.getElementById(id) as HTMLInputElement; el.reportValidity(); return el.validationMessage; };
+  test('with idLabels, each failed constraint is said in Indonesian; typing clears it and the field is judged again', async () => {
+    const screen = await render(<SerupaProvider labels={idLabels}>
+      <Input id="v-req" aria-label="Nama" required />
+      <Input id="v-mail" aria-label="Email" type="email" defaultValue="nope" />
+      <Input id="v-min" aria-label="Umur" type="number" min={18} max={99} defaultValue="12" />
+      <Input id="v-max" aria-label="Jumlah" type="number" max={5} defaultValue="9" />
+      <Input id="v-pat" aria-label="Kode" pattern="[0-9]{4}" title="Empat angka." defaultValue="12a" />
+      <Input id="v-len" aria-label="Sandi" minLength={8} />
+      <Textarea id="v-ta" aria-label="Catatan" required />
+    </SerupaProvider>);
+    expect(['v-req', 'v-mail', 'v-min', 'v-max', 'v-pat', 'v-ta'].map(said)).toEqual([
+      'Isi kolom ini.', 'Masukkan alamat email yang benar.', 'Nilai harus 18 atau lebih.', 'Nilai harus 5 atau kurang.', 'Ikuti format yang diminta. Empat angka.', 'Isi kolom ini.']);
+    // tooShort is only flagged after people type
+    await screen.getByLabelText('Sandi').fill('abc');
+    expect(said('v-len')).toBe('Minimal 8 karakter (sekarang 3).');
+    // Typing a good value takes the message off: the field is valid again.
+    await screen.getByLabelText('Email').fill('a@b.co');
+    expect([field('v-mail').validity.valid, field('v-mail').validationMessage]).toEqual([true, '']);
+    await screen.getByLabelText('Nama').fill('Ani');
+    expect(field('v-req').validity.valid).toBe(true);
+  });
+
+  test('English keeps the browser\'s own message; a message the product set itself stays; a controlled value change clears ours', async () => {
+    function Controlled() {
+      const [v, setV] = React.useState('');
+      return <><Input id="v-ctl" aria-label="Ctl" required value={v} onChange={(e) => setV(e.target.value)} /><button type="button" onClick={() => setV('ok')}>Fill</button></>;
+    }
+    const screen = await render(<>
+      <Input id="v-en" aria-label="Name" required />
+      <SerupaProvider labels={idLabels}>
+        <Input id="v-own" aria-label="Own" required />
+        <Controlled />
+      </SerupaProvider>
+    </>);
+    const browser = said('v-en');
+    expect(browser).not.toBe('');
+    expect(browser).not.toBe('Isi kolom ini.');
+    field('v-own').setCustomValidity('Pick a username.');
+    expect(said('v-own')).toBe('Pick a username.');
+    expect(said('v-ctl')).toBe('Isi kolom ini.');
+    await screen.getByRole('button', { name: 'Fill' }).click();
+    await expect.poll(() => field('v-ctl').validity.valid).toBe(true);
+  });
 });

@@ -18,6 +18,8 @@ interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "al
     removeLabel?: string;
     priority?: boolean;
     sources?: ImageSource[];
+    darkSrc?: string;
+    dim?: boolean;
     frameProps?: React.HTMLAttributes<HTMLSpanElement>;
 }
 interface ImageSource {

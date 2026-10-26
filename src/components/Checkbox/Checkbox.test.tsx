@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
@@ -325,5 +326,18 @@ describe('CheckboxGroup', () => {
       await expect.poll(() => css(box('pc')).scale).toBe('none');
       await press(el('pd').closest('label')!, () => expect(css(box('pd')).scale).toBe('none'));
     });
+  });
+  test('server markup: an indeterminate box, and a select-all box with some checked, show the dash on the fill before the script runs; once it runs, the native state takes over (GI3)', async () => {
+    const tree = <><Checkbox id="ssr-m" indeterminate>Some</Checkbox>
+      <CheckboxGroup aria-label="Toppings" defaultValue={['ham']}><Checkbox id="ssr-all" selectAll>All</Checkbox><Checkbox value="ham">Ham</Checkbox><Checkbox value="cheese">Cheese</Checkbox></CheckboxGroup></>;
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(tree);
+    document.body.append(host);
+    try {
+      const shown = (id: string) => [input(id).indeterminate, input(id).hasAttribute('data-indeterminate'), css(input(id)).backgroundColor, css(input(id).nextElementSibling).visibility];
+      expect([shown('ssr-m'), shown('ssr-all')]).toEqual([[false, true, color('var(--primary)'), 'visible'], [false, true, color('var(--primary)'), 'visible']]);
+    } finally { host.remove(); }
+    await render(tree);
+    expect([input('ssr-m').indeterminate, input('ssr-m').hasAttribute('data-indeterminate'), input('ssr-all').indeterminate]).toEqual([true, false, true]);
   });
 });
