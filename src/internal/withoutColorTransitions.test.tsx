@@ -37,6 +37,7 @@ describe('withoutColorTransitions', () => {
   test('a dark-mode Switch turned on as the theme changes slides its thumb; its colors arrive at once', async () => {
     await render(<section data-theme="blue-light"><Switch>Dark mode</Switch></section>);
     const input = document.querySelector<HTMLInputElement>('[role="switch"]')!, sec = input.closest('section')!;
+    void getComputedStyle(input.nextElementSibling!).translate;   // the thumb's start position is in place
     withoutColorTransitions(() => { sec.setAttribute('data-theme', 'blue-dark'); input.click(); }, sec);
     expect([input.checked, transitions(sec)]).toEqual([true, ['translate']]);
   });
