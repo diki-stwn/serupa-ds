@@ -43,6 +43,7 @@ export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElemen
 }
 
 const RATIOS = ["auto", "square", "4:3", "video"] as const;
+const never = () => () => {}, yes = () => true, no = () => false;
 const QUICK = 250;   // ms: a picture that arrives this soon after mount appears without the fade
 
 // The largest candidate in a srcSet ("a.jpg 400w, b.jpg 1600w" or "a.jpg 1x, b.jpg 2x"), for the viewer when there's no fullSrc.
@@ -89,15 +90,19 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
   // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
   // and fades in when it arrives; one that arrives within QUICK ms of mount just appears (no fade as a page
-  // opens); a priority one never hides. A broken one drops it too, so its frame is the same whenever it fails.
+  // opens); a priority one never hides. A broken one drops it too, so its frame is the same whenever it fails. One
+  // that hydrates from server HTML never hides either: it may have painted in part already (a large JPEG on a slow
+  // link), and hiding it would make it flicker; a later src is the client's, and fades.
   const [live, setLive] = React.useState(false);
   const since = React.useRef(0);
+  const served = React.useRef(React.useSyncExternalStore(never, yes, no) ? null : src);   // the src the server drew
   React.useEffect(() => { setState("loading"); }, [src]);
   // An image already in the cache can finish before React listens.
   React.useEffect(() => {
     const i = img.current;
     if (i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
     since.current = performance.now();
+    if (served.current === src) return;
     const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
     return () => cancelAnimationFrame(f);
   }, [src]);
