@@ -63,6 +63,17 @@ describe('Menu', () => {
     expect(keys).toEqual(['ArrowDown']);
     expect(focus()).toBe('Delete');
   });
+  test('MenuCheckboxItem, MenuRadioItem and MenuSub take data-* and a ref on their item too (GJ2)', async () => {
+    const box = React.createRef<HTMLElement>(), radio = React.createRef<HTMLElement>(), sub = React.createRef<HTMLElement>();
+    await render(<Menu defaultOpen trigger={<Button id="mgj">View</Button>}>
+      <MenuCheckboxItem ref={box} data-testid="grid" checked onCheckedChange={() => {}}>Show grid</MenuCheckboxItem>
+      <MenuRadioGroup value="a"><MenuRadioItem ref={radio} data-testid="sort-a" value="a">By name</MenuRadioItem></MenuRadioGroup>
+      <MenuSub ref={sub} data-testid="more" label="More"><MenuItem>Archive</MenuItem></MenuSub>
+    </Menu>);
+    const q = (t: string) => document.querySelector<HTMLElement>(`[data-testid="${t}"]`);
+    expect([box.current === q('grid'), q('grid')!.getAttribute('role'), radio.current === q('sort-a'), q('sort-a')!.getAttribute('role'), sub.current === q('more'), q('more')!.getAttribute('aria-haspopup')])
+      .toEqual([true, 'menuitemcheckbox', true, 'menuitemradio', true, 'menu']);
+  });
   test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
     const asks: boolean[] = [];
     await render(<Menu defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="mdef">Actions</Button>}><MenuItem>Edit</MenuItem></Menu>);
