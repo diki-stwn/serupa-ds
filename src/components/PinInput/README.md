@@ -34,6 +34,7 @@ import { PinInput, Field } from "serupa-ds";
 - It submits with a form through `name`, as an Input does. `required` and the built-in `pattern` (exactly `length` characters) take part in form validation.
 - `autoComplete="one-time-code"` is set for you, so phones offer a texted code above the keyboard. Pass `autoComplete="off"` for a PIN that shouldn't be filled in.
 - The code reads left to right, also on a right-to-left page.
+- In a narrow container the boxes shrink together and stay square, down to 24px each, so six `lg` or eight `md` boxes still fit a 320px screen.
 
 ## Accessibility
 

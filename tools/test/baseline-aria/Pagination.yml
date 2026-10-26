@@ -53,15 +53,7 @@
     - listitem:
       - button "Previous page"
     - listitem:
-      - button "Page 1": "1"
-    - listitem:
-      - button "Page 59": "59"
-    - listitem:
       - button "Page 60": "60"
-    - listitem:
-      - button "Page 61": "61"
-    - listitem:
-      - button "Page 120": "120"
     - listitem:
       - button "Next page"
 

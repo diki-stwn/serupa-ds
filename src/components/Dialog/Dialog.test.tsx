@@ -370,7 +370,7 @@ describe('Dialog: motion (DZ1)', () => {
   // WebKit reports a ::backdrop transition with no pseudoElement, on the dialog itself; the dialog has no opacity transition of its own.
   const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && (a.effect.pseudoElement === '::backdrop' || (!a.effect.pseudoElement && a instanceof CSSTransition && a.transitionProperty === 'opacity')));
   const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
-  test('opens with transitions (fade and scale, backdrop fading with it) and closes faster, shown until the fade ends while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {
+  test('opens with transitions (the backdrop fading in, the panel fading and scaling in 50ms after it) and closes faster, shown until the fade ends while focus is back at once and presses go through; reopened mid-way it turns back from where it is', async () => {
     await withMotion(async () => {
       const ctl: Partial<Ctl> = {};
       await render(<App asks={[]} ctl={ctl} />);
@@ -379,6 +379,9 @@ describe('Dialog: motion (DZ1)', () => {
       const enter = pn.getAnimations();
       expect([enter.filter((a) => a instanceof CSSTransition).map((a) => (a).transitionProperty).sort(), enter.some((a) => a instanceof CSSAnimation), enter.map(ms)]).toEqual([['opacity', 'scale'], false, [200, 200]]);
       expect(backdropOf(d).map((a) => [(a as CSSTransition).transitionProperty, ms(a)])).toEqual([['opacity', 200]]);
+      // A sequence: the backdrop starts at once, the panel motion-sequence (50ms) later.
+      const delay = (a: Animation) => Number(a.effect!.getTiming().delay);
+      expect([enter.map(delay), backdropOf(d).map(delay)]).toEqual([[50, 50], [0]]);
       await settled();
       expect([getComputedStyle(pn).opacity, getComputedStyle(pn).scale]).toEqual(['1', 'none']);
 

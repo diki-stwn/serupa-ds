@@ -453,13 +453,14 @@ describe('Badge', () => {
     expect([e.tagName, e.getAttribute('aria-busy'), e.getAttribute('aria-disabled'), (q('#ldrm .dk-badge__remove') as HTMLButtonElement).disabled]).toEqual(['SPAN', 'true', null, true]);
   });
 
-  test('micro-interactions: a clickable badge has the ripple layer first (under the content), a plain badge none; scale moves in 100ms', async () => {
+  test('micro-interactions: a clickable badge has the ripple layer first (under the content), a plain badge none; scale springs back over motion-release (300ms) with ease-spring', async () => {
     await show();
     const e = el('mi');
     expect(e.firstElementChild!.className).toBe('dk-badge__ripples');
     expect(!!el('def').querySelector('.dk-badge__ripples')).toBe(false);
     expect(css(e).transitionProperty).toMatch(/scale/);
-    expect(css(e).transitionDuration).toMatch(/0\.1s/);
+    expect(css(e).transitionDuration).toMatch(/0\.3s$/);
+    expect(css(e).transitionTimingFunction).toMatch(/linear\(/);
   });
 
   test('press and ripple: shrinks to 97% while held and comes back on release; one circle from the press point, text color at 20%, wide enough to reach the far corner, under the label, 500ms; removed after release', async () => {

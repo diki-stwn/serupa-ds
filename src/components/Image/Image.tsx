@@ -8,6 +8,7 @@ import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
+import { schemeOf, useThemeChanges } from "../../internal/scheme";
 import * as icons from "../../material/builtin";
 
 export type ImageRatio = 'auto' | 'square' | '4:3' | 'video' | number;
@@ -41,6 +42,11 @@ export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElemen
   /** Other versions of the picture for some screens or formats (art direction, AVIF or WebP), tried in order before
    *  src: each one becomes a <source> in a <picture> around the <img>. */
   sources?: ImageSource[];
+  /** A version for a dark color scheme (a chart or logo drawn on dark): shown when the page's theme is dark (a *-dark
+   *  data-theme or data-mode), or, where the theme follows the screen, when the screen prefers dark. */
+  darkSrc?: string;
+  /** Dims a photo a shade in a dark color scheme, so a bright one doesn't glare on a dark page (--image-dim). Default: false. */
+  dim?: boolean;
   /** Props for the outer frame, such as style for its width. */
   frameProps?: React.HTMLAttributes<HTMLSpanElement>;
 }
@@ -77,6 +83,11 @@ function largest(srcSet: string | undefined): string | undefined {
   return best;
 }
 
+// The dark version, when that's the one the <img> shows, for the viewer.
+function shownDark(i: HTMLImageElement | null, darkSrc: string | undefined): string | undefined {
+  return i && darkSrc && i.currentSrc && i.currentSrc === new URL(darkSrc, document.baseURI).href ? darkSrc : undefined;
+}
+
 /* The viewer's picture: the frame's placeholder (and its sweep) while it loads, the frame's fallback if it fails. The
    stage has the picture's shape (its width and height, the thumbnail's, then its own once it arrives), within the
    screen. The Dialog is titled with the alt text, so the picture itself has alt="" and isn't read twice. */
@@ -97,15 +108,17 @@ function Full({ src, alt, fallback, shape }: { src: string; alt: string; fallbac
 /* Image: a picture in a frame. ratio fixes the frame's shape (fit says whether the picture crops or fits), with
    rounded corners from --image-radius; with ratio "auto", width and height shape the frame before it loads. It
    loads lazily by default (priority: at once, high priority, for a hero picture); until it arrives the frame shows a muted
-   placeholder, and if it fails, a fallback (a broken-image icon named by the alt text). viewable makes the
+   placeholder, and if it fails, a fallback (a broken-image icon named by the alt text). darkSrc is a version for a
+   dark theme, and dim darkens a photo a shade there. viewable makes the
    picture a button that opens it full size in a Dialog (Escape, the × or the backdrop close it, focus comes
    back). onRemove adds a remove button in the corner. alt is required. ref, className and other img props go
    to the <img>, which stays (hidden) under the fallback if it fails; frameProps to the frame. */
 /** A picture in a frame with a ratio, a loading placeholder and an error fallback; optionally opens full size or can be removed. */
 export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Image", function Image(props, ref) {
-  const restyle = useServerStyles<HTMLSpanElement>();
+  const frame = React.useRef<HTMLSpanElement | null>(null);
+  const restyle = useServerStyles<HTMLSpanElement>(frame);
   const sds = useSerupa();
-  const { src, alt, ratio: _r, fit: _f, rounded, fallback, viewable, fullSrc, viewLabel, onRemove, removeLabel, frameProps, className, onLoad, onError, loading, priority, decoding, fetchPriority, sources, sizes, ...rest } = props;
+  const { src, alt, ratio: _r, fit: _f, rounded, fallback, viewable, fullSrc, viewLabel, onRemove, removeLabel, frameProps, className, onLoad, onError, loading, priority, decoding, fetchPriority, sources, sizes, darkSrc, dim, ...rest } = props;
   const lazy = (loading || (priority ? "eager" : "lazy")) === "lazy";
   const ratio = typeof props.ratio === "number" && props.ratio > 0 ? props.ratio : oneOf(RATIOS, props.ratio as string, "auto");
   const fit = oneOf(["cover", "contain"] as const, props.fit, "cover");
@@ -131,6 +144,11 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
     const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
     return () => cancelAnimationFrame(f);
   }, [src]);
+  // darkSrc is a <source> for prefers-color-scheme: dark, which is all the server knows. In the browser, a theme that
+  // fixes the frame's color-scheme (a *-dark or *-light data-theme, a data-mode) decides instead, again whenever one changes.
+  const themes = useThemeChanges(!!darkSrc);
+  const [scheme, setScheme] = React.useState<"light" | "dark" | null>(null);
+  React.useEffect(() => { if (darkSrc && frame.current) setScheme(schemeOf(frame.current)); }, [darkSrc, themes]);
   const arrived = () => { if (performance.now() - since.current < QUICK) setLive(false); };
   const named = (base: string) => (alt ? base + ": " + alt : base);
   // With ratio "auto", width and height (the picture's size) shape the frame before the picture arrives, so the
@@ -151,15 +169,16 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
         sizes={autoSizes(lazy, rest.srcSet, sizes)} decoding={decoding || "async"} fetchPriority={fetchPriority || (priority ? "high" : undefined)}
         className={cn("dk-image__img", className)} onLoad={(e) => { arrived(); setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setLive(false); setState("error"); if (onError) onError(e); }} />;
   // With sources, a <picture> (display: contents, so the <img> lays out as before) offers them ahead of src.
-  const shown = sources && sources.length
+  const shown = (sources && sources.length) || darkSrc
     ? <picture className="dk-image__picture">
-        {sources.map((o, k) => <source key={k} srcSet={o.srcSet} media={o.media} type={o.type} sizes={autoSizes(lazy, o.srcSet, o.sizes)} width={o.width} height={o.height} />)}
+        {darkSrc ? <source srcSet={darkSrc} media={scheme === "dark" ? "all" : scheme === "light" ? "not all" : "(prefers-color-scheme: dark)"} /> : null}
+        {(sources || []).map((o, k) => <source key={k} srcSet={o.srcSet} media={o.media} type={o.type} sizes={autoSizes(lazy, o.srcSet, o.sizes)} width={o.width} height={o.height} />)}
         {picture}
       </picture>
     : picture;
   return (
     <span {...frameProps} ref={restyle} style={frameStyle}
-      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
+      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, dim && "dk-image--dim", rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
       data-component="image" data-state={state}>
       {viewable && state !== "error"
         ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{shown}</button>
@@ -168,7 +187,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
       {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" noTitle onClick={onRemove} /> : null}
       {viewable ? (
         <Dialog open={open} onOpenChange={setOpen} size="lg" title={alt || undefined} aria-label={alt ? undefined : viewLabel || sds.labels.image} className="dk-image__viewer">
-          {open ? <Full src={fullSrc || largest(rest.srcSet) || src} alt={alt} fallback={fallback} shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} /> : null}
+          {open ? <Full src={fullSrc || shownDark(img.current, darkSrc) || largest(rest.srcSet) || src} alt={alt} fallback={fallback} shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} /> : null}
         </Dialog>
       ) : null}
     </span>

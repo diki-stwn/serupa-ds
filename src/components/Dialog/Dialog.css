@@ -58,6 +58,9 @@
 .dk-dialog[open] .dk-dialog__panel, .dk-dialog[open]::backdrop { transition: opacity var(--motion-enter-md) var(--ease-enter), scale var(--motion-enter-md) var(--ease-enter); }
 .dk-dialog:not([open]) .dk-dialog__panel, .dk-dialog:not([open])::backdrop { opacity: var(--opacity-0); }
 @starting-style { .dk-dialog[open] .dk-dialog__panel, .dk-dialog[open]::backdrop { opacity: var(--opacity-0); } }
+/* In, as a sequence: the backdrop starts, then the panel motion-sequence later, so the page dims and the panel
+   arrives on it rather than both at once. Out, they leave together. */
+.dk-dialog[open] .dk-dialog__panel { transition-delay: var(--motion-sequence); }
 /* Open on arrival (data-instant): shown from the first frame, not faded in. */
 .dk-dialog[data-instant] .dk-dialog__panel, .dk-dialog[data-instant]::backdrop { transition: none; }
 @media (prefers-reduced-motion: no-preference) {
