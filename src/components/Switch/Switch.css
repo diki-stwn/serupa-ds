@@ -90,4 +90,6 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-switch { position: relative; isolation: isolate; }
 .dk-switch::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px to press, as Apple and Material ask. */
+@media (pointer: coarse) { .dk-switch::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); } }
 }
