@@ -11,11 +11,15 @@ interface FileUploadLabels {
     fileTooMany: (name: string, max: number) => string;
     fileOnlyOne: (name: string) => string;
     fileMissing: (multiple: boolean) => string;
+    fileFolder: (name: string) => string;
+    fileAlreadyAdded: (name: string) => string;
+    filesAdded: (names: string[]) => string;
+    fileRemoved: (name: string) => string;
 }
 declare function formatFileSize(bytes: number): string;
 type FileRejection = {
     file: File;
-    reason: "count" | "size" | "type";
+    reason: "count" | "duplicate" | "folder" | "size" | "type";
     message: string;
 };
 interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange" | "title"> {
