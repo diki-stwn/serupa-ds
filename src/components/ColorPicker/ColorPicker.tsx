@@ -39,6 +39,7 @@ export interface ColorPickerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   minContrast?: number;
   /** 'sm' (24px swatches) or 'md' (32px, default). */
   size?: 'sm' | 'md';
+  /** Turns every swatch and the hex field off, as a disabled native control. */
   disabled?: boolean;
   /** Submits the color with a form, in a hidden input. */
   name?: string;

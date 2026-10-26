@@ -34,6 +34,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   largeStep?: number;
   /** 'sm' (4px track, 16px thumb) or 'md' (6px, 20px, default). */
   size?: 'sm' | 'md';
+  /** Turns the thumbs off, as a disabled native control. */
   disabled?: boolean;
   /** Turns a value into the words read out (aria-valuetext), such as "$40". Default: the number. */
   formatValue?: (value: number) => string;

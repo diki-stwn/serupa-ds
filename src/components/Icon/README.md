@@ -32,6 +32,7 @@ Find icons in the Material Symbols catalog (Rounded style) at fonts.google.com/i
 - Use Material Symbols Rounded, filled, and custom icons drawn to the same rules. Don't mix in other icon sets or the Outlined/Sharp styles.
 - Before drawing a custom icon, check that Material Symbols doesn't already have one for that meaning.
 - One icon per meaning across the product: `delete`, not `delete` in one place and `remove` in another.
+- **Right to left:** arrows and chevrons that point along the line of reading (`arrow_forward`, `chevron_right`, `send`, `undo`…) flip by themselves in right-to-left text, so `<Button rightIcon="arrow_forward">Next</Button>` points the way an Arabic or Hebrew reader goes. Icons of things (a clock, a check, media controls) don't. Use `mirror` for your own arrows (`true`) or for an icon you already turn yourself (`false`).
 
 ### Setup: by name
 
@@ -122,6 +123,7 @@ Icons take the text color (`currentColor`). Set it with an alias, never a palett
 | `name` | `IconName`: any Material Symbol's name, a custom icon's name, or a name you registered | | Give `name` or `icon`. A custom icon with the same name as a Material Symbol wins. All names autocomplete. |
 | `icon` | `IconData`: a Material Symbol imported from `serupa-ds/icons` | | Give `name` or `icon`: `icon={ArrowForward}`. |
 | `size` | `number \| string` | 24px, or the button's icon size inside a Button | Pixels as a number (or a string of one: `"20"` is 20px), or any CSS length. Sets the font size; the icon is 1em square. |
+| `mirror` | `boolean \| 'auto'` | `'auto'` | Flips the icon in right-to-left text (`dir="rtl"`), so it points the way reading goes. `'auto'` flips Material Symbols' directional icons (`arrow_forward`, `arrow_back`, `chevron_left`, `chevron_right`, `navigate_next`, `first_page`, `last_page`, `send`, `reply`, `undo`, `redo`, `open_in_new`, `logout` and the like) and nothing else; `true` flips any icon (your own custom arrow), `false` none (an icon you turn yourself). |
 | `aria-label` | `string` | | Makes the icon meaningful: `role="img"` with this name. Without it (or `aria-labelledby`) the icon is `aria-hidden`. |
 
 `className`, `style`, `ref` and other `<span>` props go to the outer `<span>`, which has `data-icon` with the icon's name.

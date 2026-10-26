@@ -230,10 +230,10 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
         </div>
         {props.arrows !== false && last > 0 ? <>
           <IconButton className="dk-carousel__arrow dk-carousel__arrow--prev" label={props.previousLabel || sds.labels.previousSlide} size="sm" variant="secondary" shape="round" noTitle
-            icon={<><Icon icon={icons.ChevronLeft} className="dk-carousel__ltr" /><Icon icon={icons.ChevronRight} className="dk-carousel__rtl" /></>}
+            icon={<><Icon icon={icons.ChevronLeft} className="dk-carousel__ltr" mirror={false} /><Icon icon={icons.ChevronRight} className="dk-carousel__rtl" mirror={false} /></>}
             ref={prevBtn} disabled={prevOff} onClick={() => arrow(-1)} />
           <IconButton className="dk-carousel__arrow dk-carousel__arrow--next" label={props.nextLabel || sds.labels.nextSlide} size="sm" variant="secondary" shape="round" noTitle
-            icon={<><Icon icon={icons.ChevronRight} className="dk-carousel__ltr" /><Icon icon={icons.ChevronLeft} className="dk-carousel__rtl" /></>}
+            icon={<><Icon icon={icons.ChevronRight} className="dk-carousel__ltr" mirror={false} /><Icon icon={icons.ChevronLeft} className="dk-carousel__rtl" mirror={false} /></>}
             ref={nextBtn} disabled={nextOff} onClick={() => arrow(1)} />
         </> : null}
       </div>
