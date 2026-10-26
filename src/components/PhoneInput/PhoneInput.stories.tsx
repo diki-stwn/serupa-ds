@@ -58,3 +58,8 @@ export const ByArea: Story = {
 export const OwnRows: Story = {
   args: { countries: ['ID', 'MY', { code: 'SG', dial: '65', trunk: '', pattern: '## ## ## ##', min: 8, max: 8 }], defaultValue: '+6591234567' },
 };
+
+export const LongValue: Story = {
+  args: { defaultValue: '+62 812 3456 7890 1234' },
+  render: (args) => <div style={{ width: 200 }}><PhoneInput {...args} /></div>,
+};

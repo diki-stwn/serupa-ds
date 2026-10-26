@@ -23,7 +23,17 @@
   border: var(--border-width-1) solid var(--segmented-control-indicator-border, var(--field-border));
   border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: var(--segmented-control-indicator, var(--surface));
   box-shadow: var(--segmented-control-indicator-shadow, var(--shadow-sm));
-  transition: left var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), width var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
+  transform-origin: top left;
+  transition: translate var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), scale var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
+}
+/* The indicator sits on the selected segment by left and width, which don't animate; a new choice moves it there at
+   once, puts it back where it was on translate and scale, and lets it slide on the compositor (EG1). */
+.dk-segmented__indicator[data-flip] { transition: none; }
+/* Before the script runs, the selected segment carries the indicator's surface itself, so the first paint already
+   shows the choice; the indicator takes over in the same place (FC1). */
+.dk-segmented:not(:has(> .dk-segmented__indicator)) .dk-segmented__item--selected {
+  background: var(--segmented-control-indicator, var(--surface));
+  box-shadow: inset var(--spacing-0) var(--spacing-0) var(--spacing-0) var(--border-width-1) var(--segmented-control-indicator-border, var(--field-border)), var(--segmented-control-indicator-shadow, var(--shadow-sm));
 }
 .dk-segmented__item {
   position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--segmented-control-gap, var(--spacing-1\.5));
@@ -54,7 +64,7 @@
 .dk-segmented--disabled .dk-segmented__item:disabled { opacity: var(--opacity-100); }
 @media (prefers-reduced-motion: reduce) { .dk-segmented__indicator, .dk-segmented__item { transition: none; } .dk-segmented .dk-segmented__item:active { scale: none; } }
 /* The selected label keeps HighlightText on hover too: the hover color, kept as is, was dark on the dark Highlight. */
-@media (forced-colors: active) { .dk-segmented__indicator { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
+@media (forced-colors: active) { .dk-segmented__indicator, .dk-segmented:not(:has(> .dk-segmented__indicator)) .dk-segmented__item--selected { background: Highlight; border-color: Highlight; } .dk-segmented__item--selected { color: HighlightText; forced-color-adjust: none; } @media (hover: hover) { .dk-segmented__item--selected:hover:not(:disabled) { color: HighlightText; } } }
 /* At least 24px to press (WCAG 2.5.8) without moving anything: when an option is shorter or narrower, a box behind
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-segmented__item { position: relative; isolation: isolate; }

@@ -205,7 +205,7 @@ describe('Switch', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       for (const id of ['pd-on', 'pd-off']) {
-        const w = lab(id), ring = css(w.querySelector('.dk-switch__spinner')).borderInlineStartColor, bg = css(w.querySelector('.dk-switch__thumb')).backgroundColor;
+        const w = lab(id), ring = css(w.querySelector('.dk-switch__spinner')).borderBlockStartColor, bg = css(w.querySelector('.dk-switch__thumb')).backgroundColor;
         const c = contrast(ring, bg); if (c < 3) low.push(`${th} ${id}: ${c.toFixed(2)}`);
       }
     }

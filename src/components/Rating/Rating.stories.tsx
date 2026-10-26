@@ -33,3 +33,8 @@ export const Sizes: Story = {
   </div>,
 };
 export const Disabled: Story = { args: { disabled: true, defaultValue: 2 } };
+
+export const Overflow: Story = {
+  args: { max: 10, defaultValue: 7 },
+  render: (args) => <div style={{ width: 160 }}><Rating {...args} /></div>,
+};

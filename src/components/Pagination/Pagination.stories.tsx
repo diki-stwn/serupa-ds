@@ -23,3 +23,8 @@ export const Controlled: Story = {
 export const Links: Story = { args: { count: 20, defaultPage: 10, getHref: (n: number) => '#page-' + n } };
 
 export const Small: Story = { args: { count: 8, size: 'sm', siblings: 0 } };
+
+export const Overflow: Story = {
+  args: { count: 120, defaultPage: 60 },
+  render: (args) => <div style={{ width: 240 }}><Pagination {...args} /></div>,
+};

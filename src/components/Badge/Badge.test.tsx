@@ -542,12 +542,12 @@ describe('Badge', () => {
       await show();
       const o = await hold(el('mi'), async () => {
         await new Promise(requestAnimationFrame);
-        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, dots: el('mi').querySelectorAll('.dk-badge__ripple').length, host: css(el('mi').querySelector('.dk-badge__ripples')).display, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim() };
+        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, dots: el('mi').querySelectorAll('.dk-badge__ripple').length, host: css(el('mi').querySelector('.dk-badge__ripples')).display, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
       }, { ms: 200, at: { x: 6, y: 6 } });
       expect(o.ping).toBe('none/none');
       expect(['1', 'none']).toContain(o.scale);
       expect([o.dots, o.host]).toEqual([0, 'none']);
-      expect(o.from).toMatch(/100%/);
+      expect([o.from, o.anim]).toEqual([expect.stringMatching(/100%/), 'dk-loader-in']);
     } finally { restore(); }
   });
 });

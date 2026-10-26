@@ -338,7 +338,7 @@ describe('Button', () => {
     React.act(() => finish());
   });
 
-  test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: turning, its arc growing and shrinking)', async () => {
+  test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: a quarter arc, turning)', async () => {
     await withRouter(async () => {
       setLoading(true);
       await expect.poll(() => document.querySelectorAll('.dk-btn__spinner').length).toBe(4);
@@ -349,7 +349,7 @@ describe('Button', () => {
       });
       expect(geo).toEqual([{ n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }]);
       const s = q('#sub .dk-btn__spinner');
-      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('.dk-loader__arc')!).animationName]).toEqual(['loader', 'ring', 'spin', 'dk-loader-arc']);
+      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('.dk-loader__arc')!).animationName]).toEqual(['loader', 'ring', 'spin', 'none']);
     });
   });
 
@@ -412,12 +412,12 @@ describe('Button', () => {
     expect(g('nested-d').borderTopColor).toBe(probe('violet-dark', 'borderTopColor', 'var(--danger-border)'));
   });
 
-  test('reduced motion: the spinner turns 3x slower (animate-spin-reduced)', async () => {
+  test('reduced motion: the spinner stands still and breathes, and it only fades in, without growing (EE1)', async () => {
     await render(<Button id="sub" loading>Save</Button>);
     const restore = reduceMotion();
     try {
       const s = getComputedStyle(q('#sub .dk-btn__spinner svg'));
-      expect(`${s.animationName} ${s.animationDuration}`).toBe('spin 3s');
+      expect([`${s.animationName} ${s.animationDuration}`, getComputedStyle(q('#sub [data-component=loader]').parentElement!).animationName]).toEqual(['dk-loader-breathe 2s', 'dk-loader-in']);
     } finally { restore(); }
   });
 });

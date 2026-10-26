@@ -41,6 +41,11 @@
 - button "Decrease"
 - button "Increase"
 
+# LongValue
+- spinbutton "Quantity": "123456789012"
+- button "Decrease"
+- button "Increase"
+
 # Playground
 - spinbutton "Quantity": "1"
 - button "Decrease"
