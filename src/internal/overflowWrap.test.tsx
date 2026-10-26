@@ -31,8 +31,9 @@ describe('long words', () => {
       <p><Link href="#x">{LONG}</Link></p>
     </div>);
     const box = screen.getByTestId('box').element() as HTMLElement, right = box.getBoundingClientRect().right;
-    // A field or a button keeps its text on one line and scrolls or truncates it, on purpose.
-    const over = [...box.querySelectorAll<HTMLElement>('*')].filter((e) => e.getClientRects().length && !e.closest('input, button') && (e.getBoundingClientRect().right > right + 0.5 || e.scrollWidth > Math.ceil(e.getBoundingClientRect().width) + 1))
+    // A field or a button keeps its text on one line and scrolls or truncates it, on purpose. The text Loader's glint
+    // (data-words) is a window clipping a copy of the words as wide as the label, so it scrolls by design.
+    const over = [...box.querySelectorAll<HTMLElement>('*')].filter((e) => e.getClientRects().length && !e.closest('input, button') && !e.hasAttribute('data-words') && (e.getBoundingClientRect().right > right + 0.5 || e.scrollWidth > Math.ceil(e.getBoundingClientRect().width) + 1))
       .map((e) => e.className || e.tagName);
     expect(over).toEqual([]);
   });

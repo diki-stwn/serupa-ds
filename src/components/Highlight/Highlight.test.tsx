@@ -66,6 +66,7 @@ describe('Highlight', () => {
       <div role="menuitem" style={{ fontWeight: 500 }}><Highlight id="i" query="par">Parma</Highlight></div>
     </div>);
     const o = el('o').querySelector('mark')!, i = el('i').querySelector('mark')!;
+    await document.fonts.ready;   // under load the font can still be on its way, and the swap changes the width
     const before = el('o').getBoundingClientRect().width;
     expect([css(o).fontWeight, css(o).textDecorationLine, css(i).fontWeight, css(i).textDecorationLine]).toEqual(['400', 'underline', '500', 'underline']);
     await render(<div role="option" aria-selected="false" style={{ fontWeight: 400 }}><Highlight id="w" query="">Paris</Highlight></div>);
