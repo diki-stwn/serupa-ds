@@ -174,6 +174,31 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     stop.current = off;
     window.addEventListener("pointermove", moveTo); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
   };
+  const tops = React.useRef(new Map<string, number>());
+  // The rows that change place glide there (FLIP): each starts where it showed (mid-way through an earlier move, or
+  // where the pointer left it), offset by translate, and the transition in the CSS takes it to its new slot. The row
+  // under the pointer is left to follow it. Reduced motion has no transition, so they move at once.
+  // every render: a move re-renders the rows; reads each row's offsetTop, and styles only the rows that moved.
+  useIsoLayoutEffect(() => {
+    const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
+    const held = pointer.current && drag && drag.pointer ? String(drag.key) : null;
+    const next = new Map<string, number>(), moved: [HTMLElement, number][] = [];
+    for (const r of rows) {
+      const key = r.dataset.key || "", top = r.offsetTop, was = tops.current.get(key);
+      next.set(key, top);
+      if (was === undefined || was === top || key === held) continue;
+      const cs = getComputedStyle(r);
+      const shift = (cs.transform === "none" ? 0 : new DOMMatrix(cs.transform).m42) + (parseFloat(cs.translate.split(" ")[1]) || 0);
+      const dy = Math.round(was + shift - top);
+      if (dy) moved.push([r, dy]);
+    }
+    tops.current = next;
+    if (!moved.length || !list.current) return;
+    for (const [r, dy] of moved) { r.dataset.flip = ""; r.style.translate = "0 " + dy + "px"; }
+    void list.current.offsetWidth;   // one reflow: they start from where they were
+    for (const [r] of moved) { delete r.dataset.flip; r.style.translate = ""; }
+  });
+
   // The dragged row sits where the pointer is, between the others.
   // every render: each pointer move re-renders; outside a drag it only clears a transform left behind.
   useIsoLayoutEffect(() => {

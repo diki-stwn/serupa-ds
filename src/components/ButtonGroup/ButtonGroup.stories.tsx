@@ -28,3 +28,9 @@ export const Vertical: Story = {
 export const SplitButton: Story = {
   args: { 'aria-label': 'Publish', children: [<Button key="p">Publish</Button>, <Menu key="m" placement="bottom-end" trigger={<IconButton variant="primary" icon="expand_more" label="More publish options" />}><MenuItem>Schedule</MenuItem><MenuItem>Save as draft</MenuItem></Menu>] },
 };
+
+/** Six buttons in a 288px column: the attached row doesn't fit, so it wraps as separate buttons. */
+export const Narrow: Story = {
+  args: { 'aria-label': 'Format', children: ['Bold', 'Italic', 'Underline', 'Strike', 'Code', 'Link'].map((t) => <Button key={t} variant="outline">{t}</Button>) },
+  decorators: [(Story) => <div style={{ width: '288px' }}><Story /></div>],
+};

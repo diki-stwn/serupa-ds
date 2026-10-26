@@ -6,12 +6,16 @@
 @layer dk.components {
 .dk-button-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--button-group-gap, var(--spacing-2)); }
 .dk-button-group--vertical { flex-direction: column; align-items: stretch; flex-wrap: nowrap; }
-.dk-button-group--attached { flex-wrap: nowrap; gap: var(--spacing-0); }
-.dk-button-group--attached > .dk-btn { position: relative; }
+.dk-button-group--attached { flex-wrap: nowrap; gap: var(--spacing-0); max-inline-size: var(--sizing-full); }
+/* Attached, a row that doesn't fit its container wraps as separate buttons instead (ButtonGroup.tsx sets data-wrapped
+   and drops the attached class): the buttons keep their size so it can tell, rather than shrinking to ellipses. */
+.dk-button-group--attached > .dk-btn { position: relative; flex-shrink: 0; }
 .dk-button-group--attached > .dk-btn:focus-visible, .dk-button-group--attached > .dk-btn[aria-pressed="true"] { z-index: var(--z-10); }
 @media (hover: hover) { .dk-button-group--attached > .dk-btn:hover { z-index: var(--z-10); } }
 .dk-button-group--attached:not(.dk-button-group--vertical) > .dk-btn ~ .dk-btn { margin-inline-start: calc(var(--spacing-0) - var(--button-group-overlap, var(--border-width-1))); border-start-start-radius: var(--spacing-0); border-end-start-radius: var(--spacing-0); }
 .dk-button-group--attached:not(.dk-button-group--vertical) > .dk-btn:has(~ .dk-btn) { border-start-end-radius: var(--spacing-0); border-end-end-radius: var(--spacing-0); }
+/* Two solid buttons side by side get an edge between them, in their text color, as a split button has. */
+.dk-button-group--attached:not(.dk-button-group--vertical) > :is(.dk-btn--primary, .dk-btn--primary + :not(.dk-btn)) + .dk-btn--primary { border-inline-start-color: color-mix(in srgb, currentColor var(--button-group-divider, var(--opacity-40)), transparent); }
 .dk-button-group--attached.dk-button-group--vertical > .dk-btn ~ .dk-btn { margin-top: calc(var(--spacing-0) - var(--button-group-overlap, var(--border-width-1))); border-start-start-radius: var(--spacing-0); border-start-end-radius: var(--spacing-0); }
 .dk-button-group--attached.dk-button-group--vertical > .dk-btn:has(~ .dk-btn) { border-end-start-radius: var(--spacing-0); border-end-end-radius: var(--spacing-0); }
 }
