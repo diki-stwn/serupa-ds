@@ -7,6 +7,7 @@ import { useFieldControl } from "../../internal/field";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale } from "../../internal/provider";
 import { useTextLimit } from "../../internal/textLimit";
+import { pressFocuses } from "../../internal/affix";
 
 const PLAIN = { useGrouping: false } as const;
 
@@ -99,7 +100,7 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   }, [ref, nameRef]);
   if (props.showCount) rest["aria-describedby"] = cn(rest["aria-describedby"], countId);
   return (
-    <span className={cn("dk-textarea", "dk-textarea--size-" + size, invalid && "dk-textarea--invalid", rest.disabled && "dk-textarea--disabled", rest.readOnly && "dk-textarea--readonly", resize === "none" && "dk-textarea--resize-none", auto && "dk-textarea--auto", props.className)} style={props.style} data-component="textarea" data-size={size}>
+    <span className={cn("dk-textarea", "dk-textarea--size-" + size, invalid && "dk-textarea--invalid", rest.disabled && "dk-textarea--disabled", rest.readOnly && "dk-textarea--readonly", resize === "none" && "dk-textarea--resize-none", auto && "dk-textarea--auto", props.className)} style={props.style} data-component="textarea" data-size={size} onMouseDown={pressFocuses(own)}>
       <textarea {...rest} ref={setRefs} rows={rows} className="dk-textarea__field" key="field"
         style={auto ? ({ "--dk-ta-rows": rows, "--dk-ta-max-rows": maxRows || undefined } as React.CSSProperties) : undefined} />
       {props.showCount ? <span className={cn("dk-textarea__count", max != null && length >= max && "dk-textarea__count--full")} id={countId} key="count">{max != null ? num(length) + " / " + num(max) : num(length)}</span> : null}
