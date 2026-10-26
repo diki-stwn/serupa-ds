@@ -1,6 +1,6 @@
 # List
 
-Rows of related things: people, files, notifications, settings. Each row has a title, an optional muted description, something before it (an Avatar or an icon) and something after it (a date, a Badge, an action). A row can be a link or a button; trailing actions stay outside it, so controls are never nested.
+Rows of related things: people, files, notifications, settings. Each row has a title, an optional muted description, something before it (an Avatar or an icon) and something after it (a date, a Badge, an action). A row can be a link or a button; trailing actions stay outside it, so controls are never nested. A press anywhere on the row works, trailing meta ("3 days ago") included, except on a trailing action, which keeps its own press.
 
 ```jsx
 const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
