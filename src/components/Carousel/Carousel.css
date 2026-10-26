@@ -16,7 +16,7 @@
 .dk-carousel__track {
   display: flex; gap: var(--dk-carousel-space);
   transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px)));
-  transition: transform var(--dk-carousel-settle, var(--motion-change-lg)) var(--ease-settle);
+  transition: transform var(--dk-carousel-settle, var(--motion-change-lg)) var(--dk-carousel-ease, var(--ease-settle));
 }
 /* A loop carrying on past an end: the slides it wraps to stand in again beyond it (Carousel.tsx), then the track snaps back. */
 .dk-carousel__track[data-snap] { transition: none; }

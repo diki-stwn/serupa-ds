@@ -1,0 +1,113 @@
+{
+  "errorSummary": {
+    "$description": "ErrorSummary's component tokens. Each one is an optional override: set the CSS variable (--error-summary-<name>) on the page, a container or one ErrorSummary, and every ErrorSummary inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.surface}",
+        "$description": "The background.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The heading and description (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-text"
+          }
+        }
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "The border, which marks it as errors.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-border"
+          }
+        }
+      },
+      "link": {
+        "$type": "color",
+        "$value": "{color.danger-text}",
+        "$description": "Each error's link (4.5:1 on bg).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-link"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The focus ring, on the box when it takes focus and on each link.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-focus-ring"
+          }
+        }
+      }
+    },
+    "border": {
+      "border-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-2}",
+        "$description": "The border's width (2px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-border-width"
+          }
+        }
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "The corners (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-radius"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space inside, on every side (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-padding"
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space between the heading, the description and the list (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-gap"
+          }
+        }
+      }
+    },
+    "typography": {
+      "title-weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "The heading's weight.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--error-summary-title-weight"
+          }
+        }
+      }
+    }
+  }
+}
