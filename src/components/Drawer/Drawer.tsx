@@ -68,6 +68,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const open = controlled ? !!props.open : inner;
   const close = React.useCallback((reason: OpenChangeReason) => { if (!controlled) setInner(false); if (ask.current) ask.current(false, { reason }); }, [controlled]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
+  // Open on arrival: there from the first frame, so it doesn't slide in; it closes, and opens again, with motion.
+  const arrived = React.useRef(open); if (!open) arrived.current = false;
 
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
   const [reopened, reopen] = React.useState(0);
@@ -152,6 +154,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       if (across > 10 && across > d) { drag.current = null; return; }
       if (d < 10) return;
       g.on = true;
+      e.currentTarget.setAttribute("data-dragging", "");   // follows the finger, with no transition behind it
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
       // Caught while it settles: it stays under the finger, and that settle never finishes.
       if (settling.current) settling.current();
@@ -167,6 +170,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     if (!g || e.pointerId !== g.id) return;
     drag.current = null;
     const p = e.currentTarget, size = horiz ? p.offsetWidth : p.offsetHeight;
+    p.removeAttribute("data-dragging");
     if (!g.on) { p.style.translate = ""; return; }
     const first = g.s[0], last = g.s[g.s.length - 1];
     const v = (last.d - first.d) / Math.max(1, last.t - first.t);   // px per ms, toward the edge
@@ -201,7 +205,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       aria-modal={modal ? "true" : undefined}
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size}
+      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size} data-instant={arrived.current ? "" : undefined}
       onKeyDown={onKeyDown} onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-drawer__panel" onPointerDown={onSwipeDown} onPointerMove={onSwipeMove} onPointerUp={onSwipeEnd} onPointerCancel={onSwipeEnd}>
         {has(props.title) || has(props.description) || showClose ? (
