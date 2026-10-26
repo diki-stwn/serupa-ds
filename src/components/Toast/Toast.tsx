@@ -94,10 +94,14 @@ function show(options: ToastOptions | string): string {
   if (say) announce(say, { assertive: item.tone === "danger" });   // an error interrupts; the rest wait their turn
   return id;
 }
+// module state: browser only: what an undo toast does when it closes without Undo (toast.undo's commit), by id.
+const onClose = new Map<string, () => void>();
 /** Closes one toast, or every toast with no id. */
 function dismiss(id?: string): void {
+  const gone = id == null ? items : items.filter((x) => x.id === id);
   items = id == null ? [] : items.filter((x) => x.id !== id);
   emit();
+  for (const x of gone) { const then = onClose.get(x.id); if (then) { onClose.delete(x.id); then(); } }
 }
 type Message<A> = ToastOptions | string | ((arg: A) => ToastOptions | string);
 export interface ToastPromiseMessages<T> {
@@ -124,8 +128,38 @@ function promise<T>(work: Promise<T> | (() => Promise<T>), messages: ToastPromis
   p.then((v) => settle(messages.success, v, "success"), (e: unknown) => settle(messages.error, e, "danger"));
   return p;
 }
-/** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it, and toast.promise(p, { loading, success, error }) follows a promise. */
-export const toast = /* @__PURE__ */ Object.assign(show, { dismiss, promise });
+export interface ToastUndoOptions extends Omit<ToastOptions, "action" | "autoDismiss"> {
+  /** Does the action for good. It runs once, when the toast closes without Undo: its time runs out, it's closed, or
+   *  the page is left. */
+  commit: () => void;
+  /** Runs instead of commit when Undo is chosen: show things as they were. */
+  onUndo?: () => void;
+  /** The button's text. Default: "Undo" (labels.undo). */
+  undoLabel?: string;
+}
+// module state: browser only, set by the mounted Toaster: the Undo button's word in its labels.
+let undoWord = ownWords.undo;
+/* toast.undo: the undo pattern. The action looks done at once (the item is gone from the list), and a toast says so
+   with an Undo button; the action is done for good (commit) only when the toast closes without Undo, or when the
+   page is left (pagehide), so nothing is lost and nothing needs a "Are you sure?" first. Undo runs onUndo instead.
+   Either runs once. */
+function undo(options: ToastUndoOptions): string {
+  const { commit, onUndo, undoLabel, ...rest } = options;
+  let settled = false;
+  const once = (f?: () => void) => () => {
+    if (settled) return;
+    settled = true;
+    window.removeEventListener("pagehide", keep);
+    if (f) f();
+  };
+  const keep = once(commit), back = once(onUndo);
+  const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord, onClick: back }, autoDismiss: true }));
+  onClose.set(id, keep);
+  window.addEventListener("pagehide", keep);
+  return id;
+}
+/** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it, toast.promise(p, { loading, success, error }) follows a promise, and toast.undo({ title, commit, onUndo }) does an action for good only if Undo isn't chosen. */
+export const toast = /* @__PURE__ */ Object.assign(show, { dismiss, promise, undo });
 
 export interface ToasterProps extends React.HTMLAttributes<HTMLElement> {
   /** Where toasts appear: 'bottom-end' (default), 'bottom-start', 'bottom-center', 'top-start', 'top-center' or 'top-end'. Start and end follow the text direction. */
@@ -181,6 +215,8 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
   const times = sds.labels.toastRepeated;
   React.useEffect(() => { repeated = times; return () => { repeated = null; }; }, [times]);
+  const undoText = sds.labels.undo;
+  React.useEffect(() => { undoWord = undoText; return () => { undoWord = ownWords.undo; }; }, [undoText]);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
     const away = () => { const b = back.current; back.current = null; if (b && b.isConnected) b.focus(); };
