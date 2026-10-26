@@ -19,7 +19,11 @@
 .dk-meter__label { font-weight: var(--meter-label-weight, var(--font-medium)); min-width: var(--spacing-0); }
 .dk-meter__value { margin-inline-start: auto; color: var(--meter-value-color, var(--text-muted)); font-variant-numeric: tabular-nums; }
 .dk-meter__track { position: relative; overflow: hidden; height: var(--dk-meter-h); border-radius: var(--meter-radius, var(--rounded-full)); background: var(--meter-track, var(--secondary)); }
-.dk-meter__fill { height: var(--sizing-full); border-radius: inherit; background: var(--dk-meter-fill); transition: inline-size var(--meter-duration, var(--motion-change-lg)) var(--ease-settle); }
+.dk-meter__fill { height: var(--sizing-full); border-radius: inherit; background: var(--dk-meter-fill); transition: translate var(--meter-duration, var(--motion-change-lg)) var(--ease-settle); }
+/* The fill is the track's full length, slid back by the part not filled (the track clips it): a new value moves it on
+   the compositor, and its rounded end keeps its shape at any value (FB1). Right to left, it slides the other way. */
+.dk-meter__fill { inline-size: var(--sizing-full); translate: calc(var(--spacing-0) - var(--dk-meter-rest)) var(--spacing-0); }
+.dk-meter__fill:dir(rtl) { translate: var(--dk-meter-rest) var(--spacing-0); }
 @media (prefers-reduced-motion: reduce) { .dk-meter__fill { transition: none; } }
 @media (forced-colors: active) {
   .dk-meter__track { border: var(--border-width-1) solid CanvasText; }
