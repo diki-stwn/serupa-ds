@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useValidityMessages } from "../../internal/validity";
 import { cn, domId, isInvalid, oneOf, omit, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
@@ -60,6 +61,7 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   const own = React.useRef<HTMLTextAreaElement | null>(null);
   // The count and maxLength in characters as people see them; near the limit the count is read out (useTextLimit).
   const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
+  useValidityMessages(rest, own);   // the browser's message for a failed constraint, in the provider's words
   const countId = domId("dk-ta", React.useId());
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Calendar's

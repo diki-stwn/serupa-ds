@@ -4,7 +4,7 @@ import { useFormStatus } from "react-dom";
 import { cn, type DataAttributes, domId, omit, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { useShowAfter } from "../../internal/showAfter";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
@@ -94,7 +94,7 @@ function slot(source: IconSource, side: string): React.ReactNode {
 /* Button: a <button> for actions; with href, a link (<a>, or the configured link component) for navigation. */
 /** Button without the overloads, for components built on it (IconButton, Fab) that pass either shape through. */
 export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("Button", function Button(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   // Both shapes (button and link) are HTML attributes; which ones apply depends on href below.
   const rest: React.AllHTMLAttributes<HTMLElement> & DataAttributes = omit(props as ButtonOwnProps & React.AllHTMLAttributes<HTMLElement>, OWN);
   const isLink = rest.href != null;

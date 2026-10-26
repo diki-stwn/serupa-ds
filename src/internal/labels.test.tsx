@@ -20,6 +20,7 @@ const ARGS: Record<string, unknown[]> = {
   fileWrongType: ['cat.txt', ['image', 'PDF']],
   formatHint: ['dd/mm/yyyy'],
   inputNotAccepted: ['abc'],
+  invalidValue: [{ reason: 'tooShort', type: 'text', length: 3, minLength: 8 }],
   keyName: ['Up arrow'],
   lowContrast: ['4.5'],
   meterZone: ['92%', 'high'],
@@ -46,6 +47,8 @@ function said(set: Record<string, unknown>): Record<string, string> {
 }
 // Words that are the same in both languages. "Slide" and "Format" are the usual loanwords in Indonesian.
 const SAME = new Set(['menu', 'ok', 'hexCode', 'sliderMinimum', 'slideRole', 'formatHint']);
+// English labels left empty on purpose: invalidValue's "" keeps the browser's own message, already in its user's language.
+const EMPTY_IN_EN = new Set(['invalidValue']);
 
 describe('labels', () => {
   const en = said(DEFAULT_LABELS as unknown as Record<string, unknown>), id = said(idLabels as unknown as Record<string, unknown>);
@@ -54,7 +57,8 @@ describe('labels', () => {
   });
   test('no label is empty, untrimmed, or has doubled punctuation or spaces', () => {
     const bad = (set: Record<string, string>) => Object.entries(set).filter(([, t]) => !t.trim() || t !== t.trim() || /\.\.(?!\.)|\.\s*\.|,\s*[,.]|\s[,.:;!?]|\s{2}|\.…|…\./.test(t)).map(([k, t]) => k + ': ' + t);
-    expect([bad(en), bad(id)]).toEqual([[], []]);
+    const enSaid = Object.fromEntries(Object.entries(en).filter(([k]) => !EMPTY_IN_EN.has(k)));
+    expect([bad(enSaid), bad(id)]).toEqual([[], []]);
   });
   test('no Indonesian label is still in English', () => {
     expect(Object.keys(en).filter((k) => !SAME.has(k) && en[k] === id[k] && /[a-z]{3}/i.test(en[k])).map((k) => k + ': ' + en[k])).toEqual([]);

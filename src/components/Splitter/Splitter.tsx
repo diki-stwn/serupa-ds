@@ -3,9 +3,10 @@ import * as React from "react";
 import { announce } from "../../internal/announce";
 import { cn, domId } from "../../internal/cn";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { useScrolls } from "../../internal/useScrolls";
 import { warnOnce } from "../../internal/warn";
+import { en as words } from "./labels";
 
 export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
   /** The two panes, first and second. The handle between them resizes the first; the second takes the rest. */
@@ -51,7 +52,7 @@ const save = (key: string | undefined, n: number) => {
 /** Two panes with a draggable, keyboard-operable handle between them: list and detail, sidebar and editor. */
 export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>("Splitter", function Splitter(props, ref) {
   const { children, direction: dirIn, size: sizeIn, defaultSize, onSizeChange, min: minIn, max: maxIn, step: stepIn, collapsible, storageKey, separatorLabel, className, ...rest } = props;
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const direction = dirIn === "vertical" ? "vertical" : "horizontal";
   const min = clamp(typeof minIn === "number" && isFinite(minIn) ? minIn : 10, 0, 100);
   const max = clamp(typeof maxIn === "number" && isFinite(maxIn) ? maxIn : 90, min, 100);

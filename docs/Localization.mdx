@@ -52,6 +52,21 @@ export default async function RootLayout({ children }) {
 
 `useSerupa()` gives the nearest provider's settings (`locale`, `labels`, `icons`, `platform`), and `useLocale(own?)` the locale the components use: `own` when given, else the provider's, else the browser's, always one Intl can read (`en_US` comes back as `en-US`). Use them so your components follow the same settings, for example `date.toLocaleDateString(useLocale())`. `announce(text)` says text through the same live regions the components use.
 
+## Right to left
+
+Set `dir="rtl"` with the language, `<html lang="ar" dir="rtl">`, and the components mirror: layouts use logical properties, and arrows and chevrons point the way reading goes. The stylesheets find the direction with `:dir(rtl)`.
+
+A CSS minifier can rewrite that for older browsers. Lightning CSS, Vite's default minifier, turns `:dir(rtl)` into a list of right-to-left languages (`:lang(ar)`, `:lang(he)`, `:lang(fa)`…), so a page with `dir="rtl"` but no such `lang` (a test page, or a language not on its list) doesn't mirror its arrows. Setting `lang` fixes it, or tell Lightning CSS to keep `:dir()`:
+
+```ts
+// vite.config.ts (lightningcss comes with Vite; add it to devDependencies to import it)
+import { Features } from 'lightningcss';
+
+export default {
+  css: { lightningcss: { exclude: Features.DirSelector } },
+};
+```
+
 ## Accessibility
 
 Set `lang` on `<html>` (or on the element around a provider with another language) to match the words, so screen readers pronounce them correctly. The provider doesn't set it, because it renders no element.
