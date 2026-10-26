@@ -38,7 +38,7 @@
   width: var(--dk-switch-thumb); height: var(--dk-switch-thumb); margin-block: auto;
   border-radius: var(--rounded-full); background: var(--switch-thumb, var(--field));
   pointer-events: none;
-  transition: translate var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-press) var(--ease-settle);
+  transition: translate var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-release) var(--ease-spring);
 }
 .dk-switch__input:checked + .dk-switch__thumb { background: var(--switch-thumb-checked, var(--on-primary)); }
 /* On, the thumb moves to the end by translate, which the compositor runs without laying out the row each frame
@@ -58,7 +58,7 @@
 .dk-switch--readonly { cursor: default; }
 /* Pressed: the thumb shrinks a little while the row is held (pointer, or Space on the switch) and springs back.
    Only scale; not when read-only, pending or disabled, and not under reduced motion (below). */
-.dk-switch:active:not(.dk-switch--readonly, .dk-switch--pending, :has(.dk-switch__input:disabled)) .dk-switch__thumb { scale: var(--switch-press-scale, var(--scale-90)); }
+.dk-switch:active:not(.dk-switch--readonly, .dk-switch--pending, :has(.dk-switch__input:disabled)) .dk-switch__thumb { scale: var(--switch-press-scale, var(--scale-90)); transition: translate var(--motion-press) var(--ease-move), background-color var(--motion-press) var(--ease-move), scale var(--motion-press) var(--ease-settle); }
 /* Pending: Loader's ring on the thumb (EE1): a quarter arc in primary (3:1 on the off thumb's field, and on the
    on thumb's on-primary) on a faint track of the same color, turning at --motion-loop-spinner; under reduced motion
    it stands still and breathes. */

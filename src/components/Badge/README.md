@@ -175,7 +175,7 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-state-text` | `opacity-30` | Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%) |
 | `--badge-focus-ring` | `focus-ring` | Clickable badges: the keyboard focus ring |
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
-| `--badge-press-duration` | `motion-press` | How fast the press scales (100ms) |
+| `--badge-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release` with `ease-spring`. |
 | `--badge-ripple-opacity` | `opacity-20` | Ripple strength, in the text color (20%); `0` turns it off |
 | `--badge-ripple-duration` | `motion-ripple` | How long the ripple takes to spread (500ms) |
 | `--badge-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms) |
