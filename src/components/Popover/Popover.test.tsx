@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Popover } from './Popover';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -209,5 +209,50 @@ describe('Popover', () => {
     const p = panel('tshare'), b = rect(el('tshare')), r = rect(p);
     const [x, y] = getComputedStyle(p).transformOrigin.split(' ').map(parseFloat);
     expect([p.dataset.side, Math.round(y), near(r.left + x, b.left + b.width / 2)]).toEqual(['bottom', 0, true]);
+  });
+});
+
+describe('Popover: motion (DZ1)', () => {
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]).sort();
+  const settled = (e: Element) => Promise.all(e.getAnimations().map((a) => a.finished.catch(() => {})));
+  test('opens with a transition and fades and shrinks out faster, its content kept (inert) until the fade ends; focus is back at once; reopened mid-way it turns back from where it is', async () => {
+    await withMotion(async () => {
+      await render(<Share />);
+      await userEvent.click(el('tshare'));
+      const p = panel('tshare');
+      expect([runs(p), p.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
+      await settled(p);
+      expect([getComputedStyle(p).opacity, getComputedStyle(p).scale]).toEqual(['1', 'none']);
+
+      await userEvent.keyboard('{Escape}');
+      expect([isOpen('tshare'), active()]).toEqual([false, 'tshare']);
+      // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
+      if (!CSS.supports('overlay', 'auto')) { expect(getComputedStyle(p).display).toBe('none'); return; }
+      expect([getComputedStyle(p).display, p.inert, !!p.querySelector('#email'), runs(p)]).toEqual(['block', true, true, [['display', 100], ['opacity', 100], ['overlay', 100], ['scale', 100]]]);
+      await settled(p);
+      await expect.poll(() => p.querySelector('#email')).toBe(null);
+      expect(getComputedStyle(p).display).toBe('none');
+
+      await userEvent.click(el('tshare'));
+      await settled(p);
+      await userEvent.click(el('tshare'));
+      await new Promise((ok) => setTimeout(ok, 40));
+      const mid = Number(getComputedStyle(p).opacity);
+      await userEvent.click(el('tshare'));
+      expect([isOpen('tshare'), p.inert]).toEqual([true, false]);
+      expect(Number(getComputedStyle(p).opacity)).toBeLessThan(1);
+      expect(mid).toBeLessThan(1);
+      await settled(p);
+      expect(getComputedStyle(p).opacity).toBe('1');
+    });
+  });
+
+  test('open on arrival (defaultOpen): there from the first frame, not faded in', async () => {
+    await withMotion(async () => {
+      await render(<Popover title="Share" defaultOpen trigger={<Button id="tarr">Share</Button>}><input aria-label="Email" /></Popover>);
+      await expect.poll(() => isOpen('tarr')).toBe(true);
+      expect([panel('tarr').getAnimations().length, getComputedStyle(panel('tarr')).opacity]).toEqual([0, '1']);
+    });
   });
 });

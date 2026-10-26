@@ -46,7 +46,8 @@ const { Popover, Button, Field, Input } = window.Serupa;
 - The title is an `<h2>`, as in Dialog, so screen reader users can jump to it by heading; set `headingLevel` to fit the page's outline.
 - Opening moves focus inside; Escape and `close()` return it to the trigger. It sits right after the trigger in the tab order, so Tab moves from the trigger into it.
 - A click outside or focus moving elsewhere closes it, without moving focus.
-- Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`). With reduced motion it appears without growing in.
+- Text and the title keep 4.5:1 on the panel in all six themes (`Popover.test.tsx`).
+- It fades and grows in out of its trigger over 150ms, and fades and shrinks back over 100ms when it closes; with reduced motion it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Its content stays while it fades out, inert, and focus goes back to the trigger at once. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing popover in the top layer yet, so there it closes at once.
 
 ### Keyboard
 
