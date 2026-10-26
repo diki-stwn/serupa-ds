@@ -1,4 +1,4 @@
-// exports: announce, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions, withViewTransition
+// exports: announce, announcePage, type AnnouncePageOptions, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions, withViewTransition
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -68,6 +68,11 @@ declare function useLocale(own?: string): string;
 declare function announce(text: string, options?: {
     assertive?: boolean;
 }): void;
+interface AnnouncePageOptions {
+    title?: string;
+    focus?: Element | false | string;
+}
+declare function announcePage(options?: AnnouncePageOptions): void;
 declare function useCollator(options?: Intl.CollatorOptions & {
     locale?: string;
 }): Intl.Collator;
@@ -86,6 +91,7 @@ declare global {
         Serupa: ComponentGlobals & {
             version: string;
             announce: typeof announce;
+            announcePage: typeof announcePage;
             configure: typeof configure;
             customIcons: typeof customIcons;
             enLabels: typeof DEFAULT_LABELS;

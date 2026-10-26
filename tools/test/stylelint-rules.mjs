@@ -7,7 +7,7 @@ import { PROJECT, done, report } from './lib.mjs';
 
 const rules = (extra = {}) => ({
   plugins: [path.join(PROJECT, 'tools', 'lint', 'stylelint-serupa.mjs')],
-  rules: { 'serupa/component-layer': true, 'serupa/no-raw-value': true, 'serupa/color-through-component-token': true, 'serupa/focus-ring-outline': true, ...extra },
+  rules: { 'serupa/component-layer': true, 'serupa/no-raw-value': true, 'serupa/color-through-component-token': true, 'serupa/focus-ring-outline': true, 'serupa/no-physical-shorthand': true, ...extra },
 });
 const found = async (code, extra) => (await stylelint.lint({ code, config: rules(extra) })).results[0].warnings.map((w) => w.rule);
 const layered = (body) => `/* A comment may sit outside. */\n@layer dk.components {\n${body}\n}\n`;
@@ -29,5 +29,10 @@ await t('color-through-component-token: an alias and a palette step read directl
 await t('color-through-component-token with allowPalette: palette steps pass, aliases still fail', layered('.dk-x { color: var(--blue-600); background: var(--surface); }'), ['serupa/color-through-component-token'], { 'serupa/color-through-component-token': [true, { allowPalette: true }] });
 await t('focus-ring-outline: a box-shadow ring on :focus-visible (not inset, not :focus-within)', layered(`.dk-x:focus-visible { box-shadow: 0 0 0 var(--focus-ring-width) var(--card-focus-ring, var(--focus-ring)); }
 .dk-y:focus-within { box-shadow: 0 0 0 var(--focus-ring-width) var(--card-focus-ring, var(--focus-ring)); }`), ['serupa/focus-ring-outline']);
+await t('no-physical-shorthand: symmetric shorthands and logical corners pass', layered(`.dk-x { padding: var(--spacing-2) var(--spacing-4); margin: var(--spacing-1) var(--spacing-2) var(--spacing-3); inset: 0; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.dk-y { padding: var(--spacing-1) var(--spacing-2) var(--spacing-3) var(--spacing-2); border-radius: var(--radius-sm) / var(--radius-md); }`), []);
+await t('no-physical-shorthand: right and left differ (padding, inset, border-width) and corners differ left to right', layered(`.dk-x { padding: var(--spacing-3) 0 var(--spacing-3) var(--spacing-6); inset: 0 auto 0 0; border-width: 0 var(--border-width-1) 0 0; }
+.dk-y { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.dk-z { border-radius: 0 var(--radius-md); }`), ['serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand']);
 
 done(report('Stylelint rules', R));

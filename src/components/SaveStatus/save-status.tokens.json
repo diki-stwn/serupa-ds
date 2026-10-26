@@ -1,0 +1,61 @@
+{
+  "saveStatus": {
+    "$description": "SaveStatus's component tokens. Each one is an optional override: set the CSS variable (--save-status-<name>) on the page, a container or one SaveStatus, and every SaveStatus inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The text and the ring (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--save-status-text"
+          }
+        }
+      },
+      "saved": {
+        "$type": "color",
+        "$value": "{color.success}",
+        "$description": "The check once saved.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--save-status-saved"
+          }
+        }
+      },
+      "error": {
+        "$type": "color",
+        "$value": "{color.danger-text}",
+        "$description": "The error's icon, text and Try again (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--save-status-error"
+          }
+        }
+      }
+    },
+    "sizing": {
+      "icon-size": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "The icon's size (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--save-status-icon-size"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-1_5}",
+        "$description": "Space between the icon, the text and Try again (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--save-status-gap"
+          }
+        }
+      }
+    }
+  }
+}

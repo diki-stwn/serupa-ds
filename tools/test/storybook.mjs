@@ -1,6 +1,10 @@
 // Storybook (npm run build-storybook first): every story and docs page renders without errors, and every
 // story passes axe's WCAG 2.2 AA checks in all six themes, and once more in blue-light with data-contrast="more"
-// (text in a disabled control is exempt from contrast, as WCAG 1.4.3 says).
+// (text in a disabled control is exempt from contrast, as WCAG 1.4.3 says). In the first theme, each story also
+// takes the WCAG 1.4.12 text spacing (line height 1.5, letter spacing 0.12em, word spacing 0.16em, paragraph
+// spacing 2em) and no text may end up cut off by a box that hides its overflow (text ending in an ellipsis is
+// shortened on purpose and passes). And at 320 CSS pixels wide (1280 at 400% zoom, WCAG 1.4.10 reflow) the story
+// may not make the page scroll sideways; a table, grid or code block that scrolls inside its own box is fine.
 //   node tools/test/storybook.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -95,6 +99,46 @@ async function checkDocs(e, w) {
   out.push(t(`docs · ${e.title} · dark: the page, story frames, text, code and controls follow the theme`, !darkNotReady && dark.theme === 'blue-dark' && dark.want === 'rgb(9, 9, 11)' && !dark.off.length && dark.text !== 'rgb(46, 52, 56)' && !dark.code.length && !dark.flat.length, darkNotReady || JSON.stringify(dark)));
   return out;
 }
+// WCAG 1.4.12's text spacing, as a user's style sheet sets it.
+const SPACING = '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}';
+// The text a box with overflow hidden or clip cuts off: for each element with text of its own, the nearest such
+// box around it, when the text reaches past its edges. Text cut off with an ellipsis doesn't count.
+const cutOff = () => {
+  const out = [];
+  for (const el of document.querySelectorAll('#storybook-root *')) {
+    if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const r = range.getBoundingClientRect();
+    if (!r.width) continue;
+    for (let a = el.parentElement; a && a.id !== 'storybook-root'; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (!/hidden|clip/.test(cs.overflowX + cs.overflowY)) continue;
+      const box = a.getBoundingClientRect();
+      if (box.width < 3 || box.height < 3) break;   // visually hidden text
+      const ellipsis = cs.textOverflow === 'ellipsis' || getComputedStyle(el).textOverflow === 'ellipsis';
+      if (!ellipsis && (r.right > box.right + 1 || r.bottom > box.bottom + 1 || r.left < box.left - 1 || r.top < box.top - 1)) out.push(`"${el.textContent.trim().slice(0, 30)}" in .${String(a.className).split(' ')[0] || a.tagName}`);
+      break;
+    }
+  }
+  return [...new Set(out)];
+};
+// The stories that still scroll sideways at 320px (queue item RF1: a long word or a row of buttons that doesn't
+// wrap, or a story with a fixed width).
+// One that stops failing fails here too, so the list only shrinks.
+const REFLOW_KNOWN = new Set([
+  'components-actions-copybutton--with-a-field', 'components-actions-copybutton--variants-and-sizes',
+  'components-actions-togglebutton--sizes', 'components-actions-togglegroup--long-labels',
+  'components-content-accordion--long-text', 'components-content-highlight--long-text',
+  'components-content-icon--common-icons', 'components-content-sortablelist--long-text',
+  'components-data-display-timeline--long-text', 'components-feedback-progress--long-label',
+  'components-forms-pininput--overflow', 'components-layout-and-type-container--long-text',
+  'components-layout-and-type-divider--long-label', 'components-layout-and-type-grid--overflow',
+  'components-layout-and-type-stack--overflow', 'components-navigation-navbar--overflow',
+  'components-navigation-stepper--narrow', 'components-navigation-stepper--long-labels',
+  'components-overlays-menu--submenus', 'guides-serupaprovider--default',
+  'guides-serupaprovider--indonesian', 'guides-serupaprovider--nested',
+]);
 async function checkStory(e, w) {
   const out = [];
   const problems = [];
@@ -112,12 +156,25 @@ async function checkStory(e, w) {
         .filter((x) => x.nodes.length).map((x) => `${x.id} (${x.nodes.map((n) => n.target.join(' ')).slice(0, 2).join(', ')})`);
     });
     if (v.length) problems.push(`${th}: ${v.join('; ')}`);
+    if (th === RUNS[0]) {
+      await w.page.setViewportSize({ width: 320, height: 256 });
+      await w.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+      const wide = await w.page.evaluate(() => document.documentElement.scrollWidth);
+      await w.page.setViewportSize({ width: 1000, height: 800 });
+      if ((wide > 321) !== REFLOW_KNOWN.has(e.id)) problems.push(wide > 321 ? `reflow (WCAG 1.4.10): at 320px wide the page scrolls sideways to ${wide}px` : 'reflow: no longer scrolls sideways at 320px; take it out of REFLOW_KNOWN');
+      // Only what the spacing cuts off: text already cut off without it is the story's own (a scrolled list).
+      const before = await w.page.evaluate(cutOff);
+      await w.page.addStyleTag({ content: SPACING });
+      await w.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+      const cut = (await w.page.evaluate(cutOff)).filter((x) => !before.includes(x));
+      if (cut.length) problems.push(`text spacing (WCAG 1.4.12) cuts off ${cut.slice(0, 3).join(', ')}`);
+    }
   }
-  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes and with more contrast`, !problems.length, problems.slice(0, 3).join('\n      ')));
+  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes and with more contrast, with wider text spacing and at 320px`, !problems.length, problems.slice(0, 3).join('\n      ')));
   return out;
 }
 R.push(...(await inParallel(docs, workers, checkDocs)).flat(), ...(await inParallel(stories, workers, checkStory)).flat());
 await b.close();
 close();
-console.log(`(${docs.length} docs pages, ${stories.length} stories × ${RUNS.length} runs: six themes and more contrast)`);
+console.log(`(${docs.length} docs pages, ${stories.length} stories × ${RUNS.length} runs: six themes and more contrast; text spacing and 320px in the first)`);
 process.exit(report('Storybook', R) ? 0 : 1);
