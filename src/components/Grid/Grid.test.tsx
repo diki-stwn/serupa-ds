@@ -46,6 +46,34 @@ describe('Grid', () => {
     expect([k[0].w, k[1].y > k[0].y]).toEqual([120, true]);
   });
 
+  test('columns={3} with minColumnWidth is up to three: three across 600px, two across 400px, one across 200px (FV1)', async () => {
+    const at = (w: number) => <div style={{ width: w + 'px' }}><Grid id={'gup' + w} columns={3} minColumnWidth="150px" gap={2}>{boxes(4)}</Grid></div>;
+    await render(<>{at(600)}{at(400)}{at(200)}</>);
+    const wide = kids('gup600'), mid = kids('gup400'), narrow = kids('gup200');
+    expect([wide[0].w, wide[2].y === wide[0].y, wide[3].y > wide[0].y]).toEqual([195, true, true]);
+    expect([mid[0].w, mid[1].y === mid[0].y, mid[2].y > mid[0].y]).toEqual([196, true, true]);
+    expect([narrow[0].w, narrow[1].y > narrow[0].y]).toEqual([200, true]);
+    expect(el('gup600').className).toBe('dk-grid dk-grid--upto');
+  });
+
+  test('fill: a short row stretches across the empty columns; without it the empty columns stay (FV1)', async () => {
+    await render(<Wide>
+      <Grid id="gfill" fill minColumnWidth="100px" gap={0}>{boxes(2)}</Grid>
+      <Grid id="gkeep" minColumnWidth="100px" gap={0}>{boxes(2)}</Grid>
+      <Grid id="gupfill" fill columns={4} minColumnWidth="100px" gap={0}>{boxes(2)}</Grid>
+      <Grid id="gfixed" fill columns={4} gap={0}>{boxes(2)}</Grid>
+    </Wide>);
+    expect([kids('gfill')[0].w, kids('gkeep')[0].w, kids('gupfill')[0].w, kids('gfixed')[0].w]).toEqual([300, 100, 300, 150]);
+  });
+
+  test('a nested Grid keeps its own defaults: it takes neither the gap nor the minColumnWidth of the Grid around it', async () => {
+    await render(<Wide><Grid columns={1} gap={10} minColumnWidth="50px">
+      <Grid id="ginner">{boxes(3)}</Grid>
+    </Grid></Wide>);
+    const k = kids('ginner');
+    expect([k[0].w, k[1].x - k[0].x]).toEqual([292, 308]);
+  });
+
   test('as ul: no bullets or padding', async () => {
     await render(<Grid id="gul" as="ul" columns={2}><li>a</li><li>b</li></Grid>);
     const s = css(el('gul'));

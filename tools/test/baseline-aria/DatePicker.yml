@@ -32,6 +32,12 @@
   - /placeholder: mm/dd/yyyy
 - button "Choose a date"
 
+# ReadOnly
+- textbox "Date":
+  - /placeholder: mm/dd/yyyy
+  - text: 11/22/2025
+- button "Choose a date" [disabled]
+
 # Sizes
 - textbox "sm":
   - /placeholder: mm/dd/yyyy
