@@ -22,7 +22,6 @@ const SHOWN = {
 const KNOWN = {
   ColorPicker: ['disabled', 'invalid'],
   DateRangePicker: ['invalid', 'readOnly'],
-  PhoneInput: ['readOnly'],
   PinInput: ['readOnly'],
 };
 
