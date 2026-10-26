@@ -37,6 +37,7 @@ const { Input } = window.Serupa;
 - Keep labels above the field, short and specific; use the placeholder only for an example of the format.
 - Show errors after someone leaves the field or submits, not on every keystroke.
 - Show a count only when there's a limit people need to plan around, such as a short title.
+- Use `mask` for text with a fixed shape, such as a card number (`"9999 9999 9999 9999"`), a date (`"99/99/9999"`) or an IBAN (`"AA99 **** **** **** **** **"`). `9` takes a digit, `a` a letter, `A` a letter in capitals and `*` either. `\` makes the next character plain, and everything else shows as it is. People type only the letters and digits; the spaces and slashes appear by themselves, a paste is laid into the pattern, and the caret stays where they were typing. Keep the format in the label or hint too ("Expiry date, MM/YY"), and check the value on the server: a mask shapes text, it doesn't validate it. For phone numbers with a country picker, use [PhoneInput](../PhoneInput/README.md).
 - Use `prefix` and `suffix` for fixed text people shouldn't type, such as "https://", "@" or "kg". Keep it short, and keep the unit in the label too ("Weight (kg)") when the field makes no sense without it.
 
 ## States
@@ -71,6 +72,7 @@ const { Input } = window.Serupa;
 | --- | --- |
 | Tab | To the field |
 | Enter | Submits the form it's in, as a native field does |
+| Backspace, Delete | With `mask`, next to the pattern's own text (a space, a /), removes the typed character beyond it |
 
 ## Props
 
@@ -83,6 +85,7 @@ const { Input } = window.Serupa;
 | `rightIcon` | icon name or element | | A decorative icon after the text |
 | `prefix` | node | | Text in the box before the field, in `text-muted`, such as "https://". Added to the field's description |
 | `suffix` | node | | Text in the box after the field, such as "kg" or ".com". Added to the field's description |
+| `mask` | string | none | Keeps the text in a pattern as people type, paste or delete, with the caret where they left it: `9` a digit, `a` a letter, `A` a letter in capitals, `*` either, `\` makes the next character plain. `value`, `defaultValue` and `onChange` use the masked text, and a digits-only mask gets the number keyboard on phones |
 | `showCount` | boolean | `false` | A character count at the end of the field, in characters as people see them: "12 / 30" with `maxLength`, "12" without. It turns from `text-muted` to `text` once `maxLength` is reached, in the locale's digits |
 | `maxLength` | number | | The most characters, counted as people see them (an emoji is one), applied by Input |
 
