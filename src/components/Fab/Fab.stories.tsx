@@ -61,3 +61,12 @@ export const Positions: Story = {
     </div>
   ),
 };
+
+export const LongLabel: Story = {
+  args: { label: 'Create a new project from a template' },
+  render: (args) => (
+    <div style={{ width: 200 }}>
+      <Fab {...args} extended />
+    </div>
+  ),
+};

@@ -34,3 +34,8 @@ export const CapsLockOn: Story = {
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'A', bubbles: true, modifierCapsLock: true }));
   },
 };
+
+export const LongValue: Story = {
+  args: { defaultValue: 'correct horse battery staple and a much longer passphrase', defaultVisible: true },
+  render: (args) => <div style={{ width: 200 }}><PasswordInput {...args} /></div>,
+};

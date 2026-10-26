@@ -4,6 +4,9 @@
 - link "Help":
   - /url: "#help"
 
+# LongLabel
+- button "Open the menu with every action for this project, including archive and delete"
+
 # Playground
 - button "More actions"
 

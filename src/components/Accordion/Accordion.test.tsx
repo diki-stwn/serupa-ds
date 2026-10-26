@@ -58,7 +58,7 @@ describe('Accordion', () => {
     content(4).dispatchEvent(new Event('beforematch'));
     await new Promise(requestAnimationFrame);
     expect([state('adef'), content(4).hasAttribute('hidden')]).toEqual(['0001', false]);
-    // Item 2 is closing: still shown while it shrinks, until-found after.
+    // Item 2 is closing: still shown while it folds away, until-found after.
     expect(content(2).hasAttribute('hidden')).toBe(false);
     await settled('adef');
     await expect.poll(() => content(2).getAttribute('hidden')).toBe('until-found');
@@ -88,20 +88,23 @@ describe('Accordion', () => {
     expect([state('aall'), onChange.mock.lastCall?.[0]]).toEqual(['000', []]);
   });
 
-  test('opening animates the height (200ms), shows the content, sets aria-expanded and turns the chevron over', () => withMotion(async () => {
+  test('opening takes the height at once and unfolds over it (opacity and clip-path, 200ms, ease-enter); closing keeps the height while it folds back (150ms, ease-exit), then gives it up; nothing animates layout (EH2)', () => withMotion(async () => {
     await render(<Faq />);
-    const pn = panel('adef'), heights: number[] = [];
+    const pn = panel('adef');
+    const runs = () => pn.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, a.effect?.getComputedTiming().duration, (a.effect?.getComputedTiming() as { easing?: string }).easing]).sort((x, y) => String(x[0]).localeCompare(String(y[0])));
     await userEvent.click(trigger('adef', 1));
-    const rows = pn.getAnimations().find((a) => (a as CSSTransition).transitionProperty === 'grid-template-rows');
-    expect(rows?.effect?.getComputedTiming().duration).toBe(200);
-    // Sample the height every frame until the animation ends.
-    let done = false;
-    void rows!.finished.then(() => { done = true; });
-    while (!done) { heights.push(pn.getBoundingClientRect().height); await new Promise(requestAnimationFrame); }
-    await settled('adef');
     const full = pn.getBoundingClientRect().height;
-    expect(heights.some((h) => h > 0 && h < full)).toBe(true);
-    expect([css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate]).toEqual(['visible', 'true', '180deg']);
+    expect(full).toBeGreaterThan(0);
+    expect(runs()).toEqual([['clip-path', 200, css(document.documentElement).getPropertyValue('--ease-enter').trim()], ['opacity', 200, css(document.documentElement).getPropertyValue('--ease-enter').trim()]]);
+    await settled('adef');
+    expect([pn.getBoundingClientRect().height, css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate])
+      .toEqual([full, '1', 'inset(0px)', 'visible', 'true', '180deg']);
+    await userEvent.click(trigger('adef', 1));
+    expect(runs().map(([p, d]) => `${String(p)} ${String(d)}`).filter((x) => /opacity|clip-path/.test(x))).toEqual(['clip-path 150', 'opacity 150']);
+    expect(pn.getBoundingClientRect().height).toBe(full);
+    await settled('adef');
+    await expect.poll(() => pn.getBoundingClientRect().height).toBe(0);
+    expect(pn.getAnimations().map((a) => (a as CSSTransition).transitionProperty).filter((p) => /height|grid|width|padding/.test(p))).toEqual([]);
   }));
 
   test('type="single": opening one closes the other; collapsible (default): the open one closes again; a disabled item doesn\'t open, and fades to 50%', async () => {

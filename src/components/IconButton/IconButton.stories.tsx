@@ -57,3 +57,7 @@ export const AsALink: Story = {
     <IconButton icon="help" label="Help" href="#help" shape="round" />
   </div>,
 };
+
+export const LongLabel: Story = {
+  args: { label: 'Open the menu with every action for this project, including archive and delete' },
+};
