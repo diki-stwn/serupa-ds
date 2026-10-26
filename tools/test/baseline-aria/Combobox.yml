@@ -51,7 +51,7 @@
 - button "Show options"
 - combobox "Disabled" [disabled]: Egypt
 - button "Show options" [disabled]
-- combobox "Read-only"
+- combobox "Read-only": Canada
 - button "Show options" [disabled]
 
 # WithDescriptions
