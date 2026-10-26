@@ -19,7 +19,7 @@
 @media (hover: hover) { .dk-list__item--interactive:hover:not(.dk-list__item--disabled) { background: var(--list-bg-hover, var(--surface-muted)); } }
 .dk-list__item--interactive:not(.dk-list__item--disabled):has(.dk-list__main:active) { background: var(--list-bg-pressed, var(--pressed)); }   /* the row, not its trailing action */
 .dk-list__item--selected { box-shadow: inset var(--list-indicator-width, var(--border-width-2)) 0 0 var(--list-indicator-selected, var(--primary)); }
-[dir="rtl"] .dk-list__item--selected { box-shadow: inset calc(var(--spacing-0) - var(--list-indicator-width, var(--border-width-2))) 0 0 var(--list-indicator-selected, var(--primary)); }
+.dk-list__item--selected:dir(rtl) { box-shadow: inset calc(var(--spacing-0) - var(--list-indicator-width, var(--border-width-2))) 0 0 var(--list-indicator-selected, var(--primary)); }
 .dk-list__main:focus-visible { outline: var(--focus-ring-width) solid var(--list-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 .dk-list__item--disabled .dk-list__main { opacity: var(--opacity-disabled); cursor: not-allowed; }
 .dk-list__leading { display: inline-flex; flex-shrink: 0; }

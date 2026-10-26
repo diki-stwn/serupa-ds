@@ -26,6 +26,10 @@ A Button with only an icon has no text for a screen reader to say. Give it an `a
 
 A Field's label points at its control by id, and nothing on the page has that id, so the label names nothing. Put the control inside the Field, or pass the control's `id`.
 
+## icon-load
+
+The icons drawn by name come from a chunk loaded on demand, and that load failed: a network error, or a deploy that removed the chunk the page asked for. The box stays empty; the next Icon tries again, and each empty one tries again when the browser is back online. To draw an icon without loading anything, import it and pass `icon={…}`, or register the icons first.
+
 ## icon-unknown
 
 The `name` given to Icon (or to an icon prop) isn't a Material Symbol, a custom icon or a registered one, so the box stays empty. Check the spelling on the Icons page (Foundations/Icons).

@@ -33,7 +33,7 @@
   --dk-progress-segment: 40%; --dk-progress-still: 30%; --dk-progress-from: -100%; --dk-progress-to: 250%;
   inline-size: var(--dk-progress-segment); animation: dk-progress-slide var(--duration-1200) var(--ease-in-out) infinite;
 }
-[dir="rtl"] .dk-progress--indeterminate .dk-progress__fill { --dk-progress-from: 100%; --dk-progress-to: -250%; }
+.dk-progress--indeterminate .dk-progress__fill:dir(rtl) { --dk-progress-from: 100%; --dk-progress-to: -250%; }
 @keyframes dk-progress-slide { from { translate: var(--dk-progress-from) 0; } to { translate: var(--dk-progress-to) 0; } }
 .dk-progress--circle { --dk-progress-start: -90deg; position: relative; display: inline-flex; align-items: center; justify-content: center; width: var(--dk-progress-ring); height: var(--dk-progress-ring); flex-shrink: 0; vertical-align: middle; }
 .dk-progress__ring { display: block; width: var(--sizing-full); height: var(--sizing-full); rotate: var(--dk-progress-start); }

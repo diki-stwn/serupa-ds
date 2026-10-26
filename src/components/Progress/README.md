@@ -37,7 +37,7 @@ import { Progress } from "serupa-ds";
 ## Behavior
 
 - The fill moves to a new value over 300ms.
-- Indeterminate: a segment slides across the bar (right to left in right-to-left pages), or a quarter arc turns. Both stand still with `prefers-reduced-motion`.
+- Indeterminate: a segment slides across the bar (right to left in right-to-left text, following the nearest `dir`), or a quarter arc turns. Both stand still with `prefers-reduced-motion`.
 
 ## Accessibility
 
