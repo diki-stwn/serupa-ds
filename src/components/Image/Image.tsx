@@ -62,11 +62,17 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const [open, setOpen] = React.useState(false);
   const img = React.useRef<HTMLImageElement | null>(null);
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
-  // it as soon as it arrives, with or without JavaScript. Then a lazy one fades in; a priority one never hides.
+  // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
+  // and fades in when it arrives (one that arrives sooner just appears); a priority one never hides.
   const [live, setLive] = React.useState(false);
   React.useEffect(() => { setState("loading"); }, [src]);
   // An image already in the cache can finish before React listens.
-  React.useEffect(() => { const i = img.current; if (i && i.complete) setState(i.naturalWidth > 0 ? "loaded" : "error"); setLive(true); }, [src]);
+  React.useEffect(() => {
+    const i = img.current;
+    if (i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
+    const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
+    return () => cancelAnimationFrame(f);
+  }, [src]);
   const named = (base: string) => (alt ? base + ": " + alt : base);
   // With ratio "auto", width and height (the picture's size) shape the frame before the picture arrives, so the
   // page doesn't jump when it loads.
