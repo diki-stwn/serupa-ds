@@ -89,7 +89,7 @@ describe('FileUpload', () => {
     expect([w.opened, input(q(many)).multiple]).toEqual([1, true]);
   });
 
-  test('chosen files are listed with a type icon, name and size; the native input holds them; accept and maxSize refuse files in a role="alert" message, a duplicate is skipped quietly; maxFiles=3 says why the fourth isn\'t added', async () => {
+  test('chosen files are listed with a type icon, name and size; the native input holds them; accept and maxSize refuse files in a role="alert" message, a duplicate is skipped and said so (FQ1); maxFiles=3 says why the fourth isn\'t added', async () => {
     const rejects: string[] = [];
     await render(<Many rejects={rejects} />);
     const el = q(many);
@@ -97,18 +97,19 @@ describe('FileUpload', () => {
     expect(list(el)).toEqual(['photo.png 2 KB image', 'report.pdf 768 KB picture_as_pdf']);
     await expect.poll(() => [...input(el).files!].map((f) => f.name).join()).toBe('photo.png,report.pdf');
     await userEvent.upload(input(el), [file('notes.txt', 'text/plain', 10), file('huge.png', 'image/png', 2 * 1024 * 1024), file('photo.png', 'image/png', 2048)]);
-    expect([list(el).length, errs(el), rejects.join(';')]).toEqual([2, 'alert: notes.txt isn\'t an image or PDF. / huge.png is larger than 1 MB.', 'type,size']);
+    expect([list(el).length, errs(el), rejects.join(';')]).toEqual([2, 'alert: notes.txt isn\'t an image or PDF. / huge.png is larger than 1 MB. / photo.png is already added.', 'type,size,duplicate']);
     await userEvent.upload(input(el), [file('a.jpg', 'image/jpeg', 100), file('b.jpg', 'image/jpeg', 100)]);
     expect([list(el).length, errs(el)]).toEqual([3, 'alert: b.jpg wasn\'t added: up to 3 files.']);
   });
 
-  test('the remove button (named "Remove report.pdf") takes the file off the list, clears old messages and moves focus to Choose files', async () => {
+  test('the remove button (named "Remove report.pdf") takes the file off the list, clears old messages and moves focus to the next file\'s remove button (FQ1)', async () => {
     await render(<Many />);
     const el = q(many);
     await userEvent.upload(input(el), [file('photo.png', 'image/png', 2048), file('report.pdf', 'application/pdf', 10), file('a.jpg', 'image/jpeg', 100), file('b.jpg', 'image/jpeg', 100)]);
     expect(errs(el)).not.toBeNull();
     await userEvent.click(items(el)[0].querySelector('button')!);
-    expect([names(el), document.activeElement!.textContent, items(el)[0].querySelector('button')!.getAttribute('aria-label'), !!el.querySelector('[role=alert]')]).toEqual(['report.pdf,a.jpg', 'Choose files', 'Remove report.pdf', false]);
+    await expect.poll(() => document.activeElement!.getAttribute('aria-label')).toBe('Remove report.pdf');
+    expect([names(el), items(el)[0].querySelector('button')!.getAttribute('aria-label'), !!el.querySelector('[role=alert]')]).toEqual(['report.pdf,a.jpg', 'Remove report.pdf', false]);
   });
 
   test('dragging files over the area highlights it; dropping adds them and ends the highlight', async () => {
@@ -257,7 +258,7 @@ describe('FileUpload', () => {
     await expect.poll(() => getComputedStyle(rootOf('tok').querySelector('.dk-file-upload__zone')!).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 
-  test('keyboard: Tab reaches the choose button first (the hidden input and the drop area are skipped); Enter and Space open the file picker; Tab then reaches each file\'s remove button, named after the file; Enter removes the file and focus goes back to the choose button', async () => {
+  test('keyboard: Tab reaches the choose button first (the hidden input and the drop area are skipped); Enter and Space open the file picker; Tab then reaches each file\'s remove button, named after the file; Enter removes the file and focus moves to the one before it, and to the choose button once none are left (FQ1)', async () => {
     await render(<Many />);
     const el = q(many), w = watchPicker(el);
     (document.activeElement as HTMLElement | null)?.blur();
@@ -275,7 +276,10 @@ describe('FileUpload', () => {
     expect(stops).toEqual(['Remove a.png', 'Remove b.pdf']);
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => items(el).length).toBe(1);
-    expect(document.activeElement).toBe(choose(el));
+    await expect.poll(() => document.activeElement!.getAttribute('aria-label')).toBe('Remove a.png');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => items(el).length).toBe(0);
+    await expect.poll(() => document.activeElement).toBe(choose(el));
   });
 
   test('a refused type says what is accepted, in words from accept: "a PNG or JPG", "an SVG", "an audio file or MP4"; a type with no short name keeps the general message', async () => {
@@ -300,4 +304,63 @@ describe('FileUpload', () => {
     expect(document.activeElement).not.toBe(inp);
   });
 
+});
+
+describe('FileUpload: drops, folders and what is said (FQ1)', () => {
+  const said = () => document.querySelector('[data-dk-announcer]')?.textContent ?? '';
+  const fileDrag = (type: string, target: EventTarget) => {
+    const dt = new DataTransfer(); dt.items.add(file('stray.png', 'image/png', 10));
+    const e = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt });
+    target.dispatchEvent(e);
+    return e.defaultPrevented;
+  };
+  test('a file dropped outside the area doesn\'t open in the tab while a FileUpload can take it; a text drag, a read-only one and an unmounted one leave the page alone', async () => {
+    const screen = await render(<Many />);
+    const out = document.createElement('div'); document.body.appendChild(out);
+    try {
+      expect([fileDrag('dragover', out), fileDrag('drop', out)]).toEqual([true, true]);
+      const text = new DataTransfer(); text.setData('text/plain', 'hi');
+      const t = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: text }); out.dispatchEvent(t);
+      expect(t.defaultPrevented).toBe(false);
+      await screen.rerender(<FileUpload readOnly />);
+      expect(fileDrag('drop', out)).toBe(false);
+      await screen.unmount();
+      expect(fileDrag('drop', out)).toBe(false);
+    } finally { out.remove(); }
+  });
+
+  test('adding and removing are said politely: one file by name, several by count; in the provider\'s words', async () => {
+    await render(<Many />);
+    const el = q(many);
+    await userEvent.upload(input(el), [file('report.pdf', 'application/pdf', 10)]);
+    await expect.poll(said).toBe('report.pdf added.');
+    await userEvent.upload(input(el), [file('a.png', 'image/png', 10), file('b.png', 'image/png', 10)]);
+    await expect.poll(said).toBe('2 files added.');
+    await userEvent.click(items(el)[0].querySelector('button')!);
+    await expect.poll(said).toBe('report.pdf removed.');
+  });
+
+  test('Indonesian words for what is said and the new messages', async () => {
+    await render(<SerupaProvider labels={idLabels}><FileUpload id="idfu" multiple /></SerupaProvider>);
+    const el = rootOf('idfu');
+    await userEvent.upload(input(el), [file('laporan.pdf', 'application/pdf', 10)]);
+    await expect.poll(said).toBe('laporan.pdf ditambahkan.');
+    await userEvent.upload(input(el), [file('laporan.pdf', 'application/pdf', 10)]);
+    expect(errs(el)).toBe('alert: laporan.pdf sudah ditambahkan.');
+    await userEvent.click(items(el)[0].querySelector('button')!);
+    await expect.poll(said).toBe('laporan.pdf dihapus.');
+  });
+
+  test('a dropped folder is refused with reason "folder" and a message, while the files dropped with it are added', async () => {
+    const rejects: string[] = [];
+    await render(<Many rejects={rejects} />);
+    const zone = q(`${many} .dk-file-upload__zone`), folder = new File([], 'Invoices'), pic = file('a.png', 'image/png', 10);
+    // A real folder can't be put in a synthetic DataTransfer; this one says what the browser says for a dropped folder.
+    const dt = { types: ['Files'], files: [folder, pic], dropEffect: 'none', items: [{ kind: 'file', webkitGetAsEntry: () => ({ isDirectory: true }) }, { kind: 'file', webkitGetAsEntry: () => ({ isDirectory: false }) }] };
+    const e = new DragEvent('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(e, 'dataTransfer', { value: dt });
+    zone.dispatchEvent(e);
+    await expect.poll(() => names(q(many))).toBe('a.png');
+    expect([errs(q(many)), rejects.join(';')]).toEqual(['alert: Invoices is a folder: choose the files in it instead.', 'folder']);
+  });
 });
