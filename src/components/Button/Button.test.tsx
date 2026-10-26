@@ -457,12 +457,15 @@ describe('Button micro-interactions', () => {
     expect(take()).toEqual(['click']);
   });
 
-  test('press: animates scale only, at --button-press-duration (100ms), ease-settle (ease-out-expo)', async () => {
+  test('press: animates scale only, down at --button-press-duration (100ms) with ease-settle (ease-out-expo), and springs back on release over motion-release (300ms) with ease-spring', async () => {
     await render(<Motion />);
-    const s = getComputedStyle(el('press')), props = s.transitionProperty.split(', '), i = props.indexOf('scale');
-    expect(i).toBeGreaterThanOrEqual(0);
-    expect(s.transitionDuration.split(', ')[i]).toBe('0.1s');
-    expect(s.transitionTimingFunction.split(/, (?=c|l|e)/)[i]).toMatch(/cubic-bezier\(0.16, 1, 0.3, 1\)/);
+    const timing = () => { const s = getComputedStyle(el('press')), props = s.transitionProperty.split(', '), i = props.indexOf('scale'); return { i, props, d: s.transitionDuration.split(', ')[i], e: s.transitionTimingFunction.split(/, (?=c|l|e)/)[i] }; };
+    const rest = timing(), down = await hold(el('press'), async () => { await expect.poll(() => getComputedStyle(el('press')).scale).not.toBe('none'); return timing(); }, { ms: 200 });
+    expect(rest.i).toBeGreaterThanOrEqual(0);
+    expect([rest.d, down.d]).toEqual(['0.3s', '0.1s']);
+    expect(rest.e).toMatch(/^linear\(/);
+    expect(down.e).toMatch(/cubic-bezier\(0.16, 1, 0.3, 1\)/);
+    const props = rest.props;
     expect([props.includes('all'), props.includes('width')]).toEqual([false, false]);
   });
 

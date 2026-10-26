@@ -776,6 +776,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | Role | Today | What moves |
 | --- | --- | --- |
 | `motion-press` | `duration-100` | A control answering while it's held down (Button scales down). |
+| `motion-release` | `duration-300` | A press let go springing back to size with `ease-spring` (back in place in about a third of it, then settling). |
 | `motion-hover` | `duration-150` | Hover and focus changes on a control that stays put: colors, borders, shadows. |
 | `motion-enter-sm` | `duration-150` | A small surface appearing: tooltips, popovers, menus, date pickers. |
 | `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |

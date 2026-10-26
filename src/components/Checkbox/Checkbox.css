@@ -23,8 +23,8 @@
 .dk-checkbox--bare .dk-checkbox__control { height: var(--dk-checkbox-box); }
 /* Pressed: the box shrinks a little while the row is held (pointer, or Space on the box) and springs back. Only
    scale moves; not when read-only or disabled, and not under reduced motion. */
-.dk-checkbox__control { transition: scale var(--motion-press) var(--ease-settle); }
-.dk-checkbox:active:not(.dk-checkbox--readonly, :has(.dk-checkbox__input:disabled)) .dk-checkbox__control { scale: var(--checkbox-press-scale, var(--scale-90)); }
+.dk-checkbox__control { transition: scale var(--motion-release) var(--ease-spring); }
+.dk-checkbox:active:not(.dk-checkbox--readonly, :has(.dk-checkbox__input:disabled)) .dk-checkbox__control { scale: var(--checkbox-press-scale, var(--scale-90)); transition: scale var(--motion-press) var(--ease-settle); }
 @media (prefers-reduced-motion: reduce) { .dk-checkbox__control { transition: none; } .dk-checkbox:active .dk-checkbox__control { scale: none; } }
 .dk-checkbox__input {
   --dk-checkbox-bd: var(--checkbox-border, var(--field-border));

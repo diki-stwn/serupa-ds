@@ -8511,6 +8511,16 @@
         }
       }
     },
+    "motion-release": {
+      "$type": "duration",
+      "$value": "{transitions.duration-300}",
+      "$description": "A press let go: the control springing back to its size with `ease-spring`. Longer than the press, because a spring spends its end settling; it is back in place in about a third of this.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--motion-release"
+        }
+      }
+    },
     "motion-hover": {
       "$type": "duration",
       "$value": "{transitions.duration-150}",
