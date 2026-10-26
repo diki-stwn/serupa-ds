@@ -26,7 +26,6 @@ const KNOWN = {
   NumberInput: ['disabled', 'invalid', 'readOnly'],
   PhoneInput: ['readOnly'],
   PinInput: ['readOnly'],
-  SegmentedControl: ['disabled'],
 };
 
 const config = ts.getParsedCommandLineOfConfigFile(path.join(PROJECT, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
