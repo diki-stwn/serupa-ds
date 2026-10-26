@@ -7,7 +7,8 @@
 //   2. bundle.css stays under 2 MB.
 //   3. Every var(--x) in bundle.css names a real token (or a --dk-* internal variable), with no fallback value:
 //      tokens.css always loads first, so a fallback would only be a second copy of the token to keep in step.
-//      Component styles read every color through a component token (COLOR_DIRECT_ALLOWED lists the exceptions).
+//      (That component styles read every color through a component token is the Stylelint rule
+//      serupa/color-through-component-token.)
 //   4. No utility class writes out a value that a token already holds (it should read the token).
 //   5. Component styles use no values except tokens and the few listed in ALLOWED_COMPONENT_LITERALS.
 //   6. Nothing loads from another server (no http(s) URLs or @import in the shipped CSS/JS).
@@ -116,34 +117,8 @@ if (COMP.size) {
   check('component tokens: every one is used, with exactly the default its tokens file gives', !unused.length && !wrong.length, [...(unused.length ? ['unused: ' + unused.join(', ')] : []), ...wrong.slice(0, 8)].join('; '));
 }
 
-// 3c. component styles read colors through their component tokens: a shared color token may only appear as a component
-// token's default (var(--card-text, var(--text))), so every color can be overridden per component. The few
-// documented exceptions are listed here, by file and token, with the reason.
-const PALETTE = new Set(groups.color.tokens.filter((x) => !ALIASES.has(x.name)).map((x) => x.name));
-/** @type {Array<[string, (name: string) => boolean, string]>} */
-const COLOR_DIRECT_ALLOWED = [
-  ['Badge/Badge.css', (n) => PALETTE.has(n), 'status and palette tones use fixed palette steps checked for contrast (tools/test/badge.mjs), and the state layer is black or white'],
-  ['Loader/Loader.css', (n) => n === 'secondary', "the skeleton's fill where color-mix() is missing (the fill is the text color at --loader-skeleton-fill)"],
-];
-const direct = [];
-for (const c of fs.readdirSync(path.join(P, 'src', 'components')).sort()) {
-  for (const f of fs.readdirSync(path.join(P, 'src', 'components', c)).filter((f) => f.endsWith('.css')).sort()) {
-    const rel = `${c}/${f}`, src = stripComments(read(`src/components/${rel}`));
-    for (let i = src.indexOf('var(--'); i >= 0; i = src.indexOf('var(--', i + 1)) {
-      const n = /^var\(--([A-Za-z0-9\\._-]+)/.exec(src.slice(i))[1].replace(/\\/g, '');
-      if (COMP.has(n)) {   // skip the whole var(), default included
-        let d = 0, j = i + 3;
-        for (; j < src.length; j++) { if (src[j] === '(') d++; else if (src[j] === ')' && --d === 0) break; }
-        i = j;
-        continue;
-      }
-      if (!ALIASES.has(n) && !PALETTE.has(n)) continue;
-      if (COLOR_DIRECT_ALLOWED.some(([file, ok]) => file === rel && ok(n))) continue;
-      direct.push(`${rel}: var(--${n})`);
-    }
-  }
-}
-check('component styles read colors through their component tokens (no shared color used directly)', !direct.length, direct.slice(0, 10).join('; '));
+// 3c. that component styles read colors through their component tokens is a Stylelint rule
+// (serupa/color-through-component-token, tools/lint/stylelint-serupa.mjs), so the editor shows it.
 
 // 4. literal values that a token holds
 const EXCEPT = /^-?(shadow|inset-shadow|text-shadow|drop-shadow|rounded(-[a-z]+)?-full)\b/;   // documented exceptions
