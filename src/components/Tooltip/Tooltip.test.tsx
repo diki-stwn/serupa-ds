@@ -2,7 +2,7 @@ import * as React from 'react';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Dialog } from '../Dialog/Dialog';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
@@ -215,7 +215,7 @@ describe('Tooltip warm-up (EC1)', () => {
     await expect.poll(() => isOpen('wa')).toBe(true);
     expect(tipOf('wa').hasAttribute('data-warm')).toBe(false);
     await userEvent.hover(el('wb'));
-    expect([isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), getComputedStyle(tipOf('wb')).animationName]).toEqual([true, false, true, 'none']);
+    expect([isOpen('wb'), isOpen('wa'), tipOf('wb').hasAttribute('data-warm'), tipOf('wb').getAnimations().length]).toEqual([true, false, true, 0]);
     // Off every tooltip for less than 300ms: still warm.
     await away(); await wait(150);
     await userEvent.hover(el('wc'));
@@ -227,5 +227,17 @@ describe('Tooltip warm-up (EC1)', () => {
     expect(isOpen('wa')).toBe(false);
     await expect.poll(() => isOpen('wa')).toBe(true);
     await away();
+  });
+  test('entry: fades in and slides 4px away from its trigger with a transition, not keyframes (EO1)', async () => {
+    await withMotion(async () => {
+      await render(<div style={{ padding: '80px' }}><Tooltip content="Bold" placement="bottom"><button id="sl">B</button></Tooltip></div>);
+      await userEvent.hover(el('sl'));
+      await expect.poll(() => isOpen('sl')).toBe(true);
+      const t = tipOf('sl');
+      const moves = t.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
+      expect([moves, t.getAnimations().some((a) => a instanceof CSSAnimation), t.dataset.side]).toEqual([['opacity', 'translate'], false, 'bottom']);
+      await Promise.all(t.getAnimations().map((a) => a.finished));
+      expect([css(t).opacity, css(t).translate]).toEqual(['1', 'none']);
+    });
   });
 });
