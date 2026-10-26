@@ -22,3 +22,8 @@ export const WithFiles: Story = {
 export const Disabled: Story = { args: { disabled: true } };
 export const Invalid: Story = { args: { invalid: true, required: true, hint: 'Add at least one image or PDF' } };
 export const ReadOnly: Story = { ...WithFiles, args: { readOnly: true } };
+
+export const LongText: Story = {
+  args: { title: 'Drag your signed contracts, invoices and receipts here', buttonLabel: 'Choose files from this device', hint: 'Images or PDF, up to 5 MB each, and no more than five files at a time' },
+  decorators: [(Story) => <div style={{ width: 220 }}><Story /></div>],
+};

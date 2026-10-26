@@ -1,6 +1,6 @@
 # Loader
 
-Shows that something is loading when you can't say how far along it is. Six looks: a **ring** (an arc that grows and shrinks as it turns on a faint track), **spokes** (eight spokes ticking round a circle, like the iOS activity indicator), **dots** (three pulsing dots), **pixel** (a 3×3 grid of square pixels with a wave of light running through it), **text** (words with a shine sweeping through them) and **skeleton** (placeholder shapes where the content will be, with the same shine).
+Shows that something is loading when you can't say how far along it is. Six looks: a **ring** (a quarter arc turning on a faint track), **spokes** (eight spokes ticking round a circle, like the iOS activity indicator), **dots** (three pulsing dots), **pixel** (a 3×3 grid of square pixels with a wave of light running through it), **text** (words with a shine sweeping through them) and **skeleton** (placeholder shapes where the content will be, with the same shine).
 
 Called Spinner before 3.0.0: see the upgrade table in the changelog.
 
@@ -77,7 +77,7 @@ Use one look per kind of wait across the product: the ring for loading content y
 <Loader variant="spokes" size="lg" tone="muted" label="Loading photos" />
 ```
 
-It takes the same sizes, tones and delay as the ring; `primary` and `muted` color it. Under reduced motion it ticks at half speed (2s a turn). Use it where the product should feel at home on Apple platforms, or where a quieter, more mechanical motion suits better than the ring's growing arc; keep one of the two per product.
+It takes the same sizes, tones and delay as the ring; `primary` and `muted` color it. Under reduced motion it stands still and breathes, like the ring. Use it where the product should feel at home on Apple platforms, or where a quieter, more mechanical motion suits better than the ring's smooth turn; keep one of the two per product.
 
 ### Pixel
 
@@ -186,7 +186,7 @@ Once it shows, a loader stays at least 500ms. Without that, work ending at 320ms
 - In a group of skeletons, name one ("Loading profile") and pass `label=""` to the rest, so it's announced once, and set `aria-busy` on the area.
 - It draws in the text color, so it keeps the contrast of the text it sits with. With `tone`, use it on `surface` backgrounds, where `primary` and `text-muted` meet the 3:1 non-text contrast.
 - The text variant's visible words are hidden from screen readers, which already hear the same text as its name.
-- Under reduced motion the text variant is plain text, the skeleton a still fill, the pixel patterns run at half speed (2.4s), the spokes tick at half speed (2s), the ring keeps a steady quarter arc and turns slowly (the `animate-spin-reduced` token, 3s a turn), and the dots fade without growing.
+- Under reduced motion the text variant is plain text, the skeleton a still fill, the pixel patterns run at half speed (2.4s), the ring and the spokes stand still and breathe between full and half strength (opacity, 2s), and the dots fade without growing. Nothing turns.
 - **Keyboard:** none: it isn't focusable.
 
 ## Props
@@ -248,4 +248,4 @@ Each is an optional override: set it on the page, a container or one loader. Uns
 | `--loader-pixel-duration` | `duration-1200` | One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s) |
 | `--loader-pixel-stagger` | `delay-75` | Delay from one step of a pixel pattern to the next |
 
-The ring turns once every 2s while its arc stretches from a dot to most of the ring and shrinks again every 1.5s, its tail chasing its head. The two periods don't line up, so each stretch starts somewhere new. Both are sums of the motion tokens (`duration-1000` + `duration-1000`, `duration-1000` + `duration-500`), with `ease-linear` for the turn and `ease-in-out` for the arc. The text shine and the skeleton shimmer take 2s (`duration-1000` twice) with `ease-in-out`, and both move on `translate`, which the compositor runs without repainting: the skeleton slides a layer three bones wide through each bone, and the text slides a window holding a full-color copy of the words across them. Under reduced motion the arc stays a steady quarter and the ring turns at `animate-spin-reduced` (3s). It fades in over `duration-150` with `ease-out`.
+The ring is a quarter arc that turns once every `motion-loop-spinner` (1s) with `ease-linear`, the one spinner speed of the library: Switch's pending ring and the indeterminate circular Progress turn with it. Only the drawing turns, so nothing is repainted on each frame. The text shine and the skeleton shimmer take 2s (`duration-1000` twice) with `ease-in-out`, and both move on `translate`, which the compositor runs without repainting: the skeleton slides a layer three bones wide through each bone, and the text slides a window holding a full-color copy of the words across them. Under reduced motion the ring stands still and breathes over twice that (2s, `ease-in-out`). It fades in over `duration-150` with `ease-out`.

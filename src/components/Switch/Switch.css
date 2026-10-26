@@ -59,18 +59,25 @@
 /* Pressed: the thumb shrinks a little while the row is held (pointer, or Space on the switch) and springs back.
    Only scale; not when read-only, pending or disabled, and not under reduced motion (below). */
 .dk-switch:active:not(.dk-switch--readonly, .dk-switch--pending, :has(.dk-switch__input:disabled)) .dk-switch__thumb { scale: var(--switch-press-scale, var(--scale-90)); }
-/* Pending: a ring turns on the thumb, in primary (3:1 on the off thumb's field, and on the on thumb's on-primary). */
+/* Pending: Loader's ring on the thumb (EE1): a quarter arc in primary (3:1 on the off thumb's field, and on the
+   on thumb's on-primary) on a faint track of the same color, turning at --motion-loop-spinner; under reduced motion
+   it stands still and breathes. */
 .dk-switch--pending { cursor: progress; }
 .dk-switch__thumb { display: inline-flex; align-items: center; justify-content: center; }
 .dk-switch__spinner {
   --dk-switch-spin: calc(var(--dk-switch-thumb) - var(--dk-switch-pad) * 2);
   box-sizing: border-box; width: var(--dk-switch-spin); height: var(--dk-switch-spin);
-  border: var(--border-width-2) solid var(--switch-pending, var(--primary)); border-block-start-color: transparent; border-radius: var(--rounded-full);
-  animation: var(--animate-spin);
+  color: var(--switch-pending, var(--primary));
+  border: var(--border-width-2) solid transparent; border-block-start-color: currentColor; border-radius: var(--rounded-full);
+  animation: spin var(--motion-loop-spinner) var(--ease-linear) infinite;
 }
+@supports (color: color-mix(in srgb, currentColor 50%, transparent)) {
+  .dk-switch__spinner { border-color: color-mix(in srgb, currentColor var(--opacity-20), transparent); border-block-start-color: currentColor; }
+}
+@keyframes dk-switch-breathe { 50% { opacity: var(--opacity-50); } }
 /* Disabled, by its own prop or a disabled fieldset (Field group). */
 .dk-switch:has(.dk-switch__input:disabled) { opacity: var(--opacity-disabled); cursor: not-allowed; }
-@media (prefers-reduced-motion: reduce) { .dk-switch__input, .dk-switch__thumb { transition: none; } .dk-switch:active .dk-switch__thumb { scale: none; } .dk-switch__spinner { animation: var(--animate-spin-reduced); } }
+@media (prefers-reduced-motion: reduce) { .dk-switch__input, .dk-switch__thumb { transition: none; } .dk-switch:active .dk-switch__thumb { scale: none; } .dk-switch__spinner { animation: dk-switch-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; } }
 @media (forced-colors: active) {
   .dk-switch__input { border: var(--border-width-1) solid CanvasText; }
   .dk-switch__thumb { forced-color-adjust: none; background: CanvasText; }

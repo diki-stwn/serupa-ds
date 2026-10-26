@@ -27,16 +27,12 @@
 .dk-loader__track, .dk-loader__arc { fill: none; stroke: currentColor; stroke-width: var(--loader-stroke-width, var(--stroke-width-2)); }
 .dk-loader__track { opacity: var(--loader-track-opacity, var(--opacity-20)); }
 .dk-loader__arc { stroke-linecap: round; }
-/* The ring: the drawing turns (2s a turn) while the arc stretches from a dot to most of the ring and shrinks
-   again, its tail chasing its head (1.5s). The two periods don't line up, so each stretch starts somewhere new.
-   The arc's lengths are in hundredths of the ring (pathLength="100"); timings are sums of motion tokens. */
-.dk-loader--ring .dk-loader__art > svg { animation: spin calc(var(--duration-1000) + var(--duration-1000)) var(--ease-linear) infinite; }
-.dk-loader--ring .dk-loader__arc { animation: dk-loader-arc calc(var(--duration-1000) + var(--duration-500)) var(--ease-in-out) infinite; }
-@keyframes dk-loader-arc {
-  0% { stroke-dasharray: 1 150; stroke-dashoffset: 0; }
-  50% { stroke-dasharray: 70 150; stroke-dashoffset: -15; }
-  100% { stroke-dasharray: 70 150; stroke-dashoffset: -99; }
-}
+/* The ring: a quarter arc (pathLength="100", dasharray 25) on its track, the drawing turning at a steady
+   --motion-loop-spinner (1s a turn), the one spinner speed (EE1): Switch's pending ring and the circular Progress
+   turn with it. Only the drawing turns, on the compositor: nothing repaints on each frame. */
+.dk-loader--ring .dk-loader__art > svg { animation: spin var(--motion-loop-spinner) var(--ease-linear) infinite; }
+/* Reduced motion (below): spinners don't turn; the still drawing breathes between full and half strength. */
+@keyframes dk-loader-breathe { 50% { opacity: var(--opacity-50); } }
 .dk-loader__dot {
   fill: currentColor;
   transform-box: fill-box;
@@ -101,7 +97,7 @@
 /* Spokes: eight rounded spokes round a circle, like the iOS activity indicator, in its proportions: each spoke
    about 10% of the size wide and 25% long, round a hole 40% across. The lead spoke is at full strength
    and each one behind it (anticlockwise) is fainter, down to opacity-25; the drawing ticks a spoke at a time
-   (45°, step-end), a full turn every --loader-spokes-duration (1s). Under reduced motion it ticks at half speed. */
+   (45°, step-end), a full turn every --loader-spokes-duration (1s). Under reduced motion it stands still and breathes. */
 .dk-loader__spoke { stroke: currentColor; stroke-linecap: round; stroke-width: var(--loader-spokes-width, var(--stroke-width-4)); }
 .dk-loader__spoke:nth-child(2) { opacity: var(--opacity-85); }
 .dk-loader__spoke:nth-child(3) { opacity: var(--opacity-70); }
@@ -209,14 +205,12 @@
   .dk-loader__bone:dir(rtl)::after { --dk-loader-sweep: calc(var(--sizing-full) * -2 / 3); }
 }
 @keyframes dk-loader-sweep { to { translate: var(--dk-loader-sweep) 0; } }
-/* Reduced motion: the ring keeps a steady quarter arc and turns slowly (animate-spin-reduced, 3s a turn);
+/* Reduced motion: the ring and the spokes stand still and breathe (opacity, twice the spinner's period: 2s);
    the dots only fade, without growing; the pixel patterns slow to half speed; the label is plain text and the skeleton a still fill, without the shine. */
 @media (prefers-reduced-motion: reduce) {
-  .dk-loader--ring .dk-loader__art > svg { animation: var(--animate-spin-reduced); }
-  .dk-loader--spokes .dk-loader__art > svg { animation-duration: calc(var(--loader-spokes-duration, var(--duration-1000)) + var(--loader-spokes-duration, var(--duration-1000))); }   /* ticks at half speed */
+  .dk-loader--ring .dk-loader__art > svg, .dk-loader--spokes .dk-loader__art > svg { animation: dk-loader-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; }
   .dk-loader__label { -webkit-text-fill-color: currentColor; }   /* plain text, no shine */
   .dk-loader__glint { display: none; }
-  .dk-loader--ring .dk-loader__arc { animation: none; }
   .dk-loader__dot { animation-name: dk-loader-dot-fade; }
   .dk-loader__px, .dk-loader--pixel .dk-loader__px { animation-duration: calc(var(--duration-1200) + var(--duration-1200)); }   /* half speed, keeping order and starts: 2.4s */
   .dk-loader--pattern-snake .dk-loader__px, .dk-loader--pattern-spiral .dk-loader__px { animation-duration: calc(var(--duration-1000) + var(--duration-1000) + var(--duration-1000)); }   /* 3s */

@@ -88,3 +88,19 @@ export const StickyHeader: Story = {
     </Table>
   ),
 };
+
+export const Overflow: Story = {
+  render: (args) => (
+    <div style={{ width: 280 }}>
+      <Table {...args} caption="Team members, with every role and how many calls each made this quarter">
+        <TableHead>
+          <TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Role and permissions</TableHeaderCell><TableHeaderCell align="end">Calls this quarter</TableHeaderCell></TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow><TableCell>Maria Magdalena von Hohenzollern-Sigmaringen</TableCell><TableCell>Administrator</TableCell><TableCell align="end">1,234,567</TableCell></TableRow>
+          <TableRow><TableCell>Donaudampfschifffahrtsgesellschaftskapitänskajüte</TableCell><TableCell>Editor</TableCell><TableCell align="end">0</TableCell></TableRow>
+        </TableBody>
+      </Table>
+    </div>
+  ),
+};
