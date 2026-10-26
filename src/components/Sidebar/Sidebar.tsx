@@ -192,7 +192,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
     return (
       <li className="dk-sidebar__li">
         <Menu placement="right-start" trigger={
-          typeof props.label === "string"
+          props.label != null && props.label !== false && props.label !== ""
             ? <Tooltip content={props.label} placement="right" role="label"><button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button></Tooltip>
             : <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button>
         }>
@@ -217,7 +217,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   const link = React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cls, "aria-current": props.active ? "page" : undefined }), inner(false));
   return (
     <li className="dk-sidebar__li">
-      {rail && typeof props.label === "string" ? <Tooltip content={props.label} placement="right" role="label">{link}</Tooltip> : link}
+      {rail && props.label != null && props.label !== false && props.label !== "" ? <Tooltip content={props.label} placement="right" role="label">{link}</Tooltip> : link}
     </li>
   );
 });

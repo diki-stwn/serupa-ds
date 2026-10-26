@@ -211,6 +211,19 @@ describe('Sidebar', () => {
     expect(Math.round(rect(tip()!).left - rect(el('ihome')).right)).toBeGreaterThan(0);
   });
 
+  test('collapsed: an element label gets the tooltip too, on a link and on a group button, and still names it (GM5)', async () => {
+    await render(<Sidebar collapsed>
+      <I href="#drafts" icon="draft" id="idraft" label={<span>Drafts <em>(new)</em></span>} />
+      <I icon="folder" id="gfiles" label={<span>Files</span>}><I href="#a" label="A" /></I>
+    </Sidebar>);
+    for (const [id, name] of [['idraft', 'Drafts (new)'], ['gfiles', 'Files']]) {
+      await tabTo(el(id));
+      const tip = () => document.getElementById(el(id).getAttribute('aria-labelledby') || '');
+      await expect.poll(() => tip()?.matches(':popover-open')).toBe(true);
+      expect(tip()!.textContent).toBe(name);
+    }
+  });
+
   test('collapsed: an item with a badge is named by its label and described by the badge, so "4" is still read (CP1)', async () => {
     await render(<App />, { wrapper: EnUS });
     const text = (attr: string) => (el('iinbox').getAttribute(attr) || '').split(' ').filter(Boolean).map((id) => document.getElementById(id)?.textContent).join(' ');
