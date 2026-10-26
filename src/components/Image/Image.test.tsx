@@ -251,4 +251,36 @@ describe('Image loading motion', () => {
     await expect.poll(() => f.dataset.state, { timeout: 5000 }).toBe('loaded');
     expect(getComputedStyle(f, '::before').content).toBe('none');
   });
+  test('sizes (H9): a lazy picture whose srcSet lists widths gets sizes="auto" (with the given sizes after it as the fallback); x descriptors, priority or a sizes already starting with auto are left alone', async () => {
+    const W = `${PIC}#a 400w, ${PIC}#b 800w`, X = `${PIC}#a 1x, ${PIC}#b 2x`;
+    await render(<Row>
+      <Pic id="w" srcSet={W} />
+      <Pic id="given" srcSet={W} sizes="(max-width: 600px) 100vw, 200px" />
+      <Pic id="already" srcSet={W} sizes="auto, 50vw" />
+      <Pic id="x" srcSet={X} />
+      <Pic id="hero" srcSet={W} sizes="100vw" priority />
+      <Pic id="eager" srcSet={W} loading="eager" />
+    </Row>);
+    const sizes = (id: string) => frame(id).querySelector('img')!.getAttribute('sizes');
+    expect(['w', 'given', 'already', 'x', 'hero', 'eager'].map(sizes)).toEqual(['auto', 'auto, (max-width: 600px) 100vw, 200px', 'auto, 50vw', null, '100vw', null]);
+  });
+
+  test('sources (H9): a <picture> with one <source> each ahead of the <img>, the first matching one shown; the frame lays out exactly as without; sizes="auto" on lazy width lists', async () => {
+    const WIDE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#ef4444"/></svg>');
+    await render(<Row>
+      <Pic id="plain" alt="Plain" ratio="video" />
+      <Pic id="src" alt="Art directed" ratio="video" sources={[
+        { srcSet: `${WIDE} 400w`, media: '(min-width: 1px)', width: 400, height: 200 },
+        { srcSet: PIC, type: 'image/x-never' },
+      ]} />
+    </Row>);
+    const f = frame('src'), i = f.querySelector('img')!;
+    const list = [...f.querySelectorAll('picture > source')].map((s) => [s.getAttribute('media'), s.getAttribute('type'), s.getAttribute('sizes'), s.getAttribute('width')]);
+    expect(list).toEqual([['(min-width: 1px)', null, 'auto', '400'], [null, 'image/x-never', null, null]]);
+    expect(i.parentElement!.tagName).toBe('PICTURE');
+    await expect.poll(() => f.dataset.state).toBe('loaded');
+    expect(i.currentSrc).toBe(WIDE);
+    expect(box('src')).toEqual({ ...box('plain') });
+    expect([...frame('plain').querySelectorAll('picture')].length).toBe(0);
+  });
 });

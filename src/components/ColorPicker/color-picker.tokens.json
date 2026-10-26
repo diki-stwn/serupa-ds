@@ -32,6 +32,16 @@
           }
         }
       },
+      "invalid": {
+        "$type": "color",
+        "$value": "{color.danger}",
+        "$description": "The swatches' border when invalid (3:1 on the page), so the error shows on the swatches as well as in the Field's message.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--color-picker-invalid"
+          }
+        }
+      },
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",

@@ -54,6 +54,7 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 - Name the group: wrap it in `Field group` (a `<fieldset>` and `<legend>`, with the hint and error describing it), or give the RadioGroup an `aria-label` or `aria-labelledby`.
 - A radio's label names it; a description is read after it. The dot is decorative.
 - The label and description keep 4.5:1, and the border, checked fill, dot, focus ring and invalid border 3:1, in all six themes (`Radio.test.tsx`).
+- Native constraints (`required`) show too: a box that fails them takes the `invalid` border once people have changed it or tried to send the form (`:user-invalid`), never on first paint. It's only the color: `aria-invalid` and the message stay yours (set `invalid` and Field's `error` when you check it yourself). To keep the browser out of it, leave out the attribute and check the value in your own code.
 - A form reset checks the radio that was checked first, and an uncontrolled RadioGroup's choice follows it, so the next click works as expected. A controlled group shows its `value` again.
 
 ### Keyboard
