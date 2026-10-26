@@ -19,6 +19,17 @@
     - text: Pro
   - text: Choose a plan
 
+# Horizontal
+- text: Display name
+- textbox "Display name": Ani
+- text: Shown on your profile. Language
+- combobox "Language":
+  - option "Bahasa Indonesia" [selected]
+  - option "English"
+- text: Bio(optional)
+- textbox "Bio(optional)" [invalid]
+- text: Keep it under 160 characters.
+
 # LongText
 - text: The email address we should send every receipt and invoice to We send one receipt per payment, plus a monthly summary for Donaudampfschifffahrtsgesellschaftskapitänskajüte.
 - textbox "The email address we should send every receipt and invoice to" [invalid]:
