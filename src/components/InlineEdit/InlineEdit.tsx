@@ -5,11 +5,12 @@ import { cn, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useAutoFocus } from "../../internal/focus";
 import { isComposing } from "../../internal/ime";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
 import { Input, type InputProps } from "../Input/Input";
 import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'defaultValue' | 'onChange'> {
   /** What the text is ("Project name"): the field's name while editing, and part of the button's name ("Project name: Apollo, Edit"). */
@@ -54,7 +55,7 @@ const isThenable = (v: unknown): v is Promise<React.ReactNode> => !!v && typeof 
 export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditProps>("InlineEdit", function InlineEdit(props, ref) {
   const rest = omit(props, { label: 1, value: 1, defaultValue: 1, onValueChange: 1, onCancel: 1, validate: 1, placeholder: 1, size: 1, editing: 1, defaultEditing: 1,
     onEditingChange: 1, disabled: 1, readOnly: 1, editLabel: 1, inputProps: 1, className: 1, autoFocus: 1 } as const);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const size = oneOf(SIZES, props.size, "md");
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState(props.defaultValue ?? "");

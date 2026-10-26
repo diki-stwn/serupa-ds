@@ -41,6 +41,7 @@ import { Image } from "serupa-ds";
 - With `sources`, the `<picture>` is `display: contents`, so the frame and the `<img>` lay out exactly as without.
 - `darkSrc` is the first `<source>`, for `(prefers-color-scheme: dark)` in server HTML. In the browser, a theme that fixes the frame's color scheme (a `*-dark` or `*-light` `data-theme`, a `data-mode`) decides instead, and the picture swaps when any `data-theme`, `data-mode` or `data-brand` on the page changes. The viewer opens the version shown.
 - `dim` lays `--image-dim` at 20% over a loaded picture in a dark color scheme only (`light-dark()`); the remove button stays above it, and forced colors drop it.
+- For a reader saving data (Data Saver, `navigator.connection.saveData`, or `prefers-reduced-data: reduce`), only a `priority` picture loads at once; any other is lazy even with `loading="eager"`. Each `srcSet` (the `<img>`'s and each source's) is cut to its smallest version. Server HTML can't know this, so it changes once the page's script runs, before a lazy picture loads.
 - The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture. Its picture has the frame's placeholder while it loads (in the shape `width` and `height` give, or the thumbnail's) and the frame's fallback if it fails. Since the title already names it, the picture itself has `alt=""`, so it isn't read twice.
 - The remove button only calls `onRemove`; ask for confirmation yourself if removing can't be undone.
 

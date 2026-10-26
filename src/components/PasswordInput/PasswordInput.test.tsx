@@ -181,6 +181,22 @@ describe('PasswordInput', () => {
     await expect.poll(() => [f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
   });
 
+  test('showing and hiding a long password keeps the caret in view: at the end it stays scrolled to the end, at the start to the start (GI4)', async () => {
+    await render(<div style={{ width: '220px' }}><PasswordInput id="plong" aria-label="Password" defaultValue={'correct-horse-battery-staple-'.repeat(4)} /></div>);
+    const f = field('plong'), end = () => f.scrollWidth - f.clientWidth;
+    await userEvent.click(f);
+    f.setSelectionRange(f.value.length, f.value.length);
+    f.scrollLeft = end();
+    for (const type of ['text', 'password']) {
+      await userEvent.click(toggle('plong'));
+      await expect.poll(() => [f.type, f.selectionStart, end() > 0 && Math.abs(f.scrollLeft - end()) <= 1]).toEqual([type, f.value.length, true]);
+    }
+    f.setSelectionRange(0, 0);
+    f.scrollLeft = 0;
+    await userEvent.click(toggle('plong'));
+    await expect.poll(() => [f.type, f.selectionStart, f.scrollLeft]).toEqual(['text', 0, 0]);
+  });
+
   test('pasting works: nothing blocks it, so a password manager or a pasted password fills the field (WCAG 3.3.8)', async () => {
     await render(<PasswordInput id="pp" aria-label="Password" />);
     field('pp').focus();

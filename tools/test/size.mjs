@@ -9,16 +9,16 @@
 //
 // Each component folder has its own budgets, in tools/test/baseline-size/<Name>.json, so a component pull request
 // edits only its own file (no two pull requests edit the same line):
-//   alone  what a project that imports only this folder's exports ships, less the built-in label text (below)
+//   alone  what a project that imports only this folder's exports ships, its own words (labels.ts) included
 //   share  what the folder adds to the whole package (all of index.js, less the same build without it)
 //   css    what its CSS adds to components.css
 // The totals grow with the folders' budgets: TOTALS below holds each total's budget and what the folders' shares
 // (or CSS) added up to when it was set, and the budget moves by however much that sum has moved since. So adding a
 // component, or raising one's budget, raises the totals too, and only a change to the shared code edits TOTALS.
-// The built-in label text (enLabels: every folder's labels.ts) goes into every component's bundle, so a new label
-// in one folder used to push other folders' "alone" over budget and send several pull requests to the same files.
-// It has one budget of its own instead, LABELS, with room for a few dozen more labels; while the text is within it,
-// a pull request that adds a label edits no budget, and the totals allow for it.
+// The built-in label text (enLabels: every folder's labels.ts) has one budget of its own, LABELS, with room for a few
+// dozen more labels; while the text is within it, a pull request that adds a label edits no total, and the totals
+// allow for it. A component's bundle carries only its own words and the shared ones (GL4, 26 Oct 2026): before, it
+// carried every folder's, about 1.9 KiB gzipped, so "alone" was measured without them.
 // CI writes the table to the run's summary page.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -52,6 +52,11 @@ const DIR = path.join(HERE, 'baseline-size');
 const COMP = path.join(PROJECT, 'src', 'components');
 const folders = fs.readdirSync(COMP).filter((n) => fs.statSync(path.join(COMP, n)).isDirectory()).sort();
 const KEYS = ['alone', 'share', 'css'];
+// "share" is the difference of two gzipped builds, so it moves when any other code changes: one unrelated edit
+// moved other folders' shares by up to 20 B (26 Oct 2026), and a few merges in a day add up. A share is over its
+// budget only past this many bytes, so merges that each passed don't turn main red together by "0.0 KiB" (SZ2).
+// "alone" and "css" measure only what the folder pulls in, so they don't move with other folders and get no margin.
+const SHARE_NOISE = 64;
 
 const gz = (buf) => zlib.gzipSync(buf, { level: 9 }).length;
 // Icons drawn by name are a dynamic import(): a project loads them only when a page draws an icon by its name.
@@ -72,12 +77,14 @@ const whole = await bundled(pick(all));
 const labels = await bundled(pick(['enLabels']));
 const cssWhole = cssWithout(null);
 const measured = Object.fromEntries(await Promise.all(folders.map(async (n) => [n, {
-  alone: await bundled(pick([...names[n], 'enLabels'])) - labels,   // with the label text added and taken off again, so a folder that has none isn't measured below its size
+  alone: await bundled(pick(names[n])),
   share: whole - await bundled(pick(all.filter((x) => !names[n].includes(x)))),
   css: cssWhole - cssWithout(n),
 }])));
 
 const kib = (n) => (n / 1024).toFixed(1);
+// How far over: in bytes under 0.1 KiB, where kib() would print "0.0".
+const over = (n) => (n < 102.4 ? `${Math.ceil(n)} B` : `${kib(n)} KiB`);
 const budgetFile = (n) => path.join(DIR, `${n}.json`);
 const ui = process.argv.indexOf('--update');
 if (ui > 0) {
@@ -113,22 +120,22 @@ const totals = rows.map((r) => ({
   // Under 1 KiB means it wasn't measured (a budget number pasted in place of the measurement), not that it's tiny.
   ok: r.now <= r.budget * 1024 && r.now >= 1024,
   detail: r.now < 1024 ? 'not measured: its line in `size` must measure the build, not repeat the budget'
-    : `${kib(r.now - r.budget * 1024)} KiB over; ${r.name in FIXED ? 'if the growth is worth it, raise its budget in tools/test/size.mjs' : 'the shared code grew (each component is held to its own budget): if that is worth it, raise its line in TOTALS in tools/test/size.mjs'}`,
+    : `${over(r.now - r.budget * 1024)} over; ${r.name in FIXED ? 'if the growth is worth it, raise its budget in tools/test/size.mjs' : 'the shared code grew (each component is held to its own budget): if that is worth it, raise its line in TOTALS in tools/test/size.mjs'}`,
 }));
 const noSplit = gz(await build(pick(['Button']), []));
 totals.push({ name: `Button in a build without code splitting (the icon set comes along): ${kib(noSplit)} KiB gzipped, within ${NO_SPLIT} KiB`,
   ok: noSplit <= NO_SPLIT * 1024 && noSplit > 100 * 1024,
   detail: noSplit <= 100 * 1024 ? 'the icon set no longer comes along: lower NO_SPLIT in tools/test/size.mjs and update Icon\'s README and Getting started'
-    : `${kib(noSplit - NO_SPLIT * 1024)} KiB over: the icons drawn by name grew; if that's worth it, raise NO_SPLIT in tools/test/size.mjs` });
+    : `${over(noSplit - NO_SPLIT * 1024)} over: the icons drawn by name grew; if that's worth it, raise NO_SPLIT in tools/test/size.mjs` });
 totals.push({ name: `Built-in label text (enLabels): ${kib(labels)} KiB gzipped, within ${LABELS[0]} KiB`, ok: labels <= LABELS[0] * 1024 && labels >= 512,
-  detail: labels < 512 ? 'not measured: enLabels should bundle every folder\'s labels.ts' : `${kib(labels - LABELS[0] * 1024)} KiB over; if the words are worth it, raise LABELS in tools/test/size.mjs (and its second number to the size now)` });
+  detail: labels < 512 ? 'not measured: enLabels should bundle every folder\'s labels.ts' : `${over(labels - LABELS[0] * 1024)} over; if the words are worth it, raise LABELS in tools/test/size.mjs (and its second number to the size now)` });
 const phoneData = gz((await esbuild.build({ stdin: { contents: "export { PHONE_COUNTRIES } from './src/components/PhoneInput/phone.ts';", resolveDir: PROJECT, loader: 'ts' }, bundle: true, minify: true, write: false, format: 'esm', logLevel: 'silent' })).outputFiles[0].contents);
 totals.push({ name: `PhoneInput's country table (PHONE_COUNTRIES): ${kib(phoneData)} KiB gzipped, within ${PHONE_DATA} KiB`, ok: phoneData <= PHONE_DATA * 1024 && phoneData >= 1024,
-  detail: phoneData < 1024 ? 'not measured: the table should bundle from src/components/PhoneInput/phone.ts' : `${kib(phoneData - PHONE_DATA * 1024)} KiB over; if the countries are worth it, raise PHONE_DATA in tools/test/size.mjs` });
+  detail: phoneData < 1024 ? 'not measured: the table should bundle from src/components/PhoneInput/phone.ts' : `${over(phoneData - PHONE_DATA * 1024)} over; if the countries are worth it, raise PHONE_DATA in tools/test/size.mjs` });
 const LABEL = { alone: 'imported alone', share: 'adds to the whole package', css: 'adds to components.css' };
 const own = folders.flatMap((n) => (budgets[n]
-  ? KEYS.map((k) => ({ name: `${n} ${LABEL[k]}: ${kib(measured[n][k])} KiB, within ${budgets[n][k]} KiB`, ok: measured[n][k] <= budgets[n][k] * 1024,
-    detail: `${kib(measured[n][k] - budgets[n][k] * 1024)} KiB over; if the growth is worth it, raise "${k}" in tools/test/baseline-size/${n}.json` }))
+  ? KEYS.map((k) => ({ name: `${n} ${LABEL[k]}: ${kib(measured[n][k])} KiB, within ${budgets[n][k]} KiB`, ok: measured[n][k] <= budgets[n][k] * 1024 + (k === 'share' ? SHARE_NOISE : 0),
+    detail: `${over(measured[n][k] - budgets[n][k] * 1024)} over; if the growth is worth it, raise "${k}" in tools/test/baseline-size/${n}.json` }))
   : [{ name: `${n} has size budgets`, ok: false, detail: `run node tools/test/size.mjs --update ${n} and commit tools/test/baseline-size/${n}.json` }]));
 const orphans = fs.existsSync(DIR) ? fs.readdirSync(DIR).filter((f) => !folders.includes(f.replace(/\.json$/, ''))) : [];
 done(report('Size', [...totals, ...own, { name: 'every size budget file belongs to a component folder', ok: !orphans.length, detail: orphans.join(', ') }]));
