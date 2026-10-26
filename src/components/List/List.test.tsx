@@ -129,6 +129,16 @@ describe('List', () => {
     expect(s.boxShadow).toContain(color('var(--primary)'));
   });
 
+  test('linkProps\' aria-current wins over selected\'s "true", so a nav list can mark the current page (GF3)', async () => {
+    await render(<List aria-label="Pages">
+      <ListItem id="gp" href="#home" title="Home" selected linkProps={{ 'aria-current': 'page' }} />
+      <ListItem id="gs" href="#docs" title="Docs" selected />
+      <ListItem id="gn" href="#blog" title="Blog" linkProps={{ 'aria-current': 'page' }} />
+      <ListItem id="go" href="#about" title="About" />
+    </List>);
+    expect(['gp', 'gs', 'gn', 'go'].map((id) => el(id).querySelector('a')!.getAttribute('aria-current'))).toEqual(['page', 'true', 'page', null]);
+  });
+
   test('as with linkProps: a router link', async () => {
     await render(<Card clicks={[]} />);
     const a = q('#irouter .dk-list__main');

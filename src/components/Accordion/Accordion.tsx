@@ -148,10 +148,14 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
     const style = getComputedStyle(panel);
     const delays = style.transitionDelay.split(",");
     const ms = Math.max(0, ...style.transitionDuration.split(",").map((d, i) => toMs(d) + toMs(delays[i] || "0")));
-    const hide = () => { if (findable) el.setAttribute("hidden", "until-found"); if (!keep) setMounted(false); };
+    // The panel keeps its content shown until the fold ends. CSS alone (a discrete content-visibility transition)
+    // isn't enough: WebKit sometimes drops it, and the panel lost its height at the start of the fold.
+    const hold = (on: boolean) => { panel.style.contentVisibility = on ? "visible" : ""; };
+    const hide = () => { hold(false); if (findable) el.setAttribute("hidden", "until-found"); if (!keep) setMounted(false); };
+    if (ms) hold(true);
     if (!ms || !el.isConnected || panel.getBoundingClientRect().height === 0) { hide(); return; }
     const t = setTimeout(hide, ms);
-    return () => clearTimeout(t);
+    return () => { clearTimeout(t); hold(false); };
   }, [open, findable, keep]);
   React.useEffect(function () {
     const el = content.current;
