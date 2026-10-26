@@ -5,10 +5,11 @@ import { config } from "../../internal/config";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { paginationRange } from "./paginationRange";
 import { useFocusHandover } from "../../internal/focus";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export { paginationRange };
 
@@ -51,7 +52,7 @@ function int(v: unknown, min: number, fallback: number): number {
    prop go to the <nav>. */
 /** Moves through pages of results: previous, next, and page numbers with … where pages are skipped. */
 export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps>("Pagination", function Pagination(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const locale = useLocale();
   const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, className: 1 });
   const count = int(props.count, 0, 0);

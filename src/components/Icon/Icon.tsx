@@ -7,7 +7,7 @@ import { ICONS, hasIcon, getIcon, getRegisteredIcon, loadIcon, type CustomIconNa
 import type { MaterialIconName } from "../../material/icons";
 import type { IconData } from "../../material/types";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 
 /** Any Material Symbol's name, a custom icon's name, or a name you registered with registerIcons. */
 export type IconName = CustomIconName | MaterialIconName | (string & {});
@@ -55,7 +55,7 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   const restyle = useServerStyles(ref);
   // Counts the loads that came back (or a retry after a failed one), so the box draws what arrived.
   const [tries, again] = React.useReducer((n: number) => n + 1, 0);
-  const own = useSerupa().icons;   // icons given to a SerupaProvider
+  const own = useSettings().icons;   // icons given to a SerupaProvider
   // The hydration render draws only what the server could (an icon passed or registered), not one this page loaded
   // since; right after it, the loaded one appears.
   const hydrated = React.useSyncExternalStore(never, yes, no);

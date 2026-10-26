@@ -6,9 +6,10 @@ import { named } from "../../internal/component";
 import { FieldContext, type FieldControl } from "../../internal/field";
 import * as icons from "../../material/builtin";
 import { FieldLabel } from "../../internal/fieldLabel";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { warnOnce } from "../../internal/warn";
+import { en as words } from "./labels";
 
 // module state: a fixed list, never changed.
 const LABELABLE = new Set(["select", "button", "meter", "output", "progress", "textarea"]);
@@ -56,7 +57,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   const hasError = props.error != null && props.error !== false && props.error !== "";
   const hintId = props.hint ? base + "-hint" : null, errorId = hasError ? base + "-error" : null;
   const group = !!props.group;
-  const sds = useSerupa();
+  const sds = useSettings(words);
   // An error that appears (or changes) after mount is said politely: it's only a description, which
   // screen readers read on focus, and focus is usually elsewhere (the submit button) when it shows.
   const errorRef = React.useRef<HTMLSpanElement>(null);

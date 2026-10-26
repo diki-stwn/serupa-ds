@@ -283,4 +283,60 @@ describe('Image loading motion', () => {
     expect(box('src')).toEqual({ ...box('plain') });
     expect([...frame('plain').querySelectorAll('picture')].length).toBe(0);
   });
+  test('darkSrc (115): shown in a dark theme, not in a light one, and again when the theme changes; the viewer opens the one shown', async () => {
+    const DARK = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#18181b"/></svg>');
+    const Themed = ({ theme }: { theme: string }) => <div data-theme={theme}><Pic id="dark" alt="Chart" ratio="video" darkSrc={DARK} viewable /></div>;
+    const screen = await render(<Themed theme="blue-dark" />);
+    const i = () => frame('dark').querySelector('img')!;
+    expect(frame('dark').querySelector('picture > source')!.getAttribute('srcset')).toBe(DARK);
+    await expect.poll(() => i().currentSrc).toBe(DARK);
+    await screen.rerender(<Themed theme="blue-light" />);
+    await expect.poll(() => i().currentSrc).toBe(PIC);
+    // A theme set on the page without a render of the Image.
+    frame('dark').parentElement!.setAttribute('data-theme', 'violet-dark');
+    await expect.poll(() => i().currentSrc).toBe(DARK);
+    await expect.poll(() => frame('dark').dataset.state).toBe('loaded');
+    await userEvent.click(frame('dark').querySelector('button')!);
+    const full = document.querySelector('dialog img') as HTMLImageElement;
+    expect(full.getAttribute('src')).toBe(DARK);
+  });
+
+  test('dim (115): a loaded photo is a shade darker in a dark theme only, and the remove button stays above the layer', async () => {
+    await render(<Row>
+      <div data-theme="blue-dark"><Pic id="night" alt="" ratio="video" dim onRemove={() => {}} /></div>
+      <div data-theme="blue-light"><Pic id="day" alt="" ratio="video" dim /></div>
+      <div data-theme="blue-dark"><Pic id="plain" alt="" ratio="video" /></div>
+    </Row>);
+    for (const id of ['night', 'day', 'plain']) await expect.poll(() => frame(id).dataset.state).toBe('loaded');
+    const layer = (id: string) => getComputedStyle(frame(id), '::after');
+    expect(layer('night').content).toBe('""');
+    expect(layer('night').backgroundColor).toBe('color(srgb 0 0 0 / 0.2)');
+    expect(layer('day').backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(layer('plain').content).toBe('none');
+    const x = frame('night').querySelector('button')!.getBoundingClientRect();
+    expect(document.elementFromPoint(x.left + x.width / 2, x.top + x.height / 2)!.closest('button')).toBe(frame('night').querySelector('button'));
+  });
+
+  test('saving data (196): only a priority picture loads at once, and each takes the smallest version in its srcSet', async () => {
+    const SMALL = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><rect width="200" height="100" fill="#22c55e"/></svg>');
+    const list = `${SMALL} 200w, ${PIC} 400w`;
+    Object.defineProperty(navigator, 'connection', { configurable: true, value: Object.assign(new EventTarget(), { saveData: true }) });
+    try {
+      await render(<Row>
+        <Pic id="eager" alt="" ratio="video" loading="eager" srcSet={list} sizes="200px" />
+        <Pic id="hero" alt="" ratio="video" priority srcSet={`${SMALL} 1x, ${PIC} 2x`} />
+        <Pic id="art" alt="" ratio="video" sources={[{ srcSet: list, media: '(min-width: 1px)' }]} />
+      </Row>);
+      const img = (id: string) => frame(id).querySelector('img')!;
+      expect([img('eager').getAttribute('loading'), img('eager').getAttribute('srcset'), img('eager').getAttribute('sizes')]).toEqual(['lazy', SMALL, null]);
+      expect([img('hero').getAttribute('loading'), img('hero').getAttribute('srcset')]).toEqual(['eager', SMALL]);
+      const source = frame('art').querySelector('source')!;
+      expect([source.getAttribute('srcset'), source.getAttribute('sizes')]).toEqual([SMALL, null]);
+      await expect.poll(() => img('hero').currentSrc).toBe(SMALL);
+    } finally {
+      delete (navigator as { connection?: unknown }).connection;
+    }
+    await render(<Pic id="normal" alt="" ratio="video" loading="eager" srcSet={list} sizes="200px" />);
+    expect([frame('normal').querySelector('img')!.getAttribute('loading'), frame('normal').querySelector('img')!.getAttribute('srcset')]).toEqual(['eager', list]);
+  });
 });

@@ -5,9 +5,10 @@ import { cn, domId, oneOf, omit } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
+import { en as words } from "./labels";
 
 export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
   /** 'md' (default): 12px cell padding. 'sm': 8px top and bottom, for dense data. */
@@ -62,7 +63,7 @@ const ALIGN = ["start", "center", "end"] as const;
    className and every other prop go to the <table>; containerProps go to the frame. */
 /** A data table: native table markup in a scrolling frame, with sizes, stripes, a sticky header and sortable columns. */
 export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Table", function Table(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, striped: 1, stickyHeader: 1, caption: 1, captionHidden: 1, containerProps: 1, className: 1, children: 1 });
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const frame = React.useRef<HTMLDivElement>(null);
@@ -164,7 +165,7 @@ export const TableHeaderCell = /* @__PURE__ */ component<HTMLTableCellElement, T
   const sort = props.sort !== undefined ? oneOf(["ascending", "descending", "none"] as const, props.sort, "none") : null;
   // A new order is read out ("Sorted by Amount, ascending"): aria-sort alone is only heard when focus reaches the
   // header again, and the button keeps focus. Not on the first render.
-  const labels = useSerupa().labels;
+  const labels = useSettings(words).labels;
   const button = React.useRef<HTMLButtonElement | null>(null);
   const was = React.useRef(sort);
   React.useEffect(function () {

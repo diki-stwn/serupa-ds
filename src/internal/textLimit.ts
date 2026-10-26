@@ -1,8 +1,9 @@
 import * as React from "react";
 import { announce } from "./announce";
 import { graphemeCount, limitEdit } from "./graphemes";
-import { useSerupa } from "./provider";
+import { useSettings } from "./provider";
 import { useFormReset } from "./useFormReset";
+import { en as inputWords } from "../components/Input/labels";
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
 const never = () => () => {}, yes = () => true, no = () => false;
@@ -19,7 +20,7 @@ type Handlers<E extends Field> = {
    is read out only near the limit, once when few characters are left and once when it's reached, not on every
    keystroke. A form reset puts the count back to the default's. */
 export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.RefObject<E | null>, opts: { announce: boolean }): { length: number; max: number | null } {
-  const labels = useSerupa().labels;
+  const labels = useSettings(inputWords).labels;
   const controlled = rest.value != null;
   const initial = String(controlled ? rest.value : rest.defaultValue != null ? rest.defaultValue : "");
   const [len, setLen] = React.useState(function () { return graphemeCount(initial); });

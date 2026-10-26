@@ -10,11 +10,12 @@ import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'children'> {
   /** The chosen day (controlled), or null. Use with onValueChange. A "yyyy-mm-dd" string is that day, wherever the
@@ -55,7 +56,7 @@ export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
 export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePickerProps>("DatePicker", function DatePicker(props, ref) {
   const nameRef = useNameCheck("DatePicker", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min: minIn, max: maxIn, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, buttonLabel, className, style, name, placeholder, disabled, readOnly, onBlur, onKeyDown, ...rest } = props;
   const locale = useLocale(localeProp), lang = useOwnLang(localeProp);
   const size = oneOf(SIZES, props.size, "md");

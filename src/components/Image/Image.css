@@ -54,7 +54,13 @@
 .dk-image:has(.dk-image__view:focus-visible) { overflow: visible; }
 .dk-image__view:focus-visible { outline: var(--focus-ring-width) solid var(--image-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-image__view .dk-image__img { border-radius: inherit; }
-.dk-image__remove { position: absolute; inset-block-start: var(--image-remove-offset, var(--spacing-2)); inset-inline-end: var(--image-remove-offset, var(--spacing-2)); box-shadow: var(--image-remove-shadow, var(--shadow-sm)); }
+/* dim: in a dark color scheme, a layer of --image-dim at 20% over a loaded picture darkens it a shade (light-dark(), so it
+   follows the frame's color-scheme: a *-dark theme, a data-mode or the screen's). The remove button stays above it. */
+.dk-image--dim.dk-image--loaded::after {
+  content: ""; position: absolute; inset: var(--spacing-0); pointer-events: none; border-radius: inherit;
+  background: light-dark(transparent, color-mix(in srgb, var(--image-dim, var(--black)) var(--opacity-20), transparent));
+}
+.dk-image__remove { position: absolute; z-index: var(--z-10); inset-block-start: var(--image-remove-offset, var(--spacing-2)); inset-inline-end: var(--image-remove-offset, var(--spacing-2)); box-shadow: var(--image-remove-shadow, var(--shadow-sm)); }
 .dk-image__viewer { --dk-image-full-max: calc(var(--sizing-dvh) - var(--spacing-40)); }
 .dk-image__viewer .dk-dialog__body { display: flex; justify-content: center; }
 /* The viewer's stage has the picture's shape (--dk-image-ratio) at its own width (--dk-image-w) at most, within the dialog
@@ -69,5 +75,5 @@
 .dk-image__stage.dk-image--loading .dk-image__full { opacity: var(--opacity-0); }
 .dk-image__stage.dk-image--loaded .dk-image__full { transition: opacity var(--motion-enter-md) var(--ease-enter); }
 @media (prefers-reduced-motion: reduce) { .dk-image--loading::before { display: none; } .dk-image--fades.dk-image--loaded .dk-image__img, .dk-image__stage.dk-image--loaded .dk-image__full { transition: none; } }   /* a still fill; the picture appears at once */
-@media (forced-colors: active) { .dk-image { border: var(--border-width-1) solid CanvasText; } .dk-image--loading::before { display: none; } }
+@media (forced-colors: active) { .dk-image--dim.dk-image--loaded::after { display: none; } .dk-image { border: var(--border-width-1) solid CanvasText; } .dk-image--loading::before { display: none; } }
 }
