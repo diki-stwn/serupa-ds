@@ -2,7 +2,7 @@
    Drawer: a native <dialog> (showModal) that fills the screen; its panel sits against one edge: full height and
    320, 384 or 512px wide (left, right), or full width and as tall as its content (top, bottom, rounded on the
    open side). Header, a body that scrolls, and a footer under a line. The page behind is dimmed and doesn't
-   scroll. Slides in from its edge (300ms); at once with reduced motion.
+   scroll. Slides in from its edge (300ms) and back out to it faster (motion-exit-lg); fades with reduced motion.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-drawer {
@@ -38,7 +38,6 @@
   padding: var(--drawer-padding, var(--spacing-6));
   background: var(--drawer-bg, var(--surface-overlay));
   box-shadow: var(--drawer-shadow, var(--shadow-xl));
-  animation: dk-drawer-in var(--drawer-duration, var(--duration-300)) var(--ease-out);
 }
 .dk-drawer--right { --dk-drawer-from: var(--sizing-full) 0; }
 .dk-drawer--left { --dk-drawer-from: calc(var(--spacing-0) - var(--sizing-full)) 0; }
@@ -47,11 +46,31 @@
 .dk-drawer--top .dk-drawer__panel, .dk-drawer--bottom .dk-drawer__panel { width: var(--sizing-full); height: auto; max-height: calc(var(--sizing-full) - var(--spacing-16)); }
 .dk-drawer--top .dk-drawer__panel { border-end-start-radius: var(--drawer-radius, var(--rounded-xl)); border-end-end-radius: var(--drawer-radius, var(--rounded-xl)); }
 .dk-drawer--bottom .dk-drawer__panel { border-start-start-radius: var(--drawer-radius, var(--rounded-xl)); border-start-end-radius: var(--drawer-radius, var(--rounded-xl)); }
-.dk-drawer[open]::backdrop { animation: dk-drawer-fade var(--drawer-duration, var(--duration-300)) var(--ease-out); }
-@keyframes dk-drawer-in { from { translate: var(--dk-drawer-from); } }
-@keyframes dk-drawer-fade { from { opacity: var(--opacity-0); } }
+/* Motion (DZ1): transitions, not keyframes, so closing while it slides in turns back from where it is. In from
+   @starting-style; out, back the way it came, with the <dialog> kept shown (display, allow-discrete) and, modal, in
+   the top layer (overlay) until the panel is gone and the backdrop has faded with it. Focus goes back at once, and
+   presses go through to the page meanwhile. A browser that can't keep a modal drawer in the top layer (no overlay)
+   closes it at once. A swipe hands the panel to the finger (no transition while dragged); let go, it slides back,
+   or out from where it was. Open on arrival (data-instant), it has no starting style: there from the first frame.
+   Reduced motion: the panel fades instead of sliding. */
+@supports (overlay: auto) { .dk-drawer { transition: display var(--motion-exit-lg) allow-discrete, overlay var(--motion-exit-lg) allow-discrete; } }
+.dk-drawer--nonmodal { transition: display var(--motion-exit-lg) allow-discrete; }
+.dk-drawer:not([open]), .dk-drawer:not([open])::backdrop, .dk-drawer:not([open]) .dk-drawer__panel { pointer-events: none; }
+.dk-drawer__panel, .dk-drawer::backdrop { transition: opacity var(--motion-exit-lg) var(--ease-exit), translate var(--motion-exit-lg) var(--ease-exit); }
+.dk-drawer[open] .dk-drawer__panel, .dk-drawer[open]::backdrop { transition: opacity var(--drawer-duration, var(--duration-300)) var(--ease-enter), translate var(--drawer-duration, var(--duration-300)) var(--ease-enter); }
+.dk-drawer[open] .dk-drawer__panel[data-dragging] { transition: none; }
+.dk-drawer:not([open])::backdrop { opacity: var(--opacity-0); }
+@starting-style { .dk-drawer[open]:not([data-instant])::backdrop { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-drawer:not([open]) .dk-drawer__panel { translate: var(--dk-drawer-from); }
+  @starting-style { .dk-drawer[open]:not([data-instant]) .dk-drawer__panel { translate: var(--dk-drawer-from); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dk-drawer:not([open]) .dk-drawer__panel { opacity: var(--opacity-0); }
+  @starting-style { .dk-drawer[open]:not([data-instant]) .dk-drawer__panel { opacity: var(--opacity-0); } }
+}
 /* Let go after a swipe: it carries on from under the finger, over a time Drawer.tsx sets from the distance and speed. */
-.dk-drawer__panel[data-settling] { transition: translate var(--dk-drawer-settle) var(--ease-out); }
+.dk-drawer[open] .dk-drawer__panel[data-settling] { transition: translate var(--dk-drawer-settle) var(--ease-out); }
 .dk-drawer__header { display: flex; align-items: flex-start; gap: var(--spacing-3); flex-shrink: 0; }
 /* Long words wrap inside the panel rather than overflow it. */
 .dk-drawer__panel { overflow-wrap: anywhere; }
@@ -83,6 +102,6 @@
   margin-bottom: calc(var(--spacing-0) - max(var(--dk-drawer-pad), env(safe-area-inset-bottom)));
   padding-bottom: max(var(--spacing-4), env(safe-area-inset-bottom));
 }
-@media (prefers-reduced-motion: reduce) { .dk-drawer__panel, .dk-drawer[open]::backdrop { animation: none; } .dk-drawer__panel[data-settling] { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-drawer[open] .dk-drawer__panel[data-settling] { transition: none; } }
 @media (forced-colors: active) { .dk-drawer__panel { border: var(--border-width-1) solid CanvasText; } }
 }
