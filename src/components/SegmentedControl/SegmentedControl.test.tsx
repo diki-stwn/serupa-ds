@@ -78,6 +78,14 @@ describe('SegmentedControl', () => {
     expect(items('per').map((x) => x.tabIndex).join()).toBe('-1,0,-1,-1');
   });
 
+  test('keys: ArrowDown selects the next segment and ArrowUp the one before, as ArrowRight and ArrowLeft do, skipping disabled ones and wrapping (FH1)', async () => {
+    await render(<Col><Period /></Col>);
+    seg('per', 'day').focus();
+    const seen: Array<string | null | undefined> = [];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowDown}', '{ArrowUp}']) { await userEvent.keyboard(k); seen.push(checked('per') + '/' + focused()); }
+    expect(seen).toEqual(['week/week', 'month/month', 'day/day', 'month/month']);   // Year is disabled
+  });
+
   test('a click selects, and the selection moves to it; a disabled segment can\'t be chosen', async () => {
     await render(<Col><Period /></Col>);
     await userEvent.click(seg('per', 'month'));

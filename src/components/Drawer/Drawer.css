@@ -50,6 +50,8 @@
 .dk-drawer[open]::backdrop { animation: dk-drawer-fade var(--drawer-duration, var(--duration-300)) var(--ease-out); }
 @keyframes dk-drawer-in { from { translate: var(--dk-drawer-from); } }
 @keyframes dk-drawer-fade { from { opacity: var(--opacity-0); } }
+/* Let go after a swipe: it carries on from under the finger, over a time Drawer.tsx sets from the distance and speed. */
+.dk-drawer__panel[data-settling] { transition: translate var(--dk-drawer-settle) var(--ease-out); }
 .dk-drawer__header { display: flex; align-items: flex-start; gap: var(--spacing-3); flex-shrink: 0; }
 /* Long words wrap inside the panel rather than overflow it. */
 .dk-drawer__panel { overflow-wrap: anywhere; }
@@ -81,6 +83,6 @@
   margin-bottom: calc(var(--spacing-0) - max(var(--dk-drawer-pad), env(safe-area-inset-bottom)));
   padding-bottom: max(var(--spacing-4), env(safe-area-inset-bottom));
 }
-@media (prefers-reduced-motion: reduce) { .dk-drawer__panel, .dk-drawer[open]::backdrop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .dk-drawer__panel, .dk-drawer[open]::backdrop { animation: none; } .dk-drawer__panel[data-settling] { transition: none; } }
 @media (forced-colors: active) { .dk-drawer__panel { border: var(--border-width-1) solid CanvasText; } }
 }

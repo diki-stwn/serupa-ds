@@ -167,6 +167,58 @@ describe('Drawer', () => {
     expect(closedBy).toEqual(['opener', 'opener']);
   });
 
+  // A touch drag along x through `path`: [dx from the start, ms after the move before].
+  const trace = async (p: HTMLElement, path: [number, number][], up = true) => {
+    const r = p.getBoundingClientRect(), x = r.left + 40, y = r.top + 40;
+    const ev = (name: string, cx: number) => p.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 8, isPrimary: true, pointerType: 'touch', clientX: cx, clientY: y }));
+    ev('pointerdown', x);
+    let at = 0;
+    for (const [dx, ms] of path) { await new Promise((f) => setTimeout(f, ms)); ev('pointermove', x + dx); at = dx; }
+    if (up) ev('pointerup', x + at);
+  };
+
+  test('swipe speed is the last 100ms (EN1): a slow drag that ends in a flick closes it short of a third; a flick back keeps it open past one', async () => {
+    const why: string[] = [];
+    const one = (k: string) => <Drawer key={k} id="sv" defaultOpen onOpenChange={(_, d) => why.push(d.reason)} title="Filters"><p>Body</p></Drawer>;
+    const d = () => el('sv') as HTMLDialogElement;
+    const screen = await render(one('a'));
+    await expect.poll(() => d().open).toBe(true);
+    const third = panel('sv').offsetWidth / 3;
+    // Out past a third, then back a little, quickly: it stays.
+    await trace(panel('sv'), [[20, 100], [third + 60, 100], [third + 80, 100], [third + 40, 30]]);
+    await new Promise((f) => setTimeout(f, 50));
+    expect([d().open, why]).toEqual([true, []]);
+    // 30px in 300ms, then a flick: closed, though it ends short of a third.
+    await screen.rerender(one('b'));
+    await trace(panel('sv'), [[12, 100], [20, 100], [30, 100], [third - 10, 40]]);
+    await expect.poll(() => d().open).toBe(false);
+    expect(why).toEqual(['swipe']);
+  });
+
+  test('let go after a swipe (EN1), the panel carries on from under the finger on a translate transition: back when it stays, out past its edge when it closes', async () => {
+    await withMotion(async () => {
+      const screen = await render(<Drawer key="a" id="sg" defaultOpen title="Filters"><p>Body</p></Drawer>);
+      const d = () => el('sg') as HTMLDialogElement;
+      await expect.poll(() => d().open).toBe(true);
+      await settled();
+      const p = panel('sg'), rest = p.getBoundingClientRect().left;
+      await trace(p, [[20, 100], [40, 100], [60, 100]]);
+      const back = p.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty);
+      expect([back, p.getBoundingClientRect().left - rest > 30]).toEqual([['translate'], true]);
+      await settled();
+      await expect.poll(() => p.hasAttribute('data-settling')).toBe(false);
+      expect([d().open, Math.round(p.getBoundingClientRect().left - rest), p.style.translate]).toEqual([true, 0, '']);
+      await screen.rerender(<Drawer key="b" id="sg" defaultOpen title="Filters"><p>Body</p></Drawer>);
+      await expect.poll(() => d().open).toBe(true);
+      await settled();
+      const q = panel('sg');
+      await trace(q, [[40, 50], [120, 50], [200, 50]]);
+      expect([d().open, q.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty)]).toEqual([true, ['translate']]);
+      await expect.poll(() => d().open).toBe(false);
+      await expect.poll(() => q.style.translate).toBe('');
+    });
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     await render(<Drawer id="daf" open title="Filters"><Input id="dafq" aria-label="Search" data-autofocus /></Drawer>);
     await expect.poll(() => (el('daf') as HTMLDialogElement).open).toBe(true);
