@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, iconPoints } from '../../../tools/test/vitest/helpers';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -117,7 +117,7 @@ describe('Breadcrumb', () => {
       <div dir="rtl"><Breadcrumb id="brtl"><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem>B</BreadcrumbItem></Breadcrumb></div>
     </>);
     expect([el('bbad').querySelectorAll('.dk-breadcrumb__item').length, (q('#bbad .dk-breadcrumb__separator .dk-icon')).dataset.icon]).toEqual([3, 'chevron_right']);
-    expect([...el('brtl').querySelectorAll('.dk-breadcrumb__separator')].flatMap(shownIcons).map((i) => i.dataset.icon).join()).toBe('chevron_left');
+    expect([...el('brtl').querySelectorAll('.dk-breadcrumb__separator [data-icon]')].map(iconPoints).join()).toBe('left');
   });
 
   test('keyboard focus: a 2px ring on the link', async () => {

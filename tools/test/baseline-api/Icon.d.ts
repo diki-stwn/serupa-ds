@@ -5,5 +5,6 @@ interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
     name?: IconName;
     icon?: IconData;
     size?: number | string;
+    mirror?: "auto" | boolean;
 }
 declare const Icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<HTMLSpanElement>>;

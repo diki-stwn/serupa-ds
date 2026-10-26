@@ -227,7 +227,7 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow(props: { item: TreeV
         onClick={(e) => api.current.press(item, e)}>
         <span className="dk-tree-view__toggle" aria-hidden="true"
           onClick={canOpen ? (e) => { e.stopPropagation(); api.current.toggle(item); } : undefined}>
-          {canOpen ? <Icon icon={icons.ChevronRight} /> : null}
+          {canOpen ? <Icon icon={icons.ChevronRight} mirror={false} /> : null}
         </span>
         {icon != null ? <span className="dk-tree-view__icon" aria-hidden="true">{icon}</span> : null}
         <span className="dk-tree-view__label">{item.label}</span>
