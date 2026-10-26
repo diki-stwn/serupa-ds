@@ -47,7 +47,7 @@ export function SignUp() {
 }
 ```
 
-React 19 is a peer dependency, so the components use your app's React, and they render on the server too. Types ship with the package.
+React 19 is a peer dependency, so the components use your app's React, and they render on the server too. Types ship with the package. They build on React's, so a TypeScript project also needs `@types/react` 19, an optional peer dependency that a JavaScript project can leave out.
 
 In React Server Components (the Next.js App Router), import them straight into a server component. The interactive ones (Button, Dialog, Combobox…) are client components (`"use client"`); layout and text (Container, Stack, Grid, Heading, Text, Divider…) render on the server, and so do the helpers `buttonClass`, `paginationRange`, `formatFileSize` and `initials`.
 
@@ -353,7 +353,7 @@ How to make a change, and a new component, step by step: [CONTRIBUTING.md](CONTR
 
 ## Credits
 
-Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4.
+Serupa is designed and built by **Diki** ([@diki-stwn](https://github.com/diki-stwn)). It was called the Diki Design System up to version 4. It isn't open source: all rights are reserved ([LICENSE](LICENSE)), and `package.json` says so with `"license": "UNLICENSED"`.
 
 The system is self-contained: every file it needs is in it, and nothing loads from another server. It builds on these open-source works; their licenses are in `licenses/`.
 

@@ -37,6 +37,10 @@ const bundlesAll = /import \* as Serupa from "\.\/index";/.test(browserTs) && /O
 const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
+// dist/index.d.ts imports React's types: a TypeScript project needs @types/react, a JavaScript one doesn't.
+const typeImports = [...new Set([...read('dist/index.d.ts').matchAll(/from ['"]([^'"./][^'"]*)['"]/g)].map((m) => m[1]))];
+const untypedPeers = typeImports.filter((m) => !pkg.peerDependencies?.[`@types/${m}`] || !pkg.peerDependenciesMeta?.[`@types/${m}`]?.optional);
+t('every package dist/index.d.ts imports types from has its @types package as an optional peer', typeImports.length && !untypedPeers.length, `${untypedPeers.map((m) => `@types/${m}`).join(', ')} (imports: ${typeImports.join(', ')})`);
 
 // A project's Node only has to run what the package ships: engines is the floor for that, devEngines (Node 26)
 // is for working in this repo. CommonJS code that require()s the package (Node 22.12+ loads ES modules that way)
@@ -154,7 +158,7 @@ t('bundle.css = components.css + utilities.css', body('dist/bundle.css') === bod
 t('components.css holds no utility classes (only dk-* and the keyframes they use)', !/^\.(?!dk-)[a-z]/m.test(body('dist/components.css').replace(/\/\*[\s\S]*?\*\//g, '')));
 t('the old bundle.js alias is gone (removed in 8.0.0)', !fs.existsSync(path.join(PROJECT, 'dist', 'bundle.js')));
 
-// 4. The files the package ships (npm pack): the fixed list in baseline-package.txt, plus a module and its source map
+// 4. The files the package ships (npm pack): the fixed list in baseline-package.txt, plus a module and its source map (none for the icon table)
 // in dist/js/ for each module in src/ (not tests or stories) and a tokens file in design-tokens/components/ for each
 // component's, so a new file can't ship (or one vanish) unreviewed, and a component pull request edits no shared list.
 const pack = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: PROJECT, encoding: 'utf8', shell: process.platform === 'win32' });
@@ -164,7 +168,9 @@ const ENTRIES = new Set(['browser', 'browser-icons', 'theme-types']);
 const modules = fs.readdirSync(path.join(PROJECT, 'src'), { recursive: true }).map((f) => String(f).split(path.sep).join('/'))
   .filter((f) => /\.tsx?$/.test(f) && !/\.(test|stories)\.tsx?$|\.d\.ts$/.test(f)).map((f) => f.replace(/\.tsx?$/, '')).filter((f) => !ENTRIES.has(f));
 const tokenFiles = fs.readdirSync(path.join(PROJECT, 'src', 'components'), { recursive: true }).map(String).filter((f) => f.endsWith('.tokens.json')).map((f) => `design-tokens/components/${path.basename(f)}`);
-const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, `dist/js/${m}.js.map`]), ...tokenFiles]);
+// The generated icon table ships without a source map (tools/build/build.mjs).
+const NO_MAP = new Set(['material/icons']);
+const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, ...(NO_MAP.has(m) ? [] : [`dist/js/${m}.js.map`])]), ...tokenFiles]);
 const extra = shipped ? [...shipped].filter((f) => !expected.has(f)) : [], gone = shipped ? [...expected].filter((f) => !shipped.has(f)) : [];
 t('npm pack ships exactly the expected files (tools/test/baseline-package.txt, a module per src/ file, a tokens file per component)', shipped && !extra.length && !gone.length,
   shipped ? `ships unexpectedly: ${extra.slice(0, 8).join(', ') || 'none'}; missing: ${gone.slice(0, 8).join(', ') || 'none'}. If intended, edit tools/test/baseline-package.txt (or package.json "files")` : pack.stderr.slice(0, 300));
