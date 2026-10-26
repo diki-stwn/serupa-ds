@@ -110,18 +110,35 @@ describe('Link', () => {
   });
 
   test('as: renders your router link with className and the rest', async () => {
-    await render(<Link id="lrouter" as={RouterLink} {...{ to: '/settings' }}>Settings</Link>);
+    await render(<Link id="lrouter" as={RouterLink} to="/settings">Settings</Link>);
     const e = el('lrouter');
     expect([e.hasAttribute('data-router'), e.getAttribute('href'), e.className]).toEqual([true, '#router/settings', 'dk-link']);
   });
 
+  test('as is typed (G10): the props and ref of the element it names, an <a>\'s by default', async () => {
+    const a = React.createRef<HTMLAnchorElement>(), r = React.createRef<HTMLAnchorElement>(), b = React.createRef<HTMLButtonElement>(), wrong = React.createRef<HTMLAnchorElement>();
+    await render(<>
+      <Link id="lt-a" href="#a" ref={a}>A</Link>
+      <Link id="lt-r" as={RouterLink} to="/r" ref={r}>Router</Link>
+      <Link id="lt-b" as="button" type="button" ref={b} tone="neutral">Button</Link>
+      {/* @ts-expect-error RouterLink needs to */}
+      <Link id="lt-x" as={RouterLink}>No to</Link>
+      {/* @ts-expect-error an <a> has no to */}
+      <Link id="lt-y" href="#y" to="/y">Stray to</Link>
+      {/* @ts-expect-error a <button>'s ref isn't an anchor's */}
+      <Link id="lt-z" as="button" ref={wrong}>Ref</Link>
+    </>);
+    const is = (n: Element | null, id: string) => n === el(id);
+    expect([is(a.current, 'lt-a'), is(r.current, 'lt-r'), is(b.current, 'lt-b'), el('lt-r').getAttribute('href'), el('lt-b').tagName]).toEqual([true, true, true, '#router/r', 'BUTTON']);
+  });
+
   test('autoFocus focuses the link once it mounts (React does it only for form controls), also with as; the ref still reaches it', async () => {
     const r = React.createRef<HTMLAnchorElement>();
-    await render(<><Link id="laf" href="#f" autoFocus ref={r}>Skip</Link><Link id="lafr" as={RouterLink} {...{ to: '/x' }}>Router</Link></>);
+    await render(<><Link id="laf" href="#f" autoFocus ref={r}>Skip</Link><Link id="lafr" as={RouterLink} to="/x">Router</Link></>);
     await expect.poll(() => document.activeElement?.id).toBe('laf');
     expect([r.current === el('laf'), el('laf').hasAttribute('autofocus')]).toEqual([true, false]);
     (document.activeElement as HTMLElement).blur();
-    await render(<Link id="lafr2" as={RouterLink} {...{ to: '/y' }} autoFocus>Router</Link>);
+    await render(<Link id="lafr2" as={RouterLink} to="/y" autoFocus>Router</Link>);
     await expect.poll(() => document.activeElement?.id).toBe('lafr2');
   });
 
