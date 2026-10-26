@@ -45,7 +45,7 @@ const { Badge } = window.Serupa;
 
 ## Usage
 
-- Keep labels to one or two words; a badge is not a sentence.
+- Keep labels to one or two words; a badge is not a sentence. A badge is at most as wide as its container, and a longer label ends in an ellipsis; then the full label shows as the badge's `title` on hover (as on Button), unless you pass your own `title` or `aria-label`. Keyboard and touch users can't see a title, so keep labels short enough to fit.
 - Use status tones for status and palette tones for categories. Don't make a category red or green: it reads as a status.
 - Use `subtle` by default and `solid` sparingly: one strong badge per row or card.
 
