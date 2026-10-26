@@ -15,7 +15,6 @@ const { PasswordInput, Field } = window.Serupa;
 
 ## When to use
 
-- A press anywhere on the box other than the reveal button, such as on the icon or the side padding, focuses the field with the caret at the end, as Input's box does.
 - Signing in, signing up, and changing a password.
 - Any secret people type and may want to check before they submit, such as a PIN.
 
@@ -28,6 +27,7 @@ const { PasswordInput, Field } = window.Serupa;
 - Label it with [Field](../Field/README.md), and put the password rules in the hint ("At least 12 characters"), not only in an error.
 - Set `autoComplete="new-password"` when people create a password, so password managers suggest one; the default suits sign-in.
 - Match the `size` to the other fields in the form.
+- A press anywhere on the box other than the reveal button, such as on the icon or the side padding, focuses the field with the caret at the end, as Input's box does.
 
 ## Accessibility
 
