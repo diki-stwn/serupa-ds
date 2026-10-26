@@ -7,5 +7,6 @@ interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "ti
     size?: "md" | "sm";
     variant?: "dashed" | "plain";
     headingLevel?: 2 | 3 | 4 | 5 | 6;
+    announce?: boolean;
 }
 declare const EmptyState: React.ForwardRefExoticComponent<EmptyStateProps & React.RefAttributes<HTMLDivElement>>;
