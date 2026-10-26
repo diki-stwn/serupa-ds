@@ -130,6 +130,15 @@ describe('PinInput', () => {
     expect([el('d').disabled, css(root('d')).opacity]).toEqual([true, '0.5']);
   });
 
+  test('in a narrow column the boxes shrink together and stay square, down to 24px, so six lg or eight md boxes fit 288px (a 320px screen with 16px gutters) (GJ3)', async () => {
+    await render(<div style={{ width: '288px' }}><PinInput id="n6" aria-label="Code" size="lg" /><PinInput id="n8" aria-label="Code" length={8} /><PinInput id="w4" aria-label="Code" length={4} /><div style={{ width: '100px' }}><PinInput id="t8" aria-label="Code" length={8} /></div></div>);
+    const sizes = (id: string) => boxes(id).map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+    const right = (id: string) => Math.round(Math.max(...boxes(id).map((b) => b.getBoundingClientRect().right)) - root(id).parentElement!.getBoundingClientRect().left);
+    for (const id of ['n6', 'n8']) expect([right(id) <= 288, sizes(id).every(([w, h]) => w === h && w >= 24 && w === sizes(id)[0][0])]).toEqual([true, true]);
+    // Room to spare: full size. Less room than 24px boxes need: they stop at 24px.
+    expect([sizes('w4')[0], sizes('t8')[0]]).toEqual([[32, 32], [24, 24]]);
+  });
+
   test('right to left: the code still reads left to right', async () => {
     await render(<div dir="rtl"><PinInput id="p" aria-label="Code" length={3} defaultValue="12" /></div>);
     const b = boxes('p');

@@ -135,6 +135,8 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 @keyframes pulse { 50% { opacity: 0.5; } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes enter { from { opacity: 0; translate: 0 var(--spacing-2); } }
 @keyframes bounce {
   0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
   50% { transform: none; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
@@ -144,6 +146,7 @@
 .animate-ping { animation: var(--animate-ping); }
 .animate-pulse { animation: var(--animate-pulse); }
 .animate-bounce { animation: var(--animate-bounce); }
+.animate-enter { animation: var(--animate-enter); }
 
 /* transition-property: classes animate with the default duration and easing unless duration-* / ease-* set them */
 .transition { transition-property: var(--transition-colors), var(--transition); transition-timing-function: var(--dk-ease, var(--ease-in-out)); transition-duration: var(--dk-duration, var(--duration-150)); }
@@ -171,10 +174,31 @@
   .delay-{k} { transition-delay: var(--{t}); }
 }
 
+/* view-transition-name: what glides to its new place in a View Transition (withViewTransition). match-element names
+   each element after itself, so a list's items can each take part without a name of their own. */
+.view-transition-match { view-transition-name: match-element; }
+.view-transition-none { view-transition-name: none; }
+
+/* stagger: the children of .stagger arrive one after another. Each waits its place times motion-stagger (the first
+   none), up to motion-stagger-limit, as animation-delay and in --dk-stagger-delay for a transition of your own.
+   sibling-index() counts every child; where it's missing, the first six are counted and the rest wait the limit. */
+.stagger > * { --dk-stagger-delay: var(--motion-stagger-limit); animation-delay: var(--dk-stagger-delay); }
+.stagger > :nth-child(1) { --dk-stagger-delay: 0ms; }
+.stagger > :nth-child(2) { --dk-stagger-delay: var(--motion-stagger); }
+.stagger > :nth-child(3) { --dk-stagger-delay: calc(var(--motion-stagger) * 2); }
+.stagger > :nth-child(4) { --dk-stagger-delay: calc(var(--motion-stagger) * 3); }
+.stagger > :nth-child(5) { --dk-stagger-delay: calc(var(--motion-stagger) * 4); }
+.stagger > :nth-child(6) { --dk-stagger-delay: calc(var(--motion-stagger) * 5); }
+@supports (order: sibling-index()) {
+  .stagger > :nth-child(n) { --dk-stagger-delay: min(calc(var(--motion-stagger) * (sibling-index() - 1)), var(--motion-stagger-limit)); }
+}
+
 /* Reduced motion: stop decorative loops, slow spinners, keep transitions short */
 @media (prefers-reduced-motion: reduce) {
   .animate-ping, .animate-bounce, .animate-pulse { animation: var(--animate-none); }
   .animate-spin { animation: var(--animate-spin-reduced); }
+  .animate-enter { animation-name: fade-in; }
+  .stagger > :nth-child(n) { --dk-stagger-delay: 0ms; }
 }
 
 /* ---------------------------------------------------------------

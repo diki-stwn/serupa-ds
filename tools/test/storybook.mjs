@@ -1,6 +1,6 @@
 // Storybook (npm run build-storybook first): every story and docs page renders without errors, and every
-// story passes axe's WCAG 2.2 AA checks in all six themes (text in a disabled control is exempt from
-// contrast, as WCAG 1.4.3 says).
+// story passes axe's WCAG 2.2 AA checks in all six themes, and once more in blue-light with data-contrast="more"
+// (text in a disabled control is exempt from contrast, as WCAG 1.4.3 says).
 //   node tools/test/storybook.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,6 +17,9 @@ const { base, close } = serve(DIR);
 const { entries } = JSON.parse(fs.readFileSync(path.join(DIR, 'index.json'), 'utf8'));
 const axe = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const THEMES = ['blue-light', 'blue-dark', 'violet-light', 'violet-dark', 'emerald-light', 'emerald-dark'];
+// The more-contrast axis swaps text, border and focus-ring tokens: one more axe run, in the first theme, checks
+// that it never takes a story below AA.
+const RUNS = [...THEMES, 'blue-light+more'];
 
 const b = await browser();
 // Several pages at once (PAGES), each in its own context, collecting its own page errors.
@@ -33,12 +36,13 @@ const R = [];
 const t = (name, ok, detail) => ({ name, ok: !!ok, detail });
 
 // Opens an entry in a theme and returns what kept it from being ready ('' when it is).
-async function open(w, e, theme) {
+async function open(w, e, run) {
+  const [theme, contrast = 'default'] = run.split('+');
   const [brand, mode] = theme.split('-');
   const { page } = w;
   w.errors = [];
   // a11y.manual stops the a11y addon's own axe run after each story: it shares window.axe with this check's run.
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=${e.type === 'docs' ? 'docs' : 'story'}&globals=brand:${brand};mode:${mode};a11y.manual:!true`);
+  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=${e.type === 'docs' ? 'docs' : 'story'}&globals=brand:${brand};mode:${mode};contrast:${contrast};a11y.manual:!true`);
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0 || document.querySelector('#storybook-docs')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) return 'did not render in 15 s';
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
@@ -94,10 +98,10 @@ async function checkDocs(e, w) {
 async function checkStory(e, w) {
   const out = [];
   const problems = [];
-  for (const th of THEMES) {
+  for (const th of RUNS) {
     const notReady = await open(w, e, th);
     if (notReady) { problems.push(`${th}: ${notReady}`); continue; }
-    const shown = await w.page.evaluate((th) => !document.body.classList.contains('sb-show-errordisplay') && document.querySelector('#storybook-root')?.children.length > 0 && document.documentElement.getAttribute('data-theme') === th && getComputedStyle(document.documentElement).backgroundColor === getComputedStyle(document.body).backgroundColor, th);
+    const shown = await w.page.evaluate((th) => !document.body.classList.contains('sb-show-errordisplay') && document.querySelector('#storybook-root')?.children.length > 0 && document.documentElement.getAttribute('data-theme') === th.split('+')[0] && (document.documentElement.getAttribute('data-contrast') === 'more') === th.endsWith('+more') && getComputedStyle(document.documentElement).backgroundColor === getComputedStyle(document.body).backgroundColor, th);
     if (!shown || w.errors.length) { problems.push(`${th}: ${w.errors[0] || 'did not render'}`); continue; }
     await w.page.addScriptTag({ content: axe });
     const v = await w.page.evaluate(async () => {
@@ -109,11 +113,11 @@ async function checkStory(e, w) {
     });
     if (v.length) problems.push(`${th}: ${v.join('; ')}`);
   }
-  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes`, !problems.length, problems.slice(0, 3).join('\n      ')));
+  out.push(t(`${e.title} · ${e.name}: renders and passes WCAG 2.2 AA in all six themes and with more contrast`, !problems.length, problems.slice(0, 3).join('\n      ')));
   return out;
 }
 R.push(...(await inParallel(docs, workers, checkDocs)).flat(), ...(await inParallel(stories, workers, checkStory)).flat());
 await b.close();
 close();
-console.log(`(${docs.length} docs pages, ${stories.length} stories × ${THEMES.length} themes)`);
+console.log(`(${docs.length} docs pages, ${stories.length} stories × ${RUNS.length} runs: six themes and more contrast)`);
 process.exit(report('Storybook', R) ? 0 : 1);

@@ -227,4 +227,35 @@ describe('Field', () => {
     await r.rerender(<Field label="Email"><input id="em" /></Field>);
     expect(document.getElementById('em')!.hasAttribute('aria-errormessage')).toBe(false);
   });
+
+  test('layout="horizontal" (D17): the label in a 192px column on the control\'s first line (baselines aligned), 16px from it; hint and error under the control; still named and described', async () => {
+    await render(<div style={{ width: '560px' }}>
+      <Field id="h-in" layout="horizontal" label="Display name" hint="Shown on your profile." error="Too short.">
+        <Input defaultValue="An" />
+      </Field>
+    </div>);
+    const f = el('h-in').closest('[data-component="field"]') as HTMLElement;
+    const [hintId, errorId] = described('h-in');
+    const label = el('h-in').labels![0].getBoundingClientRect(), box = el('h-in').parentElement!.getBoundingClientRect();
+    const hint = document.getElementById(hintId)!.getBoundingClientRect(), error = document.getElementById(errorId)!.getBoundingClientRect();
+    expect([f.dataset.layout, Math.round(label.width), Math.round(box.left - label.right), Math.round(box.width)]).toEqual(['horizontal', 192, 16, 560 - 192 - 16]);
+    // the label's text sits on the input's text line
+    const text = document.createRange(); text.selectNodeContents(el('h-in').labels![0].firstChild!);
+    const input = el('h-in').getBoundingClientRect();
+    expect(Math.abs((text.getBoundingClientRect().top + text.getBoundingClientRect().bottom) / 2 - (input.top + input.bottom) / 2)).toBeLessThan(2);
+    expect([hint.top >= box.bottom, error.top >= hint.bottom, Math.round(hint.left) === Math.round(box.left)]).toEqual([true, true, true]);
+    expect([el('h-in').labels![0].textContent, described('h-in').length, el('h-in').getAttribute('aria-invalid')]).toEqual(['Display name', 2, 'true']);
+  });
+
+  test('layout="horizontal" stacks again when the field is narrower than both columns, and is ignored with group', async () => {
+    await render(<>
+      <div style={{ width: '300px' }}><Field id="h-narrow" layout="horizontal" label="Display name"><Input /></Field></div>
+      <div style={{ width: '560px' }}><Field group layout="horizontal" label="Plan" data-testid="h-group"><RadioGroup name="p"><Radio value="a">A</Radio></RadioGroup></Field></div>
+    </>);
+    const label = el('h-narrow').labels![0].getBoundingClientRect(), box = el('h-narrow').parentElement!.getBoundingClientRect();
+    expect([box.top >= label.bottom, Math.round(box.left), Math.round(box.width)]).toEqual([true, Math.round(label.left), 300]);
+    const g = document.querySelector('[data-testid="h-group"]') as HTMLElement;
+    expect([g.tagName, g.classList.contains('dk-field--horizontal'), g.dataset.layout]).toEqual(['FIELDSET', false, undefined]);
+  });
 });
+
