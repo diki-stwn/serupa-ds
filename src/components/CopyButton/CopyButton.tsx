@@ -4,9 +4,10 @@ import { cn } from "../../internal/cn";
 import { ButtonBase, type ButtonAsButtonProps } from "../Button/Button";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { announce } from "../../internal/announce";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface CopyButtonProps extends Omit<ButtonAsButtonProps, 'value' | 'onCopy' | 'icon' | 'leftIcon' | 'rightIcon' | 'loading' | 'loadingText'> {
   /** What to copy: the text, or a function that returns it (or a promise of it) when the button is pressed. */
@@ -64,7 +65,7 @@ function fallback(text: string): boolean {
    Variant defaults to "outline" and size to "sm"; every other Button prop and ref go to the <button>. */
 /** A button that copies text to the clipboard, then shows "Copied" with a check and says so to screen readers. */
 export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButtonProps>("CopyButton", function CopyButton(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { value, children, copiedLabel, iconOnly, timeout, onCopy, onCopyError, className, variant, size, ...rest } = props;   // the rest is the Button's
   const [copied, setCopied] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);

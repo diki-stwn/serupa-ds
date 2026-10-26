@@ -9,11 +9,15 @@ import { Calendar } from "../Calendar/Calendar";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { en as DateRangePickerWords } from "./labels";
+import { en as DatePickerWords } from "../DatePicker/labels";
+// This component's words and the ones it shares with DatePicker.
+const words = /* @__PURE__ */ Object.assign({}, DateRangePickerWords, DatePickerWords);
 
 /** A range of days; either end can be empty while it's being chosen. */
 export interface DateRange { start: Date | null; end: Date | null }
@@ -80,7 +84,7 @@ const key = (d: Date | null) => (d ? d.getTime() : null);
 /** Two date fields for a start and end, with a two-month calendar popup to pick the range. */
 export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRangePickerProps>("DateRangePicker", function DateRangePicker(props, ref) {
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { value: _v, defaultValue: _d, onValueChange, onInvalidInput, min: minIn, max: maxIn, isDateDisabled, locale: localeProp, weekStartsOn, size: _s, invalid: _i, disabled, readOnly, required: requiredProp, id, startLabel, endLabel, startName, endName, form, buttonLabel, months: _m, autoFocus, className, ...rest } = props;
   const locale = useLocale(localeProp);
   const size = oneOf(SIZES, props.size, "md");

@@ -6,9 +6,10 @@ import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
@@ -80,7 +81,7 @@ const rubber = (d: number, w: number) => Math.sign(d) * (1 - 1 / (Math.abs(d) * 
 export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("Carousel", function Carousel(props, ref) {
   const nameRef = useNameCheck("Carousel", NAME_HOW.label);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, OWN);
   const slides = flattenChildren(props.children);
   const count = slides.length;

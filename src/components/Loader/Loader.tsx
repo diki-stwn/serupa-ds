@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { useShowAfter } from "../../internal/showAfter";
 
 export type LoaderVariant = 'ring' | 'spokes' | 'dots' | 'pixel' | 'text' | 'skeleton';
@@ -61,7 +61,7 @@ const OWN = { variant: 1, size: 1, tone: 1, label: 1, delay: 1, loading: 1, shap
 
 /** Shows that something is loading when you can't say how far along it is. Mark the area that's loading with aria-busy while it shows. */
 export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("Loader", function Loader(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "ring");
   const size = oneOf(SIZES, props.size, "md");

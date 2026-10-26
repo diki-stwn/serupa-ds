@@ -4,9 +4,10 @@ import { cn, domId, oneOf, omit, SIZES } from "../../internal/cn";
 import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
-import { useLocale, useSerupa } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as ownWords } from "./labels";
 
 export type ProgressTone = 'primary' | 'success' | 'warning' | 'danger';
 export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -61,7 +62,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   const showValue = !!props.showValue && known;
   const share = known ? value / max : 0;
   // Reaching max is said once, and onComplete called, when the value gets there (not when it renders there).
-  const sds = useSerupa();
+  const sds = useSettings(ownWords);
   const done = known && value >= max;
   const was = React.useRef(done);
   const name = typeof props.label === "string" ? props.label : typeof rest["aria-label"] === "string" ? rest["aria-label"] : "";

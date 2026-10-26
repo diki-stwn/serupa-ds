@@ -5,9 +5,10 @@ import { useServerStyles } from "../../internal/serverStyles";
 import { AVATAR_SIZES, AvatarGroupSize } from "../Avatar/Avatar";
 import type { AvatarSize } from "../Avatar/Avatar";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { flattenChildren } from "../../internal/children";
 import { Popover } from "../Popover/Popover";
+import { en as words } from "./labels";
 
 export interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The avatars: <Avatar> elements, or elements around them such as a Tooltip or a link. */
@@ -43,7 +44,7 @@ export const AvatarGroup = /* @__PURE__ */ component<HTMLDivElement, AvatarGroup
   const max = props.max != null && props.max >= 0 ? Math.floor(props.max) : Infinity;
   const total = Math.max(all.length, props.total != null && props.total > 0 ? Math.floor(props.total) : 0);
   const shown = all.slice(0, max);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const more = total - shown.length;
   const count = shown.length + (more > 0 ? 1 : 0);
   const cap = size === "xs" ? 9 : 99;   // the most "+N" writes out: three characters don't fit in 24px
