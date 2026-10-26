@@ -174,13 +174,13 @@ describe('Toast', () => {
 
   test('it goes after its duration, and the time stops while it\'s hovered', async () => {
     await render(<App />);
-    React.act(() => { toast({ title: 'Quick', duration: 400 }); });
-    await settle(250);
+    // 1s, hovered at once: a slow runner's hover round trip can't use the time up before the pointer lands.
+    React.act(() => { toast({ title: 'Quick', duration: 1000 }); });
     await userEvent.hover(q('.dk-toast'));
-    await settle(500);   // past its 400ms: only the hover keeps it
+    await settle(1200);   // past its 1s: only the hover keeps it
     expect(titles().length).toBe(1);
     await away();
-    await expect.poll(() => titles().length, { timeout: 1500 }).toBe(0);
+    await expect.poll(() => titles().length, { timeout: 2500 }).toBe(0);
   });
 
   test('and while something in it has focus', async () => {
