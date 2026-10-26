@@ -15,6 +15,7 @@ const { PasswordInput, Field } = window.Serupa;
 
 ## When to use
 
+- A press anywhere on the box other than the reveal button, such as on the icon or the side padding, focuses the field with the caret at the end, as Input's box does.
 - Signing in, signing up, and changing a password.
 - Any secret people type and may want to check before they submit, such as a PIN.
 

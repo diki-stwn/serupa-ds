@@ -30,6 +30,18 @@ const Main = ({ pref }: { pref?: React.Ref<HTMLInputElement> }) => <>
 </>;
 
 describe('PasswordInput', () => {
+  test('a press on the box (the side padding, the icon) focuses the field with the caret at the end; the reveal button still toggles (GE1)', async () => {
+    await render(<div style={{ width: '300px' }}><PasswordInput id="pp" size="lg" leftIcon="lock" aria-label="Password" defaultValue="secret" /><button id="pp-away">away</button></div>);
+    const y = box('pp').getBoundingClientRect().height / 2;
+    for (const x of [2, 20]) {
+      (document.getElementById('pp-away') as HTMLElement).focus();
+      await userEvent.click(box('pp'), { position: { x, y } });
+      expect([x, document.activeElement === field('pp'), field('pp').selectionStart]).toEqual([x, true, 6]);
+    }
+    await userEvent.click(toggle('pp'));
+    expect(field('pp').type).toBe('text');
+  });
+
   test('Input\'s box (32px, md) around a type="password" field, autocomplete current-password, no spellcheck; ref to the input, className and style to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><Main pref={ref} /></Wrap>);
