@@ -47,6 +47,13 @@
   .dk-combobox__popup[hidden] { scale: var(--scale-95); }
   @starting-style { .dk-combobox__popup:not([hidden]) { scale: var(--scale-95); } }
 }
+@media (prefers-reduced-motion: reduce) {
+  .dk-combobox__popup { transition: opacity var(--motion-exit-sm) var(--ease-exit); }
+  .dk-combobox__popup:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter); }
+  @supports (overlay: auto) {
+    .dk-combobox__popup[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+  }
+}
 .dk-combobox__option {
   display: flex; align-items: center; gap: var(--spacing-2); box-sizing: border-box; min-height: var(--combobox-option-height, var(--control-height-md));
   padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2));
