@@ -47,14 +47,14 @@ export const EmptyState = /* @__PURE__ */ component<HTMLDivElement, EmptyStatePr
   const H = ("h" + level) as "h3";
   const icon = asIcon(props.icon as React.ReactNode);
   const suggestions = (props.suggestions || []).filter(Boolean);
-  const clear = props.onClearFilters ? <ClearFilters onClear={props.onClearFilters} small={size === "sm"} /> : null;
+  const clear = props.onClearFilters ? <ClearFilters action={props.onClearFilters} small={size === "sm"} /> : null;
   return (
     <div {...rest} ref={ref} data-component="empty-state" className={cn("dk-empty-state", size === "sm" && "dk-empty-state--sm", variant === "dashed" && "dk-empty-state--dashed", props.className)}>
       {icon != null ? <div className={cn("dk-empty-state__icon", typeof props.icon !== "string" && "dk-empty-state__icon--custom")} aria-hidden="true">{icon}</div> : null}
       <div className="dk-empty-state__text">
         <H className="dk-empty-state__title">{props.title}</H>
         {props.description != null ? <p className="dk-empty-state__description">{props.description}</p> : null}
-        {suggestions.length ? <Suggestions items={suggestions} onPick={props.onSuggestion} /> : null}
+        {suggestions.length ? <Suggestions items={suggestions} pick={props.onSuggestion} /> : null}
         {props.announce ? <AnnounceText /> : null}
       </div>
       {props.actions != null || clear ? <div className="dk-empty-state__actions">{props.actions}{clear}</div> : null}
