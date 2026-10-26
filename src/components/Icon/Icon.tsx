@@ -24,9 +24,13 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   icon?: IconData;
   /** Size in px (a number, or a string of one: "20") or any CSS length. Default: 24px, or the button's icon size inside a Button. */
   size?: number | string;
+  /** Flips the icon in right-to-left text (dir="rtl"), so an arrow points the way reading goes. 'auto' (default) flips
+   * Material Symbols' directional icons (arrow_forward, chevron_right, send, undo…); true flips any icon, false none. */
+  mirror?: boolean | "auto";
 }
 
 const never = () => () => {}, yes = () => true, no = () => false;
+
 
 /* A custom icon's markup as React elements, so it's never written as HTML: a page with Trusted Types on
    (require-trusted-types-for 'script') needs no policy for it. tools/icons/build.mjs writes the markup: <g> and shape
@@ -76,7 +80,7 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
     });
     return () => { live = false; offline(); };
   }, [missing, props.name, tries]);
-  const rest = omit(props, { name: 1, icon: 1, size: 1, className: 1, style: 1 } as const);
+  const rest = omit(props, { name: 1, icon: 1, size: 1, mirror: 1, className: 1, style: 1 } as const);
   const labelled = rest["aria-label"] || rest["aria-labelledby"];
   if (!labelled) rest["aria-hidden"] = true; else rest.role = "img";
   const style: React.CSSProperties = Object.assign({}, props.style);
@@ -84,15 +88,17 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   if (props.size != null) style.fontSize = typeof props.size === "number" || /^\s*\d*\.?\d+\s*$/.test(props.size) ? String(props.size).trim() + "px" : props.size;
   const name = props.icon ? props.icon.name : props.name;
   if (name != null) rest["data-icon"] = name;
+  // Which icons flip in right-to-left text is in Icon.css (by data-icon), so the list costs no script.
+  const mirror = props.mirror === true ? "dk-icon--mirror" : props.mirror === false ? "dk-icon--fixed" : null;
   if (custom) {
     return (
-      <span {...rest} ref={restyle} className={cn("dk-icon dk-icon--custom", props.className)} style={style}>
+      <span {...rest} ref={restyle} className={cn("dk-icon dk-icon--custom", mirror, props.className)} style={style}>
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false">{shapes(ICONS[props.name as string])}</svg>
       </span>
     );
   }
   return (
-    <span {...rest} ref={restyle} className={cn("dk-icon", props.className)} style={style}>
+    <span {...rest} ref={restyle} className={cn("dk-icon", mirror, props.className)} style={style}>
       {data && <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden focusable="false"><path d={data.d} /></svg>}
     </span>
   );

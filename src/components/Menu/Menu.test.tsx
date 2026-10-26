@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, press, settle, withMotion, iconPoints } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -261,7 +261,7 @@ describe('Menu', () => {
     await userEvent.keyboard('{ArrowLeft}');
     const item = el('share'), panel = sub('share')!;
     expect([focus(), rect(panel).right <= rect(item).left + 8]).toEqual(['Email', true]);
-    expect([getComputedStyle(item.querySelector('.dk-menu__ltr')!).display, getComputedStyle(item.querySelector('.dk-menu__rtl')!).display !== 'none']).toEqual(['none', true]);
+    expect(iconPoints(item.querySelector('.dk-menu__chevron [data-icon]')!)).toBe('left');
     await userEvent.keyboard('{ArrowRight}');
     expect([focus(), sub('share')]).toEqual(['Share', null]);
   });
