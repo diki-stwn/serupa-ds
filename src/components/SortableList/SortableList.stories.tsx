@@ -28,3 +28,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 export const Disabled: Story = { render: () => <Tasks disabled /> };
+
+export const LongText: Story = {
+  render: () => (
+    <div style={{ width: 220 }}>
+      <SortableList aria-label="Launch tasks" items={[{ id: 'a', title: 'Write the launch brief for every region and partner', owner: 'Ada' }, { id: 'b', title: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', owner: 'Grace' }]} getKey={(t) => t.id} getLabel={(t) => t.title} onReorder={() => undefined} renderItem={(t) => t.title} />
+    </div>
+  ),
+};
