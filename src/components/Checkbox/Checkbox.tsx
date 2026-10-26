@@ -5,6 +5,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
+import { useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
@@ -146,9 +147,11 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;   // a group's invalid is on the group
   let mixed = !!props.indeterminate;
+  let need = false;
   const key = props.value == null ? "" : String(props.value);
   const all = !!(group && props.selectAll);
   const counted = !!group && !all && key !== "";
+  const labels = useSerupa().labels;
   const boxDisabled = !!(rest.disabled || (group && group.disabled));
   useIsoLayoutEffect(function () { return counted && group ? group.register(props.value as string | number, boxDisabled) : undefined; }, [counted, key, boxDisabled]);
   if (group) {
@@ -169,6 +172,9 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
       rest.onChange = function (e: React.ChangeEvent<HTMLInputElement>) { if (ownChange) ownChange(e); group.toggle(key, e.currentTarget.checked, e); };
       // Required means at least one: every box is required while none is checked, so the browser asks for one.
       if (group.required && !group.values.some((v) => group.boxes.has(v))) rest.required = true;
+      // The browser's message is for one box ("check this box if you want to proceed"), which reads as if every
+      // box were mandatory, so each says the group's instead (EW1).
+      need = !!rest.required;
     }
   }
   const checkedChange = props.onCheckedChange;
@@ -192,6 +198,13 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
     setRef(ref, node);
   }, [ref, nameRef]);
   useIsoLayoutEffect(function () { if (own.current) own.current.indeterminate = mixed; });   // every render: a click clears it natively
+  const said = React.useRef(false);   // only clears a message it set
+  // every render: whether the group needs a box checked changes with any box's state, not with this box's props.
+  useIsoLayoutEffect(function () {
+    if (!own.current || (!need && !said.current)) return;
+    own.current.setCustomValidity(need ? labels.selectAtLeastOne : "");
+    said.current = need;
+  });
   const base = domId("dk-cb", React.useId()), labelId = base + "-label", descId = base + "-desc";
   const hasLabel = props.children != null && props.children !== false && props.children !== "";
   const hasDesc = props.description != null && props.description !== false && props.description !== "";
