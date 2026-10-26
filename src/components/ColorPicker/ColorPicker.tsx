@@ -88,6 +88,9 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const size = props.size === "sm" ? "sm" : "md";
   const [text, setText] = React.useState((value || "").replace("#", ""));
   const typing = React.useRef(false);
+  // A code on its way to six digits ("1d4") isn't marked invalid until Enter: only one that can't become a color is.
+  const [tried, setTried] = React.useState(false);
+  const bad = text !== "" && (/[^0-9a-f]/i.test(text) || text.length > 6 || (tried && !normalizeHex(text)));
   /* The field follows the color: on blur it shows the current one, and if the parent takes the typed color the
      change brings it here; a parent that turns it down leaves the field on its own color, not the rejected text. */
   React.useEffect(() => { if (!typing.current) setText((value || "").replace("#", "")); }, [value]);
@@ -114,9 +117,16 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   React.useEffect(() => {
     const el = native.current;
     if (!el) return;
-    const on = () => { const v = normalizeHex(el.value); if (v) commitRef.current(v); };
+    // A color dragged to and back to where it started fires input but no change: it's chosen when the well loses focus.
+    let moved = false;
+    const on = () => { moved = false; const v = normalizeHex(el.value); if (v) commitRef.current(v); };
+    // With nothing picked the well holds #000000, so picking black is no change to React (it skips onChange).
+    const input = () => { moved = true; if (valueRef.current === null && el.value === "#000000") chooseRef.current(el.value, false, false); };
+    const blur = () => { if (moved) on(); };
     el.addEventListener("change", on);
-    return () => el.removeEventListener("change", on);
+    el.addEventListener("input", input);
+    el.addEventListener("blur", blur);
+    return () => { el.removeEventListener("change", on); el.removeEventListener("input", input); el.removeEventListener("blur", blur); };
   }, [custom]);
   const choose = (hex: string, focus?: boolean, final = true) => {
     if (disabled) return;
@@ -130,6 +140,10 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
       if (b) b.focus();
     }
   };
+  const chooseRef = React.useRef(choose);
+  chooseRef.current = choose;
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
   const picked = swatches.findIndex((s) => s.value === value);
   const tabStop = picked >= 0 ? picked : 0;
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -192,14 +206,16 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
       {custom ? (
         // The hex field is a second field of the picker, named "Hex code": not the control a Field labels.
         <FieldContext.Provider value={null}><div className="dk-color-picker__custom">
-          <input ref={native} type="color" className="dk-color-picker__native" aria-label={sds.labels.customColor} value={value || "#000000"} disabled={disabled}
+          <input ref={native} type="color" className="dk-color-picker__native" aria-label={sds.labels.customColor} value={value || "#000000"} disabled={disabled} data-empty={value ? undefined : ""}
             onChange={(e) => choose(e.target.value, false, false)} />
           <Input size="sm" className="dk-color-picker__hex" aria-label={sds.labels.hexCode} value={text} disabled={disabled} maxLength={7} spellCheck={false} autoComplete="off"
-            leftIcon={<span className="dk-color-picker__hash">#</span>} aria-invalid={text !== "" && !normalizeHex(text) ? true : undefined}
+            leftIcon={<span className="dk-color-picker__hash">#</span>} aria-invalid={bad || undefined}
             onFocus={() => { typing.current = true; }}
-            onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
-            onBlur={() => { typing.current = false; const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
-            onKeyDown={(e) => { if (e.key === "Enter") { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } } }} />
+            onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); setTried(false); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
+            // A copied code often comes with a space or a newline, which maxLength would cut before it's trimmed.
+            onPaste={(e) => { const t = e.clipboardData.getData("text").trim().replace(/^#/, ""); if (!normalizeHex(t)) return; e.preventDefault(); setText(t); setTried(false); if (t.length === 6) choose(t, false, false); }}
+            onBlur={() => { typing.current = false; setTried(false); const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } else setTried(true); } }} />
         </div></FieldContext.Provider>
       ) : null}
       {props.contrastWith ? (

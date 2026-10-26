@@ -177,6 +177,21 @@ describe('Card', () => {
     getSelection()!.removeAllRanges();
   });
 
+  test('a Ctrl, Cmd or Shift click, or a middle click, on the body text opens the link in another tab and leaves this one; a plain click follows it here (ER1)', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    const aux: number[] = [];
+    await render(<Card id="mod" href="#mod" onAuxClick={(e) => aux.push(e.button)}><CardHeader title="Beacon" /><CardBody><p id="modp">Status pages</p></CardBody></Card>);
+    const p = el('modp'), href = new URL('#mod', location.href).href;
+    for (const key of ['ctrlKey', 'metaKey', 'shiftKey']) p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, [key]: true }));
+    p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+    p.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 2 }));   // a right click: nothing
+    expect([location.hash, open.mock.calls, aux]).toEqual(['', Array(4).fill([href, '_blank', 'noopener']), [1, 2]]);
+    p.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect([location.hash, open.mock.calls.length]).toEqual(['#mod', 4]);
+    history.replaceState(null, '', location.pathname + location.search);
+    open.mockRestore();
+  });
+
   test('hover: a border-strong border', async () => {
     await render(<Card id="lnk" href="#here"><CardHeader title="Atlas" description="Updated" /></Card>);
     const before = css(el('lnk')).borderTopColor, strong = color('var(--border-strong)');

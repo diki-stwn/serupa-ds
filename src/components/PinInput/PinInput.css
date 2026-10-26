@@ -30,6 +30,7 @@
   position: absolute; inset: var(--spacing-0); box-sizing: border-box; width: var(--sizing-full); height: var(--sizing-full);
   margin: var(--spacing-0); padding: var(--spacing-0); border: 0; background: transparent; outline: none;
   color: transparent; caret-color: transparent; font: inherit; cursor: text;
+  forced-color-adjust: none;   /* forced colors would paint the selected code in HighlightText over the first box */
 }
 .dk-pin-input__field::selection { background: transparent; color: transparent; }
 @media (hover: hover) { .dk-pin-input:hover:not(.dk-pin-input--disabled, .dk-pin-input--readonly, :focus-within) { --dk-pin-bd: var(--pin-input-border-hover, var(--field-border-hover)); } }

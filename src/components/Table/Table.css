@@ -27,7 +27,7 @@
 }
 .dk-table__row--selected, .dk-table .dk-table__body .dk-table__row--selected, .dk-table .dk-table__body .dk-table__row:has(> .dk-table__select :checked) { background: var(--table-row-bg-selected, var(--surface-muted)); }
 .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { box-shadow: inset var(--table-indicator-width, var(--border-width-2)) 0 0 var(--table-row-indicator-selected, var(--primary)); }
-[dir="rtl"] .dk-table__row--selected > :first-child, [dir="rtl"] .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { box-shadow: inset calc(var(--spacing-0) - var(--table-indicator-width, var(--border-width-2))) 0 0 var(--table-row-indicator-selected, var(--primary)); }
+.dk-table__row--selected:dir(rtl) > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked):dir(rtl) > :first-child { box-shadow: inset calc(var(--spacing-0) - var(--table-indicator-width, var(--border-width-2))) 0 0 var(--table-row-indicator-selected, var(--primary)); }
 .dk-table__select { width: var(--spacing-px); padding-inline-end: var(--spacing-0); }
 .dk-table__select .dk-checkbox { vertical-align: middle; }
 .dk-table--sticky .dk-table__head .dk-table__cell { position: sticky; top: 0; z-index: var(--z-10); }

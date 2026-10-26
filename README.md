@@ -14,16 +14,16 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v9.6.0
+npm install github:diki-stwn/serupa-ds#v9.7.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.6.0/serupa-ds-9.6.0.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v9.7.0/serupa-ds-9.7.0.tgz
 ```
 
-Always pin a tag (`#v9.6.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v9.7.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -186,6 +186,12 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [SortableList](src/components/SortableList/README.md) | A list people put in their own order: tasks by priority, steps in a flow, columns in a table. |
 | [Table](src/components/Table/README.md) | A data table built on native table markup: a header row, body rows and an optional footer, in a bordered frame that scrolls sideways when the table is too wide. |
 
+### Data display
+
+| Component | What it's for |
+| --- | --- |
+| [Timeline](src/components/Timeline/README.md) | An ordered list of events, each with a marker on a line that joins them, a title, a time and optional content. |
+
 ### Feedback
 
 | Component | What it's for |
@@ -218,6 +224,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [PhoneInput](src/components/PhoneInput/README.md) | A phone number field with a country menu at the start. |
 | [PinInput](src/components/PinInput/README.md) | A one-time code or PIN, shown as one box per character, such as the 6-digit code texted at sign-in. |
 | [Radio](src/components/Radio/README.md) | Native radios for one choice from a short list. |
+| [Rating](src/components/Rating/README.md) | Stars to pick a score (how was your stay, how useful was this article) or to show one (a product's average). |
 | [SearchInput](src/components/SearchInput/README.md) | A search field: a search icon at the start, and a × at the end once something is typed. |
 | [SegmentedControl](src/components/SegmentedControl/README.md) | Picks one of a few options shown side by side, such as a view (List, Board) or a period (Day, Week, Month). |
 | [Select](src/components/Select/README.md) | A native `<select>` styled like Input: the same three heights (24, 32 and 44px), colors, focus ring and states, with a chevron and an optional left icon. |
@@ -225,6 +232,12 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [Switch](src/components/Switch/README.md) | An on/off setting that takes effect at once. |
 | [Textarea](src/components/Textarea/README.md) | A multi-line text field, Input's sibling: a native `<textarea>` in a box. |
 | [TimePicker](src/components/TimePicker/README.md) | A time-of-day field: people type a time, or pick one from a list. |
+
+### Layout
+
+| Component | What it's for |
+| --- | --- |
+| [Splitter](src/components/Splitter/README.md) | Two panes with a handle between them that people drag, or move with the keys, to give one pane more room: a list and its detail, a sidebar and an editor, code and its output. |
 
 ### Layout and type
 

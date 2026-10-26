@@ -49,7 +49,8 @@ function shapes(markup: string): React.ReactNode[] {
 /** An icon: Material Symbols Rounded (filled) or one of your custom SVG icons. Sized by font-size, drawn in the text color. Decorative by default (aria-hidden); pass aria-label to make it meaningful. */
 export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon", function Icon(props, ref) {
   const restyle = useServerStyles(ref);
-  const [, loadedAll] = React.useReducer((n: number) => n + 1, 0);
+  // Counts the loads that came back (or a retry after a failed one), so the box draws what arrived.
+  const [tries, again] = React.useReducer((n: number) => n + 1, 0);
   const own = useSerupa().icons;   // icons given to a SerupaProvider
   // The hydration render draws only what the server could (an icon passed or registered), not one this page loaded
   // since; right after it, the loaded one appears.
@@ -58,17 +59,23 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   const data = props.icon || (custom || props.name == null ? undefined : own.get(props.name) || (hydrated ? getIcon : getRegisteredIcon)(props.name));
   const missing = !custom && !data && props.name != null;
   // A name not loaded yet: load it, then draw it (or warn if it isn't a Material Symbol). Until then, and on the
-  // server, the box is empty: pass `icon={…}` or register the icon to draw it on the first render.
+  // server, the box is empty: pass `icon={…}` or register the icon to draw it on the first render. If the icons fail
+  // to load, the box stays empty and tries again when the browser is back online (the next Icon tries at once).
   React.useEffect(() => {
     if (!missing) return;
-    let live = true;
+    let live = true, offline = () => {};
     loadIcon(props.name as string).then((found) => {
       if (!live) return;
-      if (found) loadedAll();
+      if (found) again();
       else if (process.env.NODE_ENV !== "production") warnOnce("icon-unknown", `Icon: "${props.name}" isn't a Material Symbol or one of your icons. Check the name on the Icons page (Foundations/Icons).`, "icon:" + props.name);
-    }, () => { /* the chunk failed to load: the box stays empty */ });
-    return () => { live = false; };
-  }, [missing, props.name]);
+    }, (err: unknown) => {
+      if (!live) return;
+      if (process.env.NODE_ENV !== "production") warnOnce("icon-load", `Icon: the icons drawn by name didn't load (${err instanceof Error ? err.message : String(err)}), so "${props.name}" is empty for now. It tries again when the browser is back online; pass icon={…} to draw an icon without loading it.`);
+      window.addEventListener("online", again, { once: true });
+      offline = () => window.removeEventListener("online", again);
+    });
+    return () => { live = false; offline(); };
+  }, [missing, props.name, tries]);
   const rest = omit(props, { name: 1, icon: 1, size: 1, className: 1, style: 1 } as const);
   const labelled = rest["aria-label"] || rest["aria-labelledby"];
   if (!labelled) rest["aria-hidden"] = true; else rest.role = "img";

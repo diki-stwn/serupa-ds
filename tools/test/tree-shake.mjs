@@ -8,7 +8,7 @@
 //   node tools/test/tree-shake.mjs
 // Bundlers: esbuild, Rollup (reading "sideEffects" the way @rollup/plugin-node-resolve does, and again without it),
 // Rolldown (what Vite 8 builds with) and webpack (production mode). The full icon set, a dynamic import(), stays a chunk of its own here;
-// size.mjs measures a build that doesn't split it off (DM1).
+// size.mjs measures a build that doesn't split it off (DM1). esbuild must also print no warnings while bundling (FD1).
 import fs from 'node:fs';
 import path from 'node:path';
 import * as esbuild from 'esbuild';
@@ -81,12 +81,17 @@ async function rollupEach(groups, moduleSideEffects) {
   return out;
 }
 
+// What a bundler warned about while building, which a project bundling the package would see too: esbuild's
+// "Ignoring this import because … marked as having no side effects" is a bare import left by import { type X } (FD1).
+const warned = {};
 // Each takes the groups of exports to import, and returns for each one what its build kept.
 const BUNDLERS = {
   async esbuild(groups) {
     const files = entries(groups);
     const r = await esbuild.build({ entryPoints: files, outdir: path.join(DIR, 'out'), bundle: true, minify: true, write: false, metafile: true, format: 'esm', platform: 'browser', external: ['react', 'react-dom'], plugins: [lazy], logLevel: 'silent' });
     const by = Object.fromEntries(Object.values(r.metafile.outputs).filter((o) => o.entryPoint).map((o) => [path.resolve(PROJECT, o.entryPoint), o.inputs]));
+    // Not the warning on `import "serupa-ds"` alone, which the test asks for on purpose.
+    warned.esbuild = r.warnings.filter((w) => !w.location || !path.resolve(PROJECT, w.location.file).startsWith(DIR));
     return files.map((f) => ours(Object.entries(by[f]).map(([k, v]) => [k, v.bytesInOutput])));
   },
   rollup: (groups) => rollupEach(groups, (id) => !id.startsWith(JS) || hasEffects(id)),
@@ -133,6 +138,10 @@ for (const [name, run] of Object.entries(BUNDLERS)) {
     if (kept.length) extra.push(`${x} (${short(where[x])}) also ships ${kept.map(([f, n]) => n === Infinity ? short(f) : `${short(f)} (${n} B)`).join(', ')}`);
   });
   results.push({ name: `${name}: each of the ${exported.length} exports ships only the modules it imports`, ok: !extra.length, detail: extra.join('\n      ') });
+  if (warned[name]) {
+    const seen = [...new Set(warned[name].map((w) => `${w.location ? path.relative(PROJECT, path.resolve(PROJECT, w.location.file)) + ':' + w.location.line + ': ' : ''}${w.text}`))];
+    results.push({ name: `${name}: bundling the package prints no warnings`, ok: !seen.length, detail: seen.join('\n      ') });
+  }
 }
 fs.rmSync(DIR, { recursive: true, force: true });
 done(report('tree-shake', results));

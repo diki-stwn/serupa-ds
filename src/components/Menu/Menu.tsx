@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, elementRef, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { config } from "../../internal/config";
-import { type Placement } from "../../internal/position";
+import type { Placement } from "../../internal/position";
 import { typeahead, type Typed } from "../../internal/typeahead";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { Icon, type IconSource } from "../Icon/Icon";

@@ -25,8 +25,8 @@
 .dk-pagination__item--current { background: var(--pagination-current-bg, var(--primary)); color: var(--pagination-current-text, var(--on-primary)); font-weight: var(--pagination-weight-current, var(--font-semibold)); cursor: default; }
 .dk-pagination__item:disabled, .dk-pagination__item[aria-disabled="true"] { opacity: var(--pagination-disabled, var(--opacity-disabled)); cursor: not-allowed; }
 .dk-pagination__ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); color: var(--pagination-ellipsis, var(--text-muted)); user-select: none; }
-.dk-pagination__rtl, [dir="rtl"] .dk-pagination__ltr { display: none; }
-[dir="rtl"] .dk-pagination__rtl { display: inline-block; }
+.dk-pagination__rtl, .dk-pagination__ltr:dir(rtl) { display: none; }
+.dk-pagination__rtl:dir(rtl) { display: inline-block; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }

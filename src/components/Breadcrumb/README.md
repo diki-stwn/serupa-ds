@@ -57,7 +57,7 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<nav>`. |
 | `children` | BreadcrumbItems | none | From the top level to the current page |
-| `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left pages |
+| `separator` | `'chevron'` \| `'slash'` | `'chevron'` | What goes between items. The chevron points left in right-to-left text, following the nearest `dir`, so a `dir="ltr"` block on a right-to-left page points right |
 | `maxItems` | number (2 or more) | no limit | Shows the first item, "…", then the last `maxItems - 1`. Pressing "…" shows them all and moves focus to the first one it showed |
 | `collapse` | `'inline'` \| `'menu'` | `'inline'` | What "…" does: shows the hidden items in the trail, or opens a Menu of them |
 | `aria-label` | string | `"Breadcrumb"` | The nav's name |
