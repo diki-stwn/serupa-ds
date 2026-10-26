@@ -21,7 +21,6 @@ const SHOWN = {
 // No story yet, each to get one in its own pull request (X1, with the "update-visual-baselines" label).
 const KNOWN = {
   Badge: ['disabled'],
-  ColorPicker: ['disabled', 'invalid'],
   Combobox: ['readOnly'],
   DatePicker: ['readOnly'],
   DateRangePicker: ['readOnly'],
