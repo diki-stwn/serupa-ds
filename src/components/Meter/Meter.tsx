@@ -27,7 +27,7 @@ export interface MeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   size?: 'sm' | 'md' | 'lg';
   /** A visible name above the bar, which also names it. Without one, give it an aria-label. */
   label?: React.ReactNode;
-  /** Shows the value at the end of the label row. Default: false. */
+  /** Shows the value at the end of the label row, in the same words as the read-out ("92%, high"). Default: false. */
   showValue?: boolean;
   /** Turns the value into words, shown and read out: (value, min, max) => "7.2 of 10 GB". Default: the share as the
       locale writes a percentage ("72%"). Say what a colored zone means here too, such as "92%, almost full". */
@@ -78,7 +78,8 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
   const tone = TONE[state];
   const labels = useSerupa().labels;
   const text = props.formatValue ? props.formatValue(value, min, max) : displayNumber(share, locale, PERCENT);
-  // Outside the best zone, the default words say where the value falls, so the warning isn't only a color.
+  // Outside the best zone, the default words say where the value falls, shown and read out, so the warning isn't
+  // only a color (WCAG 1.4.1).
   const spoken = props.formatValue || state === "none" || state === "optimum" ? text : labels.meterZone(text, zone(value, min, max, num(props.low), num(props.high)));
   const hasLabel = props.label != null && props.label !== false && props.label !== "";
   const showValue = !!props.showValue;
@@ -89,7 +90,7 @@ export const Meter = /* @__PURE__ */ component<HTMLDivElement, MeterProps>("Mete
       {hasLabel || showValue ? (
         <div className="dk-meter__header">
           {hasLabel ? <span className="dk-meter__label" id={base + "-label"}>{props.label}</span> : null}
-          {showValue ? <span className="dk-meter__value" aria-hidden>{text}</span> : null}
+          {showValue ? <span className="dk-meter__value" aria-hidden>{spoken}</span> : null}
         </div>
       ) : null}
       <div ref={nameRef} className="dk-meter__track" role="meter" aria-valuemin={min} aria-valuemax={max} aria-valuenow={value} aria-valuetext={spoken}
