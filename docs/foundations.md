@@ -562,7 +562,7 @@ Design for a phone first, then add what changes on wider screens. The five break
 
 Wrap each band of the page (header, main content, footer) in a Container of the same `size`, so their edges line up.
 
-| Content | Container | Max width |
+| Content | Container | Max content width |
 | --- | --- | --- |
 | Articles, help pages, settings forms | `size="prose"` | 672px, about 70 characters a line |
 | A page of cards or a form with a side panel | `size="lg"` | 1024px |
@@ -571,6 +571,7 @@ Wrap each band of the page (header, main content, footer) in a Container of the 
 | A layout that brings its own margins, such as a full-bleed hero | `size="full"` | none |
 
 - Keep reading text within `prose` width even on a wide page: put a long description in its own `prose` block.
+- The maximum is the content's: the side padding sits outside it, and grows to the screen's safe area where a notch is. The padding follows the screen's width, so in a narrow pane use `padded={false}` and pad the pane itself.
 - Don't nest Containers. Inside one, lay things out with Stack and Grid.
 - An app shell (Sidebar and Navbar) fills the window; put a Container inside the content area, not around the shell.
 

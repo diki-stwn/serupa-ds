@@ -174,13 +174,13 @@ describe('Toast', () => {
 
   test('it goes after its duration, and the time stops while it\'s hovered', async () => {
     await render(<App />);
-    React.act(() => { toast({ title: 'Quick', duration: 400 }); });
-    await settle(250);
+    // 1s, hovered at once: a slow runner's hover round trip can't use the time up before the pointer lands.
+    React.act(() => { toast({ title: 'Quick', duration: 1000 }); });
     await userEvent.hover(q('.dk-toast'));
-    await settle(500);   // past its 400ms: only the hover keeps it
+    await settle(1200);   // past its 1s: only the hover keeps it
     expect(titles().length).toBe(1);
     await away();
-    await expect.poll(() => titles().length, { timeout: 1500 }).toBe(0);
+    await expect.poll(() => titles().length, { timeout: 2500 }).toBe(0);
   });
 
   test('and while something in it has focus', async () => {
@@ -428,5 +428,88 @@ describe('Toast: motion (DZ1)', () => {
       React.act(() => { toast({ title: 'Later', duration: 0 }); });
       expect([byTitle('Later').hasAttribute('data-instant'), runs(byTitle('Later')).length]).toEqual([false, 2]);
     });
+  });
+
+  const frames = async (each: () => void) => { do { each(); await new Promise(requestAnimationFrame); } while (document.getAnimations().length); each(); };
+  test('top-center, a fourth toast: the oldest folds toward "+1 more" where it was, and the ones left only ever move down to their place, never fading in again (FO1)', async () => {
+    await withMotion(async () => {
+      await render(<App />);
+      setPos('top-center');
+      React.act(() => { toast({ title: 'Moved to trash', action: { label: 'Undo', onClick: () => {} } }); });
+      React.act(() => { toast({ title: 'Upload failed', tone: 'danger', duration: 0 }); });
+      React.act(() => { toast({ title: 'Storage almost full', tone: 'warning', duration: 0 }); });
+      await landed();
+      const failed = byTitle('Upload failed'), trash = byTitle('Moved to trash');
+      const tops: number[] = [], fades: string[] = [];
+      React.act(() => { toast({ title: 'Update ready', tone: 'info', duration: 0 }); });
+      // Newest on top, the waiting line last: the one pushed out stays below the one it was under.
+      expect([trash.dataset.leaving, toasts().indexOf(trash) > toasts().indexOf(failed), q('.dk-toaster__more').textContent]).toEqual(['queued', true, '+1 more']);
+      expect(runs(trash)).toEqual([['opacity', 150], ['scale', 150], ['translate', 150]]);
+      await frames(() => { tops.push(Math.round(failed.getBoundingClientRect().top)); fades.push(css(failed).opacity); });
+      expect([trash.isConnected, failed.getAnimations().filter((a) => a instanceof CSSTransition).length]).toEqual([false, 0]);
+      expect(fades.filter((o) => o !== '1')).toEqual([]);
+      expect(tops.filter((v, i) => i > 0 && v < tops[i - 1] - 1)).toEqual([]);
+      expect(tops[tops.length - 1]).toBeGreaterThan(tops[0]);
+    });
+  });
+
+  test('the waiting line fades in, glides with the toasts, and fades out once none wait (FO1)', async () => {
+    await withMotion(async () => {
+      await render(<Toaster limit={1} />);
+      React.act(() => { toast({ title: 'One', duration: 0 }); });
+      await landed();
+      React.act(() => { toast({ title: 'Two', duration: 0 }); });
+      const more = q('.dk-toaster__more');
+      expect(runs(more)).toEqual([['opacity', 200]]);
+      // Bottom-end: the line sits over the toasts, so it glides down into place once the one pushed out has gone.
+      await expect.poll(() => more.getAnimations().some((a) => a.id === 'dk-toast-move')).toBe(true);
+      await landed();
+      expect(Math.round(byTitle('Two').getBoundingClientRect().top - more.getBoundingClientRect().bottom)).toBe(8);
+      React.act(() => { toast.dismiss(byTitle('Two').dataset.toast); });
+      await expect.poll(() => more.hasAttribute('data-leaving')).toBe(true);
+      expect([more.isConnected, more.textContent, runs(more)]).toEqual([true, '+1 more', [['opacity', 150]]]);
+      await landed();
+      await expect.poll(() => more.isConnected).toBe(false);
+    });
+  });
+});
+
+describe('Toast: time in the waiting line (FO1)', () => {
+  test('a toast pushed into the waiting line keeps its time running there, so they go in the order they came', async () => {
+    await render(<><App /><button id="out">Out</button></>);
+    await away();
+    const order: string[] = [];
+    const spy = vi.spyOn(toast, 'dismiss');
+    try {
+      for (const n of [1, 2, 3, 4]) { React.act(() => { toast({ id: 'q' + n, title: 'Note ' + n, duration: 700 }); }); await new Promise((r) => setTimeout(r, 40)); }
+      expect(titles()).toEqual(['Note 2', 'Note 3', 'Note 4']);
+      await expect.poll(() => toasts().length + (q('.dk-toaster__more') ? 1 : 0), { timeout: 4000 }).toBe(0);
+      for (const [id] of spy.mock.calls) if (id && !order.includes(id)) order.push(id);
+      expect(order).toEqual(['q1', 'q2', 'q3', 'q4']);
+    } finally { spy.mockRestore(); }
+  });
+
+  test('never shown: with limit={1}, the older of two arriving together waits with its time stopped, and gets all of it once shown', async () => {
+    await render(<Toaster limit={1} />);
+    await away();
+    React.act(() => { toast({ title: 'Older', duration: 300 }); toast({ title: 'Newer', duration: 0 }); });
+    await new Promise((r) => setTimeout(r, 500));
+    expect([titles(), q('.dk-toaster__more').textContent]).toEqual([['Newer'], '+1 more']);
+    React.act(() => { toast.dismiss(toasts()[0].dataset.toast); });
+    await expect.poll(titles).toEqual(['Older']);
+    await new Promise((r) => setTimeout(r, 150));
+    expect(titles()).toEqual(['Older']);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
+  });
+
+  test('closed with the mouse, focus isn\'t handed to the toast next to it, so that one\'s time keeps running (FO1)', async () => {
+    await render(<App />);
+    React.act(() => { toast({ title: 'Stays a while', duration: 600 }); toast({ title: 'Close me', duration: 0 }); });
+    await expect.poll(() => toasts().length).toBe(2);
+    await userEvent.click(toasts()[1].querySelector('button[aria-label="Dismiss"]')!);
+    await away();
+    await expect.poll(titles).toEqual(['Stays a while']);
+    expect(toasts()[0].contains(document.activeElement)).toBe(false);
+    await expect.poll(titles, { timeout: 2000 }).toEqual([]);
   });
 });

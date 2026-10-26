@@ -13,6 +13,7 @@ type Meta = Story & { component?: React.ComponentType<Args>; title?: string };
 
 // ErrorBoundary's stories throw on purpose to show the fallback, and React's server render has no error boundaries:
 // the throw ends renderToString, so there is no server HTML to hydrate.
+// tools/test/run.mjs leaves the story-wide tests out of a pull request's run that covers only these.
 const SKIP = new Set(['ErrorBoundary']);
 const files = import.meta.glob<Record<string, Meta | Story>>('../../../src/components/*/*.stories.tsx', { eager: true });
 

@@ -27,8 +27,12 @@
 }
 .dk-progress__fill {
   height: var(--sizing-full); border-radius: inherit; background: var(--dk-progress-fill);
-  transition: inline-size var(--progress-duration, var(--motion-change-lg)) var(--ease-settle);
+  transition: translate var(--progress-duration, var(--motion-change-lg)) var(--ease-settle);
 }
+/* The fill is the track's full length, slid back by the part not done (the track clips it): a new value moves it on
+   the compositor, and its rounded end keeps its shape at any value (FB1). Right to left, it slides the other way. */
+.dk-progress__fill[style] { inline-size: var(--sizing-full); translate: calc(var(--spacing-0) - var(--dk-progress-rest)) var(--spacing-0); }
+.dk-progress__fill[style]:dir(rtl) { translate: var(--dk-progress-rest) var(--spacing-0); }
 .dk-progress--indeterminate .dk-progress__fill {
   --dk-progress-segment: 40%; --dk-progress-still: 30%; --dk-progress-from: -100%; --dk-progress-to: 250%;
   inline-size: var(--dk-progress-segment); animation: dk-progress-slide var(--motion-loop-progress) var(--ease-move) infinite;
