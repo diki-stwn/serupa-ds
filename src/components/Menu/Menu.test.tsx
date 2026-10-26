@@ -486,6 +486,20 @@ describe('ContextMenu', () => {
     </>;
   }
 
+  test('the panel takes the other HTML attributes and a ref: id, data-testid, aria-describedby, and an onKeyDown that runs first (GJ2)', async () => {
+    const ref = React.createRef<HTMLDivElement>();
+    const keys: string[] = [];
+    await render(<><p id="hint">Hint</p><ContextMenu ref={ref} id="file-acts" data-testid="file-menu" aria-label="File actions" aria-describedby="hint" open onKeyDown={(e) => keys.push(e.key)}
+      target={<div id="area" tabIndex={0}>Report.pdf</div>}>
+      <MenuItem>Open</MenuItem><MenuItem>Rename</MenuItem>
+    </ContextMenu></>);
+    const m = document.querySelector<HTMLElement>('[data-testid="file-menu"]')!;
+    expect([ref.current === m, m.id, m.getAttribute('role'), m.getAttribute('aria-describedby')]).toEqual([true, 'file-acts', 'menu', 'hint']);
+    await expect.poll(() => focus()).toBe('Open');
+    await userEvent.keyboard('{ArrowDown}');
+    expect([keys, focus()]).toEqual([['ArrowDown'], 'Rename']);
+  });
+
   test('a right-click opens a role="menu" named by aria-label at the pointer, focus on the first item; the browser\'s menu is kept away', async () => {
     await render(<Area chosen={[]} />);
     const r = rect(el('area'));
