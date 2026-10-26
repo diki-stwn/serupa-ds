@@ -37,6 +37,34 @@ export interface ErrorBoundaryProps {
 interface BoundaryProps extends ErrorBoundaryProps { labels: SerupaLabels }
 interface BoundaryState { error: unknown; failed: boolean }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+/** Where focus was when the error was cleared: the focused element and each of its ancestors with the siblings
+ *  around it, so once the fallback has gone, the place it held (and the content now there) can be found again. */
+type Spot = Array<{ node: Node; before: Node | null; after: Node | null }>;
+const spot = (el: Element): Spot => { const out: Spot = []; for (let n: Node | null = el; n && n !== document.body; n = n.parentNode) out.push({ node: n, before: n.previousSibling, after: n.nextSibling }); return out; };
+/** The first focusable element in what now stands where the fallback stood; else its first element, made focusable
+ *  from script only (tabIndex -1) for this one move. */
+function recovered(was: Spot): HTMLElement | null {
+  const i = was.findIndex((x) => x.node.isConnected);
+  if (i <= 0) return null;   // the focused element is still there (focus wasn't in the fallback), or nothing is
+  const gone = was[i - 1], parent = was[i].node;
+  const from = gone.before && gone.before.parentNode === parent ? gone.before.nextSibling : parent.firstChild;
+  const to = gone.after && gone.after.parentNode === parent ? gone.after : null;
+  let first: HTMLElement | null = null;
+  for (let n = from; n && n !== to; n = n.nextSibling) {
+    if (!(n instanceof HTMLElement)) continue;
+    if (n.matches(FOCUSABLE)) return n;
+    const inner = n.querySelector<HTMLElement>(FOCUSABLE);
+    if (inner) return inner;
+    if (!first) first = n;
+  }
+  if (first && !first.hasAttribute("tabindex")) {
+    first.tabIndex = -1;
+    first.addEventListener("blur", () => first.removeAttribute("tabindex"), { once: true });
+  }
+  return first;
+}
+
 const changed = (a?: ReadonlyArray<unknown>, b?: ReadonlyArray<unknown>) =>
   (a || []).length !== (b || []).length || (a || []).some((v, i) => !Object.is(v, (b || [])[i]));
 
@@ -45,6 +73,8 @@ const changed = (a?: ReadonlyArray<unknown>, b?: ReadonlyArray<unknown>) =>
 const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<BoundaryProps, BoundaryState> {
   override state: BoundaryState = { error: null, failed: false };
   box = React.createRef<HTMLDivElement>();
+  // Set when the error is cleared while focus is on the page: where it was, to find the recovered content by.
+  was: Spot | null = null;
   static getDerivedStateFromError(error: unknown): BoundaryState { return { error, failed: true }; }
   override componentDidCatch(error: unknown, info: React.ErrorInfo) { if (this.props.onError) this.props.onError(error, info); }
   override componentDidUpdate(prev: BoundaryProps, was: BoundaryState) {
@@ -55,8 +85,18 @@ const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<B
       const active = document.activeElement;
       if ((!active || active === document.body) && this.box.current) this.box.current.focus();
     }
+    // Cleared from inside the fallback (Try again, a custom fallback's reset(), or resetKeys while focus was in it):
+    // the fallback went with focus in it, which fell to <body>. Put it on the recovered content (FL1).
+    if (!this.state.failed && was.failed && this.was) {
+      const at = this.was;
+      this.was = null;
+      const active = document.activeElement;
+      if (!active || active === document.body) { const t = recovered(at); if (t) t.focus(); }
+    }
   }
   reset = () => {
+    const active = document.activeElement;
+    this.was = active && active !== document.body ? spot(active) : null;
     this.setState({ error: null, failed: false });
     if (this.props.onReset) this.props.onReset();
   };

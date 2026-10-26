@@ -45,7 +45,7 @@ const { Input } = window.Serupa;
 | --- | --- |
 | Rest | `field` background, 1px `field-border` |
 | Hover | `field-border-hover` |
-| Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all); a visible outline in forced-colors mode |
+| Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all), shown at once and faded out on blur; a visible outline in forced-colors mode |
 | Invalid | `danger` border, and a `danger` focus ring |
 | Read-only | `surface-muted` background, no hover change; still focusable and selectable |
 | Disabled | `surface-muted` background at 50%, `not-allowed` cursor |

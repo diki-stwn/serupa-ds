@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, css, lowContrast, settle } from '../../../tools/test/vitest/helpers';
+import { color, css, lowContrast, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
@@ -242,4 +242,13 @@ describe('Input', () => {
     }
   });
 
+  test('the focus ring shows at once (no transition in), so a field focused as a popup opens doesn\'t animate on its first frame; it still fades out on blur', () => withMotion(async () => {
+    await render(<><Input id="ring" aria-label="Name" /><button id="away">Away</button></>);
+    const f = document.getElementById('ring') as HTMLInputElement, b = document.getElementById('ring')!.closest('[data-component=input]') as HTMLElement;
+    const shadows = () => b.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === 'box-shadow').length;
+    f.focus();
+    expect([shadows(), css(b).boxShadow]).toEqual([0, expect.stringMatching(/0px 0px 0px 1px/)]);
+    (document.getElementById('away') as HTMLElement).focus();
+    expect(shadows()).toBe(1);
+  }));
 });
