@@ -46,7 +46,7 @@
   font-weight: var(--tabs-weight, var(--font-medium));
   white-space: nowrap;
   cursor: pointer; touch-action: manipulation;
-  transition: color var(--duration-150) var(--ease-in-out), background-color var(--duration-150) var(--ease-in-out);
+  transition: color var(--motion-hover) var(--ease-move), background-color var(--motion-hover) var(--ease-move);
 }
 .dk-tabs--sm .dk-tabs__tab { height: var(--tabs-height-sm, var(--control-height-md)); }
 .dk-tabs__icon { display: inline-flex; }

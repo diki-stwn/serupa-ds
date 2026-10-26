@@ -23,12 +23,12 @@
   background: transparent; color: var(--inline-edit-text, var(--text));
   border: var(--input-border-width, var(--border-width-1)) solid transparent; border-radius: var(--inline-edit-radius, var(--rounded-md));
   font: inherit; text-align: start; cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move);
 }
 .dk-inline-edit__view--static { cursor: auto; }
 .dk-inline-edit__text { min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-inline-edit__text--placeholder { color: var(--inline-edit-placeholder, var(--text-muted)); }
-.dk-inline-edit__icon { flex-shrink: 0; font-size: var(--dk-ie-icon); color: var(--inline-edit-icon, var(--text-muted)); opacity: var(--opacity-0); transition: opacity var(--duration-150) var(--ease-in-out); }
+.dk-inline-edit__icon { flex-shrink: 0; font-size: var(--dk-ie-icon); color: var(--inline-edit-icon, var(--text-muted)); opacity: var(--opacity-0); transition: opacity var(--motion-hover) var(--ease-move); }
 @media (hover: hover) {
   .dk-inline-edit__view:not(.dk-inline-edit__view--static, :disabled):hover { background: var(--inline-edit-bg-hover, var(--surface-muted)); }
   .dk-inline-edit__view:not(:disabled):hover .dk-inline-edit__icon { opacity: var(--opacity-100); }

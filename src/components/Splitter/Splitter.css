@@ -21,7 +21,7 @@
 /* The line: centred in the handle by its flex box, the full length of the handle. */
 .dk-splitter__handle::before {
   content: ""; flex: none; align-self: stretch; width: var(--dk-splitter-weight); background: var(--dk-splitter-line);
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move);
 }
 .dk-splitter--vertical > .dk-splitter__handle::before { width: auto; height: var(--dk-splitter-weight); }
 @media (hover: hover) { .dk-splitter__handle:hover { --dk-splitter-line: var(--splitter-line-active, var(--primary)); --dk-splitter-weight: var(--border-width-2); } }

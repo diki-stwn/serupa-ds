@@ -36,7 +36,7 @@
   padding: var(--sidebar-item-padding-y, var(--spacing-2)) var(--sidebar-item-padding-x, var(--spacing-3)); border: var(--spacing-0); border-radius: var(--sidebar-item-radius, var(--rounded-md));
   background: transparent; color: var(--sidebar-item-text, var(--text-muted)); font-family: inherit; font-size: var(--sidebar-item-size, var(--text-sm)); line-height: var(--text-sm--line-height); font-weight: var(--sidebar-item-weight, var(--font-medium));
   text-align: start; text-decoration: none; cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out), color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move), color var(--motion-hover) var(--ease-move);
 }
 @media (hover: hover) { .dk-sidebar__item:hover { background: var(--sidebar-item-bg-hover, var(--highlight)); color: var(--sidebar-item-text-hover, var(--text)); } }
 .dk-sidebar__item:active { background: var(--sidebar-item-bg-pressed, var(--pressed)); }

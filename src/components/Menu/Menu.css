@@ -29,7 +29,7 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   text-align: start;
-  animation: dk-menu-in var(--duration-150) var(--ease-out);
+  animation: dk-menu-in var(--motion-enter-sm) var(--ease-enter);
   transform-origin: var(--dk-layer-origin, top);   /* grows out of its trigger (placeLayer sets the point) */
 }
 .dk-menu[hidden] { display: none; }

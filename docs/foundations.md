@@ -786,7 +786,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `ease-exit` | `ease-in` | Something leaving: slow at first, then out of the way. |
 | `ease-move` | `ease-in-out` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
 
-`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
+`tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token, and component CSS that takes the scale itself (`var(--duration-150)`, `var(--ease-in-out)`) instead of a role; `duration-0` and `ease-linear` are allowed, and what hasn't moved to a role yet is listed in the check. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
 
 **Timing**
 

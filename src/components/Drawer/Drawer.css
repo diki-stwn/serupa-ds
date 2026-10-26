@@ -38,7 +38,7 @@
   padding: var(--drawer-padding, var(--spacing-6));
   background: var(--drawer-bg, var(--surface-overlay));
   box-shadow: var(--drawer-shadow, var(--shadow-xl));
-  animation: dk-drawer-in var(--drawer-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-drawer-in var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter);
 }
 .dk-drawer--right { --dk-drawer-from: var(--sizing-full) 0; }
 .dk-drawer--left { --dk-drawer-from: calc(var(--spacing-0) - var(--sizing-full)) 0; }
@@ -47,7 +47,7 @@
 .dk-drawer--top .dk-drawer__panel, .dk-drawer--bottom .dk-drawer__panel { width: var(--sizing-full); height: auto; max-height: calc(var(--sizing-full) - var(--spacing-16)); }
 .dk-drawer--top .dk-drawer__panel { border-end-start-radius: var(--drawer-radius, var(--rounded-xl)); border-end-end-radius: var(--drawer-radius, var(--rounded-xl)); }
 .dk-drawer--bottom .dk-drawer__panel { border-start-start-radius: var(--drawer-radius, var(--rounded-xl)); border-start-end-radius: var(--drawer-radius, var(--rounded-xl)); }
-.dk-drawer[open]::backdrop { animation: dk-drawer-fade var(--drawer-duration, var(--duration-300)) var(--ease-out); }
+.dk-drawer[open]::backdrop { animation: dk-drawer-fade var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter); }
 @keyframes dk-drawer-in { from { translate: var(--dk-drawer-from); } }
 @keyframes dk-drawer-fade { from { opacity: var(--opacity-0); } }
 /* Let go after a swipe: it carries on from under the finger, over a time Drawer.tsx sets from the distance and speed. */
