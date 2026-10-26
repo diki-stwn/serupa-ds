@@ -145,11 +145,24 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const { position, label, dismissLabel, limit, className, ...rest } = props;
   // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
   const [list, setList] = React.useState<Item[]>([]);
+  const self = React.useRef<HTMLElement | null>(null);
+  // Where each toast was before the list changes, so the ones left glide to their new place (below).
+  const before = React.useRef<Map<string, number> | null>(null);
+  const snap = () => {
+    const region = self.current;
+    if (!region || before.current) return;
+    before.current = new Map([...region.querySelectorAll<HTMLElement>("[data-toast]")].map((e) => [e.dataset.toast!, e.getBoundingClientRect().top]));
+  };
+  // Toasts already there as the Toaster arrives (in its first effects) are shown from the first frame, not slid in.
+  const early = React.useRef(new Set<string>()), arriving = React.useRef(true);
   React.useEffect(() => {
     ensureAnnouncer(); hinted = false;
     if (process.env.NODE_ENV !== "production" && listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
-    listeners.add(setList); emit();
-    return () => { listeners.delete(setList); emit(); };
+    const take: Listener = (l) => { snap(); if (arriving.current) l.forEach((x) => early.current.add(x.id)); setList(l); };
+    arriving.current = true;
+    listeners.add(take); emit();
+    void Promise.resolve().then(() => { arriving.current = false; });
+    return () => { listeners.delete(take); emit(); };
   }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
   // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
@@ -158,7 +171,6 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
   const times = sds.labels.toastRepeated;
   React.useEffect(() => { repeated = times; return () => { repeated = null; }; }, [times]);
-  const self = React.useRef<HTMLElement | null>(null);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
     const away = () => { const b = back.current; back.current = null; if (b && b.isConnected) b.focus(); };
@@ -167,7 +179,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
       if (!region || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const inside = region.contains(document.activeElement);
       if (e.key === HOTKEY) {
-        const toasts = region.querySelectorAll<HTMLElement>(".dk-toast");
+        const toasts = region.querySelectorAll<HTMLElement>("[data-toast]:not([data-leaving])");
         if (inside) { e.preventDefault(); away(); return; }
         if (!toasts.length) return;
         e.preventDefault();
@@ -186,7 +198,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const onFocus = (e: React.FocusEvent<HTMLElement>) => {
     if (rest.onFocus) rest.onFocus(e);
     const t = (e.target).closest<HTMLElement>(".dk-toast");
-    if (t && self.current) held.current = { toast: t, at: [...self.current.querySelectorAll(".dk-toast")].indexOf(t) };
+    if (t && self.current) held.current = { toast: t, at: [...self.current.querySelectorAll("[data-toast]:not([data-leaving])")].indexOf(t) };
   };
   const onBlur = (e: React.FocusEvent<HTMLElement>) => {
     if (rest.onBlur) rest.onBlur(e);
@@ -196,11 +208,12 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   };
   useIsoLayoutEffect(() => {
     const h = held.current, region = self.current;
-    if (!h || h.toast.isConnected || !region) return;
+    // A toast fading out (data-leaving, inert) is gone as far as focus goes.
+    if (!h || (h.toast.isConnected && !h.toast.hasAttribute("data-leaving")) || !region) return;
     held.current = null;
     const now = document.activeElement;
-    if (now && now !== document.body && now.isConnected) return;
-    const b = back.current, toasts = region.querySelectorAll<HTMLElement>(".dk-toast");
+    if (now && now !== document.body && now.isConnected && !h.toast.contains(now)) return;
+    const b = back.current, toasts = region.querySelectorAll<HTMLElement>("[data-toast]:not([data-leaving])");
     if (b && b.isConnected) { back.current = null; b.focus(); }
     else if (toasts.length) toasts[Math.min(h.at, toasts.length - 1)].focus();
   }, [list]);
@@ -210,6 +223,36 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   const shown = list.slice(-max), waiting = list.length - shown.length;
   const more = waiting > 0 ? <li key="more" className="dk-toaster__more">{sds.labels.moreToasts(waiting)}</li> : null;
   const ordered = pos.startsWith("top") ? shown.slice().reverse() : shown;   // newest nearest the edge, the waiting line farthest
+  // Closed toasts stay where they were, fading out (DZ1), until their transitions end; one shown again comes back.
+  const [gone, setGone] = React.useState<Array<{ item: Item; at: number }>>([]);
+  const [last, setLast] = React.useState<Item[]>([]);
+  const key = ordered.map((t) => t.id).join(" ");
+  if (key !== last.map((t) => t.id).join(" ")) {
+    const ids = new Set(ordered.map((t) => t.id));
+    setGone(gone.filter((g) => !ids.has(g.item.id)).concat(last.flatMap((t, at) => (ids.has(t.id) ? [] : [{ item: t, at }]))));
+    setLast(ordered);
+  }
+  const rows: Array<{ item: Item; leaving: boolean }> = ordered.map((t) => ({ item: t, leaving: false }));
+  for (const g of gone) rows.splice(Math.min(g.at, rows.length), 0, { item: g.item, leaving: true });
+  const done = React.useCallback((id: string) => { snap(); setGone((l) => l.filter((g) => g.item.id !== id)); }, []);
+  // The toasts left glide to their new place over --dk-toast-move (FLIP), from wherever they are (a glide that's
+  // still running included); with reduced motion they move at once.
+  // every render: a count or a replaced message can change a toast's height too, and it only acts after a snap.
+  useIsoLayoutEffect(() => {
+    const was = before.current, region = self.current;
+    before.current = null;
+    if (!was || !region || typeof window.matchMedia !== "function" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cs = getComputedStyle(region), ms = parseFloat(cs.getPropertyValue("--dk-toast-move")) || 0;
+    if (!ms) return;
+    for (const e of region.querySelectorAll<HTMLElement>("[data-toast]")) {
+      const from = was.get(e.dataset.toast!);
+      if (from == null || typeof e.animate !== "function") continue;
+      for (const a of e.getAnimations()) if (a.id === "dk-toast-move") a.cancel();
+      const dy = from - e.getBoundingClientRect().top;
+      if (Math.abs(dy) < 0.5) continue;
+      e.animate([{ translate: "0 " + dy + "px" }, { translate: "0 0" }], { duration: ms, easing: cs.getPropertyValue("--dk-toast-move-ease").trim() || "ease", id: "dk-toast-move" });
+    }
+  });
   // While a Dialog or Drawer is open the page behind it is inert and under it, so the toasts move into it: a
   // "Couldn't save, Retry" toast from inside a dialog can be seen and clicked.
   const modal = React.useSyncExternalStore(onModalChange, topModal, () => null);
@@ -217,7 +260,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     <section {...rest} ref={self} onFocus={onFocus} onBlur={onBlur} aria-label={label || sds.labels.notifications} className={cn("dk-toaster", "dk-toaster--" + pos, className)} data-component="toaster" data-position={pos}>
       <ol className="dk-toaster__list">
         {pos.startsWith("top") ? null : more}
-        {ordered.map((t) => <ToastView key={t.id} item={t} dismissLabel={dismissLabel || sds.labels.dismiss} />)}
+        {rows.map((r) => <ToastView key={r.item.id} item={r.item} leaving={r.leaving} instant={early.current.has(r.item.id)} onGone={done} dismissLabel={dismissLabel || sds.labels.dismiss} />)}
         {pos.startsWith("top") ? more : null}
       </ol>
     </section>
@@ -225,8 +268,20 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   return modal ? createPortal(region, modal) : region;
 });
 
-function ToastView(props: { item: Item; dismissLabel: string }): React.ReactElement {
+function ToastView(props: { item: Item; leaving: boolean; instant: boolean; onGone: (id: string) => void; dismissLabel: string }): React.ReactElement {
   const t = props.item;
+  const self = React.useRef<HTMLLIElement | null>(null);
+  // Closed: gone once its fade and slide end, or at once when nothing runs.
+  const { leaving, onGone } = props;
+  useIsoLayoutEffect(() => {
+    const e = self.current;
+    if (!leaving || !e) return;
+    const runs = typeof e.getAnimations === "function" ? e.getAnimations().filter((a) => a.id !== "dk-toast-move") : [];
+    if (!runs.length) { onGone(t.id); return; }
+    let on = true;
+    void Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => { if (on) onGone(t.id); });
+    return () => { on = false; };
+  }, [leaving]);
   const sds = useSerupa();
   const duration = t.duration == null ? (t.action ? 0 : 5000) : t.duration;
   // Each reason to stop the time is kept apart, so leaving with the mouse doesn't restart it while focus is still inside.
@@ -237,11 +292,11 @@ function ToastView(props: { item: Item; dismissLabel: string }): React.ReactElem
   const left = React.useRef(duration);
   React.useEffect(() => { left.current = duration; }, [t, duration]);   // a replaced toast starts its time again
   React.useEffect(() => {
-    if (!duration || paused) return;
+    if (!duration || paused || leaving) return;
     const start = Date.now();
     const timer = window.setTimeout(() => toast.dismiss(t.id), left.current);
     return () => { window.clearTimeout(timer); left.current -= Date.now() - start; };
-  }, [paused, t, duration]);
+  }, [paused, t, duration, leaving]);
   React.useEffect(() => {
     const vis = () => setHidden(document.hidden);
     document.addEventListener("visibilitychange", vis);
@@ -250,7 +305,8 @@ function ToastView(props: { item: Item; dismissLabel: string }): React.ReactElem
   const titleId = t.id + "-title", descId = t.id + "-desc";
   const icon = ICONS[t.tone];
   return (
-    <li tabIndex={-1} className={cn("dk-toast", "dk-toast--" + t.tone)} data-tone={t.tone} aria-labelledby={titleId} aria-describedby={t.description != null ? descId : undefined}
+    <li ref={self} tabIndex={-1} className={cn("dk-toast", "dk-toast--" + t.tone)} data-tone={t.tone} data-toast={t.id}
+      data-leaving={leaving ? "" : undefined} data-instant={props.instant ? "" : undefined} inert={leaving || undefined} aria-labelledby={titleId} aria-describedby={t.description != null ? descId : undefined}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
       {icon ? <span className="dk-toast__icon" aria-hidden="true"><Icon icon={icon} /></span> : null}

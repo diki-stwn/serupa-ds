@@ -7,6 +7,7 @@ import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
 import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { useFocusHandover } from "../../internal/focus";
 
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
   /** The selected day (controlled), or null. Use with onValueChange. A Date, or a plain "yyyy-mm-dd" string for that local day. */
@@ -148,14 +149,17 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const title = formats(locale).title.format(month);
   const titleId = domId("dk-cal", React.useId()) + "-title";
   const selected = (d: Date) => (props.isDateSelected ? props.isDateSelected(d) : sameDay(d, value));
+  // A month arrow that reaches min or max turns disabled under focus (FJ1): focus goes to the other arrow.
+  const handover = useFocusHandover();
+  const prevNav = React.useRef<HTMLButtonElement | null>(null), nextNav = React.useRef<HTMLButtonElement | null>(null);
   return (
     <div {...rest} ref={ref} className={cn("dk-calendar", props.className)} data-component="calendar">
       <div className="dk-calendar__header">
         <IconButton icon={<><Icon icon={icons.ChevronLeft} className="dk-calendar__ltr" /><Icon icon={icons.ChevronRight} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
-          disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={() => showMonth(addMonths(month, -1))} />
+          disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={(e) => { handover(e.currentTarget, () => nextNav.current); showMonth(addMonths(month, -1)); }} ref={prevNav} />
         <h2 className="dk-calendar__title" id={titleId} lang={lang} aria-live="polite">{title}</h2>
         <IconButton icon={<><Icon icon={icons.ChevronRight} className="dk-calendar__ltr" /><Icon icon={icons.ChevronLeft} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
-          disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={() => showMonth(addMonths(month, 1))} />
+          disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={(e) => { handover(e.currentTarget, () => prevNav.current); showMonth(addMonths(month, 1)); }} ref={nextNav} />
       </div>
       <table ref={grid} lang={lang} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
         <thead>

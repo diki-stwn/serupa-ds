@@ -54,6 +54,8 @@ const [day, setDay] = React.useState<Date | null>(null);
 
 Moving past the shown month shows the next one. No key moves focus past `min` or `max`: a move that would, stops on that day.
 
+A month arrow that reaches the month holding `min` or `max` turns disabled, so focus moves to the other arrow instead of falling back to the top of the page. DatePicker and DateRangePicker do the same.
+
 ## Props
 
 | Prop | Type | Default | Notes |

@@ -43,3 +43,8 @@ export const WithServerCheck: Story = {
       validate={(v) => new Promise((done) => { setTimeout(() => done(v === 'apollo' ? 'That slug is taken.' : null), 600); })} />
   </div>,
 };
+
+export const LongText: Story = {
+  args: { defaultValue: 'Apollo launch plan for the third quarter, every region and team, Donaudampfschifffahrtsgesellschaftskapitänskajüte' },
+  render: (args) => <div style={{ width: 220 }}><InlineEdit {...args} /></div>,
+};

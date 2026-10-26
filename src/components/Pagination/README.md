@@ -51,6 +51,8 @@ const [page, setPage] = React.useState(1);
 | Tab | To each page, the arrows and any link or button in it; a disabled arrow is skipped |
 | Enter | Goes to that page (Space too, when the pages are buttons) |
 
+An arrow that takes you to the first or last page turns disabled, so focus moves to the other arrow instead of falling back to the top of the page.
+
 ## Props
 
 | Prop | Type | Default | What it does |

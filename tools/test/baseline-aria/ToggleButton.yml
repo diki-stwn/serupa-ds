@@ -6,6 +6,9 @@
 - button "Italic"
 - button "Bulleted list"
 
+# LongLabel
+- button "Show the alignment grid on every page"
+
 # Playground
 - button "Show grid"
 

@@ -157,4 +157,16 @@ describe('Calendar', () => {
     await press(d, () => expect.poll(() => css(d).backgroundColor).toBe(color('var(--pressed)')));
   });
 
+  test('a month arrow that reaches min or max hands focus to the other arrow, rather than drop it to the page (FJ1)', async () => {
+    await render(<Cal />);
+    const prev = cal<HTMLButtonElement>('button[aria-label="Previous month"]'), next = cal<HTMLButtonElement>('button[aria-label="Next month"]');
+    prev.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => [title(), prev.disabled, document.activeElement === next]).toEqual(['February 2025', true, true]);
+    for (let i = 0; i < 4; i++) await userEvent.keyboard('{Enter}');
+    await expect.poll(() => [title(), next.disabled, document.activeElement === prev]).toEqual(['June 2025', true, true]);
+    await userEvent.keyboard('{Enter}');
+    expect([title(), document.activeElement === prev]).toEqual(['May 2025', true]);
+  });
+
 });

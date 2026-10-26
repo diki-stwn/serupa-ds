@@ -171,4 +171,20 @@ describe('Pagination', () => {
     await press(pg, () => expect.poll(() => css(pg).backgroundColor).toBe(color('var(--pressed)')));
   });
 
+  test('an arrow that reaches the first or last page hands focus to the other arrow, buttons and links alike (FJ1)', async () => {
+    await render(<>
+      <Pagination id="pfb" count={3} defaultPage={2} />
+      <Pagination id="pfl" count={3} defaultPage={2} getHref={(n) => '#p' + n} />
+    </>);
+    for (const id of ['pfb', 'pfl']) {
+      const prev = named(id, 'Previous page'), next = named(id, 'Next page');
+      next.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => [shown(id), document.activeElement === prev]).toEqual(['< 1 2 [3] (>)', true]);
+      await userEvent.keyboard('{Enter}');
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => [shown(id), document.activeElement === next]).toEqual(['(<) [1] 2 3 >', true]);
+    }
+  });
+
 });
