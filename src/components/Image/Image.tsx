@@ -44,6 +44,30 @@ export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElemen
 
 const RATIOS = ["auto", "square", "4:3", "video"] as const;
 
+// The largest candidate in a srcSet ("a.jpg 400w, b.jpg 1600w" or "a.jpg 1x, b.jpg 2x"), for the viewer when there's no fullSrc.
+function largest(srcSet: string | undefined): string | undefined {
+  let best: string | undefined, most = 0;
+  for (const m of (srcSet || "").matchAll(/(?:^|,)\s*(\S+?)\s+(\d+(?:\.\d+)?)[wx]\s*(?=,|$)/g)) if (+m[2] > most) { most = +m[2]; best = m[1]; }
+  return best;
+}
+
+/* The viewer's picture: the frame's placeholder (and its sweep) while it loads, the frame's fallback if it fails. The
+   stage has the picture's shape (its width and height, the thumbnail's, then its own once it arrives), within the
+   screen. The Dialog is titled with the alt text, so the picture itself has alt="" and isn't read twice. */
+function Full({ src, alt, fallback, shape }: { src: string; alt: string; fallback: React.ReactNode; shape: [number, number] | null }) {
+  const [state, setState] = React.useState<"loading" | "loaded" | "error">("loading");
+  const [own, setOwn] = React.useState<[number, number] | null>(null);
+  const [w, h] = own || shape || [4, 3];
+  return (
+    <span className={cn("dk-image__stage", "dk-image--" + state)} data-state={state} style={{ "--dk-image-ratio": w + " / " + h, "--dk-image-w": own || shape ? w + "px" : "100%" } as React.CSSProperties}>
+      {state === "error"
+        ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
+        : <img src={src} alt="" className="dk-image__full" decoding="async"
+            onLoad={(e) => { const i = e.currentTarget; if (i.naturalWidth > 0) setOwn([i.naturalWidth, i.naturalHeight]); setState("loaded"); }} onError={() => setState("error")} />}
+    </span>
+  );
+}
+
 /* Image: a picture in a frame. ratio fixes the frame's shape (fit says whether the picture crops or fits), with
    rounded corners from --image-radius; with ratio "auto", width and height shape the frame before it loads. It
    loads lazily by default (priority: at once, high priority, for a hero picture); until it arrives the frame shows a muted
@@ -92,7 +116,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
       {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" noTitle onClick={onRemove} /> : null}
       {viewable ? (
         <Dialog open={open} onOpenChange={setOpen} size="lg" title={alt || undefined} aria-label={alt ? undefined : viewLabel || sds.labels.image} className="dk-image__viewer">
-          {open ? <img src={fullSrc || src} alt={alt} className="dk-image__full" /> : null}
+          {open ? <Full src={fullSrc || largest(rest.srcSet) || src} alt={alt} fallback={fallback} shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} /> : null}
         </Dialog>
       ) : null}
     </span>
