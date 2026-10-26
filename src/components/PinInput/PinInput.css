@@ -24,7 +24,7 @@
   width: var(--dk-pin-box); height: var(--dk-pin-box);
   border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
   background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
-  transition: border-color var(--duration-150) var(--ease-in-out), box-shadow var(--duration-150) var(--ease-in-out);
+  transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
 }
 .dk-pin-input__field {
   position: absolute; inset: var(--spacing-0); box-sizing: border-box; width: var(--sizing-full); height: var(--sizing-full);

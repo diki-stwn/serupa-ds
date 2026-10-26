@@ -57,7 +57,7 @@
 .dk-drawer--nonmodal { transition: display var(--motion-exit-lg) allow-discrete; }
 .dk-drawer:not([open]), .dk-drawer:not([open])::backdrop, .dk-drawer:not([open]) .dk-drawer__panel { pointer-events: none; }
 .dk-drawer__panel, .dk-drawer::backdrop { transition: opacity var(--motion-exit-lg) var(--ease-exit), translate var(--motion-exit-lg) var(--ease-exit); }
-.dk-drawer[open] .dk-drawer__panel, .dk-drawer[open]::backdrop { transition: opacity var(--drawer-duration, var(--duration-300)) var(--ease-enter), translate var(--drawer-duration, var(--duration-300)) var(--ease-enter); }
+.dk-drawer[open] .dk-drawer__panel, .dk-drawer[open]::backdrop { transition: opacity var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter), translate var(--drawer-duration, var(--motion-enter-lg)) var(--ease-enter); }
 .dk-drawer[open] .dk-drawer__panel[data-dragging] { transition: none; }
 .dk-drawer:not([open])::backdrop { opacity: var(--opacity-0); }
 @starting-style { .dk-drawer[open]:not([data-instant])::backdrop { opacity: var(--opacity-0); } }

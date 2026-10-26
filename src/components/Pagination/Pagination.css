@@ -11,7 +11,7 @@
   min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); padding: var(--spacing-0) var(--pagination-padding-x, var(--spacing-2));
   border: var(--spacing-0); border-radius: var(--pagination-radius, var(--rounded-md)); background: transparent;
   color: var(--pagination-text, var(--text)); font: inherit; font-variant-numeric: tabular-nums; text-decoration: none; cursor: pointer; touch-action: manipulation;
-  transition: background-color var(--duration-150) var(--ease-in-out);
+  transition: background-color var(--motion-hover) var(--ease-move);
 }
 .dk-pagination__arrow { padding: var(--spacing-0); }
 .dk-pagination__arrow .dk-icon { font-size: var(--spacing-5); }

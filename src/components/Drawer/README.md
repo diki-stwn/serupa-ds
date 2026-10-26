@@ -104,4 +104,4 @@ Each is an optional override: set it on the page, a container or one drawer. The
 | `--drawer-border-width` | `border-width-1` | The line above the footer (1px). |
 | `--drawer-radius` | `rounded-xl` | The corners on the open side of a top or bottom drawer (12px). |
 | `--drawer-title-weight` | `font-semibold` | The title's weight (600). |
-| `--drawer-duration` | `duration-300` | Sliding in (300ms). Sliding out takes `motion-exit-lg` (200ms). |
+| `--drawer-duration` | `motion-enter-lg` | Sliding in (300ms). Sliding out takes `motion-exit-lg` (200ms). |
