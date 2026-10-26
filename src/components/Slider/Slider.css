@@ -73,4 +73,6 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-slider { position: relative; isolation: isolate; }
 .dk-slider::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): a 44px strip to press and drag, as Apple and Material ask. */
+@media (pointer: coarse) { .dk-slider::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); } }
 }

@@ -50,6 +50,9 @@
 /* Invalid: a danger border while unchecked, and a danger focus ring. A checked box keeps its fill. */
 .dk-checkbox--invalid .dk-checkbox__input { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
 @media (hover: hover) { .dk-checkbox--invalid:hover .dk-checkbox__input:not(:disabled, [readonly]) { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
+/* A required box left unticked after people untick it or try to send the form: as Input (:user-invalid). */
+.dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); }
+@media (hover: hover) { .dk-checkbox:hover .dk-checkbox__input:user-invalid { --dk-checkbox-bd: var(--checkbox-invalid, var(--danger)); --dk-checkbox-ring: var(--checkbox-invalid, var(--danger)); } }
 .dk-checkbox__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-checkbox__description { color: var(--checkbox-description-color, var(--text-muted)); }
 /* Read-only: no pointer cursor or hover, since a click won't change it. */
@@ -62,4 +65,14 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-checkbox { position: relative; isolation: isolate; }
 .dk-checkbox::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px to press, as Apple and Material ask. In a group it stops halfway into the gap
+   to a neighbour, so two never overlap. */
+@media (pointer: coarse) {
+  .dk-checkbox::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); --dk-half-gap: calc(var(--spacing-0) - var(--checkbox-group-gap, var(--spacing-2)) / 2); }
+  .dk-checkbox-group--horizontal > .dk-checkbox::after { --dk-half-gap: calc(var(--spacing-0) - var(--checkbox-group-gap-horizontal, var(--spacing-4)) / 2); }
+  .dk-checkbox-group--vertical > .dk-checkbox:not(:first-child)::after { inset-block-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--vertical > .dk-checkbox:not(:last-child)::after { inset-block-end: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--horizontal > .dk-checkbox:not(:first-child)::after { inset-inline-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-checkbox-group--horizontal > .dk-checkbox:not(:last-child)::after { inset-inline-end: max(var(--dk-reach), var(--dk-half-gap)); }
+}
 }

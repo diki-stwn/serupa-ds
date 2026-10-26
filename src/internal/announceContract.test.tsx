@@ -13,6 +13,7 @@ import { Button } from '../components/Button/Button';
 import { Combobox } from '../components/Combobox/Combobox';
 import { CopyButton } from '../components/CopyButton/CopyButton';
 import { Dialog } from '../components/Dialog/Dialog';
+import { EmptyState } from '../components/EmptyState/EmptyState';
 import { Field } from '../components/Field/Field';
 import { FileUpload } from '../components/FileUpload/FileUpload';
 import { InlineEdit } from '../components/InlineEdit/InlineEdit';
@@ -59,6 +60,9 @@ const SITES: Record<string, Site> = {
   'Combobox: how many options match once typing stops': {
     ui: () => <Combobox aria-label="Planet" options={['Mars', 'Mercury', 'Venus']} />,
     act: async () => { await userEvent.click($('input[role="combobox"]')); await userEvent.keyboard('M'); }, says: /2 results/ },
+  'EmptyState: a result with announce as it appears': {
+    ui: (s) => (s ? <EmptyState announce title="No results for “mars”" /> : <span />),
+    act: (next) => next(), says: /No results for “mars”/ },
   'Field: a new error message': {
     ui: (s) => <Field label="Email" error={s ? 'Enter an email address with an @' : 'Enter an email address'}><Input /></Field>,
     act: (next) => next(), says: /Enter an email address with an @/ },

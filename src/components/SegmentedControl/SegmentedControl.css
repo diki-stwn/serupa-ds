@@ -70,4 +70,6 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-segmented__item { position: relative; isolation: isolate; }
 .dk-segmented__item::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px high to press, as Apple and Material ask; the width stays, so side-by-side segments never overlap. */
+@media (pointer: coarse) { .dk-segmented__item::after { --dk-reach-block: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); inset-block: var(--dk-reach-block); } }
 }
