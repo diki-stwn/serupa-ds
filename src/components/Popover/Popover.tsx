@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn, domId, elementRef, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
-import { type Placement } from "../../internal/position";
+import type { Placement } from "../../internal/position";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
