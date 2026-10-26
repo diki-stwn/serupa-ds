@@ -95,6 +95,27 @@ describe('Menu', () => {
     expect(focus()).toBe('Edit');
   });
 
+  test('a mouse opens it on the press: drag onto an item and let go chooses it; a quick click leaves it open; a press on the open button closes it (GG3)', async () => {
+    const chosen: string[] = [];
+    await render(<Actions chosen={chosen} />);
+    const b = el('mb');
+    await press(b, async () => {
+      await expect.poll(() => b.getAttribute('aria-expanded')).toBe('true');
+      expect(focus()).toBe('Edit');
+      await new Promise((r) => setTimeout(r, 250));
+      await userEvent.hover(menuOf('mb').querySelectorAll('[role="menuitem"]')[1]);
+    });
+    await expect.poll(() => chosen).toEqual(['dup']);
+    expect([b.getAttribute('aria-expanded'), document.activeElement]).toEqual(['false', b]);
+    await userEvent.click(b);
+    await expect.poll(() => focus()).toBe('Edit');
+    expect([b.getAttribute('aria-expanded'), chosen]).toEqual(['true', ['dup']]);
+    await press(b, () => expect.poll(() => b.getAttribute('aria-expanded')).toBe('false'));
+    expect(document.activeElement).toBe(b);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => focus()).toBe('Edit');
+  });
+
   test('keys: ↓ ↑ move and wrap, disabled items are still reachable, Home and End jump, a letter goes to the next item starting with it', async () => {
     await render(<Actions chosen={[]} />);
     await userEvent.click(el('mb'));
