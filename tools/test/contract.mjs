@@ -2,8 +2,10 @@
 // component can't pass CI with something missing. No browser needed.
 //   node tools/test/contract.mjs
 // Each component needs: <Name>.tsx, index.ts (what the package exports from it), <Name>.css, <name>.tokens.json,
-// <Name>.stories.tsx, <Name>.mdx, README.md, preview.html, a test next to it (<Name>.test.tsx, Vitest), and visual
-// baselines of its stories in every theme.
+// <Name>.stories.tsx, <Name>.mdx, README.md, preview.html, a test next to it (<Name>.test.tsx, Vitest), visual
+// baselines of its stories in every theme, and a stress story (G14): one exported as Long…, Stress… or Overflow…
+// that fills it with long words, long labels and more items than fit, so the visual baselines show how it wraps,
+// truncates or scrolls.
 import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PROJECT, tokensCss, report, done } from './lib.mjs';
@@ -16,10 +18,78 @@ const EXEMPT = {
   Icon: { tokens: 'draws in currentColor at 1em; no visual values of its own' },
   RelativeTime: { tokens: 'inline text in the surrounding font and color; no visual values of its own' },
   ToggleGroup: { tokens: "a ButtonGroup of ToggleButtons: their tokens set its look, and it adds no visual values of its own" },
-  VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see' },
+  VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see', stress: 'nothing to see' },
 };
 // Known gaps, to be fixed. The check fails when one is fixed, so the entry gets removed and can't come back.
-const GAPS = {};
+const GAPS = Object.fromEntries([
+  // G14: no stress story yet.
+  'Accordion',
+  'Alert',
+  'Avatar',
+  'AvatarGroup',
+  'Badge',
+  'ButtonGroup',
+  'Calendar',
+  'Card',
+  'Carousel',
+  'Checkbox',
+  'ColorPicker',
+  'Combobox',
+  'Container',
+  'CopyButton',
+  'DatePicker',
+  'DateRangePicker',
+  'Divider',
+  'EmptyState',
+  'ErrorBoundary',
+  'Fab',
+  'Field',
+  'FileUpload',
+  'FormattedNumber',
+  'Grid',
+  'Heading',
+  'Highlight',
+  'Icon',
+  'IconButton',
+  'Image',
+  'InlineEdit',
+  'Input',
+  'Kbd',
+  'Link',
+  'List',
+  'Loader',
+  'Meter',
+  'Navbar',
+  'NumberInput',
+  'Pagination',
+  'PasswordInput',
+  'PhoneInput',
+  'PinInput',
+  'Progress',
+  'Radio',
+  'Rating',
+  'RelativeTime',
+  'SearchInput',
+  'SegmentedControl',
+  'Select',
+  'Sidebar',
+  'Slider',
+  'SortableList',
+  'Splitter',
+  'Stack',
+  'Stepper',
+  'Switch',
+  'Table',
+  'Text',
+  'Textarea',
+  'TimePicker',
+  'Timeline',
+  'Toast',
+  'ToggleButton',
+  'ToggleGroup',
+  'Toolbar',
+  'TreeView',
+].map((c) => [c, { stress: 'G14' }]));
 
 const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();
@@ -44,6 +114,7 @@ for (const c of comps) {
     preview: has('preview.html'),
     test: has(`${c}.test.tsx`),
     visual: themes.every((th) => baselines(c).some((f) => f.endsWith(`-${th}-rest.png`))),
+    stress: has(`${c}.stories.tsx`) && /^export const (Long|Stress|Overflow)\w*\b/m.test(fs.readFileSync(path.join(COMP, c, `${c}.stories.tsx`), 'utf8')),
   };
   const missing = [], fixed = [];
   for (const [part, ok] of Object.entries(parts)) {
@@ -51,7 +122,7 @@ for (const c of comps) {
     if (GAPS[c]?.[part]) { if (ok) fixed.push(part); continue; }
     if (!ok) missing.push(part);
   }
-  const what = { code: `${c}.tsx`, index: 'index.ts (its public exports)', css: `${c}.css`, tokens: `${kebab(c)}.tokens.json`, stories: `${c}.stories.tsx`, docs: `${c}.mdx`, guide: 'README.md', preview: 'preview.html', test: `${c}.test.tsx`, visual: `a visual baseline in each of the ${themes.length} themes (add the "update-visual-baselines" label)` };
+  const what = { code: `${c}.tsx`, index: 'index.ts (its public exports)', css: `${c}.css`, tokens: `${kebab(c)}.tokens.json`, stories: `${c}.stories.tsx`, docs: `${c}.mdx`, guide: 'README.md', preview: 'preview.html', test: `${c}.test.tsx`, visual: `a visual baseline in each of the ${themes.length} themes (add the "update-visual-baselines" label)`, stress: 'a stress story (export const LongText, LongLabels, Overflow…): long words, long labels, more items than fit' };
   t(`${c} has everything a component ships with`, !missing.length && !fixed.length,
     [missing.length && `missing: ${missing.map((p) => what[p]).join(', ')}`, fixed.length && `known gap now fixed, remove it from GAPS in contract.mjs: ${fixed.join(', ')}`].filter(Boolean).join('; '));
 }
