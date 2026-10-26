@@ -95,6 +95,20 @@ describe('Link', () => {
     expect(e.textContent.replace('open_in_new', '')).toBe('Example (opens in a new tab)');
   });
 
+  test('external: the new-tab icon stays on the line of the last word at every width (GF1)', async () => {
+    const widths: number[] = [];
+    for (let w = 90; w <= 200; w += 5) widths.push(w);
+    await render(<>{widths.map((w) => <p key={w} id={'lw' + w} style={{ width: w + 'px', margin: 0 }}>See <Link href="#g" external>Read the guide</Link></p>)}</>);
+    const apart = widths.filter((w) => {
+      const i = document.querySelector('#lw' + w + ' .dk-link__icon')!, icon = i.getBoundingClientRect();
+      // The last letter before the icon.
+      const r = document.createRange(), t = i.previousSibling!;
+      r.setStart(t, t.textContent!.length - 1); r.setEnd(t, t.textContent!.length);
+      return Math.abs(r.getBoundingClientRect().top - icon.top) > icon.height / 2;
+    });
+    expect(apart).toEqual([]);
+  });
+
   test('as: renders your router link with className and the rest', async () => {
     await render(<Link id="lrouter" as={RouterLink} {...{ to: '/settings' }}>Settings</Link>);
     const e = el('lrouter');

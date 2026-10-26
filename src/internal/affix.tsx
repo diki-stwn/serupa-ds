@@ -4,11 +4,12 @@ const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
 
 /** A press anywhere on a field's box (its icons, padding, count or the gap by an affix) focuses the field, as a
     press on the field would; the box shows a text cursor all over. The caret goes to the end when the field wasn't
-    focused yet. A press on the field itself, or on a control in the box (a clear or reveal button), is left alone. */
+    focused yet. A press on the field itself, on a control in the box (a clear or reveal button) or in a popup the box
+    holds (a date picker's calendar) is left alone. */
 export function pressFocuses(field: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>) {
   return (e: React.MouseEvent) => {
     const f = field.current, t = e.target as Element;
-    if (e.button !== 0 || !f || f.disabled || t === f || t.closest("button, a, input, select, textarea, [tabindex]")) return;
+    if (e.button !== 0 || !f || f.disabled || t === f || t.closest("button, a, input, select, textarea, [tabindex], [popover]")) return;
     e.preventDefault();
     if (document.activeElement === f) return;
     f.focus();

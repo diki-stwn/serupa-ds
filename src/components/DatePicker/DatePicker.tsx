@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { pressFocuses } from "../../internal/affix";
 import { cn, domId, isInvalid, oneOf, SIZES } from "../../internal/cn";
 import { compare, datePattern, formatDate, isoDate, parseDate, toDay } from "../../internal/dates";
 import { reject } from "../../internal/rejectInput";
@@ -108,7 +109,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
   const typed = parseDate(text, locale);
   const off = !!disabled || !!readOnly;
   return (
-    <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-date-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="date-picker" data-size={size}>
+    <span ref={box} className={cn("dk-input", "dk-input--size-" + size, "dk-date-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)} style={style} data-component="date-picker" data-size={size} onMouseDown={pressFocuses(field)}>
       <input {...rest} ref={(n) => { field.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         lang={rest.lang ?? lang} type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}
