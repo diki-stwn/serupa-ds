@@ -165,7 +165,8 @@ describe('PasswordInput', () => {
     field('pcar').setSelectionRange(1, 4, 'backward');
     await userEvent.click(toggle('pcar'));
     const f = field('pcar');
-    expect([f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
+    // WebKit can move the selection after the new type is applied; the component puts it back on the next frame
+    await expect.poll(() => [f.type, f.selectionStart, f.selectionEnd, f.selectionDirection, document.activeElement === f]).toEqual(['password', 1, 4, 'backward', true]);
   });
 
   test('pasting works: nothing blocks it, so a password manager or a pasted password fills the field (WCAG 3.3.8)', async () => {

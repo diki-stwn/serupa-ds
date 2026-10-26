@@ -48,7 +48,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 
 - At rest it's a `<button>` whose name is the label, the text and "Edit" (from `SerupaProvider` labels: "Ubah" in Indonesian). The visible text is part of the name, so voice control users can say what they see.
 - While editing it's an [Input](../Input/README.md) named by `label`; a validation message makes it `aria-invalid` and describes it. Focus stays in the field, where screen readers don't read the description again, so the message is also said politely on each failed try.
-- The pencil shows on hover and keyboard focus, and always on touch screens, which have no hover.
+- The pencil shows on hover and keyboard focus, and always on touch screens, which have no hover. It also always shows when the value is empty and there is no `placeholder`, since the button then has no text to find it by (a placeholder such as "Add notes" is better).
 - The text and the placeholder keep 4.5:1 on the page and on the hover background in all six themes (`InlineEdit.test.tsx`).
 
 ### Keyboard
