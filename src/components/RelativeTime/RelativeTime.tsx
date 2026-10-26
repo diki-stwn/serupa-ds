@@ -4,6 +4,7 @@ import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { canonicalLocale } from "../../internal/locale";
 import { useLocale, useOwnLang } from "../../internal/provider";
+import { warnOnce } from "../../internal/warn";
 
 export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTimeElement>, 'children' | 'dateTime'> {
   /** The moment: a Date, a timestamp in ms, or a string Date can read ("2026-10-24T09:30:00Z"). */
@@ -59,9 +60,21 @@ export function relativeTime(date: Date | number | string, now: number, locale?:
   if (!isFinite(t)) return "";
   const secs = (t - now) / 1000, abs = Math.abs(secs);
   const rtf = new Intl.RelativeTimeFormat(locale ? canonicalLocale(locale) : undefined, { style: options?.format || "long", numeric: options?.numeric || "auto" });
-  const [unit, size] = UNITS.find(([, , under]) => abs < under)!;
+  let i = UNITS.findIndex(([, , under]) => abs < under);
   // Under 45 seconds is "now" ("0 seconds ago" with numeric always): a timer every 15s can't keep seconds honest.
-  return unit === "second" ? rtf.format(0, "second") : rtf.format(Math.round(secs / size), unit);
+  if (i === 0) return rtf.format(0, "second");
+  // With numeric "auto", "yesterday", "last month" and "last year" are calendar words: days, months and years are
+  // counted on the viewer's calendar, not by elapsed time, and a moment on the same calendar day (month, year)
+  // falls back to the unit below (GL2). 01:00 seen at 23:00 is "22 hours ago", not "yesterday".
+  if (options?.numeric !== "always") {
+    const a = new Date(t), b = new Date(now);
+    for (; i >= 3; i--) {
+      const n = i === 3 ? Math.round((Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()) - Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())) / 86400000)
+        : i === 4 ? (a.getFullYear() - b.getFullYear()) * 12 + a.getMonth() - b.getMonth() : a.getFullYear() - b.getFullYear();
+      if (n !== 0) return rtf.format(n, UNITS[i][0]);
+    }
+  }
+  return rtf.format(Math.round(secs / UNITS[i][1]), UNITS[i][0]);
 }
 
 /* RelativeTime: a <time datetime> that says how long ago (or how far ahead) a moment is, in the locale's words:
@@ -73,6 +86,9 @@ export const RelativeTime = /* @__PURE__ */ component<HTMLTimeElement, RelativeT
   const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const current = React.useSyncExternalStore(subscribe, getNow, getServerNow);
   const d = new Date(props.date), valid = isFinite(d.getTime());
+  React.useEffect(() => {   // in the browser only, once per page
+    if (process.env.NODE_ENV !== "production" && !valid) warnOnce("relative-time-date", "RelativeTime: date " + JSON.stringify(String(props.date)) + " isn't a date, so it shows nothing. Pass a Date, a timestamp in ms, or a string Date can read, such as \"2026-10-24T09:30:00Z\".");
+  }, [valid, props.date]);
   const text = valid ? relativeTime(d, current, locale, { format: props.format, numeric: props.numeric }) : "";
   const title = !valid || props.titleFormat === false ? undefined : new Intl.DateTimeFormat(locale, props.titleFormat || { dateStyle: "long", timeStyle: "short" }).format(d);
   return <time lang={lang} {...rest} ref={ref} dateTime={valid ? d.toISOString() : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}

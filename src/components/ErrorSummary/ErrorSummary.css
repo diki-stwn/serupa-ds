@@ -1,0 +1,24 @@
+/* ---------------------------------------------------------------
+   ErrorSummary: a box with a danger border (--error-summary-border) and a heading over a list of links, one per error,
+   in the danger color and underlined. Focused, it shows the focus ring (it takes focus when it appears). Every value
+   reads one of its own tokens (error-summary.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-error-summary {
+  display: flex; flex-direction: column; gap: var(--error-summary-gap, var(--spacing-2));
+  padding: var(--error-summary-padding, var(--spacing-4));
+  border: var(--error-summary-border-width, var(--border-width-2)) solid var(--error-summary-border, var(--danger));
+  border-radius: var(--error-summary-radius, var(--rounded-md));
+  background: var(--error-summary-bg, var(--surface));
+  color: var(--error-summary-text, var(--text));
+}
+.dk-error-summary:focus { outline: none; }
+.dk-error-summary:focus-visible { outline: var(--focus-ring-width) solid var(--error-summary-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-error-summary__title { margin: var(--spacing-0); font-size: var(--text-lg); line-height: var(--text-lg--line-height); font-weight: var(--error-summary-title-weight, var(--font-semibold)); overflow-wrap: anywhere; }
+.dk-error-summary__description { overflow-wrap: anywhere; }
+.dk-error-summary__list { display: flex; flex-direction: column; gap: var(--spacing-1); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-error-summary__link { color: var(--error-summary-link, var(--danger-text)); font-weight: var(--font-medium); text-decoration-line: underline; text-decoration-thickness: var(--decoration-1); text-underline-offset: var(--underline-offset-2); overflow-wrap: anywhere; }
+.dk-error-summary__link:focus-visible { outline: var(--focus-ring-width) solid var(--error-summary-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); border-radius: var(--rounded-xs); }
+@media (hover: hover) { .dk-error-summary__link:hover { text-decoration-thickness: var(--decoration-2); } }
+@media (forced-colors: active) { .dk-error-summary { border-color: CanvasText; } .dk-error-summary__link { color: LinkText; } }
+}
