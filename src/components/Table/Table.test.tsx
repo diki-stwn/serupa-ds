@@ -218,7 +218,8 @@ describe('Table', () => {
     const f = el('twide').parentElement!;
     f.focus();
     await userEvent.keyboard('{ArrowRight}');
-    await expect.poll(() => f.scrollLeft).toBeGreaterThan(0);
+    // WebKit scrolls smoothly: let the scroll end before the key back, or it starts from partway
+    await expect.poll(async () => { const x = f.scrollLeft; await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); return x > 0 && f.scrollLeft === x; }).toBe(true);
     await userEvent.keyboard('{ArrowLeft}');
     await expect.poll(() => f.scrollLeft).toBe(0);
   });
