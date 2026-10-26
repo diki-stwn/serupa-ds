@@ -6,7 +6,8 @@
 @layer dk.components {
 .dk-button-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--button-group-gap, var(--spacing-2)); }
 .dk-button-group--vertical { flex-direction: column; align-items: stretch; flex-wrap: nowrap; }
-.dk-button-group--attached { flex-wrap: nowrap; gap: var(--spacing-0); max-inline-size: var(--sizing-full); }
+/* min-inline-size 0: in a grid track or a flex row, the row is held to its container too, so it can tell it doesn't fit (GP2). */
+.dk-button-group--attached { flex-wrap: nowrap; gap: var(--spacing-0); min-inline-size: var(--spacing-0); max-inline-size: var(--sizing-full); }
 /* Attached, a row that doesn't fit its container wraps as separate buttons instead (ButtonGroup.tsx sets data-wrapped
    and drops the attached class): the buttons keep their size so it can tell, rather than shrinking to ellipses. */
 .dk-button-group--attached > .dk-btn { position: relative; flex-shrink: 0; }

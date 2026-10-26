@@ -102,3 +102,13 @@ describe('ButtonGroup', () => {
     expect(getComputedStyle(el('p3')).borderInlineStartColor).not.toBe(edge('p2'));
   });
 });
+
+describe('ButtonGroup in a grid (GP2)', () => {
+  test('an attached row wider than its grid column wraps instead of widening the track', async () => {
+    await render(<div id="gp2" style={{ width: '288px', display: 'grid' }}>
+      <ButtonGroup id="gp2-g" aria-label="Project"><Button variant="outline">Duplicate project</Button><Button variant="outline">Archive project</Button><Button variant="outline">Delete</Button></ButtonGroup>
+    </div>);
+    await expect.poll(() => document.getElementById('gp2-g')!.dataset.wrapped).toBe('true');
+    expect(document.getElementById('gp2')!.scrollWidth).toBe(288);
+  });
+});
