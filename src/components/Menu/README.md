@@ -66,7 +66,7 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 - `role="menu"` with `menuitem`s, `group`s and `separator`s; only the highlighted item takes focus.
 - A `MenuCheckboxItem` is a `menuitemcheckbox` and a `MenuRadioItem` a `menuitemradio`, with `aria-checked`. The check before the label is hidden from assistive tech, which reads `aria-checked` instead.
 - A `shortcut` is given to assistive tech as `aria-keyshortcuts`, worked out from what's shown ("⌘⇧K" becomes `Meta+Shift+K`, "Ctrl+Shift+P" becomes `Control+Shift+P`), and the shown `<kbd>` is left out of the item's name, so it's read as "Edit" with its shortcut, not "Edit command E". Hyphens separate too ("Cmd-K" is `Meta+K`), a last `+` is the key ("Ctrl++" is `Control+Plus`), and "G then I" is two presses in a row (`G I`). Pass `aria-keyshortcuts` to set it yourself.
-- It fades and grows in out of its trigger over 150ms, and fades and shrinks back over 100ms when it closes. As it opens, its items arrive one after another, each fading and dropping 4px into place 50ms after the one before (`motion-stagger`), so the whole list is in within 300ms; closing, the menu fades as one. With `prefers-reduced-motion` it only fades, and the items arrive with it. The motion is a transition, so closing it while it opens turns back from where it is. Its items stay while it fades out, inert, and focus goes back at once; a submenu open when the menu closes closes and fades with it. A `ContextMenu` and a `MenuSub`'s submenu move the same way. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing menu in the top layer yet, so there it closes at once.
+- It fades and grows in out of its trigger over 150ms, and fades and shrinks back over 100ms when it closes. Its items arrive and leave with it, as one. With `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Its items stay while it fades out, inert, and focus goes back at once; a submenu open when the menu closes closes and fades with it. A `ContextMenu` and a `MenuSub`'s submenu move the same way. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing menu in the top layer yet, so there it closes at once.
 - Labels, shortcuts and group headings keep 4.5:1 (also on the highlighted item) and icons 3:1, in all six themes (`Menu.test.tsx`).
 
 ### Keyboard
@@ -100,8 +100,9 @@ A mouse opens the menu as the button is pressed, so it can be dragged onto an it
 | `open`, `onOpenChange` | boolean, function | | Control it yourself. onOpenChange(open, { reason }) says why: `'trigger'`, `'select'` (an item chosen), `'escape'`, `'blur'` (Tab) or `'outside'` |
 | `defaultOpen` | boolean | `false` | Open at first, without controlling it |
 | `aria-label` | string | | The menu's name. Without it, the button's text names it |
+| `className`, `style`, other HTML attributes and a ref | | | Go on the menu panel: `data-testid`, an `id`, other `aria-*` and a ref reach it, as on Radix's and React Aria's menu content. Its `onKeyDown` runs before the menu's keys and can call `preventDefault()` to stop them |
 
-`id` isn't a prop. Put an id on the trigger, which keeps it; the menu panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
+The menu panel's id is made for you unless you pass one, and the trigger's `aria-controls` points at it while it's open. An id on the trigger stays on the trigger.
 
 ### ContextMenu
 

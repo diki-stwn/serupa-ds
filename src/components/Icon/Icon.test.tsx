@@ -46,6 +46,18 @@ describe('Icon', () => {
     warn.mockRestore();
   });
 
+  test('a name in another spelling (the export\'s "Home", "arrow-forward", "Looks3") warns with the snake_case name to use (GN4)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<><Icon name="Home" /><Icon name="arrow-forward" /><Icon name="Looks3" /><Icon name="Nonsense_Thing" /></>);
+    const said = (n: string) => warn.mock.calls.map((c) => String(c[0])).find((m) => m.includes(`"${n}"`));
+    await vi.waitFor(() => expect(said('Nonsense_Thing')).toBeTruthy());
+    expect(said('Home')).toContain('Did you mean "home"?');
+    expect(said('arrow-forward')).toContain('Did you mean "arrow_forward"?');
+    expect(said('Looks3')).toContain('Did you mean "looks_3"?');
+    expect([said('Nonsense_Thing')!.includes('Did you mean'), said('Nonsense_Thing')!.includes('Foundations/Icons')]).toEqual([false, true]);
+    warn.mockRestore();
+  });
+
   test('size: a number and a number as a string are px ("20" doesn\'t fall back to 24px); a CSS length is kept', async () => {
     await render(<>
       <Icon id="sn" name="close" size={20} />

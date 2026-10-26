@@ -790,7 +790,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
 | `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
-| `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. |
+| `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
 | `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
 | `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |

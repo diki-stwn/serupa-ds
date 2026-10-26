@@ -16,6 +16,10 @@ const { EmptyState, Button } = window.Serupa;
 <EmptyState announce size="sm" icon="search_off" title="No results" description={`Nothing matches "${query}".`}
   actions={<Button variant="outline" onClick={clear}>Clear the search</Button>} />
 
+// No results, with a spelling fix and a way out: "Did you mean: quarterly" and a "Clear filters" button
+<EmptyState size="sm" icon="search_off" title={`No results for “${query}”`} suggestions={["quarterly"]}
+  onSuggestion={setQuery} onClearFilters={clearFilters} />
+
 // A slot to fill
 <EmptyState variant="dashed" icon="upload" title="Drop files here" />
 ```
@@ -35,7 +39,7 @@ const { EmptyState, Button } = window.Serupa;
 ## Usage
 
 - Say what's empty and why, then what to do: "No invoices yet. Invoices you send show up here." with a "New invoice" button.
-- After a search or a filter, say nothing matches and offer to clear it, rather than suggesting to create something.
+- After a search or a filter, say nothing matches and offer to clear it, rather than suggesting to create something. `onClearFilters` adds a "Clear filters" button, and `suggestions` offers other searches, such as the word spelled right.
 - Keep it to one primary action.
 - Use `size="sm"` inside a card, a table or a menu, and the default size for a whole page or panel.
 
@@ -45,7 +49,8 @@ const { EmptyState, Button } = window.Serupa;
 - The icon is decorative and hidden from screen readers.
 - When the empty state appears after an action (a search, a filter), set `announce`: as it appears, its title and description are said politely through the same live region as Toast and Loader ("No results. Nothing matches "mars"."), which moves into an open Dialog or Drawer so it's heard there too. It's said once; give it a new `key` to say it again for a new query. Leave it off for a page that's empty on arrival, which people find by reading.
 - The title and description keep 4.5:1 on `surface`, and the icon 3:1 on its circle, in all six themes (`EmptyState.test.tsx`).
-- **Keyboard:** none. It isn't focusable; Tab reaches the buttons and links in its actions.
+- Suggestions are link-style buttons at least 24px tall after "Did you mean:"; with `announce` they're said with the title and description. Without `onSuggestion` they're plain bold text.
+- **Keyboard:** none of its own. Tab reaches the suggestions, then the buttons and links in its actions, then Clear filters.
 
 ## Props
 
@@ -59,7 +64,12 @@ const { EmptyState, Button } = window.Serupa;
 | `size` | `'sm'` \| `'md'` | `'md'` | `sm` fits inside a card, a table or a menu |
 | `variant` | `'plain'` \| `'dashed'` | `'plain'` | A dashed frame, for a drop zone or a slot to fill |
 | `headingLevel` | `2`–`6` | `3` | The title's heading level |
+| `suggestions` | string[] | none | Searches to try instead, after "Did you mean:" |
+| `onSuggestion` | `(suggestion: string) => void` | none | Called with the suggestion picked; without it suggestions are plain text |
+| `onClearFilters` | `() => void` | none | Adds a "Clear filters" button after the actions, which calls it |
 | `announce` | boolean | `false` | Says the title and description to screen readers, politely, as it appears: for a result after a search or a filter |
+
+The words "Did you mean:" and "Clear filters" are the labels `didYouMean` and `clearFilters`; change them with `<SerupaProvider labels>`.
 
 `className`, `style`, `ref` and everything else go to the wrapper, which has `data-component="empty-state"`.
 
