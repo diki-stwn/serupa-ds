@@ -174,11 +174,11 @@ describe('Carousel', () => {
     expect([el('bare').querySelectorAll('button').length, el('bare').dataset.index]).toEqual([0, '2']);
   });
 
-  test('a swipe of 40px or more moves one slide (left = next, right = previous); a short one springs back', async () => {
+  test('a swipe of 40px or more moves one slide (left = next, right = previous)', async () => {
     await render(<App />);
     const seen: number[] = [];
-    for (const dx of [-120, -20, 120]) { await swipe('car', dx); seen.push(state('car').index); }
-    expect(seen).toEqual([1, 1, 0]);
+    for (const dx of [-120, 120]) { await swipe('car', dx); seen.push(state('car').index); }
+    expect(seen).toEqual([1, 0]);
   });
 
   test('RTL: slides run right to left, next sits on the left with a flipped chevron, and a swipe to the right goes forward; CSS direction alone (no dir attribute) shows the right slide', async () => {
@@ -192,6 +192,59 @@ describe('Carousel', () => {
     await swipe('rtl', 120);
     expect(state('rtl').index).toBe(2);
     expect(state('cssrtl').shown).toBe(1);
+  });
+
+  /** A mouse drag across the viewport through `path`: [dx from the start, ms after the move before]. */
+  const trace = async (id: string, path: [number, number][], up = true) => {
+    const v = q(`#${id} .dk-carousel__viewport`);
+    v.scrollIntoView({ block: 'center' });
+    const r = v.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + 40;
+    const ev = (name: string, cx: number) => v.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 9, isPrimary: true, pointerType: 'mouse', button: 0, buttons: 1, clientX: cx, clientY: y }));
+    ev('pointerdown', x);
+    let at = 0;
+    for (const [dx, ms] of path) { await new Promise((f) => setTimeout(f, ms)); ev('pointermove', x + dx); at = dx; }
+    if (up) ev('pointerup', x + at);
+  };
+
+  test('a flick changes the slide though it is shorter than 40px; the same distance slowly springs back (EN1)', async () => {
+    await render(<App />);
+    await trace('car', [[-9, 100], [-10, 100], [-24, 10], [-38, 10]]);
+    await expect.poll(() => state('car').index).toBe(1);
+    await trace('car', [[-10, 100], [-20, 100], [-30, 100]]);
+    expect(state('car').index).toBe(1);
+  });
+
+  test('past the first slide without loop the drag meets resistance (EN1): 200px moves the track less than 120px', async () => {
+    await render(<App />);
+    await trace('car', [[40, 50], [120, 50], [200, 50]], false);
+    const moved = parseFloat(el('car').style.getPropertyValue('--dk-carousel-drag'));
+    q('#car .dk-carousel__viewport').dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 9 }));
+    expect([moved > 0, moved < 120]).toEqual([true, true]);
+  });
+
+  test('loop with motion: next from the last slide carries on forward to the first, and previous from the first back to the last, instead of rewinding (EN1)', async () => {
+    motion();
+    try {
+      await render(<App />);
+      const c = el('loop'), t = q('#loop .dk-carousel__track'), x = () => new DOMMatrix(getComputedStyle(t).transform).m41;
+      for (let i = 0; i < 2; i++) { await userEvent.click(arrow('loop', 'next')); await Promise.all(t.getAnimations().map((a) => a.finished)); }
+      expect(state('loop').index).toBe(2);
+      const from = x();
+      await userEvent.click(arrow('loop', 'next'));
+      await new Promise((f) => requestAnimationFrame(() => requestAnimationFrame(f)));
+      // Moving on (further left), with the first slide standing in after the last.
+      expect([x() < from, slidesOf(c)[0].dataset.wrap, state('loop').index]).toEqual([true, 'after', 0]);
+      await Promise.all(t.getAnimations().map((a) => a.finished));
+      await expect.poll(() => slidesOf(c)[0].dataset.wrap).toBe(undefined);
+      await expect.poll(() => t.hasAttribute('data-snap')).toBe(false);
+      expect([state('loop').shown, Math.round(x())]).toEqual([0, 0]);
+      await userEvent.click(arrow('loop', 'prev'));
+      await new Promise((f) => requestAnimationFrame(() => requestAnimationFrame(f)));
+      expect([x() > 0, slidesOf(c)[2].dataset.wrap, state('loop').index]).toEqual([true, 'before', 2]);
+      await Promise.all(t.getAnimations().map((a) => a.finished));
+      await expect.poll(() => slidesOf(c)[2].dataset.wrap).toBe(undefined);
+      await expect.poll(() => state('loop').shown).toBe(2);
+    } finally { motion = emulate(REDUCE, NO_PREF); }
   });
 
   test('reduced motion: slides change at once; without it they move in 300ms', async () => {
