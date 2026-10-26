@@ -11,6 +11,7 @@
 - link "Link badge":
   - /url: "#tag"
 - button "Saving" [disabled]
+- button "Archived" [disabled]
 
 # LongLabel
 - text: Waiting for approval from finance Donaudampfschifffahrtsgesellschaft
