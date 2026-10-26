@@ -11,6 +11,10 @@
     - checkbox "Legal (always notified)" [disabled]
     - text: Legal (always notified)
 
+# LongLabel
+- checkbox "Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news"
+- text: Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news We send about one email a month, and you can unsubscribe from any of them with one click.
+
 # Playground
 - checkbox "Email me about updates"
 - text: Email me about updates

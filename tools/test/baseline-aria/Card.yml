@@ -30,6 +30,13 @@
 - button "Star"
 - button "Open board"
 
+# LongText
+- heading "Enterprise plan for the whole organisation, billed yearly" [level=3]
+- paragraph: Donaudampfschifffahrtsgesellschaftskapitänskajüte
+- text: Renewing soon Renews on 1 March. You're using 96 of 100 seats across 14 teams, and 3 invitations are still waiting for an answer.
+- button "Manage every seat"
+- button "Upgrade the plan"
+
 # Padding
 - heading "Small" [level=3]
 - paragraph: 12px
