@@ -2,7 +2,8 @@
    Toast: short messages in a corner (or the middle of an edge) of the screen, from toast(). The Toaster is a
    fixed list 16px from the edges; each toast is 384px (at most the screen less 32px): surface, a border,
    8px corners, shadow-lg, a tone icon (3:1 on surface), a semibold title and a muted description, an action
-   and a close button. They slide in from their edge; with reduced motion they appear at once.
+   and a close button. They slide in from their edge and back out to it, and the others glide to their new
+   place; with reduced motion they fade, and the others move at once.
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-toaster {
@@ -12,6 +13,9 @@
   width: var(--toast-width, var(--container-sm));
   max-width: calc(var(--sizing-full) - var(--dk-toast-offset) - var(--dk-toast-offset));
   pointer-events: none;
+  /* The glide of the toasts left when one closes or arrives (Toast.tsx reads these, FLIP). */
+  --dk-toast-move: var(--motion-enter-md);
+  --dk-toast-move-ease: var(--ease-move);
 }
 /* Clear of a phone's notch and home indicator too (the safe area, with viewport-fit=cover). */
 .dk-toaster--top-start, .dk-toaster--top-center, .dk-toaster--top-end { inset-block-start: max(var(--dk-toast-offset), env(safe-area-inset-top)); }
@@ -35,14 +39,22 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   pointer-events: auto;
-  animation: dk-toast-up var(--motion-enter-md) var(--ease-enter);
+  /* Motion (DZ1): in from @starting-style over motion-enter-md, so one closed mid-way turns back from where it is;
+     out (data-leaving, inert, kept by Toast.tsx until it ends) over motion-exit-md, back toward its edge. One there
+     as the Toaster arrives (data-instant) has no starting style. Reduced motion: the fade alone. */
+  --dk-toast-from: var(--spacing-0) var(--spacing-2);
+  transition: opacity var(--motion-enter-md) var(--ease-enter), translate var(--motion-enter-md) var(--ease-enter);
+}
+.dk-toaster--top-start .dk-toast, .dk-toaster--top-center .dk-toast, .dk-toaster--top-end .dk-toast { --dk-toast-from: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); }
+.dk-toast[data-leaving] { opacity: var(--opacity-0); pointer-events: none; transition: opacity var(--motion-exit-md) var(--ease-exit), translate var(--motion-exit-md) var(--ease-exit); }
+@starting-style { .dk-toast:not([data-instant]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-toast[data-leaving] { translate: var(--dk-toast-from); }
+  @starting-style { .dk-toast:not([data-instant]) { translate: var(--dk-toast-from); } }
 }
 /* F8 moves focus to the newest toast itself, so a screen reader reads it and Tab reaches its buttons next. */
 .dk-toast:focus { outline: none; }
 .dk-toast:focus-visible { outline: var(--focus-ring-width) solid var(--toast-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
-.dk-toaster--top-start .dk-toast, .dk-toaster--top-center .dk-toast, .dk-toaster--top-end .dk-toast { animation-name: dk-toast-down; }
-@keyframes dk-toast-up { from { opacity: var(--opacity-0); translate: var(--spacing-0) var(--spacing-2); } }
-@keyframes dk-toast-down { from { opacity: var(--opacity-0); translate: var(--spacing-0) calc(var(--spacing-0) - var(--spacing-2)); } }
 .dk-toast__icon { display: flex; flex-shrink: 0; }
 .dk-toast__icon .dk-icon { font-size: var(--spacing-5); }
 .dk-toast--info .dk-toast__icon { color: var(--toast-icon-info, var(--info)); }
@@ -57,6 +69,5 @@
 .dk-toaster__more { align-self: center; padding: var(--spacing-0\.5) var(--spacing-2); border-radius: var(--rounded-full); background: var(--toast-bg, var(--surface-overlay)); color: var(--toast-description-color, var(--text-muted)); box-shadow: var(--shadow-sm); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height); pointer-events: auto; }
 .dk-toast__description { margin: var(--spacing-0); color: var(--toast-description-color, var(--text-muted)); }
 .dk-toast__action, .dk-toast__close { flex-shrink: 0; }
-@media (prefers-reduced-motion: reduce) { .dk-toast { animation: none; } }
 @media (forced-colors: active) { .dk-toast { border-color: CanvasText; } .dk-toaster__more { border: var(--border-width-1) solid CanvasText; } }
 }
