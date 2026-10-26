@@ -9,7 +9,7 @@ import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { useExit } from "../../internal/useExit";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
-import { component, named } from "../../internal/component";
+import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import * as icons from "../../material/builtin";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
