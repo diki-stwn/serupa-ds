@@ -28,7 +28,6 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 // a pull request's included, fails when the breach is gone and the line is still here).
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
-    'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
     'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
     'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
   },
