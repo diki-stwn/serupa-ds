@@ -89,6 +89,8 @@ describe('Rating', () => {
     await render(<div><Rating id="ro" readOnly value={4.3} /><Rating id="ra" readOnly aria-label="Average" value={3.5} /></div>);
     expect([page.getByRole('img', { name: '4.3 out of 5' }).element() === el('ro'), radios('ro').length, filled('ro')]).toEqual([true, 0, [24, 24, 24, 24, 7]]);
     expect(el('ra').getAttribute('aria-label')).toBe('Average, 3.5 out of 5');
+    // With base.css (svg max-width: 100%), the star in a share-wide fill is still drawn whole and clipped, not shrunk (GI1).
+    expect(stars('ro').map((s) => Math.round((s.children[1].firstElementChild as Element).getBoundingClientRect().width))).toEqual([24, 24, 24, 24, 24]);
   });
 
   test('in a form: name sends the rating; form reset brings the default back; disabled and required reach the radios', async () => {
