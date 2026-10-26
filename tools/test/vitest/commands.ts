@@ -2,7 +2,7 @@
 // They drive Playwright's real mouse. userEvent.dragAndDrop lost the moves after a pointer capture in Firefox, and a
 // userEvent.click with a delay can be over before a test sees the press.
 import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
-import type { FrameLocator, Page } from 'playwright';
+import type { CDPSession, FrameLocator, Page } from 'playwright';
 
 type Point = { x: number; y: number };
 
@@ -41,6 +41,16 @@ export const forcedColors: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ forcedColors: on ? 'active' : 'none' });
 };
 
+/** Makes the page a touch screen, (pointer: coarse) and (hover: none), as on a phone, or back. Chromium only
+ *  (DevTools touch emulation); elsewhere it throws. */
+const touch = new WeakMap<Page, CDPSession>();
+export const coarsePointer: BrowserCommand<[on: boolean]> = async (ctx, on) => {
+  const { page } = playwright(ctx);
+  // The session that turned it on turns it off: an override belongs to the session that set it.
+  let cdp = touch.get(page);
+  if (!cdp) { cdp = await page.context().newCDPSession(page); touch.set(page, cdp); }
+  await cdp.send('Emulation.setTouchEmulationEnabled', on ? { enabled: true, maxTouchPoints: 5 } : { enabled: false });
+};
 /** Lays the page out as for printing (@media print) or back for the screen. */
 export const printMedia: BrowserCommand<[on: boolean]> = async (ctx, on) => {
   await playwright(ctx).page.emulateMedia({ media: on ? 'print' : 'screen' });

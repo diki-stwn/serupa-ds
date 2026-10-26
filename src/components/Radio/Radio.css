@@ -58,4 +58,14 @@
    it reaches past its edges. The stacking context keeps that box under the content, so the parts keep their hover. */
 .dk-radio { position: relative; isolation: isolate; }
 .dk-radio::after { --dk-under: calc(var(--z-10) * -1); --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; z-index: var(--dk-under); inset: var(--dk-reach); }
+/* Touch (EQ1): 44px to press, as Apple and Material ask. In a group it stops halfway into the gap
+   to a neighbour, so two never overlap. */
+@media (pointer: coarse) {
+  .dk-radio::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-11)) / 2)); --dk-half-gap: calc(var(--spacing-0) - var(--radio-group-gap, var(--spacing-2)) / 2); }
+  .dk-radio-group--horizontal > .dk-radio::after { --dk-half-gap: calc(var(--spacing-0) - var(--radio-group-gap-horizontal, var(--spacing-4)) / 2); }
+  .dk-radio-group--vertical > .dk-radio:not(:first-child)::after { inset-block-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--vertical > .dk-radio:not(:last-child)::after { inset-block-end: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--horizontal > .dk-radio:not(:first-child)::after { inset-inline-start: max(var(--dk-reach), var(--dk-half-gap)); }
+  .dk-radio-group--horizontal > .dk-radio:not(:last-child)::after { inset-inline-end: max(var(--dk-reach), var(--dk-half-gap)); }
+}
 }
