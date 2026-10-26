@@ -270,5 +270,6 @@ describe('Card', () => {
       await expect.poll(() => css(el('pc')).scale).toBe('none');
       await press(el('pb'), () => expect(css(el('pc')).scale).toBe('none'));
     });
+    history.replaceState(null, '', location.pathname + location.search);   // the press followed #pc; the next pass starts clean
   });
 });
