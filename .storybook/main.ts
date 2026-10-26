@@ -19,6 +19,10 @@ const config: StorybookConfig = {
     const { readFileSync } = await import('node:fs');
     const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
     cfg.define = { ...(cfg.define || {}), __VERSION__: JSON.stringify(version) };
+    // Vite's CSS minifier (Lightning CSS) rewrites :dir(rtl) as a list of right-to-left :lang()s for older browsers,
+    // so a page with dir="rtl" but no such lang wouldn't flip its chevrons and arrows. Keep :dir() as the package ships it.
+    const { Features } = await import('lightningcss');
+    cfg.css = { ...cfg.css, lightningcss: { ...cfg.css?.lightningcss, exclude: (cfg.css?.lightningcss?.exclude ?? 0) | Features.DirSelector } };
     return cfg;
   },
 };
