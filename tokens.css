@@ -1100,6 +1100,7 @@
   --control-height-md: 2rem;
   --control-height-lg: 2.75rem;
 }
+[data-theme-switching], [data-theme-switching] *, [data-theme-switching]::before, [data-theme-switching]::after, [data-theme-switching] *::before, [data-theme-switching] *::after { transition: none !important; }
 .type-xs {
   font-family: var(--font-sans);
   font-size: 0.75rem;

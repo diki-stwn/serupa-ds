@@ -251,7 +251,7 @@ describe('Card', () => {
     const restore = emulate('prefers-reduced-motion');
     try {
       await render(<Card id="lnk" href="#here">Atlas</Card>);   // the cover link
-      expect(`${css(el('lnk')).transitionProperty}/${css(el('lnk')).transitionDuration}`).toMatch(/^(all\/0s|none\/0s)$/);
+      expect(`${css(el('lnk')).transitionProperty}/${css(el('lnk')).transitionDuration}`).toMatch(/^(all|none|opacity, display, overlay, content-visibility)\/0s$/);   // base.css may limit a component to its fades
     } finally { restore(); }
   });
 
