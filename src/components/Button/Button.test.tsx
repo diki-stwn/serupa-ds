@@ -260,6 +260,21 @@ describe('Button', () => {
     settle = [];
   });
 
+  // DW1: Button's own then(ok, fail) marked the promise handled, so a failed save never reached unhandledrejection.
+  test('onClick with a promise that rejects: the rejection still reaches window\'s unhandledrejection once, as without Button', async () => {
+    const seen: unknown[] = [];
+    const on = (e: PromiseRejectionEvent) => { seen.push(e.reason); e.preventDefault(); };
+    window.addEventListener('unhandledrejection', on);
+    try {
+      const boom = new Error('save failed');
+      await render(<Button id="rj" onClick={() => Promise.reject(boom)}>Save</Button>);
+      await userEvent.click(el('rj'));
+      await expect.poll(() => seen.length).toBe(1);
+      await new Promise((r) => setTimeout(r, 50));
+      expect([seen.length, seen[0] === boom, el('rj').hasAttribute('aria-busy')]).toEqual([1, true, false]);
+    } finally { window.removeEventListener('unhandledrejection', on); }
+  });
+
   test('onClick with a quick promise (under 300ms): no loading flash and no "Loading" announced, but still no second click until it settles', async () => {
     let ok: () => void = () => {};
     const onClick = vi.fn(() => new Promise<void>((r) => { ok = r; }));
