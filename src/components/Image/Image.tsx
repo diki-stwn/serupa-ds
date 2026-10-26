@@ -61,9 +61,12 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const [state, setState] = React.useState<"loading" | "loaded" | "error">("loading");
   const [open, setOpen] = React.useState(false);
   const img = React.useRef<HTMLImageElement | null>(null);
+  // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
+  // it as soon as it arrives, with or without JavaScript. Then a lazy one fades in; a priority one never hides.
+  const [live, setLive] = React.useState(false);
   React.useEffect(() => { setState("loading"); }, [src]);
   // An image already in the cache can finish before React listens.
-  React.useEffect(() => { const i = img.current; if (i && i.complete) setState(i.naturalWidth > 0 ? "loaded" : "error"); }, [src]);
+  React.useEffect(() => { const i = img.current; if (i && i.complete) setState(i.naturalWidth > 0 ? "loaded" : "error"); setLive(true); }, [src]);
   const named = (base: string) => (alt ? base + ": " + alt : base);
   // With ratio "auto", width and height (the picture's size) shape the frame before the picture arrives, so the
   // page doesn't jump when it loads.
@@ -81,7 +84,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
         className={cn("dk-image__img", className)} onLoad={(e) => { setState("loaded"); if (onLoad) onLoad(e); }} onError={(e) => { setState("error"); if (onError) onError(e); }} />;
   return (
     <span {...frameProps} ref={restyle} style={frameStyle}
-      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, rounded !== false && "dk-image--rounded", "dk-image--" + state, frameProps && frameProps.className)}
+      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
       data-component="image" data-state={state}>
       {viewable && state !== "error"
         ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{picture}</button>
