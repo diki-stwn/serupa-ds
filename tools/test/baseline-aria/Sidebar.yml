@@ -21,6 +21,20 @@
         - /url: "#"
   - img "Ada Lovelace"
 
+# LongLabels
+- navigation "Main":
+  - strong: Acme
+  - text: Workspace settings for every team
+  - list "Workspace settings for every team":
+    - listitem:
+      - link "Home and recent activity across projects":
+        - /url: "#"
+    - listitem:
+      - link "Donaudampfschifffahrtsgesellschaftskapitänskajüte 1234":
+        - /url: "#"
+  - img "Ada Lovelace"
+  - text: Ada Lovelace
+
 # Playground
 - navigation "Main":
   - strong: Acme

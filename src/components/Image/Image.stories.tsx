@@ -29,3 +29,8 @@ export const Removable: Story = {
   },
 };
 export const Fallback: Story = { args: { src: 'data:image/png;base64,broken', ratio: 'square', frameProps: { style: { width: 160 } } } };
+
+export const Overflow: Story = {
+  name: 'Overflow: narrow frame',
+  args: { ratio: 'auto', frameProps: { style: { width: 120 } } },
+};

@@ -44,9 +44,12 @@
 .dk-progress--circle.dk-progress--size-lg .dk-progress__value { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { --dk-progress-turn: 270deg; animation: dk-progress-turn var(--motion-loop-spinner) var(--ease-linear) infinite; }
 @keyframes dk-progress-turn { to { rotate: var(--dk-progress-turn); } }
+@keyframes dk-progress-breathe { 50% { opacity: var(--opacity-50); } }
 @media (prefers-reduced-motion: reduce) {
   .dk-progress__fill, .dk-progress__arc { transition: none; }
-  .dk-progress--indeterminate .dk-progress__fill, .dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { animation: none; }
+  .dk-progress--indeterminate .dk-progress__fill { animation: none; }
+  /* The circle stands still and breathes, as Loader's ring does (EE1). */
+  .dk-progress--circle.dk-progress--indeterminate .dk-progress__ring { animation: dk-progress-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; }
   .dk-progress--indeterminate .dk-progress__fill { margin-inline-start: var(--dk-progress-still); }
 }
 @media (forced-colors: active) {

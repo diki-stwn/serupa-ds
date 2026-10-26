@@ -4,6 +4,12 @@
   - button "Align center" [disabled]
   - button "Align right" [disabled]
 
+# LongLabels
+- group "Schedule":
+  - button "Every day of the week"
+  - button "Weekdays only" [pressed]
+  - button "Once a month"
+
 # Multiple
 - group "Text style":
   - button "Bold" [pressed]

@@ -21,6 +21,12 @@
   - /placeholder: mm/dd/yyyy
 - button "Choose a date"
 
+# OverflowNarrow
+- textbox "Date":
+  - /placeholder: mm/dd/yyyy
+  - text: 12/31/2026
+- button "Choose a date"
+
 # Playground
 - textbox "Date":
   - /placeholder: mm/dd/yyyy
