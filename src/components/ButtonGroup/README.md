@@ -1,6 +1,6 @@
 # ButtonGroup
 
-Related buttons side by side, or stacked: joined into one control with shared borders (the default), or spaced apart. Use it for a set of actions on the same thing (Copy, Paste), a toolbar of ToggleButtons, or a split button.
+Related buttons side by side, or stacked: joined into one control with shared borders (the default), or spaced apart. Use it for two or three actions on the same thing (Copy, Paste), or a split button.
 
 ```jsx
 const { ButtonGroup, Button, IconButton, ToggleButton } = window.Serupa;
@@ -24,17 +24,19 @@ const { ButtonGroup, Button, IconButton, ToggleButton } = window.Serupa;
 ## When to use
 
 - A few actions on the same thing, such as Copy and Paste, that read as one control.
-- A toolbar of [ToggleButton](../ToggleButton/README.md)s, such as text formatting.
 - A pair of buttons that belong together but stay apart, such as Cancel and Save in a footer (`attached={false}`).
 
 ## When not to use
 
 - One choice out of a few options: use [SegmentedControl](../SegmentedControl/README.md), which lets only one be on.
+- A set of [ToggleButton](../ToggleButton/README.md)s or tools, such as text formatting: use [Toolbar](../Toolbar/README.md), which is one Tab stop with arrow keys between its buttons.
 - Many actions, or ones people rarely use: put them in a [Menu](../Menu/README.md).
 
 ## Usage
 
-Size and variant stay on each button: give them all the same ones.
+Size and variant stay on each button: give them all the same ones. Two attached primary buttons get an edge between them in their text color (`--button-group-divider`), as a split button has.
+
+An attached row that's wider than its container wraps as separate, spaced buttons (with `data-wrapped` on the group), so a narrow screen never scrolls sideways and no label is cut; it joins again once there's room. A vertical group doesn't wrap.
 
 A button can be a Menu's trigger or sit in a Tooltip, as in a split button (`<Menu trigger={<IconButton … />}>` last): the outer corners go to the first and last buttons, whatever popup follows them.
 
@@ -64,3 +66,4 @@ Each is an optional override: set it on the page, a container or one group. The 
 | --- | --- | --- |
 | `--button-group-gap` | `spacing-2` | Space between buttons when not attached (8px). |
 | `--button-group-overlap` | `border-width-1` | How much attached buttons overlap, so their borders make one line (1px, the button border). |
+| `--button-group-divider` | `opacity-40` | Strength of the edge between two attached primary buttons, in their text color (40%). Set `0%` for none. |
