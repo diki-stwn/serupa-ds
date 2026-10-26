@@ -33,7 +33,7 @@ const { Grid, Card } = window.Serupa;
 ## Accessibility
 
 - The reading and tab order follow the children, row by row: keep them in the order people see them.
-- Use `as="ul"` when the cells are a list of things.
+- Use `as="ul"` when the cells are a list of things. It then carries `role="list"`, since Safari stops calling a list without bullets a list.
 - **Keyboard:** none: a layout box, not focusable.
 
 ## Props

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, tabTo } from '../../../tools/test/vitest/helpers';
 import { PasswordInput } from './PasswordInput';
 
 // The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
@@ -68,7 +68,7 @@ describe('PasswordInput', () => {
     field('pw').focus();
     await userEvent.click(toggle('pw'));
     expect([field('pw').type, field('pw').value, toggle('pw').getAttribute('aria-pressed'), eye('pw'), document.activeElement === field('pw')]).toEqual(['text', 'hunter2', 'true', 'visibility_off', true]);
-    toggle('pw').focus();
+    await tabTo(toggle('pw'));
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => field('pw').type).toBe('password');
     await userEvent.keyboard('[Space]');

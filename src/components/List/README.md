@@ -42,7 +42,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 ## Accessibility
 
-- It's a real list, so screen readers say how many rows there are. Name it with `aria-label` when there's no heading over it.
+- It's a real list, so screen readers say how many rows there are, Safari's VoiceOver included (`role="list"` keeps the role it would drop from a list without bullets). Name it with `aria-label` when there's no heading over it.
 - A whole row is one link or button, named by its title and description; trailing actions are separate controls, so give them names that say which row they're for ("More for Ada Lovelace").
 - Selected rows have a bar and `aria-current` or `aria-pressed`, not only a background.
 - Titles and descriptions keep 4.5:1 on plain and shaded rows, and the selected bar 3:1, in all six themes (`List.test.tsx`).

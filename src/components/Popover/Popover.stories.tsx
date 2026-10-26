@@ -53,6 +53,10 @@ export const Right: Story = { name: 'Placement: right', args: { open: true, plac
 export const Left: Story = { name: 'Placement: left', args: { open: true, placement: 'left' }, decorators: [centered], parameters: { centered: true } };
 export const BottomEnd: Story = { name: 'Placement: bottom-end', args: { open: true, placement: 'bottom-end' }, decorators: [centered], parameters: { centered: true } };
 export const TopStart: Story = { name: 'Placement: top-start', args: { open: true, placement: 'top-start' }, decorators: [centered], parameters: { centered: true } };
+export const TopEnd: Story = { name: 'Placement: top-end', args: { open: true, placement: 'top-end' }, decorators: [centered], parameters: { centered: true } };
+export const RightEnd: Story = { name: 'Placement: right-end', args: { open: true, placement: 'right-end' }, decorators: [centered], parameters: { centered: true } };
+export const LeftStart: Story = { name: 'Placement: left-start', args: { open: true, placement: 'left-start' }, decorators: [centered], parameters: { centered: true } };
+export const LeftEnd: Story = { name: 'Placement: left-end', args: { open: true, placement: 'left-end' }, decorators: [centered], parameters: { centered: true } };
 
 export const WithoutTitle: Story = {
   name: 'Without a title',

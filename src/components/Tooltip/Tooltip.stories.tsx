@@ -29,6 +29,11 @@ export const OnHover: Story = {
 export const Bottom: Story = { name: 'Placement: bottom', args: { placement: 'bottom' } };
 export const Left: Story = { name: 'Placement: left', args: { placement: 'left' } };
 export const Right: Story = { name: 'Placement: right', args: { placement: 'right' } };
+export const BottomStart: Story = { name: 'Placement: bottom-start', args: { placement: 'bottom-start' } };
+export const TopEnd: Story = { name: 'Placement: top-end', args: { placement: 'top-end' } };
+export const RightEnd: Story = { name: 'Placement: right-end', args: { placement: 'right-end' } };
+export const LeftStart: Story = { name: 'Placement: left-start', args: { placement: 'left-start' } };
+export const LeftEnd: Story = { name: 'Placement: left-end', args: { placement: 'left-end' } };
 export const TopStart: Story = {
   name: 'Placement: top-start',
   args: { placement: 'top-start', content: 'Saves a copy to your device', children: <Button variant="secondary" leftIcon="download">Download</Button> },
