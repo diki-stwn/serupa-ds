@@ -174,5 +174,6 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .dk-btn { --dk-btn-press: var(--scale-100); --dk-btn-nudge: var(--spacing-0); --dk-btn-loader-from: var(--scale-100); }
   .dk-btn__ripples { display: none; }
+  .dk-btn__loader { animation-name: dk-loader-in; }   /* only fades in: nothing grows */
 }
 }

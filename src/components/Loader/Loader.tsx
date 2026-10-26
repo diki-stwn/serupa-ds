@@ -121,7 +121,7 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
         <circle className="dk-loader__dot" cx={20} cy={12} r={2.5} />
       </svg>
     : <svg viewBox="0 0 24 24" aria-hidden focusable="false">
-        {/* turns (2s) while the arc grows and shrinks (1.5s): Loader.css. A quarter of the ring when still (reduced motion) */}
+        {/* a quarter arc turning (1s a turn): Loader.css; still and breathing under reduced motion */}
         <circle className="dk-loader__track" cx={12} cy={12} r={10} />
         <circle className="dk-loader__arc" cx={12} cy={12} r={10} pathLength={100} strokeDasharray="25 150" />
       </svg>;

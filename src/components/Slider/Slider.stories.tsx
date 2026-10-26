@@ -32,3 +32,8 @@ export const Marks: Story = {
   args: { 'aria-label': 'Temperature', defaultValue: 21, min: 16, max: 28, marks: [{ value: 16, label: '16°' }, { value: 21, label: 'Comfort' }, { value: 28, label: '28°' }], showValue: true, formatValue: (v: number) => `${v}°` },
 };
 export const EveryStep: Story = { args: { 'aria-label': 'Rating', defaultValue: 3, min: 0, max: 10, marks: true } };
+
+export const LongMarks: Story = {
+  args: { marks: [{ value: 0, label: 'Completely silent' }, { value: 50, label: 'Halfway there' }, { value: 100, label: 'As loud as it goes' }] },
+  decorators: [(Story) => <div style={{ width: 200, paddingBlockEnd: 32 }}><Story /></div>],
+};

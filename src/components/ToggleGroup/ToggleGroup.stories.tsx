@@ -44,3 +44,16 @@ export const WithLabels: Story = {
 };
 
 export const Disabled: Story = { args: { disabled: true } };
+
+export const LongLabels: Story = {
+  args: {
+    children: [
+      <ToggleButton key="d" value="day">Every day of the week</ToggleButton>,
+      <ToggleButton key="w" value="week">Weekdays only</ToggleButton>,
+      <ToggleButton key="m" value="month">Once a month</ToggleButton>,
+    ],
+    defaultValue: ['week'],
+    'aria-label': 'Schedule',
+  },
+  render: (args) => <div style={{ width: 240 }}><ToggleGroup {...args} /></div>,
+};

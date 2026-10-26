@@ -5,6 +5,15 @@
   - listitem: Record the demo Alan
   - listitem: Update the changelog Katherine
 
+# LongText
+- list "Launch tasks":
+  - listitem:
+    - button "Reorder Write the launch brief for every region and partner"
+    - text: Write the launch brief for every region and partner
+  - listitem:
+    - button "Reorder Donaudampfschifffahrtsgesellschaftskapitänskajüte"
+    - text: Donaudampfschifffahrtsgesellschaftskapitänskajüte
+
 # Playground
 - list "Launch tasks":
   - listitem:

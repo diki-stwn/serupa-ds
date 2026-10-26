@@ -19,6 +19,13 @@
   - button "4 of 4"
 - paragraph: Showing Desert at sunset.
 
+# LongText
+- region "Customer stories from every region we work in":
+  - group "1 of 2": Our team cut its release time in half, and Donaudampfschifffahrtsgesellschaftskapitänskajüte now ships every week.
+  - button "Next slide"
+  - button "1 of 2"
+  - button "2 of 2"
+
 # Loop
 - region "Landscape photos":
   - group "1 of 4":
