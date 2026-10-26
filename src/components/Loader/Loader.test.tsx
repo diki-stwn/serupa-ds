@@ -98,20 +98,11 @@ describe('Loader', () => {
     expect([arc.getAttribute('pathLength'), arc.getAttribute('stroke-dasharray')]).toEqual(['100', '25 150']);
   });
 
-  test('ring: turns steadily, 2s a turn (the shared spin keyframes), while the arc grows and shrinks every 1.5s, so each stretch starts somewhere new', async () => {
+  test('ring: the quarter arc stays as it is while the drawing turns steadily at motion-loop-spinner (1s a turn, the shared spin keyframes); nothing repaints on each frame (EE1)', async () => {
     await render(<Loader id="ring" delay={0} />);
     const svg = css(q('#ring svg')), arc = css(q('#ring .dk-loader__arc'));
-    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction}`).toBe('spin 2s linear');
-    expect(`${arc.animationName} ${arc.animationDuration}`).toBe('dk-loader-arc 1.5s');
-  });
-
-  test('ring: the arc starts as a dot, stretches to most of the ring, then its tail catches up', async () => {
-    await render(<Loader id="ring" delay={0} />);
-    const [start, mid, late] = at(q('#ring .dk-loader__arc'), 'dk-loader-arc', [0, 750, 1400], (n) => { const s = getComputedStyle(n); return [parseFloat(s.strokeDasharray), parseFloat(s.strokeDashoffset)]; });
-    expect(start[0]).toBeLessThanOrEqual(2);
-    expect(mid[0]).toBeGreaterThanOrEqual(60);
-    expect(mid[1]).toBeGreaterThan(-20);
-    expect(late[1]).toBeLessThan(-80);
+    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction} ${svg.animationIterationCount}`).toBe('spin 1s linear infinite');
+    expect([arc.animationName, q('#ring').getAnimations({ subtree: true }).filter((x) => (x as CSSAnimation).animationName !== 'dk-loader-in').map((x) => (x as CSSAnimation).animationName)]).toEqual(['none', ['spin']]);
   });
 
   test('dots: three dots pulsing (1s, forever), each 150ms after the one before', async () => {
@@ -590,7 +581,7 @@ describe('Loader', () => {
     await expect.poll(() => document.getElementById('quick')).toBeNull();
   });
 
-  test('reduced motion: the label is plain text; the ring a steady quarter arc turning slowly (3s); the dots only fade; the spokes tick at half speed (2s)', async () => {
+  test('reduced motion: the label is plain text; the ring (a quarter arc) and the spokes stand still and breathe (opacity, 2s); the dots only fade (EE1)', async () => {
     await render(<>
       <span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>
       <Loader id="ring" delay={0} />
@@ -602,11 +593,12 @@ describe('Loader', () => {
       const l = css(q('#lab .dk-loader__label'));
       expect([l.animationName, l.backgroundImage, l.webkitTextFillColor]).toEqual(['none', 'none', l.color]);
       const arc = css(q('#ring .dk-loader__arc'));
-      expect([css(q('#ring svg')).animationDuration, arc.animationName]).toEqual(['3s', 'none']);
+      const ring = css(q('#ring svg'));
+      expect([`${ring.animationName} ${ring.animationDuration}`, arc.animationName]).toEqual(['dk-loader-breathe 2s', 'none']);
       expect(arc.strokeDasharray).toMatch(/^25(px)?,? 150/);
       expect(css(q('#dots .dk-loader__dot')).animationName).toBe('dk-loader-dot-fade');
       const spk = css(q('#spk svg'));
-      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-tick 2s');
+      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-breathe 2s');
     } finally { restore(); }
   });
 
