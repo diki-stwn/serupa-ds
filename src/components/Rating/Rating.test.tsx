@@ -106,6 +106,12 @@ describe('Rating', () => {
     expect(box('tiny').every(([sw]) => sw === 20)).toBe(true);
   });
 
+  test('in a 320px grid column (a form layout) the ten lg stars shrink too, rather than widen the column (GM1)', async () => {
+    await render(<div style={{ display: 'grid', width: '320px' }}><div><Rating id="gr" readOnly max={10} size="lg" value={7.5} /></div></div>);
+    const sw = stars('gr').map((s) => Math.round(s.getBoundingClientRect().width * 10) / 10);
+    expect([el('gr').parentElement!.getBoundingClientRect().width <= 320, el('gr').getBoundingClientRect().right - el('gr').parentElement!.getBoundingClientRect().left <= 320, sw.every((x) => x === sw[0] && x < 32 && x >= 20)]).toEqual([true, true, true]);
+  });
+
   test('in a form: name sends the rating; form reset brings the default back; disabled and required reach the radios', async () => {
     await render(<form id="f"><Rating id="fr" aria-label="Form" name="stars" defaultValue={2} required /><Rating id="d" aria-label="Off" disabled defaultValue={3} /></form>);
     const form = el('f') as HTMLFormElement;
