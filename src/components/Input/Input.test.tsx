@@ -8,6 +8,9 @@ import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
 import { NumberInput } from '../NumberInput/NumberInput';
 
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
+
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLElement;
@@ -173,7 +176,7 @@ describe('Input', () => {
   });
 
   test('showCount: "2 / 5" at the end of the field, linked by aria-describedby after the field\'s own; stops at maxLength and turns text-colored', async () => {
-    await render(<><span id="hint">Up to 5</span><Input id="cnt" showCount maxLength={5} defaultValue="ab" aria-describedby="hint" aria-label="Code" rightIcon={<b>i</b>} /></>);
+    await render(<><span id="hint">Up to 5</span><Input id="cnt" showCount maxLength={5} defaultValue="ab" aria-describedby="hint" aria-label="Code" rightIcon={<b>i</b>} /></>, { wrapper: EnUS });
     const c0 = count('cnt'), col0 = css(c0).color;
     expect([c0.textContent, field('cnt').getAttribute('aria-describedby'), c0.nextElementSibling!.className, field('cnt').hasAttribute('maxlength')]).toEqual(['2 / 5', 'hint ' + c0.id, 'dk-input__icon dk-input__icon--right', false]);
     await userEvent.type(field('cnt'), 'cdefg');
@@ -182,7 +185,7 @@ describe('Input', () => {
   });
 
   test('maxLength counts the characters people see: an emoji family and a flag are one each', async () => {
-    await render(<Input id="emo" showCount maxLength={3} defaultValue="👨‍👩‍👧🇮🇩" aria-label="Emoji" />);
+    await render(<Input id="emo" showCount maxLength={3} defaultValue="👨‍👩‍👧🇮🇩" aria-label="Emoji" />, { wrapper: EnUS });
     expect(count('emo').textContent).toBe('2 / 3');
     await userEvent.type(field('emo'), 'abc');
     expect([field('emo').value, count('emo').textContent]).toEqual(['👨‍👩‍👧🇮🇩a', '3 / 3']);
@@ -209,7 +212,7 @@ describe('Input', () => {
   });
 
   test('a form reset puts the count back to the default', async () => {
-    await render(<form id="f"><Input id="rs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>);
+    await render(<form id="f"><Input id="rs" showCount maxLength={10} defaultValue="ab" aria-label="Reset" /></form>, { wrapper: EnUS });
     await userEvent.type(field('rs'), 'cdef');
     expect(count('rs').textContent).toBe('6 / 10');
     (document.getElementById('f') as HTMLFormElement).reset();
