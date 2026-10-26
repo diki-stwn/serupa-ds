@@ -70,9 +70,9 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `defaultOpen` | boolean | `false` | Open at first (uncontrolled) |
 | `aria-label` | string | none | Its name when there's no title |
 | `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |
-| `className`, `style` | | | Go to the panel, which has `data-component="popover"` and `data-side` |
+| `className`, `style`, `ref`, other HTML attributes | | | Go to the panel, which has `data-component="popover"` and `data-side`: `data-testid`, an `id`, other `aria-*` and a ref reach it, as on Radix's and React Aria's popover content. Its `onKeyDown` runs first and can call `preventDefault()` to keep Escape from closing it |
 
-`id` isn't a prop. Put an id on the trigger, which keeps it; the panel's id is made for you, and the trigger's `aria-controls` points at it while it's open.
+The panel's id is made for you unless you pass one, and the trigger's `aria-controls` points at it while it's open. An id on the trigger stays on the trigger.
 
 ## Component tokens
 
