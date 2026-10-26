@@ -1,6 +1,7 @@
 // exports: Splitter, type SplitterProps
 interface SplitterLabels {
     resizePanes: string;
+    splitterPlace: string;
 }
 interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
     children: [

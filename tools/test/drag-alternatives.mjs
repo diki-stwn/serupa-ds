@@ -16,6 +16,7 @@ const DRAGS = {
   Carousel: { drag: 'swipe to the next or previous slide', press: ['Carousel.test.tsx', 'next moves one slide at a time'] },
   Drawer: { drag: 'swipe it toward its edge to close', press: ['Drawer.test.tsx', 'the ×, Escape and the browser close it'] },
   FileUpload: { drag: 'drag files onto the area', press: ['FileUpload.test.tsx', 'the button opens the file picker'] },
+  Splitter: { drag: 'drag the handle to resize the panes', press: ['Splitter.test.tsx', 'a press on the handle without dragging, then a press elsewhere'] },
 };
 // Moves that aren't a drag: nothing is held down while the pointer moves.
 const NOT_DRAG = {
@@ -23,7 +24,6 @@ const NOT_DRAG = {
 };
 const KNOWN = {
   SortableList: ['FG1: a row moves only by dragging its handle (or by keyboard); a press on the handle does nothing'],
-  Splitter: ['FG1: the panes resize only by dragging the handle (or by keyboard); a double-click only collapses, with collapsible'],
 };
 
 const dir = path.join(PROJECT, 'src', 'components');
