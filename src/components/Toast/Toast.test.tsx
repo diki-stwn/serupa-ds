@@ -25,6 +25,8 @@ function App() {
 }
 beforeEach(() => { React.act(() => toast.dismiss()); });
 
+// A toast's action button: its first button, the one named by its text (× is named by aria-label).
+const undoButton = (t: Element) => t.querySelector('button:not([aria-label])') as HTMLButtonElement;
 describe('Toast', () => {
   test('the Toaster is a <section> named "Notifications" holding a list, and the shared live region exists', async () => {
     await render(<App />);
@@ -569,6 +571,31 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     React.act(() => { toast({ title: 'Must act', tone: 'danger', autoDismiss: false }); });
     await gone(900);
     expect(titles()).toEqual(['Must act']);
+  });
+
+  test('toast.undo: an Undo button that runs onUndo instead of commit; commit runs once when it closes any other way (time, ×, dismiss, leaving the page) (12)', async () => {
+    await render(<Toaster duration={400} limit={5} />);
+    await away();
+    const log: string[] = [];
+    const make = (n: string) => toast.undo({ title: n + ' moved to trash', commit: () => log.push('commit ' + n), onUndo: () => log.push('undo ' + n), duration: n === 'a' ? 400 : 0 });
+    const ids: string[] = [];
+    React.act(() => { for (const n of ['a', 'b', 'c', 'd']) ids.push(make(n)); });
+    expect(toasts().map((x) => undoButton(x).textContent)).toEqual(['Undo', 'Undo', 'Undo', 'Undo']);
+    const of = (n: string) => toasts().find((x) => x.textContent.includes(n + ' moved'))!;
+    undoButton(of('b')).click();
+    (of('c').querySelector('button[aria-label]') as HTMLButtonElement).click();   // ×, the one named by aria-label
+    await expect.poll(() => log.includes('commit a'), { timeout: 3000 }).toBe(true);
+    window.dispatchEvent(new Event('pagehide'));
+    React.act(() => toast.dismiss());
+    expect([...log].sort()).toEqual(['commit a', 'commit c', 'commit d', 'undo b']);
+    expect(new Set(ids).size).toBe(4);   // each its own toast, not a count on one
+  });
+
+  test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
+    const { SerupaProvider } = await import('../../internal/provider');
+    await render(<SerupaProvider labels={idLabels}><Toaster /></SerupaProvider>);
+    React.act(() => { toast.undo({ title: 'Dihapus', commit: () => {} }); toast.undo({ title: 'Archived', commit: () => {}, undoLabel: 'Restore' }); });
+    expect(toasts().map((x) => undoButton(x).textContent)).toEqual(['Urungkan', 'Restore']);
   });
 
   test('toast.promise keeps its loading toast up however short the Toaster\'s duration, then the result goes on time', async () => {

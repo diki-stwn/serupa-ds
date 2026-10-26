@@ -1,0 +1,39 @@
+# Default
+- paragraph: Showing 20 of 134
+- button "Load more"
+
+# End
+- paragraph: Showing 134 of 134
+- paragraph: You’ve reached the end
+
+# InAList
+- list:
+  - listitem: Invoice 1
+  - listitem: Invoice 2
+  - listitem: Invoice 3
+  - listitem: Invoice 4
+  - listitem: Invoice 5
+  - listitem: Invoice 6
+  - listitem: Invoice 7
+  - listitem: Invoice 8
+  - listitem: Invoice 9
+  - listitem: Invoice 10
+- paragraph: Showing 10 of 30
+- button "Load more"
+
+# Loading
+- paragraph: Showing 20 of 134
+- button "Load more" [disabled]
+
+# LongText
+- paragraph: Showing 1,234,567 of 98,765,432
+- button "Show the next fifty Donaudampfschifffahrtsgesellschaft results"
+- paragraph: That’s every Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung record there is
+
+# Playground
+- paragraph: Showing 20 of 134
+- button "Load more"
+
+# WithoutTotal
+- button "Load more"
+

@@ -57,7 +57,7 @@
 .dk-combobox__option {
   display: flex; align-items: center; gap: var(--spacing-2); box-sizing: border-box; min-height: var(--combobox-option-height, var(--control-height-md));
   padding: var(--spacing-1\.5) var(--combobox-option-padding-x, var(--spacing-2));
-  border-radius: var(--combobox-option-radius, var(--rounded-md)); cursor: pointer; touch-action: manipulation; user-select: none;
+  border-radius: var(--combobox-option-radius, var(--rounded-md)); cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none;
 }
 .dk-combobox__option { --dk-bar: var(--border-width-2); }   /* the bar sits at the start: right in rtl */
 .dk-combobox__option:dir(rtl) { --dk-bar: calc(var(--border-width-2) * -1); }

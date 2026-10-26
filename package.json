@@ -102,6 +102,7 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@changesets/cli": "3.0.3",
     "@eslint/js": "10.0.1",
+    "@mdn/browser-compat-data": "8.1.7",
     "@storybook/addon-a11y": "10.6.3",
     "@storybook/addon-docs": "10.6.3",
     "@storybook/react-vite": "10.6.3",

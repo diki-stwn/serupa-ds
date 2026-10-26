@@ -76,6 +76,17 @@ describe('Splitter', () => {
     expect(now('n')).toBe(50);
   });
 
+  test('a parent collapsing the first pane while focus is in it moves focus to the handle, not the page (GN3)', async () => {
+    let set: (n: number) => void = () => {};
+    function Parent() { const [n, s] = React.useState(40); set = s; return <Splitter id="gn3" collapsible size={n} onSizeChange={s} style={{ width: '400px', height: '80px' }}><div><button id="gn3-in">In the pane</button></div><p>B</p></Splitter>; }
+    await render(<Parent />);
+    document.getElementById('gn3-in')!.focus();
+    React.act(() => set(0));
+    await expect.poll(() => document.activeElement === handle('gn3')).toBe(true);
+    expect(first('gn3').hidden).toBe(true);
+    React.act(() => set(40));
+  });
+
   test('a pointer drag follows the pointer (captured), kept between min and max; focus moves to the handle', async () => {
     await render(<Two min={20} max={80} />);
     const h = handle('s'), box = el('s').getBoundingClientRect(), y = box.top + 50;

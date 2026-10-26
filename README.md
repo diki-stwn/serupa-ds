@@ -125,6 +125,7 @@ The package also exports what the components use themselves, so a component you 
 | `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
 | `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
 | `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
+| `announcePage({ title?, focus? })` | After a client-side route change, does what a full page load would: focuses the new page's main heading (the `h1` in `<main>`, made focusable with `tabindex="-1"`) and says its title (`document.title` by default) to screen readers, unless the focused heading already says it. `focus` takes an element or a selector, or `false` to leave focus where it is. Call it in an effect once the new page has rendered. |
 | `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and simply applies the change where View Transitions are missing. |
 
 ```tsx
@@ -136,6 +137,20 @@ function SavedAt({ at }: { at: Date }) {
 }
 
 announce("Draft saved");
+```
+
+```tsx
+import { announcePage } from "serupa-ds";
+
+// In the app's layout, with your router's location
+function RouteAnnouncer({ path }: { path: string }) {
+  const first = React.useRef(true);
+  React.useEffect(() => {
+    if (first.current) { first.current = false; return; }   // the first load is the browser's to announce
+    announcePage();
+  }, [path]);
+  return null;
+}
 ```
 
 ```tsx
@@ -347,14 +362,17 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 | `mask-clip-fill`, `-stroke`, `-view` and the same `mask-origin-*` | Safari |
 | `place-content-baseline` | Safari |
 | `mix-blend-plus-darker` | Everything but Safari |
+| `*-safe` alignment (`items-end-safe`, `justify-center-safe`, …) | Safari before 17.6 (they align as without `-safe`) |
+| `field-sizing-*` | Firefox, and Safari before 26.2 (Textarea's `autoResize` measures in script there) |
 
-Popover and command buttons (`popoverTarget`, `command`) and `text-wrap: balance` are progressive: older browsers ignore them and the page still works.
+Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
 
-Two features set the oldest versions that get the whole system:
+Three features set the oldest versions that get the whole system, so the baseline is Chrome and Edge 123, Safari 17.5 and Firefox 128. A check (`tools/test/browser-baseline.mjs`) holds every property, value and at-rule in `bundle.css` to it, with MDN's compatibility data, and lists what is newer on purpose:
 
 | Feature | Needs | Without it |
 | --- | --- | --- |
 | `light-dark()`, behind `data-brand` and `data-mode` | Chrome and Edge 123, Safari 17.5, Firefox 120 | A page or section themed only by `data-brand` / `data-mode` loses its theme colors (text and backgrounds fall back to the browser's). A page whose root has `data-theme`, which `theme.js` sets, keeps its colors, because the flat `[data-theme]` themes don't use `light-dark()`. |
+| `@property`, which gives the `--dk-*` variables their starting values | Chrome and Edge 85, Safari 16.4, Firefox 128 | The utilities that combine through those variables (`translate-*`, `rotate-*`, `scale-*`, `skew-*`, `shadow-*`, `ring-*`, gradients, filters and `mask-*`) do nothing unless every part is set. |
 | The `popover` attribute (the top layer) | Chrome and Edge 114, Safari 17, Firefox 125 | Menu, Popover, Tooltip and the picker lists still open where they belong, but in the page instead of the top layer, so a parent's `overflow: hidden` can clip them and a higher `z-index` can cover them. |
 
 ## Maintaining the system
