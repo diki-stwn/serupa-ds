@@ -1,0 +1,95 @@
+# Default
+- heading "There are 3 problems" [level=2]
+- list:
+  - listitem:
+    - link "Enter your full name":
+      - /url: "#es-name"
+  - listitem:
+    - link "Enter an email address in the right format, like name@example.com":
+      - /url: "#es-email"
+  - listitem:
+    - link "Start date must be today or in the future":
+      - /url: "#es-date"
+
+# InAForm
+- heading "There are 3 problems" [level=2]
+- list:
+  - listitem:
+    - link "Enter your full name":
+      - /url: "#es-name"
+  - listitem:
+    - link "Enter an email address in the right format, like name@example.com":
+      - /url: "#es-email"
+  - listitem:
+    - link "Start date must be today or in the future":
+      - /url: "#es-date"
+- text: Full name
+- textbox "Full name" [invalid]
+- text: Enter your full name Email
+- textbox "Email" [invalid]: name@
+- text: Enter an email address in the right format, like name@example.com Start date
+- textbox "Start date" [invalid]
+- text: Start date must be today or in the future
+
+# LongText
+- heading "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung needs a few more answers" [level=2]
+- list:
+  - listitem:
+    - link "Enter a description long enough to wrap onto a second line in a narrow column, so the list shows how it wraps":
+      - /url: "#long-0"
+  - listitem:
+    - link "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherungsnummer is missing":
+      - /url: "#long-1"
+  - listitem:
+    - link "Enter a description long enough to wrap onto a second line in a narrow column, so the list shows how it wraps":
+      - /url: "#long-2"
+  - listitem:
+    - link "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherungsnummer is missing":
+      - /url: "#long-3"
+  - listitem:
+    - link "Enter a description long enough to wrap onto a second line in a narrow column, so the list shows how it wraps":
+      - /url: "#long-4"
+  - listitem:
+    - link "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherungsnummer is missing":
+      - /url: "#long-5"
+  - listitem:
+    - link "Enter a description long enough to wrap onto a second line in a narrow column, so the list shows how it wraps":
+      - /url: "#long-6"
+  - listitem:
+    - link "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherungsnummer is missing":
+      - /url: "#long-7"
+
+# OneError
+- heading "There is a problem" [level=2]
+- list:
+  - listitem:
+    - link "Enter an email address in the right format, like name@example.com":
+      - /url: "#es-email"
+
+# Playground
+- heading "There are 3 problems" [level=2]
+- list:
+  - listitem:
+    - link "Enter your full name":
+      - /url: "#es-name"
+  - listitem:
+    - link "Enter an email address in the right format, like name@example.com":
+      - /url: "#es-email"
+  - listitem:
+    - link "Start date must be today or in the future":
+      - /url: "#es-date"
+
+# WithDescription
+- heading "Check your booking" [level=2]
+- text: Fix these before you send the form again.
+- list:
+  - listitem:
+    - link "Enter your full name":
+      - /url: "#es-name"
+  - listitem:
+    - link "Enter an email address in the right format, like name@example.com":
+      - /url: "#es-email"
+  - listitem:
+    - link "Start date must be today or in the future":
+      - /url: "#es-date"
+
