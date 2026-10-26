@@ -6,10 +6,11 @@ import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
 import { Menu, MenuItem } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   /** BreadcrumbItems, from the top level down to the current page (the last one). */
@@ -27,20 +28,26 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   expandLabel?: string;
 }
 
-export interface BreadcrumbItemProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+/** BreadcrumbItem's own props, beside those of the element it renders. */
+export interface BreadcrumbItemOwnProps {
   /** Where it goes. The last item is the current page: it's text, not a link, whatever href says. */
   href?: string;
   /** An icon before the label: a Material Symbols or custom name, or an element. */
   icon?: IconSource;
-  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
-  as?: React.ElementType;
   /** Set by Breadcrumb on the last item. */
   current?: boolean;
 }
 
+/** BreadcrumbItem's props: its own, `as`, and the props of the element `as` names (an <a>'s by default), so
+ *  <BreadcrumbItem as={RouterLink} to="/projects"> takes RouterLink's `to`. */
+export type BreadcrumbItemProps<C extends React.ElementType = 'a'> = BreadcrumbItemOwnProps & {
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
+  as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof BreadcrumbItemOwnProps | 'as'>;
+
 /* BreadcrumbItem: one page in the trail, a link (or, as the current page, text with aria-current="page"). */
 /** One page in a Breadcrumb: a link, or the current page when it's the last. */
-export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, BreadcrumbItemProps>("BreadcrumbItem", function BreadcrumbItem(props, ref) {
+const BreadcrumbItemBase = /* @__PURE__ */ component<HTMLAnchorElement, BreadcrumbItemProps>("BreadcrumbItem", function BreadcrumbItem(props, ref) {
   const rest = omit(props, { icon: 1, as: 1, current: 1, className: 1, children: 1 });
   // An icon with no text and no aria-label is a link (or page) a screen reader can only call "link".
   const named = (props.children != null && props.children !== false && props.children !== "") || !!props["aria-label"] || !!props["aria-labelledby"] || !!props.title;
@@ -55,13 +62,19 @@ export const BreadcrumbItem = /* @__PURE__ */ component<HTMLAnchorElement, Bread
   return React.createElement(props.as || config.link, Object.assign(rest, { ref: ref, className: cn("dk-breadcrumb__item dk-breadcrumb__link", props.className) }), content);
 });
 
+/** One page in a Breadcrumb: a link, or the current page when it's the last. `as` renders your router's link, typed with its props. */
+export const BreadcrumbItem = BreadcrumbItemBase as {
+  <C extends React.ElementType = 'a'>(props: BreadcrumbItemProps<C> & { ref?: React.Ref<React.ComponentRef<C>> }): React.ReactElement | null;
+  displayName?: string;
+};
+
 /* Breadcrumb: a nav with an ordered list of pages from the top level to the current one, a chevron (or slash)
    between them. Each separator sits inside the item after it, hidden from screen readers, so the list has one
    <li> per page and is read as "list, 4 items". maxItems collapses the middle into a "…" button that shows them
    again, or with collapse="menu" opens a Menu of them. className and every other prop go to the <nav>. */
 /** Where the current page sits: links to the pages above it, separated by chevrons. maxItems collapses the middle. */
 export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps>("Breadcrumb", function Breadcrumb(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { separator: 1, maxItems: 1, collapse: 1, expandLabel: 1, className: 1, children: 1 });
   const asMenu = props.collapse === "menu";
   const separator = oneOf(["chevron", "slash"] as const, props.separator, "chevron");

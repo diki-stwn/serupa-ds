@@ -9,8 +9,9 @@ import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { pressFocuses } from "../../internal/affix";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface PasswordInputProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "rightIcon"> {
   /** Shows the password as text (controlled). Use with onVisibleChange. */
@@ -36,7 +37,7 @@ const SIZES = ["sm", "md", "lg"] as const;
 export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, PasswordInputProps>("PasswordInput", function PasswordInput(props, ref) {
   const nameRef = useNameCheck("PasswordInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, visible: 1, defaultVisible: 1, onVisibleChange: 1, toggleLabel: 1, capsLockHint: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);

@@ -22,8 +22,8 @@
 .dk-radio--bare .dk-radio__control { height: var(--dk-radio-box); }
 /* Pressed: the circle shrinks a little while the row is held (pointer, or Space on it) and springs back, as
    Checkbox's box does. Only scale moves; not when disabled, and not under reduced motion. */
-.dk-radio__control { transition: scale var(--motion-press) var(--ease-settle); }
-.dk-radio:active:not(:has(.dk-radio__input:disabled)) .dk-radio__control { scale: var(--radio-press-scale, var(--scale-90)); }
+.dk-radio__control { transition: scale var(--motion-release) var(--ease-spring); }
+.dk-radio:active:not(:has(.dk-radio__input:disabled)) .dk-radio__control { scale: var(--radio-press-scale, var(--scale-90)); transition: scale var(--motion-press) var(--ease-settle); }
 @media (prefers-reduced-motion: reduce) { .dk-radio__control { transition: none; } .dk-radio:active .dk-radio__control { scale: none; } }
 .dk-radio__input {
   --dk-radio-bd: var(--radio-border, var(--field-border));
@@ -48,6 +48,9 @@
 /* Invalid (the radio's own prop or its group's): a danger border while unchecked, and a danger focus ring. */
 .dk-radio--invalid .dk-radio__input { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
 @media (hover: hover) { .dk-radio--invalid:hover .dk-radio__input:not(:disabled) { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
+/* A required group with nothing picked once people try to send the form: as Input (:user-invalid). */
+.dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); }
+@media (hover: hover) { .dk-radio:hover .dk-radio__input:user-invalid { --dk-radio-bd: var(--radio-invalid, var(--danger)); --dk-radio-ring: var(--radio-invalid, var(--danger)); } }
 .dk-radio__text { display: flex; flex-direction: column; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-radio__description { color: var(--radio-description-color, var(--text-muted)); }
 /* Disabled, by its own prop, the group's or a disabled fieldset (Field group). */

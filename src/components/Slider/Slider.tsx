@@ -8,8 +8,9 @@ import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { en as words } from "./labels";
 
 export type SliderValue = number | [number, number];
 /** A mark on a Slider's track: a value, and optional text shown under it. */
@@ -77,7 +78,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const min = isFinite(Number(props.min)) && props.min != null ? Number(props.min) : 0;
   const maxIn = isFinite(Number(props.max)) && props.max != null ? Number(props.max) : 100;
   const max = maxIn > min ? maxIn : min + 1;

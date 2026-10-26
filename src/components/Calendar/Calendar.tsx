@@ -4,9 +4,10 @@ import { cn, domId, omit } from "../../internal/cn";
 import { addDays, addMonths, compare, day, firstDayOfWeek, isoDate, isValid, sameDay, sameMonth, startOfMonth, startOfWeek, toDay } from "../../internal/dates";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
-import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { useFocusHandover } from "../../internal/focus";
+import { en as words } from "./labels";
 
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
   /** The selected day (controlled), or null. Use with onValueChange. A Date, or a plain "yyyy-mm-dd" string for that local day. */
@@ -37,6 +38,10 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   previousLabel?: string;
   /** The next month button's name. Default: "Next month". */
   nextLabel?: string;
+  /** Month and year menus in the header in place of the title, to jump far (a birth date, a contract 18 months
+      out) without a click per month. The years run from min's (else 100 years back) to max's (else 10 ahead).
+      Default: false. */
+  monthYearPicker?: boolean;
   /** @internal Extra classes per day, for DateRangePicker. */
   dayClassName?: (date: Date) => string | undefined;
   /** @internal aria-selected per day, for DateRangePicker. */
@@ -49,7 +54,7 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
 
 // The four formats a Calendar draws with, built once per locale rather than on every render (a grid of 42 days
 // re-renders on each arrow key).
-type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: Intl.DateTimeFormat; full: Intl.DateTimeFormat };
+type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: Intl.DateTimeFormat; full: Intl.DateTimeFormat; month: Intl.DateTimeFormat };
 // module state: a cache by locale.
 const FORMATS = new Map<string, Formats>();
 function formats(locale: string): Formats {
@@ -63,13 +68,14 @@ function formats(locale: string): Formats {
       short: new Intl.DateTimeFormat(locale, { weekday: "short" }),
       long: new Intl.DateTimeFormat(locale, { weekday: "long" }),
       full: new Intl.DateTimeFormat(locale, { ...greg, weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+      month: new Intl.DateTimeFormat(locale, { ...greg, month: "long" }),
     };
     FORMATS.set(locale, f);
   }
   return f;
 }
 
-const OWN = { value: 1, defaultValue: 1, onValueChange: 1, month: 1, defaultMonth: 1, onMonthChange: 1, min: 1, max: 1, isDateDisabled: 1, locale: 1, weekStartsOn: 1, autoFocus: 1, previousLabel: 1, nextLabel: 1, dayClassName: 1, isDateSelected: 1, onDayHover: 1, hideOutside: 1, className: 1 } as const;
+const OWN = { value: 1, defaultValue: 1, onValueChange: 1, month: 1, defaultMonth: 1, onMonthChange: 1, min: 1, max: 1, isDateDisabled: 1, locale: 1, weekStartsOn: 1, autoFocus: 1, previousLabel: 1, nextLabel: 1, monthYearPicker: 1, dayClassName: 1, isDateSelected: 1, onDayHover: 1, hideOutside: 1, className: 1 } as const;
 
 /* Calendar: a month of days to pick one from. Follows the ARIA date grid pattern: one Tab stop on the days,
    arrows move a day or a week, Home and End to the week's start and end, PageUp and PageDown a month (with
@@ -77,7 +83,7 @@ const OWN = { value: 1, defaultValue: 1, onValueChange: 1, month: 1, defaultMont
    refused by isDateDisabled are aria-disabled and can't be picked. Month and weekday names follow the locale. */
 /** A month of days to pick one from, with keyboard navigation; used by DatePicker. */
 export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>("Calendar", function Calendar(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, OWN);
   const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const ws = props.weekStartsOn != null ? ((Math.floor(props.weekStartsOn) % 7) + 7) % 7 : firstDayOfWeek(locale);
@@ -85,7 +91,14 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const [ownValue, setOwnValue] = React.useState<Date | null>(() => toDay(props.defaultValue, "Calendar"));
   const value = controlledValue ? toDay(props.value, "Calendar") : ownValue;
   const min = toDay(props.min, "Calendar"), max = toDay(props.max, "Calendar");
+  // Today moves at midnight, also while the calendar stays open with nothing else re-rendering it.
+  const [, setTick] = React.useState(0);
   const today = day(new Date());
+  const todayTime = today.getTime();
+  React.useEffect(() => {
+    const t = setTimeout(() => setTick((n) => n + 1), addDays(new Date(todayTime), 1).getTime() - Date.now() + 50);
+    return () => clearTimeout(t);
+  }, [todayTime]);
   const controlledMonth = props.month !== undefined;
   const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || today));
   const month = controlledMonth && isValid(props.month) ? startOfMonth(props.month) : ownMonth;
@@ -145,7 +158,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const first = startOfWeek(month, ws);
   const weeks: Date[][] = [];
   for (let w = 0; w < 6; w++) { const row: Date[] = []; for (let i = 0; i < 7; i++) row.push(addDays(first, w * 7 + i)); weeks.push(row); }
-  const { short, long, full } = formats(locale);
+  const { short, long, full, month: monthName } = formats(locale);
   const title = formats(locale).title.format(month);
   const titleId = domId("dk-cal", React.useId()) + "-title";
   const selected = (d: Date) => (props.isDateSelected ? props.isDateSelected(d) : sameDay(d, value));
@@ -157,7 +170,8 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
       <div className="dk-calendar__header">
         <IconButton icon={icons.ChevronLeft} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
           disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={(e) => { handover(e.currentTarget, () => nextNav.current); showMonth(addMonths(month, -1)); }} ref={prevNav} />
-        <h2 className="dk-calendar__title" id={titleId} lang={lang} aria-live="polite">{title}</h2>
+        <h2 className={cn("dk-calendar__title", props.monthYearPicker && "dk-visually-hidden")} id={titleId} lang={lang} aria-live="polite">{title}</h2>
+        {props.monthYearPicker ? <MonthYear month={month} min={min} max={max} today={today} names={monthName} lang={lang} monthLabel={sds.labels.month} yearLabel={sds.labels.year} onPick={showMonth} /> : null}
         <IconButton icon={icons.ChevronRight} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
           disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={(e) => { handover(e.currentTarget, () => prevNav.current); showMonth(addMonths(month, 1)); }} ref={nextNav} />
       </div>
@@ -190,3 +204,30 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     </div>
   );
 });
+
+/* The month and year menus (monthYearPicker): native selects, so they work the same with keys, touch and screen
+   readers. Months and years outside min..max aren't offered; a year whose month is out of range clamps to the nearest one. */
+function MonthYear(p: { month: Date; min: Date | null; max: Date | null; today: Date; names: Intl.DateTimeFormat; lang: string | undefined; monthLabel: string; yearLabel: string; onPick: (m: Date) => void }) {
+  const y = p.month.getFullYear();
+  const from = p.min ? p.min.getFullYear() : Math.min(y, p.today.getFullYear() - 100);
+  const to = p.max ? p.max.getFullYear() : Math.max(y, p.today.getFullYear() + 10);
+  const out = (yy: number, m: number) => (!!p.min && new Date(yy, m + 1, 0) < p.min) || (!!p.max && new Date(yy, m, 1) > p.max);
+  const go = (yy: number, m: number) => {
+    let d = new Date(yy, m, 1);
+    if (p.min && d < startOfMonth(p.min)) d = startOfMonth(p.min);
+    if (p.max && d > p.max) d = startOfMonth(p.max);
+    p.onPick(d);
+  };
+  const years: number[] = [];
+  for (let i = from; i <= to; i++) years.push(i);
+  return (
+    <span className="dk-calendar__menus">
+      <select className="dk-calendar__menu" aria-label={p.monthLabel} lang={p.lang} value={p.month.getMonth()} onChange={(e) => go(y, +e.currentTarget.value)}>
+        {Array.from({ length: 12 }, (_, m) => <option key={m} value={m} disabled={out(y, m)}>{p.names.format(new Date(2000, m, 1))}</option>)}
+      </select>
+      <select className="dk-calendar__menu" aria-label={p.yearLabel} value={y} onChange={(e) => go(+e.currentTarget.value, p.month.getMonth())}>
+        {years.map((yy) => <option key={yy} value={yy}>{yy}</option>)}
+      </select>
+    </span>
+  );
+}

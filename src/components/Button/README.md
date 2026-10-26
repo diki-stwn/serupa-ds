@@ -164,7 +164,7 @@ Small motion that confirms what happened, all built in:
 
 | Interaction | What it does | Turn off or tune |
 | --- | --- | --- |
-| Press | While held (pointer, Space or Enter) the button shrinks to 97% and springs back on release, in 100ms | `--button-press-scale: 1` |
+| Press | While held (pointer, Space or Enter) the button shrinks to 97% in 100ms and springs back on release, a real spring (`ease-spring`) over 300ms (`motion-release`) | `--button-press-scale: 1` |
 | Ripple | A circle in the text color, 20% strong, spreads across the button from the press point over 500ms, then fades once released; even a quick click shows the whole wave | `--button-ripple-opacity: 0` |
 | Icon nudge (off by default) | When turned on, a right icon slides in its direction on hover (on devices that hover), mirrored in right-to-left text. Left icons stay still. It suits forward arrows ("Continue →"), not chevrons or other icons, so it's off unless you turn it on | On: `--button-icon-nudge: var(--spacing-0\.5)` (2px) |
 | Loading | The label and icons fade out while the spinner fades and grows in, in 150ms; they fade back when done | `--button-loading-duration: 0ms` |
@@ -318,7 +318,7 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-press-scale` | `scale-97` | Size while pressed (97%). 1 turns press feedback off. |
-| `--button-press-duration` | `motion-press` | How fast the press scales down and back (100ms). |
+| `--button-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release`. |
 | `--button-icon-nudge` | `spacing-0` | How far a right icon slides on hover. Off by default (0); set it to `var(--spacing-0\.5)` (2px) where right icons are forward arrows. |
 | `--button-icon-nudge-duration` | `motion-change-sm` | How fast the right icon slides (150ms). |
 | `--button-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading spinner (150ms). |

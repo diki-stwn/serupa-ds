@@ -8,7 +8,7 @@ import { config } from "../../internal/config";
 import { Menu, MenuItem } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import type { OpenChangeDetails } from "../../internal/openChange";
 import * as icons from "../../material/builtin";
 
@@ -64,7 +64,7 @@ function isSection(c: React.ReactNode): boolean {
    its parent's height; className and every other prop go to the <nav>. */
 /** A vertical nav for an app's pages: sections of items with icons, badges and nested groups; collapses to an icon rail. */
 export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sidebar", function Sidebar(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings();
   const rest = omit(props, { header: 1, footer: 1, collapsed: 1, className: 1, children: 1, "aria-label": 1 });
   const collapsed = !!props.collapsed;
   // The column's width changes once, not on every frame (EA1): expanding widens it at the start, collapsing narrows

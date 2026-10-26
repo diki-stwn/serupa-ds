@@ -10,8 +10,9 @@ import { useFieldControl } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
 import { pressFocuses } from "../../internal/affix";
 import { useFormReset } from "../../internal/useFormReset";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "leftIcon" | "rightIcon"> {
   /** Called with the text when Enter is pressed. */
@@ -35,7 +36,7 @@ export interface SearchInputProps extends Omit<InputProps, "type" | "showCount" 
 export const SearchInput = /* @__PURE__ */ component<HTMLInputElement, SearchInputProps>("SearchInput", function SearchInput(props, ref) {
   const nameRef = useNameCheck("SearchInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, invalid: 1, className: 1, style: 1, onSearch: 1, onClear: 1, clearLabel: 1, loading: 1, loadingLabel: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);

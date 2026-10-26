@@ -93,6 +93,19 @@ describe('Rating', () => {
     expect(stars('ro').map((s) => Math.round((s.children[1].firstElementChild as Element).getBoundingClientRect().width))).toEqual([24, 24, 24, 24, 24]);
   });
 
+  test('ten lg stars in 320px shrink alike to fit, square and drawn whole, down to the sm size; with room they stay 32px (GK2)', async () => {
+    await render(<div><div style={{ width: '320px' }}><Rating id="nar" readOnly max={10} size="lg" value={7.5} /></div>
+      <div style={{ width: '600px' }}><Rating id="wid" readOnly max={10} size="lg" value={7.5} /></div>
+      <div style={{ width: '100px' }}><Rating id="tiny" readOnly max={10} size="lg" value={7.5} /></div></div>);
+    const w = (e: Element) => Math.round(e.getBoundingClientRect().width * 10) / 10;
+    const box = (id: string) => stars(id).map((s) => [w(s), Math.round(s.getBoundingClientRect().height * 10) / 10, w(s.children[1].firstElementChild as Element)]);
+    const nar = box('nar');
+    expect(el('nar').getBoundingClientRect().width).toBeLessThanOrEqual(320);
+    expect(nar.every(([sw, sh, draw]) => sw === nar[0][0] && sh === sw && draw === sw && sw < 32 && sw >= 20)).toBe(true);
+    expect(box('wid').every(([sw, sh, draw]) => sw === 32 && sh === 32 && draw === 32)).toBe(true);
+    expect(box('tiny').every(([sw]) => sw === 20)).toBe(true);
+  });
+
   test('in a form: name sends the rating; form reset brings the default back; disabled and required reach the radios', async () => {
     await render(<form id="f"><Rating id="fr" aria-label="Form" name="stars" defaultValue={2} required /><Rating id="d" aria-label="Off" disabled defaultValue={3} /></form>);
     const form = el('f') as HTMLFormElement;
