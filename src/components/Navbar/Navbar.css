@@ -35,6 +35,10 @@
   .dk-navbar[data-state="open"] .dk-navbar__nav { display: block; }
   .dk-navbar__links { flex-direction: column; align-items: stretch; }
   .dk-navbar__toggle.dk-btn { display: inline-flex; flex-shrink: 0; }
+  /* The brand gives way first, so wide actions never push the menu button off the screen (WCAG 1.4.10): a brand
+     that doesn't fit ends in an ellipsis. Its link keeps its own box, so its focus ring isn't clipped. */
+  .dk-navbar__brand { flex-shrink: 1; min-width: var(--spacing-0); }
+  .dk-navbar__brand > * { min-width: var(--spacing-0); max-width: var(--sizing-full); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__toggle, .dk-navbar__toggle:first-child { margin-inline-start: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .dk-navbar__link { transition: none; } }
