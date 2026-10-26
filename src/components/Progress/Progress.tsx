@@ -103,7 +103,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
         </div>
       ) : null}
       <div {...aria} ref={nameRef} className="dk-progress__track" aria-label={rest["aria-label"]} aria-labelledby={rest["aria-labelledby"] || aria["aria-labelledby"]}>
-        <div className="dk-progress__fill" style={known ? { "--dk-progress-share": share } as React.CSSProperties : undefined} />
+        <div className="dk-progress__fill" style={known ? { "--dk-progress-rest": (1 - share) * 100 + "%" } as React.CSSProperties : undefined} />
       </div>
     </div>
   );
