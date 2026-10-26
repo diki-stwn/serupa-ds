@@ -174,7 +174,7 @@ export interface ContextMenuProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   /** Styles on the menu panel. */
   style?: React.CSSProperties;
 }
-const OWN_CONTEXT = { target: 1, children: 1, open: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, onKeyDown: 1 } as const;
+const OWN_CONTEXT = { target: 1, children: 1, "aria-label": 1, open: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, onKeyDown: 1 } as const;
 
 /* ContextMenu: a Menu opened from an area instead of a button, at the pointer on a right-click (or a long press,
    which browsers turn into contextmenu) or at the focused element on Shift+F10 or the Menu key. Its items, keys,
