@@ -29,7 +29,7 @@
      the press (scale) at --button-press-duration (see Micro-interactions below) */
   transition-property: background-color, color, border-color, text-decoration-color, box-shadow, scale;
   transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--button-press-duration, var(--motion-press));
-  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-out);
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-settle);
   position: relative;
   --dk-btn-press: var(--button-press-scale, var(--scale-97));
   --dk-btn-nudge: var(--button-icon-nudge, var(--spacing-0));   /* off by default; opt in with --button-icon-nudge */
@@ -146,11 +146,11 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
 .dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */
-.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-in-out); }
+.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
 .dk-btn__icon {
   transition-property: opacity, translate;
-  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--duration-150));
-  transition-timing-function: var(--ease-in-out), var(--ease-out);
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--motion-change-sm));
+  transition-timing-function: var(--ease-move), var(--ease-settle);
 }
 @media (hover: hover) {
   .dk-btn:hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: var(--dk-btn-nudge) 0; }
@@ -166,8 +166,8 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
   border-radius: var(--rounded-full);
   background-color: currentColor;
   opacity: var(--button-ripple-opacity, var(--opacity-20));
-  animation: dk-btn-ripple var(--button-ripple-duration, var(--duration-500)) var(--ease-in-out) both;   /* even spread: reads as a wave, not a flash */
-  transition: opacity var(--button-ripple-fade-duration, var(--duration-300)) var(--ease-out);
+  animation: dk-btn-ripple var(--button-ripple-duration, var(--motion-ripple)) var(--ease-move) both;   /* even spread: reads as a wave, not a flash */
+  transition: opacity var(--button-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
 }
 .dk-btn__ripple--out { opacity: var(--opacity-0); }
 @keyframes dk-btn-ripple { from { scale: var(--scale-0); } }

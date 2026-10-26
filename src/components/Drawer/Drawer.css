@@ -70,7 +70,7 @@
   @starting-style { .dk-drawer[open]:not([data-instant]) .dk-drawer__panel { opacity: var(--opacity-0); } }
 }
 /* Let go after a swipe: it carries on from under the finger, over a time Drawer.tsx sets from the distance and speed. */
-.dk-drawer[open] .dk-drawer__panel[data-settling] { transition: translate var(--dk-drawer-settle) var(--ease-out); }
+.dk-drawer[open] .dk-drawer__panel[data-settling] { transition: translate var(--dk-drawer-settle) var(--ease-settle); }
 .dk-drawer__header { display: flex; align-items: flex-start; gap: var(--spacing-3); flex-shrink: 0; }
 /* Long words wrap inside the panel rather than overflow it. */
 .dk-drawer__panel { overflow-wrap: anywhere; }

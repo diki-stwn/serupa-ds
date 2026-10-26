@@ -87,4 +87,4 @@ Each is an optional override: set it on the page, a container or one progress in
 | `--progress-stroke-width` | `stroke-width-3` | The ring's thickness, in 24ths of its size (3: 3px at 24px). |
 | `--progress-gap` | `spacing-1_5` | Space between the label row and the bar (6px). |
 | `--progress-label-weight` | `font-medium` | The label's weight (500). |
-| `--progress-duration` | `duration-300` | How long the fill takes to move to a new value. |
+| `--progress-duration` | `motion-change-lg` | How long the fill takes to move to a new value. |
