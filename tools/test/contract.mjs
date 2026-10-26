@@ -21,10 +21,7 @@ const EXEMPT = {
   VisuallyHidden: { tokens: 'no visual values', preview: 'nothing to see', visual: 'nothing to see', stress: 'nothing to see' },
 };
 // Known gaps, to be fixed. The check fails when one is fixed, so the entry gets removed and can't come back.
-const GAPS = Object.fromEntries([
-  // G14: no stress story yet.
-  'SegmentedControl',
-].map((c) => [c, { stress: 'G14' }]));
+const GAPS = {};
 const COMP = path.join(PROJECT, 'src', 'components');
 const comps = fs.readdirSync(COMP).filter((c) => fs.statSync(path.join(COMP, c)).isDirectory() && !SKIP.includes(c)).sort();
 const kebab = (c) => c.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
