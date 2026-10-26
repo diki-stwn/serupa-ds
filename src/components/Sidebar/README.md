@@ -86,7 +86,7 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | `icon` | an icon name or element | none | A 20px icon; top-level items need one to show when collapsed |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
 | `badge` | node | none | At the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read the badge |
-| `children` | SidebarItems | none | Makes it a group: a button that shows and hides them |
+| `children` | SidebarItems | none | Makes it a group: a button that shows and hides them. They unfold and fold with the chevron, as an Accordion panel does (only a fade under reduced motion) |
 | `defaultOpen` | boolean | open when a child is active | Whether a group starts open |
 | `open` | boolean | none | Whether a group is open, controlled. Pair it with `onOpenChange` |
 | `onOpenChange` | (open, { reason }) => void | none | Called when the group's button asks to open or close it, with `reason: 'trigger'` |
