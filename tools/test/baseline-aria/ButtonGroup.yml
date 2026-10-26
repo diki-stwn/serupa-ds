@@ -19,6 +19,15 @@
   - button "Cut"
   - button "Paste"
 
+# SmallIcons
+- group "Text alignment":
+  - button "Align left"
+  - button "Align center"
+  - button "Align right"
+- group "Zoom":
+  - button "Zoom in"
+  - button "Zoom out"
+
 # Spaced
 - group:
   - button "Cancel"

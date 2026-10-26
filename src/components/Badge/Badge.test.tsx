@@ -2,9 +2,12 @@ import * as React from 'react';
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, css, keepMotion, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, keepMotion, press, tabTo } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Badge, type BadgeTone, type BadgeVariant } from './Badge';
+
+// The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 
 // About motion: transitions and animations stay on for this file (setup.ts turns them off elsewhere).
 keepMotion();
@@ -126,7 +129,7 @@ function App() {
 
 async function show() {
   clicks = 0; removed = [];
-  await render(<App />);
+  await render(<App />, { wrapper: EnUS });
 }
 afterEach(async () => { await userEvent.unhover(document.body).catch(() => {}); });
 
@@ -256,7 +259,7 @@ describe('Badge', () => {
   });
 
   test('count past max: "99+" shows, and screen readers and the tooltip get the real count (AW1); your title wins', async () => {
-    await render(<><Badge id="big" count={150} /><Badge id="own" count={150} title="150 unread messages" /><Badge id="few" count={7} /></>);
+    await render(<><Badge id="big" count={150} /><Badge id="own" count={150} title="150 unread messages" /><Badge id="few" count={7} /></>, { wrapper: EnUS });
     const big = el('big');
     expect([big.title, big.querySelector('[aria-hidden="true"]')!.textContent, el('own').title, el('few').title, el('few').querySelector('.dk-visually-hidden'), big.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['150', '99+', '150 unread messages', '', null, '150']);
   });
@@ -293,7 +296,7 @@ describe('Badge', () => {
 
   test('removable: the focus ring goes round the whole 24×24 target; click and keyboard (Enter) call onRemove', async () => {
     await show();
-    (q('#tags button')).focus();
+    await tabTo(q('#tags button'));
     const a = getComputedStyle(document.activeElement!, '::after');
     expect([a.outlineWidth, a.outlineStyle, css(document.activeElement).outlineStyle]).toEqual(['2px', 'solid', 'none']);
     await userEvent.click(q('#tags button'));

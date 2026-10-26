@@ -1,5 +1,5 @@
 import { afterAll, beforeAll } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 
 declare module 'vitest/browser' {
   interface BrowserCommands {
@@ -60,6 +60,15 @@ export function lowContrast(pairs: Array<[string, string, string, number]>): str
 export function css(el: Element | null): CSSStyleDeclaration {
   if (!el) throw new Error('No element to measure');
   return getComputedStyle(el);
+}
+
+/** Focuses el the way a keyboard does, with Tab from a stand-in just before it, so it matches :focus-visible in
+ * every engine. Firefox and WebKit don't count el.focus() after a click as keyboard focus; Chromium does. */
+export async function tabTo(el: HTMLElement): Promise<void> {
+  const from = document.createElement('button');
+  el.before(from);
+  try { from.focus(); await userEvent.tab(); } finally { from.remove(); }
+  if (document.activeElement !== el) throw new Error('tabTo: Tab from just before the element went elsewhere');
 }
 
 /** Waits a fixed 200ms: for color transitions to finish (the components animate colors for 150ms), or to show that
