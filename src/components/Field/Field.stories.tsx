@@ -41,3 +41,12 @@ export const Group: Story = {
     </Field>
   </div>,
 };
+
+export const LongText: Story = {
+  args: {
+    label: 'The email address we should send every receipt and invoice to',
+    hint: 'We send one receipt per payment, plus a monthly summary for Donaudampfschifffahrtsgesellschaftskapitänskajüte.',
+    error: 'Enter an email address like name@example.com, without spaces before or after it',
+  },
+  decorators: [(Story) => <div style={{ maxWidth: 240 }}><Story /></div>],
+};

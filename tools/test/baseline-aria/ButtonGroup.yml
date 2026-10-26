@@ -1,3 +1,9 @@
+# LongLabels
+- group "Clipboard":
+  - button "Copy every selected row"
+  - button "Cut"
+  - button "Donaudampfschifffahrtsgesellschaft"
+
 # Narrow
 - group "Format":
   - button "Bold"
