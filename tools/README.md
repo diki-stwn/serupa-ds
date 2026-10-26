@@ -146,7 +146,7 @@ Releases run on GitHub, from changesets (`.changeset/README.md` has the details)
 
 The workflow needs one repository setting: Settings → Actions → General → Workflow permissions → **Allow GitHub Actions to create and approve pull requests**. Pull requests the workflow opens don't start CI themselves; the changes in them are the changelog and version numbers.
 
-A pull request that changes what the package ships needs a changeset: the Changeset workflow runs `node tools/changeset-check.mjs <base>` and fails without one (label the pull request `no-changeset` when the change ships nothing new).
+A pull request that changes what the package ships needs a changeset: the Changeset workflow runs `node tools/changeset-check.mjs <base>` and fails without one (label the pull request `no-changeset` when the change ships nothing new). It also checks the bump against the public API: an export, token (`tokens.json`) or utility class (`tools/test/baseline-utilities.json`) that goes away needs a major, and a new one, or a change to the exported types, at least a minor.
 
 By hand, without GitHub: write the notes under `## [Unreleased]` and run `node tools/release.mjs minor` (or major, patch, or a number). `node tools/release.mjs --check` checks that every file carries the same version (CI runs it). The README's Versioning section says which kind of release a change needs.
 
