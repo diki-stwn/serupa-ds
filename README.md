@@ -125,6 +125,7 @@ The package also exports what the components use themselves, so a component you 
 | `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
 | `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
 | `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
+| `announcePage({ title?, focus? })` | After a client-side route change, does what a full page load would: focuses the new page's main heading (the `h1` in `<main>`, made focusable with `tabindex="-1"`) and says its title (`document.title` by default) to screen readers, unless the focused heading already says it. `focus` takes an element or a selector, or `false` to leave focus where it is. Call it in an effect once the new page has rendered. |
 | `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and simply applies the change where View Transitions are missing. |
 
 ```tsx
@@ -136,6 +137,20 @@ function SavedAt({ at }: { at: Date }) {
 }
 
 announce("Draft saved");
+```
+
+```tsx
+import { announcePage } from "serupa-ds";
+
+// In the app's layout, with your router's location
+function RouteAnnouncer({ path }: { path: string }) {
+  const first = React.useRef(true);
+  React.useEffect(() => {
+    if (first.current) { first.current = false; return; }   // the first load is the browser's to announce
+    announcePage();
+  }, [path]);
+  return null;
+}
 ```
 
 ```tsx
