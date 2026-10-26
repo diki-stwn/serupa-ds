@@ -792,6 +792,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
 | `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
+| `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
 | `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |
 | `ease-exit` | `ease-in` | Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once. A stronger ease-in starts too slowly and makes closing feel sluggish. |
 | `ease-move` | `ease-in-out-cubic` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
