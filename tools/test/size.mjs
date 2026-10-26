@@ -39,7 +39,7 @@ const TOTALS = {
 // KiB, gzipped: [budget, the size it was set at]. The totals that count shared code move with the budget.
 const LABELS = [2.6, 1.9];
 // Not made of component folders.
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.2 };
 // KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
 // comes along (512.7 on 25 Oct 2026). Icon's README and Getting started say so; this keeps the number in sight.
 const NO_SPLIT = 530;

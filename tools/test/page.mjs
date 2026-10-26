@@ -98,6 +98,26 @@ for (const scheme of ['light', 'dark']) {
 }
 
 {
+  // GD5: a switch turns transitions off for two frames (data-theme-switching), so the controls change color with the
+  // page surface instead of fading one by one; afterwards they transition again, and nothing was left running.
+  const ctx = await b.newContext({ colorScheme: 'light' });
+  const p = await ctx.newPage();
+  await p.goto(writePage('theme-quiet.html', '<button id="q" style="transition: background-color 150ms; background: var(--primary)">x</button>', { theme: true, htmlAttrs: 'data-brand="blue" data-mode="light"', extraHead: '<link rel="stylesheet" href="../tokens.css">' }));
+  const r = await p.evaluate(async () => {
+    const q = document.getElementById('q'), root = document.documentElement, frame = () => new Promise((ok) => requestAnimationFrame(ok));
+    const out = [getComputedStyle(q).transitionDuration, root.hasAttribute('data-theme-switching')];
+    Serupa.theme.set({ mode: 'dark' });
+    out.push(root.hasAttribute('data-theme-switching'), getComputedStyle(q).transitionProperty, document.getAnimations().length);
+    await frame(); await frame(); await frame();
+    out.push(root.hasAttribute('data-theme-switching'), document.getAnimations().length, getComputedStyle(q).transitionDuration);
+    Serupa.theme.set({ mode: 'dark' });   // the same theme again: nothing to switch
+    out.push(root.hasAttribute('data-theme-switching'));
+    return out;
+  });
+  t('theme.js: a switch changes every color at once (no transitions for two frames), then transitions come back', r.join() === '0.15s,false,true,none,0,false,0,0.15s,false', r.join());
+  await ctx.close();
+}
+{
   // DX1: loaded twice (an inline copy and the file), the second copy returns early, so the first's onChange still
   // hears set(); and another tab's localStorage.clear() (a storage event with key null) is followed like a reset.
   const ctx = await b.newContext({ colorScheme: 'light' });

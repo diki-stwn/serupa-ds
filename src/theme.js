@@ -20,7 +20,9 @@
      get()                       -> { brand, mode, theme }   mode is what was asked for (auto/light/dark)
      set({ brand?, mode? })      change and remember the choice
      reset()                     forget the choice and go back to the page's data-brand / data-mode
-     onChange(fn)                fn({ brand, mode, theme }) after every change; returns an unsubscribe function */
+     onChange(fn)                fn({ brand, mode, theme }) after every change; returns an unsubscribe function
+   A switch sets data-theme-switching on the root for two frames, and tokens.css turns transitions off under it, so
+   every color changes at once. Set it yourself around a section's own data-theme change for the same effect. */
 (function () {
   // Loaded twice (inline and as a file): the first copy runs the page.
   if (window.Serupa && window.Serupa.theme) return;
@@ -55,9 +57,15 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ brand: state.brand, mode: state.mode })); } catch (e) {} }
   function resolved() { return state.mode === "auto" ? (media && media.matches ? "dark" : "light") : state.mode; }
   function info() { return { brand: state.brand, mode: state.mode, theme: state.brand + "-" + resolved() }; }
+  // No transitions for two frames (tokens.css), so every color switches at once, as the page surface does.
+  function quiet() {
+    root.setAttribute("data-theme-switching", "");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { root.removeAttribute("data-theme-switching"); }); });
+  }
   function apply(always) {
-    var i = info();
-    if (root.getAttribute("data-theme") === i.theme && !always) return;
+    var i = info(), was = root.getAttribute("data-theme");
+    if (was === i.theme && !always) return;
+    if (was && was !== i.theme) quiet();
     root.setAttribute("data-theme", i.theme);
     listeners.slice().forEach(function (fn) { try { fn(i); } catch (e) { if (window.console) console.error(e); } });
   }

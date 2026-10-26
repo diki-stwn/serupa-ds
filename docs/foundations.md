@@ -78,6 +78,8 @@ Serupa.theme.get();                           // { brand, mode, theme: 'violet-d
 Serupa.theme.onChange(({ theme }) => { … });  // returns an unsubscribe function
 ```
 
+A switch changes every color at once. For two frames theme.js sets `data-theme-switching` on the root, and tokens.css turns transitions off under it, so controls don't fade one by one while the page surface switches. If you switch a section's `data-theme` yourself, set `data-theme-switching` on it for two frames to get the same.
+
 ## Alias tokens
 
 Alias tokens give a colour a **job** instead of a hue. Each one points to a palette colour rather than holding its own value, and that pointer can differ per theme: `primary` is `{blue-600}` in Blue Light and `{violet-400}` in Violet Dark.

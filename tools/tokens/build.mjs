@@ -56,6 +56,9 @@ export function buildTokensCss(t) {
     if (s.opticalSize != null) css += `  font-variation-settings: "opsz" ${s.opticalSize};\n`;
     css += '}\n';
   }
+  // While theme.js switches the theme (data-theme-switching, for two frames), nothing transitions: every color changes
+  // at once, as the page surface does, instead of controls fading one by one. !important in the first layer beats all.
+  css += ':where([data-theme-switching]), :where([data-theme-switching]) *, :where([data-theme-switching]) *::before, :where([data-theme-switching]) *::after {\n  transition: none !important;\n}\n';
   css += '}\n';
   for (const f of t.type.fonts || [])
     css += `@font-face {\n  font-family: "${f.family}";\n  src: url("${f.file}") format("woff2");\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  font-display: swap;\n}\n`;

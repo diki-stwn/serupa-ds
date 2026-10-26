@@ -1276,6 +1276,9 @@
   font-weight: 400;
   letter-spacing: 0;
 }
+:where([data-theme-switching]), :where([data-theme-switching]) *, :where([data-theme-switching]) *::before, :where([data-theme-switching]) *::after {
+  transition: none !important;
+}
 }
 @font-face {
   font-family: "Inter";
