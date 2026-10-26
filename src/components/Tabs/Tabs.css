@@ -73,7 +73,7 @@
    was, and the new one starts there and moves into place. Reduced motion: it's there at once. */
 .dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after, .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before {
   transform-origin: top left;
-  transition: translate var(--duration-200) var(--ease-move), scale var(--duration-200) var(--ease-move);
+  transition: translate var(--motion-change-md) var(--ease-move), scale var(--motion-change-md) var(--ease-move);
 }
 @media (prefers-reduced-motion: no-preference) {
   @starting-style {

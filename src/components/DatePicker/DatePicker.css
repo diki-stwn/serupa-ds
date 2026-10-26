@@ -21,11 +21,24 @@
   border: var(--border-width-1) solid var(--date-picker-popup-border, var(--border-overlay)); border-radius: var(--date-picker-popup-radius, var(--rounded-lg));
   background: var(--date-picker-popup-bg, var(--surface-overlay)); color: var(--date-picker-popup-text, var(--text));
   box-shadow: var(--date-picker-popup-shadow, var(--shadow-lg));
-  cursor: default; animation: dk-dp-in var(--motion-enter-sm) var(--ease-enter);
+  cursor: default;
   transform-origin: var(--dk-layer-origin, top);
 }
 .dk-date-picker__popup[hidden] { display: none; }
-@keyframes dk-dp-in { from { opacity: var(--opacity-0); scale: var(--scale-95); } }
-@media (prefers-reduced-motion: reduce) { .dk-date-picker__popup { animation: none; } }
+/* Motion (DZ1): transitions, not keyframes, so closing while it opens turns back from where it is. In from
+   @starting-style over motion-enter-sm; out over motion-exit-sm, kept shown and in the top layer (display and overlay,
+   allow-discrete) until it has faded, inert meanwhile (the calendar stays, DatePicker.tsx). A browser that can't keep
+   it in the top layer (no overlay) closes it at once. Reduced motion: the fade alone. DateRangePicker's popup is the same. */
+.dk-date-picker__popup { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit); }
+.dk-date-picker__popup:not([hidden]) { transition: opacity var(--motion-enter-sm) var(--ease-enter), scale var(--motion-enter-sm) var(--ease-enter); }
+@supports (overlay: auto) {
+  .dk-date-picker__popup[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
+}
+.dk-date-picker__popup[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+@starting-style { .dk-date-picker__popup:not([hidden]) { opacity: var(--opacity-0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-date-picker__popup[hidden] { scale: var(--scale-95); }
+  @starting-style { .dk-date-picker__popup:not([hidden]) { scale: var(--scale-95); } }
+}
 @media (forced-colors: active) { .dk-date-picker__popup { border-color: CanvasText; } }
 }

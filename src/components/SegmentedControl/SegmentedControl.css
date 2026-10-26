@@ -24,7 +24,7 @@
   border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: var(--segmented-control-indicator, var(--surface));
   box-shadow: var(--segmented-control-indicator-shadow, var(--shadow-sm));
   transform-origin: top left;
-  transition: translate var(--segmented-control-duration, var(--duration-200)) var(--ease-out), scale var(--segmented-control-duration, var(--duration-200)) var(--ease-out);
+  transition: translate var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle), scale var(--segmented-control-duration, var(--motion-change-md)) var(--ease-settle);
 }
 /* The indicator sits on the selected segment by left and width, which don't animate; a new choice moves it there at
    once, puts it back where it was on translate and scale, and lets it slide on the compositor (EG1). */
@@ -40,7 +40,7 @@
   min-width: var(--spacing-0); margin: var(--spacing-0); padding: var(--spacing-0) var(--segmented-control-padding-x, var(--spacing-3));
   border: var(--spacing-0); border-radius: var(--segmented-control-indicator-radius, var(--rounded-sm)); background: transparent;
   color: var(--segmented-control-text, var(--text-muted)); font: inherit; font-weight: var(--segmented-control-weight, var(--font-medium)); white-space: nowrap; cursor: pointer; touch-action: manipulation;
-  transition: color var(--motion-hover) var(--ease-move), scale var(--motion-press) var(--ease-out);
+  transition: color var(--motion-hover) var(--ease-move), scale var(--motion-press) var(--ease-settle);
 }
 /* At least 24px wide, so in sm (18px inside a 24px box) the segments' centers are 24px apart: WCAG 2.5.8. */
 .dk-segmented__item--icon-only { width: max(var(--dk-seg-inner), var(--spacing-6)); padding: var(--spacing-0); }
