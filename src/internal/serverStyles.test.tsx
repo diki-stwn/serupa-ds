@@ -33,7 +33,7 @@ describe('server HTML under a strict Content Security Policy', () => {
     expect(share()).toBe(100);   // the policy holds: the fill takes the whole track
     let root: Root | undefined;
     flushSync(() => { root = hydrateRoot(host, ui); });
-    await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')]).toEqual([40, 70]);
+    await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')], { message: `the fill's style: ${document.querySelector(fill)?.getAttribute('style')}` }).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
     root?.unmount(); host.remove();
