@@ -10,8 +10,8 @@
   - text: Email
   - checkbox "SMS"
   - text: SMS
-- group "Plan":
-  - text: Plan
+- group "Plan Required":
+  - text: Plan Required
   - radiogroup [invalid]:
     - radio "Free"
     - text: Free

@@ -13,8 +13,8 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
   children?: React.ReactNode;
-  /** What the carousel shows, such as "Featured products". Required: it names the region. */
-  label: string;
+  /** What the carousel shows, such as "Featured products": it names the region. Required unless you give aria-label, or aria-labelledby pointing at a visible heading. */
+  label?: string;
   /** The slide shown (from 0), when you control it. */
   index?: number;
   /** The first slide shown when you don't control it. Default: 0. */
@@ -213,7 +213,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
 
   return (
     <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
-      aria-roledescription={sds.labels.carouselRole} aria-label={props.label} data-component="carousel" data-index={index} data-dir={dir}>
+      aria-roledescription={sds.labels.carouselRole} aria-label={props.label ?? rest["aria-label"]} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}
         onDragStart={(e) => e.preventDefault()}   // a picture's own drag would end the swipe
