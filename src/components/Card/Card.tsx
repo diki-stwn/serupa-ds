@@ -57,18 +57,33 @@ export const Card = /* @__PURE__ */ component<HTMLElement, CardProps>("Card", fu
   const titled = React.Children.toArray(props.children).some((c) => React.isValidElement(c) && c.type === CardHeader && hasContent((c.props as CardHeaderProps).title));
   const id = rest.id || base;
   const own = rest.onClick;
+  const ownAux = rest.onAuxClick;
   // The text (CardBody, the header's description) sits above the link's area so it can be selected and copied. A
-  // click on it still follows the link, unless it ended a selection.
+  // click on it still follows the link, unless it ended a selection. The card's own link, or null when the click
+  // was on something interactive inside, or ended a selection.
+  const target = (e: React.MouseEvent<HTMLElement>) => {
+    const t = e.target as Element;
+    if (e.defaultPrevented || !(t instanceof Element) || t.closest(INTERACTIVE)) return null;
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && e.currentTarget.contains(sel.anchorNode)) return null;
+    return e.currentTarget.querySelector<HTMLAnchorElement>(".dk-card__link");
+  };
+  // A browser treats a click it didn't make as a plain one, so a Ctrl, Cmd or Shift click, or a middle click, would
+  // navigate this tab away instead of opening another: open the other tab here (ER1).
+  const away = (a: HTMLAnchorElement) => window.open(a.href, "_blank", "noopener");
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
     if (own) own(e);
-    const t = e.target as Element;
-    if (e.defaultPrevented || !(t instanceof Element) || t.closest(INTERACTIVE)) return;
-    const sel = window.getSelection();
-    if (sel && !sel.isCollapsed && e.currentTarget.contains(sel.anchorNode)) return;
-    const a = e.currentTarget.querySelector(".dk-card__link");
-    if (a) a.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: e.ctrlKey, metaKey: e.metaKey, shiftKey: e.shiftKey, altKey: e.altKey }));
+    const a = target(e);
+    if (!a) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey) away(a);
+    else a.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, altKey: e.altKey }));
   };
-  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant, onClick: onClick }),
+  const onAuxClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (ownAux) ownAux(e);
+    const a = e.button === 1 ? target(e) : null;
+    if (a) away(a);
+  };
+  return React.createElement(tag, Object.assign(rest, { id: id, ref: ref, className: cls, "data-component": "card", "data-variant": variant, onClick: onClick, onAuxClick: onAuxClick }),
     titled ? null : React.createElement(config.link, { ...link, className: "dk-card__link dk-card__link--cover", "aria-labelledby": link["aria-label"] ? undefined : id, key: "link" }),
     <CardLinkContext.Provider value={titled ? link : null} key="content">{props.children}</CardLinkContext.Provider>);
 });
