@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
+import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Menu, MenuItem } from '../Menu/Menu';
@@ -70,4 +71,34 @@ describe('ButtonGroup', () => {
     expect(el('gs2').getBoundingClientRect().left).toBeLessThan(el('gs1').getBoundingClientRect().right);   // the borders overlap
   });
 
+  test('attached, a row wider than its container (six buttons at 320px) wraps as separate buttons, each whole, and joins again once there\'s room (EL1)', async () => {
+    await page.viewport(320, 640);
+    const labels = ['Bold', 'Italic', 'Underline', 'Strike', 'Code', 'Link'];
+    const { rerender } = await render(<div style={{ width: '288px' }}><ButtonGroup id="gw" aria-label="Format">{labels.map((t) => <Button key={t} variant="outline">{t}</Button>)}</ButtonGroup></div>);
+    const g = el('gw');
+    await expect.poll(() => g.hasAttribute('data-wrapped')).toBe(true);
+    const kids = [...g.children] as HTMLElement[];
+    expect([document.documentElement.scrollWidth <= 320, g.getBoundingClientRect().width <= 288, kids.every((k) => k.scrollWidth <= k.clientWidth + 1)]).toEqual([true, true, true]);
+    expect(new Set(kids.map((k) => Math.round(k.getBoundingClientRect().top))).size).toBeGreaterThan(1);   // more than one line
+    expect([g.classList.contains('dk-button-group--attached'), corners(kids[1]) === corners(kids[0])]).toEqual([false, true]);   // separate buttons, every corner rounded
+    await rerender(<div style={{ width: '600px' }}><ButtonGroup id="gw" aria-label="Format">{labels.map((t) => <Button key={t} variant="outline">{t}</Button>)}</ButtonGroup></div>);
+    await page.viewport(800, 640);
+    await expect.poll(() => g.hasAttribute('data-wrapped')).toBe(false);
+    expect([g.classList.contains('dk-button-group--attached'), new Set(kids.map((k) => Math.round(k.getBoundingClientRect().top))).size]).toEqual([true, 1]);
+  });
+
+  test('two attached primary buttons have an edge between them, in their text color, in all six themes; outline buttons keep their shared border (EL1)', async () => {
+    await render(<ButtonGroup id="gp"><Button id="p1">Save</Button><Button id="p2">Save as</Button><Button id="p3" variant="outline">Cancel</Button></ButtonGroup>);
+    const edge = (id: string) => getComputedStyle(el(id)).borderInlineStartColor;
+    expect([edge('p1'), edge('p2') === 'rgba(0, 0, 0, 0)']).toEqual(['rgba(0, 0, 0, 0)', false]);
+    // The edge keeps 3:1 on the button's fill (lowest: violet-light, 3.67).
+    const low: string[] = [];
+    for (const t of THEMES) {
+      document.documentElement.setAttribute('data-theme', t);
+      const r = contrast('color-mix(in srgb, var(--on-primary) 40%, var(--primary))', 'var(--primary)');
+      if (r < 3) low.push(`${t} ${r.toFixed(2)}`);
+    }
+    expect(low).toEqual([]);
+    expect(getComputedStyle(el('p3')).borderInlineStartColor).not.toBe(edge('p2'));
+  });
 });

@@ -1,3 +1,12 @@
+# Narrow
+- group "Format":
+  - button "Bold"
+  - button "Italic"
+  - button "Underline"
+  - button "Strike"
+  - button "Code"
+  - button "Link"
+
 # Playground
 - group "Clipboard":
   - button "Copy"
