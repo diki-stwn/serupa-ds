@@ -1,0 +1,39 @@
+{
+  "loadMore": {
+    "$description": "LoadMore's component tokens. Each one is an optional override: set the CSS variable (--load-more-<name>) on the page, a container or one LoadMore, and every LoadMore inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "\"Showing 20 of 134\" and the end text (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--load-more-text"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Space between the summary and the button (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--load-more-gap"
+          }
+        }
+      },
+      "padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space above and below (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--load-more-padding"
+          }
+        }
+      }
+    }
+  }
+}
