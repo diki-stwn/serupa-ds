@@ -21,6 +21,7 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
    - **Words** come from its `labels.ts`, in English and Indonesian, never written into the JSX (the `serupa/no-literal-words` lint rule).
    - **Values** read tokens: its own component tokens, falling back to the shared ones (the foundation check).
    - **Tests:** one `test()` per behaviour, found the way people find things (`getByRole`), in random order.
+   - **Every option shows:** each value of a prop typed as a short union of strings (`variant`, `size`, `placement`) is rendered by a story or set by a test, unless it is the one the component falls back to (`node tools/test/prop-values.mjs`).
 4. `npm run tokens`, `npm run build`, then `node tools/test/api.mjs --update` and `node tools/test/size.mjs --update <Name>` for its baselines.
 5. `npx changeset` (minor, "Added: <Name> …"), open the pull request, and add the `update-visual-baselines` label so CI draws its screenshots. Review them.
 
