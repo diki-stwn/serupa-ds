@@ -7,7 +7,7 @@ import { keepMotion } from '../../tools/test/vitest/helpers';
 import { storiesToRun } from '../../tools/test/vitest/stories';
 
 // The motion quality gate (EH1): every animation a story runs, on mount and after the interactions below, must
-//   (2) stay off layout: animate only what the compositor runs (opacity, transform, translate, scale, rotate, filter,
+//   (2) stay off layout (but for LAYOUT_OK): animate only what the compositor runs (opacity, transform, translate, scale, rotate, filter,
 //       clip-path) or a discrete property (visibility, display); colors and shadows only in a transition that ends,
 //       never in a loop that repaints every frame; never width, height, inset, margins, padding, gaps or grid tracks
 //   (3) turn back from where it is when reversed: a surface that can close mid-entry enters with a transition, not
@@ -39,6 +39,11 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
 };
 // Keyframes that may run once: what appears and can't be taken back mid-way, so there is nothing to reverse.
 const ONCE = new Set(['dk-loader-in', 'dk-btn-loader-in', 'dk-badge-loader-in', 'dk-btn-ripple']);
+// Layout a component animates on purpose, by the animation's id, and why: where the jump it saves reads as a glitch,
+// and it's one small element while it moves. Only Web Animations a component starts itself, never a stylesheet's.
+const LAYOUT_OK: Record<string, string> = {
+  'dk-accordion-height': "Accordion's panel height (EH2, revised): without it, everything below jumps in one frame",
+};
 const COMPOSITOR = /^(opacity|transform|translate|scale|rotate|filter|backdrop-filter|clip-path)$/;
 const DISCRETE = /^(visibility|display|overlay|content-visibility|pointer-events)$/;
 const LAYOUT = /^(width|height|(min|max)-(width|height)|inline-size|block-size|inset.*|top|right|bottom|left|margin.*|padding.*|gap|row-gap|column-gap|grid.*|flex.*|font-size|line-height|letter-spacing|border(-\w+)?-width|border-width)$/;
@@ -77,7 +82,7 @@ function judge(list: Animation[], when: 'mount' | 'interaction', reduced: boolea
   for (const a of list) {
     const props = animated(a);
     const layout = props.filter((p) => LAYOUT.test(p));
-    if (layout.length) breach('layout', a, `animates ${layout.join(', ')}, which lays the page out on every frame`);
+    if (layout.length && !LAYOUT_OK[a.id]) breach('layout', a, `animates ${layout.join(', ')}, which lays the page out on every frame`);
     const paint = props.filter((p) => !COMPOSITOR.test(p) && !DISCRETE.test(p) && !LAYOUT.test(p));
     if (paint.length && loops(a)) breach('paint loop', a, `loops ${paint.join(', ')}, which repaints on every frame`);
     if (a instanceof CSSAnimation && !loops(a) && !ONCE.has(a.animationName)) breach('keyframes', a, 'enters with keyframes, which restart from the top when reversed mid-way; use a transition');
