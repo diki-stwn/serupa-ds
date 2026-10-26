@@ -2,7 +2,8 @@
 import * as React from "react";
 import { cn, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
+import { en as words } from "./labels";
 
 /** One error in the summary: the field it's about and what's wrong. */
 export interface ErrorSummaryItem {
@@ -32,7 +33,7 @@ export interface ErrorSummaryProps extends Omit<React.HTMLAttributes<HTMLDivElem
    control, so the question shows above the answer. className and other props go to the box. */
 /** After a failed submit: a heading and a list of the form's errors, each a link that moves focus to its field. */
 export const ErrorSummary = /* @__PURE__ */ component<HTMLDivElement, ErrorSummaryProps>("ErrorSummary", function ErrorSummary(props, ref) {
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { errors, title, headingLevel, description, autoFocus, className, ...rest } = props;
   const box = React.useRef<HTMLDivElement | null>(null);
   const heading = React.useId();
