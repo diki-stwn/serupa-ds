@@ -7,7 +7,9 @@ export type ContainerSize = 'prose' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 export interface ContainerProps extends React.HTMLAttributes<HTMLElement> {
   /** The widest the content gets: 'prose' 672px (reading), 'md' 768, 'lg' 1024, 'xl' 1280 (default), '2xl' 1536 or 'full'. */
   size?: ContainerSize;
-  /** Side padding that grows with the screen (16, 24 from 640px, 32 from 1024px). Default: true. */
+  /** Side padding that grows with the screen (16, 24 from 640px, 32 from 1024px), outside the maximum width and never
+   *  less than the screen's safe area (a notch). It follows the screen's width, not the space the Container is in.
+   *  Default: true. */
   padded?: boolean;
   /** The element. Default: 'div'. */
   as?: 'div' | 'main' | 'section' | 'header' | 'footer' | 'article';
