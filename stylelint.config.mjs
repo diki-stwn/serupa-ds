@@ -19,6 +19,7 @@ export default {
         'serupa/no-raw-value': true,
         'serupa/color-through-component-token': true,
         'serupa/focus-ring-outline': true,
+        'serupa/no-physical-shorthand': true,
         'property-disallowed-list': [
           ['left', 'right', '/^margin-(left|right)$/', '/^padding-(left|right)$/', '/^border-(left|right)(-|$)/', '/^border-(top|bottom)-(left|right)-radius$/', '/^scroll-(margin|padding)-(left|right)$/'],
           { message: 'Use the logical property (inset-inline-*, margin-inline-*, padding-inline-*, border-inline-*, border-*-start/end-radius), so the component works in right-to-left text.' },

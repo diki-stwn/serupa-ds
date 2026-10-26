@@ -332,3 +332,18 @@ describe('Tabs on the server', () => {
     });
   });
 });
+
+describe('Tabs in a grid or flex row (GO2)', () => {
+  test('a long tab row in a 320px grid track or flex row scrolls in its box instead of widening the row', async () => {
+    const names = ['Overview', 'Members and permissions', 'Billing and invoices', 'Integrations', 'Audit log'];
+    const row = (id: string) => <Tabs id={id} defaultValue="0"><TabList aria-label="Settings">{names.map((n, i) => <Tab key={i} value={String(i)}>{n}</Tab>)}</TabList>{names.map((n, i) => <TabPanel key={i} value={String(i)}>{n}</TabPanel>)}</Tabs>;
+    await render(<div style={{ width: '320px' }}>
+      <div id="go2-grid" style={{ display: 'grid', gridTemplateColumns: '1fr' }}>{row('go2-g')}</div>
+      <div id="go2-flex" style={{ display: 'flex' }}>{row('go2-f')}</div>
+    </div>);
+    for (const [box, tabs] of [['go2-grid', 'go2-g'], ['go2-flex', 'go2-f']]) {
+      const list = document.querySelector<HTMLElement>(`#${tabs} [role="tablist"]`)!;
+      expect([document.getElementById(box)!.scrollWidth, document.getElementById(tabs)!.getBoundingClientRect().width <= 320, list.scrollWidth > list.clientWidth]).toEqual([320, true, true]);
+    }
+  });
+});

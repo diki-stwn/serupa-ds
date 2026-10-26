@@ -6,7 +6,8 @@
    32px. vertical: a column at the start with the line on its end side. Every value goes through --tabs-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-tabs { font-family: var(--font-sans); }
+/* min-width 0: in a grid track or a flex row, a long tab row scrolls in its box instead of widening the page (GO2). */
+.dk-tabs { font-family: var(--font-sans); min-width: var(--spacing-0); }
 .dk-tabs__list {
   display: flex;
   padding: var(--spacing-0);
