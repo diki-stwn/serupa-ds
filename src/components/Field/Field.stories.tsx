@@ -36,7 +36,7 @@ export const Group: Story = {
     <Field group label="Notifications" hint="Pick any">
       <Checkbox defaultChecked>Email</Checkbox><Checkbox>SMS</Checkbox>
     </Field>
-    <Field group label="Plan" error="Choose a plan">
+    <Field group required label="Plan" error="Choose a plan">
       <RadioGroup><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
     </Field>
   </div>,

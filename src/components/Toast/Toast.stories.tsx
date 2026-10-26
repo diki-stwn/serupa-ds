@@ -56,3 +56,9 @@ export const Burst: Story = {
     { title: 'Network error', tone: 'danger' }, { title: 'Network error', tone: 'danger' }, { title: 'Network error', tone: 'danger' },
   ]} />,
 };
+
+export const LongText: Story = {
+  render: (args) => <Showing position={args.position} toasts={[
+    { title: 'Your export of every project, task and comment from the last year is ready', description: 'Download it within 7 days from Settings. Donaudampfschifffahrtsgesellschaftskapitänskajüte.', tone: 'success', action: { label: 'Download the export', onClick: () => {} } },
+  ]} />,
+};

@@ -4,6 +4,7 @@ import { announce } from "../../internal/announce";
 import { cn, domId } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSerupa } from "../../internal/provider";
+import { useScrolls } from "../../internal/useScrolls";
 import { warnOnce } from "../../internal/warn";
 
 export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
@@ -146,17 +147,23 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   };
 
   const first = base + "-first";
+  // A pane whose content is bigger than it takes Tab focus, so it can be scrolled from the keyboard when nothing in
+  // it is focusable (as Dialog's and Drawer's bodies do).
+  const [paneA, setPaneA] = React.useState<HTMLDivElement | null>(null);
+  const [paneB, setPaneB] = React.useState<HTMLDivElement | null>(null);
+  const scrollsA = useScrolls(paneA);
+  const scrollsB = useScrolls(paneB);
   return (
     <div {...rest} ref={(n) => { root.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
       data-placing={placing || undefined} onPointerDownCapture={onPlace}>
-      <div id={first} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}>{panes[0]}</div>
+      <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}>{panes[0]}</div>
       <div ref={handle} role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
         aria-valuenow={Math.round(size)} aria-valuemin={collapsible ? 0 : Math.round(min)} aria-valuemax={Math.round(max)} aria-controls={first}
         aria-label={separatorLabel || sds.labels.resizePanes} data-state={collapsed ? "collapsed" : undefined}
         onKeyDown={onKeyDown} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onDoubleClick={toggle} onBlur={() => setPlacing(false)} />
-      <div className="dk-splitter__pane dk-splitter__pane--second">{panes[1]}</div>
+      <div ref={setPaneB} tabIndex={scrollsB ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--second">{panes[1]}</div>
     </div>
   );
 });
