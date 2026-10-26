@@ -105,7 +105,10 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
     if (!isThenable(problem)) { setChecking(false); finish(problem, text, keyboard); return; }
     setChecking(true);
     // A rejected check keeps the field open without a message: return one to say what went wrong.
-    problem.then((p) => { if (mine === check.current) { setChecking(false); finish(p, text, keyboard); } },
+    // Focus goes back to the button only if it's still in the field (or nowhere) when the check settles: someone who
+    // tabbed away while it ran stays where they went.
+    const here = () => { const a = document.activeElement; return !a || a === document.body || a === field.current; };
+    problem.then((p) => { if (mine === check.current) { setChecking(false); finish(p, text, keyboard && here()); } },
       () => { if (mine === check.current) setChecking(false); });
   };
   const cancel = () => {
@@ -140,7 +143,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
       ) : locked ? (
         <span className="dk-inline-edit__view dk-inline-edit__view--static">{text}</span>
       ) : (
-        <button type="button" ref={view} className="dk-inline-edit__view" onClick={open}>
+        <button type="button" ref={view} className={cn("dk-inline-edit__view", empty && !props.placeholder && "dk-inline-edit__view--blank")} onClick={open}>
           <VisuallyHidden>{props.label}: </VisuallyHidden>
           {text}
           <VisuallyHidden>, {props.editLabel || sds.labels.edit}</VisuallyHidden>
