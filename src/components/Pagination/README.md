@@ -29,7 +29,7 @@ const [page, setPage] = React.useState(1);
 
 - Put it under the list or table it pages through.
 - When pages have URLs, pass `getHref` so every page is a link; clicks still call `onPageChange`. They go through your router's link set with `configure({ link })`, or `linkAs`.
-- Where space is tight, use `size="sm"` and fewer `siblings`. The number of slots stays the same, so the arrows don't move.
+- The row stays on one line. When it's wider than its box (the defaults need about 340px), it shows fewer `siblings` and then fewer `boundaries` until it fits, and goes back to what you asked when there's room again. The arrows stay at the ends either way. Within one width the number of slots stays the same, so the arrows don't move as you page. `size="sm"` fits more.
 - Page numbers are written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its
   days: ١ ٢ ٣ in Egyptian Arabic, ۱ ۲ ۳ in Persian. A page's name comes from `pageLabel`, so translate it with the
   other labels.

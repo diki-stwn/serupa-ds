@@ -1,5 +1,9 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import * as React from 'react';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import { render } from 'vitest-browser-react';
+import { Button } from '../components/Button/Button';
+import { Menu, MenuItem } from '../components/Menu/Menu';
 import { place, placeLayer } from './position';
 
 // A phone held sideways: 400 × 390. Anchors are DOMRects at the given top and bottom, 100px wide at x 20.
@@ -62,6 +66,16 @@ describe('place', () => {
     anchor.remove(); layer.remove();
   });
 
+  test('placeLayer: an anchor shrunk by its press (scale) is placed against at rest, so the layer still lines up once it lets go (FW1)', () => {
+    const anchor = document.createElement('button'), layer = document.createElement('div');
+    anchor.style.cssText = 'position: fixed; left: 120px; top: 100px; height: 40px; width: 200px; scale: 0.9';
+    layer.style.cssText = 'position: fixed; width: 100px; height: 80px';
+    document.body.append(anchor, layer);
+    placeLayer(layer, anchor, 'bottom-start', 4);
+    expect([layer.style.left, layer.style.top]).toEqual(['120px', '144px']);
+    anchor.remove(); layer.remove();
+  });
+
   test('placeLayer: a max width of its own (a style prop) is kept, and combined with the room beside the anchor', () => {
     const anchor = document.createElement('button'), layer = document.createElement('div');
     anchor.style.cssText = 'position: fixed; left: 20px; top: 100px; height: 26px; width: 100px';
@@ -94,5 +108,18 @@ describe('place', () => {
     expect([layer.style.maxHeight, layer.style.overflowY, layer.offsetHeight]).toEqual(['', '', 600]);
     anchor.remove(); layer.remove();
     await page.viewport(400, 390);
+  });
+});
+
+describe('style reads while a layer follows its anchor (148)', () => {
+  test('a scroll re-places an open menu with one style read (the anchor\'s scale); the gap and the page\'s direction are read once', async () => {
+    await render(<div style={{ height: 2000, paddingTop: 100 }}><Menu defaultOpen trigger={<Button>Actions</Button>}><MenuItem>Edit</MenuItem></Menu></div>);
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    await expect.poll(() => menu.matches(':popover-open')).toBe(true);
+    const reads = vi.spyOn(window, 'getComputedStyle');
+    try {
+      for (let i = 0; i < 10; i++) window.dispatchEvent(new Event('scroll'));
+      expect(reads.mock.calls.length).toBeLessThanOrEqual(10);
+    } finally { reads.mockRestore(); }
   });
 });

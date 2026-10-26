@@ -135,11 +135,15 @@
 .dk-badge { --dk-badge-press: var(--badge-press-scale, var(--scale-97)); --dk-badge-loader-from: var(--scale-50); }
 .dk-badge--interactive {
   transition-property: color, scale;
-  transition-duration: var(--motion-hover), var(--badge-press-duration, var(--motion-press));
-  transition-timing-function: var(--ease-move);
+  transition-duration: var(--motion-hover), var(--motion-release);
+  transition-timing-function: var(--ease-move), var(--ease-spring);
 }
 .dk-badge--interactive:active:not(:disabled, [aria-disabled="true"]),
-.dk-badge--interactive[data-pressed]:not(:disabled, [aria-disabled="true"]) { scale: var(--dk-badge-press); }
+.dk-badge--interactive[data-pressed]:not(:disabled, [aria-disabled="true"]) {
+  scale: var(--dk-badge-press);
+  transition-duration: var(--motion-hover), var(--badge-press-duration, var(--motion-press));
+  transition-timing-function: var(--ease-move), var(--ease-settle);
+}
 /* Loading: the content fades out while the ring fades and grows in. */
 .dk-badge > :not(.dk-badge__loader, .dk-badge__ripples) { transition: opacity var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
 .dk-badge__loader { animation: dk-badge-loader-in var(--badge-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }

@@ -139,6 +139,19 @@ describe('Navbar', () => {
     expect(q('#nsticky .dk-navbar__toggle').getAttribute('aria-label')).toBe('Open the menu');
   });
 
+  test('small screens with wide actions: the brand shrinks and ends in an ellipsis, so the menu button stays on screen and nothing scrolls sideways (GH1)', async () => {
+    await render(<Navbar id="nav" brand={<a href="#home" id="brand">Serupa Analytics</a>} actions={<><Button size="sm">Sign in</Button><Button size="sm">Start free trial</Button></>}>
+      <NavbarLink href="#dash">Dashboard</NavbarLink>
+    </Navbar>);
+    for (const w of [390, 320]) {
+      await resize(w);
+      const b = el('brand');
+      expect([w, Math.round(toggle().getBoundingClientRect().right) <= w, document.documentElement.scrollWidth <= w, b.scrollWidth > b.clientWidth, css(b).textOverflow]).toEqual([w, true, true, true, 'ellipsis']);
+    }
+    await resize(1100);
+    expect(el('brand').scrollWidth > el('brand').clientWidth).toBe(false);
+  });
+
   test('keyboard table: Enter or Space on the menu button opens or closes the menu (FH1)', async () => {
     await render(<Main />);
     await resize(500);

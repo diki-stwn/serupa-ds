@@ -1,11 +1,18 @@
-// exports: Link, type LinkProps
+// exports: Link, type LinkOwnProps, type LinkProps
 interface LinkLabels {
     opensInNewTab: string;
 }
-interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+interface LinkOwnProps {
     tone?: "neutral" | "primary";
     underline?: "always" | "hover";
     external?: boolean;
-    as?: React.ElementType;
 }
-declare const Link: React.ForwardRefExoticComponent<LinkProps & React.RefAttributes<HTMLAnchorElement>>;
+type LinkProps<C extends React.ElementType = "a"> = LinkOwnProps & {
+    as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, "as" | keyof LinkOwnProps>;
+declare const Link: {
+    <C extends React.ElementType = "a">(props: LinkProps<C> & {
+        ref?: React.Ref<React.ComponentRef<C>>;
+    }): null | React.ReactElement;
+    displayName?: string;
+};
