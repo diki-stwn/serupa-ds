@@ -174,11 +174,11 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     stop.current = off;
     window.addEventListener("pointermove", moveTo); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
   };
+  const tops = React.useRef(new Map<string, number>());
   // The rows that change place glide there (FLIP): each starts where it showed (mid-way through an earlier move, or
   // where the pointer left it), offset by translate, and the transition in the CSS takes it to its new slot. The row
   // under the pointer is left to follow it. Reduced motion has no transition, so they move at once.
   // every render: a move re-renders the rows; reads each row's offsetTop, and styles only the rows that moved.
-  const tops = React.useRef(new Map<string, number>());
   useIsoLayoutEffect(() => {
     const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
     const held = pointer.current && drag && drag.pointer ? String(drag.key) : null;
