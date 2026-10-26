@@ -16,6 +16,13 @@
   - textbox "Company" [disabled]: Atlas Ltd
   - textbox "Tax ID" [disabled]
 
+# LongValue
+- textbox "Email":
+  - /placeholder: you@example.com
+  - text: grace.brewster.murray.hopper@navy.example.com
+- textbox "Email":
+  - /placeholder: A placeholder far longer than the input is wide
+
 # Playground
 - textbox "Email":
   - /placeholder: you@example.com

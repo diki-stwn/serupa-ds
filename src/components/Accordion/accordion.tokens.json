@@ -167,7 +167,7 @@
       "duration": {
         "$type": "duration",
         "$value": "{transitions.motion-change-md}",
-        "$description": "Opening and closing (200ms).",
+        "$description": "Opening: the fade and unfold (200ms), and the chevron turning. Closing folds back over motion-exit-md (150ms).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--accordion-duration"

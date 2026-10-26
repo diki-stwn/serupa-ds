@@ -8,6 +8,12 @@
   - text: A short note
 - text: 12 / 280
 
+# LongText
+- textbox "Message":
+  - /placeholder: Tell us more
+  - text: Please call before delivery. Donaudampfschifffahrtsgesellschaftskapitänskajüte is the building at the end of the lane, past the second gate.
+- text: 140 / 280
+
 # Playground
 - textbox "Message":
   - /placeholder: Tell us more

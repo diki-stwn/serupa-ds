@@ -28,8 +28,6 @@ type Rule = 'layout' | 'paint loop' | 'keyframes' | 'on mount' | 'reduced motion
 // a pull request's included, fails when the breach is gone and the line is still here).
 const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
-    'dk-accordion__panel': ['EH2: opens by animating grid-template-rows', ['Accordion']],
-    'dk-switch__thumb': ['EG1: the thumb slides by left', ['Switch']],
     'dk-segmented__indicator': ['EG1: the indicator slides by left and width', ['SegmentedControl']],
     'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
     'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
@@ -38,9 +36,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
     'dk-loader-arc': ['EE1: stroke-dasharray', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
     'dk-loader-shine': ['EE1: background-position', ['Loader']],
   },
-  keyframes: Object.fromEntries([
-    ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
-  ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
+  keyframes: {},
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],
   },

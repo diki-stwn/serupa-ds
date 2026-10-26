@@ -60,3 +60,13 @@ export const Group: Story = {
     </Field>;
   },
 };
+
+export const LongLabel: Story = {
+  render: (args) => (
+    <div style={{ width: 240 }}>
+      <Checkbox {...args} description="We send about one email a month, and you can unsubscribe from any of them with one click.">
+        Email me about product updates, security notices and {"Donaudampfschifffahrtsgesellschaft"} news
+      </Checkbox>
+    </div>
+  ),
+};

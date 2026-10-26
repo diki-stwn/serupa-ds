@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useIsoLayoutEffect } from "./cn";
 
 /* A control drawn inside a wrapper (Slider's thumbs, SegmentedControl's segments) keeps its ref on the wrapper, so
    ref.current.focus() would land nowhere: a form library that focuses the first invalid field after a failed submit
@@ -16,4 +17,23 @@ export function useAutoFocus(on: boolean | undefined, target: () => HTMLElement 
   const first = React.useRef({ on, target });
   first.current.target = target;
   React.useEffect(() => { if (first.current.on) first.current.target()?.focus(); }, []);
+}
+
+/** For a control that can disable itself when used (a next arrow that reaches the last page): call the returned
+ *  function from its handler with the control and where focus should go instead. After the render, if the control
+ *  held focus and is now disabled, gone, or focus fell to <body>, focus moves to that other control (as Carousel's
+ *  arrows do), so a keyboard user isn't thrown back to the top of the page. */
+export function useFocusHandover(): (from: HTMLElement, to: () => HTMLElement | null | undefined) => void {
+  const pending = React.useRef<{ from: HTMLElement; to: () => HTMLElement | null | undefined } | null>(null);
+  // every render: acts only after a handler asked, once the render it caused has disabled the control or not.
+  useIsoLayoutEffect(() => {
+    const p = pending.current;
+    pending.current = null;
+    if (!p) return;
+    const a = document.activeElement;
+    const lost = a === p.from ? !p.from.isConnected || p.from.matches(':disabled, [aria-disabled="true"]') : !a || a === document.body;
+    const t = lost ? p.to() : null;
+    if (t && t !== p.from) t.focus();
+  });
+  return React.useCallback((from: HTMLElement, to: () => HTMLElement | null | undefined) => { if (document.activeElement === from) pending.current = { from, to }; }, []);
 }

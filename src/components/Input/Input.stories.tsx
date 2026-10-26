@@ -70,3 +70,12 @@ export const InDisabledFieldset: Story = {
     </Col>
   </fieldset>,
 };
+
+export const LongValue: Story = {
+  render: (args) => (
+    <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <Input {...args} defaultValue="grace.brewster.murray.hopper@navy.example.com" leftIcon="mail" />
+      <Input {...args} placeholder="A placeholder far longer than the input is wide" />
+    </div>
+  ),
+};

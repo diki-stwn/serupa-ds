@@ -2,7 +2,7 @@ import * as React from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, settle } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Dialog } from '../Dialog/Dialog';
 import { Drawer } from '../Drawer/Drawer';
@@ -391,5 +391,42 @@ describe('Toast with a Dialog open', () => {
     watch.disconnect();
     expect([...new Set(said)]).toEqual(['Network error', 'Network error. 12 times.']);
     expect(idLabels.toastRepeated(3)).toBe('3 kali');
+  });
+});
+
+describe('Toast: motion (DZ1)', () => {
+  const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
+  const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]).sort();
+  const byTitle = (t: string) => toasts().find((x) => x.textContent.includes(t))!;
+  test('slides in with a transition; closed, it fades and slides back toward its edge (kept, inert, until it ends) and the one left glides into its place over 200ms; one there as the Toaster arrives is not slid in', async () => {
+    await withMotion(async () => {
+      await render(<App />);
+      React.act(() => { toast({ title: 'First', duration: 0 }); });
+      const first = byTitle('First');
+      expect([runs(first), first.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 200], ['translate', 200]], false]);
+      React.act(() => { toast({ title: 'Second', duration: 0 }); });
+      await landed();
+      const second = byTitle('Second');
+      React.act(() => { toast.dismiss(second.dataset.toast); });
+      // Bottom-end: the newest is last, nearest the edge; it leaves downward, toward it, and the first glides down.
+      expect([second.isConnected, second.hasAttribute('data-leaving'), second.inert, runs(second)]).toEqual([true, true, true, [['opacity', 150], ['translate', 150]]]);
+      await Promise.all(second.getAnimations().map((a) => a.finished));
+      await expect.poll(() => second.isConnected).toBe(false);
+      const glide = first.getAnimations().find((a) => a.id === 'dk-toast-move');
+      expect(glide && ms(glide)).toBe(200);
+      await landed();
+      expect(css(first).translate).toBe('none');
+    });
+  });
+
+  test('toasts there as the Toaster arrives are shown from the first frame', async () => {
+    await withMotion(async () => {
+      function Arrive() { React.useEffect(() => { toast({ title: 'Welcome back', duration: 0 }); }, []); return <Toaster />; }
+      await render(<Arrive />);
+      await expect.poll(() => toasts().length).toBe(1);
+      expect([toasts()[0].hasAttribute('data-instant'), toasts()[0].getAnimations().length]).toEqual([true, 0]);
+      React.act(() => { toast({ title: 'Later', duration: 0 }); });
+      expect([byTitle('Later').hasAttribute('data-instant'), runs(byTitle('Later')).length]).toEqual([false, 2]);
+    });
   });
 });

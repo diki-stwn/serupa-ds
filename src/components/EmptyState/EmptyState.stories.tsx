@@ -42,3 +42,11 @@ export const DashedSmall: Story = {
   name: 'Dashed, small',
   args: { variant: 'dashed', size: 'sm', icon: 'add_photo_alternate', title: 'Add a cover image', description: undefined, actions: <Button variant="outline" size="sm">Upload</Button> },
 };
+
+export const LongText: Story = {
+  render: (args) => (
+    <div style={{ width: 280 }}>
+      <EmptyState {...args} title="No projects match every one of the filters you picked" description={"Try fewer filters, or search for Donaudampfschifffahrtsgesellschaftskapitänskajüte by name instead."} />
+    </div>
+  ),
+};
