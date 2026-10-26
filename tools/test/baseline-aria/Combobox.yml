@@ -14,6 +14,10 @@
 - combobox "Country"
 - button "Show options"
 
+# LongOptions
+- combobox "Country": The Democratic Republic of São Tomé and Príncipe
+- button "Show options"
+
 # Multiple
 - text: Reviewers Pick everyone who should review this. Ada Lovelace
 - button "Remove Ada Lovelace"

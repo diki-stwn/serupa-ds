@@ -47,3 +47,8 @@ export const AnnounceComplete: Story = {
     </div>;
   },
 };
+
+export const LongLabel: Story = {
+  args: { label: 'Uploading quarterly-report-Donaudampfschifffahrtsgesellschaftskapitänskajüte-final-v2.pdf' },
+  decorators: [(Story) => <div style={{ width: 200 }}><Story /></div>],
+};

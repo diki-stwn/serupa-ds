@@ -36,3 +36,14 @@ export const WithDisabled: Story = {
 
 /** type="multiple" with showExpandAll: one button opens every item, then closes them all. */
 export const ExpandAll: Story = { args: { type: 'multiple', showExpandAll: true, defaultValue: [] } };
+
+export const LongText: Story = {
+  args: {
+    children: [
+      <AccordionItem key="a" value="a" title="How long does shipping take to every region outside the European Union?">Orders ship within 2 business days. Donaudampfschifffahrtsgesellschaftskapitänskajüte customers get theirs within a week.</AccordionItem>,
+      <AccordionItem key="b" value="b" title="Donaudampfschifffahrtsgesellschaftskapitänskajüte">A title with no place to break.</AccordionItem>,
+    ],
+    defaultValue: ['a'],
+  },
+  render: (args) => <div style={{ width: 240 }}><Accordion {...args} /></div>,
+};
