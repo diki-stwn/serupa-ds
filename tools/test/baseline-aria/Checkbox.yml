@@ -11,6 +11,17 @@
     - checkbox "Legal (always notified)" [disabled]
     - text: Legal (always notified)
 
+# GroupHorizontal
+- group "Days":
+  - text: Days
+  - group:
+    - checkbox "Monday" [checked]
+    - text: Monday
+    - checkbox "Tuesday"
+    - text: Tuesday
+    - checkbox "Wednesday"
+    - text: Wednesday
+
 # LongLabel
 - checkbox "Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news"
 - text: Email me about product updates, security notices and Donaudampfschifffahrtsgesellschaft news We send about one email a month, and you can unsubscribe from any of them with one click.

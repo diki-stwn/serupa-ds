@@ -53,6 +53,39 @@
 # IconTrigger
 - button "Row actions"
 
+# Left
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# LeftEnd
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# LeftStart
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
 # Links
 - button "Help" [expanded]
 - menu "Help":
@@ -69,6 +102,17 @@
   - menuitem "Delete this project and all of its files for good"
 
 # Playground
+- button "Actions" [expanded]
+- menu "Actions":
+  - menuitem "Edit"
+  - menuitem "Duplicate"
+  - menuitem "Archive" [disabled]
+  - separator
+  - group "Danger zone":
+    - text: Danger zone
+    - menuitem "Delete"
+
+# RightEnd
 - button "Actions" [expanded]
 - menu "Actions":
   - menuitem "Edit"

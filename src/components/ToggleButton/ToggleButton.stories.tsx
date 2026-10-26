@@ -47,3 +47,9 @@ export const LongLabel: Story = {
   args: { children: 'Show the alignment grid on every page' },
   render: (args) => <div style={{ width: 180 }}><ToggleButton {...args} /></div>,
 };
+
+export const Sizes: Story = {
+  render: (args) => <div className="flex gap-3 items-center">
+    {(['sm', 'md', 'lg'] as const).map((size) => <ToggleButton key={size} {...args} size={size}>Show grid, {size}</ToggleButton>)}
+  </div>,
+};

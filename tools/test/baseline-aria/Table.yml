@@ -1,3 +1,17 @@
+# Align
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Start Center End":
+      - columnheader "Start"
+      - columnheader "Center"
+      - columnheader "End"
+  - rowgroup:
+    - row "Ada Active 1,204":
+      - cell "Ada"
+      - cell "Active"
+      - cell "1,204"
+
 # Overflow
 - region "Team members, with every role and how many calls each made this quarter":
   - table "Team members, with every role and how many calls each made this quarter":
