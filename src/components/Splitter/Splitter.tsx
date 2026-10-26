@@ -170,7 +170,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
       data-placing={placing || undefined} onPointerDownCapture={onPlace}>
       <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}
-        onFocus={() => { focusedIn.current = true; }} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null) && e.relatedTarget) focusedIn.current = false; }}>{panes[0]}</div>
+        onFocus={() => { focusedIn.current = true; }} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget) focusedIn.current = false; }}>{panes[0]}</div>
       <div ref={handle} role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
         aria-valuenow={Math.round(size)} aria-valuemin={collapsible ? 0 : Math.round(min)} aria-valuemax={Math.round(max)} aria-controls={first}
         aria-label={separatorLabel || sds.labels.resizePanes} data-state={collapsed ? "collapsed" : undefined}
