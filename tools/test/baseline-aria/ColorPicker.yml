@@ -14,6 +14,34 @@
 - text: Contrast 5.0:1, below 7.0:1, which can be hard to read
 - paragraph: The quick brown fox
 
+# Disabled
+- radiogroup "Label color" [disabled]:
+  - radio "Blue" [checked] [disabled]
+  - radio "Violet" [disabled]
+  - radio "Emerald" [disabled]
+  - radio "Red" [disabled]
+  - radio "Amber" [disabled]
+  - radio "Yellow" [disabled]
+  - radio "Black" [disabled]
+  - radio "White" [disabled]
+- textbox "Custom color" [disabled]: "#1d4ed8"
+- textbox "Hex code" [disabled]: 1d4ed8
+
+# Invalid
+- text: Label color
+- radiogroup "Label color" [invalid]:
+  - radio "Blue"
+  - radio "Violet"
+  - radio "Emerald"
+  - radio "Red"
+  - radio "Amber"
+  - radio "Yellow"
+  - radio "Black"
+  - radio "White"
+- textbox "Custom color": "#000000"
+- textbox "Hex code"
+- text: Pick a color for the label.
+
 # LongLabels
 - radiogroup "Label color":
   - radio "Deep ocean blue for headings" [checked]
