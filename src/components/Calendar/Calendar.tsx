@@ -2,7 +2,6 @@
 import * as React from "react";
 import { cn, domId, omit } from "../../internal/cn";
 import { addDays, addMonths, compare, day, firstDayOfWeek, isoDate, isValid, sameDay, sameMonth, startOfMonth, startOfWeek, toDay } from "../../internal/dates";
-import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
 import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
@@ -155,10 +154,10 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   return (
     <div {...rest} ref={ref} className={cn("dk-calendar", props.className)} data-component="calendar">
       <div className="dk-calendar__header">
-        <IconButton icon={<><Icon icon={icons.ChevronLeft} className="dk-calendar__ltr" /><Icon icon={icons.ChevronRight} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
+        <IconButton icon={icons.ChevronLeft} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
           disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={(e) => { handover(e.currentTarget, () => nextNav.current); showMonth(addMonths(month, -1)); }} ref={prevNav} />
         <h2 className="dk-calendar__title" id={titleId} lang={lang} aria-live="polite">{title}</h2>
-        <IconButton icon={<><Icon icon={icons.ChevronRight} className="dk-calendar__ltr" /><Icon icon={icons.ChevronLeft} className="dk-calendar__rtl" /></>} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
+        <IconButton icon={icons.ChevronRight} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
           disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={(e) => { handover(e.currentTarget, () => prevNav.current); showMonth(addMonths(month, 1)); }} ref={nextNav} />
       </div>
       <table ref={grid} lang={lang} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>

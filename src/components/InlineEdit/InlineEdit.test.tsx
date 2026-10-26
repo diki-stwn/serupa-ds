@@ -145,6 +145,28 @@ describe('InlineEdit', () => {
     expect([input('vp'), calls, view('vp').textContent]).toEqual([null, ['taken-2'], 'Slug: taken-2, Edit']);
   });
 
+  test('Enter with an async validate, then Tab away while it runs: the save goes through and focus stays where the person went (GD3)', async () => {
+    const calls: string[] = [];
+    let done: (m: string | null) => void = () => {};
+    await render(<Box><InlineEdit id="vt" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={() => new Promise<string | null>((res) => { done = res; })} /><button id="vt-next">Next</button></Box>);
+    await userEvent.click(view('vt'));
+    await userEvent.fill(input('vt')!, 'apollo-2');
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement?.id).toBe('vt-next');
+    done(null);
+    await expect.poll(() => input('vt')).toBe(null);
+    await new Promise((r) => setTimeout(r, 50));
+    expect([calls, document.activeElement?.id]).toEqual([['apollo-2'], 'vt-next']);
+  });
+
+  test('an empty value with no placeholder shows its pencil, so the button can be found (GD4); with text or a placeholder the pencil waits for hover or focus', async () => {
+    await render(<Box><InlineEdit id="eb" label="Notes" defaultValue="" /><InlineEdit id="ep" label="Notes" defaultValue="" placeholder="Add notes" /><InlineEdit id="et" label="Notes" defaultValue="Ready" /></Box>);
+    // The pencil is the button's last child.
+    const pencil = (id: string) => css(view(id).lastElementChild).opacity;
+    expect([pencil('eb'), pencil('ep'), pencil('et')]).toEqual(['1', '0', '0']);
+  });
+
   test('validate\'s Promise rejected: the field stays open with the text, not busy and with no message', async () => {
     const calls: string[] = [];
     await render(<Box><InlineEdit id="vr" label="Slug" defaultValue="apollo" onValueChange={(x) => calls.push(x)} validate={() => Promise.reject(new Error('offline'))} /></Box>);
