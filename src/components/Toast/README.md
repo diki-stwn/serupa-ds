@@ -26,6 +26,10 @@ toast.promise(save(), {
 });
 
 toast.dismiss(id);   // or toast.dismiss() for all
+
+// undo instead of "Are you sure?": hide it now, delete it for good only if Undo isn't chosen
+hide(file);
+toast.undo({ title: "Moved to trash", commit: () => deleteFile(file), onUndo: () => show(file) });
 ```
 
 ## When to use
@@ -87,6 +91,18 @@ It returns the toast's id. `toast.dismiss(id)` closes one, `toast.dismiss()` all
 ### toast.promise(work, messages)
 
 Shows `messages.loading` while `work` (a promise, or a function that returns one) runs, then replaces that same toast with `messages.success` or `messages.error`. Each message is a title string or `toast()` options; `success` and `error` can also be functions that get the result or the error. The loading toast stays until the work settles (`autoDismiss: false`); the result gets the success or danger tone unless the message sets one, and the usual duration. Since it's one toast replaced in place, screen readers hear the loading message and then the result. It returns `work`'s promise, so you can still await it or catch its error.
+
+### toast.undo(options)
+
+The undo pattern, in place of a confirmation: do the action in the page at once (the item leaves the list), and let `toast.undo` hold the real work until it's sure. It shows a toast with an Undo button, and takes `toast()` options except `action` and `autoDismiss`, plus:
+
+| Option | Type | Notes |
+| --- | --- | --- |
+| `commit` | `() => void` | Required. Does the action for good. It runs once, when the toast closes without Undo: its time runs out, it's closed with ×, `toast.dismiss` closes it, or the page is left (`pagehide`). |
+| `onUndo` | `() => void` | Runs instead of `commit` when Undo is chosen: put things back. |
+| `undoLabel` | string | The button's text. Default: "Undo" (`labels.undo`). |
+
+It returns the toast's id. Keep the usual duration or longer, so people have time to notice. The toast's time stops while it's hovered or focused, and F8 reaches its Undo button. With `duration: 0` it stays, and commits only when it's closed or the page is left.
 
 ### Toaster
 
