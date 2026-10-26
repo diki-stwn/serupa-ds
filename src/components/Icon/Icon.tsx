@@ -22,7 +22,7 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   name?: IconName;
   /** A Material Symbols icon imported from serupa-ds/icons: `icon={ArrowForward}`. Give `name` or `icon`. */
   icon?: IconData;
-  /** Size in px (number) or any CSS length. Default: 24px, or the button's icon size inside a Button. */
+  /** Size in px (a number, or a string of one: "20") or any CSS length. Default: 24px, or the button's icon size inside a Button. */
   size?: number | string;
 }
 
@@ -80,7 +80,8 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   const labelled = rest["aria-label"] || rest["aria-labelledby"];
   if (!labelled) rest["aria-hidden"] = true; else rest.role = "img";
   const style: React.CSSProperties = Object.assign({}, props.style);
-  if (props.size != null) style.fontSize = typeof props.size === "number" ? props.size + "px" : props.size;
+  // A plain number as a string (size="20", as from a data attribute or a CMS) is px too: font-size: 20 is invalid and would leave it 24px.
+  if (props.size != null) style.fontSize = typeof props.size === "number" || /^\s*\d*\.?\d+\s*$/.test(props.size) ? String(props.size).trim() + "px" : props.size;
   const name = props.icon ? props.icon.name : props.name;
   if (name != null) rest["data-icon"] = name;
   if (custom) {
