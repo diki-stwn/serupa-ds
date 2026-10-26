@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, keepMotion } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
+import { resetWarnings } from '../../internal/warn';
 import { SerupaProvider } from '../../internal/provider';
 import { Carousel } from './Carousel';
 
@@ -113,6 +114,22 @@ describe('Carousel', () => {
     expect(ref.current).toBe(c);
     expect(c.className).toMatch(/extra/);
     expect(Math.round(s.getBoundingClientRect().width)).toBe(Math.round(c.getBoundingClientRect().width));
+  });
+
+  test('named by aria-label or aria-labelledby instead of label (FP1): the region keeps that name, with no missing-name warning', async () => {
+    resetWarnings();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await render(<>
+        <Carousel id="al" aria-label="Featured"><div>A</div><div>B</div></Carousel>
+        <h2 id="hd">New arrivals</h2>
+        <Carousel id="lb" aria-labelledby="hd"><div>A</div><div>B</div></Carousel>
+      </>);
+      await expect.element(page.getByRole('region', { name: 'Featured' })).toBeInTheDocument();
+      await expect.element(page.getByRole('region', { name: 'New arrivals' })).toBeInTheDocument();
+      expect([el('al').getAttribute('aria-label'), el('lb').hasAttribute('aria-label')]).toEqual(['Featured', false]);
+      expect(warn.mock.calls.filter((c) => String(c[0]).includes('Carousel has no accessible name'))).toEqual([]);
+    } finally { warn.mockRestore(); }
   });
 
   test('starts on the first slide: only it is shown and reachable (the rest inert and hidden), its dot is current and the only one in the Tab order; previous is hidden, not just greyed', async () => {
