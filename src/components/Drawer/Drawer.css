@@ -9,15 +9,18 @@
   --dk-drawer-width: var(--drawer-width-md, var(--container-sm));
   box-sizing: border-box; position: fixed; inset: var(--spacing-0);
   width: var(--sizing-full); max-width: none; height: var(--sizing-full); max-height: none;
-  margin: var(--spacing-0); padding: var(--spacing-0); border: var(--spacing-0); background: transparent; overflow: hidden;
+  margin: var(--spacing-0); padding: var(--spacing-0); border: var(--spacing-0); background: transparent;
+  overflow: clip;   /* clip, not hidden: not a scroll container, so focusing a control while the panel is still off-screen can't scroll it into view (FN1) */
   color: var(--drawer-text, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
 }
 .dk-drawer[open] { display: flex; }
-.dk-drawer--right[open] { justify-content: flex-end; }
+/* Against its edge whether open or closing (FN1): on [open] alone, a right or bottom panel jumped to the
+   opposite edge as it began to slide out. */
+.dk-drawer--right { justify-content: flex-end; }
 /* side is physical, like the slide-in: right is the right edge in a right-to-left page too, where flex-end is the left. */
-.dk-drawer--right[open]:dir(rtl) { justify-content: flex-start; }
-.dk-drawer--left[open]:dir(rtl) { justify-content: flex-end; }
-.dk-drawer--bottom[open] { align-items: flex-end; }
+.dk-drawer--right:dir(rtl) { justify-content: flex-start; }
+.dk-drawer--left:dir(rtl) { justify-content: flex-end; }
+.dk-drawer--bottom { align-items: flex-end; }
 .dk-drawer--sm { --dk-drawer-width: var(--drawer-width-sm, var(--container-xs)); }
 .dk-drawer--lg { --dk-drawer-width: var(--drawer-width-lg, var(--container-lg)); }
 .dk-drawer::backdrop { background: var(--drawer-overlay, var(--overlay)); }

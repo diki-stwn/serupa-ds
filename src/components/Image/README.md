@@ -33,7 +33,7 @@ import { Image } from "serupa-ds";
 
 - It loads lazily (`loading="lazy"`) and decodes off the main thread (`decoding="async"`) by default. For the main picture at the top of a page, pass `priority`: it loads at once with `fetchpriority="high"`, so it shows sooner (Largest Contentful Paint).
 - With `ratio="auto"`, pass the picture's `width` and `height`: the frame takes their shape before the picture arrives (at most as wide as its container), so the page doesn't jump when it loads. Without them, or a fixed ratio, the frame has no height until then, and Image warns in the console once.
-- While loading, the frame shows a pulsing placeholder fill (still with reduced motion). A frame with `ratio="auto"` is at least 48px until the picture arrives, so give it a width and set `width` and `height` on the `<img>` to avoid a jump.
+- While loading, the frame shows the placeholder fill with a lighter band sweeping through it every 2s, like Loader's skeleton (a still fill with reduced motion or forced colors). The band moves on `translate`, so it costs no repaints. A frame with `ratio="auto"` is at least 48px until the picture arrives, so give it a width and set `width` and `height` on the `<img>` to avoid a jump.
 - The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture.
 - The remove button only calls `onRemove`; ask for confirmation yourself if removing can't be undone.
 
@@ -72,6 +72,7 @@ Each is an optional override: set it on the page, a container or one image. The 
 | Token | Default | Use |
 | --- | --- | --- |
 | `--image-bg` | `surface-muted` | The frame's fill while the picture loads, and behind a failed one. |
+| `--image-shine` | `surface` | The lighter band that sweeps through the fill while the picture loads (at 60%). |
 | `--image-fallback-color` | `text-muted` | The broken-image icon (3:1 on bg). |
 | `--image-focus-ring` | `focus-ring` | A viewable picture's keyboard focus ring. |
 | `--image-radius` | `rounded-lg` | The frame's corners with rounded (8px). |
