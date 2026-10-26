@@ -30,6 +30,10 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   layout: {
     'dk-accordion__panel': ['EH2: opens by animating grid-template-rows', ['Accordion']],
     'dk-switch__thumb': ['EG1: the thumb slides by left', ['Switch']],
+    'dk-segmented__indicator': ['EG1: the indicator slides by left and width', ['SegmentedControl']],
+    'dk-progress__fill': ['FB1: the fill grows by inline-size', ['Progress']],
+    'dk-meter__fill': ['FB1: the fill grows by inline-size', ['Meter']],
+    'dk-carousel__dot': ['FB1: the current dot widens by width', ['Carousel']],
   },
   'paint loop': {
     'dk-loader-arc': ['EE1: stroke-dasharray', ['Loader', 'Button', 'IconButton', 'Fab', 'SearchInput', 'Badge']],
@@ -37,7 +41,7 @@ const KNOWN: Record<Rule, Record<string, [string, string[]]>> = {
   },
   keyframes: Object.fromEntries([
     ['dk-dialog-in', 'Dialog'], ['dk-dialog-fade', 'Dialog'], ['dk-drawer-in', 'Drawer'], ['dk-drawer-fade', 'Drawer'], ['dk-menu-in', 'Menu'],
-    ['dk-popover-in', 'Popover'], ['dk-tooltip-in', 'Tooltip'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
+    ['dk-popover-in', 'Popover'], ['dk-toast-up', 'Toast'], ['dk-toast-down', 'Toast'],
   ].map(([k, c]) => [k, ['DZ1: enter with a transition, with an exit', [c]]])),
   'on mount': {
     'dk-input': ['DZ1: the Input a Popover focuses as it opens transitions its focus ring in its first frame', ['Popover']],
@@ -107,6 +111,23 @@ function judge(list: Animation[], when: 'mount' | 'interaction', reduced: boolea
   return out;
 }
 
+const STYLESHEETS = import.meta.glob<string>('../components/*/*.css', { query: '?raw', import: 'default', eager: true });
+// Commas inside var(…) or cubic-bezier(…) don't split.
+const list = (v: string) => { const out = ['']; let depth = 0; for (const c of v) { if (c === '(') depth++; if (c === ')') depth--; if (c === ',' && !depth) out.push(''); else out[out.length - 1] += c; } return out.map((x) => x.trim()).filter(Boolean); };
+// Each rule that sets a transition: its KNOWN key (the first class of the element it styles, as a transition's key
+// is), its selector and the properties it transitions.
+function transitions(css: string): Array<[string, string, string[]]> {
+  const out: Array<[string, string, string[]]> = [];
+  for (const [, selector, body] of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const props = [...body.matchAll(/(?:^|;)\s*(transition(?:-property)?)\s*:\s*([^;]+)/g)]
+      .flatMap(([, name, value]) => list(value).map((part) => (name === 'transition' ? part.split(/\s+/)[0] : part)));
+    const sel = selector.trim().replace(/\s+/g, ' ');
+    const k = /\.([\w-]+)/.exec(sel.split(',')[0].trim().split(/[\s>+~]+/).pop() || '')?.[1] || sel;
+    if (props.length) out.push([k, sel, props]);
+  }
+  return out;
+}
+
 const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 const inside = (host: Element) => document.getAnimations().filter((a) => { const t = target(a); return !!t && (host.contains(t) || !document.body.contains(t) || !host.isConnected || t.closest('[data-dk-portal], [popover], dialog') !== null); });
 const $ = (host: Element, sel: string) => host.querySelector<HTMLElement>(sel);
@@ -114,6 +135,7 @@ const $ = (host: Element, sel: string) => host.querySelector<HTMLElement>(sel);
 const INTERACT: Record<string, (host: HTMLElement) => Promise<void>> = {
   TimePicker: async (h) => { await userEvent.click($(h, 'button[aria-expanded]')!); },
   Switch: async (h) => { await userEvent.click($(h, '[role=switch]')!); },
+  SegmentedControl: async (h) => { await userEvent.click(h.querySelectorAll<HTMLElement>('[role=radio]')[1]); },
   Checkbox: async (h) => { await userEvent.click($(h, 'input[type=checkbox]')!); },
   Accordion: async (h) => { await userEvent.click($(h, 'button')!); },
   Tabs: async (h) => { const tabs = h.querySelectorAll('[role=tab]'); await userEvent.click(tabs[1]); },
@@ -161,6 +183,18 @@ describe('motion quality gate', () => {
       expect([...new Set(problems)]).toEqual([]);
     });
   }
+  // A transition that only runs when a value changes (a fill growing, an indicator moving to the picked segment)
+  // runs in no story above, so every component stylesheet is read for it too (FA1).
+  test('no component stylesheet transitions a layout property', () => {
+    const problems: string[] = [];
+    for (const [file, css] of Object.entries(STYLESHEETS)) {
+      for (const [k, sel, props] of transitions(css)) {
+        const layout = props.filter((p) => p === 'all' || LAYOUT.test(p));
+        if (layout.length && note('layout', k)) problems.push(`${file.replace('../components/', '')}: ${sel} transitions ${layout.join(', ')}, which lays the page out on every frame of the change`);
+      }
+    }
+    expect(problems).toEqual([]);
+  });
   // A KNOWN line nothing breaks any more is a fixed item: take the line out, so a regression fails again. Checked
   // after every story has run (the tests run in a random order), in Chromium (the one that emulates reduced motion),
   // for the lines whose components all ran.
