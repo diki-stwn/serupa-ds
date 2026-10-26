@@ -3,7 +3,8 @@ import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { VisuallyHidden } from "../VisuallyHidden/VisuallyHidden";
 import { component } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
+import { en as words } from "./labels";
 
 export interface KbdProps extends React.HTMLAttributes<HTMLElement> {
   /** A combination, one key each: ['mod', 'K'], ['shift', 'enter']. Names below show as symbols on Apple devices. Or pass one key as children. */
@@ -63,7 +64,7 @@ function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string)
 /** A keyboard key or shortcut, drawn as keycaps; "mod" follows the platform (⌘ or Ctrl). */
 export const Kbd = /* @__PURE__ */ component<HTMLElement, KbdProps>("Kbd", function Kbd(props, ref) {
   const rest = omit(props, { keys: 1, size: 1, className: 1, children: 1 } as const);
-  const sds = useSerupa(), say = sds.labels.keyName;
+  const sds = useSettings(words), say = sds.labels.keyName;
   // A SerupaProvider's platform decides from the first render (the server's too); without one, Ctrl on the server
   // and the device decides after mount.
   const [found, setFound] = React.useState(false);

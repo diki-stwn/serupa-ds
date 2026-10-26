@@ -5,9 +5,10 @@ import { component } from "../../internal/component";
 import { useAutoFocus } from "../../internal/focus";
 import { announce } from "../../internal/announce";
 import { isComposing } from "../../internal/ime";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
 import * as icons from "../../material/builtin";
+import { en as words } from "./labels";
 
 export interface SortableListProps<T> extends Omit<React.HTMLAttributes<HTMLUListElement>, 'children' | 'onChange'> {
   /** The items, in order. Controlled: pass the new order back from onReorder. */
@@ -35,7 +36,7 @@ type Drag = { key: string | number; from: number; to: number; pointer: boolean }
 /** A list people reorder by dragging a handle or with the keyboard, with every move announced. */
 export const SortableList = /* @__PURE__ */ component<HTMLUListElement, SortableListProps<unknown>>("SortableList", function SortableList(props, ref) {
   const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, className: 1, autoFocus: 1 } as const);
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const { getKey, getLabel } = props;
   const items: readonly unknown[] = props.items || [];   // missing items (a plain-JS caller): an empty list, not a TypeError
   const [drag, setDrag] = React.useState<Drag | null>(null);

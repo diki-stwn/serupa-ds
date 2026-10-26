@@ -8,10 +8,12 @@ import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { named } from "../../internal/component";
-import { useSerupa } from "../../internal/provider";
+import { useSettings } from "../../internal/provider";
 import { onModalChange, topModal } from "../../internal/layers";
+import { settleTime, speed, track, type Samples } from "../../internal/fling";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
+import { en as ownWords } from "./labels";
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type ToasterPosition = 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
@@ -149,7 +151,7 @@ const ICONS: Record<ToastTone, IconData | null> = { neutral: null, info: icons.I
    moves focus to the newest toast, and F8 or Escape takes it back to where it was. */
 /** The place toast() messages appear: render one, once, near the root of the app. */
 export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: ToasterProps): React.ReactElement {
-  const sds = useSerupa();
+  const sds = useSettings(ownWords);
   const { position, label, dismissLabel, limit, duration, autoDismiss, className, ...rest } = props;
   // Empty at first, as on a server, where a toast() from another request could be in the queue; the effect reads it.
   const [list, setList] = React.useState<Item[]>([]);
@@ -339,13 +341,14 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     void Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => { if (on) onGone(t.id); });
     return () => { on = false; };
   }, [leaving]);
-  const sds = useSerupa();
+  const sds = useSettings(ownWords);
   const duration = props.time;   // 0 when it stays
   // Each reason to stop the time is kept apart, so leaving with the mouse doesn't restart it while focus is still inside.
   const [hovered, setHovered] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
   const [hidden, setHidden] = React.useState(false);
-  const paused = hovered || focused || hidden;
+  const [held, setHeld] = React.useState(false);   // under a finger (a swipe)
+  const paused = hovered || focused || hidden || held;
   // Back from the waiting line, it goes on with the time it had left.
   const { clocks } = props;
   const [kept] = React.useState(() => clocks.get(t.id));
@@ -365,11 +368,55 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     document.addEventListener("visibilitychange", vis);
     return () => document.removeEventListener("visibilitychange", vis);
   }, []);
+  // Swipe to dismiss (touch): sideways, it follows the finger and fades as it goes. Let go past a third of its width,
+  // or flicked away, it carries on at the finger's speed (ease-fling, as Drawer and Carousel) and closes; otherwise
+  // it slides back. The × stays the way to close it without a swipe (WCAG 2.5.1).
+  const drag = React.useRef<{ id: number; x: number; y: number; d: number; on: boolean; s: Samples } | null>(null);
+  const onSwipeDown = (e: React.PointerEvent<HTMLLIElement>) => {
+    if (leaving || e.pointerType !== "touch" || !e.isPrimary || (e.target as Element).closest("button, a, input, textarea, select")) return;
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, d: 0, on: false, s: [{ t: e.timeStamp, p: 0 }] };
+  };
+  const onSwipeMove = (e: React.PointerEvent<HTMLLIElement>) => {
+    const g = drag.current;
+    if (!g || e.pointerId !== g.id) return;
+    const d = e.clientX - g.x, across = Math.abs(e.clientY - g.y), el = e.currentTarget;
+    if (!g.on) {
+      if (across > 10 && across > Math.abs(d)) { drag.current = null; return; }
+      if (Math.abs(d) < 10) return;
+      g.on = true;
+      setHeld(true);
+      el.setAttribute("data-dragging", "");   // follows the finger, with no transition behind it
+      try { el.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
+    }
+    g.d = d;
+    track(g.s, e.timeStamp, d);
+    el.style.translate = d + "px 0";
+    el.style.opacity = String(Math.max(0, 1 - Math.abs(d) / el.offsetWidth));
+  };
+  const onSwipeEnd = (e: React.PointerEvent<HTMLLIElement>) => {
+    const g = drag.current;
+    if (!g || e.pointerId !== g.id) return;
+    drag.current = null;
+    const el = e.currentTarget, w = el.offsetWidth, v = speed(g.s), dir = Math.sign(g.d);
+    el.removeAttribute("data-dragging");
+    setHeld(false);
+    if (!g.on) return;
+    const away = v * dir;   // px per ms, the way it was dragged
+    const out = e.type === "pointerup" && (away > 0.5 || (Math.abs(g.d) > w / 3 && away > -0.1));
+    if (out && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.style.transition = ["translate", "opacity"].map((p) => p + " " + settleTime(w - Math.abs(g.d), Math.max(0, away)) + "ms var(--ease-fling)").join(", ");
+      el.style.translate = dir * w + "px 0";
+      el.style.opacity = "0";
+    } else el.style.translate = el.style.opacity = "";
+    if (!out) return;
+    toast.dismiss(t.id);
+  };
   const titleId = t.id + "-title", descId = t.id + "-desc";
   const icon = ICONS[t.tone];
   return (
     <li ref={self} tabIndex={-1} className={cn("dk-toast", "dk-toast--" + t.tone)} data-tone={t.tone} data-toast={t.id}
       data-leaving={leaving ? (leaving === "queued" ? "queued" : "") : undefined} data-instant={props.instant ? "" : undefined} inert={leaving ? true : undefined} aria-labelledby={titleId} aria-describedby={t.description != null ? descId : undefined}
+      onPointerDown={onSwipeDown} onPointerMove={onSwipeMove} onPointerUp={onSwipeEnd} onPointerCancel={onSwipeEnd}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
       {icon ? <span className="dk-toast__icon" aria-hidden="true"><Icon icon={icon} /></span> : null}

@@ -113,8 +113,9 @@ The menu panel's id is made for you unless you pass one, and the trigger's `aria
 | `aria-label` | string | required | The menu's name ("File actions"), since there's no button to take it from |
 | `open`, `onOpenChange` | boolean, function | | Control it yourself. Opened this way, it shows at the target's corner. onOpenChange(open, { reason }) says why: `'trigger'`, `'select'` (an item chosen), `'escape'`, `'blur'` (Tab) or `'outside'` |
 | `disabled` | boolean | `false` | Leaves the browser's own menu in place |
+| `className`, `style`, other HTML attributes and a ref | | | Go on the menu panel: `data-testid`, an `id`, other `aria-*` and a ref reach it. Its `onKeyDown` runs before the menu's keys and can call `preventDefault()` to stop them |
 
-`id` isn't a prop: put an id on the target, which keeps it.
+An id on the target stays on the target.
 
 ### MenuItem
 

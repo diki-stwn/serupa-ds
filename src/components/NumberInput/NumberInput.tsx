@@ -11,11 +11,15 @@ import { useFieldControl } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
 import { formatNumber, parseNumber } from "../../internal/numbers";
 import { gridPlaces, roundTo } from "../../internal/step";
-import { useLocale, useOwnLang, useSerupa } from "../../internal/provider";
+import { useLocale, useOwnLang, useSettings } from "../../internal/provider";
 import { minorDigits, pinCurrencyDigits } from "../../internal/currency";
 import { useFormReset } from "../../internal/useFormReset";
 import { reject } from "../../internal/rejectInput";
 import * as icons from "../../material/builtin";
+import { en as NumberInputWords } from "./labels";
+import { en as DatePickerWords } from "../DatePicker/labels";
+// This component's words and the ones it shares with DatePicker.
+const words = /* @__PURE__ */ Object.assign({}, NumberInputWords, DatePickerWords);
 
 export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" | "value" | "defaultValue" | "rightIcon" | "min" | "max" | "step"> {
   /** The number (controlled), or null when the field is empty. Use with onValueChange. */
@@ -67,7 +71,7 @@ const keyed = (key: string) => (key ? (JSON.parse(key) as Intl.NumberFormatOptio
 export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInputProps>("NumberInput", function NumberInput(props, ref) {
   const nameRef = useNameCheck("NumberInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const sds = useSerupa();
+  const sds = useSettings(words);
   const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, onInvalidInput: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
