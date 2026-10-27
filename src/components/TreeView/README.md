@@ -57,7 +57,7 @@ const files: TreeViewItem[] = [
 | Shift + Space | With `"multiple"`: picks every item from the one picked last |
 | Ctrl / Cmd + A | With `"multiple"`: picks every item in view |
 
-- **Pointer:** a click on a row picks it (Shift+click picks a range with `"multiple"`), and a click on its chevron opens or closes it without picking.
+- **Pointer:** a click on a row picks it (Shift+click picks a range with `"multiple"`), and a click on its chevron opens or closes it without picking. The chevron is a 24px target (WCAG 2.5.8) around its 20px icon.
 - **Contrast:** labels read 4.5:1 on the background, and the picked row's on its highlight, in all six themes (`TreeView.test.tsx`). The picked row also has a 2px bar at its start, so it doesn't rely on the background alone.
 - **What's still yours:** a name for the tree, and labels that make sense read alone ("Invoices", not "Folder 3").
 
