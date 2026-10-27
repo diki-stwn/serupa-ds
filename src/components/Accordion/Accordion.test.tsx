@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
@@ -272,5 +272,14 @@ describe('Accordion', () => {
     await press(t, () => expect.poll(() => css(t).backgroundColor).toBe(color('var(--pressed)')));
     const d = trigger('pr', 2);
     await press(d, () => expect(css(d).backgroundColor).toBe('rgba(0, 0, 0, 0)'));
+  });
+
+  test('a word longer than the line wraps in the title and the content, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    const WORD = 'Donaudampfschifffahrtsgesellschaftskapitänskajüte';
+    await page.viewport(320, 640);
+    await render(<div style={{ width: '240px' }}><Accordion id="lw" defaultValue={['a']}><AccordionItem value="a" title={WORD}>{WORD}</AccordionItem></Accordion></div>);
+    const t = trigger('lw', 1), p = panel('lw');
+    expect([t.scrollWidth <= t.clientWidth + 1, p.scrollWidth <= p.clientWidth + 1, t.textContent]).toEqual([true, true, WORD]);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
 });
