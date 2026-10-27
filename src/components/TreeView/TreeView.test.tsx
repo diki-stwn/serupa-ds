@@ -182,6 +182,18 @@ describe('TreeView', () => {
     expect(focused()).toBe('d');
   });
 
+  test('a Space typed within a word is part of it ("my files"), not a pick; after a pause Space picks (GQ4)', async () => {
+    const files: TreeViewItem[] = [{ id: 'f1', label: 'my file' }, { id: 'f2', label: 'my files' }, { id: 's', label: 'src' }];
+    await render(<><button id="before">Before</button><TreeView aria-label="Files" items={files} /></>);
+    await enter();
+    await userEvent.keyboard('my files');
+    expect(focused()).toBe('f2');
+    expect(items().filter((i) => i.getAttribute('aria-selected') === 'true')).toEqual([]);
+    await new Promise((r) => setTimeout(r, 600));
+    await userEvent.keyboard(' ');
+    expect(item('f2').getAttribute('aria-selected')).toBe('true');
+  });
+
   test('controlled: value and expanded come from props, and change only when the parent passes new ones', async () => {
     function Controlled() {
       const [value, setValue] = React.useState<string[]>(['c']);
