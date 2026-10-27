@@ -74,6 +74,10 @@ Select doesn't support `multiple` (a native multi-select is hard to use), so it 
 
 A locale-dependent component (a date, a number) rendered on the server without a locale, so the server HTML uses en-US and the page switches to the browser's locale after hydration, which shows as a flash. Set `<SerupaProvider locale>` from the request. See Localization.
 
+## shortcut-keys
+
+useShortcut was given keys that aren't one key with its modifiers, such as `["G", "I"]` (two keys can't be pressed together) or `["mod"]` alone, so the shortcut isn't set up and isn't listed in KeyboardShortcuts. Give one key, plus `mod`, `ctrl`, `cmd`, `alt` or `shift` if it needs them: `["mod", "K"]`, `["?"]`.
+
 ## splitter-two
 
 Splitter needs exactly two children, its two panes.

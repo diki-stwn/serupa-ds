@@ -4,6 +4,7 @@ import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { isComposing } from "../../internal/ime";
+import { warnOnce } from "../../internal/warn";
 import { topModal } from "../../internal/layers";
 import type { OpenChangeDetails } from "../../internal/openChange";
 import { Dialog, type DialogProps } from "../Dialog/Dialog";
@@ -53,15 +54,18 @@ const NAMED: Record<string, string> = {
 const MODIFIER: Record<string, keyof Omit<Combo, "key">> = {
   mod: "mod", cmd: "meta", meta: "meta", ctrl: "ctrl", control: "ctrl", alt: "alt", option: "alt", shift: "shift",
 };
-function parse(keys: string[]): Combo {
+// null unless there's exactly one key besides the modifiers: ["G", "I"] can't be pressed together, and matching only
+// its last key ran it on a lone "I" (GQ3).
+function parse(keys: string[]): Combo | null {
   const c: Combo = { key: "", mod: false, ctrl: false, meta: false, alt: false, shift: false };
+  let n = 0;
   for (const k of keys) {
     const name = k.length > 1 ? k.toLowerCase().replace(/[\s_-]/g, "") : k.toLowerCase();
     const m = MODIFIER[name];
     if (m) c[m] = true;
-    else c.key = NAMED[name] || (k.length === 1 ? k.toLowerCase() : k);
+    else { c.key = NAMED[name] || (k.length === 1 ? k.toLowerCase() : k); n++; }
   }
-  return c;
+  return n === 1 ? c : null;
 }
 function matches(c: Combo, e: KeyboardEvent, apple: boolean): boolean {
   if (e.ctrlKey !== (c.ctrl || (c.mod && !apple)) || e.metaKey !== (c.meta || (c.mod && apple)) || e.altKey !== c.alt) return false;
@@ -113,7 +117,7 @@ const none = () => NONE;
    unless it has mod, ctrl or cmd (or inInputs), while an IME is composing, while a modal is open, or when something
    else already handled the key. When two set up the same keys, the newest wins. With a description, it's listed in
    <KeyboardShortcuts>. */
-/** Runs handler when the keys are pressed (["mod", "K"]), and lists it in <KeyboardShortcuts> when it has a description. */
+/** Runs handler when the keys are pressed (["mod", "K"]: one key and its modifiers), and lists it in <KeyboardShortcuts> when it has a description. */
 export function useShortcut(keys: string | string[], handler: (event: KeyboardEvent) => void, options?: ShortcutOptions): void {
   const sds = useSettings(words);
   const run = React.useRef(handler);
@@ -125,8 +129,12 @@ export function useShortcut(keys: string | string[], handler: (event: KeyboardEv
   const apple = sds.platform ? sds.platform === "apple" : null;
   React.useEffect(() => {
     if (!enabled) return;
-    const k = JSON.parse(id) as string[];
-    return add(Object.assign(parse(k), { keys: k, run, description, group, inInputs, apple: apple != null ? apple : isApple() }));
+    const k = JSON.parse(id) as string[], combo = parse(k);
+    if (!combo) {
+      if (process.env.NODE_ENV !== "production") warnOnce("shortcut-keys", `useShortcut: ${id} isn't one key with its modifiers, so it's not set up. Give one key, plus mod, ctrl, cmd, alt or shift if it needs them, such as ["mod", "K"].`, "shortcut-keys" + id);
+      return;
+    }
+    return add(Object.assign(combo, { keys: k, run, description, group, inInputs, apple: apple != null ? apple : isApple() }));
   }, [id, description, group, enabled, inInputs, apple]);
 }
 

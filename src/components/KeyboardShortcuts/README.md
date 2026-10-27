@@ -28,7 +28,7 @@ function Inbox() {
 ## Usage
 
 - Call `useShortcut(keys, handler, { description, group })` in the component the shortcut belongs to. It works while that component is mounted, so a page's shortcuts come and go with the page.
-- Write keys as [Kbd](../Kbd/README.md) takes them, pressed together: `["mod", "K"]`, `["shift", "up"]`, `["?"]`. `mod` is ⌘ on Apple devices and Ctrl elsewhere.
+- Write keys as [Kbd](../Kbd/README.md) takes them, pressed together: `["mod", "K"]`, `["shift", "up"]`, `["?"]`. `mod` is ⌘ on Apple devices and Ctrl elsewhere. One key plus its modifiers: two keys in a row such as `["G", "I"]` aren't supported, so that shortcut isn't set up, and a development warning says so.
 - Give it a `description` to list it, and a `group` to put it under a heading. Without a description, it works but isn't listed.
 - Put one `<KeyboardShortcuts />` in the app's layout. Also open it from a help menu or button (`open` and `onOpenChange`), since many people don't know <kbd>?</kbd>.
 - List shortcuts you don't set up with `useShortcut`, such as an editor's, with `shortcuts`.
