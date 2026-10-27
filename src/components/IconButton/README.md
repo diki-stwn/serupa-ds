@@ -49,7 +49,7 @@ const { IconButton } = window.Serupa;
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<button>`. |
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element |
-| `label` | string | required | Its `aria-label`, and a `title` tooltip |
+| `label` | string | required | Its `aria-label`, and a `title` tooltip. An `aria-label` passed instead (from JavaScript, or props spread from a Button) is used as the label |
 | `shape` | `'square'` \| `'round'` | `'square'` | The Button's corners, or a circle |
 | `noTitle` | boolean | `false` | Leaves out the `title`, when visible text already shows the label (a wrapping Tooltip leaves it out by itself) |
 | `variant` | as Button | `'ghost'` | Ghost by default, the usual look for an icon on its own |

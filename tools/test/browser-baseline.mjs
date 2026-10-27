@@ -1,5 +1,6 @@
-// Browser baseline: every property, value keyword, function, at-rule and pseudo-class in dist/bundle.css works in
-// the oldest browsers the README's "Browser support" names (BASELINE), going by MDN's browser-compat-data.
+// Browser baseline: every property, value keyword, function, at-rule and pseudo-class in dist/bundle.css, and every
+// static built-in dist/serupa.iife.js reads, works in the oldest browsers the README's "Browser support" names
+// (BASELINE), going by MDN's browser-compat-data.
 //
 //   node tools/test/browser-baseline.mjs
 //
@@ -7,9 +8,10 @@
 // it, and when the README should tell users (a class that does nothing there), README names it. So a new feature
 // that needs a newer browser fails here until someone decides it may, and an entry the data no longer needs fails
 // too, so the list stays the true one. Also fails on a property the data doesn't know (a typo, or a non-standard
-// one). Skipped: custom properties, vendor-prefixed properties and pseudo-elements (each meant for its own engine),
-// and a declaration inside an @supports that tests that same property (it already asks first). A prefixed form in
-// the same rule counts as support, as -webkit-user-select does for Safari.
+// one), and on an @supports every baseline browser passes. Skipped: custom properties, vendor-prefixed properties
+// and pseudo-elements (each meant for its own engine), and a declaration inside an @supports that tests that same
+// property (it already asks first). A prefixed form in the same rule counts as support, as -webkit-user-select
+// does for Safari.
 import fs from 'node:fs';
 import path from 'node:path';
 import postcss from 'postcss';
@@ -124,6 +126,24 @@ css.walkAtRules((a) => {
   const r = bcd.css['at-rules'][a.name];
   if (r) note(`@${a.name}`, r.__compat, `@${a.name} ${a.params}`.trim().slice(0, 60));
 });
+// An @supports whose every test the baseline passes guards nothing: its fallback is dead code to keep in step.
+// Only plain (property: value) tests count; not(), selector() and vendor-prefixed tests always may stay.
+const redundant = new Set();
+css.walkAtRules('supports', (a) => {
+  if (/\bnot\b|selector\(|\(\s*-/.test(a.params)) return;
+  const tests = [...a.params.matchAll(/\(\s*([a-z-]+)\s*:\s*([^()]*(?:\([^()]*\)[^()]*)*)\)/g)];
+  if (!tests.length) return;
+  const passes = tests.every(([, prop, value]) => {
+    const p = bcd.css.properties[prop];
+    if (!p || gaps(p.__compat).length) return false;
+    if (value.split(/[\s,()/]+/).some((w) => w !== '__compat' && p[w]?.__compat && gaps(p[w].__compat).length)) return false;
+    return [...value.matchAll(/([a-z-]+)\(/g)].every(([, f]) => {
+      const t = bcd.css.types[f]?.__compat ? bcd.css.types[f] : types.find(([, x]) => x[f]?.__compat)?.[1][f];
+      return !t || !gaps(t.__compat).length;
+    });
+  });
+  if (passes) redundant.add(`@supports ${a.params}`);
+});
 css.walkRules((r) => {
   for (const [, name] of r.selector.matchAll(/::?([a-z][a-z-]*)/g)) if (bcd.css.selectors[name]) note(`:${name}`, bcd.css.selectors[name].__compat, r.selector.slice(0, 60));
 });
@@ -133,6 +153,22 @@ const fresh = [...found.keys()].filter((k) => !KNOWN[k]).sort();
 check(`bundle.css works in Chrome and Edge ${BASELINE.chrome}, Safari ${BASELINE.safari} and Firefox ${BASELINE.firefox}, apart from KNOWN`, !fresh.length,
   fresh.map((k) => found.get(k)).join('\n      ') + '\n      Make it work there, or add it to KNOWN in tools/test/browser-baseline.mjs with what happens without it.');
 const stale = Object.keys(KNOWN).filter((k) => !found.has(k)).sort();
+check('No @supports tests for what the baseline already has', !redundant.size, `${[...redundant].join('; ')}: drop the @supports and the fallback before it`);
+// The script side: every static built-in it reads (Object.groupBy, Promise.withResolvers, Intl.Segmenter, …) in the
+// IIFE, which holds every component, works at the baseline too. Prototype methods can't be told apart by name
+// (an array's .filter() from an iterator's), so they are left to the cross-browser runs.
+const KNOWN_JS = {};
+const js = fs.readFileSync(path.join(P, 'dist', 'serupa.iife.js'), 'utf8');
+const B = bcd.javascript.builtins;
+const newJs = new Map();
+for (const [, g, m] of js.matchAll(/\b([A-Z][A-Za-z]+)\.([a-zA-Z]+)\b/g)) {
+  const c = g === 'Intl' ? B.Intl?.[m]?.__compat : B[g]?.[m]?.__compat;
+  if (!c) continue;
+  const gp = gaps(c);
+  if (gp.length) newJs.set(`${g}.${m}`, gp.join(', '));
+}
+const freshJs = [...newJs.keys()].filter((k) => !KNOWN_JS[k]).sort();
+check(`serupa.iife.js: every static built-in works at the baseline, apart from KNOWN_JS`, !freshJs.length, freshJs.map((k) => `${k} (${newJs.get(k)})`).join('; ') + ': guard it and add it to KNOWN_JS with what happens without it');
 check('KNOWN lists only what the baseline lacks', !stale.length, `${stale.join(', ')}: take out of KNOWN`);
 const readme = fs.readFileSync(path.join(P, 'README.md'), 'utf8').split('## Browser support')[1]?.split('\n## ')[0] || '';
 const missing = [...new Set(Object.values(KNOWN).map((k) => k.readme).filter((r) => r && !readme.includes(r)))];

@@ -100,3 +100,18 @@ describe('ToggleGroup', () => {
     expect(b.top - a.bottom).toBeGreaterThan(0);
   });
 });
+
+describe('ToggleGroup at 320px (GP1)', () => {
+  test('an attached row that doesn\'t fit wraps as separate toggles, in a block, flex or grid parent, and joins again with room', async () => {
+    const row = (id: string) => <ToggleGroup id={id} aria-label="Show"><ToggleButton value="all">Everything</ToggleButton><ToggleButton value="mine">Assigned to me</ToggleButton><ToggleButton value="made">Created by me</ToggleButton></ToggleGroup>;
+    await render(<div id="gp1" style={{ width: '288px' }}>
+      <div>{row('gp1-b')}</div>
+      <div style={{ display: 'flex' }}>{row('gp1-f')}</div>
+      <div style={{ display: 'grid' }}>{row('gp1-g')}</div>
+    </div>);
+    for (const id of ['gp1-b', 'gp1-f', 'gp1-g']) await expect.poll(() => id + ':' + document.getElementById(id)!.dataset.wrapped).toBe(id + ':true');
+    expect([document.getElementById('gp1')!.scrollWidth, document.getElementById('gp1-b')!.classList.contains('dk-button-group--attached')]).toEqual([288, false]);
+    document.getElementById('gp1')!.style.width = '600px';
+    await expect.poll(() => document.getElementById('gp1-b')!.dataset.wrapped).toBeUndefined();
+  });
+});
