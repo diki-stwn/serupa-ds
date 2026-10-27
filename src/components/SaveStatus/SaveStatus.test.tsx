@@ -32,7 +32,7 @@ describe('SaveStatus', () => {
   });
 
   test('saved with savedAt says how long ago, in a <time>', async () => {
-    await render(<SaveStatus id="s" status="saved" savedAt={Date.now() - 2 * 60 * 1000} />);
+    await render(<SerupaProvider locale="en-US"><SaveStatus id="s" status="saved" savedAt={Date.now() - 2 * 60 * 1000} /></SerupaProvider>);   // pinned: the time follows the browser's language
     expect(el('s').textContent).toBe('Saved 2 minutes ago');
     expect(el('s').querySelector('time')).not.toBeNull();
   });
