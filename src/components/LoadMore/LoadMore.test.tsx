@@ -25,7 +25,7 @@ function Paged({ id = 'lm', step = 10, all = 30, ms = 50, infinite = false, onLo
 describe('LoadMore', () => {
   test('a <div> with "Showing 20 of 134" over an outline Load more button; ref, className and other props reach it', async () => {
     const ref = React.createRef<HTMLDivElement>();
-    await render(<LoadMore id="x" ref={ref} className="extra" data-x="y" onLoadMore={() => {}} count={20} total={1340} />);
+    await render(<SerupaProvider locale="en-US"><LoadMore id="x" ref={ref} className="extra" data-x="y" onLoadMore={() => {}} count={20} total={1340} /></SerupaProvider>);   // pinned: 1,340 follows the browser's locale
     const e = el('x');
     expect([e.tagName, ref.current === e, e.className, e.dataset.x, e.dataset.component]).toEqual(['DIV', true, 'dk-load-more extra', 'y', 'load-more']);
     expect([para('x', 'Showing 20 of 1,340')?.textContent, button('x').textContent, button('x').className.includes('dk-btn--outline')]).toEqual(['Showing 20 of 1,340', 'Load more', true]);
@@ -34,7 +34,7 @@ describe('LoadMore', () => {
   test('pressing it loads (one press until the promise settles), says what was added, keeps focus on the button, and focuses the end text when the last page leaves no button', async () => {
     await expect.poll(announcerIdle, { timeout: 3000 }).toBe(true);
     let loads = 0;
-    await render(<><button id="before">Before</button><Paged onLoad={() => loads++} /></>);
+    await render(<SerupaProvider locale="en-US"><button id="before">Before</button><Paged onLoad={() => loads++} /></SerupaProvider>);
     el('before').focus();
     await userEvent.tab();   // past the list's items, which aren't focusable, to the button
     expect(document.activeElement).toBe(button('lm'));
@@ -78,7 +78,7 @@ describe('LoadMore', () => {
   });
 
   test('Indonesian labels from the provider', async () => {
-    await render(<SerupaProvider labels={idLabels}><LoadMore id="id" onLoadMore={() => {}} count={20} total={134} /><LoadMore id="id2" onLoadMore={() => {}} hasMore={false} /></SerupaProvider>);
+    await render(<SerupaProvider labels={idLabels} locale="id-ID"><LoadMore id="id" onLoadMore={() => {}} count={20} total={134} /><LoadMore id="id2" onLoadMore={() => {}} hasMore={false} /></SerupaProvider>);
     expect([el('id').textContent, el('id2').textContent]).toEqual(['Menampilkan 20 dari 134Muat lagi', 'Sudah sampai akhir']);
   });
 
