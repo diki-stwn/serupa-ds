@@ -30,7 +30,8 @@ function Controlled(props: { log: string[] }) {
 
 describe('NotificationCenter', () => {
   test('a drawer titled "Notifications" listing each one: unread ones say so and have "Mark as read", read ones neither; the time is relative', async () => {
-    await render(<NotificationCenter defaultOpen items={list} onMarkRead={() => {}} />);
+    // en-US: the relative time below is in the provider's language, not the browser's (which CI also runs in ar, id, th, ja).
+    await render(<SerupaProvider locale="en-US"><NotificationCenter defaultOpen items={list} onMarkRead={() => {}} /></SerupaProvider>);
     await expect.poll(() => drawer()?.querySelector('h2')?.textContent).toBe('Notifications');
     expect(read()).toEqual([['Unread: Payment failed / Card declined.', ['Mark as read']], ['Invoice sent', []]]);
     expect(rows()[0].querySelector('time')?.textContent).toMatch(/2 min/);
