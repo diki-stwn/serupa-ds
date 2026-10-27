@@ -52,7 +52,7 @@ const files: TreeViewItem[] = [
 | Home / End | Moves to the first or last item in view |
 | Enter / Space | Picks the item (toggles it with `selectionMode="multiple"`), or opens and closes it with `"none"` |
 | * | Opens every sibling of the item |
-| A letter | Moves to the next item starting with what was typed |
+| A letter | Moves to the next item starting with what was typed. Letters within half a second make one word, and a Space between them is part of it ("my files" finds "my files", not "my file") |
 | Shift + Down / Up | With `"multiple"`: moves and picks |
 | Shift + Space | With `"multiple"`: picks every item from the one picked last |
 | Ctrl / Cmd + A | With `"multiple"`: picks every item in view |

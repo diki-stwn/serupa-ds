@@ -4,7 +4,7 @@ import { cn, domId, elementRef, omit, setRef, useIsoLayoutEffect } from "../../i
 import { oneElement, useTriggerRef } from "../../internal/trigger";
 import { config } from "../../internal/config";
 import type { Placement } from "../../internal/position";
-import { typeahead, type Typed } from "../../internal/typeahead";
+import { typeahead, typing, type Typed } from "../../internal/typeahead";
 import { useAnchoredLayer } from "../../internal/useAnchoredLayer";
 import { useExit } from "../../internal/useExit";
 import { Icon, type IconSource } from "../Icon/Icon";
@@ -39,7 +39,7 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'c
 }
 const OWN_MENU = { trigger: 1, children: 1, "aria-label": 1, "aria-labelledby": 1, placement: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1, style: 1, onKeyDown: 1 } as const;
 
-interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean }
+interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean; typed: React.RefObject<Typed> }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 /** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
@@ -60,7 +60,9 @@ function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.
     else if (e.key === "End") go(list.length - 1);
     else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close("escape", true); }
     else if (e.key === "Tab") close("blur", false);
-    else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    // Space only while a word is being typed ("my files"); otherwise the item chose itself on it.
+    else if (e.key.length === 1 && (/\S/.test(e.key) || typing(typed.current)) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key === " ") e.preventDefault();
       const n = typeahead(typed.current, e.key, list.map((it) => (it.querySelector(".dk-menu__label") || it).textContent || ""), i);
       if (n >= 0) list[n].focus();
     }
@@ -87,7 +89,7 @@ export const Menu = /* @__PURE__ */ component<HTMLDivElement, MenuProps>("Menu",
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
   const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
   const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
-  const ctx = React.useMemo(() => ({ close, open }), [close, open]);
+  const ctx = React.useMemo(() => ({ close, open, typed }), [close, open]);
   const items = () => itemsOf(menuRef.current);
 
   // A press outside the menu and its button closes it (focus stays where the press put it).
@@ -203,7 +205,7 @@ export const ContextMenu = /* @__PURE__ */ component<HTMLDivElement, ContextMenu
     const to = back.current || targetRef.current;
     if (focusBack && to) to.focus();
   }, [set]);
-  const ctx = React.useMemo(() => ({ close, open }), [close, open]);
+  const ctx = React.useMemo(() => ({ close, open, typed }), [close, open]);
   // Opened from outside (controlled) before any right-click: at the target's corner.
   const spot = at || (open && targetRef.current ? (() => { const r = targetRef.current.getBoundingClientRect(); return { x: r.left, y: r.top }; })() : null);
 
@@ -326,6 +328,7 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
   const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (own.onKeyDown) own.onKeyDown(e);
     if (e.defaultPrevented) return;
+    if (e.key === " " && ctx && typing(ctx.typed.current)) return;   // part of a typed word: the menu's typeahead takes it
     if (e.key === "Enter" || e.key === " ") { if (linked && e.key === "Enter" && !props.disabled) return; choose(e); e.preventDefault(); }
   };
   const isLink = linked && !props.disabled;
@@ -478,7 +481,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
         onClick: (e: React.MouseEvent<HTMLElement>) => { if (props.onClick) props.onClick(e); if (!e.defaultPrevented) show(true); },
         onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
           if (props.onKeyDown) props.onKeyDown(e);
-          if (e.defaultPrevented || isComposing(e) || !opens(e.key)) return;
+          if (e.defaultPrevented || isComposing(e) || !opens(e.key) || (e.key === " " && parent && typing(parent.typed.current))) return;
           e.preventDefault(); e.stopPropagation(); show(true);
         },
         onPointerMove: (e: React.PointerEvent<HTMLElement>) => {

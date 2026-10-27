@@ -9,6 +9,12 @@ export interface Typed { text: string; at: number }
 /** Half a second between letters starts a new word, as in native lists. */
 export const TYPEAHEAD_PAUSE = 500;
 
+/** Whether a word is being typed (a letter came within the pause): Space then joins it ("my files") instead of
+ *  choosing the focused item, as in native lists and the APG. */
+export function typing(typed: Typed, now = Date.now()): boolean {
+  return typed.text !== "" && now - typed.at <= TYPEAHEAD_PAUSE;
+}
+
 /** The index of the item to go to after the key typed, or -1 when none matches. `current` is the focused item (-1 for none). */
 export function typeahead(typed: Typed, key: string, labels: readonly string[], current: number, now = Date.now()): number {
   const k = fold(key);

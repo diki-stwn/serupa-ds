@@ -26,6 +26,7 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
 }
 
 interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null }
+const FROM = ["--dk-tabs-from-shift", "--dk-tabs-from-scale", "--dk-tabs-span-l", "--dk-tabs-span-r", "--dk-tabs-span-t", "--dk-tabs-span-b", "--dk-tabs-from-l", "--dk-tabs-from-r", "--dk-tabs-from-t", "--dk-tabs-from-b"];
 const TabsContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const useTabs = (who: string): Ctx => {
   const c = React.useContext(TabsContext);
@@ -125,9 +126,17 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     const tabs = Array.from(el.querySelectorAll<HTMLElement>('[role="tab"]'));
     const on = tabs.find((t) => t.getAttribute("aria-selected") === "true");
     for (const t of tabs) {
-      if (!on || t === on || !t.offsetWidth || !t.offsetHeight) { t.style.removeProperty("--dk-tabs-from-shift"); t.style.removeProperty("--dk-tabs-from-scale"); continue; }
-      t.style.setProperty("--dk-tabs-from-shift", on.offsetLeft - t.offsetLeft + "px " + (on.offsetTop - t.offsetTop) + "px");
-      t.style.setProperty("--dk-tabs-from-scale", on.offsetWidth / t.offsetWidth + " " + on.offsetHeight / t.offsetHeight);
+      // The selected tab keeps the pill's span it was selected with (below), so its slide runs to the end.
+      if (t === on) continue;
+      if (!on || !t.offsetWidth || !t.offsetHeight) { for (const k of FROM) t.style.removeProperty(k); continue; }
+      const dx = on.offsetLeft - t.offsetLeft, dy = on.offsetTop - t.offsetTop, w = t.offsetWidth, h = t.offsetHeight;
+      t.style.setProperty("--dk-tabs-from-shift", dx + "px " + dy + "px");
+      t.style.setProperty("--dk-tabs-from-scale", on.offsetWidth / w + " " + on.offsetHeight / h);
+      // The pill's fill (GO1) spans this tab and the selected one, cut to this tab; it starts cut to the selected one.
+      const l = Math.max(0, -dx), r = Math.max(0, dx + on.offsetWidth - w), u = Math.max(0, -dy), d = Math.max(0, dy + on.offsetHeight - h);
+      const set = (k: string, n: number) => t.style.setProperty(k, n + "px");
+      set("--dk-tabs-span-l", l); set("--dk-tabs-span-r", r); set("--dk-tabs-span-t", u); set("--dk-tabs-span-b", d);
+      set("--dk-tabs-from-l", l + dx); set("--dk-tabs-from-r", w + r - dx - on.offsetWidth); set("--dk-tabs-from-t", u + dy); set("--dk-tabs-from-b", h + d - dy - on.offsetHeight);
     }
   };
   const measure = React.useCallback(() => {

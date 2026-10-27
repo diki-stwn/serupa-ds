@@ -61,6 +61,14 @@ const REPEAT_QUIET = 1000;
 // module state: browser only, set by the mounted Toaster, with the timers below.
 let repeated: ((count: number) => string) | null = null;
 const repeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
+// module state: browser only: NotificationCenter's useToastHistory hooks, told of each toast as it's shown, replaced
+// or repeated.
+const watchers = /* @__PURE__ */ new Set<(t: ShownToast) => void>();
+// A toast as useToastHistory records it.
+interface ShownToast { id: string; title: React.ReactNode; description?: React.ReactNode; tone: ToastTone; count: number }
+/** For useToastHistory: calls fn with each toast as it's shown, replaced or repeated, and returns the way to stop. */
+export function watchToasts(fn: (t: ShownToast) => void): () => void { watchers.add(fn); return () => { watchers.delete(fn); }; }
+const tell = (t: Item) => watchers.forEach((w) => w({ id: t.id, title: t.title, description: t.description, tone: t.tone, count: t.count }));
 const said = (o: ToastOptions) => (o.announcement != null ? o.announcement : [text(o.title), text(o.description)].filter(Boolean).join(". "));
 
 /** Shows a toast in the page's <Toaster> and returns its id. */
@@ -74,6 +82,7 @@ function show(options: ToastOptions | string): string {
   if (same >= 0) {
     items = items.map((x, i) => (i === same ? Object.assign({}, x, { count: x.count + 1 }) : x));
     emit();
+    tell(items[same]);
     const rid = items[same].id;
     const wait = repeatTimers.get(rid);
     if (wait) clearTimeout(wait);
@@ -89,6 +98,7 @@ function show(options: ToastOptions | string): string {
   const at = items.findIndex((x) => x.id === id);
   items = at >= 0 ? items.map((x, i) => (i === at ? item : x)) : items.concat(item);
   emit();
+  tell(item);
   let say = said(o);
   if (say && o.action && hint && !hinted) { say += ". " + hint; hinted = true; }
   if (say) announce(say, { assertive: item.tone === "danger" });   // an error interrupts; the rest wait their turn
