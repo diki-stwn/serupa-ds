@@ -106,7 +106,7 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
       side={props.side} size={props.size} modal={props.modal} closeButton={props.closeButton} closeLabel={props.closeLabel} closeOnBackdrop={props.closeOnBackdrop} swipeToClose={props.swipeToClose}
       title={props.title != null ? props.title : labels.notificationCenter} footer={footer}>
       {items.length ? (
-        <ul className="dk-notification-center__list">
+        <ul role="list" className="dk-notification-center__list">
           {items.map((n) => {
             const tone = oneOf(TONES, n.tone, "neutral"), icon = ICONS[tone];
             return (
