@@ -1,3 +1,39 @@
+# ActionBar
+- group "2 selected":
+  - text: 2 selected
+  - button "Export"
+  - button "Remove"
+  - button "Clear selection"
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Select all rows Name Role":
+      - columnheader "Select all rows":
+        - checkbox "Select all rows" [checked=mixed]
+      - columnheader "Name"
+      - columnheader "Role"
+  - rowgroup:
+    - row "Select Ada Lovelace Ada Lovelace Admin":
+      - cell "Select Ada Lovelace":
+        - checkbox "Select Ada Lovelace" [checked]
+      - cell "Ada Lovelace"
+      - cell "Admin"
+    - row "Select Grace Hopper Grace Hopper Editor":
+      - cell "Select Grace Hopper":
+        - checkbox "Select Grace Hopper"
+      - cell "Grace Hopper"
+      - cell "Editor"
+    - row "Select Linus Torvalds Linus Torvalds Viewer":
+      - cell "Select Linus Torvalds":
+        - checkbox "Select Linus Torvalds" [checked]
+      - cell "Linus Torvalds"
+      - cell "Viewer"
+    - row "Select Margaret Hamilton Margaret Hamilton Editor":
+      - cell "Select Margaret Hamilton":
+        - checkbox "Select Margaret Hamilton"
+      - cell "Margaret Hamilton"
+      - cell "Editor"
+
 # Align
 - table "Team members":
   - caption: Team members

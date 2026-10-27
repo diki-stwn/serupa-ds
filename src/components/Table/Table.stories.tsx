@@ -1,8 +1,9 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
+import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
 import { Text } from '../Text/Text';
 import { Badge } from '../Badge/Badge';
+import { Button } from '../Button/Button';
 
 const people = [
   { name: 'Ada Lovelace', role: 'Admin', status: 'Active', calls: 1204 },
@@ -62,6 +63,31 @@ export const SelectableRows: Story = {
         <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell><TableCell align="end">{p.calls.toLocaleString('en')}</TableCell>
       </TableRow>)}</TableBody>
     </Table>;
+  },
+};
+
+// With rows selected, the bar above the table shows the count, actions for them, and Clear selection.
+export const ActionBar: Story = {
+  render: function Render(args) {
+    const [picked, setPicked] = React.useState<string[]>([people[0].name, people[2].name]);
+    const all = picked.length === people.length;
+    const toggle = (n: string) => setPicked(picked.includes(n) ? picked.filter((x) => x !== n) : [...picked, n]);
+    return <>
+      <TableActionBar count={picked.length} onClear={() => setPicked([])}>
+        <Button size="sm" variant="outline">Export</Button>
+        <Button size="sm" variant="outline" onClick={() => setPicked([])}>Remove</Button>
+      </TableActionBar>
+      <Table {...args}>
+        <TableHead><TableRow>
+          <TableSelectCell header label="Select all rows" checked={all} indeterminate={!all && picked.length > 0} onChange={() => setPicked(all ? [] : people.map((p) => p.name))} />
+          <TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Role</TableHeaderCell>
+        </TableRow></TableHead>
+        <TableBody>{people.map((p) => <TableRow key={p.name} selected={picked.includes(p.name)}>
+          <TableSelectCell label={'Select ' + p.name} checked={picked.includes(p.name)} onChange={() => toggle(p.name)} />
+          <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell>
+        </TableRow>)}</TableBody>
+      </Table>
+    </>;
   },
 };
 

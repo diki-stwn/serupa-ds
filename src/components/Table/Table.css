@@ -60,4 +60,8 @@
   .dk-table__row { break-inside: avoid; }
   .dk-table--sticky .dk-table__head .dk-table__cell { position: static; }
 }
+/* TableActionBar: a tinted bar above the table while rows are selected: the count, the actions, then Clear at the end. */
+.dk-table-action-bar:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-3); margin-bottom: var(--spacing-2); padding: var(--table-action-bar-padding, var(--spacing-2)) var(--spacing-3); border-radius: var(--table-radius, var(--rounded-lg)); background: var(--table-action-bar-bg, var(--primary-subtle)); color: var(--table-action-bar-text, var(--text)); font-size: var(--text-sm); }
+.dk-table-action-bar__count { font-weight: var(--table-action-bar-weight, var(--font-semibold)); }
+.dk-table-action-bar__actions { display: flex; flex-wrap: wrap; gap: var(--spacing-2); margin-inline-end: auto; }
 }

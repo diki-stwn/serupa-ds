@@ -1,9 +1,10 @@
 "use client";
 import * as React from "react";
 import { announce } from "../../internal/announce";
-import { cn, domId, oneOf, omit } from "../../internal/cn";
+import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
+import { Button } from "../Button/Button";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
@@ -54,6 +55,17 @@ export interface TableHeaderCellProps extends Omit<React.ThHTMLAttributes<HTMLTa
 export interface TableCellProps extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, 'align'> {
   /** Lines the text up: 'start' (default), 'center' or 'end' (numbers, which also get tabular digits). */
   align?: 'start' | 'center' | 'end';
+}
+
+export interface TableActionBarProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** How many rows are selected. The bar shows while it's more than 0, with "3 selected" at its start. */
+  count: number;
+  /** Called by its "Clear selection" button: clear the selection. Without it, there's no button. */
+  onClear?: () => void;
+  /** The clear button's text. Default: "Clear selection" (labels.clearSelection). */
+  clearLabel?: string;
+  /** The actions for the selected rows: Buttons such as Delete or Export. */
+  children?: React.ReactNode;
 }
 
 const ALIGN = ["start", "center", "end"] as const;
@@ -191,4 +203,39 @@ export const TableCell = /* @__PURE__ */ component<HTMLTableCellElement, TableCe
   const rest = omit(props, { align: 1, className: 1 });
   const align = oneOf(ALIGN, props.align, "start");
   return <td {...rest} ref={ref} className={cn("dk-table__cell", align !== "start" && "dk-table__cell--" + align, props.className)} />;
+});
+
+/* TableActionBar: the bar above a table with selectable rows. While rows are selected, it shows "3 selected", your
+   actions and "Clear selection"; with none, it's hidden. It's a group named by the count, and a new count is read out
+   politely. When it hides with focus in it (Clear, or an action that empties the selection), focus moves to the first
+   checkbox of the table after it (the header's "Select all"), so it isn't lost: render it just before the Table. */
+/** The bar of actions for a table's selected rows: "3 selected", your buttons, and "Clear selection". */
+export const TableActionBar = /* @__PURE__ */ component<HTMLDivElement, TableActionBarProps>("TableActionBar", function TableActionBar(props, ref) {
+  const labels = useSettings(words).labels;
+  const rest = omit(props, { count: 1, onClear: 1, clearLabel: 1, className: 1, children: 1 });
+  const count = Math.max(0, Math.floor(props.count) || 0);
+  const self = React.useRef<HTMLDivElement | null>(null);
+  const setRefs = React.useCallback((e: HTMLDivElement | null) => { self.current = e; setRef(ref, e); }, [ref]);
+  const id = domId("dk-tab", React.useId());
+  const said = labels.tableSelected(count);
+  // Hidden (not removed) at 0, so focus is still in it here and can go to the table's "Select all" before it's lost.
+  useIsoLayoutEffect(() => {
+    const bar = self.current;
+    if (count || !bar || !bar.contains(document.activeElement)) return;
+    const box = bar.nextElementSibling && bar.nextElementSibling.querySelector<HTMLInputElement>('input[type="checkbox"]:not(:disabled)');
+    if (box) box.focus();
+  }, [count]);
+  const was = React.useRef(count);
+  React.useEffect(() => {
+    if (count === was.current) return;
+    was.current = count;
+    if (count) announce(said);   // not 0: the hidden bar says nothing, and the checkbox that cleared it says its own state
+  }, [count, said]);
+  return (
+    <div role="group" aria-labelledby={id} {...rest} ref={setRefs} hidden={!count || undefined} data-component="table-action-bar" className={cn("dk-table-action-bar", props.className)}>
+      <span id={id} className="dk-table-action-bar__count">{said}</span>
+      <div className="dk-table-action-bar__actions">{props.children}</div>
+      {props.onClear ? <Button variant="ghost" size="sm" onClick={props.onClear}>{props.clearLabel || labels.clearSelection}</Button> : null}
+    </div>
+  );
 });
