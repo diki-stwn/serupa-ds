@@ -1,0 +1,22 @@
+/* ---------------------------------------------------------------
+   NotificationCenter: inside its Drawer, a list of notifications with a line between them: a tone icon, a title
+   (semibold while unread), a muted description and time, and at the end an unread dot and "Mark as read". Kept
+   short: bundle.css is near its 2 MB budget. Every value reads one of its own tokens
+   (notification-center.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-notification-center__list { margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-notification-center__item { display: flex; align-items: flex-start; gap: var(--spacing-3); padding-block: var(--notification-center-row-padding, var(--spacing-3)); }
+.dk-notification-center__item + .dk-notification-center__item { border-top: var(--border-width-1) solid var(--notification-center-divider, var(--border)); }
+.dk-notification-center__item:focus-visible { outline: var(--focus-ring-width) solid var(--notification-center-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-notification-center__icon { display: flex; font-size: var(--spacing-5); }
+.dk-notification-center__item--info .dk-notification-center__icon { color: var(--notification-center-icon-info, var(--info)); }
+.dk-notification-center__item--success .dk-notification-center__icon { color: var(--notification-center-icon-success, var(--success)); }
+.dk-notification-center__item--warning .dk-notification-center__icon { color: var(--notification-center-icon-warning, var(--warning)); }
+.dk-notification-center__item--danger .dk-notification-center__icon { color: var(--notification-center-icon-danger, var(--danger)); }
+.dk-notification-center__content { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
+.dk-notification-center__title, .dk-notification-center__description, .dk-notification-center__empty { margin: var(--spacing-0); }
+.dk-notification-center__item:not([data-read]) .dk-notification-center__title { font-weight: var(--notification-center-unread-weight, var(--font-semibold)); }
+.dk-notification-center__description, .dk-notification-center__time, .dk-notification-center__empty { font-size: var(--text-sm); color: var(--notification-center-description, var(--text-muted)); }
+.dk-notification-center__dot { flex-shrink: 0; width: var(--spacing-2); height: var(--spacing-2); margin-block: var(--spacing-2); border-radius: var(--rounded-full); background: var(--notification-center-unread, var(--primary)); }
+}
