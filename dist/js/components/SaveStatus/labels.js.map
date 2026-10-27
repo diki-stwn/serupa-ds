@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/SaveStatus/labels.ts"],
+  "sourcesContent": ["// SaveStatus's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface SaveStatusLabels {\n  /** SaveStatus: while changes are being saved. */\n  saving: string;\n  /** SaveStatus: once they're saved, shown before how long ago (\"Saved 2 minutes ago\") and announced alone. */\n  saved: string;\n  /** SaveStatus: when saving failed. */\n  saveFailed: string;\n  /** SaveStatus: the button that tries saving again. */\n  retrySave: string;\n}\nexport const en: SaveStatusLabels = {\n  saving: \"Saving\u2026\",\n  saved: \"Saved\",\n  saveFailed: \"Couldn\u2019t save\",\n  retrySave: \"Try again\",\n};\nexport const id: SaveStatusLabels = {\n  saving: \"Menyimpan\u2026\",\n  saved: \"Tersimpan\",\n  saveFailed: \"Gagal menyimpan\",\n  retrySave: \"Coba lagi\",\n};\n"],
+  "mappings": ";AAYO,IAAM,KAAuB;AAAA,EAClC,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,YAAY;AAAA,EACZ,WAAW;AACb;AACO,IAAM,KAAuB;AAAA,EAClC,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,YAAY;AAAA,EACZ,WAAW;AACb;",
+  "names": []
+}

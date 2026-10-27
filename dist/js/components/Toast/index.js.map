@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Toast/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { toast, Toaster } from \"./Toast\";\nexport type { ToasterPosition, ToasterProps, ToastOptions, ToastPromiseMessages, ToastTone, ToastUndoOptions } from \"./Toast\";\n"],
+  "mappings": ";AACA,SAAS,OAAO,eAAe;",
+  "names": []
+}

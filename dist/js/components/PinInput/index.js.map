@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/PinInput/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { PinInput } from \"./PinInput\";\nexport type { PinInputProps } from \"./PinInput\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}

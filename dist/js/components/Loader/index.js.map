@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Loader/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Loader } from \"./Loader\";\nexport type { LoaderPattern, LoaderProps, LoaderShape, LoaderTone, LoaderVariant } from \"./Loader\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

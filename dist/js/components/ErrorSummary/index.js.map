@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/ErrorSummary/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { ErrorSummary } from \"./ErrorSummary\";\nexport type { ErrorSummaryProps, ErrorSummaryItem } from \"./ErrorSummary\";\n"],
+  "mappings": ";AACA,SAAS,oBAAoB;",
+  "names": []
+}
