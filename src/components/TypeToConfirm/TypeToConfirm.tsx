@@ -54,7 +54,7 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
           autoComplete="off" spellCheck={false} autoCapitalize="off" autoCorrect="off"
           onKeyDown={(e) => { if (e.key === "Enter" && matched && !e.nativeEvent.isComposing && button.current) { e.preventDefault(); button.current.click(); } }} />
       </Field>
-      <Button ref={button} className="dk-type-to-confirm__button" destructive disabled={disabled || !matched}
+      <Button ref={button} className="dk-type-to-confirm__button" destructive wrap disabled={disabled || !matched}
         disabledReason={disabled ? undefined : sds.labels.typePhraseFirst(phrase)} onClick={() => onConfirm()}>{confirmLabel}</Button>
     </div>
   );

@@ -21,7 +21,7 @@ import { TypeToConfirm } from "serupa-ds";
 
 - Make the phrase the name of the thing (`acme/web`), not a word like "DELETE", so typing it is a check that it's the right one.
 - Say what can't be undone in `hint`, or above it in the Dialog.
-- Name the action on the button (`confirmLabel`): "Delete this repository", not "Confirm".
+- Name the action on the button (`confirmLabel`): "Delete this repository", not "Confirm". A long one wraps onto more lines rather than widening the page on a phone.
 - `onConfirm` can return a promise: the button shows loading until it settles and takes no second press.
 
 ## Behavior
