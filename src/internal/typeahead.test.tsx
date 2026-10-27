@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { typeahead, type Typed } from './typeahead';
+import { typeahead, typing as wordTyped, type Typed } from './typeahead';
 
 const LABELS = ['Edit', 'Duplicate', 'Archive', 'Share link', 'Delete', 'Éditer', 'Łódź'];
 // Each key 100 ms after the last, or after `gap` ms; the index it lands on from `from`.
@@ -33,5 +33,17 @@ describe('typeahead', () => {
   test('accents, case and letters like ł are folded, on both sides', () => {
     expect(typing('lo')).toEqual(['Łódź', 'Łódź']);
     expect(typing('É', 0)).toEqual(['Éditer']);
+  });
+
+  test('a space within the pause is part of the word ("my files", not "my file"); typing() says whether a word is under way (GQ4)', () => {
+    const labels = ['my file', 'my files', 'src'];
+    const typed: Typed = { text: '', at: 0 };
+    let at = 1000, i = 0;
+    const seen = [...'my files'].map((k) => { at += 100; const n = typeahead(typed, k, labels, i, at); if (n >= 0) i = n; return labels[i]; });
+    expect(seen.at(-1)).toBe('my files');
+    expect(seen).not.toContain('src');
+    expect(wordTyped(typed, at + 100)).toBe(true);
+    expect(wordTyped(typed, at + 600)).toBe(false);
+    expect(wordTyped({ text: '', at: at }, at)).toBe(false);
   });
 });

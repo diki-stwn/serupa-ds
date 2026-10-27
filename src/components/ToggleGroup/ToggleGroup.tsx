@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { cn, oneOf, omit } from "../../internal/cn";
+import { cn, oneOf, omit, setRef } from "../../internal/cn";
+import { useRowWrap } from "../../internal/useRowWrap";
 import { component } from "../../internal/component";
 import type { ButtonGroupProps } from "../ButtonGroup/ButtonGroup";
 import type { ToggleButtonProps } from "../ToggleButton/ToggleButton";
@@ -56,10 +57,14 @@ export const ToggleGroup = /* @__PURE__ */ component<HTMLDivElement, ToggleGroup
       disabled: own.disabled || props.disabled,
     });
   });
+  // As ButtonGroup: an attached row wider than its container wraps as separate buttons (GP1).
+  const root = React.useRef<HTMLDivElement | null>(null);
+  const wrapped = useRowWrap(root, props.attached !== false && !vertical, props.children);
   return (
     // ButtonGroup's markup and classes, so it looks and lays out the same.
-    <div role="group" {...rest} ref={ref} data-component="toggle-group" data-orientation={vertical ? "vertical" : "horizontal"} data-type={single ? "single" : "multiple"}
-      className={cn("dk-button-group dk-toggle-group", vertical && "dk-button-group--vertical", props.attached !== false && "dk-button-group--attached", props.className)}>
+    <div role="group" {...rest} ref={(n) => { root.current = n; setRef(ref, n); }} data-component="toggle-group" data-orientation={vertical ? "vertical" : "horizontal"} data-type={single ? "single" : "multiple"}
+      data-wrapped={wrapped || undefined}
+      className={cn("dk-button-group dk-toggle-group", vertical && "dk-button-group--vertical", props.attached !== false && !wrapped && "dk-button-group--attached", props.className)}>
       {children}
     </div>
   );

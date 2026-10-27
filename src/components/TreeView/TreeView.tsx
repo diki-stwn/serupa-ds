@@ -4,7 +4,7 @@ import { cn, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
-import { typeahead, type Typed } from "../../internal/typeahead";
+import { typeahead, typing, type Typed } from "../../internal/typeahead";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import * as icons from "../../material/builtin";
@@ -163,7 +163,8 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     }
     else if (e.key === "Home") to = 0;
     else if (e.key === "End") to = rows.length - 1;
-    else if (e.key === "Enter" || e.key === " ") {
+    // Space while a word is being typed is part of it ("my files"), so it goes to typeahead below.
+    else if (e.key === "Enter" || (e.key === " " && !typing(typed.current))) {
       if (mode === "none") toggleOpen(item); else choose(item, multi && e.shiftKey);
     }
     else if (e.key === "*") {

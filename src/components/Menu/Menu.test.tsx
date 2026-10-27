@@ -165,6 +165,26 @@ describe('Menu', () => {
     expect(focus()).toBe('Edit');
   });
 
+  test('a Space typed within a word is part of it ("save a" finds "Save as…"), not a choice, on an item or a MenuSub; after a pause Space chooses (GQ4)', async () => {
+    const chosen: string[] = [];
+    await render(<Menu trigger={<Button id="mb">File</Button>}>
+      <MenuSub id="sto" label="Save to"><MenuItem onSelect={() => chosen.push('drive')}>Drive</MenuItem></MenuSub>
+      <MenuItem onSelect={() => chosen.push('save')}>Save</MenuItem>
+      <MenuItem onSelect={() => chosen.push('saveas')}>Save as…</MenuItem>
+      <MenuItem onSelect={() => chosen.push('settings')}>Settings</MenuItem>
+    </Menu>);
+    await userEvent.click(el('mb'));
+    await expect.poll(() => document.activeElement?.id).toBe('sto');
+    await userEvent.keyboard('save ');   // on "Save to", a submenu: the space doesn't open it
+    expect(el('sto').getAttribute('aria-expanded')).toBe('false');
+    await userEvent.keyboard('a');
+    expect(focus()).toBe('Save as…');
+    expect(chosen).toEqual([]);
+    await new Promise((r) => setTimeout(r, 600));
+    await userEvent.keyboard(' ');
+    expect(chosen).toEqual(['saveas']);
+  });
+
   test('Enter on a disabled item does nothing; Enter on an item chooses it, closes the menu and returns focus to the button', async () => {
     const chosen: string[] = [];
     await render(<Actions chosen={chosen} />);

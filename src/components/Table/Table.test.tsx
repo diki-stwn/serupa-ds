@@ -5,7 +5,9 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
-import { Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
+import { Button } from '../Button/Button';
+import { SerupaProvider } from '../../internal/provider';
+import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
 
 const ROWS: Array<[string, string, number]> = [['Ada', 'Admin', 1200], ['Grace', 'Editor', 30], ['Linus', 'Viewer', 450]];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -290,5 +292,87 @@ describe('Table: stickyHeader and focus', () => {
     const b = el('hsort').querySelector('button') as HTMLButtonElement;
     expect(css(b).backgroundColor).not.toBe(color('var(--pressed)'));
     await press(b, () => expect.poll(() => css(b).backgroundColor).toBe(color('var(--pressed)')));
+  });
+});
+
+function Picker(props: { log: string[] }) {
+  const [picked, setPicked] = React.useState<string[]>([]);
+  const all = picked.length === ROWS.length;
+  return <>
+    <TableActionBar id="bar" count={picked.length} onClear={() => setPicked([])}>
+      <Button size="sm" variant="outline" onClick={() => { props.log.push('delete ' + picked.join(',')); setPicked([]); }}>Delete</Button>
+    </TableActionBar>
+    <Table caption="People">
+      <TableHead><TableRow><TableSelectCell header label="Select all rows" checked={all} indeterminate={!all && picked.length > 0} onChange={() => setPicked(all ? [] : ROWS.map((r) => r[0]))} /><TableHeaderCell>Name</TableHeaderCell></TableRow></TableHead>
+      <TableBody>{ROWS.map((r) => <TableRow key={r[0]} selected={picked.includes(r[0])}>
+        <TableSelectCell label={'Select ' + r[0]} checked={picked.includes(r[0])} onChange={() => setPicked((l) => (l.includes(r[0]) ? l.filter((x) => x !== r[0]) : [...l, r[0]]))} />
+        <TableCell>{r[0]}</TableCell>
+      </TableRow>)}</TableBody>
+    </Table>
+  </>;
+}
+const box = (name: string) => document.querySelector(`input[aria-label="${name}"]`) as HTMLInputElement;
+const barButton = (name: string) => [...el('bar').querySelectorAll('button')].find((b) => b.textContent === name) as HTMLButtonElement;
+
+describe('TableActionBar (62)', () => {
+  test('hidden with nothing selected; "2 selected", the actions and "Clear selection" while rows are; a group named by the count', async () => {
+    const log: string[] = [];
+    await render(<Picker log={log} />);
+    expect(el('bar').hidden).toBe(true);
+    await userEvent.click(box('Select Ada'));
+    await userEvent.click(box('Select Linus'));
+    await expect.poll(() => el('bar').hidden).toBe(false);
+    expect(el('bar').getAttribute('role')).toBe('group');
+    expect(document.getElementById(el('bar').getAttribute('aria-labelledby')!)?.textContent).toBe('2 selected');
+    expect([...el('bar').querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Delete', 'Clear selection']);
+    await userEvent.click(barButton('Delete'));
+    expect(log).toEqual(['delete Ada,Linus']);
+    await expect.poll(() => el('bar').hidden).toBe(true);
+  });
+
+  test('hiding with focus in it (Clear, or an action that empties the selection) moves focus to the table\'s "Select all", not the page', async () => {
+    await render(<Picker log={[]} />);
+    await userEvent.click(box('Select Grace'));
+    barButton('Clear selection').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('bar').hidden).toBe(true);
+    expect(document.activeElement).toBe(box('Select all rows'));
+    expect(box('Select Grace').checked).toBe(false);
+    await userEvent.click(box('Select all rows'));
+    barButton('Delete').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('bar').hidden).toBe(true);
+    expect(document.activeElement).toBe(box('Select all rows'));
+  });
+
+  test('a new count is read out ("3 selected"), not on the first render or at 0; Indonesian words', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await render(<Picker log={[]} />);
+    await new Promise((r) => setTimeout(r, 300));
+    expect(said.filter((t) => /selected/.test(t))).toEqual([]);
+    await userEvent.click(box('Select all rows'));
+    await expect.poll(() => said.at(-1)).toMatch(/3 selected$/);
+    seen.disconnect();
+    expect([idLabels.tableSelected(3), idLabels.clearSelection]).toEqual(['3 dipilih', 'Hapus pilihan']);
+  });
+
+  test('no "Clear selection" without onClear; clearLabel renames it; Indonesian labels from the provider', async () => {
+    const screen = await render(<TableActionBar id="bar" count={1}><Button size="sm">Export</Button></TableActionBar>);
+    expect([...el('bar').querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Export']);
+    await screen.rerender(<TableActionBar id="bar" count={1} onClear={() => {}} clearLabel="Deselect" />);
+    expect(barButton('Deselect')).toBeTruthy();
+    await screen.rerender(<SerupaProvider labels={idLabels}><TableActionBar id="bar" count={4} onClear={() => {}} /></SerupaProvider>);
+    expect(el('bar').textContent).toBe('4 dipilihHapus pilihan');
+  });
+
+  test('contrast: the count reads 4.5:1 on the bar in all six themes', async () => {
+    await render(<TableActionBar id="bar" count={2} />);
+    const count = el('bar').firstElementChild as HTMLElement;
+    for (const th of THEMES) {
+      document.documentElement.setAttribute('data-theme', th);
+      expect(contrast(css(count).color, css(el('bar')).backgroundColor), th).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

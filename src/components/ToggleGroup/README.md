@@ -34,7 +34,7 @@ import { ToggleGroup, ToggleButton } from "serupa-ds";
 - Give each ToggleButton a `value`. Children without one, such as a Divider, render as they are.
 - `type="single"` (the default) turns the others off when one turns on. Pressing the one that's on turns it off, unless `required`.
 - `size`, `variant` and `disabled` on the group reach the buttons that don't set their own.
-- `attached` and `orientation` work as on ButtonGroup.
+- `attached` and `orientation` work as on ButtonGroup: an attached row wider than its container wraps as separate toggles (with `data-wrapped` on the group) and joins again once there's room.
 - Put it in a [Toolbar](../Toolbar/README.md) to give a row of groups one Tab stop with arrow keys.
 
 ## Accessibility

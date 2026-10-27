@@ -47,6 +47,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.
 - Use `size="sm"` for dense data, and `striped` when long rows are hard to follow across.
+- With selectable rows, put a `TableActionBar` just before the table: while rows are selected it shows "3 selected", your actions for them (Delete, Export) and "Clear selection" (`onClear`). Pass it the count; it's hidden at 0.
 - With `stickyHeader`, give the frame a height through `containerProps`. The frame measures the header and keeps that much scroll padding at the top, so a focused link or button in a row scrolls into view below the header, not under it (WCAG 2.4.11).
 
 ## Accessibility
@@ -54,6 +55,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - It's a real `<table>`, so screen readers announce rows, columns and headers. Give it a `caption` (or `aria-label`) so people know what it holds.
 - When it's too wide and scrolls, the frame becomes a focusable region named by the caption, so keyboard users can scroll it with the arrow keys. When it fits, it adds no tab stop.
 - A sortable header is a button, and its `<th>` has `aria-sort` once sorted. After sorting, the button keeps focus, and the new order is read out politely ("Sorted by Amount, ascending.", the `tableSorted` label), because `aria-sort` alone is only heard when focus comes back to the header. Nothing is read on the first render.
+- `TableActionBar` is a group named by its count ("2 selected"), and a new count is read out politely, since the bar appears away from the checkbox that was pressed. When it hides with focus in it (after "Clear selection", or an action that empties the selection), focus moves to the first checkbox of the table after it (the header's "Select all"), so it isn't dropped on the page. Its count reads 4.5:1 on the bar in all six themes.
 - In print, the frame shows the whole table instead of its scrolled window, the header row repeats on every page, and a row isn't split across pages.
 - Text and muted text keep 4.5:1 on plain, hovered, striped and selected rows, and the header text on its background; the selected bar keeps 3:1 (all six themes, `Table.test.tsx`). Selection isn't shown by color alone: the bar shows it, and a `TableSelectCell`'s checkbox ("Select Ada, checked") says it to screen readers. Browsers ignore `aria-selected` on a plain table's rows, so `selected` doesn't set it; give selectable rows a `TableSelectCell`. The checkbox outline keeps 3:1 on a shaded row.
 
@@ -89,6 +91,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 | `TableRow` | `<tr>` | `selected`: shaded, with a primary bar at its start |
 | `TableSelectCell` | `<td>`, or `<th scope="col">` with `header` | `label` (required, the checkbox's name: "Select Ada", "Select all rows"); `checked`, `defaultChecked`, `indeterminate`, `onChange`, `disabled`, `name`, `value` and `ref` go to the [Checkbox](../Checkbox/README.md); `cellProps` to the cell. A row whose checkbox is checked is shaded like a selected one |
 | `TableHeaderCell` | `<th scope="col">` | `align` (`'start'` \| `'center'` \| `'end'`); `sort` (`'ascending'` \| `'descending'` \| `'none'`) and `onSort` make it a sort button. Pass `scope="row"` for a row header |
+| `TableActionBar` | `<div role="group">`, before the Table | `count` (required: the bar shows while it's above 0); `onClear` adds "Clear selection"; `clearLabel` renames it; children are the actions; `className`, `ref` and the rest go to the `<div>` |
 | `TableCell` | `<td>` | `align`; `'end'` also gives tabular digits, for numbers |
 
 ## Component tokens
@@ -106,12 +109,16 @@ Each is an optional override: set it on the page, a container or one table's fra
 | `--table-sort-bg-pressed` | `pressed` | A sortable header's fill while it's held down. |
 | `--table-row-bg-selected` | `surface-muted` | A selected row's background. |
 | `--table-row-indicator-selected` | `primary` | The bar at the start of a selected row. |
+| `--table-action-bar-bg` | `primary-subtle` | TableActionBar's background. |
+| `--table-action-bar-text` | `text` | TableActionBar's count (4.5:1 on its background). |
 | `--table-focus-ring` | `focus-ring` | The keyboard focus ring (sort buttons, a scrolling table). |
 | `--table-font-size` | `text-sm` | Cell text (14px). |
 | `--table-header-weight` | `font-medium` | Header text weight (500). |
+| `--table-action-bar-weight` | `font-semibold` | TableActionBar's count. |
 | `--table-padding-x` | `spacing-3` | A cell's side padding (12px). |
 | `--table-padding-y` | `spacing-3` | A cell's top and bottom padding at size md (12px). |
 | `--table-padding-y-sm` | `spacing-2` | At size sm (8px). |
+| `--table-action-bar-padding` | `spacing-2` | Space inside TableActionBar (8px). |
 | `--table-border-width` | `border-width-1` | The frame and row lines (1px). |
 | `--table-indicator-width` | `border-width-2` | The selected row's bar (2px). |
 | `--table-radius` | `rounded-lg` | The frame's corners (8px). |

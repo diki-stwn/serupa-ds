@@ -76,7 +76,7 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 | Enter, Space | Opens it on the first item | Chooses the item |
 | ↓ / ↑ | Opens it on the first / last item | The next / previous item, wrapping |
 | Home, End | | The first or last item |
-| Letters | | The next item starting with them. Letters typed within half a second make one word ("de" finds Delete past Duplicate), the same letter again steps through the items starting with it, and accents and case don't matter ("e" finds "Éditer") |
+| Letters | | The next item starting with them. Letters typed within half a second make one word ("de" finds Delete past Duplicate), the same letter again steps through the items starting with it, and accents and case don't matter ("e" finds "Éditer"). A Space within half a second of a letter is part of the word ("save as" finds "Save as…"), so it doesn't choose |
 | Escape | | Closes it; focus goes back to the button |
 | Tab | | Closes it and moves on |
 | → (← in rtl), Enter, Space | | On a `MenuSub`: opens its submenu on the first item |

@@ -101,6 +101,26 @@
             "cssVar": "--table-sort-bg-pressed"
           }
         }
+      },
+      "action-bar-bg": {
+        "$type": "color",
+        "$value": "{color.primary-subtle}",
+        "$description": "TableActionBar's background.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-action-bar-bg"
+          }
+        }
+      },
+      "action-bar-text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "TableActionBar's count (4.5:1 on its background).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-action-bar-text"
+          }
+        }
       }
     },
     "typography": {
@@ -121,6 +141,16 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--table-header-weight"
+          }
+        }
+      },
+      "action-bar-weight": {
+        "$type": "fontWeight",
+        "$value": "{typography.font-semibold}",
+        "$description": "TableActionBar's count.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-action-bar-weight"
           }
         }
       }
@@ -153,6 +183,16 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--table-padding-y-sm"
+          }
+        }
+      },
+      "action-bar-padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space inside TableActionBar (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-action-bar-padding"
           }
         }
       }

@@ -1,7 +1,9 @@
-// exports: type SortDirection, Table, TableBody, type TableBodyProps, TableCell, type TableCellProps, TableFoot, type TableFootProps, TableHead, TableHeaderCell, type TableHeaderCellProps, type TableHeadProps, type TableProps, TableRow, type TableRowProps, TableSelectCell, type TableSelectCellProps
+// exports: type SortDirection, Table, TableActionBar, type TableActionBarProps, TableBody, type TableBodyProps, TableCell, type TableCellProps, TableFoot, type TableFootProps, TableHead, TableHeaderCell, type TableHeaderCellProps, type TableHeadProps, type TableProps, TableRow, type TableRowProps, TableSelectCell, type TableSelectCellProps
 interface TableLabels {
     table: string;
     tableSorted: (column: string, direction: "ascending" | "descending") => string;
+    tableSelected: (count: number) => string;
+    clearSelection: string;
 }
 interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
     size?: "md" | "sm";
@@ -28,6 +30,12 @@ interface TableHeaderCellProps extends Omit<React.ThHTMLAttributes<HTMLTableCell
 interface TableCellProps extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, "align"> {
     align?: "center" | "end" | "start";
 }
+interface TableActionBarProps extends React.HTMLAttributes<HTMLDivElement> {
+    count: number;
+    onClear?: () => void;
+    clearLabel?: string;
+    children?: React.ReactNode;
+}
 declare const Table: React.ForwardRefExoticComponent<TableProps & React.RefAttributes<HTMLTableElement>>;
 type TableHeadProps = React.HTMLAttributes<HTMLTableSectionElement>;
 type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
@@ -39,3 +47,4 @@ declare const TableRow: React.ForwardRefExoticComponent<TableRowProps & React.Re
 declare const TableSelectCell: React.ForwardRefExoticComponent<TableSelectCellProps & React.RefAttributes<HTMLInputElement>>;
 declare const TableHeaderCell: React.ForwardRefExoticComponent<TableHeaderCellProps & React.RefAttributes<HTMLTableCellElement>>;
 declare const TableCell: React.ForwardRefExoticComponent<TableCellProps & React.RefAttributes<HTMLTableCellElement>>;
+declare const TableActionBar: React.ForwardRefExoticComponent<TableActionBarProps & React.RefAttributes<HTMLDivElement>>;
