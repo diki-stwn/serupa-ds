@@ -307,19 +307,28 @@ describe('Tabs on the server', () => {
     expect([focused(), selected('ver').textContent]).toEqual(['Three', 'Three']);
   });
 
-  test('the line and the pill fill slide from the tab selected before (EG1): they start where it was, on translate and scale, and come to rest in place', async () => {
+  test('the line and the pill fill slide from the tab selected before (EG1): the line starts where it was, on translate and scale; the pill fill is cut from its shape to the new one, round corners kept (GO1); both come to rest in place', async () => {
     await withMotion(async () => {
       await setup();
-      for (const [id, pseudo] of [['un', '::after'], ['dv', '::before']] as const) {
-        const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
-        const [from, to] = id === 'un' ? [tabs[0], tabs[2]] : [tabs[2], tabs[0]];
-        await userEvent.click(to);
-        const moves = to.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
-        const start = moves.find((a) => a.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
-        expect([moves.map((a) => a.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(from.offsetLeft - to.offsetLeft)]);
-        await Promise.all(moves.map((a) => a.finished));
-        expect([getComputedStyle(to, pseudo).translate, getComputedStyle(to, pseudo).scale]).toEqual(['none', 'none']);
-      }
+      const tabs = [...el('un').querySelectorAll<HTMLElement>('[role="tab"]')];
+      await userEvent.click(tabs[2]);
+      const moves = tabs[2].getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === '::after');
+      const start = moves.find((a) => a.transitionProperty === 'translate'), shift = start ? parseFloat(String((start.effect as KeyframeEffect).getKeyframes()[0].translate)) : NaN;
+      expect([moves.map((a) => a.transitionProperty).sort(), Math.round(shift)]).toEqual([['scale', 'translate'], Math.round(tabs[0].offsetLeft - tabs[2].offsetLeft)]);
+      await Promise.all(moves.map((a) => a.finished));
+      expect([getComputedStyle(tabs[2], '::after').translate, getComputedStyle(tabs[2], '::after').scale]).toEqual(['none', 'none']);
+
+      const pills = [...el('dv').querySelectorAll<HTMLElement>('[role="tab"]')];
+      const [from, to] = [pills[2], pills[0]];
+      await userEvent.click(to);
+      const cuts = to.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === '::before');
+      const first = String((cuts[0]?.effect as KeyframeEffect | undefined)?.getKeyframes()[0].clipPath ?? '');
+      const px = (c: string) => (c.match(/-?[\d.]+px/g) || []).slice(0, 4).map((n) => Math.round(parseFloat(n)));
+      // Cut to the last tab: its start edge is where that tab starts, from this one's (the fill spans both).
+      expect([cuts.map((a) => a.transitionProperty), px(first)[3], /round/.test(first), cuts.some((a) => a.transitionProperty === 'scale')]).toEqual([['clip-path'], Math.round(from.offsetLeft - to.offsetLeft), true, false]);
+      await Promise.all(cuts.map((a) => a.finished));
+      const rest = getComputedStyle(to, '::before'), r = to.getBoundingClientRect(), box = { w: parseFloat(rest.width), cut: px(rest.clipPath) };
+      expect([Math.round(box.w - box.cut[1] - box.cut[3]), box.cut[0], box.cut[2], /round/.test(rest.clipPath)]).toEqual([Math.round(r.width), 0, 0, true]);
     });
   });
 });
