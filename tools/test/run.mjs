@@ -12,9 +12,11 @@ const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.a
 if (arg('--browser')) process.env.SERUPA_BROWSER = arg('--browser');
 // --locale ar runs the component tests with the browser in that language (SERUPA_LOCALE, vitest.config.ts).
 if (arg('--locale')) process.env.SERUPA_LOCALE = arg('--locale');
-// A full run on CI (main, the merge queue) runs the component tests a second time with the browser in one of these
-// languages, picked by the commit, so a component that reads the browser's language where it should take the
-// provider's, or a test that expects English without saying so, fails within a few merges. Right-to-left with Arabic
+// On CI the component tests run a second time with the browser in one of these languages, picked by the commit, so
+// a component that reads the browser's language where it should take the provider's, or a test that expects English
+// without saying so, fails. A full run (main, the merge queue) runs all of them again; a pull request that changes only
+// component folders runs again just the changed components' own tests, so a new test that expects English fails on
+// its pull request instead of turning main red for everyone. Right-to-left with Arabic
 // digits (ar-EG: Chromium writes plain ar in Latin ones, WebKit doesn't), comma decimals, Thai and Japanese scripts.
 // To repeat one: node tools/test/run.mjs --group components --locale id-ID.
 const LOCALES = ['ar-EG', 'id-ID', 'th', 'ja'];
@@ -46,10 +48,10 @@ const steps = [
   // only on a full run: the floors in vitest.config.ts are for all of src/, which a few components can't reach.
   // With SERUPA_ONLY, the tests that go through every story (STORY_WIDE) run too, on those components' stories.
   vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...[...only].map((n) => `src/components/${n}/`), ...(storied ? STORY_WIDE : [])] : [])),
-  ...(process.env.CI && !arg('--since') && !arg('--locale') ? [(() => {
+  ...(process.env.CI && (!arg('--since') || only?.size) && !arg('--locale') ? [(() => {
     const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT, encoding: 'utf8' }).stdout.trim();
     const locale = LOCALES[parseInt(sha.slice(0, 8) || '0', 16) % LOCALES.length];
-    return [...vitest(`Component tests in ${locale} (Vitest)`, 'components', 'components'), { SERUPA_LOCALE: locale }];
+    return [...vitest(`Component tests in ${locale} (Vitest)`, 'components', 'components', ...(only ? [...only].map((n) => `src/components/${n}/`) : [])), { SERUPA_LOCALE: locale }];
   })()] : []),
   // --update first accepts the current API and utility classes as the baselines the checks compare with.
   ...(update.length ? [['Public API', 'api.mjs', ...update], ['Utility classes', 'utilities.mjs', ...update]].map(node('checks')) : []),
