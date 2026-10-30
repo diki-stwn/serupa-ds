@@ -138,7 +138,6 @@ const REFLOW_KNOWN = new Set([
   'components-actions-copybutton--with-a-field', 'components-actions-copybutton--variants-and-sizes',
   'components-actions-togglebutton--sizes',
   'components-content-icon--common-icons', 'components-content-sortablelist--long-text',
-  'components-feedback-progress--long-label',
   'components-layout-and-type-container--long-text',
   'components-layout-and-type-grid--overflow',
   'components-layout-and-type-stack--overflow', 'components-navigation-navbar--overflow',
