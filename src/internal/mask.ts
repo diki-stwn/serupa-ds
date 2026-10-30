@@ -2,6 +2,8 @@
 // (an IBAN). 9 takes a digit, a a letter, A a letter in capitals, * a letter or digit; \ makes the next character
 // plain; anything else is shown as it is, between what's typed.
 
+import { latinDigits } from "./digits";
+
 type Slot = { take: RegExp; upper: boolean } | string;
 
 const SLOTS: Record<string, { take: RegExp; upper: boolean }> = {
@@ -28,11 +30,12 @@ const lead = (slots: Slot[]): string => {
   return s;
 };
 
-/** What was typed, without the mask's plain text: the letters and digits of text, after its leading plain text. */
+/** What was typed, without the mask's plain text: the letters and digits of text, after its leading plain text.
+    Digits come back as 0-9 whatever keyboard typed them (full-width, Arabic-Indic…), so the value is one a server reads. */
 export function unmask(slots: Slot[], text: string): string {
   const start = lead(slots);
   const body = start && text.startsWith(start) ? text.slice(start.length) : text;
-  return Array.from(body).filter((c) => /[\p{L}\p{Nd}]/u.test(c)).join("");
+  return Array.from(latinDigits(body.normalize("NFKC"))).filter((c) => /[\p{L}\p{Nd}]/u.test(c)).join("");
 }
 
 /** typed (letters and digits) laid into the mask: each character goes in the next slot it fits (others are dropped),
