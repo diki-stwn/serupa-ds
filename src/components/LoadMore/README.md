@@ -27,7 +27,7 @@ import { LoadMore } from "serupa-ds";
 
 ## Accessibility
 
-- **Role and name:** a plain group with a native `<button>` named "Load more" (or `label`). The summary and end text are plain text.
+- **Role and name:** a plain group with a native `<button>` named "Load more" (or `label`). A long `label` wraps onto more lines on a phone instead of being cut off. The summary and end text are plain text.
 - **Announcements:** when `count` grows, the number added is said politely through the shared live region ("20 more loaded. Showing 40 of 134."). Without `count`, "More loaded" is said once a promise from `onLoadMore` settles. The button's own "Loading" isn't said, so a load is one message.
 - **Focus:** focus stays on the button, which moves down below the new items, so the next Tab goes on from there. When the last page leaves no button, focus goes to the end text instead of falling back to the page.
 - **Infinite scroll:** it loads when the button comes within 200px of the viewport, once per approach, and again only after `count` changes, so a load that adds nothing doesn't repeat. The button stays for keyboard and screen reader users, who don't scroll to load, and as the fallback where IntersectionObserver is missing.
