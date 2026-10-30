@@ -162,7 +162,10 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   React.useEffect(() => {
     const i = img.current, first = !listening.current;
     listening.current = true;
-    if (first && i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
+    // WebKit picks a srcset candidate after mount and until then says complete, with nothing chosen (currentSrc
+    // ""), which isn't broken: its load or error event comes.
+    const choosing = i && !i.currentSrc && !i.naturalWidth && (i.srcset || (i.parentElement && i.parentElement.tagName === "PICTURE"));
+    if (first && i && i.complete && !choosing) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
     since.current = performance.now();
     if (served.current === src) return;
     const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
