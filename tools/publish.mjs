@@ -47,7 +47,7 @@ const home = () => {
 const log = fs.readFileSync(path.join(P, 'CHANGELOG.md'), 'utf8');
 // Every regex character in the version escaped, not just the dots (a build suffix like 1.0.0+abc has a +).
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const m = new RegExp(`^## \\[${escape(pkg.version)}\\][^\\n]*\\n([\\s\\S]*?)(?=^## \\[)`, 'm').exec(log);
+const m = new RegExp(`^## \\[${escape(pkg.version)}\\][^\\n]*\\n([\\s\\S]*?)(?=^## )`, 'm').exec(log);
 if (!m) { console.log(`CHANGELOG.md has no ${pkg.version} section yet: nothing to release.`); home(); process.exit(0); }
 
 if (tagged) {
