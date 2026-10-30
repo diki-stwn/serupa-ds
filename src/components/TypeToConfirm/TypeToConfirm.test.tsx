@@ -84,3 +84,15 @@ describe('TypeToConfirm', () => {
     await React.act(async () => { done(); });
   });
 });
+
+describe('TypeToConfirm at 320px (GQ5)', () => {
+  test('a long button label wraps inside the box, in a block and in a grid column, instead of widening the page', async () => {
+    const label = 'Delete this repository and every fork of it permanently';
+    await render(<div id="gq5" style={{ width: '320px' }}>
+      <Confirm id="gq5-b" confirmLabel={label} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr' }}><Confirm id="gq5-g" confirmLabel={label} /></div>
+    </div>);
+    for (const id of ['gq5-b', 'gq5-g']) expect(parts(id).button.getBoundingClientRect().width <= 320).toBe(true);
+    expect(el('gq5').scrollWidth).toBe(320);
+  });
+});
