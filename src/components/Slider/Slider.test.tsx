@@ -44,15 +44,16 @@ function App(props: { sref?: React.Ref<HTMLDivElement> }) {
 const setup = async (sref?: React.Ref<HTMLDivElement>) => { calls = []; commits = []; await render(<App sref={sref} />); };
 
 describe('Slider', () => {
-  test('your onKeyDown runs first: preventDefault() on a key keeps the slider from changing; other keys still work', async () => {
-    const changes: number[] = [];
+  test('your onKeyDown runs first, with the root as currentTarget: preventDefault() on a key keeps the slider from changing; other keys still work', async () => {
+    const changes: number[] = [], targets: (EventTarget | null)[] = [];
     await render(<Slider id="kd" aria-label="Volume" defaultValue={50} onValueChange={(v) => changes.push(v)}
-      onKeyDown={(e) => { if (e.key === 'ArrowRight') e.preventDefault(); }} />);
+      onKeyDown={(e) => { targets.push(e.currentTarget); if (e.key === 'ArrowRight') e.preventDefault(); }} />);
     thumb('kd').focus();
     await userEvent.keyboard('{ArrowRight}');
     expect([now('kd'), changes]).toEqual([50, []]);
     await userEvent.keyboard('{ArrowLeft}');
     expect([now('kd'), changes.length > 0]).toEqual([49, true]);
+    expect(targets.length === 2 && targets.every((t) => t === document.getElementById('kd'))).toBe(true);
   });
 
   test('a range: onFocus and onBlur fire once each, entering and leaving the slider, not when Tab moves between its thumbs', async () => {
