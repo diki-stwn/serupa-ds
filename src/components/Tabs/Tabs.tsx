@@ -163,6 +163,7 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
       set("--dk-tabs-from-l", l + dx); set("--dk-tabs-from-r", w + r - dx - b.w); set("--dk-tabs-from-t", u + dy); set("--dk-tabs-from-b", h + d - dy - b.h);
     }
   };
+  // every render: place reads ctx and the list as they are now; it only swaps a function, so it costs nothing.
   useIsoLayoutEffect(() => { ctx.before.current = () => place(true); return () => { ctx.before.current = null; }; });
   const measure = React.useCallback(() => {
     const el = list.current;
