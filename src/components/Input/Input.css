@@ -12,7 +12,7 @@
   --dk-input-bd: var(--input-border, var(--field-border));
   --dk-input-ring: var(--input-focus-ring, var(--focus-ring));
   display: inline-flex; align-items: center; gap: var(--input-gap, var(--spacing-2));
-  box-sizing: border-box; width: var(--sizing-full); height: var(--dk-input-h);
+  box-sizing: border-box; width: var(--sizing-full); min-width: var(--spacing-0); height: var(--dk-input-h);
   padding: var(--spacing-0) var(--dk-input-px);
   background: var(--input-bg, var(--field)); color: var(--input-text, var(--text));
   border: var(--input-border-width, var(--border-width-1)) solid var(--dk-input-bd);
@@ -24,7 +24,7 @@
 .dk-input--size-sm { --dk-input-h: var(--input-height-sm, var(--control-height-sm)); --dk-input-px: var(--input-padding-x-sm, var(--spacing-2)); --dk-input-icon: var(--input-icon-size-sm, var(--spacing-3\.5)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-input--size-lg { --dk-input-h: var(--input-height-lg, var(--control-height-lg)); --dk-input-px: var(--input-padding-x-lg, var(--spacing-4)); --dk-input-icon: var(--input-icon-size-lg, var(--spacing-5)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
 .dk-input__field {
-  flex: auto; min-width: var(--spacing-0); height: var(--sizing-full);
+  flex: auto; width: var(--spacing-0); min-width: var(--spacing-0); height: var(--sizing-full);   /* grows from 0, so the box's own width rules, not the field's 20 characters (GR23) */
   margin: var(--spacing-0); padding: var(--spacing-0); border: 0; background: transparent; outline: none;
   color: inherit; font: inherit; letter-spacing: inherit;
 }
