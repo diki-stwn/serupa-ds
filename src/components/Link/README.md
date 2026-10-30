@@ -31,6 +31,7 @@ const { Link, Text } = window.Serupa;
 - Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link. Don't combine it with `tone="neutral"`: that link looks like plain text until it's hovered, so Link warns in the console.
 - Use `tone="neutral"` in muted small print, such as terms under a form, so the link takes the text's color.
 - With a router, register its link component once with `configure({ link })`, or pass it in `as`, so client-side navigation keeps working.
+- A bare URL as the text is fine: it breaks across lines, even in a flex row or grid column, rather than push the layout wider.
 - Check any `href` that comes from people, such as a profile's website: allow only `https:`, `http:`, `mailto:` or your own paths. React still renders a `javascript:` link, which runs code when clicked.
 
 ## Accessibility
