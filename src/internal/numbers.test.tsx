@@ -12,6 +12,10 @@ describe('typed numbers', () => {
     expect(parseNumber(text, locale)).toBe(n);
   });
 
+  test('typed in full width by a Japanese or Chinese IME, the same number, sign included: "－１，５００．５" is -1500.5 (L8E1)', () => {
+    expect([parseNumber('１，５００．５', 'ja'), parseNumber('－５', 'ja'), parseNumber('－１２．５', 'zh-CN'), parseNumber('１５００', 'en-US')]).toEqual([1500.5, -5, -12.5, 1500]);
+  });
+
   test('empty is null; half-typed or not a number is undefined', () => {
     expect(parseNumber('  ', 'en-US')).toBe(null);
     for (const t of ['-', '1.', 'abc', '1e5', '1.2.3,4', '1,2,3', '1-2']) expect(parseNumber(t, 'en-US'), t).toBe(undefined);

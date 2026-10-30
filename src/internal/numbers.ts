@@ -36,7 +36,8 @@ const grouped = (t: string, mark: string) => {
     anywhere). Spaces, currency symbols and % around the number are ignored, and digits in any script are read. */
 export function parseNumber(text: string, locale?: string): number | null | undefined {
   const sym = symbolsOf(locale), { group, decimal } = sym;
-  const s = arabic(latinDigits(text), sym).replace(/[\u200e\u200f\u061c]/g, "").replace(/\u2212/g, "-").replace(SPACE, "");
+  // NFKC first: a Japanese or Chinese IME in full-width mode types "－１，５００．５", which is -1500.5 (L8E1).
+  const s = arabic(latinDigits(text.normalize("NFKC")), sym).replace(/[\u200e\u200f\u061c]/g, "").replace(/\u2212/g, "-").replace(SPACE, "");
   if (s === "") return null;
   // Text around the number (Rp, $, €, %, a minus) is fine; letters inside it are not. The text may hold dots away
   // from the digits, as unit abbreviations do ("กม.", "कि.मि.", "கி.மீ.").
