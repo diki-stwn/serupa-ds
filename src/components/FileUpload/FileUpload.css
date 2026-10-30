@@ -6,7 +6,8 @@
    button. Disabled: faded. Invalid: a solid danger outline. Read-only: the files are listed without remove buttons.
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-file-upload { display: flex; flex-direction: column; gap: var(--file-upload-gap, var(--spacing-2)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--file-upload-title-color, var(--text)); }
+/* min-inline-size 0: as a grid or flex item too, a long file name is cut in place of widening it (GR30). */
+.dk-file-upload { display: flex; flex-direction: column; min-inline-size: var(--spacing-0); gap: var(--file-upload-gap, var(--spacing-2)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--file-upload-title-color, var(--text)); }
 .dk-file-upload__zone {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--file-upload-gap, var(--spacing-2)); text-align: center;
   padding: var(--file-upload-zone-padding, var(--spacing-6));

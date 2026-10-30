@@ -381,6 +381,19 @@ describe('FileUpload: long file names (GR17)', () => {
   });
 });
 
+describe('FileUpload as a grid or flex item (GR30)', () => {
+  test.each(['ltr', 'rtl'])('in a %s page at 320px, a long file name is cut in the middle and the FileUpload keeps to its grid cell or flex row', async (dir) => {
+    const name = 'laporan-keuangan-triwulan-ketiga-2026-final-revisi.pdf';
+    await render(<div dir={dir} style={{ width: 320 }}>
+      <div style={{ display: 'grid' }}><FileUpload id={'g-' + dir} readOnly files={[file(name, 'application/pdf', 10)]} /></div>
+      <div style={{ display: 'flex' }}><FileUpload id={'f-' + dir} readOnly files={[file(name, 'application/pdf', 10)]} /></div>
+    </div>);
+    const out = ['g-', 'f-'].map((k) => { const r = rootOf(k + dir).getBoundingClientRect(), p = rootOf(k + dir).parentElement!.getBoundingClientRect(); return [Math.round(r.left - p.left), Math.round(p.right - r.right)]; });
+    const cut = ['g-', 'f-'].map((k) => { const n = items(rootOf(k + dir))[0].querySelector('[title]')!; return n.children[0].scrollWidth > n.children[0].clientWidth; });
+    expect([out, cut]).toEqual([[[0, 0], [0, 0]], [true, true]]);
+  });
+});
+
 describe('FileUpload: sizes in the reader\'s locale (GR20)', () => {
   // Each row's size: the dir="auto" span that isn't the name (the name has a title).
   const sizes = (root: Element) => [...root.querySelectorAll<HTMLElement>('li [dir=auto]:not([title])')].map((x) => [x.textContent, x.dir]);
