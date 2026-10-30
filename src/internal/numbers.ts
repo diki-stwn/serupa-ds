@@ -2,8 +2,9 @@ import { latinDigits } from "./digits";
 
 // Numbers as people type them in their locale: "1.500,25" in id-ID and de-DE, "1,500.25" in en-US, "1 500,25" in fr.
 
-// The Arabic decimal and group marks (٫ ٬, used in ar and fa) as "." and ",".
-const arabic = (t: string) => t.replace(/\u066b/g, ".").replace(/\u066c/g, ",");
+// The Arabic decimal and group marks (٫ ٬, written with Arabic-Indic digits in ar-EG, fa and ps) as the marks the
+// locale writes with Latin digits, which aren't always "." and ",": ps and uz-Arab write 1.234,5.
+const arabic = (t: string, { group, decimal }: Symbols) => t.replace(/\u066b/g, decimal).replace(/\u066c/g, group);
 
 interface Symbols { group: string; decimal: string }
 // module state: a cache by locale.
@@ -12,8 +13,10 @@ function symbolsOf(locale?: string): Symbols {
   const key = locale || "";
   let s = symbols.get(key);
   if (!s) {
-    const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
-    s = { group: arabic(parts.find((p) => p.type === "group")?.value || ","), decimal: arabic(parts.find((p) => p.type === "decimal")?.value || ".") };
+    // With Latin digits, as formatNumber writes them: a locale's own digits can come with other marks (ps: ٬ ٫ with
+    // its Arabic-Indic digits, but . and , with Latin ones).
+    const parts = new Intl.NumberFormat(locale, { numberingSystem: "latn" }).formatToParts(12345.6);
+    s = { group: parts.find((p) => p.type === "group")?.value || ",", decimal: parts.find((p) => p.type === "decimal")?.value || "." };
     symbols.set(key, s);
   }
   return s;
@@ -32,8 +35,8 @@ const grouped = (t: string, mark: string) => {
     grouped in threes ("1.500" is 1500 in de-DE); otherwise a lone mark is the decimal ("9.5" or "9,5" is 9.5
     anywhere). Spaces, currency symbols and % around the number are ignored, and digits in any script are read. */
 export function parseNumber(text: string, locale?: string): number | null | undefined {
-  const { group, decimal } = symbolsOf(locale);
-  const s = arabic(latinDigits(text)).replace(/[\u200e\u200f\u061c]/g, "").replace(/\u2212/g, "-").replace(SPACE, "");
+  const sym = symbolsOf(locale), { group, decimal } = sym;
+  const s = arabic(latinDigits(text), sym).replace(/[\u200e\u200f\u061c]/g, "").replace(/\u2212/g, "-").replace(SPACE, "");
   if (s === "") return null;
   // Text around the number (Rp, $, €, %, a minus) is fine; letters inside it are not. The text may hold dots away
   // from the digits, as unit abbreviations do ("กม.", "कि.मि.", "கி.மீ.").
