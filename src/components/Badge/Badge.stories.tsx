@@ -11,7 +11,6 @@ const meta = {
     variant: { control: 'inline-radio', options: ['subtle', 'solid', 'outline'] },
     tone: { control: 'select', options: ['neutral', 'primary', 'success', 'warning', 'danger', 'info', 'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'] },
     leftIcon: iconArg,
-    size: { table: { disable: true } },
   },
 } satisfies Meta<typeof Badge>;
 export default meta;

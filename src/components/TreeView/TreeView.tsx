@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import { typeahead, typing, type Typed } from "../../internal/typeahead";
 import { Icon, type IconSource } from "../Icon/Icon";
+import { useServerStyles } from "../../internal/serverStyles";
 import { asIcon } from "../Icon/asIcon";
 import * as icons from "../../material/builtin";
 
@@ -76,6 +77,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   const [ownOpen, setOwnOpen] = React.useState<string[]>(props.defaultExpanded || []);
   const open = props.expanded !== undefined ? props.expanded : ownOpen;
   const root = React.useRef<HTMLUListElement | null>(null);
+  const styled = useServerStyles<HTMLUListElement>();   // each row's level, from server HTML under a strict CSP (GR11)
   const typed = React.useRef<Typed>({ text: "", at: 0 });
   const anchor = React.useRef<string | null>(null);   // where a Shift range starts
   const [focusId, setFocusId] = React.useState<string | null>(null);
@@ -193,7 +195,7 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   const ctx = React.useMemo(() => ({ store: st, api: api }), [st]);
 
   return (
-    <ul {...rest} ref={function (n) { root.current = n; nameRef(n); setRef(ref, n); }} role="tree"
+    <ul {...rest} ref={function (n) { root.current = n; nameRef(n); styled(n); setRef(ref, n); }} role="tree"
       aria-multiselectable={multi || undefined}
       className={cn("dk-tree-view", props.className)} data-component="tree-view" onKeyDown={onKeyDown}>
       <TreeContext.Provider value={ctx}><Rows list={props.items} level={1} /></TreeContext.Provider>
