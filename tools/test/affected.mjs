@@ -1,7 +1,7 @@
 // Which components a pull request's CI covers (run.mjs --since): only changes inside component folders narrow it,
 // and a component brings the ones that use it. No browser needed.
 //   node tools/test/affected.mjs
-import { affectedComponents, withDependents, report, done } from './lib.mjs';
+import { affectedComponents, internalTestsFor, withDependents, report, done } from './lib.mjs';
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -22,5 +22,7 @@ const deps = withDependents(new Set(['Button']));
 t('a component brings the ones that use it (Button: ToggleButton, and Dialog through IconButton)', deps.has('Button') && deps.has('ToggleButton') && deps.has('Dialog') && !deps.has('Meter'), list(deps));
 t('a component its stories use counts too (Input: Field, whose stories show one)', withDependents(new Set(['Input'])).has('Field'), list(withDependents(new Set(['Input']))));
 t('a component nothing uses brings only itself', list(withDependents(new Set(['Meter']))) === 'Meter', list(withDependents(new Set(['Meter']))));
+const shared = internalTestsFor(new Set(['LoadMore']));
+t('a component brings the shared src/internal tests that render it (LoadMore: announceContract), not the others', shared.includes('src/internal/announceContract.test.tsx') && !shared.includes('src/internal/typeahead.test.tsx'), shared.join(', '));
 
 done(report('Affected components', R));
