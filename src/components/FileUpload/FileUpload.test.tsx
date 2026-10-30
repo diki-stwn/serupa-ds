@@ -14,9 +14,9 @@ const many = '[data-testid=many]';
 const rootOf = (id: string) => document.getElementById(id)!.closest('[data-component=file-upload]') as HTMLElement;
 // The chosen files are the items of the named list; rejections are the alert.
 const items = (root: Element) => [...root.querySelectorAll<HTMLElement>('ul[aria-label] > li')];
-const list = (root: Element) => items(root).map((li) => li.querySelector('.dk-file-upload__name')!.textContent + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
+const list = (root: Element) => items(root).map((li) => li.querySelector('.dk-file-upload__name')!.getAttribute('title') + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
 const errs = (root: Element) => { const e = root.querySelector('[role=alert]'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
-const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.textContent).join();
+const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.getAttribute('title')).join();
 const input = (root: Element) => root.querySelector('input[type=file]') as HTMLInputElement;
 const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonElement;
 // The button opens the picker by clicking the native input; count those clicks and stop the picker from opening.
@@ -362,5 +362,20 @@ describe('FileUpload: drops, folders and what is said (FQ1)', () => {
     zone.dispatchEvent(e);
     await expect.poll(() => names(q(many))).toBe('a.png');
     expect([errs(q(many)), rejects.join(';')]).toEqual(['alert: Invoices is a folder: choose the files in it instead.', 'folder']);
+  });
+});
+
+describe('FileUpload: long file names (GR17)', () => {
+  const LONG = 'quarterly-report-final-v2-approved-by-finance-department-';
+  const fits = (el: Element) => el.scrollWidth <= el.clientWidth + 0.5;
+  test.each(['ltr', 'rtl'])('a long name is cut in the middle in a %s page: the year and extension stay, the whole name is its title and is read once', async (dir) => {
+    await render(<div dir={dir} style={{ width: 320 }}><FileUpload id={'gr17-' + dir} readOnly files={[file(LONG + '2025.pdf', 'application/pdf', 10), file(LONG + '2026.pdf', 'application/pdf', 10), file('a b.pdf', 'application/pdf', 10)]} /></div>);
+    // Each name holds the start (cut), the end (kept) and the whole name for screen readers, in that order.
+    const rows = items(rootOf('gr17-' + dir)).map((li) => li.querySelector('[title]')!);
+    const shown = rows.map((n) => { const [start, end] = n.children; return [end.textContent, fits(end), fits(start), css(n).direction]; });
+    expect(shown).toEqual([['t-2025.pdf', true, false, 'ltr'], ['t-2026.pdf', true, false, 'ltr'], ['a b.pdf', true, true, 'ltr']]);
+    // The start ends where the end begins, with nothing lost or doubled, and a short name isn't cut at all.
+    expect(rows.map((n) => { const [start, end, whole] = n.children; return [n.getAttribute('title'), start.textContent + end.textContent, whole.textContent, start.getAttribute('aria-hidden'), end.getAttribute('aria-hidden')]; })).toEqual(
+      [LONG + '2025.pdf', LONG + '2026.pdf', 'a b.pdf'].map((n) => [n, n, n, 'true', 'true']));
   });
 });
