@@ -12,7 +12,7 @@ const el = (id: string) => document.getElementById(id) as HTMLButtonElement;
 const said = () => document.querySelector('[data-dk-announcer]')?.textContent;
 const shout = () => document.querySelector('[data-dk-announcer-assertive]')?.textContent;
 const shown = (id: string) => [...el(id).querySelectorAll('.dk-copy-btn__label')].filter((s) => !s.hasAttribute('aria-hidden')).map((s) => s.textContent).join();
-const icon = (id: string) => el(id).querySelector<HTMLElement>('[data-icon]')!.dataset.icon;
+const icon = (id: string) => [...el(id).querySelectorAll<HTMLElement>('[data-icon]')].find((i) => getComputedStyle(i).opacity !== '0')!.dataset.icon;   // the one showing (both share a cell, KW18)
 
 let clip: string[];
 let writeText: ReturnType<typeof vi.fn>;

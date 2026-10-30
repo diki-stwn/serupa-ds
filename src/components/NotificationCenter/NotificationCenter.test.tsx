@@ -53,6 +53,15 @@ describe('NotificationCenter', () => {
     expect(log).toEqual(['read a', 'all', 'clear']);
   });
 
+  test('each "Mark as read" is described by its own row\'s title, so two read differently, and keeps its tooltip (TF4)', async () => {
+    const two: NotificationItem[] = [{ id: 'p', title: 'Payment failed' }, { id: 'q', title: 'Invoice paid', description: 'INV-204' }];
+    await render(<NotificationCenter defaultOpen items={two} onMarkRead={() => {}} />);
+    await expect.poll(() => drawer() !== null).toBe(true);
+    const marks = [...drawer()!.querySelectorAll('button')].filter((b) => b.getAttribute('aria-label') === 'Mark as read');
+    expect(marks.map((b) => [(b.getAttribute('aria-describedby') || '').split(' ').map((id) => document.getElementById(id)?.textContent).join(' '), b.title]))
+      .toEqual([['Payment failed', 'Mark as read'], ['Invoice paid', 'Mark as read']]);
+  });
+
   test('no footer buttons or "Mark as read" without their handlers; the empty line with none', async () => {
     await render(<NotificationCenter defaultOpen items={[]} />);
     await expect.poll(() => drawer() !== null).toBe(true);

@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, omit, oneOf } from "../../internal/cn";
+import { cn, domId, omit, oneOf } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { Drawer, type DrawerProps } from "../Drawer/Drawer";
@@ -93,6 +93,7 @@ const TONES: readonly ToastTone[] = ["neutral", "info", "success", "warning", "d
 /** A drawer of past notifications with read states: feed it useToastHistory() or your own list. */
 export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, NotificationCenterProps>("NotificationCenter", function NotificationCenter(props, ref) {
   const labels = useSettings(words).labels;
+  const base = domId("dk-nc", React.useId());
   // The Drawer's own props are named below, so its other attributes (id, aria-*) pass through in rest.
   const rest = omit(props, { title: 1, description: 1, footer: 1, children: 1, items: 1, onMarkRead: 1, onMarkAllRead: 1, onClear: 1, empty: 1, className: 1, open: 1, defaultOpen: 1, onOpenChange: 1,
     side: 1, size: 1, modal: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, swipeToClose: 1 } as const);
@@ -107,8 +108,8 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
       title={props.title != null ? props.title : labels.notificationCenter} footer={footer}>
       {items.length ? (
         <ul role="list" className="dk-notification-center__list">
-          {items.map((n) => {
-            const tone = oneOf(TONES, n.tone, "neutral"), icon = ICONS[tone];
+          {items.map((n, i) => {
+            const tone = oneOf(TONES, n.tone, "neutral"), icon = ICONS[tone], titleId = base + "-" + i;
             return (
               // Focusable from script only: "Mark as read" goes away once chosen, and focus stays on its row.
               <li key={n.id} tabIndex={-1} className={cn("dk-notification-center__item", "dk-notification-center__item--" + tone)} data-tone={tone} data-read={n.read ? "" : undefined}>
@@ -116,13 +117,15 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
                 <div className="dk-notification-center__content">
                   <p className="dk-notification-center__title">
                     {n.read ? null : <span className="dk-visually-hidden">{labels.unreadNotification + ": "}</span>}
-                    {n.title}
+                    <span id={titleId}>{n.title}</span>
                   </p>
                   {n.description != null ? <p className="dk-notification-center__description">{n.description}</p> : null}
                   {n.time != null ? <RelativeTime className="dk-notification-center__time" date={n.time} format="short" /> : null}
                 </div>
                 {n.read ? null : <span className="dk-notification-center__dot" aria-hidden="true" />}
-                {!n.read && onMarkRead ? <IconButton icon={icons.Check} label={labels.markRead} size="sm" onClick={(e) => { e.currentTarget.closest("li")?.focus(); onMarkRead(n.id); }} /> : null}
+                {/* Every unread row has one, so it's described by its row's title: "Mark as read, button, Invoice paid" (TF4).
+                    The title tooltip is kept, which IconButton leaves out when it's described. */}
+                {!n.read && onMarkRead ? <IconButton icon={icons.Check} label={labels.markRead} title={labels.markRead} aria-describedby={titleId} size="sm" onClick={(e) => { e.currentTarget.closest("li")?.focus(); onMarkRead(n.id); }} /> : null}
               </li>
             );
           })}
