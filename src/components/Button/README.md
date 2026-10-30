@@ -35,7 +35,7 @@ const { Button, buttonClass } = window.Serupa;
 
 ## Usage
 
-- A button is never wider than its container. A text label that doesn't fit ends in an ellipsis and shows in full as the button's `title` on hover (the same words as its name, so screen readers don't hear it twice). Keyboard focus and touch don't show a title, so where a label may not fit (a narrow column, a long translation, 400% zoom) pass `wrap`: the label takes as many lines as it needs and the button grows from its size's height. Short labels are still best.
+- A button is never wider than its container. A text label that doesn't fit ends in an ellipsis and shows in full as the button's `title` on hover (the same words as its name, so screen readers don't hear it twice). Keyboard focus and touch don't show a title, so where a label may not fit (a narrow column, a long translation, 400% zoom) pass `wrap`: the label takes as many lines as it needs and the button grows from its size's height. Short labels are still best. In a flex row the long-labelled button is the one that gives way: it shrinks to its ellipsis rather than pushing the buttons next to it out of the row, and icon-only buttons keep their square. In a grid, give the column `minmax(0, 1fr)` rather than `auto`, or the row widens the column instead.
 - One `primary` button per view or dialog; everything else is `secondary`, `outline` or `ghost`.
 - Label with a verb: "Save changes", not "OK".
 - Use `destructive` only for actions that delete or can't be undone, and only one solid (`primary`) destructive button per view, usually in the confirmation step.
