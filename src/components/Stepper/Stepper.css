@@ -71,7 +71,11 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
   position: absolute; width: var(--spacing-px); height: var(--spacing-px); margin: calc(var(--spacing-0) - var(--spacing-px)); padding: var(--spacing-0);
   overflow: hidden; clip-path: inset(var(--sizing-1-2)); white-space: nowrap;
 }
-.dk-stepper--compact:not(.dk-stepper--measure) .dk-stepper__connector { min-width: var(--spacing-2); margin-inline: var(--spacing-1); }
+.dk-stepper--compact:not(.dk-stepper--measure) .dk-stepper__connector { min-width: var(--spacing-1); margin-inline: var(--spacing-0\.5); }
+/* Many steps: the lines shrink to 4px and the circles still don't fit, so they take the sm size (GN2). */
+.dk-stepper--tight:not(.dk-stepper--measure) { --dk-step-size: var(--stepper-indicator-size-sm, var(--spacing-6)); }
+.dk-stepper--tight:not(.dk-stepper--measure) .dk-stepper__indicator { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
+.dk-stepper--tight:not(.dk-stepper--measure) .dk-stepper__indicator .dk-icon { font-size: var(--spacing-3\.5); }
 .dk-stepper__summary { margin: var(--spacing-2) var(--spacing-0) var(--spacing-0); color: var(--stepper-description-color, var(--text-muted)); }
 .dk-stepper__summary .dk-stepper__title { color: var(--stepper-title-color, var(--text)); }
 @media (forced-colors: active) {
