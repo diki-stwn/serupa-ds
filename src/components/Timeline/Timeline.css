@@ -2,7 +2,8 @@
    Timeline: events down a line. Each item is a grid: the rail (a 24px marker, a dot or an icon in a tinted
    circle, and the line down to the next marker) and the body (title, muted time, content). align="alternate"
    centers the rail from 768px up and puts every other body on the far side. Every value reads one of its own
-   tokens (timeline.tokens.json), which fall back to the shared ones.
+   tokens (timeline.tokens.json), which fall back to the shared ones. A word longer than the body (a URL, a German
+   compound) breaks inside, so a 320px page doesn't scroll sideways (WCAG 1.4.10).
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-timeline { margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; color: var(--timeline-text, var(--text)); }
@@ -25,7 +26,7 @@
 .dk-timeline__marker--icon { background: var(--dk-timeline-tint); color: var(--dk-timeline-ink); }
 .dk-timeline__marker--icon::before { content: none; }
 .dk-timeline__marker--icon .dk-icon { font-size: var(--timeline-icon-size, var(--spacing-4)); }
-.dk-timeline__body { grid-area: body; min-width: var(--spacing-0); padding-block-end: var(--timeline-item-gap, var(--spacing-6)); }
+.dk-timeline__body { grid-area: body; min-width: var(--spacing-0); overflow-wrap: anywhere; padding-block-end: var(--timeline-item-gap, var(--spacing-6)); }
 .dk-timeline__item:last-child .dk-timeline__body { padding-block-end: var(--spacing-0); }
 /* The title's first line sits level with the 24px marker. */
 .dk-timeline__title { color: var(--timeline-title-color, var(--text)); font-weight: var(--font-semibold); line-height: var(--timeline-marker-size, var(--spacing-6)); }
