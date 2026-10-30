@@ -9,6 +9,9 @@
 .dk-date-range-picker__dash { flex-shrink: 0; color: var(--date-range-picker-dash, var(--text-muted)); }
 .dk-date-range-picker__months { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--date-range-picker-months-gap, var(--spacing-6)); }
 .dk-date-range-picker__months > :first-child .dk-calendar__nav--next, .dk-date-range-picker__months > :last-child:not(:first-child) .dk-calendar__nav--prev { visibility: hidden; }
+/* Stacked, the popup is as wide as one month (or the status line, wrapped to it), not as wide as two across, so it
+   keeps 8px from both sides of a phone screen as DatePicker's does (GR9). */
+@media (max-width: 639.98px) { .dk-date-range-picker__popup { width: min-content; } }
 @media (max-width: 639.98px) { .dk-date-range-picker__months > :first-child .dk-calendar__nav--next, .dk-date-range-picker__months > :last-child:not(:first-child) .dk-calendar__nav--prev { visibility: visible; } }
 .dk-date-range-picker__status { margin: var(--spacing-2) var(--spacing-0) var(--spacing-0); color: var(--date-range-picker-status-color, var(--text-muted)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 }
