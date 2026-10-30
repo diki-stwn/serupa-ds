@@ -59,6 +59,7 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
   const L = { completed: sds.labels.completed, error: sds.labels.hasError, warning: sds.labels.hasWarning, optional: sds.labels.optional, stepOf: sds.labels.stepOf, ...(props.labels || {}) };
   const nav = React.useRef<HTMLElement | null>(null);
   const [compact, setCompact] = React.useState(false);
+  const [tight, setTight] = React.useState(false);
   // What the measure depends on: the steps' text when it is plain text, so an inline steps array (a new array each
   // render) doesn't measure again; titles that are elements are compared by the array itself.
   const text = (n: React.ReactNode) => (n == null || typeof n === "string" || typeof n === "number" || typeof n === "boolean" ? String(n) : null);
@@ -69,17 +70,28 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
     const el = nav.current;
     if (!el || vertical) { setCompact(false); return; }
     const fit = () => {
+      const list = el.firstElementChild as HTMLElement, has = (c: string) => el.classList.contains(c);
       el.classList.add("dk-stepper--measure");
-      const need = (el.firstElementChild as HTMLElement).scrollWidth;
+      const need = list.scrollWidth;
       el.classList.remove("dk-stepper--measure");
-      setCompact(need > el.clientWidth);
+      const narrow = need > el.clientWidth;
+      // Circles only and still too wide (many steps): the sm circles (GN2). Lay the row out compact with md circles
+      // for a moment to tell.
+      let small = false;
+      if (narrow && size === "md") {
+        const was = [has("dk-stepper--compact"), has("dk-stepper--tight")];
+        el.classList.add("dk-stepper--compact"); el.classList.remove("dk-stepper--tight");
+        small = list.scrollWidth > el.clientWidth;
+        el.classList.toggle("dk-stepper--compact", was[0]); el.classList.toggle("dk-stepper--tight", was[1]);
+      }
+      setCompact(narrow); setTight(small);
     };
     fit();
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [vertical, shape]);
+  }, [vertical, shape, size]);
   // Going to a step makes its button the current step's plain head, so React replaces the element that has focus
   // and focus would drop to the page: put it on the new current head instead (GN1).
   const going = React.useRef<number | null>(null);
@@ -95,7 +107,7 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
   const shown = Math.min(current, steps.length - 1);
   return (
     <nav {...rest} ref={(node) => { nav.current = node; setRef(ref, node); }} aria-label={rest["aria-label"] || (rest["aria-labelledby"] ? undefined : sds.labels.progress)}
-      className={cn("dk-stepper", vertical ? "dk-stepper--vertical" : "dk-stepper--horizontal", compact && "dk-stepper--compact", "dk-stepper--size-" + size, props.className)}
+      className={cn("dk-stepper", vertical ? "dk-stepper--vertical" : "dk-stepper--horizontal", compact && "dk-stepper--compact", compact && tight && "dk-stepper--tight", "dk-stepper--size-" + size, props.className)}
       data-component="stepper" data-orientation={vertical ? "vertical" : "horizontal"} data-size={size}>
       <ol className="dk-stepper__list">
         {steps.map((s, i) => {
