@@ -33,7 +33,7 @@ export interface SidebarSectionProps extends Omit<React.HTMLAttributes<HTMLDivEl
   children?: React.ReactNode;
 }
 
-export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "children"> {
+export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLElement>, "children"> {
   /** The item's text. */
   label: React.ReactNode;
   /** An icon before the label: a Material Symbols or custom name, or an element. Top-level items need one to show when collapsed. */
@@ -155,7 +155,7 @@ const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.
    hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. The ref
    goes to the link or the group's button. */
 /** An item in a Sidebar: a link, or a group of nested items. */
-export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarItemProps>("SidebarItem", function SidebarItem(props, ref) {
+export const SidebarItem = /* @__PURE__ */ component<HTMLElement, SidebarItemProps>("SidebarItem", function SidebarItem(props, ref) {
   const ctx = React.useContext(SidebarContext);
   const rest = omit(props, ITEM_OWN);
   const kids = itemsOf(props.children);
@@ -184,8 +184,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
     {props.badge != null ? <span className="dk-sidebar__badge" id={dot ? badgeId : undefined}>{props.badge}</span> : null}
     {chevron && !rail ? <Icon icon={icons.ExpandMore} className="dk-sidebar__chevron" /> : null}
   </>;
-  // An item with children is a button, not a link: its other attributes and handlers go to the button.
-  const btnProps = omit(rest, { href: 1, target: 1, rel: 1, download: 1, hrefLang: 1, ping: 1, referrerPolicy: 1, type: 1, onClick: 1 }) as unknown as React.ButtonHTMLAttributes<HTMLButtonElement>;
+  // An item with children is a button, not a link: its other attributes and handlers go to the button. Its events and
+  // ref are typed for HTMLElement, which both the link and the button are.
+  const btnProps = omit(rest, { href: 1, target: 1, rel: 1, download: 1, hrefLang: 1, ping: 1, referrerPolicy: 1, type: 1, onClick: 1 });
   const cls = cn("dk-sidebar__item", ctx.depth > 0 && "dk-sidebar__item--nested", (props.active || (group && childActive)) && "dk-sidebar__item--active", props.className);
 
   if (group && rail) {
@@ -207,7 +208,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLAnchorElement, SidebarI
   if (group) {
     return (
       <li className="dk-sidebar__li" data-state={open ? "open" : "closed"}>
-        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e as unknown as React.MouseEvent<HTMLAnchorElement>); toggle(); }}>{inner(true)}</button>
+        <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls} aria-expanded={open} aria-controls={listId} onClick={(e) => { if (props.onClick) props.onClick(e); toggle(); }}>{inner(true)}</button>
         <SidebarContext.Provider value={{ collapsed: ctx.collapsed, depth: ctx.depth + 1 }}>
           <ul ref={nested} id={listId} className="dk-sidebar__list dk-sidebar__list--nested" hidden={!open && !exit.leaving} inert={!open || undefined} data-instant={exit.arrived || undefined}>{kids}</ul>
         </SidebarContext.Provider>
