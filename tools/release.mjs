@@ -22,6 +22,7 @@ const STAMPS = {
   // the install instructions pin the latest tag (and its release file)
   'README.md': [`serupa-ds#v${V}`, `\\(\`#v${V}\`\\)`, `releases/download/v${V}/`, `/serupa-ds-${V}\\.tgz`],
   'docs/GettingStarted.mdx': [`serupa-ds#v${V}`],
+  'skills/serupa/SKILL.md': [`serupa-ds#v${V}`],
 };
 
 const read = (f) => fs.readFileSync(path.join(P, f), 'utf8');

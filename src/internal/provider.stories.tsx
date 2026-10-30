@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>;
 const Sample = () => (
   <div className="flex flex-col gap-4 max-w-md">
     <Alert title="Saved" onDismiss={() => {}} />
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       <DatePicker aria-label="Date" defaultValue={new Date(2026, 2, 5)} />
       <TimePicker aria-label="Time" defaultValue="14:30" />
     </div>

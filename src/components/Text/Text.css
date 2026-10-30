@@ -1,10 +1,11 @@
 /* ---------------------------------------------------------------
    Text: body text in the system's type. Size (xs to xl, with each step's line height), tone (default, muted,
    primary, danger: each 4.5:1 on surface) and weight are set only when given, so anything unset follows the
-   parent. truncate keeps it on one line with an ellipsis. Margins are left to the layout (none by default).
+   parent. A long word or URL breaks rather than widen a flex or grid parent; truncate keeps it on one line with an
+   ellipsis. Margins are left to the layout (none by default).
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-text { margin: var(--spacing-0); font-family: var(--font-sans); overflow-wrap: break-word; }
+.dk-text { margin: var(--spacing-0); font-family: var(--font-sans); overflow-wrap: anywhere; }
 .dk-text--xs { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-text--sm { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-text--base { font-size: var(--text-base); line-height: var(--text-base--line-height); }

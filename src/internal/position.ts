@@ -76,7 +76,16 @@ export function placeLayer(layer: HTMLElement, anchor: Element, placement: strin
   const r = place(a, { width: layer.offsetWidth, height: layer.offsetHeight }, placement, offset, fallback, undefined, rtl);
   layer.style.left = r.x + "px"; layer.style.top = r.y + "px"; layer.dataset.side = r.side;
   if (r.maxHeight !== undefined) { layer.style.maxHeight = r.maxHeight + "px"; layer.style.overflowY = "auto"; }
-  if (r.maxWidth !== undefined) layer.style.maxWidth = own ? "min(" + own + ", " + r.maxWidth + "px)" : r.maxWidth + "px";
+  if (r.maxWidth !== undefined) {
+    layer.style.maxWidth = own ? "min(" + own + ", " + r.maxWidth + "px)" : r.maxWidth + "px";
+    // A min-width can keep it wider than that room (a Menu's): then it slides back on screen over the anchor
+    // rather than run off the edge (WCAG 1.4.10).
+    if (layer.offsetWidth > r.maxWidth) {
+      const vv = window.visualViewport, L = vv ? vv.offsetLeft : 0, R = vv ? L + vv.width : document.documentElement.clientWidth;
+      r.x = Math.round(Math.max(L + 8, Math.min(r.x, R - 8 - layer.offsetWidth)));
+      layer.style.left = r.x + "px";
+    }
+  }
   layer.scrollTop = scroll;
   // --dk-layer-origin: the point on the layer's edge facing the anchor, level with the anchor's centre, so a layer that
   // scales in grows out of what opened it (wherever it slid to stay on screen, and mirrored in right to left on its own).

@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom';
 import { describe, expect, test } from 'vitest';
 import { Meter } from '../components/Meter/Meter';
 import { Progress } from '../components/Progress/Progress';
+import { Rating } from '../components/Rating/Rating';
 import { Slider } from '../components/Slider/Slider';
 import { TreeView } from '../components/TreeView/TreeView';
 
@@ -15,10 +16,14 @@ meta.httpEquiv = 'Content-Security-Policy';
 meta.content = "style-src-attr 'none'";
 document.head.appendChild(meta);
 
+// How much of each Rating star its fill shows, in whole percent.
+const stars = () => [...document.querySelectorAll('#r > *')].map((st) => Math.round(st.children[1].getBoundingClientRect().width / st.getBoundingClientRect().width * 100));
+
 const ui = <div>
   <Progress id="p" value={40} aria-label="Upload" />
   <Meter id="m" value={70} aria-label="Storage" />
   <Slider id="s" defaultValue={25} aria-label="Volume" />
+  <Rating id="r" value={4.3} readOnly aria-label="Reviews" />
 </div>;
 
 describe('server HTML under a strict Content Security Policy', () => {
@@ -37,6 +42,7 @@ describe('server HTML under a strict Content Security Policy', () => {
     await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')], { message: `the fill's style: ${document.querySelector(fill)?.getAttribute('style')}` }).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
+    expect(stars()).toEqual([100, 100, 100, 100, 30]);   // 4.3 stars, not five full ones (GR10)
     root?.unmount(); host.remove();
   });
 
@@ -52,6 +58,7 @@ describe('server HTML under a strict Content Security Policy', () => {
     await expect.poll(() => [seen('#p .dk-progress__fill', '#p .dk-progress__track'), seen('#m .dk-meter__fill', '#m .dk-meter__track')]).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
+    expect(stars()).toEqual([100, 100, 100, 100, 30]);   // 4.3 stars, not five full ones (GR10)
     root?.unmount(); host.remove();
   });
 });

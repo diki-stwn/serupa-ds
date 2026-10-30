@@ -22,6 +22,9 @@
 .dk-fab--bottom-start { inset-block-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-bottom)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
 .dk-fab--top-end { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-end: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-right)); }
 .dk-fab--top-start { inset-block-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-top)); inset-inline-start: calc(var(--fab-offset, var(--spacing-6)) + env(safe-area-inset-left)); }
+/* An extended FAB in a corner is never wider than the screen less its offset on both sides (and the safe area), so a
+   long label takes its ellipsis rather than pushing the icon off the screen (GR14). */
+.dk-fab--extended:is(.dk-fab--bottom-end, .dk-fab--bottom-start, .dk-fab--top-end, .dk-fab--top-start) { max-inline-size: calc(var(--sizing-screen-w) - var(--fab-offset, var(--spacing-6)) - var(--fab-offset, var(--spacing-6)) - env(safe-area-inset-left) - env(safe-area-inset-right)); }
 /* What the keyboard focuses, or a #link jumps to, scrolls into view clear of a fixed FAB, not under it (WCAG 2.4.11):
    the page keeps the FAB's size, its offset and the same again as a gap free at that edge. With a sticky Navbar
    at the top too, the larger of the two wins. */

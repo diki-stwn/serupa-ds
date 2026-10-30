@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Grid } from './Grid';
 
-const Box = ({ children }: { children?: React.ReactNode }) => <div className="rounded-md bg-surface-muted p-3 text-sm text-text">{children}</div>;
+const Box = ({ children, wrap }: { children?: React.ReactNode; wrap?: boolean }) => <div className={`rounded-md bg-surface-muted p-3 text-sm text-text${wrap ? ' wrap-anywhere' : ''}`}>{children}</div>;
 const cells = (n: number) => Array.from({ length: n }, (_, i) => <Box key={i}>Cell {i + 1}</Box>);
 
 const meta = {
@@ -33,6 +33,6 @@ export const AsList: Story = {
 };
 
 export const Overflow: Story = {
-  args: { columns: 3, gap: 2, children: [<Box key="a">Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="b">A cell with a long sentence that wraps</Box>, <Box key="c">Short</Box>] },
+  args: { columns: 3, gap: 2, children: [<Box key="a" wrap>Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="b">A cell with a long sentence that wraps</Box>, <Box key="c">Short</Box>] },
   render: (args) => <div style={{ width: 240 }}><Grid {...args} /></div>,
 };

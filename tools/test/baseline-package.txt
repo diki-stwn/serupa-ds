@@ -34,5 +34,6 @@ licenses/MaterialSymbols-Apache-2.0.txt
 licenses/React-MIT.txt
 licenses/TailwindCSS-MIT.txt
 package.json
+skills/serupa/SKILL.md
 tokens.css
 tokens.json
