@@ -438,17 +438,14 @@ function Motion() {
     <Button id="dis" disabled>Disabled</Button>
     <Button id="busy" loading={busy} leftIcon="save">Save</Button>
     <Button id="big" size="lg" style={{ width: '240px' }}>Wide</Button>
-    <Button id="noripple" style={vars({ '--button-ripple-opacity': '0' })}>No ripple</Button>
     <Button id="nopress" style={vars({ '--button-press-scale': '1' })}>No press</Button>
     <div style={nudge}><div style={vars({ '--button-icon-nudge': '0px' })}><Button id="nonudge" rightIcon="arrow_forward">No nudge</Button></div></div>
     <Button id="mine" onPointerDown={() => log.push('mine-down')} onKeyDown={() => log.push('mine-key')} onKeyUp={() => log.push('mine-up')}>Mine</Button>
-    <Button id="stop" onPointerDown={(e) => e.preventDefault()}>Stops ripple</Button>
   </div>;
 }
-const ripples = (id: string) => el(id).querySelectorAll('.dk-btn__ripple').length;
 
 describe('Button micro-interactions', () => {
-  test('press: held down, the button shrinks to 97% (scale-97); released, it springs back and the click still fires', async () => {
+  test('press: held down, the button shrinks to 97% (scale-97); released, it comes back and the click still fires', async () => {
     await render(<Motion />);
     take();
     await hold(el('press'), () => expect.poll(() => scale('press')).toBe('0.97'), { ms: 1500 });
@@ -457,16 +454,23 @@ describe('Button micro-interactions', () => {
     expect(take()).toEqual(['click']);
   });
 
-  test('press: animates scale only, down at --button-press-duration (100ms) with ease-settle (ease-out-expo), and springs back on release over motion-release (300ms) with ease-spring', async () => {
+  test('press: animates scale only, down at --button-press-duration (100ms) with ease-settle (ease-out-expo), and comes back on release over motion-release (300ms) with ease-enter (ease-out-quart), never past full size', async () => {
     await render(<Motion />);
     const timing = () => { const s = getComputedStyle(el('press')), props = s.transitionProperty.split(', '), i = props.indexOf('scale'); return { i, props, d: s.transitionDuration.split(', ')[i], e: s.transitionTimingFunction.split(/, (?=c|l|e)/)[i] }; };
     const rest = timing(), down = await hold(el('press'), async () => { await expect.poll(() => getComputedStyle(el('press')).scale).toBe('0.97'); return timing(); }, { ms: 1000 });
     expect(rest.i).toBeGreaterThanOrEqual(0);
     expect([rest.d, down.d]).toEqual(['0.3s', '0.1s']);
-    expect(rest.e).toMatch(/^linear\(/);
+    expect(rest.e).toMatch(/cubic-bezier\(0.25, 1, 0.5, 1\)/);
     expect(down.e).toMatch(/cubic-bezier\(0.16, 1, 0.3, 1\)/);
     const props = rest.props;
     expect([props.includes('all'), props.includes('width')]).toEqual([false, false]);
+    // Let go: no overshoot, so it never grows past 100% on the way back.
+    const seen: number[] = [];
+    await hold(el('press'), () => expect.poll(() => scale('press')).toBe('0.97'), { ms: 1000 });
+    const t0 = performance.now();
+    while (performance.now() - t0 < 400) { seen.push(parseFloat(getComputedStyle(el('press')).scale) || 1); await frame(); }
+    expect(Math.min(...seen)).toBeLessThan(1);
+    expect(Math.max(...seen)).toBeLessThanOrEqual(1);
   });
 
   test('press: Enter shows it too (data-pressed while the key is down); releasing clears it and the click fired once; moving focus away mid-press clears it', async () => {
@@ -504,7 +508,7 @@ describe('Button micro-interactions', () => {
     expect(home).toContain(translate('#next .dk-btn__icon--right'));
   });
 
-  test('loading: the label fades out instead of vanishing while the spinner fades and grows in; once faded, label and icon are hidden; the content fades back when done', async () => {
+  test('loading: the label fades and blurs out instead of vanishing while the spinner fades, sharpens and grows in; once faded, label and icon are hidden; the content fades back when done', async () => {
     await render(<Motion />);
     expect(getComputedStyle(q('#busy .dk-btn__label')).opacity).toBe('1');   // its style before loading, for the transition to start from
     await frame();
@@ -520,65 +524,35 @@ describe('Button micro-interactions', () => {
     expect(mid).toBeGreaterThan(0);
     expect(mid).toBeLessThan(1);
     expect(getComputedStyle(q('#busy .dk-btn__loader')).animationName).toBe('dk-btn-loader-in');
+    // They cross as one change: the label blurs on its way out, the spinner starts blurred (blur-xs) and sharpens.
+    expect(label.getAnimations().some((a) => (a as CSSTransition).transitionProperty === 'filter'), 'the label has a filter transition').toBe(true);
+    const ld = q('#busy .dk-btn__loader'), grow = ld.getAnimations().find((a) => (a as CSSAnimation).animationName === 'dk-btn-loader-in')!;
+    grow.pause();
+    grow.currentTime = 0;
+    const blurFrom = getComputedStyle(ld).filter;
+    grow.play();
+    expect(blurFrom).toBe('blur(4px)');
     await eased(el('busy'));
+    expect([getComputedStyle(label).filter, getComputedStyle(ld).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'none']);
     expect([getComputedStyle(label).opacity, getComputedStyle(q('#busy .dk-btn__icon')).opacity, getComputedStyle(q('#busy .dk-btn__loader')).opacity]).toEqual(['0', '0', '1']);
     setBusy(false);
     await expect.poll(() => getComputedStyle(q('#busy .dk-btn__label')).opacity).toBe('1');
+    await expect.poll(() => getComputedStyle(q('#busy .dk-btn__label')).filter).toBe('none');
   });
 
-  test('ripple: from the press point, growing to cover the farthest corner, clipped to the button; text color at 20%; never blocks clicks, hidden from assistive tech, drawn under the label; spreads evenly over 500ms', async () => {
+  test('no ripple: pressing adds nothing inside the button, and there is no ripple layer', async () => {
     await render(<Motion />);
-    const rp = await hold(el('big'), () => {
-      const b = el('big'), r = b.querySelector('.dk-btn__ripple') as HTMLElement, host = r.parentNode as HTMLElement, rr = r.getBoundingClientRect(), bb = b.getBoundingClientRect();
-      const a = r.getAnimations().find((x) => (x as CSSAnimation).animationName === 'dk-btn-ripple')!, d = a.effect!.getTiming().duration as number;
-      a.pause();
-      const wave = [0.1, 0.5, 1].map((f) => { a.currentTime = d * f; return parseFloat(getComputedStyle(r).scale); });
-      a.play();
-      return { n: ripples('big'), cx: rr.left + rr.width / 2 - bb.left, cy: rr.top + rr.height / 2 - bb.top, d: r.offsetWidth, far: Math.hypot(bb.width - 20, bb.height - 10), bg: getComputedStyle(r).backgroundColor, color: getComputedStyle(b).color, opacity: getComputedStyle(r).opacity, pe: getComputedStyle(host).pointerEvents, clip: getComputedStyle(host).overflow, hidden: host.getAttribute('aria-hidden'), first: b.firstElementChild === host, dur: d, wave };
-    }, { ms: 600, at: { x: 20, y: 10 } });
-    expect(Math.abs(rp.cx - 20), JSON.stringify(rp)).toBeLessThanOrEqual(2);
-    expect(Math.abs(rp.cy - 10)).toBeLessThanOrEqual(2);
-    expect(rp.d).toBeGreaterThanOrEqual(rp.far * 2 - 1);
-    expect([rp.n, rp.clip, rp.bg, rp.opacity, rp.pe, rp.hidden, rp.first]).toEqual([1, 'hidden', rp.color, '0.2', 'none', 'true', true]);
-    expect(rp.dur).toBe(500);
-    expect(rp.wave[0]).toBeLessThan(0.15);
-    expect(rp.wave[1]).toBeCloseTo(0.5, 1);   // ease-move (ease-in-out-cubic) is symmetrical: half way at half time
-    expect(rp.wave[2]).toBe(1);
+    const kids = (id: string) => [...el(id).children].map((c) => c.className);
+    const before = kids('big');
+    expect(await hold(el('big'), () => kids('big'), { ms: 200, at: { x: 20, y: 10 } })).toEqual(before);
+    expect(el('big').querySelector('[class*="ripple"]')).toBeNull();
   });
 
-  test('ripple: fades and is removed after release; a quick click still shows the whole wave (no fade until it has spread all the way)', async () => {
-    await render(<Motion />);
-    await hold(el('big'), () => {}, { ms: 200 });
-    await expect.poll(() => ripples('big'), { timeout: 3000 }).toBe(0);
-    let fadedAt: number | null = null;
-    const watch = new MutationObserver(() => {
-      const r = q('#big .dk-btn__ripple');
-      if (fadedAt == null && r && r.classList.contains('dk-btn__ripple--out')) fadedAt = Number(r.getAnimations().find((x) => (x as CSSAnimation).animationName === 'dk-btn-ripple')?.currentTime ?? 500);
-    });
-    watch.observe(el('big'), { subtree: true, attributes: true, attributeFilter: ['class'] });
-    await userEvent.click(el('big'));
-    expect(ripples('big')).toBe(1);
-    await expect.poll(() => fadedAt, { timeout: 3000 }).not.toBeNull();
-    watch.disconnect();
-    expect(fadedAt!).toBeGreaterThanOrEqual(480);
-    await expect.poll(() => ripples('big'), { timeout: 3000 }).toBe(0);
-  });
-
-  test('ripple: none with --button-ripple-opacity: 0, on the link variant, on a disabled button, when your onPointerDown prevents the default, or on a right-click; the link variant has no ripple layer', async () => {
-    await render(<Motion />);
-    for (const id of ['noripple', 'lnk', 'dis', 'stop']) expect(await hold(el(id), () => ripples(id), { ms: 200 }), id).toBe(0);
-    expect(await hold(el('big'), () => ripples('big'), { ms: 200, button: 'right' })).toBe(0);
-    await userEvent.keyboard('{Escape}');
-    expect(q('#lnk .dk-btn__ripples')).toBeNull();
-  });
-
-  test('loading: no press and no ripple while busy; your onPointerDown, onKeyDown and onKeyUp still run', async () => {
+  test('loading: no press while busy; your onPointerDown, onKeyDown and onKeyUp still run', async () => {
     await render(<Motion />);
     setBusy(true);
     await expect.poll(() => el('busy').hasAttribute('data-loading')).toBe(true);
-    const busy = await hold(el('busy'), () => [ripples('busy'), scale('busy')], { ms: 200 });
-    expect(busy[0]).toBe(0);
-    expect(still).toContain(busy[1]);
+    expect(still).toContain(await hold(el('busy'), () => scale('busy'), { ms: 200 }));
     setBusy(false);
     take();
     await userEvent.click(el('mine'));
@@ -588,13 +562,11 @@ describe('Button micro-interactions', () => {
     for (const k of ['mine-down', 'mine-key', 'mine-up']) expect(mine).toContain(k);
   });
 
-  test('reduced motion: no press scale, no ripple, no icon nudge; the spinner only fades in (no growing)', async () => {
+  test('reduced motion: no press scale, no icon nudge; the spinner only fades in (no growing, no blur)', async () => {
     await render(<Motion />);
     const restore = reduceMotion();
     try {
-      const pressed = await hold(el('press'), () => [scale('press'), ripples('press')], { ms: 300 });
-      expect(still).toContain(pressed[0]);
-      expect(pressed[1]).toBe(0);
+      expect(still).toContain(await hold(el('press'), () => scale('press'), { ms: 300 }));
       await userEvent.hover(el('next'));
       await eased(el('next'));
       expect(home).toContain(translate('#next .dk-btn__icon--right'));
@@ -603,9 +575,10 @@ describe('Button micro-interactions', () => {
       const ld = q('#busy .dk-btn__loader'), a = ld.getAnimations().find((x) => (x as CSSAnimation).animationName === 'dk-btn-loader-in');
       a?.pause();
       if (a) a.currentTime = 0;
-      const from = getComputedStyle(ld).scale;
+      const from = [getComputedStyle(ld).scale, getComputedStyle(ld).filter];
       a?.play();
-      expect(still).toContain(from);
+      expect(still).toContain(from[0]);
+      expect(from[1]).toBe('none');
     } finally { restore(); setBusy(false); }
   });
 });

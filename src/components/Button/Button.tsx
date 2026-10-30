@@ -6,7 +6,7 @@ import { config } from "../../internal/config";
 import { useShowAfter } from "../../internal/showAfter";
 import { useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
-import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
+import { block, both, chain, pressKey, releaseKey } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
 import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -180,7 +180,6 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     content.push(<span hidden id={reasonId} key="reason">{reason}</span>);
     rest["aria-describedby"] = reasonId;
   }
-  if (variant !== "link") content = [<span className="dk-btn__ripples" aria-hidden key="ripples" />, ...content];
 
   // A text label cut with an ellipsis shows in full as the button's title on hover (the same words as its name, so
   // nothing is read twice). Not with wrap, an icon-only button, or a name, title or Tooltip of its own. A Tooltip here would
@@ -202,8 +201,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   if (cut && tipOk) rest.title = text;
   const setNode = React.useCallback(function (n: HTMLElement | null) { node.current = n; setRef(ref, n); }, [ref]);
 
-  // Micro-interactions: ripple on press, Enter shows the press like Space (your handlers run first)
-  rest.onPointerDown = chain(rest.onPointerDown, ripple);
+  // Micro-interactions: Enter shows the press like Space (your handlers run first)
   rest.onKeyDown = chain(rest.onKeyDown, pressKey);
   rest.onKeyUp = both(rest.onKeyUp, releaseKey);
   rest.onBlur = both(rest.onBlur, releaseKey);
@@ -249,7 +247,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   return React.createElement("button", Object.assign({}, rest, { ref: setNode, className: classes }), ...content);
 });
 
-/** A <button> for actions; pass href for navigation and it renders a link. Built-in micro-interactions: press, ripple and a loading cross-fade, plus an opt-in right-icon nudge (--button-icon-nudge); off under reduced motion. Colors, spacing, sizes, borders and motion can be overridden with the --button-* component tokens (button.tokens.json) on the page, a container or one button. */
+/** A <button> for actions; pass href for navigation and it renders a link. Built-in micro-interactions: press and a loading cross-fade, plus an opt-in right-icon nudge (--button-icon-nudge); off under reduced motion. Colors, spacing, sizes, borders and motion can be overridden with the --button-* component tokens (button.tokens.json) on the page, a container or one button. */
 export const Button = ButtonBase as unknown as {
   (props: ButtonAsButtonProps & React.RefAttributes<HTMLButtonElement>): React.ReactElement | null;
   (props: ButtonAsLinkProps & React.RefAttributes<HTMLAnchorElement>): React.ReactElement | null;
