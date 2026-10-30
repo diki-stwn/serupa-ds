@@ -135,8 +135,17 @@ describe('PinInput', () => {
     const sizes = (id: string) => boxes(id).map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
     const right = (id: string) => Math.round(Math.max(...boxes(id).map((b) => b.getBoundingClientRect().right)) - root(id).parentElement!.getBoundingClientRect().left);
     for (const id of ['n6', 'n8']) expect([right(id) <= 288, sizes(id).every(([w, h]) => w === h && w >= 24 && w === sizes(id)[0][0])]).toEqual([true, true]);
-    // Room to spare: full size. Less room than 24px boxes need: they stop at 24px.
-    expect([sizes('w4')[0], sizes('t8')[0]]).toEqual([[32, 32], [24, 24]]);
+    // Room to spare: full size. Less room than 24px boxes need: they stay 24px or more and wrap inside the column (RF1).
+    expect([sizes('w4')[0], sizes('t8').every(([w, h]) => w === h && w >= 24), right('t8') <= 100]).toEqual([[32, 32], true, true]);
+  });
+
+  test('a code too long for one row even at 24px wraps onto a second row, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await page.viewport(320, 640);
+    await render(<div id="box" style={{ width: '200px' }}><PinInput id="w12" aria-label="Code" length={12} defaultValue="492817" /></div>);
+    const b = boxes('w12'), r = b.map((x) => x.getBoundingClientRect()), box = el('box').getBoundingClientRect();
+    expect([el('box').scrollWidth <= 201, r.every((x) => x.right <= box.right + 1 && Math.round(x.width) === Math.round(x.height) && x.width >= 24)]).toEqual([true, true]);
+    expect(r[11].top).toBeGreaterThan(r[0].top);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
 
   test('right to left: the code still reads left to right', async () => {
