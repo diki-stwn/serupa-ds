@@ -139,8 +139,7 @@ const REFLOW_KNOWN = new Set([
   'components-layout-and-type-grid--overflow',
   'components-layout-and-type-stack--overflow',
   'components-navigation-stepper--narrow', 'components-navigation-stepper--long-labels',
-  'components-overlays-menu--submenus', 'guides-serupaprovider--default',
-  'guides-serupaprovider--indonesian', 'guides-serupaprovider--nested',
+  'components-overlays-menu--submenus',
 ]);
 // The stories whose text a box still cuts off at 200% (queue item TX1).
 const TEXT_200_KNOWN = new Set([
