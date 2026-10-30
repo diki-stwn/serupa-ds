@@ -182,6 +182,26 @@ describe('Image', () => {
     await expect.poll(() => stage().dataset.state, { timeout: 5000 }).toBe('loaded');
   });
 
+  test('PROBE srcSet viewer in WebKit', async () => {
+    const log: string[] = [];
+    for (const [k, extra] of [['plain', {}], ['sizes', { sizes: '400px' }], ['again', {}]] as const) {
+      const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+      const id = 'p' + k;
+      const r = await render(<Pic id={id} alt="Harbor" ratio="video" viewable width={400} height={200} srcSet={`${PIC}#small 400w, ${slow} 1600w, ${PIC}#mid 800w`} {...extra} />);
+      const t0 = performance.now();
+      let last = '';
+      while (performance.now() - t0 < 2500) {
+        const f = frame(id), i = f && f.querySelector('img');
+        const now = f ? [f.dataset.state, i ? [i.complete, (i.currentSrc || '').slice(0, 40), i.naturalWidth, i.getAttribute('sizes'), i.getAttribute('loading')].join('|') : 'noimg', !!f.querySelector('.dk-image__view')].join(' ') : 'noframe';
+        if (now !== last) { log.push(`${k} ${Math.round(performance.now() - t0)}ms ${now}`); last = now; }
+        await new Promise((d) => setTimeout(d, 10));
+      }
+      r.unmount();
+    }
+    log.push('dpr ' + devicePixelRatio + ' vw ' + innerWidth);
+    expect(log).toEqual([]);
+  });
+
   test('the viewer: a full-size picture that fails shows the fallback (named by the alt text), not the browser\'s broken image', async () => {
     await render(<Pic id="vb" alt="Harbor" ratio="video" viewable fullSrc={BROKEN} />);
     await expect.poll(() => frame('vb').dataset.state).toBe('loaded');
