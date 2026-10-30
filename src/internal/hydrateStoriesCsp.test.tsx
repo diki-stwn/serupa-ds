@@ -91,7 +91,7 @@ async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: nu
 // some runs only, not yet explained): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['Splitter', 'TreeView', 'Textarea/AutoResize', 'PhoneInput']);
+const KNOWN = new Set(['Splitter', 'PhoneInput']);
 
 for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {
