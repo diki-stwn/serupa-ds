@@ -8684,7 +8684,7 @@
     "motion-stagger": {
       "$type": "duration",
       "$value": "{transitions.delay-50}",
-      "$description": "The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. Each item waits its index times this.",
+      "$description": "The gap between items of a group arriving one after another, for a group seen now and then (a page's cards, a first list of results), never one opened over and over (menu items, toasts). Each item waits its index times this.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--motion-stagger"

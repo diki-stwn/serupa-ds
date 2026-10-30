@@ -51,7 +51,7 @@ import { <Name> } from "serupa-ds";
 
 ## Behavior
 
-<!-- Optional. What happens on interaction: opening and closing, parsing typed input, focus movement, timing, reduced motion. -->
+<!-- Optional. What happens on interaction: opening and closing, parsing typed input, focus movement, timing, reduced motion. For anything that moves, say which of the Motion foundation's purposes it serves, how often people see it, its role (motion-enter-sm, motion-change-md…), what it does from the keyboard (at once, or as on a click) and under reduced motion. -->
 
 ## Accessibility
 
