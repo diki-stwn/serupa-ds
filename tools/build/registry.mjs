@@ -54,7 +54,7 @@ export function buildRegistry(root = ROOT) {
     + values.filter(({ v }) => v.length).map(({ n, v }) => `import { ${v.join(', ')} } from "../components/${n}";\n`).join('')
     + '\n/** The components on plain pages: window.Serupa (serupa.iife.js) has each of them. */\n'
     + `export interface ComponentGlobals {\n${values.flatMap(({ v }) => v).map((v) => `  ${v}: typeof ${v};\n`).join('')}}\n`);
-  write(path.join(out, 'components.css'), BANNER.replace('//', '/*').replace('\n', ' */\n') + cascade(root).map((n) => `@import "../components/${n}/${n}.css";\n`).join(''));
+  write(path.join(out, 'components.css'), `/* ${BANNER.slice(3, -1)} */\n` + cascade(root).map((n) => `@import "../components/${n}/${n}.css";\n`).join(''));
   const worded = all.filter((n) => fs.existsSync(path.join(root, 'src', 'components', n, 'labels.ts')));
   write(path.join(out, 'labels.ts'), BANNER
     + worded.map((n) => `import * as ${n} from "../components/${n}/labels";\n`).join('')
@@ -81,8 +81,8 @@ export function componentIndex(root = ROOT, { plain = false } = {}) {
     // The guide's first paragraph after its heading, up to the end of its first sentence.
     const intro = (/^# .*\n+([^\n#`|<-][^\n]*)/m.exec(guide) || [])[1] ?? '';
     // Links between guides (../Combobox/README.md) point from the README instead.
-    const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/\|/g, '\\|').replace(/\]\(\.\.\//g, '](src/components/');
-    (groups[group ?? 'Other'] ||= []).push(plain ? `- **${n}**: ${sentence.replace(/\\\|/g, '|').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')}` : `| [${n}](src/components/${n}/README.md) | ${sentence} |`);
+    const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/[\\|]/g, '\\$&').replace(/\]\(\.\.\//g, '](src/components/');
+    (groups[group ?? 'Other'] ||= []).push(plain ? `- **${n}**: ${sentence.replace(/\\([\\|])/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')}` : `| [${n}](src/components/${n}/README.md) | ${sentence} |`);
   }
   return Object.keys(groups).sort((a, b) => Number(a === 'Other') - Number(b === 'Other') || a.localeCompare(b))
     .map((g) => (plain ? `### ${g}\n\n${groups[g].join('\n')}\n` : `### ${g}\n\n| Component | What it's for |\n| --- | --- |\n${groups[g].join('\n')}\n`)).join('\n');
