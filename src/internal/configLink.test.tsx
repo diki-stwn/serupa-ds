@@ -9,7 +9,7 @@ import { List, ListItem } from '../components/List/List';
 import { Pagination } from '../components/Pagination/Pagination';
 
 // configure({ link }) sets the link component once for the app: every component that renders a link uses it, and
-// an item's own `as` (Pagination: linkAs) still wins (L8E1).
+// an item's own `as` (Pagination: linkAs) still wins (BL1).
 const Marked = React.forwardRef<HTMLAnchorElement, React.AnchorHTMLAttributes<HTMLAnchorElement>>(function Marked(p, r) { return <a {...p} ref={r} data-marked="" />; });
 const marked = (sel: string) => [...document.querySelectorAll(sel)].map((a) => a.hasAttribute('data-marked'));
 
