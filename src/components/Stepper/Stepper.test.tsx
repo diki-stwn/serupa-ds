@@ -206,6 +206,20 @@ describe('Stepper', () => {
     await expect.poll(() => n.className).toMatch(/compact/);
   });
 
+  test('eight steps in a 288px column: the lines shrink to 4px and the circles take the sm size, so the row fits; four steps keep the md circles (GN2)', async () => {
+    const EIGHT = Array.from({ length: 8 }, (_, i) => ({ title: 'Step title ' + (i + 1) }));
+    await render(<div style={{ width: '288px' }}><Stepper id="eight" steps={EIGHT} current={3} /><Stepper id="four" steps={STEPS} current={2} /></div>);
+    const n = el('eight'), dots = (id: string) => [...el(id).querySelectorAll('li > * > :first-child')].map(rect);
+    expect(n.className).toMatch(/dk-stepper--compact.*dk-stepper--tight/);
+    expect(n.scrollWidth).toBeLessThanOrEqual(288);
+    const d = dots('eight');
+    expect(d.map((r) => r.width)).toEqual(Array(8).fill(24));
+    for (let i = 1; i < d.length; i++) expect(d[i].left - d[i - 1].right).toBeGreaterThanOrEqual(8);
+    expect(el('four').className).toMatch(/dk-stepper--compact/);
+    expect(el('four').className).not.toMatch(/tight/);
+    expect(dots('four').map((r) => r.width)).toEqual(Array(4).fill(32));
+  });
+
   test('pressed: a step\'s indicator shrinks to 95% while its head is held, on scale alone, and springs back (ED1)', async () => {
     await withMotion(async () => {
       await render(<Stepper id="sp" steps={STEPS} current={2} onStepClick={() => {}} />);
