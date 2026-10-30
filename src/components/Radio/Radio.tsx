@@ -4,6 +4,7 @@ import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { warnOnce } from "../../internal/warn";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onValueChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
