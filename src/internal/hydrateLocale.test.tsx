@@ -10,7 +10,9 @@ import { TimePicker } from '../components/TimePicker/TimePicker';
 import { NumberInput } from '../components/NumberInput/NumberInput';
 
 // A server in en-US and a browser in id-ID: the server HTML is made with the real Intl, then Intl's default locale
-// becomes id-ID for the hydration, the way a visitor's browser would differ from the server.
+// becomes id-ID for the hydration and stays id-ID until done(), the way a visitor's browser would differ from the
+// server. A component reads the browser's locale again on every render, so a render after the switch (WebKit can
+// render once more after the first frames) has to see the same browser.
 async function hydrateIn(browser: string, ui: React.ReactElement) {
   const host = document.createElement('div');
   host.innerHTML = renderToString(ui);
@@ -24,15 +26,17 @@ async function hydrateIn(browser: string, ui: React.ReactElement) {
   const errors: string[] = [], logError = console.error;
   console.error = (...a: unknown[]) => { errors.push(a.map(String).join(' ')); };
   let root: Root | undefined;
+  const done = () => {
+    root?.unmount(); host.remove();
+    Intl.DateTimeFormat = Real; Intl.NumberFormat = RealN;
+    console.error = logError;
+  };
   try {
     Intl.DateTimeFormat = Fake; Intl.NumberFormat = FakeN;
     flushSync(() => { root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
     await new Promise((r) => setTimeout(r, 50));
-    return { host, errors, done: () => { root?.unmount(); host.remove(); } };
-  } finally {
-    Intl.DateTimeFormat = Real; Intl.NumberFormat = RealN;
-    console.error = logError;
-  }
+  } catch (e) { done(); throw e; }
+  return { host, errors, done };
 }
 
 describe('hydration without a locale', () => {
