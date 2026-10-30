@@ -80,6 +80,18 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
     ro.observe(el);
     return () => ro.disconnect();
   }, [vertical, shape]);
+  // Going to a step makes its button the current step's plain head, so React replaces the element that has focus
+  // and focus would drop to the page: put it on the new current head instead (GN1).
+  const going = React.useRef<number | null>(null);
+  useIsoLayoutEffect(() => {
+    const el = nav.current, to = going.current;
+    going.current = null;
+    if (!el || to !== current) return;
+    const active = document.activeElement;
+    if (active && active !== document.body && el.contains(active)) return;
+    const head = el.querySelectorAll<HTMLElement>(".dk-stepper__head")[current];
+    if (head) head.focus();
+  }, [current]);
   const shown = Math.min(current, steps.length - 1);
   return (
     <nav {...rest} ref={(node) => { nav.current = node; setRef(ref, node); }} aria-label={rest["aria-label"] || (rest["aria-labelledby"] ? undefined : sds.labels.progress)}
@@ -93,7 +105,7 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
           const hasDesc = s.description != null && s.description !== "";
           return (
             <li key={i} className={cn("dk-stepper__step", "dk-stepper__step--" + state, i < current && "dk-stepper__step--done")} data-state={state} aria-current={i === current ? "step" : undefined}>
-              <Head className="dk-stepper__head" {...(clickable ? { type: "button", onClick: () => props.onStepClick!(i) } : {})}>
+              <Head className="dk-stepper__head" {...(clickable ? { type: "button", onClick: () => { going.current = i; props.onStepClick!(i); } } : props.onStepClick && i === current ? { tabIndex: -1 } : {})}>
                 <span className="dk-stepper__indicator" aria-hidden>
                   {state === "complete" ? <Icon icon={icons.Check} /> : state === "error" ? <Icon icon={icons.PriorityHigh} /> : state === "warning" ? <Icon icon={icons.Warning} /> : displayNumber(i + 1, locale)}
                 </span>
