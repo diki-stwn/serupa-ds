@@ -107,3 +107,18 @@ describe('LoadMore at 320px (GR1)', () => {
     expect(el('gr1').scrollWidth).toBe(320);
   });
 });
+
+describe('LoadMore after a keyboard load (GR2)', () => {
+  test('the focused button, pushed down by the new items, is scrolled back into view once they land', async () => {
+    await render(<SerupaProvider locale="en-US"><div id="gr2" style={{ height: '300px', overflow: 'auto' }}><Paged id="gr2-lm" step={20} all={60} /></div></SerupaProvider>);
+    const box = el('gr2');
+    box.scrollTop = box.scrollHeight;
+    button('gr2-lm').focus();
+    const seen = () => { const b = button('gr2-lm').getBoundingClientRect(), v = box.getBoundingClientRect(); return b.top >= v.top - 0.5 && b.bottom <= v.bottom + 0.5; };
+    expect(seen()).toBe(true);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('gr2-lm').parentElement!.querySelectorAll('li').length, { timeout: 3000 }).toBe(40);
+    await expect.poll(seen, { timeout: 3000 }).toBe(true);
+    expect(document.activeElement).toBe(button('gr2-lm'));
+  });
+});
