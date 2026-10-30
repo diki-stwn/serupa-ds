@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/FileUpload/formatFileSize.ts"],
+  "sourcesContent": ["// In its own module, without \"use client\", so a Server Component can call it (a function from a client module is\n// only a reference there). FileUpload.tsx re-exports it.\n\n/** A file size for people: 1.5 MB, 820 KB, 12 B. */\nexport function formatFileSize(bytes: number): string {\n  if (!(bytes >= 0)) return \"\";\n  const units = [\"B\", \"KB\", \"MB\", \"GB\", \"TB\"];\n  let i = 0, n = bytes;\n  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }\n  return (i === 0 ? String(n) : n >= 10 ? String(Math.round(n)) : String(Math.round(n * 10) / 10)) + \" \" + units[i];\n}\n"],
+  "mappings": ";AAIO,SAAS,eAAe,OAAuB;AACpD,MAAI,EAAE,SAAS,GAAI,QAAO;AAC1B,QAAM,QAAQ,CAAC,KAAK,MAAM,MAAM,MAAM,IAAI;AAC1C,MAAI,IAAI,GAAG,IAAI;AACf,SAAO,KAAK,QAAQ,IAAI,MAAM,SAAS,GAAG;AAAE,SAAK;AAAM;AAAA,EAAK;AAC5D,UAAQ,MAAM,IAAI,OAAO,CAAC,IAAI,KAAK,KAAK,OAAO,KAAK,MAAM,CAAC,CAAC,IAAI,OAAO,KAAK,MAAM,IAAI,EAAE,IAAI,EAAE,KAAK,MAAM,MAAM,CAAC;AAClH;",
+  "names": []
+}

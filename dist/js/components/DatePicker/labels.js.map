@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/DatePicker/labels.ts"],
+  "sourcesContent": ["// DatePicker's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface DatePickerLabels {\n  /** DatePicker, DateRangePicker and TimePicker. */\n  chooseDate: string;\n  /** DatePicker, DateRangePicker and TimePicker: said when typed text is put back because it isn't a value the field takes. */\n  inputNotAccepted: (text: string) => string;\n  /** DatePicker, DateRangePicker and TimePicker: the format to type, read after the field's name (\"dd/mm/yyyy\", \"hh:mm\"). */\n  formatHint: (pattern: string) => string;\n}\nexport const en: DatePickerLabels = {\n  chooseDate: \"Choose a date\",\n  inputNotAccepted: (text) => `\"${text}\" wasn't accepted, so the previous value was kept.`,\n  formatHint: (pattern) => \"Format: \" + pattern,\n};\nexport const id: DatePickerLabels = {\n  chooseDate: \"Pilih tanggal\",\n  inputNotAccepted: (text) => `\"${text}\" tidak diterima, jadi nilai sebelumnya dipertahankan.`,\n  formatHint: (pattern) => \"Format: \" + pattern,\n};\n"],
+  "mappings": ";AAUO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,kBAAkB,CAAC,SAAS,IAAI,IAAI;AAAA,EACpC,YAAY,CAAC,YAAY,aAAa;AACxC;AACO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,kBAAkB,CAAC,SAAS,IAAI,IAAI;AAAA,EACpC,YAAY,CAAC,YAAY,aAAa;AACxC;",
+  "names": []
+}

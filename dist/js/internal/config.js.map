@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/config.ts"],
+  "sourcesContent": ["import type * as React from \"react\";\n\nexport interface SerupaConfig {\n  /** Renders a Button with href, such as a router's Link (Next.js: Link; React Router: a component that maps href to to). Receives href, className, ref, event handlers and children. Default: 'a'. */\n  link?: React.ElementType;\n}\n\n// What renders a Button (or Badge) with href; configure({ link }) changes it.\nexport const config: Required<SerupaConfig> = { link: \"a\" };\n\n/** Set once at startup; returns the current settings. */\nexport function configure(opts?: SerupaConfig): Required<SerupaConfig> {\n  opts = opts || {};\n  if (opts.link) config.link = opts.link;\n  return Object.assign({}, config);\n}\n"],
+  "mappings": ";AAQO,IAAM,SAAiC,EAAE,MAAM,IAAI;AAGnD,SAAS,UAAU,MAA6C;AACrE,SAAO,QAAQ,CAAC;AAChB,MAAI,KAAK,KAAM,QAAO,OAAO,KAAK;AAClC,SAAO,OAAO,OAAO,CAAC,GAAG,MAAM;AACjC;",
+  "names": []
+}

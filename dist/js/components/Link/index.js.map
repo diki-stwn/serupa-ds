@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Link/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Link } from \"./Link\";\nexport type { LinkOwnProps, LinkProps } from \"./Link\";\n"],
+  "mappings": ";AACA,SAAS,YAAY;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/RelativeTime/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { RelativeTime, relativeTime } from \"./RelativeTime\";\nexport type { RelativeTimeProps } from \"./RelativeTime\";\n"],
+  "mappings": ";AACA,SAAS,cAAc,oBAAoB;",
+  "names": []
+}

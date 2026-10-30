@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Image/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Image } from \"./Image\";\nexport type { ImageProps, ImageRatio, ImageSource } from \"./Image\";\n"],
+  "mappings": ";AACA,SAAS,aAAa;",
+  "names": []
+}

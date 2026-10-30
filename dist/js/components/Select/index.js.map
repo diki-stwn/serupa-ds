@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Select/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Select } from \"./Select\";\nexport type { SelectOption, SelectOptionGroup, SelectProps } from \"./Select\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/IconButton/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { IconButton } from \"./IconButton\";\nexport type { IconButtonProps } from \"./IconButton\";\n"],
+  "mappings": ";AACA,SAAS,kBAAkB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/EmptyState/AnnounceText.tsx"],
+  "sourcesContent": ["\"use client\";\nimport * as React from \"react\";\nimport { announce } from \"../../internal/announce\";\n\n/* EmptyState's announce: once, as it appears, the title and description beside it are said to screen readers\n   through the shared polite announcer, as sentences. It's a client module of its own, so EmptyState stays a\n   Server Component. It draws an empty hidden span to find them. */\nexport function AnnounceText() {\n  const ref = React.useRef<HTMLSpanElement | null>(null);\n  React.useEffect(() => {\n    const box = ref.current && ref.current.parentElement;\n    if (!box) return;\n    const said = [...box.children].map((c) => (c.textContent || \"\").trim()).filter(Boolean).map((x) => (/[.!?\u2026\u3002]$/.test(x) ? x : x + \".\")).join(\" \");\n    if (said) announce(said);\n  }, []);\n  return <span ref={ref} hidden />;\n}\n"],
+  "mappings": ";;;AACA,YAAY,WAAW;AACvB,SAAS,gBAAgB;AAKlB,SAAS,eAAe;AAC7B,QAAM,MAAY,aAA+B,IAAI;AACrD,EAAM,gBAAU,MAAM;AACpB,UAAM,MAAM,IAAI,WAAW,IAAI,QAAQ;AACvC,QAAI,CAAC,IAAK;AACV,UAAM,OAAO,CAAC,GAAG,IAAI,QAAQ,EAAE,IAAI,CAAC,OAAO,EAAE,eAAe,IAAI,KAAK,CAAC,EAAE,OAAO,OAAO,EAAE,IAAI,CAAC,MAAO,WAAW,KAAK,CAAC,IAAI,IAAI,IAAI,GAAI,EAAE,KAAK,GAAG;AAC/I,QAAI,KAAM,UAAS,IAAI;AAAA,EACzB,GAAG,CAAC,CAAC;AACL,SAAO,oCAAC,UAAK,KAAU,QAAM,MAAC;AAChC;",
+  "names": []
+}
