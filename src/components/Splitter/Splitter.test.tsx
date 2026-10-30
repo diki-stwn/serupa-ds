@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, keepMotion } from '../../../tools/test/vitest/helpers';
 import { Splitter } from './Splitter';
 import { idLabels } from '../../internal/labels';
 
@@ -163,5 +163,29 @@ describe('Splitter', () => {
     document.documentElement.removeAttribute('data-theme');
     expect(low).toEqual([]);
     expect([handle('s').getAttribute('aria-label'), idLabels.resizePanes]).toEqual(['Resize panes', 'Ubah ukuran panel']);
+  });
+});
+
+describe('Splitter collapse motion (GN3b)', () => {
+  keepMotion();
+  test('Enter slides the first pane out and back: the layout changes at once, the handle and second pane slide on translate and the first pane\'s clip with them; a drag doesn\'t slide', async () => {
+    await render(<Splitter id="m" collapsible defaultSize={40} style={{ width: '500px', height: '80px' }}><p>A</p><p>B</p></Splitter>);
+    const root = document.getElementById('m')!, [a, h] = [...root.children] as HTMLElement[];
+    const ran: string[] = [];
+    root.addEventListener('transitionrun', (ev) => { const t = ev.target as HTMLElement; if (t.parentElement === root && !ev.pseudoElement) ran.push([...t.classList].pop()!.replace('dk-splitter__', '') + ' ' + ev.propertyName); });
+    h.focus();
+    await userEvent.keyboard('{Enter}');
+    // Closing: already laid out collapsed (the handle at the start), while the first pane stays over its old place, inert.
+    expect([h.getAttribute('aria-valuenow'), Math.round(h.offsetLeft), a.hidden, a.inert, Math.round(a.offsetWidth)]).toEqual(['0', 0, false, true, 200]);
+    await expect.poll(() => root.hasAttribute('data-slide'), { timeout: 2000 }).toBe(false);
+    expect([a.hidden, document.activeElement === h]).toEqual([true, true]);
+    await userEvent.keyboard('{Enter}');
+    expect([h.getAttribute('aria-valuenow'), a.hidden, a.inert]).toEqual(['40', false, false]);
+    await expect.poll(() => root.hasAttribute('data-slide'), { timeout: 2000 }).toBe(false);
+    expect([...new Set(ran)].sort()).toEqual(['handle translate', 'pane--first clip-path', 'pane--second translate']);
+    ran.length = 0;
+    await userEvent.keyboard('{ArrowRight}');
+    await new Promise((r) => setTimeout(r, 50));
+    expect([h.getAttribute('aria-valuenow'), ran, root.hasAttribute('data-slide')]).toEqual(['45', [], false]);   // a step doesn't slide
   });
 });

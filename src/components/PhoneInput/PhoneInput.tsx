@@ -12,6 +12,7 @@ import { collatorFor } from "../../internal/collator";
 import * as icons from "../../material/builtin";
 import { warnOnce } from "../../internal/warn";
 import { useFormReset } from "../../internal/useFormReset";
+import { latinDigits } from "../../internal/digits";
 import { PHONE_COUNTRIES, formatNational, isPhoneComplete, parsePhone, phoneCountry, stripTrunk, toE164, type PhoneCountry } from "./phone";
 import { en as words } from "./labels";
 
@@ -161,7 +162,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   };
 
   const onChange = function (e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value, at = e.target.selectionStart ?? raw.length;
+    // Digits in any script as ASCII, and full-width "＋" and digits as the usual ones: an Arabic or Persian keyboard
+    // types ٠٨١٢, a Japanese IME ０８１２, and they're the same number (GR43). One character stays one, so the caret holds.
+    const raw = latinDigits(e.target.value.normalize("NFKC")), at = e.target.selectionStart ?? raw.length;
     let before = raw.slice(0, at).replace(/\D/g, "").length;
     if (/^\s*(\+|00)/.test(raw)) {
       const p = parsePhone(raw, country.code, table);

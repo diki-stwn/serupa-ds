@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { PROJECT, writePage, browser, cleanup, report, done } from './lib.mjs';
 
 const R = [];
@@ -80,6 +81,29 @@ for (const scheme of ['light', 'dark']) {
   t('theme.js: unknown values are ignored', (await p.evaluate(() => Serupa.theme.get().theme)) === 'violet-light');
   const back = await p.evaluate(() => Serupa.theme.reset());
   t('theme.js: reset() returns to the page default', back.theme === 'blue-dark' && back.mode === 'auto');
+  await ctx.close();
+}
+{
+  // <meta name="theme-color"> follows the page's surface in all six themes, so a phone's bars change with the mode.
+  // Before any stylesheet it is the token value (white, zinc-950); a page's own theme-color meta is left alone.
+  const ctx = await b.newContext({ colorScheme: 'light' });
+  const p = await ctx.newPage();
+  await p.goto(writePage('theme-color.html', '<p>x</p>', { theme: true, base: true, htmlAttrs: 'data-brand="blue" data-mode="auto"' }));
+  const tints = await p.evaluate(() => ['blue', 'violet', 'emerald'].flatMap((brand) => ['light', 'dark'].map((mode) => {
+    Serupa.theme.set({ brand, mode });
+    const m = document.querySelectorAll('meta[name="theme-color"]');
+    return [m.length, m[0] && m[0].getAttribute('content'), getComputedStyle(document.body).backgroundColor].join(' ');
+  })));
+  t('theme.js: theme-color is the page\'s surface in all six themes', tints.every((x, k) => x === (k % 2 ? '1 rgb(9, 9, 11) rgb(9, 9, 11)' : '1 rgb(255, 255, 255) rgb(255, 255, 255)')), tints.join(', '));
+  await p.evaluate(() => Serupa.theme.reset());
+  await p.goto(writePage('theme-color-bare.html', '<p>x</p>', { theme: true, bundle: 'none.css', htmlAttrs: 'data-mode="dark"', extraHead: '<script>window.__early = document.querySelector(\'meta[name="theme-color"]\').content;</script>' }));
+  const early = await p.evaluate(() => window.__early);
+  t('theme.js: before the stylesheets, theme-color is the token value (zinc-950 in dark)', early === '#09090b', early);
+  const own = writePage('theme-color-own.html', '<p>x</p>', { theme: true, base: true, htmlAttrs: 'data-mode="dark"' });
+  fs.writeFileSync(fileURLToPath(own), fs.readFileSync(fileURLToPath(own), 'utf8').replace('<script src="../dist/theme.js">', '<meta name="theme-color" content="#123456"><script src="../dist/theme.js">'));
+  await p.goto(own);
+  const kept = await p.evaluate(() => [...document.querySelectorAll('meta[name="theme-color"]')].map((m) => m.getAttribute('content')).join());
+  t('theme.js: a theme-color meta the page wrote itself is left as it is', kept === '#123456', kept);
   await ctx.close();
 }
 {

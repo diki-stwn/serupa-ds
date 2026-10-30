@@ -6,7 +6,8 @@ import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
 import { Button } from "../Button/Button";
 import { component } from "../../internal/component";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
+import { displayNumber } from "../../internal/numbers";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
 import { en as words } from "./labels";
@@ -198,11 +199,17 @@ export const TableHeaderCell = /* @__PURE__ */ component<HTMLTableCellElement, T
   );
 });
 
-/** A data cell (<td>). align="end" for numbers. */
+const PLAIN = { useGrouping: false } as const;
+/** A data cell (<td>). align="end" for numbers. A number as its child is written in the locale's digits (ungrouped,
+ *  as given: 1204 stays 1204 in en-US and is ١٢٠٤ in ar-EG); for grouping, currency or units, pass FormattedNumber. */
 export const TableCell = /* @__PURE__ */ component<HTMLTableCellElement, TableCellProps>("TableCell", function TableCell(props, ref) {
-  const rest = omit(props, { align: 1, className: 1 });
+  const rest = omit(props, { align: 1, className: 1, children: 1 });
   const align = oneOf(ALIGN, props.align, "start");
-  return <td {...rest} ref={ref} className={cn("dk-table__cell", align !== "start" && "dk-table__cell--" + align, props.className)} />;
+  const locale = useLocale();
+  const n = props.children;
+  return <td {...rest} ref={ref} className={cn("dk-table__cell", align !== "start" && "dk-table__cell--" + align, props.className)}>
+    {typeof n === "number" && Number.isFinite(n) ? displayNumber(n, locale, PLAIN) : n}
+  </td>;
 });
 
 /* TableActionBar: the bar above a table with selectable rows. While rows are selected, it shows "3 selected", your
