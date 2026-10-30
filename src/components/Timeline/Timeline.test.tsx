@@ -94,4 +94,14 @@ describe('Timeline', () => {
       for (const st of all) { const m = q(el('i-' + st), '.dk-timeline__marker'); expect(contrast(css(m).color, css(m).backgroundColor), th + ' ' + st).toBeGreaterThanOrEqual(3); }
     }
   });
+
+  test('a word longer than the body wraps, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await page.viewport(320, 640);
+    await render(<div id="box" style={{ width: '240px' }}><Timeline aria-label="Order history">
+      <TimelineItem id="lw" title="Donaudampfschifffahrtsgesellschaftskapitänskajüte" time="12 Mar" icon="schedule">Two items. Donaudampfschifffahrtsgesellschaftskapitänskajüte.</TimelineItem>
+    </Timeline></div>);
+    const body = q(el('lw'), '.dk-timeline__body');
+    expect([el('box').scrollWidth <= 241, body.scrollWidth <= body.clientWidth + 1, rect(body).right <= rect(el('box')).right + 1]).toEqual([true, true, true]);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+  });
 });

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { page } from 'vitest/browser';
 import { THEMES, contrast, css, forcedColors, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Progress } from './Progress';
@@ -181,5 +182,13 @@ describe('Progress: done', () => {
       return [track === css(el('gt')).color, arc === css(el('hl')).color, track !== css(el('ct')).color];
     });
     if (r) expect(r).toEqual([true, true, true]);
+  });
+
+  test('a label word longer than the bar wraps and the value keeps its width, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await page.viewport(320, 640);
+    await render(<SerupaProvider locale="en-US"><div id="box" style={{ width: '200px' }}><Progress id="ll" value={40} showValue label="quarterly-report-Donaudampfschifffahrtsgesellschaftskapitänskajüte.pdf" /></div></SerupaProvider>);
+    const header = el('ll').firstElementChild as HTMLElement, label = header.firstElementChild as HTMLElement, value = header.lastElementChild as HTMLElement;
+    expect([el('box').scrollWidth <= 201, label.scrollWidth <= label.clientWidth + 1, value.textContent, value.scrollWidth <= value.clientWidth + 1]).toEqual([true, true, '40%', true]);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
 });
