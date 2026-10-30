@@ -176,3 +176,11 @@ export function withDependents(names) {
   for (const [n, deps] of shown) if ([...deps].some((d) => all.has(d))) all.add(n);
   return all;
 }
+// The shared tests in src/internal/ that render one of the components (announceContract, formContract, nameCheck, …),
+// so a pull request that changes LoadMore runs announceContract's LoadMore case too, not only LoadMore's own folder.
+export function internalTestsFor(names) {
+  const DIR = path.join(PROJECT, 'src', 'internal');
+  return fs.readdirSync(DIR).filter((f) => /\.test\.tsx?$/.test(f)).sort()
+    .filter((f) => [...fs.readFileSync(path.join(DIR, f), 'utf8').matchAll(/from ["']\.\.\/components\/([A-Z]\w*)\//g)].some((m) => names.has(m[1])))
+    .map((f) => `src/internal/${f}`);
+}

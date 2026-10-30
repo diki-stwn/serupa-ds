@@ -43,6 +43,8 @@
   inset-inline: var(--spacing-0); display: flex; justify-content: center; white-space: nowrap;
   color: var(--slider-mark-label, var(--text-muted)); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height);
 }
+/* Near an end, a label or the value chip moves inward by --dk-slider-nudge, so it stays inside the slider (GM2). */
+.dk-slider__mark-label > span, .dk-slider__value > span { flex: none; translate: var(--dk-slider-nudge, none); }
 .dk-slider__value {
   position: absolute; inset-block-end: calc(var(--sizing-full) + var(--spacing-1\.5)); inset-inline: var(--spacing-0);
   display: flex; justify-content: center; pointer-events: none; opacity: var(--opacity-0);

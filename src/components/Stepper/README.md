@@ -57,7 +57,7 @@ import { Stepper } from "serupa-ds";
 | Key | Does |
 | --- | --- |
 | Tab | With `onStepClick`, to each completed step (every step but the current one with `clickable="all"`); otherwise nothing in it takes focus |
-| Enter / Space | On a step button, goes to that step |
+| Enter / Space | On a step button, goes to that step; focus stays on it as it becomes the current step |
 
 ## Props
 

@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, isInvalid, omit } from "../../internal/cn";
+import { cn, isInvalid, omit, useIsoLayoutEffect } from "../../internal/cn";
 import { useServerStyles } from "../../internal/serverStyles";
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
@@ -178,6 +178,26 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const lo = isRange ? pct(vals[0]) : 0, hi = pct(vals[vals.length - 1]);
   const marks = markList(props.marks, min, max, step, large);
   const labelled = marks.some((m) => m.label != null && m.label !== false && m.label !== "");
+  // The value chip and the mark labels center on their points, but one near an end would hang past the slider and
+  // widen the page (a hidden chip too): each is nudged inward to stay inside the slider's box (GM2).
+  const fit = React.useCallback(() => {
+    const el = root.current;
+    if (!el) return;
+    const parts = Array.from(el.querySelectorAll<HTMLElement>(".dk-slider__mark-label > span, .dk-slider__value > span"));
+    if (!parts.length) return;
+    for (const p of parts) p.style.removeProperty("--dk-slider-nudge");
+    const box = el.getBoundingClientRect();
+    const by = parts.map((p) => { const r = p.getBoundingClientRect(); return r.width >= box.width ? 0 : Math.max(0, box.left - r.left) - Math.max(0, r.right - box.right); });
+    parts.forEach((p, i) => { if (by[i]) p.style.setProperty("--dk-slider-nudge", by[i] + "px"); });
+  }, []);
+  useIsoLayoutEffect(() => { fit(); });   // every render: the values, marks and their text may have moved them
+  React.useEffect(() => {
+    const el = root.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fit]);
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); restyle(n); }}
       role={isRange ? "group" : rest.role} aria-label={isRange ? props["aria-label"] : undefined} aria-labelledby={isRange ? labelledBy : undefined}
@@ -191,7 +211,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
         {marks.map((m, i) => (
           <span key={i} className="dk-slider__mark" style={{ insetInlineStart: pct(m.value) + "%" }} aria-hidden="true">
             {m.value > min && m.value < max ? <span className="dk-slider__tick" /> : null}
-            {m.label != null && m.label !== false ? <span className="dk-slider__mark-label">{m.label}</span> : null}
+            {m.label != null && m.label !== false ? <span className="dk-slider__mark-label"><span>{m.label}</span></span> : null}
           </span>
         ))}
         {vals.map((v, i) => (

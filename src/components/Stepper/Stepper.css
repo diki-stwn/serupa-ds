@@ -30,8 +30,8 @@ button.dk-stepper__head { cursor: pointer; touch-action: manipulation; border-ra
 button.dk-stepper__head .dk-stepper__indicator { transition: scale var(--motion-release) var(--ease-spring); }
 button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-press-scale, var(--scale-95)); transition: scale var(--motion-press) var(--ease-settle); }
 @media (prefers-reduced-motion: reduce) { button.dk-stepper__head .dk-stepper__indicator { transition: none; } button.dk-stepper__head:active .dk-stepper__indicator { scale: none; } }
-button.dk-stepper__head:focus { outline: none; }
-button.dk-stepper__head:focus-visible { outline: var(--focus-ring-width) solid var(--stepper-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-stepper__head:focus { outline: none; }
+.dk-stepper__head:focus-visible { outline: var(--focus-ring-width) solid var(--stepper-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-stepper__indicator {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; width: var(--dk-step-size); height: var(--dk-step-size);
   border: var(--border-width-2) solid var(--stepper-indicator-border, var(--field-border)); border-radius: var(--stepper-radius, var(--rounded-full));
