@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { topModal } from '../../internal/layers';
@@ -17,7 +17,6 @@ const isOpen = (id: string) => dlg(id).open;
 // The title is the element that names the dialog (aria-labelledby).
 const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 // The panel scales in from 95%: measure once every finite animation has ended (headless WebKit can start it late).
-const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 type Ctl = { setOpen: (v: boolean) => void; setAlert: (v: boolean) => void; setSize: (s: 'sm' | 'md' | 'lg') => void };
 function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement>; why?: string[] }) {

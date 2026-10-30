@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, css, keepMotion, press, tabTo } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, css, keepMotion, press, tabTo, settled } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Badge, type BadgeTone, type BadgeVariant } from './Badge';
 
@@ -32,7 +32,6 @@ const ratio = (a: RGBA, b: RGBA) => { const [x, y] = [lum(a), lum(b)].sort((m, n
 const surface = () => rgb(color('var(--surface)'));
 
 // Waits until nothing (finite) is still animating or transitioning.
-const animationsDone = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 /** Holds the mouse button down on an element for `ms` (a real press: :active, pointerdown), running `during` while it is held. */
 async function hold<T>(target: Element, during: () => Promise<T> | T, { ms = 400, at }: { ms?: number; at?: { x: number; y: number } } = {}): Promise<T> {
@@ -341,7 +340,7 @@ describe('Badge', () => {
     expect(layer(el('btn'))[0]).toBe('0');
     await userEvent.hover(el('btn'));
     await expect.poll(() => layer(el('btn'))[0]).toBe('0.1');
-    await animationsDone();
+    await settled();
     const htxt = css(el('btn')).color;
     expect(layer(el('btn'))[1]).toBe(htxt);
     expect(htxt).not.toBe(txt);
@@ -350,7 +349,7 @@ describe('Badge', () => {
     await userEvent.hover(el('sbtn'));
     await expect.poll(() => layer(el('sbtn'))).toEqual(['0.1', 'rgb(0, 0, 0)']);
     await userEvent.hover(el('dis'), { force: true });
-    await animationsDone();
+    await settled();
     expect(layer(el('dis'))[0]).toBe('0');
     expect([css(el('dis')).opacity, css(el('dis')).cursor]).toEqual(['0.5', 'not-allowed']);
   });
@@ -489,7 +488,7 @@ describe('Badge', () => {
     const press = (id: string) => hold(el(id), async () => {
       if (id === 'mioff' || id === 'def') await expect.poll(() => el(id).matches(':active')).toBe(true);
       await new Promise(requestAnimationFrame);
-      await animationsDone();
+      await settled();
       return { scale: css(el(id)).scale, dots: el(id).querySelectorAll('.dk-badge__ripple').length };
     }, { ms: 250, at: { x: 6, y: 6 } });
     const unscaled = (s: string) => s === 'none' || s === '1';
