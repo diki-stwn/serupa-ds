@@ -101,7 +101,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
     <div {...rest} ref={setRef} className={cn("dk-load-more", className)} data-component="load-more">
       {count != null && total != null ? <p className="dk-load-more__summary">{labels.showingOf(num(count), num(total))}</p> : null}
       {hasMore
-        ? <Button variant="outline" className="dk-load-more__button" loading={busy} loadingText="" onClick={run}>{label != null ? label : labels.loadMore}</Button>
+        ? <Button variant="outline" className="dk-load-more__button" wrap loading={busy} loadingText="" onClick={run}>{label != null ? label : labels.loadMore}</Button>
         : endText !== null ? <p className="dk-load-more__end" ref={end} tabIndex={-1}>{endText !== undefined ? endText : labels.allLoaded}</p> : null}
     </div>
   );

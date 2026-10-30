@@ -90,3 +90,18 @@ describe('LoadMore', () => {
     }
   });
 });
+
+describe('LoadMore at 320px (GR1)', () => {
+  test('a long label wraps onto more lines inside the box, in a block and in a grid column, instead of being cut off', async () => {
+    const label = 'Show the next twenty invoices from the archive';
+    await render(<div id="gr1" style={{ width: '320px' }}>
+      <LoadMore id="gr1-b" onLoadMore={() => {}} label={label} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr' }}><LoadMore id="gr1-g" onLoadMore={() => {}} label={label} /></div>
+    </div>);
+    for (const id of ['gr1-b', 'gr1-g']) {
+      const b = button(id), text = b.querySelector('span') ?? b;
+      expect([b.textContent, b.getBoundingClientRect().width <= 320, text.scrollWidth <= text.clientWidth]).toEqual([label, true, true]);
+    }
+    expect(el('gr1').scrollWidth).toBe(320);
+  });
+});
