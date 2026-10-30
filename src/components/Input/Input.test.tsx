@@ -316,8 +316,10 @@ describe('Input and Textarea: constraint messages in the provider\'s words (216)
     field('v-own').setCustomValidity('Pick a username.');
     expect(said('v-own')).toBe('Pick a username.');
     expect(said('v-ctl')).toBe('Isi kolom ini.');
-    await screen.getByRole('button', { name: 'Fill' }).click();
-    await expect.poll(() => field('v-ctl').validity.valid).toBe(true);
+    // A DOM click, not a pointer one: Firefox's reportValidity() leaves its message bubble open over the page, and the
+    // nightly Firefox run never saw the field turn valid. The value in the poll says which half failed if it does again.
+    (screen.getByRole('button', { name: 'Fill' }).element() as HTMLButtonElement).click();
+    await expect.poll(() => [field('v-ctl').value, field('v-ctl').validity.valid]).toEqual(['ok', true]);
   });
 });
 
