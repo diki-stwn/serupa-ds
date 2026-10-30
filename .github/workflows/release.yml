@@ -30,6 +30,7 @@ jobs:
       contents: write   # the tag and the GitHub release
     outputs:
       current: ${{ steps.head.outputs.current }}
+      tarball: ${{ steps.release.outputs.tarball }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -54,9 +55,16 @@ jobs:
       # Release pull request. Otherwise a merge that lands right after a Release pull request would skip
       # straight to the next version and that one would never be released. Does nothing once it's tagged.
       # tools/publish.mjs passes GH_TOKEN to its own git calls (the tag push), since the checkout kept none.
-      - run: npm run release
+      - id: release
+        run: npm run release
         env:
           GH_TOKEN: ${{ github.token }}
+      - if: steps.release.outputs.tarball != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-tarball
+          path: ${{ steps.release.outputs.tarball }}
+          retention-days: 1
 
   version:
     needs: release
@@ -86,3 +94,19 @@ jobs:
           # The release job makes the tag and the GitHub release.
           create-github-releases: false
           push-git-tags: false
+  attest:
+    needs: release
+    if: needs.release.outputs.tarball != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-tarball
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.release.outputs.tarball }}

@@ -8,7 +8,8 @@ import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
+import { displayNumber } from "../../internal/numbers";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { en as words } from "./labels";
 
@@ -37,7 +38,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   size?: 'sm' | 'md';
   /** Turns the thumbs off, as a disabled native control. */
   disabled?: boolean;
-  /** Turns a value into the words read out (aria-valuetext), such as "$40". Default: the number. */
+  /** Turns a value into the words read out (aria-valuetext), such as "$40". Default: the number (shown by showValue in the locale's digits). */
   formatValue?: (value: number) => string;
   /** A range's thumb names. Default: the sliderMinimum and sliderMaximum labels ("Minimum", "Maximum"). A single thumb is named by aria-label or aria-labelledby. */
   thumbLabels?: [string, string];
@@ -78,7 +79,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
-  const sds = useSettings(words);
+  const sds = useSettings(words), locale = useLocale();
   const min = isFinite(Number(props.min)) && props.min != null ? Number(props.min) : 0;
   const maxIn = isFinite(Number(props.max)) && props.max != null ? Number(props.max) : 100;
   const max = maxIn > min ? maxIn : min + 1;
@@ -103,7 +104,8 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const still = disabled || readOnly;   // nothing moves the value
   const pct = (v: number) => ((v - min) / (max - min)) * 100;
   const out = (vs: number[]): SliderValue => (isRange ? [vs[0], vs[1]] : vs[0]);
-  const text = (v: number) => (props.formatValue ? props.formatValue(v) : String(v));
+  // Without formatValue, showValue writes the number in the locale's digits and marks, as Badge and Pagination do: "٤٠" in ar-EG (GR24).
+  const text = (v: number) => (props.formatValue ? props.formatValue(v) : displayNumber(v, locale));
   // ref.current.focus() and autoFocus land on the first thumb, as they would on an <input type="range">.
   const live = React.useRef(disabled); live.current = disabled;
   const first = () => (live.current ? null : thumbs.current[0]);

@@ -820,7 +820,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Tooling: ESLint is upgraded from 9 to 10 (with `@eslint/js` 10 and `eslint-plugin-react-hooks` 7), so `npm ci` no longer warns that `eslint@9` is unsupported. Lint reports the same results as before; nothing in the published package changes.
 
-## [7.1.0] - 2026-10-18
+## 7.1.0 - 2026-10-18
 
 ### Added
 
@@ -860,7 +860,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Tests: Fab has a preview page, so its sizes, extended look, states and four corner positions are checked in all six themes.
 - Tests: The visual check hovers and focuses the element a preview marks with `data-visual-target`, not only the first button. Slider, Switch, Checkbox, Radio, Input, Textarea, Select, Link, Tabs and Accordion now have hover and focus snapshots too.
 
-## [6.0.0] - 2026-10-18
+## 6.0.0 - 2026-10-18
 
 ### Added
 
@@ -962,7 +962,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Menu, Popover and Tooltip no longer warn on React 19 when their trigger has a ref (they read it as a prop there).
 - The components' own code no longer uses `any`. Props passed through to the DOM keep their real types, so the type checker catches mistakes inside the system. Nothing changes for projects; `List`'s `linkProps` is now typed `Record<string, unknown>` (any object still works).
 
-## [4.8.1] - 2026-10-17
+## 4.8.1 - 2026-10-17
 
 ### Changed
 
@@ -974,7 +974,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Calendar, DatePicker and DateRangePicker start the week on the locale's day in Firefox too (Monday for de-DE, for example); Firefox has no Intl.Locale week info, so they always started on Sunday.
 - Textarea with `autoResize` no longer raises "ResizeObserver loop completed with undelivered notifications" on the window when its width changes.
 
-## [4.8.0] - 2026-10-17
+## 4.8.0 - 2026-10-17
 
 ### Added
 
@@ -1077,13 +1077,13 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - TimePicker keeps typed text on Enter while the list is open (the highlight follows the typing), the clock button no longer blurs the field, the list is at least as wide as the field, steps count from `min` like `<input type="time">`, a step under one minute falls back to 30, and a new `locale` or `hour12` rewrites the field.
 - `tokens.css` is now generated from `tokens.json` in the repository (`npm run tokens`, also run by `npm run build`) instead of by the frozen design system page, so token changes can pass CI again. The file's contents are unchanged.
 
-## [4.7.0] - 2026-10-16
+## 4.7.0 - 2026-10-16
 
 ### Added
 
 - Switch component: an on/off setting that applies at once, a native checkbox with `role="switch"` drawn as a track and thumb. Sizes `sm`, `md` and `lg` (28×16, 36×20 and 44×24 tracks on the label's first line), a `description`, `labelPosition` `end` or `start`, `invalid` and disabled. The thumb slides in 150ms (not with reduced motion), follows the text direction and uses system colors in forced-colors mode. 21 component tokens (`--switch-*`), its own docs page and `tools/test/switch.mjs`.
 
-## [4.6.0] - 2026-10-16
+## 4.6.0 - 2026-10-16
 
 ### Added
 
@@ -1093,43 +1093,43 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Field's preview and docs show a group of radios.
 
-## [4.5.0] - 2026-10-16
+## 4.5.0 - 2026-10-16
 
 ### Added
 
 - Checkbox component: a native checkbox and its label, with sizes `sm`, `md` and `lg` (14, 16 and 20px boxes on the label's first line), a `description` linked with `aria-describedby`, `indeterminate` (a dash, announced as mixed), `invalid` and disabled (also inside a disabled `Field group`). The whole label toggles it. 20 component tokens (`--checkbox-*`), its own docs page and `tools/test/checkbox.mjs`.
 
-## [4.4.0] - 2026-10-16
+## 4.4.0 - 2026-10-16
 
 ### Added
 
 - Select component: a native `<select>` styled like Input, with sizes `sm`, `md` and `lg` at the control heights, a chevron, an optional `leftIcon`, a `placeholder` (an empty first option in the placeholder color until something is picked), `options` as strings, `{ value, label, disabled }` or groups (or `<option>` children), and focus, `invalid` and disabled states. It keeps the browser's picker, keyboard and screen-reader support. `multiple` isn't supported and is ignored with a warning. 20 component tokens (`--select-*`), its own docs page and `tools/test/select.mjs`.
 
-## [4.3.0] - 2026-10-16
+## 4.3.0 - 2026-10-16
 
 ### Added
 
 - Field component: a label, an optional `hint` and an `error` message around one form control, wired up for screen readers. It links the label to the control (its own `id` or a generated one), adds the hint and error to the control's `aria-describedby`, makes it invalid with an error, marks `required` (a hidden `*` and `aria-required`) or `optional`, and passes `disabled`. `group` renders a `<fieldset>` and `<legend>` for a set of choices. 8 component tokens (`--field-*`), its own docs page and `tools/test/field.mjs`.
 
-## [4.2.0] - 2026-10-16
+## 4.2.0 - 2026-10-16
 
 ### Added
 
 - Textarea component: a multi-line text field, Input's sibling (a native `<textarea>` in a box). Sizes `sm`, `md` and `lg` with Input's text sizes and side padding; `rows` (default 3); a vertical resize handle, or `resize="none"`; `autoResize`, which grows with the text from `rows` up to `maxRows` and then scrolls; `showCount`, a character count under the text ("32 / 280" with `maxLength`, linked by `aria-describedby`); focus, `invalid`, read-only and disabled like Input. 16 component tokens (`--textarea-*`), its own docs page and `tools/test/textarea.mjs`.
 
-## [4.1.1] - 2026-10-11
+## 4.1.1 - 2026-10-11
 
 ### Fixed
 
 - Docs: the Button page's hand-written loading spinners (the playground and the loading demo) were missing the Loader's inner wrapper, so the ring only grew and shrank without turning and looked laggy. The Button component itself was never affected. The docs test now checks that every ring on the docs pages turns.
 
-## [4.1.0] - 2026-10-11
+## 4.1.0 - 2026-10-11
 
 ### Added
 
 - Input component: a single-line text field (a native `<input>` in a box) with sizes `sm`, `md` and `lg` at the control heights (24, 32, 44px, like Button), optional `leftIcon` and `rightIcon`, a focus ring, and `invalid`, read-only and disabled states. Field colors come from the `field`, `field-border` and `placeholder` aliases. 19 component tokens (`--input-*`), its own docs page and `tools/test/input.mjs`.
 
-## [4.0.0] - 2026-10-10
+## 4.0.0 - 2026-10-10
 
 ### Removed
 
@@ -1143,73 +1143,73 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Badge's remove × keeps a 24×24 target (the WCAG 2.2 minimum, as on a small Button): its hit area reaches 2px past the badge's top and bottom, and its focus ring goes round all of it.
 
-## [3.17.0] - 2026-10-10
+## 3.17.0 - 2026-10-10
 
 ### Added
 
 - Badge `ping` (off by default): with `dot`, in a label or as the indicator, the dot pings with the system's `ping` animation (the `--animate-ping` token behind `animate-ping`): a copy grows to twice its size and fades every second, for live states. Off under reduced motion and in forced-colors mode.
 
-## [3.16.1] - 2026-10-10
+## 3.16.1 - 2026-10-10
 
 ### Changed
 
 - Badge: the status dot's box is 2px narrower than an icon box, 12×14px at md and 10×12px at sm (was 14×14 and 12×12), so the dot gets a little less room than an icon. Dot badges are 2px narrower.
 
-## [3.16.0] - 2026-10-10
+## 3.16.0 - 2026-10-10
 
 ### Added
 
 - Badge indicator: `<Badge dot />` with no label, icon or count renders a lone dot for "something new" without a number, on the corner of an icon or avatar. A solid circle in the tone (10px md, 8px sm) with a 2px ring in the surface color; decorative unless given `aria-label`; not clickable or removable. New component tokens `--badge-indicator-size-sm`, `--badge-indicator-size-md` and `--badge-indicator-ring`.
 
-## [3.15.1] - 2026-10-10
+## 3.15.1 - 2026-10-10
 
 ### Changed
 
 - Badge: the status dot sits centered in an icon-sized box (14px at md, 12px at sm), so it takes the same space as a leading icon and dot badges line up with icon badges. Dot badges are 8px (md) or 6px (sm) wider.
 
-## [3.15.0] - 2026-10-10
+## 3.15.0 - 2026-10-10
 
 ### Changed
 
 - Badge: optical balance like Button's. With an icon on one side only, the text side gets 2px more padding: a leading icon or dot pads the end, a remove × pads the start; icons on both sides, or none, stay even. New component token `--badge-icon-offset` (`spacing-0.5`); right-to-left mirrors it.
 
-## [3.14.3] - 2026-10-10
+## 3.14.3 - 2026-10-10
 
 ### Fixed
 
 - Badge: the remove × now mirrors a leading icon, so a badge with an icon, a label and a × is balanced (about 11 / 6 / 6 / 11px of visible space at md, 9 / 6 / 6 / 9 at sm; before, the × side was looser). The × sits in an icon-sized box with the badge's gap and end padding, nudged 2px in to make up for the glyph's built-in space; the button keeps a 24×24 target and its focus ring goes round all of it. Removable badges are 2px narrower.
 
-## [3.14.2] - 2026-10-10
+## 3.14.2 - 2026-10-10
 
 ### Fixed
 
 - Badge: the remove × sat too far from the label (about 14px, versus 10px at the badge's start). The × button now sits right against the label and the badge's end, so the × is about 10px from both at md, matching the start; removable badges are 6px narrower. The button keeps its 24×24 target.
 
-## [3.14.1] - 2026-10-10
+## 3.14.1 - 2026-10-10
 
 ### Fixed
 
 - Docs: the Badge page shows the disabled state (in States, the props table and a playground toggle); before, it was only in the Badge README.
 
-## [3.14.0] - 2026-10-10
+## 3.14.0 - 2026-10-10
 
 ### Added
 
 - Badge micro-interactions, the same as Button's: clickable badges shrink to 97% while held (pointer, Space or Enter) and ripple from the press point in the text color; loading cross-fades the content into a ring that grows in. New component tokens `--badge-press-scale`, `--badge-press-duration`, `--badge-ripple-opacity`, `--badge-ripple-duration`, `--badge-ripple-fade-duration` and `--badge-loading-duration`; reduced motion turns press and ripple off.
 
-## [3.13.0] - 2026-10-10
+## 3.13.0 - 2026-10-10
 
 ### Added
 
 - Badge states. With `onClick` a badge renders a `<button>`, and with `href` a link (through `Diki.configure`), with hover (a 10% layer), active (15%) and focus (the 2px focus ring) states; the layer always moves away from the text, so every tone and style keeps 4.5:1. `loading` (any badge) puts a ring over the hidden content, keeps the width, sets `aria-busy`, announces `loadingText` and, on a clickable badge, blocks clicks while keeping focus. `disabled` works on clickable badges. New component tokens `--badge-hover-layer`, `--badge-active-layer`, `--badge-state-text` and `--badge-focus-ring`.
 
-## [3.12.0] - 2026-10-10
+## 3.12.0 - 2026-10-10
 
 ### Changed
 
 - Badge: the subtle style has a 1px outline in its text color at 20%, so it follows every tone and theme. New component token `--badge-subtle-border` (`opacity-20`); set it to `0%` for the previous borderless look.
 
-## [3.11.0] - 2026-10-10
+## 3.11.0 - 2026-10-10
 
 ### Added
 
@@ -1217,27 +1217,27 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Docs site: a Badge page with a playground, all tones and styles, the extras, props, accessibility notes and component tokens.
 - Tests: `tools/test/badge.mjs`, including contrast for all 69 tone and style combinations in every theme.
 
-## [3.10.0] - 2026-10-10
+## 3.10.0 - 2026-10-10
 
 ### Changed
 
 - Button `variant="secondary"` is now an outline in the brand color: `primary` border and text on `surface`, with a `primary-subtle` tint on hover as the text and border darken to `primary-hover` (was a solid `secondary` gray fill with `text`). Destructive secondary matches: a solid `danger` border with `danger-text` on `surface` and a `danger-subtle` tint on hover (was a `danger-subtle` fill). Component tokens: `--button-secondary-bg`, `-bg-hover` and `-text` take new defaults; new `--button-secondary-text-hover`, `--button-secondary-border`, `--button-secondary-border-hover` and `--button-destructive-secondary-border`.
 - The contrast audit checks the new pairs: `primary` text on `surface` (4.5:1), `primary-hover` on `primary-subtle` (4.5:1) and the `danger` border on `surface` (3:1), in all six themes.
 
-## [3.9.1] - 2026-10-10
+## 3.9.1 - 2026-10-10
 
 ### Changed
 
 - Loader `variant="spokes"`: closer to iOS proportions. Spokes are thicker and shorter, about 10% of the loader's size wide (was 8%) and 25% long (was 27%), round a larger empty middle, about 40% across (was 33%). `--loader-spokes-width` now defaults to `stroke-width-4` in a drawing at 5/8 scale (2.5 of the 24 units).
 
-## [3.9.0] - 2026-10-10
+## 3.9.0 - 2026-10-10
 
 ### Added
 
 - Loader `variant="spokes"`, like the current iOS activity indicator: eight rounded spokes round a circle, the lead one at full strength and the rest fading behind it to 25%, ticking a spoke at a time (45°, every 125ms: a turn a second). Same sizes, tones and delay as the ring; half speed under reduced motion. Component tokens `--loader-spokes-width` (`stroke-width-2`) and `--loader-spokes-duration` (`duration-1000`).
 - Docs site: spokes in the Loader playground, demos and props.
 
-## [3.8.0] - 2026-10-10
+## 3.8.0 - 2026-10-10
 
 ### Changed
 
@@ -1247,19 +1247,19 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Loader `tone="current"`: use `tone="neutral"`. It still works, the same as `neutral`, with a console warning, and will be removed in 4.0.0.
 
-## [3.7.2] - 2026-10-10
+## 3.7.2 - 2026-10-10
 
 ### Changed
 
 - Pixel loader `pattern="random"`: calmer, with each square's clock now 1.5s to 2.2s (was 1.2s to 1.9s), so it reads as thinking rather than flicker. Under reduced motion its squares share a 4s clock and keep their scattered starts.
 
-## [3.7.1] - 2026-10-10
+## 3.7.1 - 2026-10-10
 
 ### Changed
 
 - Pixel loader loop lengths per pattern: `snake` and `spiral` now loop in 1.5s and `cross` and `checker` in 1s (all were 1.2s). `wave`, `sweep`, `fall` and `rise` stay at 1.2s (`--loader-pixel-duration`). Under reduced motion each runs at half speed (3s, 2s, 2.4s).
 
-## [3.7.0] - 2026-10-10
+## 3.7.0 - 2026-10-10
 
 ### Added
 
@@ -1269,19 +1269,19 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Pixel loader: one loop now takes 1.2s in every pattern (was 1s): `--loader-pixel-duration` now defaults to `duration-1200`. Steps stay 75ms apart; `random`'s clocks run 1.2s to 1.9s; under reduced motion every pattern runs at half speed (2.4s).
 
-## [3.6.0] - 2026-10-10
+## 3.6.0 - 2026-10-10
 
 ### Changed
 
 - Pixel loader: one loop now takes 1s in every pattern (was 1.5s to 2.4s), set by the new component token `--loader-pixel-duration` (`duration-1000`). Steps are 75ms apart (`--loader-pixel-stagger`, now `delay-75`, was `delay-100`); `cross` and `checker` light their second group half a loop later; `random`'s clocks run 1s to 1.7s. The rise and fade keep the wave's smooth curve. Under reduced motion every pattern runs at half speed (2s, was 3s).
 
-## [3.5.1] - 2026-10-10
+## 3.5.1 - 2026-10-10
 
 ### Changed
 
 - Pixel loader patterns `random`, `sweep`, `fall`, `rise`, `snake`, `spiral`, `cross` and `checker` now move as smoothly as `wave`: each square rises, holds and fades with the wave's curve (30% of its cycle to rise, 30% to fade, `ease-in-out`), not the quick snap of before. `random`'s clocks are longer to match (1.5s to 2.4s, were 1s to 1.9s). Orders and cycle lengths are unchanged otherwise.
 
-## [3.5.0] - 2026-10-10
+## 3.5.0 - 2026-10-10
 
 ### Added
 
@@ -1293,32 +1293,32 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Under reduced motion every pixel pattern now slows to 3s (the wave and random did already).
 
-## [3.4.0] - 2026-10-10
+## 3.4.0 - 2026-10-10
 
 ### Added
 
 - Loader `pattern="random"` for `variant="pixel"`: the squares light up at random instead of in a diagonal wave. Each twinkles on its own clock (1s to 1.9s, sums of the duration tokens, starting 0 to 1s in), so they drift apart and the grid shows an ever-changing order with no visible loop. Same dim, divider, tone and glow as the wave; under reduced motion each square slows to 3s. `pattern="wave"` stays the default.
 - Docs site: a pattern control in the Loader playground (for pixel), a random demo and the prop in the table.
 
-## [3.3.2] - 2026-10-10
+## 3.3.2 - 2026-10-10
 
 ### Changed
 
 - Loader `variant="pixel"`: lighter, thinner dividers. They're now hairlines, half a unit of the 24-unit grid (0.5px at 24px, was 1px), at 10% of the loader's color (`--loader-pixel-divider`, was `opacity-30`). They still look the same next to lit and dim squares.
 
-## [3.3.1] - 2026-10-10
+## 3.3.1 - 2026-10-10
 
 ### Changed
 
 - Loader `variant="pixel"`: the dividers now look the same whether the squares beside them are lit or dim. They're cut out of the squares and drawn in the loader's color at a fixed strength, `--loader-pixel-divider` (now `opacity-30`, was a 50% cut that faded with the squares).
 
-## [3.3.0] - 2026-10-10
+## 3.3.0 - 2026-10-10
 
 ### Changed
 
 - Loader `variant="pixel"`: the squares are now square pixels, edge to edge with no rounded corners and no gaps, split by subtle dividers (1 unit of the 24-unit drawing, letting half of the background through). New component tokens `--loader-pixel-divider` (`opacity-50`; 0 hides the dividers) and `--loader-pixel-divider-width` (`stroke-width-1`).
 
-## [3.2.0] - 2026-10-10
+## 3.2.0 - 2026-10-10
 
 ### Added
 
@@ -1326,13 +1326,13 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Loader component tokens `--loader-pixel-dim` (`opacity-15`), `--loader-pixel-stagger` (`delay-100`) and `--loader-pixel-glow` (`spacing-0`: off; a small spacing step adds a soft halo of the same color, for dark surfaces).
 - Docs site: pixel in the Loader playground, demos and props.
 
-## [3.1.0] - 2026-10-10
+## 3.1.0 - 2026-10-10
 
 ### Changed
 
 - The neutral aliases in all six themes now use `gray` instead of `slate`, the same steps as before: `secondary`, `secondary-hover`, `surface` (dark), `surface-muted`, `surface-inverse`, `text`, `text-muted`, `text-inverse`, `border`, `border-strong`, `field` (dark), `field-border`, `field-border-hover` and `placeholder`. `overlay` is now `gray-900` at 50% (light) and `gray-950` at 70% (dark). Every contrast pair still passes. The `slate` palette is unchanged and still available.
 
-## [3.0.0] - 2026-10-10
+## 3.0.0 - 2026-10-10
 
 ### Changed (breaking)
 
@@ -1356,25 +1356,25 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Loader component tokens `--loader-skeleton-fill` (`opacity-10`), `--loader-skeleton-shine` (`opacity-5`), `--loader-skeleton-rect-height` (`spacing-24`), `--loader-skeleton-radius` (`rounded-md`) and `--loader-skeleton-text-radius` (`rounded-sm`).
 - Docs site: the Loader page (was Spinner) with skeleton demos, and `shape` and `lines` in the playground. The old `spinner.html` link takes you there.
 
-## [2.8.3] - 2026-10-10
+## 2.8.3 - 2026-10-10
 
 ### Changed
 
 - Spinner text variant: the shine now uses `ease-in-out` (was `ease-in` in 2.8.1), easing in at the start of the words and out at the end. Same 2s cycle.
 
-## [2.8.2] - 2026-10-10
+## 2.8.2 - 2026-10-10
 
 ### Added
 
 - Docs site: a Spinner playground, like Button's. Pick the variant, size, tone, delay and label, see it live in the sidebar's theme (on a dark stage for `inverse`), copy the code, and press Replay to watch the show-after delay. Notes explain decorative spinners and why the text variant keeps the text color. The docs test drives it.
 
-## [2.8.1] - 2026-10-10
+## 2.8.1 - 2026-10-10
 
 ### Changed
 
 - Spinner text variant: the shine now uses `ease-in` instead of `linear`, so it starts slow and speeds through the words. Same 2s cycle.
 
-## [2.8.0] - 2026-10-10
+## 2.8.0 - 2026-10-10
 
 ### Added
 
@@ -1384,7 +1384,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Spinner `showLabel`: use `variant="text"` instead. It still writes the label beside a ring or dots, with a console warning, and will be removed in 3.0.0.
 
-## [2.7.0] - 2026-10-10
+## 2.7.0 - 2026-10-10
 
 ### Added
 
@@ -1396,13 +1396,13 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Spinner tones `primary` and `muted` now color the ring or dots only, so a visible label stays in the text color around it. A spinner without a label looks the same as before. Its markup gains an inner `.dk-spinner__art` element around the drawing.
 
-## [2.6.0] - 2026-10-10
+## 2.6.0 - 2026-10-10
 
 ### Changed
 
 - The Spinner's ring is livelier: while it turns (now 2s a turn), its arc stretches from a dot to most of the ring and shrinks again every 1.5s, its tail chasing its head, so each stretch starts somewhere new. Colors, sizes and tokens are unchanged. Under reduced motion the arc stays a steady quarter and turns at `animate-spin-reduced` (3s). Button's loading spinner follows.
 
-## [2.5.0] - 2026-10-10
+## 2.5.0 - 2026-10-10
 
 ### Added
 
@@ -1419,13 +1419,13 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Removing a Button from the page (unmounting it) threw an error in React: an effect returned the shared status region instead of a cleanup function. Buttons and Spinners now unmount cleanly.
 
-## [2.4.0] - 2026-10-10
+## 2.4.0 - 2026-10-10
 
 ### Changed
 
 - Button's icon nudge is off by default: a right icon no longer slides on hover unless you turn it on with `--button-icon-nudge: var(--spacing-0\.5)` (2px), on the page, a container or one button. It suits forward arrows, but every right icon moved, including chevrons and "open in new" icons. The token's default is now `spacing-0`.
 
-## [2.3.3] - 2026-10-10
+## 2.3.3 - 2026-10-10
 
 ### Added
 
@@ -1435,19 +1435,19 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 
 - Docs site: the Button playground and the hand-written demo buttons had no ripple, because they're plain HTML without the ripple layer the Button component renders. They now get it, and the docs test presses them to check.
 
-## [2.3.2] - 2026-10-10
+## 2.3.2 - 2026-10-10
 
 ### Fixed
 
 - Button's ripple still didn't show on a normal click: a click lasts about a tenth of a second, so the ripple started fading while it was a small circle under the mouse pointer. It now always spreads across the whole button before it fades, over `duration-500` (was 700ms in 2.3.1), so every click shows the full wave.
 
-## [2.3.1] - 2026-10-10
+## 2.3.1 - 2026-10-10
 
 ### Fixed
 
 - Button's ripple was hard to see: on a button-sized area it spread almost instantly (front-loaded `ease-out` over 500ms) at 15%, so a click read as a brief flash rather than a ripple. It now spreads evenly (`ease-in-out`) over `duration-700` at `opacity-20`, so the wave from the press point is visible on a normal click. `--button-ripple-opacity` and `--button-ripple-duration` default to the new values.
 
-## [2.3.0] - 2026-10-10
+## 2.3.0 - 2026-10-10
 
 ### Added
 
@@ -1461,7 +1461,7 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - Button transitions name the properties it changes (background, text and border color, text decoration, the focus ring, and scale) instead of the whole `transition-colors` set, so the press can run at its own speed. Nothing changes visually.
 - `scale-95` is now described for pressed cards and large surfaces; buttons use `scale-97`.
 
-## [2.2.0] - 2026-10-10
+## 2.2.0 - 2026-10-10
 
 ### Added
 
@@ -1469,14 +1469,14 @@ Tokens: `--toolbar-bg`, `--toolbar-text`, `--toolbar-radius`, `--toolbar-padding
 - `Diki.customIcons` lists the custom icons; TypeScript gets `CustomIconName` and `IconName`, so custom names autocomplete.
 - Tests: `tools/test/icons.py` (the build) and `tools/test/icons.mjs` (custom icons in Icon and Button).
 
-## [2.1.0] - 2026-10-10
+## 2.1.0 - 2026-10-10
 
 ### Added
 
 - Button component tokens: 44 `--button-*` tokens for its colors, spacing, sizes and borders (`components/Button/button.tokens.json`). Each is an optional override, set on the page, a container or one button; unset, Button looks exactly as before. Also in the W3C Design Tokens files as `design-tokens/components/button.tokens.json`.
 - Tests: every component token refers to a shared token, the CSS uses exactly the defaults in the tokens file, and overrides and nested themes work.
 
-## [2.0.0] - 2026-10-10
+## 2.0.0 - 2026-10-10
 
 Button's API is now the system's own: the names that came from shadcn/ui and Radix are gone.
 
@@ -1512,7 +1512,7 @@ Button's API is now the system's own: the names that came from shadcn/ui and Rad
 | `window.TailwindPalette` | `window.Diki` |
 | `variant="destructive"` / `size="icon"` | `destructive` / `icon="…"` |
 
-## [1.0.0] - 2026-10-10
+## 1.0.0 - 2026-10-10
 
 The first versioned release. It collects everything built before versioning started; the "Changed" and "Deprecated" sections list what differs from the earlier unversioned builds, for anyone who used them.
 
@@ -1543,3 +1543,26 @@ These still work and will be removed in 2.0.0:
 - `window.TailwindPalette`: use `window.Diki`.
 - `<Button variant="destructive">`: use `<Button destructive>`.
 - `<Button size="icon">`: use `<Button icon="…" aria-label="…">`.
+
+[Unreleased]: https://github.com/diki-stwn/serupa-ds/compare/v10.1.0...HEAD
+[10.1.0]: https://github.com/diki-stwn/serupa-ds/compare/v10.0.0...v10.1.0
+[10.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.7.0...v10.0.0
+[9.7.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.6.0...v9.7.0
+[9.6.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.5.0...v9.6.0
+[9.5.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.4.0...v9.5.0
+[9.4.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.3.0...v9.4.0
+[9.3.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.2.0...v9.3.0
+[9.2.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.1.1...v9.2.0
+[9.1.1]: https://github.com/diki-stwn/serupa-ds/compare/v9.1.0...v9.1.1
+[9.1.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.0.0...v9.1.0
+[9.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v8.0.0...v9.0.0
+[8.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v7.1.3...v8.0.0
+[7.1.3]: https://github.com/diki-stwn/serupa-ds/compare/v7.1.2...v7.1.3
+[7.1.2]: https://github.com/diki-stwn/serupa-ds/compare/v7.1.1...v7.1.2
+[7.1.1]: https://github.com/diki-stwn/serupa-ds/compare/v7.0.0...v7.1.1
+[7.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v6.0.1...v7.0.0
+[6.0.1]: https://github.com/diki-stwn/serupa-ds/compare/v5.1.0...v6.0.1
+[5.1.0]: https://github.com/diki-stwn/serupa-ds/compare/v5.0.2...v5.1.0
+[5.0.2]: https://github.com/diki-stwn/serupa-ds/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/diki-stwn/serupa-ds/compare/v5.0.0...v5.0.1
+[5.0.0]: https://github.com/diki-stwn/serupa-ds/releases/tag/v5.0.0

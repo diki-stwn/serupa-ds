@@ -58,6 +58,11 @@ describe('Avatar', () => {
       .toEqual(['SM', 'AL', 'GH', 'A', '👩🏽‍💻D', 'ÉZ', 'E\u0301Z', 'ǄB', '4C', '']);
   });
 
+  test('initials in a joining script stay two letters, kept apart by a zero-width non-joiner, not joined into a word (GR28)', () => {
+    expect(['محمد عبد الله', 'فاطمة الزهراء', 'ܐܦܪܝܡ ܣܘܪܝܝܐ', 'محمد', 'محمد Ali', 'Ada Lovelace', 'דוד לוי'].map((n) => initials(n)))
+      .toEqual(['م\u200cا', 'ف\u200cا', 'ܐ\u200cܣ', 'م', 'مA', 'AL', 'דל']);
+  });
+
   test('no picture and no name: the person icon, hidden from screen readers; alt="" hides it (the name is written beside it); alt replaces the name', async () => {
     await render(<Row><Avatar id="none" /><Avatar id="alt" name="Ada Lovelace" alt="" /><Avatar id="alt2" name="Atlas" alt="Atlas project" shape="square" /></Row>);
     expect([el('none').getAttribute('aria-hidden'), el('none').getAttribute('role'), (el('none').querySelector('[data-icon]') as HTMLElement).dataset.icon]).toEqual(['true', null, 'person']);
