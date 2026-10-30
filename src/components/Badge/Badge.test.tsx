@@ -37,7 +37,7 @@ const surface = () => rgb(color('var(--surface)'));
 async function hold<T>(target: Element, during: () => Promise<T> | T, { ms = 400, at }: { ms?: number; at?: { x: number; y: number } } = {}): Promise<T> {
   // userEvent calls start once awaited (then), so chain one now and look while the button is down.
   const click = userEvent.click(target, { delay: ms, position: at, force: true }).then(() => {});
-  await expect.poll(() => target.matches(':active') || target.querySelector('.dk-badge__ripple') != null || target.hasAttribute('disabled'), { interval: 10 }).toBe(true);
+  await expect.poll(() => target.matches(':active') || target.hasAttribute('disabled'), { interval: 10 }).toBe(true);
   const out = await during();
   await click;
   return out;
@@ -51,7 +51,7 @@ function reduceMotion(): () => void {
       if (r instanceof CSSMediaRule && /prefers-reduced-motion/.test(r.media.mediaText)) {
         const was = r.media.mediaText;
         flipped.push([r.media, was]);
-        r.media.mediaText = /reduce/.test(was) ? 'all' : 'not all';
+        r.media.mediaText = /:\s*reduce/.test(was) ? 'all' : 'not all';
       }
       if ('cssRules' in r) walk((r as CSSGroupingRule).cssRules);
     }
@@ -82,7 +82,7 @@ function App() {
     <Badge id="lnk" tone="info" href="#here" target="_blank">Link</Badge>
     <Badge id="dis" onClick={hit} disabled>Off</Badge>
     <Badge id="mi" tone="violet" onClick={hit} style={{ width: '160px' }}>Press me</Badge>
-    <Badge id="mioff" onClick={hit} style={{ '--badge-ripple-opacity': '0', '--badge-press-scale': '100%' } as React.CSSProperties}>Calm</Badge>
+    <Badge id="mioff" onClick={hit} style={{ '--badge-press-scale': '100%' } as React.CSSProperties}>Calm</Badge>
     <Badge id="mipd" onClick={hit} onPointerDown={(e) => e.preventDefault()}>Mine</Badge>
     <Badge id="both" onClick={hit} onRemove={() => {}}>Both</Badge>
     <Badge id="ld" tone="success" leftIcon="check" onClick={hit} loading={loading}>Approve request</Badge>
@@ -390,7 +390,7 @@ describe('Badge', () => {
         // Hovered again until it takes: once in a while Firefox misses one of these 69 moves.
         await expect.poll(async () => { await userEvent.hover(e); return e.matches(':hover'); }).toBe(true);
         measure(e, 'hover');
-        await press(e, async () => { await expect.poll(() => e.matches(':active') || e.querySelector('.dk-badge__ripple') != null).toBe(true); measure(e, 'pressed'); });
+        await press(e, async () => { await expect.poll(() => e.matches(':active')).toBe(true); measure(e, 'pressed'); });
       }
     } finally { off.remove(); }
     expect(low).toEqual([]);
@@ -416,11 +416,17 @@ describe('Badge', () => {
     await userEvent.keyboard('{Enter}');
     // The cross-fade can start late on a busy runner, so wait for it to finish rather than for a fixed time.
     const sp = ld.querySelector('.dk-badge__loader') as HTMLElement;
-    const content = () => [...ld.children].filter((c) => c !== sp && !c.classList.contains('dk-badge__ripples'));
+    const content = () => [...ld.children].filter((c) => c !== sp);
     await expect.poll(() => [sp, ...content()].every((x) => x.getAnimations().every((a) => a.playState === 'finished'))).toBe(true);
     const xf = { lab: css(ld.querySelector('.dk-badge__label')).transitionDuration, ldr: css(sp).animationName, ldd: css(sp).animationDuration };
     expect(xf.lab).toMatch(/0\.15s/);
     expect([xf.ldr, xf.ldd]).toEqual(['dk-badge-loader-in', '0.15s']);
+    // They cross as one change, as on Button: the content ends blurred (blur-xs) and the ring sharpens from the same blur.
+    const grow = sp.getAnimations().find((a) => (a as CSSAnimation).animationName === 'dk-badge-loader-in')!;
+    grow.currentTime = 0;
+    const blurFrom = css(sp).filter;
+    grow.finish();
+    expect([blurFrom, css(ld.querySelector('.dk-badge__label')).filter, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'blur(4px)', 'none']);
     const art = sp.querySelector('.dk-loader__art')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
     expect(!!sp.querySelector('.dk-loader--ring')).toBe(true);
     expect(Math.round(art.width)).toBe(12);
@@ -447,29 +453,25 @@ describe('Badge', () => {
     expect([e.tagName, e.getAttribute('aria-busy'), e.getAttribute('aria-disabled'), (q('#ldrm .dk-badge__remove') as HTMLButtonElement).disabled]).toEqual(['SPAN', 'true', null, true]);
   });
 
-  test('micro-interactions: a clickable badge has the ripple layer first (under the content), a plain badge none; scale springs back over motion-release (300ms) with ease-spring', async () => {
+  test('micro-interactions: no ripple layer on any badge; scale comes back over motion-release (300ms) with ease-enter (ease-out-quart), no spring', async () => {
     await show();
     const e = el('mi');
-    expect(e.firstElementChild!.className).toBe('dk-badge__ripples');
-    expect(!!el('def').querySelector('.dk-badge__ripples')).toBe(false);
+    expect([e.querySelector('[class*="ripple"]'), el('def').querySelector('[class*="ripple"]')]).toEqual([null, null]);
     expect(css(e).transitionProperty).toMatch(/scale/);
     expect(css(e).transitionDuration).toMatch(/0\.3s$/);
-    expect(css(e).transitionTimingFunction).toMatch(/linear\(/);
+    expect(css(e).transitionTimingFunction).toMatch(/cubic-bezier\(0\.25, 1, 0\.5, 1\)$/);
   });
 
-  test('press and ripple: shrinks to 97% while held and comes back on release; one circle from the press point, text color at 20%, wide enough to reach the far corner, under the label, 500ms; removed after release', async () => {
+  test('press: shrinks to 97% while held, adds nothing inside the badge, and comes back on release without growing past full size', async () => {
     await show();
-    const e = el('mi'), host = e.querySelector('.dk-badge__ripples')!.getBoundingClientRect();
-    const held = await hold(e, async () => {
-      await expect.poll(() => css(e).scale).toBe('0.97');
-      const dots = e.querySelectorAll<HTMLElement>('.dk-badge__ripple'), d = dots[0], s = css(d);
-      return { n: dots.length, op: s.opacity, bg: s.backgroundColor, color: css(e).color, dia: parseFloat(d.style.width), pe: s.pointerEvents, lab: css(e.querySelector('.dk-badge__label')).position, anim: s.animationDuration };
-    }, { at: { x: 12, y: 12 } });
-    const far = Math.hypot(host.width - 12 + 1, host.height - 12 + 1) * 2;
-    expect([held.n, held.op, held.bg, held.lab, held.anim]).toEqual([1, '0.2', held.color, 'relative', '0.5s']);
-    expect(held.dia).toBeGreaterThanOrEqual(far - 2);
+    const e = el('mi'), kids = () => [...e.children].map((c) => c.className), before = kids();
+    const during = await hold(e, async () => { await expect.poll(() => css(e).scale).toBe('0.97'); return kids(); }, { at: { x: 12, y: 12 } });
+    expect(during).toEqual(before);
+    const seen: number[] = [];
+    const t0 = performance.now();
+    while (performance.now() - t0 < 400) { seen.push(parseFloat(css(e).scale) || 1); await new Promise(requestAnimationFrame); }
+    expect(Math.max(...seen)).toBeLessThanOrEqual(1);
     await expect.poll(() => ['none', '1'].includes(css(e).scale)).toBe(true);
-    await expect.poll(() => e.querySelectorAll('.dk-badge__ripple').length, { timeout: 3000 }).toBe(0);
   });
 
   test('Enter shows the press like Space (data-pressed while held)', async () => {
@@ -483,18 +485,18 @@ describe('Badge', () => {
     expect(e.hasAttribute('data-pressed')).toBe(false);
   });
 
-  test('tokens turn each off (--badge-ripple-opacity: 0, --badge-press-scale: 100%); your onPointerDown preventing the default skips the ripple; no press or ripple on disabled or plain badges', async () => {
+  test('--badge-press-scale: 100% turns the press off; no press on disabled or plain badges; your onPointerDown preventing the default still presses', async () => {
     await show();
     const press = (id: string) => hold(el(id), async () => {
       if (id === 'mioff' || id === 'def') await expect.poll(() => el(id).matches(':active')).toBe(true);
       await new Promise(requestAnimationFrame);
       await settled();
-      return { scale: css(el(id)).scale, dots: el(id).querySelectorAll('.dk-badge__ripple').length };
+      return { scale: css(el(id)).scale };
     }, { ms: 250, at: { x: 6, y: 6 } });
     const unscaled = (s: string) => s === 'none' || s === '1';
     const off = await press('mioff'), pd = await press('mipd'), plain = await press('def');
-    const dis = await hold(el('dis'), () => ({ scale: css(el('dis')).scale, dots: el('dis').querySelectorAll('.dk-badge__ripple').length }), { ms: 150, at: { x: 6, y: 6 } });
-    expect([off.dots, unscaled(off.scale), pd.dots, dis.dots, unscaled(dis.scale), plain.dots, unscaled(plain.scale)]).toEqual([0, true, 0, 0, true, 0, true]);
+    const dis = await hold(el('dis'), () => ({ scale: css(el('dis')).scale }), { ms: 150, at: { x: 6, y: 6 } });
+    expect([unscaled(off.scale), unscaled(pd.scale), unscaled(dis.scale), unscaled(plain.scale)]).toEqual([true, false, true, true]);
   });
 
   test('optical balance, like Button: an icon on one side only (leading icon or dot / the ×) gives the text side 2px more padding; both or neither stay even; mirrored in right-to-left', async () => {
@@ -534,17 +536,17 @@ describe('Badge', () => {
     expect([e.id, e.classList.contains('extra'), e.dataset.x, e.title]).toEqual(['ref', true, 'y', 'tip']);
   });
 
-  test('reduced motion: no press, no ripple and no ping; the loading ring only fades (no growing)', async () => {
+  test('reduced motion: no press and no ping; the loading ring only fades (no growing, no blur)', async () => {
     const restore = reduceMotion();
     try {
       await show();
       const o = await hold(el('mi'), async () => {
         await new Promise(requestAnimationFrame);
-        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, dots: el('mi').querySelectorAll('.dk-badge__ripple').length, host: css(el('mi').querySelector('.dk-badge__ripples')).display, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
+        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, blur: css(el('ldspan').querySelector('.dk-badge__label')).filter, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
       }, { ms: 200, at: { x: 6, y: 6 } });
       expect(o.ping).toBe('none/none');
       expect(['1', 'none']).toContain(o.scale);
-      expect([o.dots, o.host]).toEqual([0, 'none']);
+      expect(o.blur).toBe('none');
       expect([o.from, o.anim]).toEqual([expect.stringMatching(/100%/), 'dk-loader-in']);
     } finally { restore(); }
   });
