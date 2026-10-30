@@ -90,7 +90,7 @@ The hover border fades in 150ms (`duration-150`, `ease-in-out`), at once with `p
 | --- | --- | --- | --- |
 | `title` | node | | The title, as a heading in `text-base`, `font-semibold` |
 | `description` | node | | A muted line under the title |
-| `action` | node | | Something at the end of the header, such as a Badge or a menu button |
+| `action` | node | | Something at the end of the header, such as a Badge or a menu button. In a narrow card it drops under the title rather than squeezing it |
 | `headingLevel` | `2`–`6` | `3` | The title's heading level; pick the one that fits the page's outline |
 
 Children come after the description.
