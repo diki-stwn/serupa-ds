@@ -16,7 +16,7 @@ export const Playground: Story = {};
 export const IconOnly: Story = { args: { iconOnly: true, children: 'Copy the API key', variant: 'ghost' } };
 export const WithAField: Story = {
   name: 'Next to a field',
-  render: () => <div style={{ display: 'flex', gap: 'var(--spacing-2)', alignItems: 'center', maxWidth: 'var(--container-sm)' }}>
+  render: () => <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-2)', alignItems: 'center', maxWidth: 'var(--container-sm)' }}>
     <Input readOnly value="https://serupa.app/invite/7Hq2" aria-label="Invite link" />
     <CopyButton value="https://serupa.app/invite/7Hq2" size="md">Copy link</CopyButton>
   </div>,
@@ -31,7 +31,7 @@ export const LongLabel: Story = {
 };
 
 export const VariantsAndSizes: Story = {
-  render: (args) => <div className="flex gap-3 items-center">
+  render: (args) => <div className="flex flex-wrap gap-3 items-center">
     <CopyButton {...args} variant="primary">Copy, primary</CopyButton>
     <CopyButton {...args} variant="link">Copy, link</CopyButton>
     <CopyButton {...args} size="lg">Copy, lg</CopyButton>
