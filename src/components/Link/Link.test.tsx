@@ -148,6 +148,16 @@ describe('Link', () => {
     expect([s.color, s.thickness, s.offset]).toEqual(['rgb(1, 2, 3)', '3px', '5px']);
   });
 
+  test('a long URL as the link text wraps inside a flex row or a grid column too, rather than widening it (GP3)', async () => {
+    const url = 'https://example.com/a/very/long/path/that/never/breaks/on/its/own';
+    await render(<div style={{ width: 200 }}>
+      <div id="lrow" style={{ display: 'flex', gap: 8 }}><Link id="lflex" href="#u">{url}</Link><span>x</span></div>
+      <div id="lgrid" style={{ display: 'grid', gridTemplateColumns: 'auto' }}><Link id="lcell" href="#u">{url}</Link></div>
+    </div>);
+    const fits = (id: string, box: string) => Math.round(el(id).getBoundingClientRect().right) <= Math.round((document.getElementById(box) as HTMLElement).getBoundingClientRect().right) && (document.getElementById(box) as HTMLElement).scrollWidth <= 200;
+    expect([fits('lflex', 'lrow'), fits('lcell', 'lgrid'), css(el('lflex')).overflowWrap]).toEqual([true, true, 'anywhere']);
+  });
+
   test('keyboard focus: a 2px ring, 2px out', async () => {
     await render(<Para />);
     // Arrive by keyboard (Tab away and back) so the link matches :focus-visible.
