@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Calendar } from '../Calendar/Calendar';
 import { Field } from '../Field/Field';
 import { DatePicker } from './DatePicker';
@@ -262,7 +262,6 @@ describe('DatePicker: motion (DZ1)', () => {
     await withMotion(async () => {
       const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
       const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|scale)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
-      const settled = (e: Element) => Promise.all(e.getAnimations().map((a) => a.finished.catch(() => {})));
       await render(<DatePicker id="mo" aria-label="Due" locale="en-US" defaultValue={new Date(2026, 2, 1)} />);
       await userEvent.click(button('mo'));
       const p = popup('mo');

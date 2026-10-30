@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Dialog } from '../Dialog/Dialog';
@@ -19,7 +19,6 @@ const isOpen = () => drw().open;
 const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
 const box = () => { const r = panel().getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); };
 // The panel slides in: read positions once every finite animation has ended (headless WebKit can start it late).
-const settled = () => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
 
 type Ctl = { setOpen: (v: boolean) => void; setSide: (s: DrawerProps['side']) => void; setSize: (s: DrawerProps['size']) => void; setBd: (v: boolean) => void };
 function App(props: { asks: boolean[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDialogElement>; why?: string[] }) {
