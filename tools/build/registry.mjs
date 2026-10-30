@@ -90,7 +90,7 @@ export function componentIndex(root = ROOT, { plain = false } = {}) {
 
 /** README.md and the coding agents' skill (skills/serupa/SKILL.md) with their components index rewritten from the component folders. */
 export function stampReadme(root = ROOT) {
-  for (const [f, plain] of [['README.md', false], [path.join('skills', 'serupa', 'SKILL.md'), true]]) {
+  for (const [f, plain] of /** @type {[string, boolean][]} */ ([['README.md', false], [path.join('skills', 'serupa', 'SKILL.md'), true]])) {
     const file = path.join(root, f);
     const text = fs.readFileSync(file, 'utf8');
     const a = text.indexOf(START), b = text.indexOf(END);
