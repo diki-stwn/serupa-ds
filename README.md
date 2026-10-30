@@ -23,6 +23,12 @@ Or install the same release from its file on the Releases page, which needs no g
 npm install https://github.com/diki-stwn/serupa-ds/releases/download/v10.1.0/serupa-ds-10.1.0.tgz
 ```
 
+To check a downloaded file before you install it: the release notes give its SHA-256, and releases after 10.1.0 also carry a build attestation, GitHub's signed record that this repository's Release workflow built the file from the tagged commit. With the [GitHub CLI](https://cli.github.com):
+
+```sh
+gh attestation verify ./serupa-ds-10.1.0.tgz --repo diki-stwn/serupa-ds
+```
+
 Always pin a tag (`#v10.1.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.

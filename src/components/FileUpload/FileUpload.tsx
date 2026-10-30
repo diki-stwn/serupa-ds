@@ -5,7 +5,7 @@ import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
 import { formatFileSize } from "./formatFileSize";
 import * as icons from "../../material/builtin";
 import { useFieldLabel } from "../../internal/fieldLabel";
@@ -104,7 +104,7 @@ function FileName({ name }: { name: string }) {
    files from onFilesChange. */
 /** A drop area and a button for choosing files, with the chosen files listed under it. */
 export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadProps>("FileUpload", function FileUpload(props, ref) {
-  const sds = useSettings(words);
+  const sds = useSettings(words), locale = useLocale();
   props = useFieldControl(props);   // invalid, aria-required and disabled from a surrounding Field, at any depth
   const rest = omit(props, OWN);
   const base = domId("dk-fu", React.useId());
@@ -145,7 +145,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
   const add = (list: FileList | File[] | null, folders?: Set<File>) => {
     if (!list || still) return;
     const incoming = Array.from(list), ok: File[] = [], bad: FileRejection[] = [];
-    const limit = props.maxSize != null ? formatFileSize(props.maxSize) : "";
+    const limit = props.maxSize != null ? formatFileSize(props.maxSize, locale) : "";
     for (const f of incoming) {
       if (folders && folders.has(f)) bad.push({ file: f, reason: "folder", message: L.fileFolder(f.name) });
       else if (!accepts(f, props.accept)) bad.push({ file: f, reason: "type", message: L.fileWrongType(f.name, acceptedTypes(props.accept || "")) });
@@ -261,7 +261,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
               <Icon icon={iconFor(f)} className="dk-file-upload__file-icon" />
               <span className="dk-file-upload__file">
                 <FileName name={f.name} />
-                <span className="dk-file-upload__size">{formatFileSize(f.size)}</span>
+                <span className="dk-file-upload__size" dir="auto">{formatFileSize(f.size, locale)}</span>
               </span>
               {readOnly ? null : <IconButton icon={icons.Close} label={removeLabel(f.name)} size="sm" disabled={disabled} onClick={() => remove(f)} />}
             </li>

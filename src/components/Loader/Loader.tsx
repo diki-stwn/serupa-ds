@@ -96,7 +96,7 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
   if (variant === "pixel") for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++)   // square, edge to edge; the wave runs along the diagonals (row + column)
     cells.push(<rect key={r * 3 + c} className={"dk-loader__px " + (pattern === "wave" ? "dk-loader__px--d" + (r + c) : pattern === "random" ? "dk-loader__px--r" + (r * 3 + c) : "dk-loader__px--s" + PIXEL_STEPS[pattern][r * 3 + c])} x={c * 8} y={r * 8} width={8} height={8} />);
   const drawing = !shown || isText ? null : variant === "pixel"
-    ? <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+    ? <svg width="1em" height="1em" viewBox="0 0 24 24" aria-hidden focusable="false">
         {/* cut the lines out of the squares… */}
         <mask id={maskId} maskUnits="userSpaceOnUse" x={0} y={0} width={24} height={24}>
           <rect width={24} height={24} fill="white" />
@@ -107,7 +107,7 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
         <path className="dk-loader__px-divider" d="M16 0V48M32 0V48M0 16H48M0 32H48" transform="scale(0.5)" />
       </svg>
     : variant === "spokes"
-    ? <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+    ? <svg width="1em" height="1em" viewBox="0 0 24 24" aria-hidden focusable="false">
         {/* the lead spoke points up; each one behind it (anticlockwise) is fainter: Loader.css.
             Drawn at 5/8 scale (a 38.4-unit grid) so the spoke width lands on a token: stroke-width-4 = 2.5 of the 24 units */}
         <g transform="scale(0.625)">
@@ -115,12 +115,12 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
         </g>
       </svg>
     : variant === "dots"
-    ? <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+    ? <svg width="1em" height="1em" viewBox="0 0 24 24" aria-hidden focusable="false">
         <circle className="dk-loader__dot" cx={4} cy={12} r={2.5} />
         <circle className="dk-loader__dot" cx={12} cy={12} r={2.5} />
         <circle className="dk-loader__dot" cx={20} cy={12} r={2.5} />
       </svg>
-    : <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+    : <svg width="1em" height="1em" viewBox="0 0 24 24" aria-hidden focusable="false">
         {/* a quarter arc turning (1s a turn): Loader.css; still and breathing under reduced motion */}
         <circle className="dk-loader__track" cx={12} cy={12} r={10} />
         <circle className="dk-loader__arc" cx={12} cy={12} r={10} pathLength={100} strokeDasharray="25 150" />

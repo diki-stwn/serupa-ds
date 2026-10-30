@@ -16,7 +16,7 @@ interface FileUploadLabels {
     filesAdded: (names: string[]) => string;
     fileRemoved: (name: string) => string;
 }
-declare function formatFileSize(bytes: number): string;
+declare function formatFileSize(bytes: number, locale?: string): string;
 type FileRejection = {
     file: File;
     reason: "count" | "duplicate" | "folder" | "size" | "type";

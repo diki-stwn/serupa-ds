@@ -94,10 +94,10 @@ async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: nu
   return { out, app, errors };
 }
 
-// What still lays out wrong here, until its fix lands (work queue GR12): a component, or one story as
+// What still lays out wrong here, until its fix lands (none now): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['Splitter']);
+const KNOWN = new Set<string>([]);
 
 // The clock stands still through each story's three hydrations, so a RelativeTime can't cross into its next minute
 // between them.

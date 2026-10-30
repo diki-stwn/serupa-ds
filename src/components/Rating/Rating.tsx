@@ -40,7 +40,7 @@ export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 
 
 // Material Symbols "star", drawn twice per star: the empty outline color under, the fill clipped to the star's share.
 const STAR = "m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z";
-const Star = () => <svg viewBox="0 -960 960 960" aria-hidden focusable="false"><path d={STAR} /></svg>;
+const Star = () => <svg width="1em" height="1em" viewBox="0 -960 960 960" aria-hidden focusable="false"><path d={STAR} /></svg>;
 const round = (n: number, by: number) => Math.round(n / by) * by;
 
 /* Rating: stars to pick a score, or to show one. In a Field, the label names the group (aria-labelledby). Interactive, it's a role="radiogroup" of native radios, one per

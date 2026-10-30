@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const run = (cmd, args, opts = {}) => (execFileSync(cmd, args, { cwd: P, encoding: 'utf8', ...opts }) ?? '').trim();   // null when stdio is inherited
@@ -72,7 +73,12 @@ if (tagged) {
 }
 const tarball = path.join(P, run('npm', ['pack', '--silent']).split('\n').pop());
 const notes = path.join(P, '.release-notes.md');
-fs.writeFileSync(notes, m[1].trim() + '\n');
+// The file's SHA-256 under the notes, so a download can be checked against the release page. The Release workflow's
+// attest job signs the same file (build provenance); the README's install section has the gh attestation verify line.
+const sha = createHash('sha256').update(fs.readFileSync(tarball)).digest('hex');
+fs.writeFileSync(notes, `${m[1].trim()}\n\n**${path.basename(tarball)}** SHA-256: \`${sha}\`\n`);
+// Tell the workflow which file was released, for its attest job (nothing to attest when this run released nothing).
+if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `tarball=${path.basename(tarball)}\n`);
 if (!tagged) {
   run('git', ['tag', tag]);
   run('git', ['push', 'origin', tag], { stdio: 'inherit', ...remote });
