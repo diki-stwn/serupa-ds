@@ -6,6 +6,7 @@ import { describe, expect, test } from 'vitest';
 import { Meter } from '../components/Meter/Meter';
 import { Progress } from '../components/Progress/Progress';
 import { Slider } from '../components/Slider/Slider';
+import { Splitter } from '../components/Splitter/Splitter';
 
 // A page served with a strict policy: style attributes in its HTML are ignored (style-src-attr 'none'), styles set
 // through the CSSOM are not. This file's page has the policy from the first test on (BF2).
@@ -51,6 +52,20 @@ describe('server HTML under a strict Content Security Policy', () => {
     await expect.poll(() => [seen('#p .dk-progress__fill', '#p .dk-progress__track'), seen('#m .dk-meter__fill', '#m .dk-meter__track')]).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
+    root?.unmount(); host.remove();
+  });
+});
+
+describe('Splitter server HTML under a strict Content Security Policy (GR12)', () => {
+  test('the first pane takes its defaultSize once hydrated', async () => {
+    const split = <Splitter id="sp" defaultSize={30} style={{ width: '400px', height: '100px' }}><div>One</div><div>Two</div></Splitter>;
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    host.innerHTML = renderToString(split);
+    const share = () => Math.round(host.querySelector('#sp > *')!.getBoundingClientRect().width / host.querySelector('#sp')!.getBoundingClientRect().width * 100);
+    let root: Root | undefined;
+    flushSync(() => { root = hydrateRoot(host, split); });
+    await expect.poll(() => share()).toBe(30);
     root?.unmount(); host.remove();
   });
 });
