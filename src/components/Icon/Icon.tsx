@@ -103,16 +103,18 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
   if (name != null) rest["data-icon"] = name;
   // Which icons flip in right-to-left text is in Icon.css (by data-icon), so the list costs no script.
   const mirror = props.mirror === true ? "dk-icon--mirror" : props.mirror === false ? "dk-icon--fixed" : null;
+  // width and height 1em on the svg itself: before the stylesheet arrives (a slow page, or bundle.css failing), an svg with
+  // only a viewBox stretches to its container's width; Icon.css still sizes it (FEC7).
   if (custom) {
     return (
       <span {...rest} ref={restyle} className={cn("dk-icon dk-icon--custom", mirror, props.className)} style={style}>
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false">{shapes(ICONS[props.name as string])}</svg>
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false">{shapes(ICONS[props.name as string])}</svg>
       </span>
     );
   }
   return (
     <span {...rest} ref={restyle} className={cn("dk-icon", mirror, props.className)} style={style}>
-      {data && <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden focusable="false"><path d={data.d} /></svg>}
+      {data && <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden focusable="false"><path d={data.d} /></svg>}
     </span>
   );
 });

@@ -8,11 +8,32 @@ import { loadIcon } from '../../icons';
 import { Close } from '../../material/builtin';
 import { NAMED_ICONS } from '../../material/named';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { Loader } from '../Loader/Loader';
+import { Progress } from '../Progress/Progress';
+import { Rating } from '../Rating/Rating';
 import { Icon } from './Icon';
 
 const path = (id: string) => document.querySelector(`#${id} svg path`);
 
 describe('Icon', () => {
+  test('before the stylesheet arrives, every inline svg is 1em, not the width of its container (FEC7)', () => {
+    const html = renderToString(<div>
+      <Icon icon={Close} /><Icon name="close" /><Checkbox defaultChecked aria-label="Done" />
+      {(['ring', 'spokes', 'dots', 'pixel'] as const).map((v) => <Loader key={v} variant={v} />)}
+      <Progress variant="circle" value={40} aria-label="Upload" /><Rating defaultValue={3} aria-label="Score" />
+    </div>);
+    // A shadow root keeps the page's stylesheets out, as if bundle.css hadn't loaded.
+    const host = document.createElement('div');
+    host.style.cssText = 'width:600px;font-size:16px';
+    document.body.append(host);
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = html;
+    const svgs = [...root.querySelectorAll('svg')];
+    expect(svgs.length).toBeGreaterThan(8);
+    for (const svg of svgs) expect(Math.round(svg.getBoundingClientRect().width), svg.outerHTML.slice(0, 80)).toBe(16);
+    host.remove();
+  });
+
   test('an imported icon draws on the first render, on the server too', async () => {
     expect(renderToString(<Icon icon={Close} />)).toContain(`d="${Close.d}"`);
     await render(<Icon id="imported" icon={Close} />);
