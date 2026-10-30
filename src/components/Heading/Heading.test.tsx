@@ -53,6 +53,16 @@ describe('Heading', () => {
     expect([s.fontSize, s.lineHeight]).toEqual(['36px', '40px']);
   });
 
+  test('one long word wraps inside a flex row or a grid column too, rather than widening it (GP3)', async () => {
+    const word = 'Donaudampfschifffahrtsgesellschaftskapitänskajüte';
+    await render(<div style={{ width: 200 }}>
+      <div id="hrow" style={{ display: 'flex', gap: 8 }}><Heading id="hflex" level={3}>{word}</Heading><span>x</span></div>
+      <div id="hgrid" style={{ display: 'grid', gridTemplateColumns: 'auto' }}><Heading id="hcell" level={3}>{word}</Heading></div>
+    </div>);
+    const fits = (id: string, box: string) => Math.round(el(id).getBoundingClientRect().right) <= Math.round(el(box).getBoundingClientRect().right) && el(box).scrollWidth <= 200;
+    expect([fits('hflex', 'hrow'), fits('hcell', 'hgrid'), css(el('hflex')).overflowWrap]).toEqual([true, true, 'anywhere']);
+  });
+
   test('contrast: a heading keeps 4.5:1 on surface in all six themes', async () => {
     await render(<Heading id="h1" level={1}>Level 1</Heading>);
     const low: string[] = [];
