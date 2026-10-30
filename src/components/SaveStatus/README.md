@@ -28,6 +28,7 @@ import { SaveStatus } from "serupa-ds";
 
 - Saving shows a small ring and "Saving…". Saved shows a check and "Saved", and with `savedAt`, how long ago ("Saved 2 minutes ago"), kept current by [RelativeTime](../RelativeTime/README.md). An error shows an error icon and the text in the danger color, then Try again.
 - Idle renders an empty line of the same height, so the page doesn't move when it starts.
+- A new status cross-fades with the one before it, in the same place: the old one fades out (inert, hidden from screen readers) while the new one fades in, with a short scale and blur when motion is allowed. The first status just shows.
 
 ## Accessibility
 

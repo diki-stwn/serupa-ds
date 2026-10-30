@@ -6,12 +6,26 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-save-status {
-  display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--save-status-gap, var(--spacing-1\.5));
+  display: inline-grid; grid-template-areas: "face"; align-items: center;
   min-height: var(--text-sm--line-height); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
   color: var(--save-status-text, var(--text-muted));
 }
+/* Each status is a face in the one cell. A new one (not the first) fades in over motion-change-sm while the old one fades out over
+   motion-exit-sm; with motion allowed they also scale from and to 90% through a 4px blur, as CopyButton's icons do (KW19). */
+.dk-save-status__face {
+  grid-area: face; display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--save-status-gap, var(--spacing-1\.5));
+  transition: opacity var(--motion-change-sm) var(--ease-enter);
+}
+@starting-style { .dk-save-status__face[data-entering] { opacity: var(--opacity-0); } }
+.dk-save-status__face[data-leaving] { opacity: var(--opacity-0); transition-duration: var(--motion-exit-sm); transition-timing-function: var(--ease-exit); }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-save-status__face { transform-origin: left center; transition-property: opacity, scale, filter; }
+  .dk-save-status__face:dir(rtl) { transform-origin: right center; }
+  @starting-style { .dk-save-status__face[data-entering] { scale: var(--scale-90); filter: blur(var(--blur-xs)); } }
+  .dk-save-status__face[data-leaving] { scale: var(--scale-90); filter: blur(var(--blur-xs)); }
+}
 .dk-save-status__icon { flex: none; font-size: var(--save-status-icon-size, var(--spacing-4)); }
 .dk-save-status__text { min-width: var(--spacing-0); overflow-wrap: anywhere; }
-.dk-save-status--saved .dk-save-status__icon { color: var(--save-status-saved, var(--success)); }
-.dk-save-status--error { color: var(--save-status-error, var(--danger-text)); }
+.dk-save-status__face--saved .dk-save-status__icon { color: var(--save-status-saved, var(--success)); }
+.dk-save-status__face--error { color: var(--save-status-error, var(--danger-text)); }
 }
