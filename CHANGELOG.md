@@ -4,6 +4,103 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [11.0.0] - 2026-10-30
+
+### Added
+
+- A skill for coding agents, `skills/serupa/SKILL.md`, shipped in the package: how to install and theme Serupa, which component fits which job, tokens only, and the accessibility rules the app must follow. Add it with `npx skills add diki-stwn/serupa-ds`, or copy it from `node_modules/serupa-ds/skills/serupa/`.
+- `start-` and `end-` utilities for every spacing step and fraction, with negatives (`start-4`, `end-1/2`, `-start-2`), the same as `inset-s-` and `inset-e-`. The docs already listed them, but only `start-auto`, `-full` and `-px` existed, so `start-4` did nothing.
+- `theme.js` keeps `<meta name="theme-color">` on the page's surface, so on phones the status bar and the browser's address bar change with light and dark mode in all six themes. Before the stylesheets arrive it uses the token values (white, zinc-950); after, the body's own background, so a page that changes `--surface` gets its own colour. A `theme-color` meta the page writes itself is left as it is.
+
+### Changed
+
+- **Breaking.** Removed (Badge): the last of the `size` prop, which 4.0.0 removed. Badge no longer holds it back or warns about it (the `badge-size` warning is gone), so a `size` still passed from plain JavaScript now reaches the `<span>` as an ordinary attribute. TypeScript already rejected it. **Migration:** remove `size` from your badges; badges have one size (20px, `text-xs`). Nothing else changes.
+- **Breaking.** Removed (Button): the press ripple, with its `.dk-btn__ripples` layer and the `--button-ripple-opacity`, `--button-ripple-duration` and `--button-ripple-fade-duration` component tokens. **Migration:** there is no replacement; remove any of those tokens you set, and any styles aimed at `.dk-btn__ripple`. The press (shrink to 97%) stays as it was.
+- Button: letting go of a press now comes back to size on `ease-enter` over `motion-release` (300ms), with no overshoot; before, it sprang back on `ease-spring` and went about 9% past full size.
+- Button: when loading starts, the label and icons blur a little (`blur-xs`) as they fade out and the spinner sharpens from the same blur as it fades in, so the two read as one change. Not under reduced motion.
+- **Breaking.** Removed (RadioGroup): the `onChange(value, event)` alias, deprecated in 9.2.0, and its `radio-group-onchange` warning. TypeScript now rejects `onChange` on a RadioGroup; from plain JavaScript it reaches the group `<div>` as an ordinary change handler and gets the radios' bubbling change event, not `(value, event)`. **Migration:** rename `onChange` to `onValueChange` on each RadioGroup; it takes the same `(value, event)`. A single Radio's `onChange` is the native input event, as before.
+- **Breaking (TypeScript only).** Changed (SidebarItem): its ref and event handlers are typed for `HTMLElement` instead of `HTMLAnchorElement`, because a group item renders a `<button>`, not a link: the old types promised an anchor that a group's ref and `onClick` never got. Nothing changes at run time. Handlers and refs you typed for `HTMLAnchorElement` still compile; what no longer compiles is reading an anchor-only property, such as `e.currentTarget.href`, from an inferred event, or `React.ComponentRef<typeof SidebarItem>` used as an anchor. **Migration:** on a link item, narrow first (`if (e.currentTarget instanceof HTMLAnchorElement) …`) or read the value from your own props; for a ref, type it `React.Ref<HTMLElement>`.
+
+### Fixed
+
+- AvatarGroup: a group too long for its box wraps onto more lines, each starting at the same edge, instead of widening the page on a phone (GR4).
+- Avatar's initials in Arabic and other scripts whose letters join no longer join into a word. "محمد عبد الله" showed "ما" (the word "what"). The two initials are now kept apart with a zero-width non-joiner, so they show as two letters. This also applies to `initials()` and AvatarGroup (GR28).
+- AvatarGroup's "+N" avatar is written in the locale's digits, as Badge's count already is: "+٣" and "٩٩+" in Arabic instead of "+3" and "99+" (GR22).
+- Button: in a flex row, a button with a long label now shrinks to its ellipsis instead of pushing the buttons beside it out of the row. Icon-only buttons and IconButton keep their square (GR5).
+- Calendar: in Arabic, Persian, Hebrew and Vietnamese the weekday headers use the locale's narrow names, because the short name there is the full word or two words. They no longer run together or widen the grid. Screen readers still hear the full name (GR6).
+- Card: in Safari, pressing a linked card near its edge no longer makes it spring back while the button is still held. The card shrinks as it's pressed, which left the pointer outside it, and Safari then dropped the press. The link now reaches a little past the edge while the card is pressed.
+- CardHeader: in a narrow card the action drops under the title instead of squeezing it until words break mid-word (GR7).
+- A Ctrl, Cmd, Shift or middle click on a linked Card opens another tab only for a web, `mailto:` or `tel:` link; a `javascript:` URL no longer opens a blank tab.
+- Carousel docs: slides with text need at least 40px of inline padding while the previous and next buttons are on, so the buttons don't cover the ends of their lines on a phone (GR8).
+- ColorPicker's hex field reads a code typed in full width by a Japanese or Chinese IME ("＃１Ｄ４ＥＤ８"). Before, it was refused as not a color (L8E2).
+- In ColorPicker's hex field, the Enter that confirms an input method's text (a Japanese or Chinese IME) no longer picks or rejects the code mid-typing; the next Enter does (L8E5).
+- ColorPicker's README lists the `--color-picker-invalid` token, which colors the swatches' border while invalid. It was in the tokens file and the CSS but missing from the table, so a theme couldn't find how to restyle the invalid state (GR19).
+- CopyButton: the copy icon now cross-fades into the check instead of swapping instantly (KW18). Under `prefers-reduced-motion` it's a plain fade.
+- DateRangePicker: on a phone, where the two months stack, the popup is one month wide and keeps 8px from both sides of the screen instead of running to its right edge (GR9).
+- Divider: a label word longer than the line (a German compound, a URL) wraps between two short lines, so the page no longer scrolls sideways at 320px (WCAG 1.4.10).
+- ErrorSummary: a link to a RadioGroup or a Rating by its id focuses the checked radio, or else the first one that can be picked, instead of leaving focus on the link (GR15).
+- Fab: an extended FAB in a corner is never wider than the screen less its offset on both sides, so on a phone a long label ends in an ellipsis instead of pushing the icon off the screen (GR14).
+- FileUpload: as the direct child of a grid or flex container, a long file name now gets its middle cut as it does elsewhere. Before, the name widened the FileUpload, in one case to 459px at a 320px width, and the page scrolled sideways, in RTL off the left edge (GR30).
+- Resetting the form empties an uncontrolled FileUpload's list along with its input, instead of showing files the form no longer sends; a controlled list keeps its files on the input (L8E6).
+- FileUpload cuts a long file name in the middle, as Finder and Drive do. The last few characters and the extension stay visible, so "report-2025.pdf" and "report-2026.pdf" no longer look the same. The full name is the row's title, and screen readers read it once. The name is laid out in its own direction, so a Latin name in a right-to-left page isn't cut at its end (GR17).
+- FileUpload writes file sizes in the reader's locale, the same way FormattedNumber `format="bytes"` does: "4,8 MB" in Indonesian and German, "2 kB" in English, Arabic digits in Arabic. This covers each listed size and the size in a "larger than" refusal. Each size is isolated with `dir="auto"`, so an English size in an RTL page no longer shows as "KB 2". `formatFileSize(bytes, locale?)` takes an optional locale and is unchanged without one (GR20).
+- Combobox filtering, Highlight and typeahead keep Cyrillic й, ў and ї apart from и, у and і. Matching dropped their marks as if they were accents, so typing "мои" also found "мой" and "Киів" found "Київ". "ё" still finds "е", the way people type it (GR41).
+- Combobox filtering, Highlight and typeahead no longer treat different words in Hindi, Bengali, Tamil, Thai or Japanese as the same. Matching dropped every combining mark, so typing "कम" also matched "काम", "ไข่" matched "ไข้" and "カス" matched "ガス". Now only accents are ignored, the same as before for Latin, Greek, Vietnamese, Arabic and Hebrew. Vowel signs, tone marks and Japanese voicing marks are kept (GR29).
+- NumberInput and TimePicker read what a Japanese or Chinese IME types in full-width mode. "１４：０５" and "午後２：０５" were refused as times. "１，５００．５" was not read as a number, and "－５" became 5, losing its minus sign. Typed text is now normalized (NFKC) first, so it reads the same as half width (L8E1).
+- Heading breaks one long word or URL inside a flex row or grid column instead of widening it (`overflow-wrap: anywhere` in place of `break-word`); in a plain block it wraps as before.
+- Highlight breaks a word longer than its box (a URL, a German compound), so at 320px the page no longer scrolls sideways (WCAG 1.4.10 Reflow).
+- Icons, loaders, the Progress ring and Rating's stars no longer stretch to the width of their container before the stylesheet arrives. Each inline svg now carries `width="1em" height="1em"`, so on a slow page, or when bundle.css fails to load, an icon stays the size of the text around it instead of drawing a giant icon and then jumping when the CSS lands. The CSS still sets the size (FEC7).
+- Image: with a fixed `ratio` and no size of its own, the frame now takes its container's width, so it has its shape while the picture loads and keeps it if the picture fails. Before, it was 0x0 while loading and a 62px stub when broken, and the page jumped when the picture arrived (GR21). Give the frame (or the picture) a width for a smaller one.
+- Image: in Firefox, a new `src` shows as loading until it arrives, instead of briefly as loaded with the old picture.
+- Image: in Safari, a picture with `srcSet` no longer shows as broken for a moment as it mounts, which also hid the `viewable` button until the picture arrived. Safari says such an image is complete before it has picked a candidate. That no longer counts as a failure, and its load or error event decides.
+- An Input with a mask keeps digits typed on an Arabic-Indic or full-width keyboard as 0-9 in its value, so a card number typed as ٤٢٤٢ or ４２４２ submits 4242 (L8E3).
+- A masked Input with a leading prefix ("+62 999-9999-9999") reads an autofilled or pasted "+6281234567890" or "+62-812…" as 812…, instead of taking the prefix's 6 and 2 as typed digits (L8E7).
+- Input: the box can now be narrower than the native field's own width (about 244px, more with a prefix, suffix or count), so in a grid cell or a flex row it takes the room it's given instead of pushing the page sideways (GR23). The same holds for the fields built on it: Combobox, NumberInput, SearchInput, PasswordInput, PhoneInput, DatePicker and TimePicker. Beside a button in a flex row, give it `className="flex-1"` so it takes what the button leaves.
+- Link breaks a long URL used as its text inside a flex row or grid column instead of widening it (`overflow-wrap: anywhere` in place of `break-word`); in a sentence it wraps as before.
+- List's guide and its example now give an Avatar beside a written name `alt=""`. Each row link was read with the name twice ("Ada Lovelace Ada Lovelace ada@example.com"), and apps copy the example (TF4).
+- LoadMore: after a load from the focused button, the button (pushed down by the new items) is scrolled back into view, so keyboard users see where they are instead of pressing again off screen. The README now says that a rejected `onLoadMore` promise is the caller's to show (GR2).
+- LoadMore: a long `label` wraps onto more lines on a phone instead of being cut off with an ellipsis (GR1).
+- On a narrow screen, a Menu submenu with no room on either side no longer runs off the edge of the screen; it slides back over its parent menu (WCAG 1.4.10). The same applies to any anchored layer whose min-width is wider than the room beside its anchor.
+- Navbar: the small-screen links panel fades in and unrolls from the bar when it opens, and fades out when it closes, instead of appearing and vanishing at once. Reduced motion keeps only the fade (GH2).
+- Navbar's small-screen menu panel wraps a long link label, and breaks an unbroken word, instead of scrolling sideways or cutting it off at 320px (WCAG 1.4.10).
+- NotificationCenter's unread dot no longer disappears in forced colors (Windows high contrast). It had only a background, which forced colors painted as Canvas, the same as the drawer. It's now drawn in CanvasText, as Badge's indicator is (GR27).
+- NotificationCenter's "Mark as read" buttons are each described by their row's title, so a screen reader hears "Mark as read, button, Invoice paid" rather than the same bare "Mark as read" on every unread row. The hover tooltip stays (TF4).
+- PhoneInput reads digits typed on an Arabic, Persian or Bengali keyboard, or full width from a Japanese or Chinese IME (and a full-width "＋"). It dropped them, so someone in Egypt typing ٠١٠… saw nothing entered. They're now read as the ASCII digits they stand for, and the E.164 value is unchanged (GR43).
+- PinInput keeps digits typed on an Arabic, Persian or Bengali keyboard, or full width from a Japanese or Chinese IME. It dropped them as "not a digit", so someone typing ٤٥٦٧ saw nothing happen. They're now read as the ASCII digits they stand for, so the value is still 0–9 (GR42).
+- PinInput size `sm` no longer zooms the page on iPhone when focused. Its hidden field took the 14px text, under the 16px at which iOS Safari zooms into a field. On iOS it now takes 16px, as Input, Select and Textarea do. The field is transparent, so nothing changes on screen (PT2).
+- PinInput wraps a code that doesn't fit on one row even at 24px boxes onto a second row, so at 320px the page no longer scrolls sideways (WCAG 1.4.10 Reflow).
+- Progress breaks a label word longer than the bar (a file name, a URL) and keeps the value's width, so at 320px the page no longer scrolls sideways (WCAG 1.4.10 Reflow).
+- NumberInput and the other number fields read typed numbers in Pashto and Uzbek (Arabic script) correctly. With Latin digits these locales write 1.234,5, but the fields took the marks from their Arabic-Indic digits and read "1.234" as not a number.
+- Serupa-purge: a mistake on the command line (`-o` or `--css` with no file name, an unknown option, a source or `--keep @file` that isn't there) now ends with a one-line message and the usage, exit code 2, instead of a stack trace or a file written to `undefined`.
+- Serupa-purge: a symbolic link to a folder inside a source folder no longer crashes the scan when its name ends like a source file (`lib.js`); linked source files are still read, linked folders are skipped.
+- Serupa-purge: a CSS escape for no character (`\0`, a surrogate, past U+10FFFF) in the stylesheet passed with `--css` reads as U+FFFD, as CSS defines, instead of stopping the run.
+- Radio warns in development when it has no accessible name (no label and no aria-label), like Checkbox and Switch already did (GR18).
+- Radio, Checkbox and Switch warn in development when given `label`. It isn't one of their props, so it landed on the `<input>` as an attribute and named nothing. Put the text in `children` (GR18).
+- Rating: server HTML hydrated under a strict Content Security Policy (`style-src-attr 'none'`) shows each star's share again, so a read-only 4.3 no longer shows five full stars (GR10).
+- SaveStatus: a new status ("Saving…", "Saved", "Couldn't save") now cross-fades with the one before it instead of swapping at once (KW19). Under `prefers-reduced-motion` it's a plain fade.
+- SegmentedControl's `onKeyDown` now gets the root element as `event.currentTarget`, as its type says, instead of the segment button that had focus. It still runs before the control's own arrow-key handling, so `preventDefault()` there still stops it.
+- Slider's `onKeyDown` now gets the root element as `event.currentTarget`, as its type says, instead of the thumb that had focus. It still runs before the slider's own key handling, so `preventDefault()` there still stops it.
+- Slider: the value chip and the end mark labels move inward near the ends, so they stay inside the slider instead of hanging past it and widening the page on a phone.
+- Slider's `showValue` chip writes the number in the locale's digits and marks when there's no `formatValue`, as Badge and Pagination do: "٤٠" in Arabic and "1.500" in Indonesian, instead of "40" and "1500" (GR24).
+- Splitter: collapsing the first pane with Enter or a double-click, and bringing it back, now slides instead of snapping (GN3b). The handle and second pane glide on `translate` while the first pane's clip opens or closes with them. Dragging, the arrow keys and a controlled `size` still move at once, and reduced motion snaps.
+- Splitter: server HTML hydrated under a strict Content Security Policy (`style-src-attr 'none'`) gives the first pane its size again, so `defaultSize={30}` no longer shows a 4% pane until the separator moves (GR12).
+- Stepper: going back to a step with `onStepClick` keeps focus on that step instead of dropping it to the page.
+- Stepper: in a grid or flex item it takes the width it's given instead of its circles' width, so eight steps fit a 320px screen in compact mode there too (GN2b).
+- Stepper: with many steps on a narrow screen, the lines shrink to 4px and the circles take the `sm` size, so eight steps fit 320px without scrolling sideways (GN2).
+- A number given to `TableCell` as its child is written in the locale's digits, so `<TableCell>{318}</TableCell>` shows ٣١٨ under an ar-EG provider, as Badge and Pagination already do. It stays ungrouped, as given (1204 is still 1204 in en-US); for grouping, currency or units, pass `FormattedNumber`.
+- Tabs: picking another tab while the line or the pill fill is still sliding starts the new slide from where it has got to, instead of jumping back to the last tab first (GQ8).
+- Text breaks one long word or URL inside a flex row or grid column instead of widening it (`overflow-wrap: anywhere` in place of `break-word`); in a plain block it wraps as before.
+- Textarea: with `autoResize`, a server-rendered Textarea keeps its rows height after hydration under a strict Content Security Policy (`style-src-attr` without `'unsafe-inline'`).
+- Timeline breaks a word longer than its body (a URL, a German compound) in the title, time and content, so at 320px the page no longer scrolls sideways (WCAG 1.4.10 Reflow).
+- Toast: a gentle sideways flick (faster than 0.2 px/ms, the same as Drawer) now dismisses a toast; before, a flick had to be faster than 0.5 px/ms.
+- Toast: on a phone, a toast's action goes under the text instead of squeezing it to about 90px, where words broke mid-word.
+- Toaster: on a short screen, such as a phone in landscape, only as many toasts as fit show, and the rest wait under the "+N more" line, so the oldest no longer runs off the edge out of reach (GQ1b).
+- TreeView: the chevron that opens and closes an item is a 24px target (WCAG 2.5.8) instead of 20px, with no change to the layout.
+- TreeView: server HTML hydrated under a strict Content Security Policy (`style-src-attr 'none'`) keeps each row's indent, so the hierarchy shows instead of every row sitting at the same level (GR11).
+- Ctrl+A (⌘A) in a multiple-selection TreeView picks every item on keyboard layouts whose A key types another script, such as Russian, Greek or Arabic (L8E4).
+- TypeToConfirm: a long `confirmLabel` wraps onto more lines instead of making the page scroll sideways on a phone or widening a grid column.
+- TypeToConfirm accepts a phrase whose accents were typed or pasted as separate marks. "Café" pasted from a macOS file name, or typed by some Vietnamese input methods, is "e" plus an accent, and it never matched the "é" in the phrase, so the button stayed disabled. Both are now compared in the same Unicode form (NFC). A missing accent still doesn't match (GR40).
+
 ## [10.1.0] - 2026-10-27
 
 ### Added
@@ -1544,7 +1641,8 @@ These still work and will be removed in 2.0.0:
 - `<Button variant="destructive">`: use `<Button destructive>`.
 - `<Button size="icon">`: use `<Button icon="…" aria-label="…">`.
 
-[Unreleased]: https://github.com/diki-stwn/serupa-ds/compare/v10.1.0...HEAD
+[Unreleased]: https://github.com/diki-stwn/serupa-ds/compare/v11.0.0...HEAD
+[11.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v10.1.0...v11.0.0
 [10.1.0]: https://github.com/diki-stwn/serupa-ds/compare/v10.0.0...v10.1.0
 [10.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.7.0...v10.0.0
 [9.7.0]: https://github.com/diki-stwn/serupa-ds/compare/v9.6.0...v9.7.0
