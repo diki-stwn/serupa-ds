@@ -4,6 +4,7 @@ import { cn, domId, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
+import { useServerStyles } from "../../internal/serverStyles";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { FieldContext, useFieldControl } from "../../internal/field";
 import { en as words } from "./labels";
@@ -83,7 +84,8 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
       {children}
     </span>
   );
-  const ref2 = (n: HTMLDivElement | null) => { root.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
+  const styled = useServerStyles<HTMLDivElement>();   // each star's share, from server HTML under a strict CSP (GR10)
+  const ref2 = (n: HTMLDivElement | null) => { root.current = n; nameRef(n); styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
   const classes = cn("dk-rating", "dk-rating--size-" + size, readOnly && "dk-rating--readonly", disabled && "dk-rating--disabled", className);
 
   if (readOnly) {

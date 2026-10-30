@@ -24,7 +24,7 @@ import { ErrorSummary } from "serupa-ds";
 
 - Render it only after a submit fails, at the top of the form (or the page's main content), with the errors in the order of the fields.
 - Use the same words as each field's own error, so the link and the field say the same thing. Say what's wrong and how to fix it ("Enter your full name"), not just "Invalid".
-- Each error's `field` is the id of the control to fix: an `<input>`, `<select>` or `<textarea>`, or a group's first radio or checkbox.
+- Each error's `field` is the id of the control to fix: an `<input>`, `<select>` or `<textarea>`, or a group's first radio or checkbox. A RadioGroup's or Rating's own id works too: the link focuses its checked radio, or else its first one that can be picked.
 - Clear `errors` (or stop rendering it) once the form is sent. Leave it as it is while the person fixes fields: it updates on the next submit.
 - Prefix the page's `<title>` with "Error: " while it shows, so the problem is also said when the page reloads.
 

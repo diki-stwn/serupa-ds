@@ -87,13 +87,15 @@ if (D) {
   const serverLocale = warnings.filter((w) => w.startsWith('Serupa: rendered on the server without a locale'));
   t('a component that writes dates or numbers on the server without a locale warns once, naming SerupaProvider locale (AG1)', serverLocale.length === 1 && serverLocale[0].includes('<SerupaProvider locale>'), `${serverLocale.length} warnings`);
   // …and says nothing when the provider sets one (a fresh process, so the warning hasn't been given yet).
-  const withLocale = spawnSync(process.execPath, ['--input-type=module', '-e', `const w = []; console.warn = (m) => w.push(m); const React = (await import('react')).default; const { renderToString } = await import('react-dom/server'); const D = await import(${JSON.stringify(pathToFileURL(path.join(PROJECT, 'dist', 'index.js')).href)}); const h = React.createElement; renderToString(h(D.SerupaProvider, { locale: 'id-ID' }, h(D.DatePicker, { 'aria-label': 'Day' }), h(D.NumberInput, { 'aria-label': 'Qty', defaultValue: 1 }))); process.stdout.write(String(w.length));`], { encoding: 'utf8', cwd: PROJECT });
+  const withLocale = spawnSync(process.execPath, ['--input-type=module', '-e', `const w = []; console.warn = (m) => w.push(m); const React = (await import('react')).default; const { renderToString } = await import('react-dom/server'); const D = await import(process.argv[1]); const h = React.createElement; renderToString(h(D.SerupaProvider, { locale: 'id-ID' }, h(D.DatePicker, { 'aria-label': 'Day' }), h(D.NumberInput, { 'aria-label': 'Qty', defaultValue: 1 }))); process.stdout.write(String(w.length));`, pathToFileURL(path.join(PROJECT, 'dist', 'index.js')).href], { encoding: 'utf8', cwd: PROJECT });   // the module's URL as an argument, not written into the code
   t('…and doesn\'t warn when SerupaProvider sets the locale', withLocale.stdout === '0', withLocale.stdout + withLocale.stderr.slice(0, 200));
   const others = warnings.filter((w) => !serverLocale.includes(w));
   t('no React warnings while rendering on the server', !others.length, others.slice(0, 3).join(' | '));
   // RelativeTime on a long-running server: each request says how long ago it is then, not when the process started.
   const realNow = Date.now, start = realNow(), stamp = start - 5 * 60e3;
-  const ago = () => renderToString(h(D.RelativeTime, { date: stamp, locale: 'en-US' })).replace(/<[^>]*>/g, '');
+  // The text without its tags, stripped until nothing changes (one pass can leave a tag that two halves made).
+  const text = (html) => { for (let was = ''; was !== html;) { was = html; html = html.replace(/<[^>]*>/g, ''); } return html; };
+  const ago = () => text(renderToString(h(D.RelativeTime, { date: stamp, locale: 'en-US' })));
   let first = '', later = '';
   try { first = ago(); Date.now = () => start + 2 * 3600e3; later = ago(); } finally { Date.now = realNow; }
   t('RelativeTime on the server: a request two hours later says "2 hours ago", not the first request\'s words', first === '5 minutes ago' && later === '2 hours ago', `${first} | ${later}`);
