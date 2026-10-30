@@ -35,6 +35,7 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 - When you only have some of the people loaded, pass `total` so "+N" counts everyone not shown.
 - Use one `size` for the group; mixed sizes in one row look like a mistake.
 - Put the names on hover by wrapping each Avatar in a [Tooltip](../Tooltip/README.md).
+- Without `max`, a group too long for its box (ten reviewers on a phone) wraps onto more lines rather than widening the page. Set `max` to keep it on one line.
 - To let people see who's behind "+N", pass `showMore`: "+N" becomes a button that opens a [Popover](../Popover/README.md) listing them by name. To show them your own way (a Dialog, a members page), pass `onMore` instead.
 - On a background other than `surface`, set `--avatar-group-ring` to that color so the rings blend in.
 

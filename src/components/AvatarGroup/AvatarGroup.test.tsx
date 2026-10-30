@@ -200,3 +200,26 @@ describe('AvatarGroup', () => {
     error.mockRestore();
   });
 });
+
+describe('AvatarGroup at 320px (GR4)', () => {
+  test('ten xl avatars wrap onto more lines inside the box, in a block and a grid, LTR and RTL; every line starts at the same edge', async () => {
+    const names = ['Ana Lima', 'Budi Santoso', 'Chen Wei', 'Dewi Lestari', 'Eko Prasetyo', 'Fatima Zahra', 'Gita Putri', 'Hana Sato', 'Indra Wijaya', 'Joko Susilo'];
+    const group = (id: string) => <AvatarGroup id={id} size="xl" label="Reviewers">{names.map((n) => <Avatar key={n} name={n} />)}</AvatarGroup>;
+    await render(<div id="gr4" style={{ width: '320px' }}>
+      {group('gr4-b')}
+      <div style={{ display: 'grid' }}><p id="gr4-sib">Reviewers</p>{group('gr4-g')}</div>
+      <div dir="rtl">{group('gr4-r')}</div>
+    </div>);
+    const box = el('gr4').getBoundingClientRect();
+    for (const id of ['gr4-b', 'gr4-g', 'gr4-r']) {
+      const items = [...el(id).children].map((c) => c.getBoundingClientRect());
+      expect(items.every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5)).toBe(true);
+      const lines = [...new Set(items.map((r) => Math.round(r.top)))];
+      expect(lines.length).toBeGreaterThan(1);
+      // Each line's first avatar sits at the group's start edge.
+      const starts = lines.map((t) => items.filter((r) => Math.round(r.top) === t)).map((row) => id === 'gr4-r' ? Math.max(...row.map((r) => r.right)) : Math.min(...row.map((r) => r.left)));
+      expect(starts.every((s) => Math.abs(s - starts[0]) < 0.5)).toBe(true);
+    }
+    expect([el('gr4').scrollWidth, el('gr4-sib').getBoundingClientRect().width <= 320]).toEqual([320, true]);
+  });
+});

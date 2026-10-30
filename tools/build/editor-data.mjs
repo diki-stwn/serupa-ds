@@ -16,6 +16,14 @@ export function utilityClasses(css) {
     const name = m[1].replace(/\\([0-9a-fA-F]{1,6}) ?|\\(.)/g, (_, hex, ch) => (hex ? String.fromCodePoint(parseInt(hex, 16)) : ch));
     if (!out.has(name)) out.set(name, m[2].trim());
   }
+  // A class that only follows another in a selector list (.inset-s-4, .start-4 { … }) gets that rule.
+  for (const m of css.matchAll(/^\s*\.[^{}\n]*?, ([^{}\n]*)\{ ([^{}]*) \}$/gm)) {
+    for (const sel of m[1].split(', ')) {
+      const c = /^\.((?:[A-Za-z0-9_-]|\\[0-9a-fA-F]{1,6} ?|\\.)+)\s*$/.exec(sel);
+      const name = c && c[1].replace(/\\([0-9a-fA-F]{1,6}) ?|\\(.)/g, (_, hex, ch) => (hex ? String.fromCodePoint(parseInt(hex, 16)) : ch));
+      if (name && !out.has(name)) out.set(name, m[2].trim());
+    }
+  }
   return out;
 }
 
