@@ -2,7 +2,7 @@ import * as React from 'react';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { color, keepMotion } from '../../../tools/test/vitest/helpers';
+import { color, keepMotion, settled } from '../../../tools/test/vitest/helpers';
 import * as Serupa from '../../index';
 import { config, configure } from '../../internal/config';
 import { Loader } from '../Loader/Loader';
@@ -24,7 +24,7 @@ const frame = () => new Promise((ok) => requestAnimationFrame(() => ok(null)));
 /** Waits for what is easing (finite animations and transitions) on an element and inside it to finish. */
 async function eased(node: Element) {
   await frame(); await frame();
-  await Promise.all(node.getAnimations({ subtree: true }).filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})));
+  await settled(node, { subtree: true });
 }
 /** Holds the mouse button down on an element for `ms` (a real press: :active, pointerdown), running `during` once the press has settled. */
 async function hold<T>(target: Element, during: () => Promise<T> | T, { ms = 500, at, button }: { ms?: number; at?: { x: number; y: number }; button?: 'right' } = {}): Promise<T> {

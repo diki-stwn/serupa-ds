@@ -80,6 +80,23 @@ function acceptedTypes(accept: string): string[] | null {
 const iconFor = (f: File) => /^image\//.test(f.type) ? icons.Image : f.type === "application/pdf" ? icons.PictureAsPdf : /^video\//.test(f.type) ? icons.Movie : /^audio\//.test(f.type) ? icons.AudioFile : /zip|compressed|tar/.test(f.type) ? icons.FolderZip : icons.Draft;
 const same = (a: File, b: File) => a.name === b.name && a.size === b.size && a.type === b.type;   // the same file picked again
 
+/* A file's name, cut in the middle when it doesn't fit, as Finder and Drive do: the start shrinks to an ellipsis and
+   the last few characters and the extension stay, so "report-2025.pdf" and "report-2026.pdf" still look different
+   (GR17). dir="auto" lays it out in the name's own direction. The two parts are hidden from screen readers, which
+   read the whole name once, and title shows it in full on hover. */
+function FileName({ name }: { name: string }) {
+  const chars = Array.from(name), dot = name.lastIndexOf(".");
+  const ext = dot > 0 ? Array.from(name.slice(dot)).length : 0;
+  const keep = Math.min(chars.length, Math.min(ext, 10) + 6);
+  return (
+    <span className="dk-file-upload__name" dir="auto" title={name}>
+      <span className="dk-file-upload__name-start" aria-hidden>{chars.slice(0, chars.length - keep).join("")}</span>
+      <span className="dk-file-upload__name-end" aria-hidden>{chars.slice(chars.length - keep).join("")}</span>
+      <span className="dk-visually-hidden">{name}</span>
+    </span>
+  );
+}
+
 /* FileUpload: a drop area with a button to choose files, and the chosen files listed under it with their size
    and a remove button. accept, maxSize and maxFiles are checked on the way in; files that don't fit are listed
    in a danger message (role="alert") and passed to onReject. A native file input does the choosing (so name
@@ -243,7 +260,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
             <li key={f.name + f.size + f.lastModified + i} className="dk-file-upload__item">
               <Icon icon={iconFor(f)} className="dk-file-upload__file-icon" />
               <span className="dk-file-upload__file">
-                <span className="dk-file-upload__name">{f.name}</span>
+                <FileName name={f.name} />
                 <span className="dk-file-upload__size">{formatFileSize(f.size)}</span>
               </span>
               {readOnly ? null : <IconButton icon={icons.Close} label={removeLabel(f.name)} size="sm" disabled={disabled} onClick={() => remove(f)} />}

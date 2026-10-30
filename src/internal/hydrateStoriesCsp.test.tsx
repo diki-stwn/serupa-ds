@@ -20,9 +20,12 @@ document.head.appendChild(meta);
 const html = inject('serverStories');
 const frames = (n: number) => new Promise<void>((r) => { const f = () => (n-- > 0 ? requestAnimationFrame(f) : r()); f(); });
 
-// Each element's box, from the host's corner, rounded to the pixel, in document order.
+// Each element's box, from the host's corner, rounded to the pixel, in document order. A weight first used by this
+// story (ErrorSummary's medium links) starts loading at layout, so wait for it: measured in the fallback font, a link
+// came out a few pixels narrower on one side only.
 async function boxes(host: HTMLElement) {
   await frames(2);
+  await document.fonts.ready;
   for (const a of document.getAnimations()) a.finish();
   const o = host.getBoundingClientRect();
   return [...host.querySelectorAll('*')].map((e) => {
@@ -91,7 +94,7 @@ async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: nu
 // some runs only, not yet explained): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['TreeView', 'Textarea/AutoResize', 'PhoneInput']);
+const KNOWN = new Set(['PhoneInput']);
 
 for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {

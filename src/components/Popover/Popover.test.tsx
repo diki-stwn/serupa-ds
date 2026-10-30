@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Popover } from './Popover';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -243,7 +243,6 @@ describe('Popover', () => {
 describe('Popover: motion (DZ1)', () => {
   const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
   const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => [(a).transitionProperty, ms(a)]).sort();
-  const settled = (e: Element) => Promise.all(e.getAnimations().map((a) => a.finished.catch(() => {})));
   test('opens with a transition and fades and shrinks out faster, its content kept (inert) until the fade ends; focus is back at once; reopened mid-way it turns back from where it is', async () => {
     await withMotion(async () => {
       await render(<Share />);
