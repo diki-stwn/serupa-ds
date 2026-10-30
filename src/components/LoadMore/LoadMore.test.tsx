@@ -46,7 +46,9 @@ describe('LoadMore', () => {
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => para('lm', 'You’ve reached the end') !== null, { timeout: 3000 }).toBe(true);
     const end = para('lm', 'You’ve reached the end')!;
-    expect([end.textContent, document.activeElement === end, loads]).toEqual(['You’ve reached the end', true, 2]);
+    // Focus moves in an effect after the commit that shows the end text, so WebKit can show the text a beat first.
+    await expect.poll(() => document.activeElement === end, { timeout: 3000 }).toBe(true);
+    expect([end.textContent, loads]).toEqual(['You’ve reached the end', 2]);
   });
 
   test('without count, "More loaded" once the load settles; endText null shows nothing at the end; label replaces the words', async () => {
