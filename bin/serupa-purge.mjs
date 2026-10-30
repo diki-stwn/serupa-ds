@@ -24,12 +24,14 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const EXT = ['.html', '.htm', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.vue', '.svelte', '.astro', '.md', '.mdx', '.php', '.erb', '.hbs', '.njk', '.liquid', '.twig', '.py', '.json'];
 const SKIP = ['node_modules', '.git', 'dist', 'build', '.next'];
 
+// A link inside a folder is read when it points at a source file; a linked folder is left out (it may lead back up).
 function* files(p) {
   const st = fs.statSync(p);
   if (st.isFile()) { yield p; return; }
   for (const e of fs.readdirSync(p, { withFileTypes: true })) {
     const f = path.join(p, e.name);
-    if (e.isDirectory()) { if (!SKIP.includes(e.name)) yield* files(f); } else if (EXT.some((x) => e.name.endsWith(x))) yield f;
+    if (e.isDirectory()) { if (!SKIP.includes(e.name)) yield* files(f); }
+    else if (EXT.some((x) => e.name.endsWith(x)) && (e.isFile() || (e.isSymbolicLink() && fs.statSync(f, { throwIfNoEntry: false })?.isFile()))) yield f;
   }
 }
 
@@ -62,8 +64,9 @@ function blocks(s) {
   return out;
 }
 
-// "\32 xl\:flex" -> "2xl:flex"
-const unescape = (c) => c.replace(/\\([0-9a-fA-F]{1,6}) ?/g, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/\\(.)/g, '$1');
+// "\32 xl\:flex" -> "2xl:flex". An escape for no character (zero, a surrogate, past U+10FFFF) is U+FFFD, as in CSS.
+const char = (h) => { const n = parseInt(h, 16); return n === 0 || (n >= 0xd800 && n <= 0xdfff) || n > 0x10ffff ? '\uFFFD' : String.fromCodePoint(n); };
+const unescape = (c) => c.replace(/\\([0-9a-fA-F]{1,6}) ?/g, (_, h) => char(h)).replace(/\\(.)/g, '$1');
 const classesIn = (sel) => [...sel.matchAll(/\.((?:[A-Za-z0-9_-]|\\[0-9a-fA-F]{1,6} ?|\\.)+)/g)].map((m) => unescape(m[1]));
 
 // The dk-* classes to drop: those of the components in the manifest (dist/components.json) that the sources never
@@ -111,20 +114,27 @@ export function usedClasses(sources, keep = []) {
   return used;
 }
 
+const USAGE = 'usage: serupa-purge <source files or folders...> [-o out.css] [--css bundle.css] [--components] [--keep class ...]';
+// A mistake on the command line ends with what went wrong and the usage, not a stack trace.
+const stop = (message) => { console.error(`serupa-purge: ${message}\n${USAGE}`); process.exit(2); };
+
 function main(argv) {
   const sources = [], keep = [];
   let out = 'bundle.min.css', css = path.join(HERE, '..', 'dist', 'bundle.css'), mode = 'src', components = false;
+  const value = (i) => (argv[i] != null && !argv[i].startsWith('-') ? argv[i] : stop(`${argv[i - 1]} needs a file name`));
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { console.log(fs.readFileSync(fileURLToPath(import.meta.url), 'utf8').split('\nimport ')[0].replace(/^#!.*\n/, '').replace(/^\/\/ ?/gm, '')); return; }
-    if (a === '-o' || a === '--out') { out = argv[++i]; mode = 'src'; }
-    else if (a === '--css') { css = argv[++i]; mode = 'src'; }
+    if (a === '-o' || a === '--out') { out = value(++i); mode = 'src'; }
+    else if (a === '--css') { css = value(++i); mode = 'src'; }
     else if (a === '--keep') mode = 'keep';
     else if (a === '--components') components = true;
-    else if (mode === 'keep' && !a.startsWith('-')) keep.push(a);
+    else if (a.startsWith('-')) stop(`unknown option ${a}`);
+    else if (mode === 'keep') keep.push(a);
     else sources.push(a);
   }
-  if (!sources.length) { console.error('usage: serupa-purge <source files or folders...> [-o out.css] [--css bundle.css] [--components] [--keep class ...]'); process.exit(2); }
+  if (!sources.length) stop('no source files or folders given');
+  for (const f of [...sources, css, ...keep.filter((k) => k.startsWith('@')).map((k) => k.slice(1))]) if (!fs.existsSync(f)) stop(`no such file or folder: ${f}`);
   const full = fs.readFileSync(css, 'utf8');
   const manifest = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'dist', 'components.json'), 'utf8'));
   const used = usedClasses(sources, [...keep, ...manifest.runtimeUtilities]);
