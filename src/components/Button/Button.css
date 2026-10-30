@@ -28,11 +28,11 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;   /* no double-tap zoom delay on touch screens */
   /* the properties a button changes, each with its own timing: colors and the focus ring at motion-hover,
-     the release (scale) springing back at motion-release with ease-spring; the press itself, below, at
+     the release (scale) coming back at motion-release with ease-enter, with no overshoot; the press itself, below, at
      --button-press-duration (see Micro-interactions below) */
   transition-property: background-color, color, border-color, text-decoration-color, box-shadow, scale;
   transition-duration: var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-hover), var(--motion-release);
-  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-spring);
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-move), var(--ease-enter);
   position: relative;
   --dk-btn-press: var(--button-press-scale, var(--scale-97));
   --dk-btn-nudge: var(--button-icon-nudge, var(--spacing-0));   /* off by default; opt in with --button-icon-nudge */
@@ -142,7 +142,7 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 
 /* Micro-interactions. Only scale, translate and opacity move, so nothing reflows. Each has a component
    token (src/components/Button/button.tokens.json) to tune it or turn it off; under reduced motion the
-   press, the nudge and the ripple stop and loading only fades.
+   press and the nudge stop and loading only fades.
    Press: the button shrinks to --button-press-scale while held (pointer, Space, or Enter through the
    data-pressed attribute Button sets). Not on the link variant, which reads as text. */
 .dk-btn:not(.dk-btn--link):active:not(:disabled, [aria-disabled="true"]),
@@ -153,35 +153,31 @@ a.dk-btn[aria-disabled="true"] { pointer-events: none; }
 }
 /* Nudge (off by default): on hover (devices that hover), a right icon slides --button-icon-nudge in its direction.
    Set it, e.g. to var(--spacing-0\.5), where right icons are arrows that mean "go forward". */
-.dk-btn__label, .dk-btn__icon { position: relative; }   /* content paints above the ripple */
-.dk-btn__label { transition: opacity var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-move); }
+.dk-btn__label {
+  transition-property: opacity, filter;
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm));
+  transition-timing-function: var(--ease-move);
+}
 .dk-btn__icon {
-  transition-property: opacity, translate;
-  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--motion-change-sm));
-  transition-timing-function: var(--ease-move), var(--ease-settle);
+  transition-property: opacity, filter, translate;
+  transition-duration: var(--button-loading-duration, var(--motion-enter-sm)), var(--button-loading-duration, var(--motion-enter-sm)), var(--button-icon-nudge-duration, var(--motion-change-sm));
+  transition-timing-function: var(--ease-move), var(--ease-move), var(--ease-settle);
 }
 @media (hover: hover) {
   .dk-btn:hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: var(--dk-btn-nudge) 0; }
   .dk-btn:dir(rtl):hover:not(:disabled, [aria-disabled="true"]) > .dk-btn__icon--right { translate: calc(var(--spacing-0) - var(--dk-btn-nudge)) 0; }
 }
-/* Loading: the content fades out (transition above) while the spinner fades and grows in. */
+/* Loading: the content fades out (transition above) while the spinner fades and grows in. Both blur a
+   little (blur-xs) while they cross, so they read as one change rather than two layers. */
 .dk-btn__loader { animation: dk-btn-loader-in var(--button-loading-duration, var(--motion-enter-sm)) var(--ease-enter) both; }
-@keyframes dk-btn-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-btn-loader-from); } }
-/* Ripple: from the press point, in the text color at --button-ripple-opacity; Button adds the circles. */
-.dk-btn__ripples { position: absolute; inset: var(--spacing-0); border-radius: inherit; overflow: hidden; pointer-events: none; }
-.dk-btn__ripple {
-  position: absolute;
-  border-radius: var(--rounded-full);
-  background-color: currentColor;
-  opacity: var(--button-ripple-opacity, var(--opacity-20));
-  animation: dk-btn-ripple var(--button-ripple-duration, var(--motion-ripple)) var(--ease-move) both;   /* even spread: reads as a wave, not a flash */
-  transition: opacity var(--button-ripple-fade-duration, var(--motion-ripple-fade)) var(--ease-settle);
+@keyframes dk-btn-loader-in { from { opacity: var(--opacity-0); scale: var(--dk-btn-loader-from); filter: var(--dk-btn-cross-blur); } }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-btn { --dk-btn-cross-blur: blur(var(--blur-xs)); }
+  .dk-btn--loading-cover > .dk-btn__label,
+  .dk-btn--loading-cover > .dk-btn__icon { filter: var(--dk-btn-cross-blur); }
 }
-.dk-btn__ripple--out { opacity: var(--opacity-0); }
-@keyframes dk-btn-ripple { from { scale: var(--scale-0); } }
 @media (prefers-reduced-motion: reduce) {
   .dk-btn { --dk-btn-press: var(--scale-100); --dk-btn-nudge: var(--spacing-0); --dk-btn-loader-from: var(--scale-100); }
-  .dk-btn__ripples { display: none; }
   .dk-btn__loader { animation-name: dk-loader-in; }   /* only fades in: nothing grows */
 }
 }
