@@ -37,7 +37,7 @@ export const Overflow: Story = {
     brand: <a href="#" className="text-base font-semibold text-text no-underline">Acme Corporation International</a>,
     children: [...links, <NavbarLink key="s" href="#">Settings and billing</NavbarLink>, <NavbarLink key="w" href="#">Donaudampfschifffahrtsgesellschaftskapitänskajüte</NavbarLink>],
   },
-  render: (args) => <div style={{ width: 360 }}><Navbar {...args} /></div>,
+  render: (args) => <div style={{ maxWidth: 360 }}><Navbar {...args} /></div>,
 };
 
 export const Sizes: Story = {
