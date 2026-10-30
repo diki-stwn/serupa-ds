@@ -70,6 +70,16 @@ describe('Table', () => {
     expect([fit.hasAttribute('aria-label'), fit.getAttribute('role'), over.getAttribute('aria-label')]).toEqual([false, null, 'Wide']);
   });
 
+  test('a number in a cell is written in the locale\'s digits, ungrouped as given; text and FormattedNumber-style strings stay as they are (GR44)', async () => {
+    const cells = (locale?: string) => {
+      const t = <Table caption="Calls"><TableBody><TableRow><TableCell id={`n-${locale}`}>{1204}</TableCell><TableCell>{'Q3 2026'}</TableCell><TableCell>{0}</TableCell></TableRow></TableBody></Table>;
+      return locale ? <SerupaProvider locale={locale}>{t}</SerupaProvider> : t;
+    };
+    await render(<>{cells('ar-EG')}{cells('en-US')}</>);
+    const text = (locale: string) => [...document.getElementById(`n-${locale}`)!.closest('tr')!.querySelectorAll('td')].map((c) => c.textContent);
+    expect([text('ar-EG'), text('en-US')]).toEqual([['١٢٠٤', 'Q3 2026', '٠'], ['1204', 'Q3 2026', '0']]);
+  });
+
   test('the frame: a 1px border, 8px corners, scrolls on overflow; the table fills it', async () => {
     await setup();
     const s = css(el('tdef').parentElement);

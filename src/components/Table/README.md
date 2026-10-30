@@ -46,6 +46,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 
 - Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.
+- A number given to `TableCell` as its child (`{p.calls}`) is written in the locale's digits, ungrouped as given: 1204 in en-US, ١٢٠٤ in ar-EG. For grouping, currency or units, put a `FormattedNumber` in the cell.
 - Use `size="sm"` for dense data, and `striped` when long rows are hard to follow across.
 - With selectable rows, put a `TableActionBar` just before the table: while rows are selected it shows "3 selected", your actions for them (Delete, Export) and "Clear selection" (`onClear`). Pass it the count; it's hidden at 0.
 - With `stickyHeader`, give the frame a height through `containerProps`. The frame measures the header and keeps that much scroll padding at the top, so a focused link or button in a row scrolls into view below the header, not under it (WCAG 2.4.11).
