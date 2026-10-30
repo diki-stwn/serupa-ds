@@ -7,44 +7,28 @@
 # Links
 - list "Members":
   - listitem:
-    - link "Ada Lovelace Ada Lovelace ada@example.com":
+    - link "Ada Lovelace ada@example.com":
       - /url: "#"
-      - img "Ada Lovelace"
-      - text: Ada Lovelace ada@example.com
     - button "More for Ada Lovelace"
   - listitem:
-    - link "Grace Hopper Grace Hopper grace@example.com":
+    - link "Grace Hopper grace@example.com":
       - /url: "#"
-      - img "Grace Hopper"
-      - text: Grace Hopper grace@example.com
     - button "More for Grace Hopper"
   - listitem:
-    - link "Linus Torvalds Linus Torvalds linus@example.com":
+    - link "Linus Torvalds linus@example.com":
       - /url: "#"
-      - img "Linus Torvalds"
-      - text: Linus Torvalds linus@example.com
     - button "More for Linus Torvalds"
 
 # LongText
 - list "Members":
-  - listitem:
-    - img "Maria Magdalena von Hohenzollern"
-    - text: Maria Magdalena von Hohenzollern-Sigmaringen maria.magdalena.hohenzollern@example.com Administrator
-  - listitem:
-    - img "Grace Hopper"
-    - text: Donaudampfschifffahrtsgesellschaftskapitänskajüte no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example Editor
+  - listitem: Maria Magdalena von Hohenzollern-Sigmaringen maria.magdalena.hohenzollern@example.com Administrator
+  - listitem: Donaudampfschifffahrtsgesellschaftskapitänskajüte no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example Editor
 
 # Playground
 - list "Members":
-  - listitem:
-    - img "Ada Lovelace"
-    - text: Ada Lovelace ada@example.com Admin
-  - listitem:
-    - img "Grace Hopper"
-    - text: Grace Hopper grace@example.com Editor
-  - listitem:
-    - img "Linus Torvalds"
-    - text: Linus Torvalds linus@example.com Viewer
+  - listitem: Ada Lovelace ada@example.com Admin
+  - listitem: Grace Hopper grace@example.com Editor
+  - listitem: Linus Torvalds linus@example.com Viewer
 
 # Settings
 - list "Settings":

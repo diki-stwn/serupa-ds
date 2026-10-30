@@ -8,5 +8,15 @@
 .dk-copy-btn__label { grid-area: label; }
 .dk-copy-btn__label--off { visibility: hidden; }
 .dk-copy-btn__icon--done { color: var(--copy-button-done-color, var(--success-text)); }
+/* The copy icon and the check share one cell. The one going fades, shrinks a little and blurs; the one coming fades in,
+   growing from 90% out of the same blur, over motion-change-sm, so it reads as one icon changing (KW18). Reduced
+   motion: the fade alone. */
+.dk-copy-btn__icons { display: inline-grid; grid-template-areas: "icon"; }
+.dk-copy-btn__icons > * { grid-area: icon; transition: opacity var(--motion-change-sm) var(--ease-enter); }
+.dk-copy-btn:not([data-copied]) .dk-copy-btn__icon--done, .dk-copy-btn[data-copied] .dk-copy-btn__icon--copy { opacity: var(--opacity-0); }
+@media (prefers-reduced-motion: no-preference) {
+  .dk-copy-btn__icons > * { transition: opacity var(--motion-change-sm) var(--ease-enter), scale var(--motion-change-sm) var(--ease-enter), filter var(--motion-change-sm) var(--ease-enter); }
+  .dk-copy-btn:not([data-copied]) .dk-copy-btn__icon--done, .dk-copy-btn[data-copied] .dk-copy-btn__icon--copy { scale: var(--scale-90); filter: blur(var(--blur-xs)); }
+}
 @media (forced-colors: active) { .dk-copy-btn__icon--done { color: inherit; } }
 }

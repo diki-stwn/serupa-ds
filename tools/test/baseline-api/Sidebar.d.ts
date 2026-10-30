@@ -10,7 +10,7 @@ interface SidebarSectionProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
     title?: React.ReactNode;
     children?: React.ReactNode;
 }
-interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "children"> {
+interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLElement>, "children"> {
     label: React.ReactNode;
     icon?: IconSource;
     active?: boolean;
@@ -23,4 +23,4 @@ interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorEle
 }
 declare const Sidebar: React.ForwardRefExoticComponent<SidebarProps & React.RefAttributes<HTMLElement>>;
 declare const SidebarSection: React.ForwardRefExoticComponent<SidebarSectionProps & React.RefAttributes<HTMLDivElement>>;
-declare const SidebarItem: React.ForwardRefExoticComponent<SidebarItemProps & React.RefAttributes<HTMLAnchorElement>>;
+declare const SidebarItem: React.ForwardRefExoticComponent<SidebarItemProps & React.RefAttributes<HTMLElement>>;
