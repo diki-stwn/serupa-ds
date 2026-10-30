@@ -5,6 +5,7 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { useFormReset } from "../../internal/useFormReset";
+import { latinDigits } from "../../internal/digits";
 
 export interface PinInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type' | 'value' | 'defaultValue' | 'onChange' | 'maxLength' | 'children'> {
   /** How many characters the code has, one box each. Default: 6. */
@@ -43,7 +44,9 @@ export const PinInput = /* @__PURE__ */ component<HTMLInputElement, PinInputProp
   const length = Math.max(1, Math.floor(props.length || 6));
   const type = oneOf(["numeric", "alphanumeric"] as const, props.type, "numeric");
   const size = oneOf(SIZES, props.size, "md");
-  const clean = (s: string | undefined) => (s || "").replace(KEEP[type], "").slice(0, length);
+  // Digits in any script read as ASCII, and full-width letters as the usual ones: an Arabic or Persian keyboard types
+  // ٤٥٦, a Japanese IME ４５６ or ＡＢ, and a code read off the screen is the same code (GR42).
+  const clean = (s: string | undefined) => latinDigits((s || "").normalize("NFKC")).replace(KEEP[type], "").slice(0, length);
   const controlled = props.value !== undefined;
   const [own, setOwn] = React.useState(() => clean(props.defaultValue));
   const code = controlled ? clean(props.value) : own;

@@ -57,6 +57,17 @@ describe('PinInput', () => {
     expect([shown('p'), done.mock.calls]).toEqual(['123456', [['123456']]]);
   });
 
+  test('digits from an Arabic, Persian or Bengali keyboard or a Japanese IME (full width) are kept, as the code they are: ٤٥٦ is 456 (GR42)', async () => {
+    const done = vi.fn();
+    await render(<div><PinInput id="ar" aria-label="Code" length={4} onComplete={done} /><PinInput id="an" aria-label="Code" type="alphanumeric" length={4} /></div>);
+    await userEvent.fill(el('ar'), '١٢۳٤');
+    expect([shown('ar'), el('ar').value, done.mock.calls]).toEqual(['1234', '1234', [['1234']]]);
+    await userEvent.fill(el('ar'), '５৬７8');
+    expect(shown('ar')).toBe('5678');
+    await userEvent.fill(el('an'), 'ＡＢ１২');
+    expect(shown('an')).toBe('AB12');
+  });
+
   test('select all and type, or paste, replaces the whole code', async () => {
     await render(<PinInput id="p" aria-label="Code" length={4} defaultValue="12" />);
     await userEvent.fill(el('p'), '9876');
