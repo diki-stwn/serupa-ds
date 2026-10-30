@@ -37,8 +37,14 @@ R.push({ name: 'publint finds nothing (package.json, exports, file formats)', ok
 // Are the Types Wrong. The package is ESM only (projects on CommonJS import() it), so the esm-only profile; the
 // CSS, the browser scripts and theme.js have no types to check.
 const notCode = Object.keys(pkg.exports).filter((k) => /\.(css|iife\.js)$/.test(k) || k === './theme.js').map((k) => k.slice(2));
-const attw = spawnSync(process.execPath, [path.join(PROJECT, 'node_modules', '@arethetypeswrong', 'cli', 'dist', 'index.js'), tarball, '--profile', 'esm-only', '--format', 'ascii', '--exclude-entrypoints', ...notCode], { encoding: 'utf8' });
-R.push({ name: 'Are the Types Wrong: every export\'s types resolve in Node 16+ (ESM) and bundlers', ok: attw.status === 0, detail: (attw.stdout + attw.stderr).split('\n').filter((l) => /💀|❌|⚠️|Error/.test(l) && !/ignored/.test(l)).slice(0, 10).join(' | ') });
+const attw = spawnSync(process.execPath, [path.join(PROJECT, 'node_modules', '@arethetypeswrong', 'cli', 'dist', 'index.js'), tarball, '--profile', 'esm-only', '--format', 'ascii', ...(notCode.length ? ['--exclude-entrypoints', ...notCode] : [])], { encoding: 'utf8' });
+R.push({ name: 'Are the Types Wrong: every export\'s types resolve in Node 16+ (ESM) and bundlers', ok: attw.status === 0, detail: (() => {
+  const lines = (attw.stdout + attw.stderr).split('\n');
+  // Each problem is a line that links its explanation (💀, 🎭, ⚠️, 🐛…: the mark varies), unless ignored per profile.
+  const problems = lines.filter((l) => /arethetypeswrong\.github\.io\/blob\/main\/docs\/problems\//.test(l) && !/ignored/.test(l));
+  // No problem table (a package with no types at all, a crash): its first lines say what went wrong.
+  return (problems.length ? problems : lines.filter((l) => l.trim()).slice(0, 3)).slice(0, 10).join(' | ');
+})() });
 
 fs.rmSync(tmp, { recursive: true, force: true });
 done(report('Package lint', R));

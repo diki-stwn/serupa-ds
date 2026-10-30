@@ -6,7 +6,11 @@ name: Release
 # It runs only after CI has passed on a push to main, and works on the commit CI tested, so a red main
 # can't be tagged or released. If main has moved on since, it still releases a version that has no tag yet
 # (npm run release builds the commit that brought it), but leaves the Release pull request to the newer
-# The Daily release workflow merges it once a day.
+# commit's own run. The Daily release workflow merges it once a day.
+#
+# Two jobs, so the dependencies never run beside BOT_TOKEN: "release" installs and builds with only the job's
+# own token, which ends with the job; "version" holds BOT_TOKEN (so the Release pull request's pushes start CI)
+# and runs no dependencies, only tools/version.mjs, which needs nothing but Node.
 on:
   workflow_run:
     workflows: [CI]
@@ -15,28 +19,30 @@ on:
 
 concurrency: release
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write   # to start CI on the Release pull request
+permissions: {}
 
 jobs:
   release:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    permissions:
+      contents: write   # the tag and the GitHub release
+    outputs:
+      current: ${{ steps.head.outputs.current }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
-          token: ${{ secrets.BOT_TOKEN }}
+          persist-credentials: false
           fetch-depth: 0
       - id: head
         run: |
-          main=$(git ls-remote origin refs/heads/main | cut -f1)
+          main=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
           if [ "$main" = "$HEAD_SHA" ]; then echo "current=true" >> "$GITHUB_OUTPUT"
           else echo "main is at $main now, not $HEAD_SHA: its own run makes the Release pull request."; fi
         env:
+          GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -47,21 +53,36 @@ jobs:
       # Releases the version in package.json if it has no tag yet, before new changesets turn into the next
       # Release pull request. Otherwise a merge that lands right after a Release pull request would skip
       # straight to the next version and that one would never be released. Does nothing once it's tagged.
+      # tools/publish.mjs passes GH_TOKEN to its own git calls (the tag push), since the checkout kept none.
       - run: npm run release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Pinned to a commit: this step runs with write access to the repository, so a moved tag can't change it.
-      - if: steps.head.outputs.current
-        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
-        id: changesets
+          GH_TOKEN: ${{ github.token }}
+
+  version:
+    needs: release
+    if: needs.release.outputs.current == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version-script: npm run version-packages
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      # No npm ci: tools/version.mjs imports only Node's own modules.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      # Pinned to a commit: this step holds BOT_TOKEN, so a moved tag can't change it. It commits and pushes the
+      # Release pull request through the GitHub API, so it needs no token in git.
+      - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          version-script: node tools/version.mjs
           github-token: ${{ secrets.BOT_TOKEN }}
-          publish-script: npm run release
           pr-title: 'Release: next version'
           commit-message: 'Release: next version'
-          # npm run release makes the tag and the GitHub release itself.
+          # The release job makes the tag and the GitHub release.
           create-github-releases: false
           push-git-tags: false
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

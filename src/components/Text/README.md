@@ -17,6 +17,7 @@ const { Text } = window.Serupa;
 - Paragraphs, captions and short lines of supporting text, such as "Last edited 2 hours ago".
 - Changing the size, tone or weight of part of a sentence, with `as="span"`.
 - A single line that may be too long for its space, such as a file name, cut short with `truncate`.
+- User content with long words or URLs: they break onto the next line, even in a flex row or grid column, rather than push the layout wider.
 
 ## When not to use
 

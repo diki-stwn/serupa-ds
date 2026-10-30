@@ -138,7 +138,7 @@ export const projectArg = () => path.resolve((!vt && process.argv[2]) || PROJECT
 // group runs them whole on every pull request) and the workflows other than CI. A pull request made only of these
 // skips the component, visual and Storybook steps.
 const NEUTRAL = new RegExp('^(' + [
-  String.raw`\.changeset/[\w-]+\.md`, String.raw`tools/(publish|version|release|changeset-check)\.mjs`, 'tools/README\\.md', 'CONTRIBUTING\\.md',
+  String.raw`\.changeset/[\w-]+\.md`, String.raw`tools/(publish|version|release|changeset-check)\.mjs`, 'tools/README\\.md', 'CONTRIBUTING\\.md', 'skills/serupa/SKILL\\.md',
   String.raw`\.github/(CODEOWNERS|pull_request_template\.md|dependabot\.yml|workflows/(release|codeql|changeset|visual-baselines|cross-browser)\.yml)`, 'licenses/.*',
   String.raw`tools/test/(?!(lib|run|visual|storybook)\.mjs$)[\w-]+\.mjs`, String.raw`tools/test/baseline-utilities\.json`,
 ].join('|') + ')$');

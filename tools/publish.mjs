@@ -16,10 +16,16 @@ import { execFileSync } from 'node:child_process';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const run = (cmd, args, opts = {}) => (execFileSync(cmd, args, { cwd: P, encoding: 'utf8', ...opts }) ?? '').trim();   // null when stdio is inherited
+// The Release workflow's checkout keeps no token in .git/config, so the git calls that reach GitHub get GH_TOKEN
+// for themselves only, through the environment. Not when git already has a token for GitHub (a second one would
+// make the request fail) or when there is no GH_TOKEN (a local run, which has its own credentials).
+const hasAuth = (() => { try { return !!run('git', ['config', '--get-regexp', '^http\\..*extraheader$'], { stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return false; } })();
+const remote = process.env.GH_TOKEN && !hasAuth ? { env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+  GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${process.env.GH_TOKEN}`).toString('base64')}` } } : {};
 let pkg = JSON.parse(fs.readFileSync(path.join(P, 'package.json'), 'utf8'));
 const tag = `v${pkg.version}`;
 
-const tagged = !!run('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`]);
+const tagged = !!run('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`], remote);
 const released = () => { try { execFileSync('gh', ['release', 'view', tag], { cwd: P, stdio: 'ignore' }); return true; } catch { return false; } };
 if (tagged && released()) { console.log(`${tag} is already released.`); process.exit(0); }
 const back = run('git', ['rev-parse', 'HEAD']);
@@ -46,7 +52,7 @@ if (!m) { console.log(`CHANGELOG.md has no ${pkg.version} section yet: nothing t
 if (tagged) {
   // The tag is already the prebuilt commit: pack the release from it, as the first run would have.
   console.log(`${tag} is tagged but has no GitHub release yet: making it from the tag.`);
-  run('git', ['fetch', '--quiet', 'origin', 'tag', tag]);
+  run('git', ['fetch', '--quiet', 'origin', 'tag', tag], remote);
   run('git', ['checkout', '--detach', '--quiet', tag]);
 } else {
   run('npm', ['run', 'build'], { stdio: 'inherit' });
@@ -69,7 +75,7 @@ const notes = path.join(P, '.release-notes.md');
 fs.writeFileSync(notes, m[1].trim() + '\n');
 if (!tagged) {
   run('git', ['tag', tag]);
-  run('git', ['push', 'origin', tag], { stdio: 'inherit' });
+  run('git', ['push', 'origin', tag], { stdio: 'inherit', ...remote });
 }
 home();
 run('gh', ['release', 'create', tag, tarball, '--title', `${pkg.version}`, '--notes-file', notes, '--verify-tag'], { stdio: 'inherit' });
