@@ -53,11 +53,23 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify({ brand: state.brand, mode: state.mode })); } catch (e) {} }
   function resolved() { return state.mode === "auto" ? (media && media.matches ? "dark" : "light") : state.mode; }
   function info() { return { brand: state.brand, mode: state.mode, theme: state.brand + "-" + resolved() }; }
+  // <meta name="theme-color"> (a phone's bars) is the body's surface, or the token value before the CSS; a page's own stays.
+  var tint;
+  function chrome() {
+    if (!tint) {
+      if (document.querySelector('meta[name="theme-color"]')) return;
+      tint = document.head.appendChild(document.createElement("meta"));
+      tint.name = "theme-color";
+    }
+    var b = document.body ? getComputedStyle(document.body).backgroundColor : "";
+    tint.content = /\d/.test(b) && !/, 0\)$/.test(b) ? b : resolved() === "dark" ? "#09090b" : "#fff";
+  }
   function apply(always) {
     var i = info();
-    if (root.getAttribute("data-theme") === i.theme && !always) return;
+    if (root.getAttribute("data-theme") === i.theme && !always) return chrome();
     root.setAttribute("data-theme", i.theme);
     root.getAnimations({ subtree: true }).forEach(function (a) { if (/color|shadow|fill|stroke/.test(a.transitionProperty)) a.finish(); });
+    chrome();
     listeners.slice().forEach(function (fn) { try { fn(i); } catch (e) { if (window.console) console.error(e); } });
   }
 
@@ -80,6 +92,7 @@
     reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} state = Object.assign({}, page); apply(true); return info(); },
     onChange: function (fn) { listeners.push(fn); return function () { listeners = listeners.filter(function (f) { return f !== fn; }); }; }
   };
+  window.addEventListener("load", chrome);
   window.Serupa = window.Serupa || {};
   window.Serupa.theme = api;
   if (!window.Serupa.version) window.Serupa.version = "__VERSION__";
