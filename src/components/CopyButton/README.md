@@ -30,7 +30,7 @@ import { CopyButton } from "serupa-ds";
 ## Behavior
 
 - Copies with the Clipboard API, and falls back to the older `execCommand("copy")` on pages where that API isn't available (plain `http:` or an iframe without permission).
-- Then shows a check (success color) and "Copied" for `timeout` ms (2000). Both labels take the same space, so the button doesn't change width.
+- Then shows a check (success color) and "Copied" for `timeout` ms (2000). Both labels take the same space, so the button doesn't change width. The copy icon cross-fades into the check (a short scale and blur when motion is allowed).
 - If the browser refuses, it says "Couldn't copy. Select the text and copy it yourself." (`labels.copyFailed`) and calls `onCopyError`.
 - Your `onClick` runs first; call `event.preventDefault()` in it to stop the copy.
 

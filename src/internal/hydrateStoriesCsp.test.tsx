@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { hydrateRoot, type Root } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { describe, expect, inject, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, inject, test, vi } from 'vitest';
 import { storiesToRun } from '../../tools/test/vitest/stories';
 
 // Every story's server HTML, hydrated on a page with a strict Content Security Policy, has to lay out as the same
@@ -73,6 +73,10 @@ function appStyled(el: Element) {
 // Hydrates the server HTML, with the style attributes at the indexes given (all of them, for the page without the
 // policy) set through the CSSOM first. Returns the boxes and which elements' styles are the app's.
 async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: number) => boolean) {
+  // React's development build records where an element was made for only 10,000 elements a second, and a story
+  // with many (PhoneInput's country list), straight after others, gets "unknown" past that, so the count starts again.
+  const internals = Reflect.get(React, '__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE') as { recentlyCreatedOwnerStacks?: number } | undefined;
+  if (internals) internals.recentlyCreatedOwnerStacks = 0;
   const host = document.createElement('div');
   host.style.width = '800px';
   document.body.appendChild(host);
@@ -90,11 +94,15 @@ async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: nu
   return { out, app, errors };
 }
 
-// What still lays out wrong here, until its fix lands (work queue GR10 to GR12, GR16b; PhoneInput's stories differ in
-// some runs only, not yet explained): a component, or one story as
+// What still lays out wrong here, until its fix lands (none now): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['PhoneInput']);
+const KNOWN = new Set<string>([]);
+
+// The clock stands still through each story's three hydrations, so a RelativeTime can't cross into its next minute
+// between them.
+beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'], now: Date.now() }); });
+afterEach(() => { vi.useRealTimers(); });
 
 for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {
