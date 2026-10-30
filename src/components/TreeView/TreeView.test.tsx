@@ -158,6 +158,17 @@ describe('TreeView', () => {
     expect(last()).toBe('a,a1,a2,c,d');
   });
 
+  test('L8E4: Ctrl+A picks all on a layout whose A key types another script (Russian "ф"), by the key\'s position', async () => {
+    const onValueChange = vi.fn();
+    await render(<Tree selectionMode="multiple" defaultExpanded={['a']} onValueChange={onValueChange} />);
+    await enter();
+    const ctrl = (key: string, code: string) => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key, code, ctrlKey: true, bubbles: true, cancelable: true }));
+    ctrl('q', 'KeyA');   // AZERTY: the key in A's place types "q", which isn't Ctrl+A
+    expect(onValueChange).not.toHaveBeenCalled();
+    ctrl('ф', 'KeyA');
+    expect([...(onValueChange.mock.calls.at(-1)![0] as string[])].sort().join()).toBe('a,a1,a2,c,d');
+  });
+
   test('none: no aria-selected, and Enter, Space or a click opens and closes', async () => {
     await render(<Tree selectionMode="none" />);
     expect(item('a').hasAttribute('aria-selected')).toBe(false);
