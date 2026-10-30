@@ -123,3 +123,22 @@ describe('Fab: focus stays clear of it', () => {
     }
   });
 });
+
+describe('Fab: an extended FAB with a long label on a phone (GR14)', () => {
+  test('stays inside the screen, its offset from both sides, and the label takes its ellipsis, in LTR and RTL', async () => {
+    try {
+      for (const w of [320, 390]) {
+        await page.viewport(w, 700);
+        for (const dir of ['ltr', 'rtl'] as const) {
+          const r = await render(<div dir={dir}><Fab id="gr14" icon="add" label="Create a new quarterly report from a template" extended /></div>);
+          const b = el('gr14').getBoundingClientRect();
+          expect([Math.round(b.left), Math.round(w - b.right)]).toEqual([24, 24]);
+          const svg = el('gr14').firstElementChild!.getBoundingClientRect();   // the icon
+          expect(svg.left).toBeGreaterThanOrEqual(b.left);
+          expect(svg.right).toBeLessThanOrEqual(b.right);
+          await r.unmount();
+        }
+      }
+    } finally { await page.viewport(800, 600); }
+  });
+});

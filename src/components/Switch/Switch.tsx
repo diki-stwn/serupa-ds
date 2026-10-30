@@ -4,6 +4,7 @@ import { cn, domId, isInvalid, oneOf, omit, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useFieldControl } from "../../internal/field";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { warnOnce } from "../../internal/warn";
 
 export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type' | 'role'> {
   /** 'sm' (28 by 16px track, text-xs), 'md' (36 by 20px, text-sm, default) or 'lg' (44 by 24px, text-base). */
@@ -34,6 +35,7 @@ const OWN = { size: 1, invalid: 1, pending: 1, onCheckedChange: 1, description: 
 /** An on/off setting that applies at once: a native checkbox with role="switch" (ref, checked, onChange and every input attribute go to it), drawn as a track and thumb; className and style go to the <label> around it. */
 export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("Switch", function Switch(props, ref) {
   const nameRef = useNameCheck("Switch", NAME_HOW.label, ref);   // warns when it has no accessible name
+  if (process.env.NODE_ENV !== "production" && (props as { label?: unknown }).label != null) warnOnce("label-prop", "Switch: label isn't one of its props, so it lands on the <input> as an attribute and names nothing. Put the text in children.", "label-prop:Switch");
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, "md");

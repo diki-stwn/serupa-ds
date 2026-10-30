@@ -84,6 +84,7 @@ jobs:
         run: |
           set -euo pipefail
           in="$RUNNER_TEMP/baselines"
+          mkdir -p "$in/files"; touch "$in/deleted.txt"   # an empty upload carries neither
           png='^tools/test/baseline-visual/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*\.png$'
           fail() { echo "::error::$1"; exit 1; }
           inside() { case "$(realpath -m -- "$1")" in "$GITHUB_WORKSPACE/tools/test/"*) ;; *) fail "$1 leads outside tools/test/";; esac; }

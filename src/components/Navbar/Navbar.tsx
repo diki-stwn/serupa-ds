@@ -45,6 +45,11 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
   const sds = useSettings();
   const rest = omit(props, { brand: 1, children: 1, actions: 1, sticky: 1, size: 1, menuLabel: 1, className: 1, "aria-label": 1, onKeyDown: 1, onBlur: 1 });
   const [open, setOpen] = React.useState(false);
+  // Closing, the panel stays after the menu button until it has faded out, then goes back between brand and actions.
+  const [leaving, setLeaving] = React.useState(false);
+  const panel = React.useRef<HTMLElement | null>(null);
+  const [was, setWas] = React.useState(open);
+  if (was !== open) { setWas(open); setLeaving(!open); }
   const toggle = React.useRef<HTMLButtonElement>(null);
   const bar = React.useRef<HTMLElement | null>(null);
   const id = domId("dk-nav", React.useId());
@@ -102,11 +107,20 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     if (props.onBlur) props.onBlur(e);
     if (open && e.relatedTarget instanceof Node && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
   }
+  // The fade out ends on transitionend; with nothing to fade (a wide screen) or no event, the panel goes back anyway.
+  React.useEffect(() => {
+    if (!leaving) return;
+    const n = panel.current, s = n ? getComputedStyle(n) : null;
+    const ms = s && s.display !== "none" ? Math.max(...s.transitionDuration.split(",").map((d) => parseFloat(d) * (d.trim().endsWith("ms") ? 1 : 1000))) : 0;
+    const t = window.setTimeout(() => setLeaving(false), ms > 0 ? ms + 50 : 0);
+    return () => window.clearTimeout(t);
+  }, [leaving]);
   // While the small-screen menu is open, the links come after the menu button in the DOM, as they do on screen
   // (the panel opens under the bar), so Tab goes from the button into them. Closed, and on wide screens, they sit
   // between the brand and the actions.
   const nav = hasLinks ? (
-    <nav id={id} aria-label={props["aria-label"] || sds.labels.mainNavigation} className="dk-navbar__nav">
+    <nav ref={panel} id={id} aria-label={props["aria-label"] || sds.labels.mainNavigation} className="dk-navbar__nav" inert={leaving || undefined}
+      onTransitionEnd={(e) => { if (e.target === e.currentTarget && e.propertyName === "opacity" && !open) setLeaving(false); }}>
       <ul className="dk-navbar__links">{links.map((c, i) => <li key={React.isValidElement(c) && c.key != null ? c.key : i}>{c}</li>)}</ul>
     </nav>
   ) : null;
@@ -115,13 +129,13 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
       <header {...rest} ref={(n) => { bar.current = n; setRef(ref, n); }} onKeyDown={onKeyDown} onBlur={onBlur} data-component="navbar" data-state={open ? "open" : "closed"} className={cn("dk-navbar", props.sticky && "dk-navbar--sticky", props.className)}>
         <div className={cn("dk-navbar__inner dk-container dk-container--padded", "dk-container--" + size)}>
           {props.brand != null ? <div className="dk-navbar__brand">{props.brand}</div> : null}
-          {open ? null : nav}
+          {open || leaving ? null : nav}
           {props.actions != null ? <div className="dk-navbar__actions">{props.actions}</div> : null}
           {hasLinks ? (
             <IconButton ref={toggle} className="dk-navbar__toggle" icon={open ? icons.Close : icons.Menu} label={props.menuLabel || sds.labels.menu} noTitle
               aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)} />
           ) : null}
-          {open ? nav : null}
+          {open || leaving ? nav : null}
         </div>
       </header>
     </NavbarContext.Provider>

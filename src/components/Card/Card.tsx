@@ -69,8 +69,9 @@ export const Card = /* @__PURE__ */ component<HTMLElement, CardProps>("Card", fu
     return e.currentTarget.querySelector<HTMLAnchorElement>(".dk-card__link");
   };
   // A browser treats a click it didn't make as a plain one, so a Ctrl, Cmd or Shift click, or a middle click, would
-  // navigate this tab away instead of opening another: open the other tab here (ER1).
-  const away = (a: HTMLAnchorElement) => window.open(a.href, "_blank", "noopener");
+  // navigate this tab away instead of opening another: open the other tab here (ER1). Only for a web, mailto or tel
+  // link: a javascript: URL (React's blocked one, or a data: URL) would just open a blank tab (GR13).
+  const away = (a: HTMLAnchorElement) => { if (/^(https?|mailto|tel):$/.test(a.protocol)) window.open(a.href, "_blank", "noopener"); };
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
     if (own) own(e);
     const a = target(e);

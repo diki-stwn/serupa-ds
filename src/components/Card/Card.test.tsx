@@ -192,6 +192,18 @@ describe('Card', () => {
     open.mockRestore();
   });
 
+  test('a Ctrl or middle click opens another tab only for a web, mailto or tel link: not for a javascript: URL, which React blocks anyway (GR13)', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    await render(<><Card id="js" href={'javascript:void(0)'}><CardHeader title="Script" /><CardBody><p id="jsp">Body</p></CardBody></Card>
+      <Card id="mail" href="mailto:hi@example.com"><CardHeader title="Mail" /><CardBody><p id="mailp">Body</p></CardBody></Card></>);
+    for (const id of ['jsp', 'mailp']) {
+      el(id).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
+      el(id).dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+    }
+    expect(open.mock.calls.map((c) => c[0])).toEqual(['mailto:hi@example.com', 'mailto:hi@example.com']);
+    open.mockRestore();
+  });
+
   test('hover: a border-strong border', async () => {
     await render(<Card id="lnk" href="#here"><CardHeader title="Atlas" description="Updated" /></Card>);
     const before = css(el('lnk')).borderTopColor, strong = color('var(--border-strong)');

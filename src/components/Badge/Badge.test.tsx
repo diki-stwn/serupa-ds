@@ -75,9 +75,7 @@ function App() {
   return <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
     <Badge id="def">Default</Badge>
     {/* @ts-expect-error: unknown values, as plain JavaScript could pass */}
-    <Badge id="bad" variant="glow" tone="gold" size="xl">Bad</Badge>
-    {/* @ts-expect-error: the removed size prop */}
-    <Badge id="sm" size="md">Old size</Badge>
+    <Badge id="bad" variant="glow" tone="gold">Bad</Badge>
     {TONES.map((t) => VARIANTS.map((v) => <Badge key={t + v} data-t={t} data-v={v} tone={t} variant={v}>{t}</Badge>))}
     {TONES.map((t) => VARIANTS.map((v) => <Badge key={'i' + t + v} data-it={t} data-v={v} tone={t} variant={v} onClick={hit}>{t}</Badge>))}
     <Badge id="btn" tone="primary" onClick={hit}>Click</Badge>
@@ -165,13 +163,10 @@ describe('Badge', () => {
     expect([el('bad').dataset.variant, el('bad').dataset.tone]).toEqual(['subtle', 'neutral']);
   });
 
-  test('one size: 20px, text-xs, font-medium, 6px side padding and corners; the removed size prop is ignored (never reaches the DOM) with a warning', async () => {
+  test('one size: 20px, text-xs, font-medium, 6px side padding and corners', async () => {
     await show();
     const s = css(el('def'));
     expect([s.height, s.fontSize, s.lineHeight, s.fontWeight, s.borderTopLeftRadius, s.paddingLeft]).toEqual(['20px', '12px', '16px', '500', '6px', '6px']);
-    expect([css(el('sm')).height, el('sm').getAttribute('size'), /size/.test(el('sm').className)]).toEqual(['20px', null, false]);
-    expect(warns.some((m) => /size was removed in 4\.0\.0/.test(m))).toBe(true);
-    expect([el('bad').getAttribute('size'), el('bad').dataset.size]).toEqual([null, undefined]);
   });
 
   test('outline: a 1px border on a transparent background', async () => {

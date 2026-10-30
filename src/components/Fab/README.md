@@ -51,7 +51,7 @@ const { Fab } = window.Serupa;
 | `id` | string | none | Goes to the root `<button>`. |
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element (24px) |
 | `label` | string | required | Shown next to the icon when extended; otherwise its `aria-label` and `title` |
-| `extended` | boolean | `false` | Shows the label: a 56px pill instead of a circle |
+| `extended` | boolean | `false` | Shows the label: a 56px pill instead of a circle. In a corner it is never wider than the screen less its offset on both sides, so a long label ends in an ellipsis |
 | `size` | `'md'` \| `'sm'` | `'md'` | 56px or 40px |
 | `position` | `'bottom-end'` \| `'bottom-start'` \| `'top-end'` \| `'top-start'` \| `'static'` | `'bottom-end'` | The corner of the screen it's fixed to, 24px in; start and end follow the text direction. `static` leaves it in the page for you to place |
 
