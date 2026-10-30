@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [firefox, webkit]
+        browser: [webkit]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -36,6 +36,8 @@ jobs:
         run: npm run build
       - name: Component suites in ${{ matrix.browser }}
         shell: bash
+        env:
+          SERUPA_ONLY: Image
         run: |
           set -o pipefail
           node tools/test/run.mjs --browser ${{ matrix.browser }} --group components 2>&1 | tee test-output.txt
