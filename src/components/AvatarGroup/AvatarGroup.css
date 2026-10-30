@@ -7,13 +7,17 @@
 .dk-avatar-group {
   --dk-avatar-group-overlap: var(--avatar-group-overlap-md, var(--spacing-3));
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
+  row-gap: var(--spacing-1);
+  /* Every item overlaps the one before it, the first one included, and the group gives that first overlap back as
+     padding, so a row that wraps (too many for a phone, GR4) starts each line at the same edge. */
+  padding-inline-start: var(--dk-avatar-group-overlap);
   vertical-align: middle;
 }
 .dk-avatar-group--xs, .dk-avatar-group--sm { --dk-avatar-group-overlap: var(--avatar-group-overlap-sm, var(--spacing-2)); }
 .dk-avatar-group--xl { --dk-avatar-group-overlap: var(--avatar-group-overlap-lg, var(--spacing-4)); }
-.dk-avatar-group__item { position: relative; display: inline-flex; }
-.dk-avatar-group__item + .dk-avatar-group__item { margin-inline-start: calc(var(--spacing-0) - var(--dk-avatar-group-overlap)); }
+.dk-avatar-group__item { position: relative; display: inline-flex; margin-inline-start: calc(var(--spacing-0) - var(--dk-avatar-group-overlap)); }
 .dk-avatar-group .dk-avatar__frame { box-shadow: 0 0 0 var(--avatar-group-ring-width, var(--border-width-2)) var(--avatar-group-ring, var(--surface)); }
 .dk-avatar-group__more > .dk-avatar__frame { background: var(--avatar-group-more-bg, var(--secondary)); color: var(--avatar-group-more-color, var(--text)); letter-spacing: var(--tracking-tight); }
 /* With showMore or onMore, "+N" is a button: no button chrome, a pointer, and the focus ring round the circle. */
