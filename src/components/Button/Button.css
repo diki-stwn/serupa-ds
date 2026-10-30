@@ -8,6 +8,7 @@
   justify-content: center;
   gap: var(--button-gap-md, var(--spacing-1\.5));
   white-space: nowrap;
+  min-inline-size: var(--spacing-0);   /* in a flex row too: it shrinks to its ellipsis rather than pushing its neighbours out (GR5) */
   max-inline-size: var(--sizing-full);   /* never wider than its container: a long label is cut with an ellipsis (below), or wraps with wrap */
   box-sizing: border-box;
   height: var(--button-height-md, var(--control-height-md));
@@ -109,7 +110,7 @@
 .dk-btn--wrap .dk-btn__label { overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 
 /* Icon only: a square at each size's height */
-.dk-btn--icon-only { padding: var(--spacing-0); width: var(--button-height-md, var(--control-height-md)); }
+.dk-btn--icon-only { flex-shrink: 0; padding: var(--spacing-0); width: var(--button-height-md, var(--control-height-md)); }   /* a fixed square: it never shrinks in a row (GR5) */
 .dk-btn--icon-only.dk-btn--size-sm { width: var(--button-height-sm, var(--control-height-sm)); }
 .dk-btn--icon-only.dk-btn--size-lg { width: var(--button-height-lg, var(--control-height-lg)); }
 

@@ -643,3 +643,19 @@ describe('Button long labels (DV1)', () => {
     expect([document.activeElement?.id, el('fits').hasAttribute('title'), el('named').hasAttribute('title'), el('wrapped').hasAttribute('title')]).toEqual(['grow', false, false, false]);
   });
 });
+
+describe('Button in a flex row at 288px (GR5)', () => {
+  test('a long label shrinks to its ellipsis instead of pushing its neighbour out; an icon-only button keeps its square; LTR and RTL', async () => {
+    const long = 'Download the quarterly financial report as PDF';
+    const row = (id: string, dir?: string) => <div id={id} dir={dir} style={{ display: 'flex', gap: '8px', width: '288px' }}>
+      <Button>{long}</Button><Button variant="outline">Cancel</Button><Button icon="close" aria-label="Close" />
+    </div>;
+    await render(<div>{row('gr5')}{row('gr5r', 'rtl')}</div>);
+    for (const id of ['gr5', 'gr5r']) {
+      const r = document.getElementById(id)!, [dl, cancel, close] = [...r.children] as HTMLElement[], box = r.getBoundingClientRect();
+      expect(r.scrollWidth).toBe(288);
+      for (const b of [dl, cancel, close]) { const x = b.getBoundingClientRect(); expect(x.left >= box.left - 0.5 && x.right <= box.right + 0.5).toBe(true); }
+      expect([dl.getAttribute('title'), close.getBoundingClientRect().width === close.getBoundingClientRect().height]).toEqual([long, true]);
+    }
+  });
+});
