@@ -2,7 +2,9 @@
    Progress: a bar (full width, 4, 8 or 12px thick, rounded ends) or a ring (24, 40 or 64px), with the done part
    in the tone's color on a secondary track. The bar can have a label row above it (the label, and the value at
    the end); the ring can show the value inside. The fill moves to a new value over 300ms. Indeterminate: a
-   segment slides across the bar, or a quarter arc turns; both stand still with reduced motion.
+   segment slides across the bar, or a quarter arc turns; both stand still with reduced motion. A label word longer
+   than the bar (a file name, a URL) breaks inside while the value keeps its width, so a 320px page doesn't scroll
+   sideways (WCAG 1.4.10).
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-progress {
@@ -18,9 +20,9 @@
 .dk-progress--danger { --dk-progress-fill: var(--progress-fill-danger, var(--danger)); }
 .dk-progress--bar { display: flex; flex-direction: column; gap: var(--progress-gap, var(--spacing-1\.5)); width: var(--sizing-full); }
 .dk-progress__header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--spacing-3); }
-.dk-progress__label { font-weight: var(--progress-label-weight, var(--font-medium)); min-width: var(--spacing-0); }
+.dk-progress__label { font-weight: var(--progress-label-weight, var(--font-medium)); min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-progress__value { color: var(--progress-value-color, var(--text-muted)); font-variant-numeric: tabular-nums; }
-.dk-progress__header .dk-progress__value { margin-inline-start: auto; }
+.dk-progress__header .dk-progress__value { flex-shrink: 0; margin-inline-start: auto; }
 .dk-progress--bar .dk-progress__track {
   position: relative; overflow: hidden; height: var(--dk-progress-h);
   border-radius: var(--progress-radius, var(--rounded-full)); background: var(--progress-track, var(--secondary));

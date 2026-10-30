@@ -2,7 +2,7 @@
 // opens the issue (or updates the open one) with the failing tests per browser; a green run closes it. Without it a
 // red night only wrote a job summary that nobody opens. The workflow's report job runs it on scheduled runs only.
 //   node tools/nightly-issue.mjs <folder the run's artifacts were downloaded to> <components job result>
-// GH_TOKEN must allow writing issues; GITHUB_REPOSITORY, GITHUB_SERVER_URL and GITHUB_RUN_ID come from Actions.
+// GH_TOKEN must allow writing issues (with issues turned off for the repository, the list goes on the run's summary); GITHUB_REPOSITORY, GITHUB_SERVER_URL and GITHUB_RUN_ID come from Actions.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -42,17 +42,24 @@ function main(dir, result) {
   const gh = (...args) => execFileSync('gh', args, { encoding: 'utf8' }).trim();
   const { GITHUB_SERVER_URL: server, GITHUB_REPOSITORY: repo, GITHUB_RUN_ID: id } = process.env;
   const runUrl = `${server}/${repo}/actions/runs/${id}`;
+  const results = {};
+  for (const browser of ['firefox', 'webkit']) {
+    const file = path.join(dir, `test-output-${browser}`, 'test-output.txt');
+    results[browser] = fs.existsSync(file) ? failures(fs.readFileSync(file, 'utf8')) : null;
+  }
+  // With issues turned off for the repository there's nowhere to keep the issue: the list goes on the run's summary
+  // page instead, and the run stays red through its components job, not through this one.
+  if (!JSON.parse(gh('repo', 'view', repo, '--json', 'hasIssuesEnabled')).hasIssuesEnabled) {
+    if (result !== 'success' && process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${body(results, runUrl)}\n`);
+    console.log(`Issues are turned off for ${repo}: ${result === 'success' ? 'green, nothing to report' : 'the failing tests are on the run\'s summary'}.`);
+    return;
+  }
   const open = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'open', '--search', `"${TITLE}" in:title`, '--json', 'number,title'))
     .find((i) => i.title === TITLE);
   if (result === 'success') {
     if (open) gh('issue', 'close', String(open.number), '--repo', repo, '--comment', `Green again in [this run](${runUrl}).`);
     console.log(open ? `Closed #${open.number}.` : 'Green, and no issue is open.');
     return;
-  }
-  const results = {};
-  for (const browser of ['firefox', 'webkit']) {
-    const file = path.join(dir, `test-output-${browser}`, 'test-output.txt');
-    results[browser] = fs.existsSync(file) ? failures(fs.readFileSync(file, 'utf8')) : null;
   }
   const notes = path.join(dir, 'issue.md');
   fs.writeFileSync(notes, body(results, runUrl));
