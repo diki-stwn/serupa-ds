@@ -57,6 +57,19 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
 type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: Intl.DateTimeFormat; full: Intl.DateTimeFormat; month: Intl.DateTimeFormat };
 // module state: a cache by locale.
 const FORMATS = new Map<string, Formats>();
+// The weekday headers' format: "short", or "narrow" where short is no shorter than the full name (Arabic, Persian:
+// الأربعاء in a 32px column) or two words (Hebrew יום ד׳, Vietnamese Thứ 4), so the names don't run together (GR6).
+// Not where narrow falls back to English letters (Urdu, Pashto), which would read as another language.
+function header(locale: string): Intl.DateTimeFormat {
+  const fmt = (o: Intl.DateTimeFormatOptions, at = locale) => new Intl.DateTimeFormat(at, o);
+  const short = fmt({ weekday: "short" }), long = fmt({ weekday: "long" }), narrow = fmt({ weekday: "narrow" });
+  const week = Array.from({ length: 7 }, (_, i) => new Date(2025, 2, 2 + i));
+  const names = (f: Intl.DateTimeFormat) => week.map((d) => f.format(d)).join("|");
+  const wide = week.some((d) => short.format(d) === long.format(d) || /\s/.test(short.format(d)));
+  const english = names(narrow) === names(fmt({ weekday: "narrow" }, "en")) && names(short) !== names(fmt({ weekday: "short" }, "en"));
+  return wide && !english ? narrow : short;
+}
+
 function formats(locale: string): Formats {
   let f = FORMATS.get(locale);
   if (!f) {
@@ -65,7 +78,7 @@ function formats(locale: string): Formats {
     const greg = { calendar: "gregory", numberingSystem: "latn" } as const;
     f = {
       title: new Intl.DateTimeFormat(locale, { ...greg, month: "long", year: "numeric" }),
-      short: new Intl.DateTimeFormat(locale, { weekday: "short" }),
+      short: header(locale),
       long: new Intl.DateTimeFormat(locale, { weekday: "long" }),
       full: new Intl.DateTimeFormat(locale, { ...greg, weekday: "long", year: "numeric", month: "long", day: "numeric" }),
       month: new Intl.DateTimeFormat(locale, { ...greg, month: "long" }),

@@ -224,3 +224,23 @@ describe('Calendar: long jumps and midnight (EM1)', () => {
     }
   });
 });
+
+describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
+  test('where the short name is the full name or two words, the header shows the narrow name, so each fits its 32px column and the grid stays 7 columns of 32px; screen readers still get the full name', async () => {
+    const at = new Date(2025, 2, 10);
+    await render(<div>{['ar-EG', 'fa-IR', 'he-IL', 'en-US'].map((l) => <div key={l} dir={l === 'en-US' ? 'ltr' : 'rtl'}><Calendar data-locale={l} locale={l} defaultMonth={at} /></div>)}</div>);
+    const sat = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(new Date(2025, 2, 8));
+    for (const l of ['ar-EG', 'fa-IR', 'he-IL', 'en-US']) {
+      const grid = q(`[data-locale="${l}"] [role=grid]`), heads = [...grid.querySelectorAll('th')];
+      expect(heads.map((th) => th.getBoundingClientRect().width)).toEqual(Array(7).fill(32));
+      for (const th of heads) {
+        const shown = th.querySelector('[aria-hidden]') as HTMLElement;
+        expect(shown.getBoundingClientRect().width).toBeLessThanOrEqual(32);
+        // The full name stays in abbr and the visually hidden text.
+        expect(th.getAttribute('abbr')).toBe(th.querySelector('.dk-visually-hidden')!.textContent);
+      }
+      if (l !== 'en-US') expect(heads.every((th) => (th.querySelector('[aria-hidden]')!.textContent!.length) < th.getAttribute('abbr')!.length)).toBe(true);
+      if (l === 'en-US') expect(heads.some((th) => th.textContent!.startsWith(sat))).toBe(true);
+    }
+  });
+});
