@@ -85,7 +85,7 @@ async function mount(ui: React.ReactElement, serverHtml?: string) {
 // What still lays out wrong here, until its fix lands (work queue GR10 to GR12, GR16b): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['Rating', 'Splitter', 'TreeView', 'Menu/LongLabels', 'Tabs/Overflow', 'Textarea/AutoResize']);
+const KNOWN = new Set(['Rating', 'Splitter', 'TreeView', 'Menu/LongLabels', 'Tabs/Overflow']);
 
 for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {
