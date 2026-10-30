@@ -35,7 +35,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 ## Behavior
 
-- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Digits alone work too, as typed on a number keypad: `11222025` or `112225` in en-US, `22112025` in de-DE, or `20251122`. A two-digit year is the one within 50 years of today: in 2026, `85` is 1985 and `30` is 2030, so birth dates and deadlines both read right.
+- People type in the locale's numeric order (11/22/2025 in en-US, 22.11.2025 in de-DE) or as `2025-11-22` anywhere. Digits alone work too, as typed on a number keypad: `11222025` or `112225` in en-US, `22112025` in de-DE, or `20251122`. A two-digit year is the one within 50 years of today: in 2026, `85` is 1985 and `30` is 2030, so birth dates and deadlines both read right. A date pasted with its month as a word reads too, in the locale or in English, in full or cut short: `12 Mei 2025`, `May 12, 2025`, `12. März 2025`.
 - The field always uses Gregorian years and Latin digits, so a date reads back as the same day in every locale: Thai shows 22/11/2025 rather than the Buddhist year 2568, and Persian shows 2025/11/22 rather than ۱۴۰۴/۰۹/۰۱. Digits typed in another script (٢٢/١١/٢٠٢٥) are read too. The calendar's month and weekday names stay in the locale.
 - The text is read on blur and on Enter. A date that can't be read, or one that can't be chosen, puts back the last good value. An empty field clears it.
 - A press anywhere on the box, on its side padding or past the calendar button, focuses the field with the caret at the end, as the text cursor over the box promises.
