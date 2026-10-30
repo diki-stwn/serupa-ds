@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { page } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Highlight, highlightRanges } from './Highlight';
 
@@ -71,5 +72,13 @@ describe('Highlight', () => {
     expect([css(o).fontWeight, css(o).textDecorationLine, css(i).fontWeight, css(i).textDecorationLine]).toEqual(['400', 'underline', '500', 'underline']);
     await render(<div role="option" aria-selected="false" style={{ fontWeight: 400 }}><Highlight id="w" query="">Paris</Highlight></div>);
     expect(Math.abs(el('w').getBoundingClientRect().width - before)).toBeLessThan(0.25);   // splitting the text can move it by a subpixel (5/32 px in WebKit); a bolder match adds whole pixels
+  });
+
+  test('a word longer than its box wraps, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await page.viewport(320, 640);
+    await render(<div id="box" style={{ width: '200px' }}><Highlight id="lt" query="kapitän">Donaudampfschifffahrtsgesellschaftskapitänskajüte, a cabin</Highlight></div>);
+    expect([el('box').scrollWidth <= 201, el('lt').getBoundingClientRect().width <= 201]).toEqual([true, true]);
+    expect(marks('lt')).toEqual(['kapitän']);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
 });
