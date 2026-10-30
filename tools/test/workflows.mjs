@@ -3,8 +3,9 @@
 // - text a pull request's author controls (branch name, title, body…) never goes straight into a run: script,
 //   only through env: (a branch called `x";curl …|sh;"` would run otherwise);
 // - no checkout keeps a token in .git/config (persist-credentials: false): a push passes its token to that one git call;
-// - a job that runs installed dependencies or the branch's own actions (npm ci, npx, uses: ./) gets no secrets, so a
-//   hijacked package or a pull request's code never runs beside a token that outlives the job;
+// - a job that runs installed dependencies or the branch's own actions (npm ci, npx, uses: ./) gets no secrets and no
+//   id-token: write, so a hijacked package or a pull request's code never runs beside a token that outlives the job
+//   or can sign for the repository;
 // - Dependabot waits 7 days before it offers a new release (cooldown).
 //   node tools/test/workflows.mjs
 import fs from 'node:fs';
@@ -55,6 +56,10 @@ for (const f of files) {
       const runs = job.some((l) => /\bnpm (ci|install|i)\b|\bnpx\b|^\s*-?\s*uses:\s*\.\//.test(l));
       const secret = job.findIndex((l) => /\$\{\{\s*secrets\./.test(l));
       if (runs) t(`${f}: job ${lines[h].trim().slice(0, -1)} runs dependencies, so it gets no secrets`, secret < 0, `line ${h + secret + 1}`);
+      // An OIDC token proves "this repository's workflow made it" to GitHub and other services (a build attestation,
+      // a cloud login), so code that can ask for one is as trusted as a secret.
+      const oidc = job.findIndex((l) => /^\s*id-token:\s*write\b/.test(l));
+      if (runs) t(`${f}: job ${lines[h].trim().slice(0, -1)} runs dependencies, so it can't ask for an OIDC token (id-token: write)`, oidc < 0, `line ${h + oidc + 1}`);
     }
   }
 }
