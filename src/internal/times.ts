@@ -49,7 +49,7 @@ export function timePattern(locale?: string, hour12?: boolean): string {
 // around a time ("ч." in bg, "ཆུ་ཚོད་" hour and "སྐར་མ་" minute in dz), lowercased without spaces, as typed text is.
 // module state: a cache by locale.
 const words = new Map<string, { am: string; pm: string; other: string[] }>();
-const squash = (x: string) => x.toLowerCase().replace(/\s+/g, "");
+const squash = (x: string) => x.normalize("NFKC").toLowerCase().replace(/\s+/g, "");
 function wordsOf(locale?: string): { am: string; pm: string; other: string[] } {
   const key = locale || "";
   let w = words.get(key);
@@ -69,7 +69,8 @@ function wordsOf(locale?: string): { am: string; pm: string; other: string[] } {
     such as "오후 2:05" (ko), "٢:٠٥ م" (ar-EG), "AM ৯.০৫" (as) or "۱۴:۰۵" (fa): digits in any script, the locale's words
     for AM and PM before or after the time, and its other words around a time ("ч." in bg) are read. Without am/pm, a 12-hour locale still reads 13–23 as afternoon; 1–11 stay morning. */
 export function parseTime(text: string, locale?: string): number | null {
-  let s = latinDigits(text).trim().toLowerCase().replace(/[\u200e\u200f\u061c]/g, "").replace(/\s+/g, "");
+  // NFKC first: a Japanese or Chinese IME in full-width mode types "１４：０５" or "２ＰＭ" (GR44).
+  let s = latinDigits(text.normalize("NFKC")).trim().toLowerCase().replace(/[\u200e\u200f\u061c]/g, "").replace(/\s+/g, "");
   if (!s) return null;
   let ap = "";
   const { am, pm, other } = wordsOf(locale);
