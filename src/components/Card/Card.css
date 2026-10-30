@@ -50,6 +50,10 @@
 .dk-card__link::after { content: ""; position: absolute; inset: var(--spacing-0); z-index: var(--z-0); border-radius: inherit; }
 .dk-card__link--cover { position: absolute; inset: var(--spacing-0); border-radius: inherit; }
 .dk-card__link--cover::after { content: none; }
+/* Pressed, the card shrinks, and a press held near its edge would end up outside it: Safari then drops :active and
+   the card springs back under the finger. So while pressed, the link (what takes the press) reaches a twelfth past
+   each edge, which covers any press scale down to about 86%. */
+.dk-card--link:active .dk-card__link::after, .dk-card--link:active .dk-card__link--cover { inset: calc(var(--spacing-0) - var(--sizing-1-12)); }
 .dk-card--link :is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-card__link) { position: relative; z-index: var(--z-10); }
 /* The text sits above the link's area too, so it can be selected and copied; a plain click on it still follows the link (Card.tsx). */
 .dk-card--link :is(.dk-card__description, .dk-card__body) { position: relative; z-index: var(--z-10); }

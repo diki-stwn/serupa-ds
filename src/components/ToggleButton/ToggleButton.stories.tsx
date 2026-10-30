@@ -49,7 +49,7 @@ export const LongLabel: Story = {
 };
 
 export const Sizes: Story = {
-  render: (args) => <div className="flex gap-3 items-center">
+  render: (args) => <div className="flex flex-wrap gap-3 items-center">
     {(['sm', 'md', 'lg'] as const).map((size) => <ToggleButton key={size} {...args} size={size}>Show grid, {size}</ToggleButton>)}
   </div>,
 };

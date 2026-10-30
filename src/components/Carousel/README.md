@@ -36,6 +36,7 @@ import { Carousel, Image } from "serupa-ds";
 - Use `loop` for photos with no natural order, and leave it off when the slides have a start and an end.
 - For a row of product cards or testimonials, show two or three at once with `perView`. Set it per screen width, such as `perView={{ base: 1, md: 2, lg: 3 }}`, so phones still get one at a time.
 - Turn off `dots` for 2 slides or when the arrows are enough, and `arrows` only when swiping or your own controls (`index` and `onIndexChange`) replace them.
+- The previous and next buttons sit over the slide's sides, 8px in and 32px wide. A picture can run under them, but give a slide with text at least 40px of inline padding while the arrows are on (`padding-inline: var(--spacing-10)`), or the buttons cover the ends of its lines on a phone. With `--carousel-arrow-offset` changed, that's the offset plus 32px.
 
 ## Behavior
 

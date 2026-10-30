@@ -34,6 +34,8 @@
     max-height: calc(var(--sizing-dvh) - var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16)))); overflow-y: auto; overscroll-behavior: contain; }
   .dk-navbar[data-state="open"] .dk-navbar__nav { display: block; }
   .dk-navbar__links { flex-direction: column; align-items: stretch; }
+  /* One link per line in the panel: a long label wraps, and an unbroken word breaks, rather than running out of it (WCAG 1.4.10). */
+  .dk-navbar__link { white-space: normal; overflow-wrap: anywhere; }
   .dk-navbar__toggle.dk-btn { display: inline-flex; flex-shrink: 0; }
   /* The brand gives way first, so wide actions never push the menu button off the screen (WCAG 1.4.10): a brand
      that doesn't fit ends in an ellipsis. Its link keeps its own box, so its focus ring isn't clipped. */

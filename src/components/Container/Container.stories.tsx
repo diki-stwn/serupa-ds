@@ -37,5 +37,5 @@ export const NotPadded: Story = {
 };
 
 export const LongText: Story = {
-  args: { size: 'prose', children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text">A long paragraph keeps to the container's width and wraps, and an unbroken word like DonaudampfschifffahrtsgesellschaftskapitänskajüteDonaudampfschifffahrtsgesellschaftskapitänskajüte breaks rather than pushing the page sideways.</div> },
+  args: { size: 'prose', children: <div className="rounded-md bg-surface-muted p-4 text-sm text-text wrap-anywhere">A long paragraph keeps to the container's width and wraps, and with the wrap-anywhere utility an unbroken word like DonaudampfschifffahrtsgesellschaftskapitänskajüteDonaudampfschifffahrtsgesellschaftskapitänskajüte breaks rather than pushing the page sideways.</div> },
 };

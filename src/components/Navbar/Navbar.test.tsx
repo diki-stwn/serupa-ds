@@ -152,6 +152,15 @@ describe('Navbar', () => {
     expect(el('brand').scrollWidth > el('brand').clientWidth).toBe(false);
   });
 
+  test('320px, menu open: a link with a long unbroken word wraps inside the panel, not cut off or scrolled sideways (RF1)', async () => {
+    await render(<Navbar id="nav" brand="Serupa"><NavbarLink href="#a">Dashboard</NavbarLink><NavbarLink href="#w" id="lw">Donaudampfschifffahrtsgesellschaftskapitänskajüte</NavbarLink></Navbar>);
+    await resize(320);
+    await userEvent.click(toggle());
+    await expect.poll(() => vis('#nav nav')).toBe(true);
+    const nav = q('#nav nav'), a = el('lw');
+    expect([nav.scrollWidth <= nav.clientWidth, a.scrollWidth <= a.clientWidth, Math.round(a.getBoundingClientRect().right) <= 320, document.documentElement.scrollWidth <= 320]).toEqual([true, true, true, true]);
+  });
+
   test('keyboard table: Enter or Space on the menu button opens or closes the menu (FH1)', async () => {
     await render(<Main />);
     await resize(500);
