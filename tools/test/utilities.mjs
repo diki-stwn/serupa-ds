@@ -67,6 +67,9 @@ await b.close();
 cleanup();
 
 if (update || !fs.existsSync(BASE)) {
+  // A hashed effect that changes prints what it is now, so a baseline update made on CI says what it rewrote.
+  const old = fs.existsSync(BASE) ? JSON.parse(fs.readFileSync(BASE, 'utf8')) : {};
+  for (const c of classes) if (c in old && old[c] !== now[c] && now[c].startsWith('#')) console.log('UPDATED  .' + c + '\n           now: ' + text[c]);
   fs.writeFileSync(BASE, JSON.stringify(now, null, 0).replace(/","/g, '",\n"'));
   console.log(`Baseline saved: ${classes.length} classes.`);
   process.exit(0);
@@ -83,7 +86,7 @@ for (const c of changed) {
     const was = parts(base[c]), is = parts(now[c] === '(no effect)' || now[c].startsWith('#') ? text[c] : now[c]);
     for (const d of was) if (!is.includes(d)) console.log('           - ' + d);
     for (const d of is) if (!was.includes(d)) console.log('           + ' + d);
-  } else console.log('           now: ' + (text[c] || '(no effect)').slice(0, 600));
+  } else console.log('           now: ' + (text[c] || '(no effect)'));   // whole, so a hash that changes shows what it hashes
 }
 for (const c of added) console.log('NEW      .' + c);
 for (const c of missing) console.log('MISSING  .' + c + '   (removing or renaming a class is a breaking change: major version)');
