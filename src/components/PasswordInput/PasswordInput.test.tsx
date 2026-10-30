@@ -191,6 +191,9 @@ describe('PasswordInput', () => {
       await userEvent.click(toggle('plong'));
       await expect.poll(() => [f.type, f.selectionStart, end() > 0 && Math.abs(f.scrollLeft - end()) <= 1]).toEqual([type, f.value.length, true]);
     }
+    // The component puts the caret back again on the next frame; in WebKit the poll can pass before that frame, which
+    // would then move the caret set below back to the end. A person can't press within a frame, so wait one out.
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     f.setSelectionRange(0, 0);
     f.scrollLeft = 0;
     await userEvent.click(toggle('plong'));
