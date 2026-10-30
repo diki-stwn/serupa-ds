@@ -220,6 +220,16 @@ describe('Stepper', () => {
     expect(dots('four').map((r) => r.width)).toEqual(Array(4).fill(32));
   });
 
+  test('eight steps in a grid or flex item of a 320px page with 16px gutters fit too: the stepper takes the 288px it is given, LTR and RTL (GN2b)', async () => {
+    const EIGHT = Array.from({ length: 8 }, (_, i) => ({ title: 'Step ' + (i + 1), description: 'Details for step ' + (i + 1) }));
+    const page = (id: string, style: React.CSSProperties, dir?: string) => <div id={id + '-page'} dir={dir} style={{ width: '320px', padding: '0 16px', boxSizing: 'border-box', ...style }}><Stepper id={id} steps={EIGHT} current={3} /></div>;
+    await render(<div>{page('gg', { display: 'grid' })}{page('gr', { display: 'grid' }, 'rtl')}{page('gf', { display: 'flex', flexDirection: 'column' })}</div>);
+    for (const id of ['gg', 'gr', 'gf']) {
+      await expect.poll(() => el(id).className).toMatch(/dk-stepper--tight/);
+      expect([el(id).clientWidth, el(id).scrollWidth, el(id + '-page').scrollWidth]).toEqual([288, 288, 320]);
+    }
+  });
+
   test('pressed: a step\'s indicator shrinks to 95% while its head is held, on scale alone, and springs back (ED1)', async () => {
     await withMotion(async () => {
       await render(<Stepper id="sp" steps={STEPS} current={2} onStepClick={() => {}} />);
