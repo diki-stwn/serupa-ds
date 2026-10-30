@@ -91,7 +91,11 @@ export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButto
       if (onCopyError) onCopyError(err);
     }
   };
-  const glyph = <Icon icon={copied ? icons.Check : icons.ContentCopy} className={cn("dk-copy-btn__icon", copied && "dk-copy-btn__icon--done")} />;
+  // Both icons share one cell and cross-fade (KW18): the copy icon gives way to the check as one icon changing.
+  const glyph = <span className="dk-copy-btn__icons">
+    <Icon icon={icons.ContentCopy} className="dk-copy-btn__icon dk-copy-btn__icon--copy" />
+    <Icon icon={icons.Check} className="dk-copy-btn__icon dk-copy-btn__icon--done" />
+  </span>;
   const common = {
     ...rest, ref: ref as React.Ref<HTMLElement>, onClick, variant: variant || "outline", size: size || "sm",
     "data-copied": copied ? "" : undefined, className: cn("dk-copy-btn", copied && "dk-copy-btn--copied", className),
