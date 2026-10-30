@@ -307,7 +307,10 @@ describe('SegmentedControl', () => {
       moves.forEach((x) => { x.pause(); x.currentTime = Number(x.effect!.getComputedTiming().duration) / 2; });
       expect([css(ind).scale, css(ind).transform]).toEqual(['none', 'none']);
       moves.forEach((x) => x.play());
-      await Promise.all(moves.map((x) => x.finished));
+      // The component settles on a timer of the transition's length, which the pause above doesn't hold back: when it
+      // fires first (WebKit), taking data-slide off cancels the transitions and finished rejects with AbortError. Either
+      // way the slide is over, and where it came to rest is checked below.
+      await Promise.all(moves.map((x) => x.finished.catch(() => {})));
       await expect.poll(() => ind.hasAttribute('data-slide')).toBe(false);
       expect(off('sl')).toEqual([0, 0]);
     });
