@@ -42,8 +42,8 @@ const LABELS = [2.6, 1.9];
 // 2.4 on 26 Oct 2026). It's data, not code, and grows a row at a time, so it has its own line: a country added is
 // a choice made here, not a few bytes lost in PhoneInput's own budget.
 const PHONE_DATA = 2.8;
-// Not made of component folders.
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2 };
+// Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set).
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.3 };
 // KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
 // comes along (512.7 on 25 Oct 2026). Icon's README and Getting started say so; this keeps the number in sight.
 const NO_SPLIT = 530;
