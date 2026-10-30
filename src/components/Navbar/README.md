@@ -41,6 +41,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 - The current page has `aria-current="page"` and a shaded background, not just a color change; in forced colors (Windows High Contrast), where the shading is dropped, an outline.
 - On small screens the menu button has `aria-expanded` and `aria-controls`. Escape closes the menu and returns focus to the button.
 - With the menu open, Tab goes from the button into the links, in the order they appear, since the panel opens under the bar: the links come after the button in the DOM while it's open. Tab past the last link, any move of focus out of the bar, or a press outside it closes the menu.
+- The panel fades in as it opens and unrolls down from the bar, over 150ms, and fades back out when it closes, as Popover and Menu do. While it fades out it stays after the button and can't be used. With reduced motion it only fades.
 - Links keep 4.5:1 on the bar, and the current page and hovered links on their shading, in all six themes (`Navbar.test.tsx`).
 
 ### Keyboard

@@ -46,6 +46,7 @@ const UNNAMED: Array<[string, () => React.ReactElement]> = [
   ['Progress', () => <Progress value={40} />],
   ['Meter', () => <Meter value={40} />],
   ['RadioGroup', () => <RadioGroup><Radio value="a">A</Radio></RadioGroup>],
+  ['Radio', () => <Radio value="a" />],
   ['DatePicker', () => <DatePicker />],
   ['ColorPicker', () => <ColorPicker swatches={['#ff0000']} />],
   ['Carousel', () => <Carousel label=""><div>One</div></Carousel>],
@@ -72,6 +73,7 @@ const NAMED: Array<[string, () => React.ReactElement]> = [
   ['Progress', () => <Progress value={40} label="Upload" />],
   ['Meter', () => <Meter value={40} label="Storage" />],
   ['RadioGroup', () => <Field group label="Plan"><RadioGroup><Radio value="a">A</Radio></RadioGroup></Field>],
+  ['Radio', () => <Radio value="a" aria-label="Standard" />],
   ['DatePicker', () => <Field label="Start"><DatePicker /></Field>],
   ['ColorPicker', () => <ColorPicker swatches={['#ff0000']} aria-label="Color" />],
   ['Carousel', () => <Carousel label="Photos"><div>One</div></Carousel>],
@@ -100,6 +102,18 @@ describe('accessible name warnings', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     await render(make());
     expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.includes('accessible name'))).toEqual([]);
+  });
+
+  // label= is how other libraries name these controls; here it lands on the <input> and names nothing (GR18).
+  test.each([
+    ['Radio', () => <Radio value="a" {...{ label: 'Standard' }}>Standard</Radio>],
+    ['Checkbox', () => <Checkbox {...{ label: 'Remember me' }}>Remember me</Checkbox>],
+    ['Switch', () => <Switch {...{ label: 'Wi-Fi' }}>Wi-Fi</Switch>],
+  ] as Array<[string, () => React.ReactElement]>)('%s given label= warns once to put the text in children', async (name, make) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<>{make()}{make()}</>);
+    const said = warn.mock.calls.map((c) => String(c[0])).filter((m) => m.includes('label-prop'));
+    expect(said).toEqual([expect.stringMatching(new RegExp('^' + name + ": label isn't one of its props.*Put the text in children"))]);
   });
 
   test('a range Slider names its thumbs itself, so it says nothing', async () => {
