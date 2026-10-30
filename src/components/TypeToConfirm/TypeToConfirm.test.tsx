@@ -64,7 +64,7 @@ describe('TypeToConfirm', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
-  test('an accent typed or pasted as a separate mark (e + ´) matches the same letter written as one (é), with or without caseSensitive (GR30)', async () => {
+  test('an accent typed or pasted as a separate mark (e + ´) matches the same letter written as one (é), with or without caseSensitive (GR40)', async () => {
     const screen = await render(<Confirm phrase="Café Ngọc" />);
     await userEvent.fill(parts('t').input, 'Cafe\u0301 Ngo\u0323c');
     await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
