@@ -28,6 +28,7 @@ const [day, setDay] = React.useState<Date | null>(null);
 - Block days with `min`, `max` and `isDateDisabled` so people see them before they pick, rather than refusing a day afterwards.
 - Set `autoFocus` only when the Calendar appears because people asked for it, such as in a panel they just opened.
 - Leave `locale` and `weekStartsOn` unset in most products so names and the first day follow the visitor's browser.
+- The weekday headers use the locale's short names, or its one-letter names where the short name is the full word or two words (Arabic, Persian, Hebrew, Vietnamese), so they fit their 32px columns. Screen readers always hear the full name.
 
 ## Behavior
 
