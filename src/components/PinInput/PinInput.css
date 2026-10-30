@@ -19,11 +19,12 @@
 .dk-pin-input--size-sm { --dk-pin-box: var(--pin-input-box-sm, var(--control-height-sm)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-pin-input--size-lg { --dk-pin-box: var(--pin-input-box-lg, var(--control-height-lg)); font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
 /* In a narrow container the boxes shrink together, staying square, down to 24px each, so six lg or eight md boxes
-   still fit a 320px screen (GJ3). */
-.dk-pin-input__boxes { display: inline-flex; align-items: flex-start; min-width: var(--spacing-0); gap: var(--pin-input-gap, var(--spacing-2)); }
+   still fit a 320px screen (GJ3). A longer code that doesn't fit even then wraps onto a second row, so the page
+   doesn't scroll sideways at 320px (RF1, WCAG 1.4.10). */
+.dk-pin-input__boxes { display: inline-flex; flex-wrap: wrap; align-items: flex-start; min-width: var(--spacing-0); gap: var(--pin-input-gap, var(--spacing-2)); }
 .dk-pin-input__box {
   position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
-  width: var(--dk-pin-box); min-width: var(--spacing-6); aspect-ratio: var(--aspect-square);
+  flex: auto; flex-basis: var(--spacing-6); width: var(--dk-pin-box); min-width: var(--spacing-6); max-width: var(--dk-pin-box); aspect-ratio: var(--aspect-square);
   border: var(--pin-input-border-width, var(--border-width-1)) solid var(--dk-pin-bd); border-radius: var(--pin-input-radius, var(--rounded-md));
   background: var(--pin-input-bg, var(--field)); color: var(--pin-input-text, var(--text)); font-weight: var(--font-medium);
   transition: border-color var(--motion-hover) var(--ease-move), box-shadow var(--motion-hover) var(--ease-move);
