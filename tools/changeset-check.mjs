@@ -11,6 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { parseChangeset } from './changesets.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const base = process.argv[2];
@@ -30,14 +31,28 @@ if (!shipping.length) { console.log('No change to what the package ships: no cha
 if (changesets.length) {
   const RANK = { patch: 1, minor: 2, major: 3 };
   const { name } = JSON.parse(fs.readFileSync(path.join(P, 'package.json'), 'utf8'));
-  const bumps = changesets.map((f) => (new RegExp(`["']?${name}["']?\\s*:\\s*(major|minor|patch)`).exec(fs.readFileSync(path.join(P, f), 'utf8')) || [])[1] || 'patch');
-  const bump = bumps.reduce((a, b) => (RANK[b] > RANK[a] ? b : a), 'patch');
+  // A changeset the release can't read (no front matter, or no bump for this package) fails here: counted as a patch,
+  // it would pass and then stop the Release workflow on main.
+  const read = changesets.map((f) => ({ f, ...parseChangeset(fs.readFileSync(path.join(P, f), 'utf8'), name) }));
+  const bad = read.filter((c) => c.error);
+  if (bad.length) {
+    console.log(`The release can't read ${bad.length > 1 ? 'these changesets' : 'this changeset'}:\n${bad.map((c) => `  ${c.f}: ${c.error}`).join('\n')}`);
+    console.log('\nSee .changeset/README.md for the format.');
+    process.exit(1);
+  }
+  const bump = read.map((c) => c.bump).reduce((a, b) => (RANK[b] > RANK[a] ? b : a), 'patch');
   // What the exported types lose and gain, from the API baseline (one .d.ts per component, its first line the export list).
   const api = changed.filter(([, f]) => /^tools\/test\/baseline-api\/[^/]+\.d\.ts$/.test(f));
-  const exportsOf = (ref, f) => { try { return (/^\/\/ exports: (.*)$/m.exec(execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8' })) || [])[1]?.split(', ') ?? []; } catch { return []; } };
+  // A file at a commit, or null when the commit doesn't have it (a new component, a token file not yet there). Any other
+  // failure, such as a base commit that isn't fetched, stops the check instead of reading as "no exports, no tokens".
+  const show = (ref, f) => {
+    const exists = execFileSync('git', ['ls-tree', '--name-only', ref, '--', f], { cwd: P, encoding: 'utf8' }).trim() !== '';
+    return exists ? execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8', maxBuffer: 64 << 20 }) : null;
+  };
+  const exportsOf = (ref, f) => (/^\/\/ exports: (.*)$/m.exec(show(ref, f) ?? '') || [])[1]?.split(', ') ?? [];
   const gone = api.flatMap(([, f]) => { const now = exportsOf('HEAD', f); return exportsOf(base, f).filter((e) => !now.includes(e)).map((e) => `${e} (${path.basename(f, '.d.ts')})`); });
   // Token names (with the font-* and text-* families the type scale makes) and utility class names at a commit.
-  const json = (ref, f) => { try { return JSON.parse(execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] })); } catch { return null; } };
+  const json = (ref, f) => { const text = show(ref, f); return text == null ? null : JSON.parse(text); };
   const tokensAt = (ref) => {
     const t = json(ref, 'tokens.json');
     if (!t) return new Set();
