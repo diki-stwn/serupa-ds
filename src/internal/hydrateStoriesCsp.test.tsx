@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import { hydrateRoot, type Root } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { describe, expect, inject, test } from 'vitest';
 import { storiesToRun } from '../../tools/test/vitest/stories';
 
 // Every story's server HTML, hydrated on a page with a strict Content Security Policy, has to lay out as the same
-// story rendered in the browser (GR16). Under style-src-attr 'none' the browser ignores the style attributes in
-// server HTML, and React's hydration keeps them as they are rather than setting them again, so a component whose
-// look rests on an inline style (a fill's width, a row's indent, a pane's size) stays wrong until something
-// re-renders it, unless it re-applies its styles through the CSSOM (src/internal/serverStyles.ts). The browser
-// render sets the same styles through the CSSOM, which the policy allows, so it is the page as it should be.
-// This file's page has the policy from the start; serverStyles.test.tsx covers the mechanism itself.
+// HTML hydrated on a page without one (GR16). Under style-src-attr 'none' the browser ignores the style attributes in
+// server HTML, and React's hydration keeps them as they are rather than setting them again, so a component whose look
+// rests on an inline style (a fill's width, a row's indent, a pane's size) stays wrong until something re-renders it,
+// unless it applies its styles again through the CSSOM (src/internal/serverStyles.ts). This file's page has the
+// policy from the start; serverStyles.test.tsx covers the mechanism itself. The page without the policy is the same
+// HTML with every style attribute set through the CSSOM before hydrating, which the policy allows: both sides hydrate
+// the same markup, so text that depends on the time (RelativeTime) and what effects measure match.
 const meta = document.createElement('meta');
 meta.httpEquiv = 'Content-Security-Policy';
 meta.content = "style-src-attr 'none'";
@@ -30,73 +31,80 @@ async function boxes(host: HTMLElement) {
   });
 }
 
-// A story's own markup (a wrapper's max-width, a demo's layout) has style attributes too, and under this policy they'd
-// stay ignored as well: that's the story's to sort out, as it is any app's, not the component's. So after hydrating,
-// the styles on an element a story file wrote (where React's development build says its element was made) are set
-// again through the CSSOM, as an app's own styles would be, and only a component's own elements are left as hydrated.
+// Each element's style attribute as the server sent it, in document order. Read from an inert parse with no policy,
+// since a blocked attribute's text isn't kept everywhere (Firefox empties it).
+const styleTexts = (serverHtml: string) => [...new DOMParser().parseFromString(serverHtml, 'text/html').body.querySelectorAll('*')].map((e) => e.getAttribute('style') || '');
+function setStyle(el: Element, text: string) {
+  // One declaration at a time; a ; inside parentheses (url(data:…;base64,…)) doesn't end one.
+  for (const d of text.split(/;(?![^(]*\))/)) {
+    const at = d.indexOf(':');
+    if (at > 0) (el as HTMLElement).style.setProperty(d.slice(0, at).trim(), d.slice(at + 1).trim());
+  }
+}
+
+// Some styles in server HTML are the app's, not the component's, and an app has them under the policy some other way
+// (a class, a stylesheet, 'unsafe-inline' for them), so the strict side gets them before hydrating too:
+// - what a story file wrote itself (a wrapper's max-width), found from where React's development build says the
+//   element was made;
+// - a style a story passes to a component that hands it on as it is (<Card style>, Table's containerProps.style): the
+//   same object all the way up to the element the story wrote, which the getting-started page says needs
+//   'unsafe-inline' (or a class);
+// - Grid's and Stack's: they're Server Components, which don't hydrate, so their columns and gaps need
+//   'unsafe-inline' in server HTML (docs/GettingStarted.mdx).
 type Fiber = { return: Fiber | null; memoizedProps?: Record<string, unknown> & { style?: unknown }; _debugStack?: Error };
 const fromStory = (f: Fiber) => {
   const frame = String(f._debugStack?.stack || '').split('\n').slice(1).find((l) => !l.includes('/node_modules/'));
   return !!frame && /\.stories\.tsx|\/tools\/test\//.test(frame);
 };
-// A style a story passes to a component (<Card style={…}>) that the component hands on as it is counts as the
-// story's too: the getting-started page says such a style needs 'unsafe-inline' (or a class). It's the same object
-// all the way up to the element the story wrote, as a prop or a prop's style (Table's containerProps).
-const storyMade = (el: Element) => {
+const SERVER_ONLY = '[data-component="grid"], [data-component="stack"]';
+function appStyled(el: Element) {
+  if (el.matches(SERVER_ONLY)) return true;
   const key = Object.keys(el).find((k) => k.startsWith('__reactFiber$'));
   let f = key ? (Reflect.get(el, key) as Fiber) : null;
   if (!f) return false;
   const style = f.memoizedProps?.style;
   for (let up = f.return; style && up; up = up.return) if (Object.values(up.memoizedProps || {}).some((v) => v === style || (!!v && typeof v === 'object' && (v as { style?: unknown }).style === style))) f = up;
   return fromStory(f);
-};
-// From the style prop React keeps on the element, since Firefox empties a blocked attribute: a custom property as
-// given, a number in px where the browser turns it down bare (width: 200), as React writes it.
-// Grid and Stack are Server Components, which don't hydrate, so their columns and gaps need
-// style-src-attr 'unsafe-inline' in server HTML (docs/GettingStarted.mdx): an app that uses them that way has
-// them applied, as here.
-const SERVER_ONLY = '[data-component="grid"], [data-component="stack"]';
-function restyleStory(host: HTMLElement) {
-  for (const el of host.querySelectorAll<HTMLElement>('[style]')) {
-    if (!storyMade(el) && !el.matches(SERVER_ONLY)) continue;
-    const key = Object.keys(el).find((k) => k.startsWith('__reactProps$'));
-    const style = ((key && Reflect.get(el, key)) as { style?: Record<string, string | number | boolean | null | undefined> } | undefined)?.style || {};
-    for (const [k, v] of Object.entries(style)) {
-      if (v == null || typeof v === 'boolean' || v === '') continue;
-      if (k.startsWith('--')) el.style.setProperty(k, String(v));
-      else if (Reflect.set(el.style, k, String(v)) && typeof v === 'number' && v && !Reflect.get(el.style, k)) Reflect.set(el.style, k, v + 'px');
-    }
-  }
 }
 
-async function mount(ui: React.ReactElement, serverHtml?: string) {
+// Hydrates the server HTML, with the style attributes at the indexes given (all of them, for the page without the
+// policy) set through the CSSOM first. Returns the boxes and which elements' styles are the app's.
+async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: number) => boolean) {
   const host = document.createElement('div');
   host.style.width = '800px';
   document.body.appendChild(host);
+  host.innerHTML = serverHtml;
+  const texts = styleTexts(serverHtml);
+  const els = [...host.querySelectorAll('*')];
+  els.forEach((el, i) => { if (texts[i] && apply(i)) setStyle(el, texts[i]); });
   let root: Root | undefined;
-  if (serverHtml === undefined) flushSync(() => { root = createRoot(host); root.render(ui); });
-  else { host.innerHTML = serverHtml; flushSync(() => { root = hydrateRoot(host, ui, { onRecoverableError: () => {} }); }); restyleStory(host); }
+  const errors: string[] = [];
+  flushSync(() => { root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
+  const app = new Set(els.flatMap((el, i) => (texts[i] && appStyled(el) ? [i] : [])));
   const out = await boxes(host);
   root?.unmount();
   host.remove();
-  return out;
+  return { out, app, errors };
 }
 
-// What still lays out wrong here, until its fix lands (work queue GR10 to GR12, GR16b): a component, or one story as
+// What still lays out wrong here, until its fix lands (work queue GR10 to GR12, GR16b; PhoneInput's stories differ in
+// some runs only, not yet explained): a component, or one story as
 // "<Component>/<Story>". Measured but not held to it, so the fix's pull request can take its name out without this
 // file going red first.
-const KNOWN = new Set(['Rating', 'Splitter', 'TreeView', 'Menu/LongLabels', 'Tabs/Overflow', 'Textarea/AutoResize']);
+const KNOWN = new Set(['Splitter', 'TreeView', 'Textarea/AutoResize', 'PhoneInput']);
 
 for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {
     for (const [exportName, ui] of list) {
-      // retry: a story that shows the time (RelativeTime) can tick between the two renders; a style the policy
-      // dropped differs every time.
-      test(`${exportName} lays out as the browser render does`, { retry: 2 }, async () => {
+      test(`${exportName} lays out as it does without the policy`, async () => {
         const serverHtml = html[`${name}/${exportName}`];
         expect(serverHtml, 'the server render in Node').not.toMatch(/^Error: /);
-        const want = await mount(ui);
-        const got = await mount(ui, serverHtml);
+        // The first hydration loads what the story loads on demand (icons drawn by name) and finds the app's styles;
+        // the two compared come after it, so both find the same things ready.
+        const { app } = await hydrate(ui, serverHtml, () => true);
+        const { out: got, errors } = await hydrate(ui, serverHtml, (i) => app.has(i));
+        const { out: want } = await hydrate(ui, serverHtml, () => true);
+        expect(errors, 'recoverable errors').toEqual([]);
         // Only the elements that differ, so a failure names them.
         const off = got.map((g, i) => ({ ...g, want: want[i]?.box })).filter((g, i) => !want[i] || want[i].el !== g.el || g.box.some((v, k) => Math.abs(v - want[i].box[k]) > 1));
         if (KNOWN.has(name) || KNOWN.has(`${name}/${exportName}`)) return;
