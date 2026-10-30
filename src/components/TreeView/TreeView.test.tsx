@@ -270,3 +270,16 @@ describe('TreeView', () => {
     await press(row('b'), () => expect(css(row('b')).backgroundColor).not.toBe(color('var(--pressed)')));
   });
 });
+
+describe('TreeView target size (GQ6)', () => {
+  test('a chevron is a 24px target (WCAG 2.5.8): a click 1.5px outside its 20px box still opens the item, and doesn\'t pick it', async () => {
+    const onValueChange = vi.fn();
+    await render(<Tree selectionMode="single" onValueChange={onValueChange} />);
+    const toggle = row('a').firstElementChild as HTMLElement, r = toggle.getBoundingClientRect();
+    expect([Math.round(r.width), Math.round(r.height)]).toEqual([20, 20]);
+    await userEvent.click(toggle, { position: { x: -1.5, y: 10 } });
+    expect([item('a').getAttribute('aria-expanded'), onValueChange.mock.calls.length]).toEqual(['true', 0]);
+    await userEvent.click(toggle, { position: { x: 21.5, y: 21.5 } });
+    expect(item('a').getAttribute('aria-expanded')).toBe('false');
+  });
+});

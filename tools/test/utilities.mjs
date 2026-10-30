@@ -37,6 +37,9 @@ const measure = ([list, internal]) => {
   const els = list.map((c) => { const w = document.createElement('section'); w.style.position = 'relative'; w.style.transform = 'translateZ(0)';   /* contains fixed elements too, so their position doesn't depend on the class's place in the list */ const d = document.createElement('div'); d.className = c; d.innerHTML = '<i>a</i><i>b</i>'; w.appendChild(d); host.appendChild(w); return d; });
   const B = getComputedStyle(base), B1 = getComputedStyle(base.firstChild);
   const props = []; for (let j = 0; j < B.length; j++) props.push(B[j]); for (const v of internal) if (!props.includes(v)) props.push(v);
+  // Chromium lists custom properties in an order that changes from run to run (--dk-mask-b-to-p came before or after
+  // --dk-mask-bottom on different CI runners), so they go last, by name, and an effect reads the same on every run.
+  props.sort((x, y) => (x.startsWith('--') ? 1 : 0) - (y.startsWith('--') ? 1 : 0) || (x.startsWith('--') && y.startsWith('--') ? (x < y ? -1 : x > y ? 1 : 0) : 0));
   const bv = {}, b1 = {}; props.forEach((p) => { bv[p] = B.getPropertyValue(p); b1[p] = B1.getPropertyValue(p); });
   return els.map((d) => {
     const s = getComputedStyle(d), s1 = getComputedStyle(d.firstChild); const o = [];
@@ -67,6 +70,9 @@ await b.close();
 cleanup();
 
 if (update || !fs.existsSync(BASE)) {
+  // A hashed effect that changes prints what it is now, so a baseline update made on CI says what it rewrote.
+  const old = fs.existsSync(BASE) ? JSON.parse(fs.readFileSync(BASE, 'utf8')) : {};
+  for (const c of classes) if (c in old && old[c] !== now[c] && now[c].startsWith('#')) console.log('UPDATED  .' + c + '\n           now: ' + text[c]);
   fs.writeFileSync(BASE, JSON.stringify(now, null, 0).replace(/","/g, '",\n"'));
   console.log(`Baseline saved: ${classes.length} classes.`);
   process.exit(0);
@@ -83,7 +89,7 @@ for (const c of changed) {
     const was = parts(base[c]), is = parts(now[c] === '(no effect)' || now[c].startsWith('#') ? text[c] : now[c]);
     for (const d of was) if (!is.includes(d)) console.log('           - ' + d);
     for (const d of is) if (!was.includes(d)) console.log('           + ' + d);
-  } else console.log('           now: ' + (text[c] || '(no effect)').slice(0, 600));
+  } else console.log('           now: ' + (text[c] || '(no effect)'));   // whole, so a hash that changes shows what it hashes
 }
 for (const c of added) console.log('NEW      .' + c);
 for (const c of missing) console.log('MISSING  .' + c + '   (removing or renaming a class is a breaking change: major version)');
