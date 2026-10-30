@@ -8,7 +8,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 <List variant="card" aria-label="Members">
   {people.map((p) => (
     <ListItem key={p.id} href={`/people/${p.id}`}
-      leading={<Avatar name={p.name} src={p.photo} size="sm" />}
+      leading={<Avatar name={p.name} src={p.photo} alt="" size="sm" />}
       title={p.name} description={p.email}
       trailing={<IconButton icon="more_horiz" label={`More for ${p.name}`} />} />
   ))}
@@ -44,6 +44,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 - It's a real list, so screen readers say how many rows there are, Safari's VoiceOver included (`role="list"` keeps the role it would drop from a list without bullets). Name it with `aria-label` when there's no heading over it.
 - A whole row is one link or button, named by its title and description; trailing actions are separate controls, so give them names that say which row they're for ("More for Ada Lovelace").
+- An Avatar beside a written name repeats it, so give it `alt=""`, as in the example above. Otherwise every row reads the name twice ("Ada Lovelace Ada Lovelace ada@example.com"). An icon beside a title that says the same is decorative too.
 - Selected rows have a bar and `aria-current` or `aria-pressed`, not only a background.
 - Titles and descriptions keep 4.5:1 on plain and shaded rows, and the selected bar 3:1, in all six themes (`List.test.tsx`).
 - **Keyboard:** an item with `href` or `onClick` has one Tab stop, its main area, where Enter (Space too for a button) acts. A disabled one is skipped. Controls in `trailing` are Tab stops of their own. Plain items add none.

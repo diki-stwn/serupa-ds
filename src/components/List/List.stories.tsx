@@ -17,7 +17,7 @@ const meta = {
   subcomponents: { ListItem },
   args: {
     'aria-label': 'Members',
-    children: people.map((p) => <ListItem key={p.name} leading={<Avatar name={p.name} size="sm" />} title={p.name} description={p.email} trailing={<Badge>{p.role}</Badge>} />),
+    children: people.map((p) => <ListItem key={p.name} leading={<Avatar name={p.name} alt="" size="sm" />} title={p.name} description={p.email} trailing={<Badge>{p.role}</Badge>} />),
   },
   argTypes: { variant: { control: 'inline-radio', options: ['plain', 'card'] }, children: { control: false } },
   render: (args) => <div style={{ maxWidth: 480 }}><List {...args} /></div>,
@@ -30,7 +30,7 @@ export const Playground: Story = {};
 export const Links: Story = {
   args: {
     variant: 'card',
-    children: people.map((p, i) => <ListItem key={p.name} href="#" selected={i === 0} leading={<Avatar name={p.name} size="sm" />} title={p.name} description={p.email}
+    children: people.map((p, i) => <ListItem key={p.name} href="#" selected={i === 0} leading={<Avatar name={p.name} alt="" size="sm" />} title={p.name} description={p.email}
       trailing={<IconButton icon="more_horiz" label={`More for ${p.name}`} size="sm" />} />),
   },
 };
@@ -60,8 +60,8 @@ export const Settings: Story = {
 export const LongText: Story = {
   args: {
     children: [
-      <ListItem key="a" leading={<Avatar name="Maria Magdalena von Hohenzollern" size="sm" />} title="Maria Magdalena von Hohenzollern-Sigmaringen" description="maria.magdalena.hohenzollern@example.com" trailing={<Badge>Administrator</Badge>} />,
-      <ListItem key="b" leading={<Avatar name="Grace Hopper" size="sm" />} title="Donaudampfschifffahrtsgesellschaftskapitänskajüte" description="no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example" trailing={<Badge>Editor</Badge>} />,
+      <ListItem key="a" leading={<Avatar name="Maria Magdalena von Hohenzollern" alt="" size="sm" />} title="Maria Magdalena von Hohenzollern-Sigmaringen" description="maria.magdalena.hohenzollern@example.com" trailing={<Badge>Administrator</Badge>} />,
+      <ListItem key="b" leading={<Avatar name="Grace Hopper" alt="" size="sm" />} title="Donaudampfschifffahrtsgesellschaftskapitänskajüte" description="no-place-to-break@Donaudampfschifffahrtsgesellschaftskapitänskajüte.example" trailing={<Badge>Editor</Badge>} />,
     ],
   },
   render: (args) => <div style={{ width: 260 }}><List {...args} /></div>,
