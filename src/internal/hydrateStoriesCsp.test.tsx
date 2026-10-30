@@ -125,3 +125,24 @@ for (const [name, list] of storiesToRun()) {
     }
   });
 }
+
+test('PROBE debug stacks in this engine', async () => {
+  const list = new Map(storiesToRun()).get('Slider')!;
+  const [exportName, ui] = list[0];
+  const serverHtml = html[`Slider/${exportName}`];
+  const host = document.createElement('div');
+  document.body.appendChild(host);
+  host.innerHTML = serverHtml;
+  const texts = styleTexts(serverHtml);
+  const els = [...host.querySelectorAll('*')];
+  let root: Root | undefined;
+  flushSync(() => { root = hydrateRoot(host, ui); });
+  const out = els.flatMap((el, i) => {
+    if (!texts[i]) return [];
+    const key = Object.keys(el).find((k) => k.startsWith('__reactFiber$'));
+    const f = key ? (Reflect.get(el, key) as Fiber) : null;
+    return [`${el.tagName}.${(el as HTMLElement).className} key=${!!key} app=${appStyled(el)} stack=${JSON.stringify(String(f?._debugStack?.stack || 'NONE').split('\n').slice(0, 5))}`];
+  });
+  root?.unmount(); host.remove();
+  expect(out).toEqual([]);
+});
