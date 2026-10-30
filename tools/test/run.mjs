@@ -3,7 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { HERE, PROJECT, affectedComponents, onlyComponents, withDependents } from './lib.mjs';
+import { HERE, PROJECT, affectedComponents, internalTestsFor, onlyComponents, withDependents } from './lib.mjs';
 
 const update = process.argv.includes('--update') ? ['--update'] : [];
 // --browser firefox|webkit runs the Playwright suites in that engine; --compat safari|firefox|webkitgtk adds the
@@ -41,17 +41,20 @@ const STORY_WIDE = ['hydrateStories', 'serverHtml', 'ariaStories', 'tabWalk', 'l
 // They go through the covered components' stories, so with none to go through (ErrorBoundary alone: its stories are
 // left out there, SKIP in vitest/stories.tsx) most would find no test at all and fail for it.
 const storied = !!only && [...only].some((n) => n !== 'ErrorBoundary' && fs.existsSync(path.join(PROJECT, 'src', 'components', n, `${n}.stories.tsx`)));
+// The components' own folders and the shared tests in src/internal/ that render one of them; with SERUPA_ONLY the
+// component tests (in English and in the second language) cover these.
+const covered = only ? [...[...only].map((n) => `src/components/${n}/`), ...internalTestsFor(only)] : [];
 const node = (g) => ([name, f, ...args]) => [name, 'node', [path.join(HERE, f), ...args], g];
 const vitest = (name, project, g, ...args) => [name, process.execPath, [path.join(PROJECT, 'node_modules', 'vitest', 'vitest.mjs'), 'run', '--project', project, ...args], g];
 const steps = [
   // The component tests next to each component (src/components/<Name>/<Name>.test.tsx), in a browser. Coverage
   // only on a full run: the floors in vitest.config.ts are for all of src/, which a few components can't reach.
   // With SERUPA_ONLY, the tests that go through every story (STORY_WIDE) run too, on those components' stories.
-  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...[...only].map((n) => `src/components/${n}/`), ...(storied ? STORY_WIDE : [])] : [])),
+  vitest('Component tests (Vitest)', 'components', 'components', ...(process.env.SERUPA_COVERAGE && !only ? ['--coverage'] : []), ...(only ? [...new Set([...covered, ...(storied ? STORY_WIDE : [])])] : [])),
   ...(process.env.CI && (!arg('--since') || only?.size) && !arg('--locale') ? [(() => {
     const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT, encoding: 'utf8' }).stdout.trim();
     const locale = LOCALES[parseInt(sha.slice(0, 8) || '0', 16) % LOCALES.length];
-    return [...vitest(`Component tests in ${locale} (Vitest)`, 'components', 'components', ...(only ? [...only].map((n) => `src/components/${n}/`) : [])), { SERUPA_LOCALE: locale }];
+    return [...vitest(`Component tests in ${locale} (Vitest)`, 'components', 'components', ...covered), { SERUPA_LOCALE: locale }];
   })()] : []),
   // --update first accepts the current API and utility classes as the baselines the checks compare with.
   ...(update.length ? [['Public API', 'api.mjs', ...update], ['Utility classes', 'utilities.mjs', ...update]].map(node('checks')) : []),
