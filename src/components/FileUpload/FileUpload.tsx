@@ -12,6 +12,7 @@ import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { announce } from "../../internal/announce";
+import { useFormReset } from "../../internal/useFormReset";
 import { en as words } from "./labels";
 
 export { formatFileSize };
@@ -203,12 +204,17 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     return () => { document.removeEventListener("dragover", stop); document.removeEventListener("drop", stop); };
   }, [still]);
 
+  // The form's reset empties the native input: an uncontrolled list empties with it (L8E6); a controlled one stays
+  // the app's, so its files go back on the input below.
+  const [resets, setResets] = React.useState(0);
+  useFormReset(input, () => { if (!controlled) setOwn([]); setRejected([]); setMissing(false); setResets((n) => n + 1); }, props.form);
+
   // Keep the native input's files in step with the list, so a form sends what's shown.
   React.useEffect(() => {
     const i = input.current;
     if (!i || typeof DataTransfer === "undefined") return;
     try { const dt = new DataTransfer(); files.forEach((f) => dt.items.add(f)); i.files = dt.files; } catch { /* older browsers: the input keeps what was picked */ }
-  }, [files]);
+  }, [files, resets]);
 
   // Only a drag that carries files lights the area up and can be dropped (not text or a link dragged across it).
   const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types || []).includes("Files");

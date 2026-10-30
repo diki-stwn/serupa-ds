@@ -52,7 +52,7 @@ toast.undo({ title: "Moved to trash", commit: () => deleteFile(file), onUndo: ()
 - For work that takes a while, show a toast with `autoDismiss: false` and replace it by `id` when the work is done, as above, or hand the work to `toast.promise`.
 - Render one `<Toaster>` for the whole app, and keep its `position` the same on every page. If two are mounted at once (one in a layout and one in a page), only the newer shows toasts, so none appears twice, and a development warning says so; when it unmounts, the older one takes over.
 - A burst can't bury the page: at most `limit` toasts show (3), and the same message again (same words and tone, with no `id` or `action`) adds a count to the toast that's showing ("Network error ×12") and starts its time over, rather than stacking. The stack stays clear of a phone's notch and home indicator. On a short screen, such as a phone in landscape, only as many as fit show, and the rest wait under the "+2 more" line, so none runs off the top or bottom. On a phone, a toast's action goes under the text, lined up with it, so the text keeps its width.
-- On a touch screen, swipe a toast sideways to dismiss it. It follows the finger and fades as it goes. Let go past a third of its width, or flick it, and it carries on at your finger's speed and closes. Otherwise it slides back. Its time stops while it's under your finger.
+- On a touch screen, swipe a toast sideways to dismiss it. It follows the finger and fades as it goes. Let go past a third of its width, or flick it (even gently), and it carries on at your finger's speed and closes. Otherwise it slides back. Its time stops while it's under your finger.
 
 ## Accessibility
 
