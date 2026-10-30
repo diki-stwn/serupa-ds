@@ -5,7 +5,7 @@
   "src/components/AvatarGroup/AvatarGroup.test.tsx": 14,
   "src/components/Badge/Badge.test.tsx": 28,
   "src/components/Breadcrumb/Breadcrumb.test.tsx": 8,
-  "src/components/Button/Button.test.tsx": 10,
+  "src/components/Button/Button.test.tsx": 8,
   "src/components/Calendar/Calendar.test.tsx": 3,
   "src/components/Card/Card.test.tsx": 4,
   "src/components/Carousel/Carousel.test.tsx": 12,
