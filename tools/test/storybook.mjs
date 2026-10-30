@@ -138,7 +138,7 @@ const REFLOW_KNOWN = new Set([
   'components-content-icon--common-icons', 'components-content-sortablelist--long-text',
   'components-layout-and-type-container--long-text',
   'components-layout-and-type-grid--overflow',
-  'components-layout-and-type-stack--overflow', 'components-navigation-navbar--overflow',
+  'components-navigation-navbar--overflow',
   'components-navigation-stepper--narrow', 'components-navigation-stepper--long-labels',
   'components-overlays-menu--submenus', 'guides-serupaprovider--default',
   'guides-serupaprovider--indonesian', 'guides-serupaprovider--nested',
