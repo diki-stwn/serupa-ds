@@ -75,7 +75,6 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 | `value` | string \| number \| null | | The picked radio's value (controlled). `null` picks none |
 | `defaultValue` | string \| number | | The value picked at first (uncontrolled) |
 | `onValueChange` | `(value, event) => void` | | Called with the picked radio's value and the change event, like SegmentedControl's and Tabs' |
-| `onChange` | `(value, event) => void` | | Deprecated: the old name for `onValueChange`. It still works, warns once in the console, and goes in the next major |
 | `name` | string | generated | The radios' name, for forms |
 | `orientation` | `'vertical'` \| `'horizontal'` | `'vertical'` | A stack 8px apart, or a wrapping row 16px apart |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | Every radio's size, unless one sets its own |

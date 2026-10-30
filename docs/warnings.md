@@ -58,10 +58,6 @@ FormattedNumber or `formatNumber` got options Intl rejects, such as a currency t
 
 PhoneInput was given a number starting with `+` or `00` and a calling code it doesn't know, so it reads the digits as a number in the current country. Add the country's row to `countries`.
 
-## radio-group-onchange
-
-RadioGroup's `onChange` is deprecated and goes in the next major version. Use `onValueChange`, which takes the same `(value, event)`.
-
 ## relative-time-date
 
 A RelativeTime whose `date` isn't a date (a typo, an empty string, a format `Date` can't read) shows nothing, with no other sign. Pass a `Date`, a timestamp in milliseconds, or an ISO string such as `"2026-10-24T09:30:00Z"`.
