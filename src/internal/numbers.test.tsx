@@ -12,7 +12,7 @@ describe('typed numbers', () => {
     expect(parseNumber(text, locale)).toBe(n);
   });
 
-  test('typed in full width by a Japanese or Chinese IME, the same number, sign included: "－１，５００．５" is -1500.5 (GR44)', () => {
+  test('typed in full width by a Japanese or Chinese IME, the same number, sign included: "－１，５００．５" is -1500.5 (L8E1)', () => {
     expect([parseNumber('１，５００．５', 'ja'), parseNumber('－５', 'ja'), parseNumber('－１２．５', 'zh-CN'), parseNumber('１５００', 'en-US')]).toEqual([1500.5, -5, -12.5, 1500]);
   });
 

@@ -6,7 +6,7 @@ const LOCALES = ['ko', 'ar-EG', 'fa', 'en-US', 'ja', 'zh-CN', 'zh-TW', 'hi-IN', 
 const TIMES = [0, 5, 9 * 60 + 30, 12 * 60, 12 * 60 + 45, 14 * 60 + 5, 23 * 60 + 59];
 
 describe('typed times', () => {
-  test('typed in full width by a Japanese or Chinese IME: "１４：０５", "午後２：０５" and "２ＰＭ" read as they do in half width (GR44)', () => {
+  test('typed in full width by a Japanese or Chinese IME: "１４：０５", "午後２：０５" and "２ＰＭ" read as they do in half width (L8E1)', () => {
     expect([parseTime('１４：０５', 'ja'), parseTime('午後２：０５', 'ja'), parseTime('２ＰＭ', 'en-US'), parseTime('下午２：０５', 'zh-CN')]).toEqual([845, 845, 840, 845]);
   });
 

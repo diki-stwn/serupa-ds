@@ -289,7 +289,7 @@ describe('Sidebar', () => {
     expect([seen, el('gclick').getAttribute('aria-expanded')]).toEqual([['BUTTON'], 'true']);
   });
 
-  test('links go through the app\'s configure({ link }) component; as still wins for one item (BL1)', async () => {
+  test('links go through the app\'s configure({ link }) component; as still wins for one item (L8E1)', async () => {
     const Marked = React.forwardRef<HTMLAnchorElement, React.AnchorHTMLAttributes<HTMLAnchorElement>>(function Marked(p, r) { return <a {...p} ref={r} data-marked="" />; });
     const was = config.link;
     configure({ link: Marked });
