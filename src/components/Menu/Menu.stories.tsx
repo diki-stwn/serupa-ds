@@ -207,7 +207,7 @@ export const Submenus: Story = {
       <MenuItem icon="close">Close</MenuItem>
     </>,
   },
-  decorators: [frame({ minHeight: 360, paddingInlineEnd: 480 })],
+  decorators: [frame({ minHeight: 360 })],
 };
 
 // Opened (controlled) it shows at the target's corner; in the page a right-click opens it at the pointer.
