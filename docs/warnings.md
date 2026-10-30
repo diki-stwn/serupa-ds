@@ -18,10 +18,6 @@ A dot Badge with no label, icon or count is an indicator: too small to click or 
 
 A Badge with `onClick` or `href` is a button or a link, which can't hold another button, so its `onRemove` is ignored. Use one or the other.
 
-## badge-size
-
-Badge's `size` prop was removed in 4.0.0. Badges have one size (20px, `text-xs`). Remove the prop.
-
 ## button-icon-label
 
 A Button with only an icon has no text for a screen reader to say. Give it an `aria-label` (or `aria-labelledby`, or a `title`), or use IconButton, whose `label` is required.
