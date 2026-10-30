@@ -304,6 +304,17 @@ describe('FileUpload', () => {
     await expect.poll(() => document.activeElement && document.activeElement.closest('.dk-btn')).toBeTruthy();
     expect(document.activeElement).not.toBe(inp);
   });
+  test('L8E6: the form\'s reset empties the list with the input, and a controlled list keeps its files on the input', async () => {
+    function Kept() { const [files, setFiles] = React.useState<File[]>([]); return <FileUpload id="fk" multiple files={files} onFilesChange={setFiles} />; }
+    await render(<form id="fr"><FileUpload id="fo" multiple /><Kept /></form>);
+    const own = rootOf('fo'), kept = rootOf('fk');
+    await userEvent.upload(input(own), [file('a.pdf', 'application/pdf', 10), file('b.pdf', 'application/pdf', 10)]);
+    await userEvent.upload(input(kept), [file('c.pdf', 'application/pdf', 10)]);
+    await expect.poll(() => [items(own).length, items(kept).length]).toEqual([2, 1]);
+    (document.getElementById('fr') as HTMLFormElement).reset();
+    await expect.poll(() => items(own).length).toBe(0);
+    await expect.poll(() => [input(own).files!.length, items(kept).length, input(kept).files!.length]).toEqual([0, 1, 1]);
+  });
 
 });
 
