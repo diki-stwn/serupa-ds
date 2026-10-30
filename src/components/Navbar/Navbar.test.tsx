@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, forcedColors, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, keepMotion, press } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Navbar, NavbarLink } from './Navbar';
 
@@ -288,5 +288,24 @@ describe('Navbar', () => {
     await press(el('lp'), () => {
       expect([css(el('lp')).backgroundColor, css(el('lp')).transitionDuration.split(',')[0].trim()]).toEqual([color('var(--pressed)'), '0s']);
     });
+  });
+});
+
+describe('Navbar panel motion (GH2)', () => {
+  keepMotion();
+  test('the small-screen panel fades in, and fades out after the menu button before it goes back between brand and actions', async () => {
+    await resize(375);
+    await render(<Main />);
+    const nav = () => q('#nav nav');
+    const fades = () => nav().getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort().join();
+    await userEvent.click(toggle());
+    expect(fades()).toMatch(/opacity/);
+    await expect.poll(() => getComputedStyle(nav()).opacity).toBe('1');
+    await userEvent.keyboard('{Escape}');
+    // Closing: still shown, after the button and inert, while it fades.
+    expect([vis('#nav nav'), !!(toggle().compareDocumentPosition(nav()) & Node.DOCUMENT_POSITION_FOLLOWING), nav().inert]).toEqual([true, true, true]);
+    expect(fades()).toMatch(/opacity/);
+    await expect.poll(() => !!(toggle().compareDocumentPosition(nav()) & Node.DOCUMENT_POSITION_PRECEDING)).toBe(true);
+    expect([vis('#nav nav'), nav().inert]).toEqual([false, false]);
   });
 });
