@@ -441,6 +441,8 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
   // Swipe to dismiss (touch): sideways, it follows the finger and fades as it goes. Let go past a third of its width,
   // or flicked away, it carries on at the finger's speed (ease-fling, as Drawer and Carousel) and closes; otherwise
   // it slides back. The × stays the way to close it without a swipe (WCAG 2.5.1).
+  // A flick is anything faster than 0.2 px/ms the way it was dragged, the same as Drawer's: a gentle flick counts too.
+  const FLICK = 0.2;
   const drag = React.useRef<{ id: number; x: number; y: number; d: number; on: boolean; s: Samples } | null>(null);
   const onSwipeDown = (e: React.PointerEvent<HTMLLIElement>) => {
     if (leaving || e.pointerType !== "touch" || !e.isPrimary || (e.target as Element).closest("button, a, input, textarea, select")) return;
@@ -472,7 +474,7 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     setHeld(false);
     if (!g.on) return;
     const away = v * dir;   // px per ms, the way it was dragged
-    const out = e.type === "pointerup" && (away > 0.5 || (Math.abs(g.d) > w / 3 && away > -0.1));
+    const out = e.type === "pointerup" && (away > FLICK || (Math.abs(g.d) > w / 3 && away > -0.1));
     if (out && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       el.style.transition = ["translate", "opacity"].map((p) => p + " " + settleTime(w - Math.abs(g.d), Math.max(0, away)) + "ms var(--ease-fling)").join(", ");
       el.style.translate = dir * w + "px 0";
