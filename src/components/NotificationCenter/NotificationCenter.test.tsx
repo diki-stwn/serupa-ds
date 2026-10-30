@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { toast } from '../Toast/Toast';
@@ -98,6 +98,18 @@ describe('NotificationCenter', () => {
       expect(contrast(css(description).color, backdropOf(description)), th).toBeGreaterThanOrEqual(4.5);
       expect(contrast(css(dot).backgroundColor, backdropOf(dot.parentElement!)), th).toBeGreaterThanOrEqual(3);
     }
+  });
+
+  test('forced colors: the unread dot stays drawn, in CanvasText on the Canvas drawer (GR27)', async () => {
+    await render(<NotificationCenter defaultOpen items={list} />);
+    await expect.poll(() => drawer() !== null).toBe(true);
+    const dot = [...rows()[0].querySelectorAll<HTMLElement>('span[aria-hidden="true"]')].find((s) => !s.childElementCount)!;
+    await forcedColors(async (active) => {
+      if (!active) return;
+      // Compared as computed values: contrast() resolves colors through `color`, which forced colors also override.
+      const probe = (bg: string) => { const p = document.createElement('span'); p.style.cssText = 'forced-color-adjust:none;background:' + bg; document.body.append(p); const c = css(p).backgroundColor; p.remove(); return c; };
+      expect([css(dot).backgroundColor === probe('CanvasText'), css(dot).backgroundColor === probe('Canvas')]).toEqual([true, false]);
+    });
   });
 });
 
