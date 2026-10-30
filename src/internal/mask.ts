@@ -2,6 +2,8 @@
 // (an IBAN). 9 takes a digit, a a letter, A a letter in capitals, * a letter or digit; \ makes the next character
 // plain; anything else is shown as it is, between what's typed.
 
+import { latinDigits } from "./digits";
+
 type Slot = { take: RegExp; upper: boolean } | string;
 
 const SLOTS: Record<string, { take: RegExp; upper: boolean }> = {
@@ -28,11 +30,29 @@ const lead = (slots: Slot[]): string => {
   return s;
 };
 
-/** What was typed, without the mask's plain text: the letters and digits of text, after its leading plain text. */
+// Spaces and the marks numbers are written with, which the lead may be written with or without.
+const LOOSE = /[\s\-./()]/;
+
+// text after the mask's leading plain text, however that's spaced or punctuated: autofill and a pasted number give
+// "+6281…" or "+62-812…" for "+62 ", and those 6 and 2 aren't typed digits (L8E7). text as it is when it doesn't start
+// with the lead.
+function afterLead(start: string, text: string): string {
+  const want = Array.from(start).filter((c) => !LOOSE.test(c));
+  if (!want.length) return text;
+  let i = 0;
+  for (const c of want) {
+    while (i < text.length && LOOSE.test(text[i]) && text[i] !== c) i++;
+    if (text[i] !== c) return text;
+    i++;
+  }
+  return text.slice(i);
+}
+
+/** What was typed, without the mask's plain text: the letters and digits of text, after its leading plain text.
+    Digits come back as 0-9 whatever keyboard typed them (full-width, Arabic-Indic…), so the value is one a server reads. */
 export function unmask(slots: Slot[], text: string): string {
-  const start = lead(slots);
-  const body = start && text.startsWith(start) ? text.slice(start.length) : text;
-  return Array.from(body).filter((c) => /[\p{L}\p{Nd}]/u.test(c)).join("");
+  const t = latinDigits(text.normalize("NFKC"));
+  return Array.from(afterLead(lead(slots), t)).filter((c) => /[\p{L}\p{Nd}]/u.test(c)).join("");
 }
 
 /** typed (letters and digits) laid into the mask: each character goes in the next slot it fits (others are dropped),

@@ -54,10 +54,18 @@ function setStyle(el: Element, text: string) {
 //   'unsafe-inline' (or a class);
 // - Grid's and Stack's: they're Server Components, which don't hydrate, so their columns and gaps need
 //   'unsafe-inline' in server HTML (docs/GettingStarted.mdx).
-type Fiber = { return: Fiber | null; memoizedProps?: Record<string, unknown> & { style?: unknown }; _debugStack?: Error };
+type Fiber = { return: Fiber | null; memoizedProps?: Record<string, unknown> & { style?: unknown }; _debugStack?: Error; _debugOwner?: { type?: unknown } | null };
+// The library's components, and the render functions inside forwardRef and memo, by identity.
+const LIBRARY = new Set<unknown>(Object.values(await import('../index')).flatMap((v) => (v && (typeof v === 'object' || typeof v === 'function') ? [v, (v as { render?: unknown }).render, (v as { type?: unknown }).type] : [])).filter(Boolean));
 const fromStory = (f: Fiber) => {
-  const frame = String(f._debugStack?.stack || '').split('\n').slice(1).find((l) => !l.includes('/node_modules/'));
-  return !!frame && /\.stories\.tsx|\/tools\/test\//.test(frame);
+  // The first frame outside node_modules (a frame ends in :line:col; the "Error: …" header line doesn't).
+  const frame = String(f._debugStack?.stack || '').split('\n').find((l) => /:\d+:\d+\)?$/.test(l) && !l.includes('/node_modules/'));
+  if (frame) return /\.stories\.tsx|\/tools\/test\//.test(frame);
+  // WebKit runs ES modules with proper tail calls, so a story's arrow function that returns JSX (a decorator's
+  // wrapper) leaves no frame behind. Then the element's owner says it: made by one of the library's components, it
+  // is the component's; made by anything else, the story's.
+  const owner = f._debugOwner?.type;
+  return !!owner && !LIBRARY.has(owner);
 };
 const SERVER_ONLY = '[data-component="grid"], [data-component="stack"]';
 function appStyled(el: Element) {

@@ -8,6 +8,13 @@ import { idLabels } from '../../internal/labels';
 import { Input } from './Input';
 import { NumberInput } from '../NumberInput/NumberInput';
 import { Textarea } from '../Textarea/Textarea';
+import { Button } from '../Button/Button';
+import { Combobox } from '../Combobox/Combobox';
+import { SearchInput } from '../SearchInput/SearchInput';
+import { PasswordInput } from '../PasswordInput/PasswordInput';
+import { PhoneInput } from '../PhoneInput/PhoneInput';
+import { DatePicker } from '../DatePicker/DatePicker';
+import { TimePicker } from '../TimePicker/TimePicker';
 
 // The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
 const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
@@ -18,6 +25,25 @@ const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLE
 const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 
 describe('Input', () => {
+  test('the box takes its container\'s width in a grid and a flex row too, at 320px: it never pushes the page sideways or squeezes a button beside it (with flex-1); the fields built on it as well (GR23)', async () => {
+    const fields: [string, React.ReactNode][] = [
+      ['input', <Input aria-label="Kota" />], ['affixed', <Input aria-label="Harga" prefix="Rp" suffix="per bulan" showCount maxLength={20} />],
+      ['number', <NumberInput aria-label="Jumlah" />], ['search', <SearchInput aria-label="Cari" />], ['password', <PasswordInput aria-label="Sandi" />],
+      ['combobox', <Combobox aria-label="Negara" options={['Indonesia', 'Singapura']} />], ['phone', <PhoneInput aria-label="Telepon" defaultCountry="ID" />],
+      ['date', <DatePicker aria-label="Tanggal" />], ['time', <TimePicker aria-label="Jam" />],
+    ];
+    await render(<div style={{ width: '320px' }}>
+      {fields.map(([k, f]) => <div key={k} data-k={k} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>{f}{f}</div>)}
+      <div data-k="plain-row" style={{ display: 'flex', gap: '8px' }}><Input aria-label="Kode" prefix="#" /><Button>Pakai</Button></div>
+      <div data-k="row" style={{ display: 'flex', gap: '8px' }}><Input aria-label="Kode" prefix="#" className="flex-1" /><Button>Pakai</Button></div>
+      <Button id="natural">Pakai</Button>
+    </div>);
+    const wide = [...document.querySelectorAll<HTMLElement>('[data-k]')].filter((r) => r.scrollWidth > r.clientWidth || [...r.children].some((c) => Math.round(c.getBoundingClientRect().right - r.getBoundingClientRect().right) > 0)).map((r) => r.dataset.k);
+    const row = document.querySelector<HTMLElement>('[data-k=row]')!, button = row.lastElementChild!.getBoundingClientRect();
+    const label = [...row.querySelector('button')!.querySelectorAll<HTMLElement>('span')].find((s) => s.textContent === 'Pakai')!;   // its label
+    expect([wide, Math.round(button.width), label.scrollWidth > label.clientWidth]).toEqual([[], Math.round(document.getElementById('natural')!.getBoundingClientRect().width), false]);   // with flex-1, as the README says, the field takes what the button leaves
+  });
+
   test('prefix and suffix: muted text in the box around the field, heard after the field\'s own description; a press on one focuses the field; NumberInput takes them too', async () => {
     await render(<><span id="site-hint">Your shop</span>
       <Input id="site" aria-label="Website" prefix="https://" suffix=".com" aria-describedby="site-hint" />
@@ -335,6 +361,13 @@ describe('Input mask', () => {
     expect(seen.slice(0, 6)).toEqual(['4', '42', '424', '4242', '4242', '4242 4']);
   });
 
+  test('L8E3: digits typed on a full-width or Arabic-Indic keyboard go in as 0-9', async () => {
+    await render(<Input id="c2" aria-label="Card number" mask="9999 9999 9999 9999" />);
+    await userEvent.click(field('c2'));
+    await userEvent.keyboard('٤٢٤٢４２４２');
+    expect([field('c2').value, caret('c2')]).toEqual(['4242 4242', [9, 9]]);
+  });
+
   test('an edit in the middle keeps the caret after the same character; Backspace and Delete next to the pattern\'s text remove the typed character beyond it', async () => {
     await render(<Input id="d" aria-label="Date" mask="99/99/9999" defaultValue="01022024" />);
     expect(field('d').value).toBe('01/02/2024');
@@ -367,5 +400,12 @@ describe('Input mask', () => {
     field('phone').setSelectionRange(17, 17);
     await userEvent.keyboard('{Backspace}');
     expect(field('phone').value).toBe('+62 812-3456-789');
+  });
+
+  test('L8E7: a number autofilled or pasted with the mask\'s own prefix written differently ("+6281…", "+62-812…") isn\'t read as typed digits', async () => {
+    await render(<Input id="p2" aria-label="Phone" mask="+62 999-9999-9999" />);
+    const seen: string[] = [];
+    for (const v of ['+6281234567890', '+62-812-3456-7890', '+62  812 3456 7890', '81234567890']) { await userEvent.fill(field('p2'), v); seen.push(field('p2').value); }
+    expect(seen).toEqual(Array(4).fill('+62 812-3456-7890'));
   });
 });

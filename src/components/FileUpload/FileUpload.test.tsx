@@ -304,6 +304,17 @@ describe('FileUpload', () => {
     await expect.poll(() => document.activeElement && document.activeElement.closest('.dk-btn')).toBeTruthy();
     expect(document.activeElement).not.toBe(inp);
   });
+  test('L8E6: the form\'s reset empties the list with the input, and a controlled list keeps its files on the input', async () => {
+    function Kept() { const [files, setFiles] = React.useState<File[]>([]); return <FileUpload id="fk" multiple files={files} onFilesChange={setFiles} />; }
+    await render(<form id="fr"><FileUpload id="fo" multiple /><Kept /></form>);
+    const own = rootOf('fo'), kept = rootOf('fk');
+    await userEvent.upload(input(own), [file('a.pdf', 'application/pdf', 10), file('b.pdf', 'application/pdf', 10)]);
+    await userEvent.upload(input(kept), [file('c.pdf', 'application/pdf', 10)]);
+    await expect.poll(() => [items(own).length, items(kept).length]).toEqual([2, 1]);
+    (document.getElementById('fr') as HTMLFormElement).reset();
+    await expect.poll(() => items(own).length).toBe(0);
+    await expect.poll(() => [input(own).files!.length, items(kept).length, input(kept).files!.length]).toEqual([0, 1, 1]);
+  });
 
 });
 
@@ -378,6 +389,19 @@ describe('FileUpload: long file names (GR17)', () => {
     // The start ends where the end begins, with nothing lost or doubled, and a short name isn't cut at all.
     expect(rows.map((n) => { const [start, end, whole] = n.children; return [n.getAttribute('title'), start.textContent + end.textContent, whole.textContent, start.getAttribute('aria-hidden'), end.getAttribute('aria-hidden')]; })).toEqual(
       [LONG + '2025.pdf', LONG + '2026.pdf', 'a b.pdf'].map((n) => [n, n, n, 'true', 'true']));
+  });
+});
+
+describe('FileUpload as a grid or flex item (GR30)', () => {
+  test.each(['ltr', 'rtl'])('in a %s page at 320px, a long file name is cut in the middle and the FileUpload keeps to its grid cell or flex row', async (dir) => {
+    const name = 'laporan-keuangan-triwulan-ketiga-2026-final-revisi.pdf';
+    await render(<div dir={dir} style={{ width: 320 }}>
+      <div style={{ display: 'grid' }}><FileUpload id={'g-' + dir} readOnly files={[file(name, 'application/pdf', 10)]} /></div>
+      <div style={{ display: 'flex' }}><FileUpload id={'f-' + dir} readOnly files={[file(name, 'application/pdf', 10)]} /></div>
+    </div>);
+    const out = ['g-', 'f-'].map((k) => { const r = rootOf(k + dir).getBoundingClientRect(), p = rootOf(k + dir).parentElement!.getBoundingClientRect(); return [Math.round(r.left - p.left), Math.round(p.right - r.right)]; });
+    const cut = ['g-', 'f-'].map((k) => { const n = items(rootOf(k + dir))[0].querySelector('[title]')!; return n.children[0].scrollWidth > n.children[0].clientWidth; });
+    expect([out, cut]).toEqual([[[0, 0], [0, 0]], [true, true]]);
   });
 });
 

@@ -4,6 +4,7 @@ import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, Tabl
 import { Text } from '../Text/Text';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
+import { FormattedNumber } from '../FormattedNumber/FormattedNumber';
 
 const people = [
   { name: 'Ada Lovelace', role: 'Admin', status: 'Active', calls: 1204 },
@@ -24,7 +25,7 @@ function Rows({ selected }: { selected?: number }) {
             <TableCell>{p.name}</TableCell>
             <TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell>
             <TableCell><Badge tone={p.status === 'Active' ? 'success' : 'neutral'}>{p.status}</Badge></TableCell>
-            <TableCell align="end">{p.calls.toLocaleString('en')}</TableCell>
+            <TableCell align="end"><FormattedNumber value={p.calls} /></TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -60,7 +61,7 @@ export const SelectableRows: Story = {
       </TableRow></TableHead>
       <TableBody>{people.map((p) => <TableRow key={p.name} selected={picked.includes(p.name)}>
         <TableSelectCell label={'Select ' + p.name} checked={picked.includes(p.name)} onChange={() => toggle(p.name)} />
-        <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell><TableCell align="end">{p.calls.toLocaleString('en')}</TableCell>
+        <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell><TableCell align="end"><FormattedNumber value={p.calls} /></TableCell>
       </TableRow>)}</TableBody>
     </Table>;
   },
@@ -98,8 +99,8 @@ export const Sortable: Story = {
     return (
       <Table {...args}>
         <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell align="end" sort={sort} onSort={() => setSort(sort === 'ascending' ? 'descending' : 'ascending')}>Calls</TableHeaderCell></TableRow></TableHead>
-        <TableBody>{rows.map((p) => <TableRow key={p.name}><TableCell>{p.name}</TableCell><TableCell align="end">{p.calls.toLocaleString('en')}</TableCell></TableRow>)}</TableBody>
-        <TableFoot><TableRow><TableCell>Total</TableCell><TableCell align="end">{people.reduce((s, p) => s + p.calls, 0).toLocaleString('en')}</TableCell></TableRow></TableFoot>
+        <TableBody>{rows.map((p) => <TableRow key={p.name}><TableCell>{p.name}</TableCell><TableCell align="end"><FormattedNumber value={p.calls} /></TableCell></TableRow>)}</TableBody>
+        <TableFoot><TableRow><TableCell>Total</TableCell><TableCell align="end"><FormattedNumber value={people.reduce((s, p) => s + p.calls, 0)} /></TableCell></TableRow></TableFoot>
       </Table>
     );
   },
@@ -110,7 +111,7 @@ export const StickyHeader: Story = {
   render: (args) => (
     <Table {...args}>
       <TableHead><TableRow><TableHeaderCell>Invoice</TableHeaderCell><TableHeaderCell align="end">Amount</TableHeaderCell></TableRow></TableHead>
-      <TableBody>{Array.from({ length: 12 }, (_, i) => <TableRow key={i}><TableCell>INV-{1001 + i}</TableCell><TableCell align="end">${(120 + i * 37).toFixed(2)}</TableCell></TableRow>)}</TableBody>
+      <TableBody>{Array.from({ length: 12 }, (_, i) => <TableRow key={i}><TableCell>INV-{1001 + i}</TableCell><TableCell align="end"><FormattedNumber value={120 + i * 37} format="currency" currency="USD" /></TableCell></TableRow>)}</TableBody>
     </Table>
   ),
 };

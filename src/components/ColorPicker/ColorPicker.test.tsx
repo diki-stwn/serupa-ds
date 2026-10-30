@@ -305,6 +305,18 @@ describe('ColorPicker', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
   });
+  test('a hex code typed in full width by a Japanese or Chinese IME reads as the same color (L8E2)', () => {
+    expect([normalizeHex('＃１Ｄ４ＥＤ８'), normalizeHex('ａｂｃ'), normalizeHex('＃ＧＧＧ')]).toEqual(['#1d4ed8', '#aabbcc', null]);
+  });
+  test('L8E5: the Enter that confirms an input method\'s text doesn\'t pick a code that\'s still being typed', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    await userEvent.fill(hex(), 'f0a');
+    hex().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true, cancelable: true }));
+    expect([calls, hex().value]).toEqual([[], 'f0a']);
+    await userEvent.keyboard('{Enter}');
+    expect(calls).toEqual(['#ff00aa']);
+  });
   test('autoFocus focuses the checked swatch, not the wrapper', async () => {
     await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#fde047" autoFocus />);
     await expect.poll(() => document.activeElement).toBe(swatch('Yellow'));

@@ -33,7 +33,7 @@ import { PinInput, Field } from "serupa-ds";
 - Use `onComplete` to check the code as soon as the last box fills, and show any error with Field's `error`. Don't clear the code on an error, so people can fix one character.
 - It submits with a form through `name`, as an Input does. `required` and the built-in `pattern` (exactly `length` characters) take part in form validation.
 - `autoComplete="one-time-code"` is set for you, so phones offer a texted code above the keyboard. Pass `autoComplete="off"` for a PIN that shouldn't be filled in.
-- The code reads left to right, also on a right-to-left page.
+- The code reads left to right, also on a right-to-left page. Digits typed on an Arabic, Persian or Bengali keyboard, or full-width from a Japanese or Chinese IME (٤٥٦, ４５６), are kept as the ASCII digits they stand for, so the value is always 0–9 (and A–Z with `alphanumeric`).
 - In a narrow container the boxes shrink together and stay square, down to 24px each, so six `lg` or eight `md` boxes still fit a 320px screen. A longer code that doesn't fit even at 24px wraps onto a second row instead of making the page scroll sideways (WCAG 1.4.10).
 
 ## Accessibility

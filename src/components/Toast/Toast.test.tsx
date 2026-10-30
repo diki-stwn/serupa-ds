@@ -64,7 +64,7 @@ describe('Toast', () => {
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
-  test('swipe to dismiss: a touch drag sideways past a third, or a flick, carries on at the finger\'s speed on ease-fling and closes it; a short slow drag, a vertical one or a mouse drag leave it', async () => {
+  test('swipe to dismiss: a touch drag sideways past a third, or a flick (even a gentle one), carries on at the finger\'s speed on ease-fling and closes it; a short slow drag, a vertical one or a mouse drag leave it', async () => {
     await withMotion(async () => {
       await render(<App />);
       React.act(() => { toast({ title: 'Swipe me', duration: 0 }); });
@@ -92,6 +92,11 @@ describe('Toast', () => {
       await landed();
       await swipe(80, 0, { ms: 60 });
       expect([t().style.translate, t().style.transition.includes('var(--ease-fling)')]).toEqual([w + 'px', true]);
+      await expect.poll(titles).toEqual([]);
+      // A gentle flick (about 0.3 px/ms, well short of a third) closes it too.
+      React.act(() => { toast({ title: 'Nudge me', duration: 0 }); });
+      await landed();
+      await swipe(45, 0, { ms: 150 });
       await expect.poll(titles).toEqual([]);
     });
   });

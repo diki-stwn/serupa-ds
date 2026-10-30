@@ -16,4 +16,16 @@ describe('fold', () => {
     expect(fold('ｔｏｋｙｏ')).toBe('tokyo');
     expect(fold('Paris')).not.toContain(fold('lodz'));
   });
+
+  test('accents and Arabic and Hebrew points are ignored, but a vowel sign, tone mark or voicing mark makes another word (GR29)', () => {
+    expect([fold('مُحَمَّد') === fold('محمد'), fold('שָׁלוֹם') === fold('שלום'), fold('Đà Nẵng') === fold('da nang'), fold('ｶﾞｽ') === fold('ガス')]).toEqual([true, true, true, true]);
+    const differ = [['कम', 'काम'], ['दिल', 'दाल'], ['কম', 'কাম'], ['கடை', 'கோடை'], ['ไข่', 'ไข้'], ['カス', 'ガス']];
+    expect(differ.filter(([typed, label]) => fold(label).includes(fold(typed)))).toEqual([]);
+  });
+
+  test('Cyrillic й, ў and ї are letters, not и, у and і with an accent; ё still finds е, and Latin ă and ĭ fold as before (GR41)', () => {
+    const differ = [['мои', 'мой'], ['Сергеи', 'Сергей'], ['у', 'ў'], ['Киів', 'Київ'], ['йод', 'иод']];
+    expect(differ.filter(([typed, label]) => fold(label).includes(fold(typed)))).toEqual([]);
+    expect([fold('Ёлка') === fold('елка'), fold('ЙОД') === fold('йод'), fold('Brăila') === 'braila', fold('Ĭ') === 'i']).toEqual([true, true, true, true]);
+  });
 });
