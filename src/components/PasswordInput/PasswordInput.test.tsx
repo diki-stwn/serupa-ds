@@ -218,4 +218,37 @@ describe('PasswordInput', () => {
       expect(reach(b)).toEqual([true, true, true, true]);
     }
   });
+  test('PROBE GI4 and BW1 repeated', async () => {
+    const out: unknown[] = [];
+    const frames = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    for (let n = 0; n < 10; n++) {
+      const id = 'pg' + n, log: unknown[] = [];
+      await render(<div style={{ width: '220px' }}><PasswordInput id={id} aria-label="Password" defaultValue={'correct-horse-battery-staple-'.repeat(4)} /></div>);
+      const f = field(id), end = () => f.scrollWidth - f.clientWidth, t0 = performance.now();
+      const snap = (tag: string) => log.push([tag, Math.round(performance.now() - t0), f.type, f.selectionStart, f.selectionEnd, Math.round(f.scrollLeft)]);
+      f.addEventListener('select', () => snap('select'));
+      document.addEventListener('selectionchange', () => { if (document.activeElement === f) snap('sc'); });
+      toggle(id).addEventListener('click', () => snap('click'), true);
+      await userEvent.click(f);
+      f.setSelectionRange(f.value.length, f.value.length);
+      f.scrollLeft = end();
+      for (const type of ['text', 'password']) {
+        await userEvent.click(toggle(id));
+        await expect.poll(() => [f.type, f.selectionStart, end() > 0 && Math.abs(f.scrollLeft - end()) <= 1]).toEqual([type, f.value.length, true]);
+        snap('polled-' + type);
+      }
+      await frames();
+      snap('frames');
+      f.setSelectionRange(0, 0);
+      f.scrollLeft = 0;
+      snap('set0');
+      await userEvent.click(toggle(id));
+      snap('clicked');
+      await new Promise((r) => setTimeout(r, 300));
+      snap('end');
+      const last = log[log.length - 1] as unknown[];
+      out.push({ n, ok: last[3] === 0, log: last[3] === 0 ? undefined : log });
+    }
+    throw new Error('PWREP ' + JSON.stringify(out));
+  });
 });
