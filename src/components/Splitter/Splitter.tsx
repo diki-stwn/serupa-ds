@@ -78,14 +78,27 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   if (process.env.NODE_ENV !== "production" && panes.length !== 2) warnOnce("splitter-two", "Splitter: give it exactly two children, the two panes (it got " + panes.length + ").");
 
   const change = (n: number) => {
+    setSlide(null);
     const next = Math.round(n * 100) / 100;
     if (next === size) return;
     if (!controlled) { setOwn(next); save(storageKey, next); }
     if (onSizeChange) onSizeChange(next);
   };
   const collapsed = size === 0;
-  const toggle = () => { if (collapsible) change(size > 0 ? 0 : restore.current); };
   const rtl = (e: HTMLElement) => getComputedStyle(e).direction === "rtl";
+  // Enter or a double-click slides the first pane out and back (GN3b). The layout changes at once; the handle and the
+  // second pane start where they were and slide to where they are on translate, while the first pane's clip opens or
+  // closes with them (a closing one stays over its old place, inert, until then), so every frame is the compositor's.
+  // Not on mount, a drag or the keys' steps, and not when there's no transition to run (reduced motion).
+  const [slide, setSlide] = React.useState<{ to: "open" | "closed"; px: number; run: boolean } | null>(null);
+  const extent = (n: HTMLElement) => (direction === "horizontal" ? n.offsetWidth : n.offsetHeight);
+  const toggle = () => {
+    if (!collapsible) return;
+    const closing = size > 0;
+    change(closing ? 0 : restore.current);
+    const moves = paneB && parseFloat(getComputedStyle(paneB).transitionDuration) > 0;
+    setSlide(moves ? { to: closing ? "closed" : "open", px: closing && paneA ? extent(paneA) : 0, run: false } : null);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const horizontal = direction === "horizontal";
@@ -167,18 +180,37 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     if (paneA.contains(active) || ((!active || active === document.body) && focusedIn.current)) handle.current.focus();
     focusedIn.current = false;
   }, [collapsed, paneA]);
+  // every render: a slide waits for its size, then runs two frames on.
+  useIsoLayoutEffect(() => {
+    if (!slide || slide.run) return;
+    if ((slide.to === "closed") !== collapsed) { setSlide(null); return; }   // a parent that didn't follow
+    if (!slide.px) { if (paneA && extent(paneA)) setSlide({ ...slide, px: extent(paneA) }); else setSlide(null); return; }
+    let f = requestAnimationFrame(() => { f = requestAnimationFrame(() => setSlide({ ...slide, run: true })); });
+    return () => cancelAnimationFrame(f);
+  });
+  React.useEffect(() => {
+    if (!slide || !slide.run || !paneB) return;
+    const t = window.setTimeout(() => setSlide(null), Math.max(...getComputedStyle(paneB).transitionDuration.split(",").map((d) => parseFloat(d) * (d.trim().endsWith("ms") ? 1 : 1000))) + 100);
+    return () => window.clearTimeout(t);
+  }, [slide, paneB]);
+  const sliding = slide && slide.px ? slide : null;
+  const along = (v: number) => (direction === "horizontal" ? v + "px 0" : "0 " + v + "px");
+  const back = sliding && root.current && direction === "horizontal" && rtl(root.current) ? -1 : 1;
+  const shut = direction === "vertical" ? "inset(0 0 100% 0)" : back < 0 ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)";
+  const slideStyle = sliding ? { "--dk-splitter-from": along((sliding.to === "open" ? -sliding.px : sliding.px) * back), "--dk-splitter-px": sliding.px + "px", "--dk-splitter-shut": shut } as React.CSSProperties : null;
   return (
-    <div {...rest} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <div {...rest} style={slideStyle ? { ...rest.style, ...slideStyle } : rest.style} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
-      data-placing={placing || undefined} onPointerDownCapture={onPlace}>
-      <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}
+      data-placing={placing || undefined} data-slide={sliding ? (sliding.run ? "run" : "start") : undefined} data-slide-to={sliding ? sliding.to : undefined} onPointerDownCapture={onPlace}>
+      <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={(collapsed && !(sliding && sliding.to === "closed")) || undefined} inert={(collapsed && !!sliding) || undefined}
         onFocus={() => { focusedIn.current = true; }} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget) focusedIn.current = false; }}>{panes[0]}</div>
       <div ref={handle} role="separator" tabIndex={0} className="dk-splitter__handle" aria-orientation={direction === "horizontal" ? "vertical" : "horizontal"}
         aria-valuenow={Math.round(size)} aria-valuemin={collapsible ? 0 : Math.round(min)} aria-valuemax={Math.round(max)} aria-controls={first}
         aria-label={separatorLabel || sds.labels.resizePanes} data-state={collapsed ? "collapsed" : undefined}
         onKeyDown={onKeyDown} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onDoubleClick={toggle} onBlur={() => setPlacing(false)} />
-      <div ref={setPaneB} tabIndex={scrollsB ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--second">{panes[1]}</div>
+      <div ref={setPaneB} tabIndex={scrollsB ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--second"
+        onTransitionEnd={(e) => { if (e.target === e.currentTarget && e.propertyName === "translate" && slide && slide.run) setSlide(null); }}>{panes[1]}</div>
     </div>
   );
 });
