@@ -185,6 +185,9 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   React.useEffect(() => {   // in the browser only, once per page
     if (process.env.NODE_ENV !== "production" && ratio === "auto" && !sized) warnOnce("image-size", 'Image: with ratio "auto" and no width and height, the frame has no height until the picture loads, so the page jumps. Pass the picture\'s width and height, or a ratio.');
   }, [ratio, sized]);
+  // A fixed ratio with nothing sizing the picture (its className or style; the frame's own width wins anyway) takes the
+  // container's width, so the frame has its shape before the picture arrives and keeps it if it fails (GR21).
+  const fill = ratio !== "auto" && !className && !rest.style;
   const shape = typeof ratio === "number" ? { "--dk-image-ratio": String(ratio) } : sized ? { "--dk-image-ratio": w + " / " + h, width: w } : null;
   const frameStyle = shape ? { ...shape, ...(frameProps && frameProps.style) } as React.CSSProperties : frameProps && frameProps.style;
   // A picture that fails stays in the frame, hidden, under the fallback: what was passed to it (className, style, id,
@@ -205,7 +208,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
     : picture;
   return (
     <span {...frameProps} ref={restyle} style={frameStyle}
-      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", "dk-image--" + fit, dim && "dk-image--dim", rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
+      className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", fill && "dk-image--fill", "dk-image--" + fit, dim && "dk-image--dim", rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
       data-component="image" data-state={state}>
       {viewable && state !== "error"
         ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{shown}</button>
