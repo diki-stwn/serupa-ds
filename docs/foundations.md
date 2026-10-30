@@ -668,7 +668,7 @@ The numbered steps `z-0` … `z-50` and `z-auto` are for local stacking inside o
 | overflow | `overflow-auto` `-hidden` `-clip` `-visible` `-scroll`, and `overflow-x-*`, `overflow-y-*` |
 | overscroll-behavior | `overscroll-auto` `-contain` `-none`, and `overscroll-x-*`, `overscroll-y-*` |
 | position | `static` `fixed` `absolute` `relative` `sticky` |
-| top / right / bottom / left | `inset-<step>`, `inset-x-` `-y-` `-s-` `-e-` `-bs-` `-be-`, `top-` `right-` `bottom-` `left-` `start-` `end-` for every spacing step, fractions (`top-1/2`), `-full`, `-px`, `-auto`, and negatives (`-top-2`) |
+| top / right / bottom / left | `inset-<step>`, `inset-x-` `-y-` `-s-` `-e-` `-bs-` `-be-`, `top-` `right-` `bottom-` `left-` `start-` `end-` for every spacing step, fractions (`top-1/2`), `-full`, `-px`, `-auto`, and negatives (`-top-2`); `start-` and `end-` are the same as `inset-s-` and `inset-e-`, and follow the text direction |
 | visibility | `visible` `invisible` `collapse` |
 | z-index | `z-0` … `z-50`, `z-auto`, named layers `z-sticky` … `z-tooltip` (tokens), negatives `-z-10` |
 | containment | `contain-none` `-content` `-strict` `-size` `-inline-size` `-layout` `-paint` `-style` (the last five combine); `@container` and `@container-normal` mark a container for container queries |
