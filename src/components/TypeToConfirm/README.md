@@ -26,7 +26,7 @@ import { TypeToConfirm } from "serupa-ds";
 
 ## Behavior
 
-- The button takes no press until what's typed matches the phrase. Spaces around it don't count. Letter case must match unless `caseSensitive={false}`.
+- The button takes no press until what's typed matches the phrase. Spaces around it don't count. Letter case must match unless `caseSensitive={false}`. An accent typed or pasted as a separate mark ("e" + "´", as in macOS file names) matches the same letter written as one ("é"), but a missing accent doesn't.
 - Enter in the field confirms once it matches.
 - Pasting is allowed (WCAG 3.3.8): the point is reading the phrase, not retyping it.
 - The field turns off autocomplete, spellcheck, autocapitalize and autocorrect, which would change what's typed.

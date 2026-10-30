@@ -64,6 +64,17 @@ describe('TypeToConfirm', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
+  test('an accent typed or pasted as a separate mark (e + ´) matches the same letter written as one (é), with or without caseSensitive (GR40)', async () => {
+    const screen = await render(<Confirm phrase="Café Ngọc" />);
+    await userEvent.fill(parts('t').input, 'Cafe\u0301 Ngo\u0323c');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await screen.rerender(<Confirm phrase="Café Ngọc" caseSensitive={false} />);
+    await userEvent.fill(parts('t').input, 'CAFE\u0301 NGO\u0323C');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await userEvent.fill(parts('t').input, 'Cafe Ngoc');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe('true');
+  });
+
   test('disabled: the field and the button; Indonesian labels from the provider', async () => {
     const screen = await render(<Confirm disabled />);
     expect([parts('t').input.disabled, parts('t').button.getAttribute('aria-disabled') === 'true' || parts('t').button.disabled]).toEqual([true, true]);

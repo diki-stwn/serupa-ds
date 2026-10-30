@@ -39,7 +39,10 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
   const { phrase, confirmLabel, onConfirm, label, hint, caseSensitive, onMatch, disabled, className, ...rest } = props;
   const [text, setText] = React.useState("");
   const same = (a: string, b: string) => (caseSensitive === false ? a.toLocaleLowerCase() === b.toLocaleLowerCase() : a === b);
-  const matched = !!phrase && same(text.trim(), phrase.trim());
+  // Both in one Unicode form (NFC): "é" pasted from a macOS file name, or typed by some Vietnamese input methods, is
+  // "e" + an accent, and must still match the "é" in the phrase (GR40).
+  const nfc = (s: string) => s.trim().normalize("NFC");
+  const matched = !!phrase && same(nfc(text), nfc(phrase));
   const told = React.useRef(false);
   React.useEffect(() => {
     if (matched === told.current) return;
