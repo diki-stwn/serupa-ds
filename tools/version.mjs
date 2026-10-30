@@ -39,7 +39,7 @@ for (const f of files) {
 // Merge into Unreleased, keeping what's there and the section order.
 const logPath = path.join(P, 'CHANGELOG.md');
 const log = fs.readFileSync(logPath, 'utf8');
-const u = /^## \[Unreleased\]\n([\s\S]*?)(?=^## \[)/m.exec(log);
+const u = /^## \[Unreleased\]\n([\s\S]*?)(?=^## )/m.exec(log);
 if (!u) throw new Error('CHANGELOG.md: no "## [Unreleased]" section');
 const have = Object.fromEntries(SECTIONS.map((s) => [s, []]));
 let current = null;
