@@ -237,7 +237,7 @@ describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
         const shown = th.querySelector('[aria-hidden]') as HTMLElement;
         expect(shown.getBoundingClientRect().width).toBeLessThanOrEqual(32);
         // The full name stays in abbr and the visually hidden text.
-        expect(th.getAttribute('abbr')).toBe(th.querySelector('.dk-visually-hidden')!.textContent);
+        expect(th.getAttribute('abbr')).toBe(th.querySelector('span:not([aria-hidden])')!.textContent);
       }
       if (l !== 'en-US') expect(heads.every((th) => (th.querySelector('[aria-hidden]')!.textContent.length) < th.getAttribute('abbr')!.length)).toBe(true);
       if (l === 'en-US') expect(heads.some((th) => th.textContent.startsWith(sat))).toBe(true);
