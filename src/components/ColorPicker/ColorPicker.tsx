@@ -6,6 +6,7 @@ import { component } from "../../internal/component";
 import { colorName, contrastRatio, normalizeHex } from "../../internal/color";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { FieldContext } from "../../internal/field";
+import { isComposing } from "../../internal/ime";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { useFormReset } from "../../internal/useFormReset";
 import { useLocale, useSettings } from "../../internal/provider";
@@ -217,7 +218,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
             // A copied code often comes with a space or a newline, which maxLength would cut before it's trimmed.
             onPaste={(e) => { const t = e.clipboardData.getData("text").trim().replace(/^#/, ""); if (!normalizeHex(t)) return; e.preventDefault(); setText(t); setTried(false); if (t.length === 6) choose(t, false, false); }}
             onBlur={() => { typing.current = false; setTried(false); const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
-            onKeyDown={(e) => { if (e.key === "Enter") { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } else setTried(true); } }} />
+            onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e)) { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } else setTried(true); } }} />
         </div></FieldContext.Provider>
       ) : null}
       {props.contrastWith ? (
