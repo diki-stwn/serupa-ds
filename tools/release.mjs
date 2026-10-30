@@ -2,7 +2,9 @@
 // version into every file that names it.
 //
 // usage:  node tools/release.mjs 1.1.0            (or: major | minor | patch)
-//         node tools/release.mjs --check          only check that every file carries the same version
+//         node tools/release.mjs --check          only check that every file carries the same version (and that
+//                                                 CHANGELOG.md's link definitions match its headings)
+//         node tools/release.mjs --links          write CHANGELOG.md's link definitions (tools/changelog.mjs)
 //
 // Then run the tests (node tools/test/run.mjs) and publish. Choosing the number (README, Versioning):
 //   major  something that worked stops working: a token, class, prop or file removed or renamed, or a
@@ -12,6 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { stampReadme } from './build/registry.mjs';
+import { repoUrl, withLinks } from './changelog.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const V = '(\\d+\\.\\d+\\.\\d+)';
@@ -44,7 +47,11 @@ function versions() {
 function check() {
   const v = versions();
   const found = new Set(Object.values(v).flatMap((s) => [...s]));
-  if (found.size === 1) { console.log('All files carry version', [...found][0]); return true; }
+  // The link definitions at the end of CHANGELOG.md are the ones its headings give (tools/changelog.mjs).
+  const log = read('CHANGELOG.md');
+  const linked = withLinks(log, repoUrl(P)) === log;
+  if (!linked) console.log('CHANGELOG.md: its link definitions are not the ones its headings give (node tools/release.mjs --links writes them)');
+  if (found.size === 1) { console.log('All files carry version', [...found][0]); return linked; }
   for (const [f, s] of Object.entries(v)) console.log(`${f}: ${[...s].sort().join(', ')}`);
   return false;
 }
@@ -52,6 +59,7 @@ function check() {
 const arg = process.argv[2];
 if (!arg) { console.error('usage: node tools/release.mjs <major | minor | patch | x.y.z | --check>'); process.exit(2); }
 if (arg === '--check') process.exit(check() ? 0 : 1);
+if (arg === '--links') { write('CHANGELOG.md', withLinks(read('CHANGELOG.md'), repoUrl(P))); process.exit(0); }
 
 const cur = JSON.parse(read('package.json')).version;
 const [ma, mi, pa] = cur.split('.').map(Number);
@@ -61,10 +69,10 @@ if (!/^\d+\.\d+\.\d+$/.test(next) || !higher(next.split('.').map(Number), [ma, m
   console.error(`The new version must be higher than ${cur}: got ${next}`); process.exit(1);
 }
 const log = read('CHANGELOG.md');
-const m = /^## \[Unreleased\]\n([\s\S]*?)(?=^## \[)/m.exec(log);
+const m = /^## \[Unreleased\]\n([\s\S]*?)(?=^## )/m.exec(log);
 if (!m || !m[1].trim()) { console.error('Write the changes under "## [Unreleased]" in CHANGELOG.md first.'); process.exit(1); }
 const today = new Date().toISOString().slice(0, 10);
-write('CHANGELOG.md', log.slice(0, m.index) + `## [Unreleased]\n\n## [${next}] - ${today}\n\n${m[1].trim()}\n\n` + log.slice(m.index + m[0].length));
+write('CHANGELOG.md', withLinks(log.slice(0, m.index) + `## [Unreleased]\n\n## [${next}] - ${today}\n\n${m[1].trim()}\n\n` + log.slice(m.index + m[0].length), repoUrl(P)));
 for (const [f, pats] of Object.entries(STAMPS)) {
   let s = read(f);
   for (const pat of pats) s = s.replace(new RegExp(pat, 'g'), (x, v) => x.replace(v, next));

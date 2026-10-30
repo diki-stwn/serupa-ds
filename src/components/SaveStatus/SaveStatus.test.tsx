@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, keepMotion } from '../../../tools/test/vitest/helpers';
 import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
@@ -62,7 +62,26 @@ describe('SaveStatus', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bg = css(el('page')).backgroundColor;
       expect(contrast(css(el('ok')).color, bg), th).toBeGreaterThanOrEqual(4.5);
-      expect(contrast(css(el('bad')).color, bg), th + ' error').toBeGreaterThanOrEqual(4.5);
+      expect(contrast(css(el('bad').firstElementChild).color, bg), th + ' error').toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe('SaveStatus motion (KW19)', () => {
+  keepMotion();
+  test('the old status fades out, inert and hidden from screen readers, in the same place as the new one fading in; then it goes', async () => {
+    const screen = await render(<SaveStatus id="m" status="saving" />);
+    const e = el('m');
+    void getComputedStyle(e.firstElementChild!).opacity;   // styled, as a page that has painted it is: the fade starts from there
+    // Which transitions start, by the face's text: the 100ms fade out can be over before a slow run looks.
+    const ran: string[] = [];
+    e.addEventListener('transitionrun', (ev) => { if (ev.target instanceof HTMLElement && ev.target.parentElement === e) ran.push(ev.target.textContent + ' ' + ev.propertyName); });
+    await screen.rerender(<SaveStatus id="m" status="saved" />);
+    const [out, inn] = [...e.children] as HTMLElement[];
+    expect([e.children.length, out.textContent, out.inert, out.getAttribute('aria-hidden'), inn.textContent, inn.inert]).toEqual([2, 'Saving…', true, 'true', 'Saved', false]);
+    expect([out.offsetTop, out.offsetLeft]).toEqual([inn.offsetTop, inn.offsetLeft]);   // one cell (the layout box: both are mid-scale)
+    await expect.poll(() => e.children.length, { timeout: 2000 }).toBe(1);
+    expect([...new Set(ran)].sort()).toEqual(['Saved filter', 'Saved opacity', 'Saved scale', 'Saving… filter', 'Saving… opacity', 'Saving… scale']);
+    expect(e.textContent).toBe('Saved');
   });
 });

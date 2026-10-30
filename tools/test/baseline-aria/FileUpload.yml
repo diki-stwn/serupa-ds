@@ -24,7 +24,7 @@
 - button "Choose files" [disabled]
 - paragraph: Images or PDF, up to 5 MB each
 - list "Chosen files":
-  - listitem: site-plan.pdf 240 KB
+  - listitem: site-plan.pdf 240 kB
   - listitem: cover.jpg 1.6 MB
 
 # SingleFile
@@ -38,7 +38,7 @@
 - paragraph: Images or PDF, up to 5 MB each
 - list "Chosen files":
   - listitem:
-    - text: site-plan.pdf 240 KB
+    - text: site-plan.pdf 240 kB
     - button "Remove site-plan.pdf"
   - listitem:
     - text: cover.jpg 1.6 MB

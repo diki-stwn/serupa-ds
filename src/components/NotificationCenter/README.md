@@ -56,7 +56,7 @@ function Layout() {
 
 - The drawer is named by its title, "Notifications". The list is a `<ul>`, so screen readers hear how many there are.
 - An unread one's title starts with "Unread:", for screen readers; the dot is hidden from them. Tone icons are hidden too, so put the meaning in the title.
-- **Contrast:** descriptions and times read 4.5:1, and the unread dot 3:1, on the drawer in all six themes (`NotificationCenter.test.tsx`).
+- **Contrast:** descriptions and times read 4.5:1, and the unread dot 3:1, on the drawer in all six themes (`NotificationCenter.test.tsx`). In forced colors (Windows high contrast) the dot is drawn in CanvasText, so it doesn't vanish into the Canvas background.
 - **What's still yours:** name the button that opens it with the unread count, and say what each notification is about in its title, not only its tone.
 
 ## useToastHistory(options)

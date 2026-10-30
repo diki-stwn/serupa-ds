@@ -44,6 +44,7 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 - Each avatar overlaps the one before by 8px (xs, sm), 12px (md, lg) or 16px (xl); earlier ones sit on top, so every status dot shows. The overlap uses logical margins, so the row runs right to left in RTL.
 - Each avatar has a 2px ring in `surface`. On another background, set `--avatar-group-ring` to that color.
 - Past 99, "+N" reads "99+" (past 9 at `xs`, "9+") so it fits; its name keeps the exact count ("116 more").
+- "+N" is written in the locale's digits, as Badge's count is: "+٣" in `ar-EG`.
 - Wrap an avatar in a Tooltip to show the name on hover; it still lines up with the others.
 - With `showMore`, "+N" opens a popover listing each hidden avatar with its name, then "N more" for the ones you didn't pass (`total`). With `onMore`, it calls your handler. Without either, "+N" is a picture, not a control.
 
