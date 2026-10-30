@@ -39,17 +39,18 @@ function Controlled({ calls, api }: { calls: string[]; api: { set?: (v: string) 
 }
 
 describe('SegmentedControl', () => {
-  test('your onKeyDown runs first: preventDefault() on a key keeps the selection; onFocus and onBlur fire only entering and leaving, not while arrowing between segments', async () => {
-    const seen: string[] = [];
+  test('your onKeyDown runs first, with the root as currentTarget: preventDefault() on a key keeps the selection; onFocus and onBlur fire only entering and leaving, not while arrowing between segments', async () => {
+    const seen: string[] = [], targets: (EventTarget | null)[] = [];
     await render(<><SegmentedControl id="ev" aria-label="Period" options={PERIODS} defaultValue="day"
       onValueChange={(v) => seen.push('change ' + v)} onFocus={() => seen.push('focus')} onBlur={() => seen.push('blur')}
-      onKeyDown={(e) => { if (e.key === 'End') e.preventDefault(); }} /><button id="after">After</button></>);
+      onKeyDown={(e) => { targets.push(e.currentTarget); if (e.key === 'End') e.preventDefault(); }} /><button id="after">After</button></>);
     seg('ev', 'day').focus();
     await userEvent.keyboard('{End}');
     expect(seg('ev', 'day').getAttribute('aria-checked')).toBe('true');
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.tab();
     expect([document.activeElement!.id, seen]).toEqual(['after', ['focus', 'change week', 'blur']]);
+    expect(targets.length > 0 && targets.every((t) => t === el('ev'))).toBe(true);
   });
 
   test('a radiogroup of role="radio" buttons, the first checked by default and the only Tab stop; ref and className reach the root; md is 32px; the selection sits exactly on the checked segment', async () => {
