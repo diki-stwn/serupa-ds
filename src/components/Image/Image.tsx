@@ -156,10 +156,13 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const since = React.useRef(0);
   const served = React.useRef(React.useSyncExternalStore(never, yes, no) ? null : src);   // the src the server drew
   React.useEffect(() => { setState("loading"); }, [src]);
-  // An image already in the cache can finish before React listens.
+  // An image already in the cache can finish before React listens. Only the first src can: React listens from then
+  // on, and right after a new src Firefox still says complete about the old picture.
+  const listening = React.useRef(false);
   React.useEffect(() => {
-    const i = img.current;
-    if (i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
+    const i = img.current, first = !listening.current;
+    listening.current = true;
+    if (first && i && i.complete) { setState(i.naturalWidth > 0 ? "loaded" : "error"); return; }
     since.current = performance.now();
     if (served.current === src) return;
     const f = requestAnimationFrame(() => { if (img.current && !img.current.complete) setLive(true); });
