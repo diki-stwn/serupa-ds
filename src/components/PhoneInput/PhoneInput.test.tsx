@@ -51,6 +51,18 @@ describe('PhoneInput', () => {
     expect(names.length).toBe(PHONE_COUNTRIES.length);
   });
 
+  test('digits from an Arabic or Persian keyboard, or full width from a Japanese IME, are the same number (GR43)', async () => {
+    const calls: Array<[string, PhoneValueDetails]> = [];
+    await render(<Wrap>
+      <PhoneInput id="eg" aria-label="Phone" defaultCountry="EG" onValueChange={(v, d) => calls.push([v, d])} />
+      <PhoneInput id="jp" aria-label="Phone" defaultCountry="JP" />
+    </Wrap>);
+    await userEvent.type(field('eg'), '٠١٠۱٢٣٤٥٦٧٨');
+    expect([field('eg').value.replace(/\D/g, ''), calls.at(-1)![0]]).toEqual(['1012345678', '+201012345678']);
+    await userEvent.fill(field('jp'), '＋８１ ９０ １２３４ ５６７８');
+    expect(field('jp').value.replace(/\D/g, '')).toBe('9012345678');
+  });
+
   test('typing groups the number by the country\'s pattern and drops a typed trunk 0; onValueChange gets E.164 and whether it\'s complete', async () => {
     const calls: Array<[string, PhoneValueDetails]> = [];
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="ID" onValueChange={(v, d) => calls.push([v, d])} /></Wrap>);
