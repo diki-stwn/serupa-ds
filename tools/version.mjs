@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { parseChangeset } from './changesets.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DIR = path.join(P, '.changeset');
@@ -21,13 +22,11 @@ if (!files.length) { console.log('No changesets: nothing to release.'); process.
 let bump = 'patch';
 const notes = Object.fromEntries(SECTIONS.map((s) => [s, []]));
 for (const f of files) {
-  const m = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(fs.readFileSync(path.join(DIR, f), 'utf8'));
-  if (!m) throw new Error(`.changeset/${f}: no front matter`);
-  const kind = (new RegExp(`["']?${name.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}["']?\\s*:\\s*(major|minor|patch)`).exec(m[1]) || [])[1];
-  if (!kind) throw new Error(`.changeset/${f}: no bump for ${name}`);
+  const { bump: kind, body: raw, error } = parseChangeset(fs.readFileSync(path.join(DIR, f), 'utf8'), name);
+  if (error) throw new Error(`.changeset/${f}: ${error}`);
   if (RANK[kind] > RANK[bump]) bump = kind;
   // Each "- " line is one entry (its indented lines go with it); text with no bullets is one entry.
-  const body = m[2].trim();
+  const body = raw.trim();
   const entries = /^- /m.test(body) ? body.split(/\n(?=- )/).map((e) => e.replace(/^- /, '')) : [body.replace(/\n+/g, ' ')];
   for (const e of entries) {
     // "Fixed: …", or with a scope, "Fixed (Combobox): …", which files under Fixed as "Combobox: …".

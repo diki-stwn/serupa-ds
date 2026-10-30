@@ -55,6 +55,16 @@ describe('Text', () => {
     expect(css(el('ttok')).color).toBe('rgb(1, 2, 3)');
   });
 
+  test('one long word or URL wraps inside a flex row or a grid column too, rather than widening it (GP3)', async () => {
+    const url = 'https://example.com/a/very/long/path/that/never/breaks/on/its/own';
+    await render(<div style={{ width: 200 }}>
+      <div id="trow" style={{ display: 'flex', gap: 8 }}><Text id="tflex">{url}</Text><span>x</span></div>
+      <div id="tgrid" style={{ display: 'grid', gridTemplateColumns: 'auto' }}><Text id="tcell">{url}</Text></div>
+    </div>);
+    const fits = (id: string, box: string) => Math.round(el(id).getBoundingClientRect().right) <= Math.round(el(box).getBoundingClientRect().right) && el(box).scrollWidth <= 200;
+    expect([fits('tflex', 'trow'), fits('tcell', 'tgrid'), css(el('tflex')).overflowWrap]).toEqual([true, true, 'anywhere']);
+  });
+
   test('contrast: every tone keeps 4.5:1 on surface in all six themes', async () => {
     await render(<>{TONES.map((t) => <Text key={t} id={`t-${t}`} tone={t}>{t}</Text>)}</>);
     const low: string[] = [];

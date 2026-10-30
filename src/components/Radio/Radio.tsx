@@ -3,8 +3,8 @@ import * as React from "react";
 import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
-import { warnOnce } from "../../internal/warn";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { warnOnce } from "../../internal/warn";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onValueChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -16,8 +16,6 @@ export interface RadioGroupProps<V extends string | number = string | number> ex
   defaultValue?: V;
   /** Called with the picked radio's value (and the change event), like SegmentedControl, Tabs and Slider. */
   onValueChange?: (value: V, event: React.ChangeEvent<HTMLInputElement>) => void;
-  /** @deprecated Use onValueChange, which takes the same arguments. onChange warns once and goes in the next major. */
-  onChange?: (value: V, event: React.ChangeEvent<HTMLInputElement>) => void;
   /** 'vertical' (stacked, default) or 'horizontal' (a wrapping row). */
   orientation?: 'vertical' | 'horizontal';
   /** The radios' size, unless a Radio sets its own. */
@@ -55,9 +53,9 @@ const RadioContext = /* @__PURE__ */ React.createContext<RadioContextValue | nul
 
 /* RadioGroup: one choice from a set of Radios. It names them (name, or a generated one), holds the value
    (value with onValueChange, or defaultValue), and passes size, invalid, disabled and required down. onValueChange
-   gets (value, event); onChange is its deprecated alias. orientation "vertical" (default) or "horizontal". Renders <div role="radiogroup">: label it
+   gets (value, event); the old onChange alias is gone (use onValueChange). orientation "vertical" (default) or "horizontal". Renders <div role="radiogroup">: label it
    with Field group (a fieldset and legend), aria-label or aria-labelledby. */
-const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, onChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
+const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
 
 /** One choice from a set of Radios: a <div role="radiogroup"> that names them, holds the value and passes size, invalid, disabled and required down. Label it with Field group, aria-label or aria-labelledby. */
 export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupProps>("RadioGroup", function RadioGroup(props: RadioGroupProps, ref) {
@@ -68,14 +66,13 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const [picked, setPicked] = React.useState<string | number | null | undefined>(props.defaultValue), cur = controlled ? props.value : picked;
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
-  const onValueChange = props.onValueChange, onChange = props.onChange;
-  if (process.env.NODE_ENV !== "production" && onChange) warnOnce("radio-group-onchange", "RadioGroup: onChange is deprecated and goes in the next major. Use onValueChange, which takes the same (value, event).");
+  const onValueChange = props.onValueChange;
   // A form reset checks the radio that was checked first; the group's choice follows it (a controlled one shows its value again).
   const root = React.useRef<HTMLDivElement | null>(null);
   const [, rerender] = React.useState(0);
   useFormReset(root, function () { if (!controlled) setPicked(props.defaultValue); rerender(function (n) { return n + 1; }); });
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
-    select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onValueChange) onValueChange(v as string | number, e); if (onChange) onChange(v as string | number, e); } };
+    select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onValueChange) onValueChange(v as string | number, e); } };
   // The arrows wrap from the last radio to the first and back, as the radio group pattern asks: Chromium and Firefox
   // do that themselves, but WebKit stops at the ends.
   const own = rest.onKeyDown;
@@ -107,6 +104,8 @@ const OWN = { size: 1, invalid: 1, description: 1, children: 1, className: 1, st
 
 /** A native radio with its label (ref, value and every input attribute go to the <input>); className and style go to the <label> around it. In a RadioGroup, the group sets name and checked. */
 export const Radio = /* @__PURE__ */ component<HTMLInputElement, RadioProps>("Radio", function Radio(props, ref) {
+  const nameRef = useNameCheck("Radio", NAME_HOW.label, ref);   // warns when it has no accessible name
+  if (process.env.NODE_ENV !== "production" && (props as { label?: unknown }).label != null) warnOnce("label-prop", "Radio: label isn't one of its props, so it lands on the <input> as an attribute and names nothing. Put the text in children.", "label-prop:Radio");
   const ctx = React.useContext(RadioContext);
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, oneOf(SIZES, ctx && ctx.size, "md"));
@@ -129,7 +128,7 @@ export const Radio = /* @__PURE__ */ component<HTMLInputElement, RadioProps>("Ra
   return (
     <label className={cn("dk-radio", "dk-radio--size-" + size, (invalid || (ctx && ctx.invalid)) && "dk-radio--invalid", rest.disabled && "dk-radio--disabled", !hasLabel && !hasDesc && "dk-radio--bare", props.className)} style={props.style} data-component="radio" data-size={size as string}>
       <span className="dk-radio__control" key="control">
-        <input {...rest} ref={ref} type="radio" className="dk-radio__input" key="input" />
+        <input {...rest} ref={nameRef} type="radio" className="dk-radio__input" key="input" />
         <span className="dk-radio__dot" aria-hidden key="dot" />
       </span>
       {hasLabel || hasDesc ? <span className="dk-radio__text" key="text">

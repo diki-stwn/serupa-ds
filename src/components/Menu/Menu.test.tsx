@@ -284,6 +284,20 @@ describe('Menu', () => {
     expect([focus(), item.getAttribute('aria-expanded'), sub('share')]).toEqual(['Share', 'false', null]);
   });
 
+  test('MenuSub at 320px: with no room on either side, both submenu levels stay on screen and the page doesn\'t scroll sideways (RF1)', async () => {
+    await page.viewport(320, 640);
+    try {
+      await render(<Menu trigger={<Button id="nb">File</Button>}>
+        <MenuSub id="share" icon="share" label="Share"><MenuItem>Email</MenuItem><MenuSub id="more" label="More apps"><MenuItem>Chat</MenuItem></MenuSub></MenuSub>
+      </Menu>);
+      await userEvent.click(el('nb'));
+      await userEvent.keyboard('{ArrowDown}{ArrowRight}{ArrowDown}{ArrowRight}');
+      await settle();
+      const panels = [sub('share')!, sub('more')!];
+      expect([focus(), ...panels.map((p) => rect(p).left >= -1 && rect(p).right <= 321), document.documentElement.scrollWidth <= 320]).toEqual(['Chat', true, true, true]);
+    } finally { await page.viewport(900, 700); }
+  });
+
   test('MenuSub: ↑ ↓ Home End and letters stay inside the submenu; Escape closes only the submenu, a second Escape the menu', async () => {
     await render(<Nested chosen={[]} />);
     await userEvent.click(el('nb'));

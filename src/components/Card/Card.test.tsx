@@ -192,6 +192,18 @@ describe('Card', () => {
     open.mockRestore();
   });
 
+  test('a Ctrl or middle click opens another tab only for a web, mailto or tel link: not for a javascript: URL, which React blocks anyway (GR13)', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    await render(<><Card id="js" href={'javascript:void(0)'}><CardHeader title="Script" /><CardBody><p id="jsp">Body</p></CardBody></Card>
+      <Card id="mail" href="mailto:hi@example.com"><CardHeader title="Mail" /><CardBody><p id="mailp">Body</p></CardBody></Card></>);
+    for (const id of ['jsp', 'mailp']) {
+      el(id).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
+      el(id).dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+    }
+    expect(open.mock.calls.map((c) => c[0])).toEqual(['mailto:hi@example.com', 'mailto:hi@example.com']);
+    open.mockRestore();
+  });
+
   test('hover: a border-strong border', async () => {
     await render(<Card id="lnk" href="#here"><CardHeader title="Atlas" description="Updated" /></Card>);
     const before = css(el('lnk')).borderTopColor, strong = color('var(--border-strong)');
@@ -271,5 +283,22 @@ describe('Card', () => {
       await press(el('pb'), () => expect(css(el('pc')).scale).toBe('none'));
     });
     history.replaceState(null, '', location.pathname + location.search);   // the press followed #pc; the next pass starts clean
+  });
+});
+
+describe('CardHeader with an action in a narrow card (GR7)', () => {
+  test('the action drops under the title before the title breaks mid-word; in a wide card it stays beside it', async () => {
+    const card = (id: string) => <Card id={id}><CardHeader title="Monthly recurring revenue" action={<Button size="sm" variant="outline">Export</Button>} /></Card>;
+    await render(<div>
+      <div style={{ width: '320px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>{card('gr7-n')}<div /></div>
+      <div style={{ width: '480px' }}>{card('gr7-w')}</div>
+    </div>);
+    const parts = (id: string) => { const c = document.getElementById(id)!; return { title: c.querySelector('h3, h2, h4')!, action: c.querySelector('button')! }; };
+    const n = parts('gr7-n'), w = parts('gr7-w');
+    // No word is split: each line of the title is a whole word (the title is as wide as its longest word or wider).
+    const words = (el: Element) => { const r = document.createRange(); r.selectNodeContents(el); return r.getClientRects().length; };
+    expect(words(n.title)).toBeLessThanOrEqual(3);
+    expect(n.action.getBoundingClientRect().top).toBeGreaterThanOrEqual(n.title.getBoundingClientRect().bottom - 0.5);
+    expect(Math.abs(w.action.getBoundingClientRect().top - w.title.getBoundingClientRect().top)).toBeLessThan(8);
   });
 });

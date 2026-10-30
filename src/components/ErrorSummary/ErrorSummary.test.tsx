@@ -5,6 +5,8 @@ import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
+import { Radio, RadioGroup } from '../Radio/Radio';
+import { Rating } from '../Rating/Rating';
 import { ErrorSummary, type ErrorSummaryItem } from './ErrorSummary';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -100,5 +102,23 @@ describe('ErrorSummary', () => {
       expect(contrast(css(el('c')).color, bg), th).toBeGreaterThanOrEqual(4.5);
       expect(contrast(css(el('c').querySelector('a')).color, bg), th + ' link').toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe('ErrorSummary links to a group root (GR15)', () => {
+  test("a link to a RadioGroup or a Rating by its id focuses the checked radio, else the group's first", async () => {
+    await render(<div>
+      <ErrorSummary errors={[{ field: 'gr15-plan', message: 'Choose a plan' }, { field: 'gr15-size', message: 'Choose a size' }, { field: 'gr15-stars', message: 'Rate your stay' }]} autoFocus={false} />
+      <RadioGroup id="gr15-plan" aria-label="Plan" defaultValue="pro"><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
+      <RadioGroup id="gr15-size" aria-label="Size"><Radio value="s" disabled>Small</Radio><Radio value="m">Medium</Radio></RadioGroup>
+      <Rating id="gr15-stars" aria-label="Your stay" />
+    </div>);
+    const link = (n: number) => document.querySelectorAll<HTMLAnchorElement>('a[href^="#gr15"]')[n];
+    await userEvent.click(link(0));
+    expect((document.activeElement as HTMLInputElement).value).toBe('pro');
+    await userEvent.click(link(1));
+    expect((document.activeElement as HTMLInputElement).value).toBe('m');
+    await userEvent.click(link(2));
+    expect(el('gr15-stars').contains(document.activeElement) && document.activeElement !== el('gr15-stars')).toBe(true);
   });
 });

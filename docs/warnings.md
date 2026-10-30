@@ -18,10 +18,6 @@ A dot Badge with no label, icon or count is an indicator: too small to click or 
 
 A Badge with `onClick` or `href` is a button or a link, which can't hold another button, so its `onRemove` is ignored. Use one or the other.
 
-## badge-size
-
-Badge's `size` prop was removed in 4.0.0. Badges have one size (20px, `text-xs`). Remove the prop.
-
 ## button-icon-label
 
 A Button with only an icon has no text for a screen reader to say. Give it an `aria-label` (or `aria-labelledby`, or a `title`), or use IconButton, whose `label` is required.
@@ -42,6 +38,10 @@ The `name` given to Icon (or to an icon prop) isn't a Material Symbol, a custom 
 
 An Image with `ratio="auto"` and no `width` and `height` has no height until the picture loads, so the page jumps when it does. Pass the picture's `width` and `height`, or a `ratio`.
 
+## label-prop
+
+Radio, Checkbox or Switch was given `label`, as other libraries name these controls. It isn't one of their props, so it lands on the `<input>` as an HTML attribute and names nothing: a screen reader announces only "radio button" or "checkbox". Put the text in `children`, or use `aria-label` when there's no visible text.
+
 ## link-neutral-hover
 
 A Link with `tone="neutral"` and `underline="hover"` looks like plain text until it's hovered, so people can't tell it's a link. Keep the underline, or use `tone="primary"` where the place already says it holds links.
@@ -57,10 +57,6 @@ FormattedNumber or `formatNumber` got options Intl rejects, such as a currency t
 ## phone-code
 
 PhoneInput was given a number starting with `+` or `00` and a calling code it doesn't know, so it reads the digits as a number in the current country. Add the country's row to `countries`.
-
-## radio-group-onchange
-
-RadioGroup's `onChange` is deprecated and goes in the next major version. Use `onValueChange`, which takes the same `(value, event)`.
 
 ## relative-time-date
 

@@ -2,7 +2,9 @@
 // - every action is pinned to a full commit SHA, with its version as a comment (a tag can be moved to other code);
 // - text a pull request's author controls (branch name, title, body…) never goes straight into a run: script,
 //   only through env: (a branch called `x";curl …|sh;"` would run otherwise);
-// - a checkout in a job that doesn't push keeps no token in .git/config (persist-credentials: false);
+// - no checkout keeps a token in .git/config (persist-credentials: false): a push passes its token to that one git call;
+// - a job that runs installed dependencies or the branch's own actions (npm ci, npx, uses: ./) gets no secrets, so a
+//   hijacked package or a pull request's code never runs beside a token that outlives the job;
 // - Dependabot waits 7 days before it offers a new release (cooldown).
 //   node tools/test/workflows.mjs
 import fs from 'node:fs';
@@ -16,8 +18,6 @@ const files = [
   ...fs.readdirSync(path.join(GH, 'workflows')).filter((f) => f.endsWith('.yml')).map((f) => 'workflows/' + f),
   ...fs.readdirSync(path.join(GH, 'actions')).map((d) => `actions/${d}/action.yml`).filter((f) => fs.existsSync(path.join(GH, f))),
 ];
-// Workflows whose checkout pushes (a commit or a tag) with the workflow's token.
-const PUSHES = new Set(['workflows/release.yml', 'workflows/visual-baselines.yml']);
 // Expressions an outside contributor can fill: anything under github.event except numbers, SHAs and fixed names.
 const UNTRUSTED = /\$\{\{\s*github\.(head_ref|event\.(?!(pull_request\.)?(number|base\.sha|head\.sha|workflow_run\.head_sha)\b|label\.name\b|pull_request\.head\.repo\.full_name\b)[\w.]+)/;
 
@@ -42,9 +42,20 @@ for (const f of files) {
   });
   t(`${f}: every action is pinned to a commit SHA, with its version as a comment`, !unpinned.length, unpinned.join(', '));
   t(`${f}: no pull request text is pasted into a run: script (pass it through env:)`, !injected.length, `line ${injected.join(', ')}`);
-  if (!PUSHES.has(f) && checkouts.length) {
+  if (checkouts.length) {
     const keeps = checkouts.filter((c) => c.keeps).map((c) => c.line);
     t(`${f}: its checkouts keep no token (persist-credentials: false)`, !keeps.length, `line ${keeps.join(', ')}`);
+  }
+  // Each job: the lines from its name (two spaces in, under jobs:) to the next job's.
+  const start = lines.findIndex((l) => /^jobs:/.test(l));
+  if (start >= 0) {
+    const heads = lines.map((l, i) => (i > start && /^ {2}[\w-]+:\s*$/.test(l) ? i : -1)).filter((i) => i >= 0);
+    for (const [k, h] of heads.entries()) {
+      const job = lines.slice(h, heads[k + 1] ?? lines.length).map((l) => (/^\s*#/.test(l) ? '' : l));   // comments don't count
+      const runs = job.some((l) => /\bnpm (ci|install|i)\b|\bnpx\b|^\s*-?\s*uses:\s*\.\//.test(l));
+      const secret = job.findIndex((l) => /\$\{\{\s*secrets\./.test(l));
+      if (runs) t(`${f}: job ${lines[h].trim().slice(0, -1)} runs dependencies, so it gets no secrets`, secret < 0, `line ${h + secret + 1}`);
+    }
   }
 }
 

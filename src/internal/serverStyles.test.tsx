@@ -5,8 +5,10 @@ import { flushSync } from 'react-dom';
 import { describe, expect, test } from 'vitest';
 import { Meter } from '../components/Meter/Meter';
 import { Progress } from '../components/Progress/Progress';
+import { Rating } from '../components/Rating/Rating';
 import { Slider } from '../components/Slider/Slider';
 import { Splitter } from '../components/Splitter/Splitter';
+import { TreeView } from '../components/TreeView/TreeView';
 
 // A page served with a strict policy: style attributes in its HTML are ignored (style-src-attr 'none'), styles set
 // through the CSSOM are not. This file's page has the policy from the first test on (BF2).
@@ -15,10 +17,14 @@ meta.httpEquiv = 'Content-Security-Policy';
 meta.content = "style-src-attr 'none'";
 document.head.appendChild(meta);
 
+// How much of each Rating star its fill shows, in whole percent.
+const stars = () => [...document.querySelectorAll('#r > *')].map((st) => Math.round(st.children[1].getBoundingClientRect().width / st.getBoundingClientRect().width * 100));
+
 const ui = <div>
   <Progress id="p" value={40} aria-label="Upload" />
   <Meter id="m" value={70} aria-label="Storage" />
   <Slider id="s" defaultValue={25} aria-label="Volume" />
+  <Rating id="r" value={4.3} readOnly aria-label="Reviews" />
 </div>;
 
 describe('server HTML under a strict Content Security Policy', () => {
@@ -37,6 +43,7 @@ describe('server HTML under a strict Content Security Policy', () => {
     await expect.poll(() => [share(), seen('#m .dk-meter__fill', '#m .dk-meter__track')], { message: `the fill's style: ${document.querySelector(fill)?.getAttribute('style')}` }).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
+    expect(stars()).toEqual([100, 100, 100, 100, 30]);   // 4.3 stars, not five full ones (GR10)
     root?.unmount(); host.remove();
   });
 
@@ -52,6 +59,22 @@ describe('server HTML under a strict Content Security Policy', () => {
     await expect.poll(() => [seen('#p .dk-progress__fill', '#p .dk-progress__track'), seen('#m .dk-meter__fill', '#m .dk-meter__track')]).toEqual([40, 70]);
     const thumb = document.querySelector('#s [role=slider]') as HTMLElement, rail = document.querySelector('#s') as HTMLElement;
     expect(thumb.getBoundingClientRect().left - rail.getBoundingClientRect().left).toBeGreaterThan(20);
+    expect(stars()).toEqual([100, 100, 100, 100, 30]);   // 4.3 stars, not five full ones (GR10)
+    root?.unmount(); host.remove();
+  });
+});
+
+describe('TreeView server HTML under a strict Content Security Policy (GR11)', () => {
+  test('each row keeps its level\'s indent once hydrated', async () => {
+    const tree = <TreeView id="tv" aria-label="Fruit" defaultExpanded={['a', 'a2']} items={[{ id: 'a', label: 'Apples', children: [{ id: 'a2', label: 'Cox', children: [{ id: 'a2x', label: 'Orange Pippin' }] }] }]} />;
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    host.innerHTML = renderToString(tree);
+    const pad = () => [...host.querySelectorAll('[role=treeitem]')].map((i) => parseFloat(getComputedStyle(i.firstElementChild!).paddingInlineStart));
+    expect(new Set(pad()).size).toBe(1);   // the policy holds: every row at the same indent
+    let root: Root | undefined;
+    flushSync(() => { root = hydrateRoot(host, tree); });
+    await expect.poll(() => pad()).toEqual([4, 20, 36]);
     root?.unmount(); host.remove();
   });
 });

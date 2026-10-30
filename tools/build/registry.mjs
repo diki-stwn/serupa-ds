@@ -10,7 +10,8 @@
 // It also keeps the components index in README.md (between the components:start and components:end comments): each
 // component under its Storybook group, with the first sentence of its guide. tools/release.mjs rewrites it on each
 // release pull request, so it can't drift from the folders past a release, and component pull requests never touch
-// README.md (two of them never conflict over it); node tools/build/registry.mjs --readme rewrites it now.
+// README.md (two of them never conflict over it); node tools/build/registry.mjs --readme rewrites it now. The coding
+// agents' skill (skills/serupa/SKILL.md) gets the same index as a plain list, at the same times.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -53,7 +54,7 @@ export function buildRegistry(root = ROOT) {
     + values.filter(({ v }) => v.length).map(({ n, v }) => `import { ${v.join(', ')} } from "../components/${n}";\n`).join('')
     + '\n/** The components on plain pages: window.Serupa (serupa.iife.js) has each of them. */\n'
     + `export interface ComponentGlobals {\n${values.flatMap(({ v }) => v).map((v) => `  ${v}: typeof ${v};\n`).join('')}}\n`);
-  write(path.join(out, 'components.css'), BANNER.replace('//', '/*').replace('\n', ' */\n') + cascade(root).map((n) => `@import "../components/${n}/${n}.css";\n`).join(''));
+  write(path.join(out, 'components.css'), `/* ${BANNER.slice(3, -1)} */\n` + cascade(root).map((n) => `@import "../components/${n}/${n}.css";\n`).join(''));
   const worded = all.filter((n) => fs.existsSync(path.join(root, 'src', 'components', n, 'labels.ts')));
   write(path.join(out, 'labels.ts'), BANNER
     + worded.map((n) => `import * as ${n} from "../components/${n}/labels";\n`).join('')
@@ -68,8 +69,9 @@ export function buildRegistry(root = ROOT) {
 const START = '<!-- components:start (written by tools/build/registry.mjs) -->';
 const END = '<!-- components:end -->';
 
-/** README.md's components index: a table per Storybook group (A to Z, like its sidebar), one row per component. */
-export function componentIndex(root = ROOT) {
+/** README.md's components index: a table per Storybook group (A to Z, like its sidebar), one row per component.
+ *  With plain, a list per group with no links, for the coding agents' skill (skills/serupa/SKILL.md), which is read away from the repository. */
+export function componentIndex(root = ROOT, { plain = false } = {}) {
   const groups = {};
   for (const n of components(root)) {
     const dir = path.join(root, 'src', 'components', n);
@@ -79,20 +81,22 @@ export function componentIndex(root = ROOT) {
     // The guide's first paragraph after its heading, up to the end of its first sentence.
     const intro = (/^# .*\n+([^\n#`|<-][^\n]*)/m.exec(guide) || [])[1] ?? '';
     // Links between guides (../Combobox/README.md) point from the README instead.
-    const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/\|/g, '\\|').replace(/\]\(\.\.\//g, '](src/components/');
-    (groups[group ?? 'Other'] ||= []).push(`| [${n}](src/components/${n}/README.md) | ${sentence} |`);
+    const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/[\\|]/g, '\\$&').replace(/\]\(\.\.\//g, '](src/components/');
+    (groups[group ?? 'Other'] ||= []).push(plain ? `- **${n}**: ${sentence.replace(/\\([\\|])/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')}` : `| [${n}](src/components/${n}/README.md) | ${sentence} |`);
   }
   return Object.keys(groups).sort((a, b) => Number(a === 'Other') - Number(b === 'Other') || a.localeCompare(b))
-    .map((g) => `### ${g}\n\n| Component | What it's for |\n| --- | --- |\n${groups[g].join('\n')}\n`).join('\n');
+    .map((g) => (plain ? `### ${g}\n\n${groups[g].join('\n')}\n` : `### ${g}\n\n| Component | What it's for |\n| --- | --- |\n${groups[g].join('\n')}\n`)).join('\n');
 }
 
-/** README.md with its components index rewritten from the component folders. */
+/** README.md and the coding agents' skill (skills/serupa/SKILL.md) with their components index rewritten from the component folders. */
 export function stampReadme(root = ROOT) {
-  const file = path.join(root, 'README.md');
-  const text = fs.readFileSync(file, 'utf8');
-  const a = text.indexOf(START), b = text.indexOf(END);
-  if (a < 0 || b < a) throw new Error(`README.md needs the lines ${START} and ${END} around its components index`);
-  write(file, text.slice(0, a + START.length) + '\n\n' + componentIndex(root) + '\n' + text.slice(b));
+  for (const [f, plain] of /** @type {[string, boolean][]} */ ([['README.md', false], [path.join('skills', 'serupa', 'SKILL.md'), true]])) {
+    const file = path.join(root, f);
+    const text = fs.readFileSync(file, 'utf8');
+    const a = text.indexOf(START), b = text.indexOf(END);
+    if (a < 0 || b < a) throw new Error(`${f} needs the lines ${START} and ${END} around its components index`);
+    write(file, text.slice(0, a + START.length) + '\n\n' + componentIndex(root, { plain }) + '\n' + text.slice(b));
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(HERE, 'registry.mjs')) {

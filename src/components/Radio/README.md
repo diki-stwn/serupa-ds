@@ -52,7 +52,7 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 - A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves. On a touch screen it's 44px high, as Apple and Material ask; in a group it stops halfway into the gap, so neighbours never share a point.
 - They're real radios: Tab moves to the group (to the picked one), arrow keys move the choice, and screen readers announce the position ("2 of 3").
 - Name the group: wrap it in `Field group` (a `<fieldset>` and `<legend>`, with the hint and error describing it), or give the RadioGroup an `aria-label` or `aria-labelledby`.
-- A radio's label names it; a description is read after it. The dot is decorative.
+- A radio's label (its `children`) names it; a description is read after it. The dot is decorative. In development, a radio with no label and no `aria-label` warns, and so does one given `label=` (put the text in `children`).
 - The label and description keep 4.5:1, and the border, checked fill, dot, focus ring and invalid border 3:1, in all six themes (`Radio.test.tsx`).
 - Native constraints (`required`) show too: a box that fails them takes the `invalid` border once people have changed it or tried to send the form (`:user-invalid`), never on first paint. It's only the color: `aria-invalid` and the message stay yours (set `invalid` and Field's `error` when you check it yourself). To keep the browser out of it, leave out the attribute and check the value in your own code.
 - A form reset checks the radio that was checked first, and an uncontrolled RadioGroup's choice follows it, so the next click works as expected. A controlled group shows its `value` again.
@@ -75,7 +75,6 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 | `value` | string \| number \| null | | The picked radio's value (controlled). `null` picks none |
 | `defaultValue` | string \| number | | The value picked at first (uncontrolled) |
 | `onValueChange` | `(value, event) => void` | | Called with the picked radio's value and the change event, like SegmentedControl's and Tabs' |
-| `onChange` | `(value, event) => void` | | Deprecated: the old name for `onValueChange`. It still works, warns once in the console, and goes in the next major |
 | `name` | string | generated | The radios' name, for forms |
 | `orientation` | `'vertical'` \| `'horizontal'` | `'vertical'` | A stack 8px apart, or a wrapping row 16px apart |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | Every radio's size, unless one sets its own |
