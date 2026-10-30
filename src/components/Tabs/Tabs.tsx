@@ -25,7 +25,7 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   orientation?: 'horizontal' | 'vertical';
 }
 
-interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null }
+interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null; before: { current: (() => void) | null } }
 const FROM = ["--dk-tabs-from-shift", "--dk-tabs-from-scale", "--dk-tabs-span-l", "--dk-tabs-span-r", "--dk-tabs-span-t", "--dk-tabs-span-b", "--dk-tabs-from-l", "--dk-tabs-from-r", "--dk-tabs-from-t", "--dk-tabs-from-b"];
 const TabsContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const useTabs = (who: string): Ctx => {
@@ -61,7 +61,10 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   const [inner, setInner] = React.useState<string | null>(() => (props.defaultValue != null ? props.defaultValue : firstTab(props.children)));
   const value = controlled ? (props.value as string) : inner;
   const onChange = React.useRef(props.onValueChange); onChange.current = props.onValueChange;
-  const select = React.useCallback((v: string) => { if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
+  // TabList's hook to note where the line or fill is just before the selection changes, so a slide that is still
+  // running turns back from where it has got to (EH1).
+  const before = React.useRef<(() => void) | null>(null);
+  const select = React.useCallback((v: string) => { if (before.current) before.current(); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
   const variant = oneOf(["line", "pill"] as const, props.variant, "line");
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   // Which values have a TabPanel, so a tab only points (aria-controls) at a panel that exists: a tab row can
@@ -71,7 +74,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
   // so the tab list can still be reached from the keyboard.
   const [stop, setStop] = React.useState<string | null>(null);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop }), [base, value, select, props.activation, vertical, panels, register, stop]);
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop, before }), [base, value, select, props.activation, vertical, panels, register, stop]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
@@ -106,6 +109,24 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   );
 });
 
+/* Where the selected tab's line or fill is now, as a tab-sized box in the list: the tab's own box at rest, or, mid-slide,
+   where the slide has got to. The line: the tab's box moved by its translate and stretched by its scale (from its top
+   left). The fill: the box its clip-path leaves showing, out of the span it covers (TabList sets the span). */
+const shown = (on: HTMLElement) => {
+  const nums = (v: string) => (v.match(/-?[\d.]+(?:e-?\d+)?/g) || []).map(Number);
+  let x = on.offsetLeft, y = on.offsetTop, w = on.offsetWidth, h = on.offsetHeight;
+  const line = getComputedStyle(on, "::after"), fill = getComputedStyle(on, "::before");
+  if (line.translate && line.translate !== "none") { const [dx = 0, dy = 0] = nums(line.translate); x += dx; y += dy; }
+  if (line.scale && line.scale !== "none") { const [sx = 1, sy = sx] = nums(line.scale); w *= sx; h *= sy; }
+  if (/^inset\(/.test(fill.clipPath)) {
+    const [t = 0, r = t, b = t, l = r] = nums(fill.clipPath.split(" round")[0]);
+    const span = (k: string) => parseFloat(on.style.getPropertyValue("--dk-tabs-span-" + k)) || 0;
+    const left = x - span("l") + l, top = y - span("t") + t;
+    w = x + w + span("r") - r - left; h = y + h + span("b") - b - top; x = left; y = top;
+  }
+  return { x, y, w, h };
+};
+
 /* TabList: the row (or column) of tabs. When the tabs don't fit, it scrolls with no scrollbar; the edge with more
    tabs past it fades out, so it's plain there's more, and the selected tab is scrolled into view whenever it changes. */
 export type TabListProps = React.HTMLAttributes<HTMLDivElement>;
@@ -120,25 +141,30 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
   // Each tab carries where the selected tab's line (or fill) is, from where it sits: when it's selected next, its own
   // line starts there and slides into place (Tabs.css, EG1). It's set ahead of time, on every tab, because a line
   // starts from the style its tab had just before it was selected. Refreshed on each change (reveal measures) and as the tabs resize.
-  const place = () => {
+  // With now, from where the line or fill is at this moment (shown) rather than from the selected tab's box: just
+  // before the selection changes, so picking another tab mid-slide starts there (EH1).
+  const place = (now?: boolean) => {
     const el = list.current;
     if (!el) return;
     const tabs = Array.from(el.querySelectorAll<HTMLElement>('[role="tab"]'));
     const on = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+    const b = on && (now ? shown(on) : { x: on.offsetLeft, y: on.offsetTop, w: on.offsetWidth, h: on.offsetHeight });
     for (const t of tabs) {
       // The selected tab keeps the pill's span it was selected with (below), so its slide runs to the end.
       if (t === on) continue;
-      if (!on || !t.offsetWidth || !t.offsetHeight) { for (const k of FROM) t.style.removeProperty(k); continue; }
-      const dx = on.offsetLeft - t.offsetLeft, dy = on.offsetTop - t.offsetTop, w = t.offsetWidth, h = t.offsetHeight;
+      if (!b || !t.offsetWidth || !t.offsetHeight) { for (const k of FROM) t.style.removeProperty(k); continue; }
+      const dx = b.x - t.offsetLeft, dy = b.y - t.offsetTop, w = t.offsetWidth, h = t.offsetHeight;
       t.style.setProperty("--dk-tabs-from-shift", dx + "px " + dy + "px");
-      t.style.setProperty("--dk-tabs-from-scale", on.offsetWidth / w + " " + on.offsetHeight / h);
+      t.style.setProperty("--dk-tabs-from-scale", b.w / w + " " + b.h / h);
       // The pill's fill (GO1) spans this tab and the selected one, cut to this tab; it starts cut to the selected one.
-      const l = Math.max(0, -dx), r = Math.max(0, dx + on.offsetWidth - w), u = Math.max(0, -dy), d = Math.max(0, dy + on.offsetHeight - h);
+      const l = Math.max(0, -dx), r = Math.max(0, dx + b.w - w), u = Math.max(0, -dy), d = Math.max(0, dy + b.h - h);
       const set = (k: string, n: number) => t.style.setProperty(k, n + "px");
       set("--dk-tabs-span-l", l); set("--dk-tabs-span-r", r); set("--dk-tabs-span-t", u); set("--dk-tabs-span-b", d);
-      set("--dk-tabs-from-l", l + dx); set("--dk-tabs-from-r", w + r - dx - on.offsetWidth); set("--dk-tabs-from-t", u + dy); set("--dk-tabs-from-b", h + d - dy - on.offsetHeight);
+      set("--dk-tabs-from-l", l + dx); set("--dk-tabs-from-r", w + r - dx - b.w); set("--dk-tabs-from-t", u + dy); set("--dk-tabs-from-b", h + d - dy - b.h);
     }
   };
+  // every render: place reads ctx and the list as they are now; it only swaps a function, so it costs nothing.
+  useIsoLayoutEffect(() => { ctx.before.current = () => place(true); return () => { ctx.before.current = null; }; });
   const measure = React.useCallback(() => {
     const el = list.current;
     if (!el) return;

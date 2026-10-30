@@ -333,6 +333,39 @@ describe('Tabs on the server', () => {
   });
 });
 
+describe('Tabs indicator turned back mid-slide (GQ8)', () => {
+  // The selected tab's transitions on one pseudo-element, held halfway.
+  const slides = (t: HTMLElement, pseudo: string) => t.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
+  const halfway = (all: CSSTransition[]) => { for (const a of all) { a.pause(); a.currentTime = Number(a.effect!.getTiming().duration) / 2; } };
+  const nums = (v: string) => (v.match(/-?[\d.]+/g) || []).map(Number);
+  test('picking another tab while the line or the fill is still sliding starts the new slide from where it has got to, not from the last tab (EH1)', async () => {
+    await withMotion(async () => {
+      await setup();
+      const tabs = [...el('un').querySelectorAll<HTMLElement>('[role="tab"]')];
+      await userEvent.click(tabs[2]);
+      halfway(slides(tabs[2], '::after'));
+      const at = tabs[2].offsetLeft + nums(getComputedStyle(tabs[2], '::after').translate)[0];
+      expect(Math.abs(at - tabs[2].offsetLeft)).toBeGreaterThan(8);
+      await userEvent.click(tabs[1]);
+      const move = slides(tabs[1], '::after').find((a) => a.transitionProperty === 'translate')!;
+      const from = tabs[1].offsetLeft + parseFloat(String((move.effect as KeyframeEffect).getKeyframes()[0].translate));
+      expect(Math.abs(from - at)).toBeLessThan(1);
+
+      const pills = [...el('dv').querySelectorAll<HTMLElement>('[role="tab"]')];   // Three is selected: slide to One
+      await userEvent.click(pills[0]);
+      const held = slides(pills[0], '::before');
+      halfway(held);
+      const span = (t: HTMLElement) => parseFloat(t.style.getPropertyValue('--dk-tabs-span-l')) || 0;
+      const edge = pills[0].offsetLeft - span(pills[0]) + nums(getComputedStyle(pills[0], '::before').clipPath.split(' round')[0])[3];
+      expect(Math.abs(edge - pills[0].offsetLeft)).toBeGreaterThan(8);
+      await userEvent.click(pills[1]);
+      const cut = slides(pills[1], '::before')[0];
+      const first = nums(String((cut.effect as KeyframeEffect).getKeyframes()[0].clipPath).split(' round')[0]);
+      expect(Math.abs(pills[1].offsetLeft - span(pills[1]) + first[3] - edge)).toBeLessThan(1);
+    });
+  });
+});
+
 describe('Tabs in a grid or flex row (GO2)', () => {
   test('a long tab row in a 320px grid track or flex row scrolls in its box instead of widening the row', async () => {
     const names = ['Overview', 'Members and permissions', 'Billing and invoices', 'Integrations', 'Audit log'];
