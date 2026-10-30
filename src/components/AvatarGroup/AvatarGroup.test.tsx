@@ -30,9 +30,19 @@ function forcedColors(): () => void {
   return () => { for (const [m, t] of flipped) m.mediaText = t; };
 }
 
+// The English digits these tests read, whatever SERUPA_LOCALE the run uses: "+N" is in the locale's digits (GR22).
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
 const Col = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>{children}</div>;
 
 describe('AvatarGroup', () => {
+  test('"+N" is written in the locale\'s digits, as Badge\'s count is: "+٣" and "٩٩+" in ar-EG, "+3" in en-US (GR22)', async () => {
+    await render(<Col>
+      <SerupaProvider locale="ar-EG"><AvatarGroup id="ar" max={2}>{av(5)}</AvatarGroup><AvatarGroup id="arcap" max={0} total={150}>{av(1)}</AvatarGroup></SerupaProvider>
+      <SerupaProvider locale="en-US"><AvatarGroup id="en" max={2}>{av(5)}</AvatarGroup></SerupaProvider>
+    </Col>);
+    expect([more('ar')!.textContent, more('arcap')!.textContent, more('en')!.textContent]).toEqual(['+٣', '٩٩+', '+3']);
+  });
+
   test('the "+N" avatar is named in the provider\'s words: "2 lainnya" under id-ID', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><AvatarGroup label="Tim" max={3}>{av(5)}</AvatarGroup></SerupaProvider>);
     expect(document.querySelector('.dk-avatar-group__more')!.getAttribute('aria-label')).toBe('2 lainnya');
@@ -48,11 +58,11 @@ describe('AvatarGroup', () => {
   });
 
   test('max={3} of 5: three avatars, then "+2" (role img, "2 more") at the end; max={0}: only "+2"; avatars in a fragment count one by one', async () => {
-    await render(<Col>
+    await render(<EnUS><Col>
       <AvatarGroup id="max" max={3}>{av(5)}</AvatarGroup>
       <AvatarGroup id="zero" max={0}>{av(2)}</AvatarGroup>
       <AvatarGroup id="frag" max={2}><>{av(4)}</></AvatarGroup>
-    </Col>);
+    </Col></EnUS>);
     const g = el('max'), m = more('max')!;
     expect([g.querySelectorAll('.dk-avatar:not(.dk-avatar-group__more)').length, m.textContent, m.getAttribute('role'), m.getAttribute('aria-label'), m.querySelector('[aria-hidden="true"]') !== null, g.lastElementChild!.contains(m)])
       .toEqual([3, '+2', 'img', '2 more', true, true]);
@@ -61,10 +71,10 @@ describe('AvatarGroup', () => {
   });
 
   test('total={120} with 4 avatars: 116 more (written "99+"), and moreLabel names it; at xs, past 9, "+N" reads "9+" so it fits, and its name keeps the exact count', async () => {
-    await render(<Col>
+    await render(<EnUS><Col>
       <AvatarGroup id="tot" total={120} moreLabel={(n) => n + ' other members'}>{av(4)}</AvatarGroup>
       <AvatarGroup id="big" size="xs" total={120}>{av(4)}</AvatarGroup>
-    </Col>);
+    </Col></EnUS>);
     expect([more('tot')!.textContent, more('tot')!.getAttribute('aria-label')]).toEqual(['99+', '116 other members']);
     const m = more('big')!, s = m.querySelector('.dk-avatar__initials')!;
     expect([s.textContent, m.getAttribute('aria-label'), s.getBoundingClientRect().width <= m.getBoundingClientRect().width]).toEqual(['9+', '116 more', true]);

@@ -5,7 +5,8 @@ import { useServerStyles } from "../../internal/serverStyles";
 import { AVATAR_SIZES, AvatarGroupSize } from "../Avatar/Avatar";
 import type { AvatarSize } from "../Avatar/Avatar";
 import { component } from "../../internal/component";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
+import { displayNumber } from "../../internal/numbers";
 import { flattenChildren } from "../../internal/children";
 import { Popover } from "../Popover/Popover";
 import { en as words } from "./labels";
@@ -33,6 +34,7 @@ export interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
    don't fit (a button with showMore or onMore). Each child sits in its own item, so an avatar inside a Tooltip or a link lines up too, and the
    earlier ones sit on top, so every status dot shows. size sets every avatar's size (it wins over each
    avatar's own). The group is role="group"; label names it. className and every other prop go to the <div>. */
+const PLAIN = { useGrouping: false } as const;
 const OWN = { children: 1, max: 1, total: 1, size: 1, moreLabel: 1, label: 1, showMore: 1, onMore: 1, className: 1 } as const;
 
 /** Avatars in an overlapping row, with "+N" for the rest. */
@@ -44,13 +46,15 @@ export const AvatarGroup = /* @__PURE__ */ component<HTMLDivElement, AvatarGroup
   const max = props.max != null && props.max >= 0 ? Math.floor(props.max) : Infinity;
   const total = Math.max(all.length, props.total != null && props.total > 0 ? Math.floor(props.total) : 0);
   const shown = all.slice(0, max);
-  const sds = useSettings(words);
+  const sds = useSettings(words), locale = useLocale();
   const more = total - shown.length;
   const count = shown.length + (more > 0 ? 1 : 0);
   const cap = size === "xs" ? 9 : 99;   // the most "+N" writes out: three characters don't fit in 24px
   if (props.label) rest["aria-label"] = props.label;
   const moreName = (props.moreLabel || sds.labels.avatarMore)(more);
-  const face = <span className="dk-avatar__frame"><span className="dk-avatar__initials" aria-hidden="true">{more > cap ? cap + "+" : "+" + more}</span></span>;
+  // In the locale's digits, as Badge writes its count: "+٣" in ar-EG (GR22).
+  const digits = (n: number) => displayNumber(n, locale, PLAIN);
+  const face = <span className="dk-avatar__frame"><span className="dk-avatar__initials" aria-hidden="true">{more > cap ? digits(cap) + "+" : "+" + digits(more)}</span></span>;
   const cls = "dk-avatar dk-avatar--" + size + " dk-avatar-group__more";
   // Static, "+N" is one image; with showMore or onMore it's a button with the same name.
   const plus = (onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void) => props.onMore || props.showMore
