@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-react';
 import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
 import { cdp, server, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press, tabTo, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, tabTo, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
 
@@ -108,7 +108,6 @@ describe('Sidebar', () => {
   test('a group\'s items unfold and fold as an Accordion panel does: a fade and a clip from the top, kept (inert) while they fold, then hidden (GM4)', async () => {
     await withMotion(async () => {
       const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition).map((x) => (x).transitionProperty).sort();
-      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
       await render(<App />);
       const b = el('gproj'), list = el(b.getAttribute('aria-controls')!);
       await userEvent.click(b);

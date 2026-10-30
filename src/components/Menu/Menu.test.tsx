@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, press, settle, withMotion, iconPoints } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, press, settle, withMotion, iconPoints, settled } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -650,7 +650,6 @@ describe('ContextMenu', () => {
 describe('Menu: motion (DZ1)', () => {
   const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
   const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|scale)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
-  const settled = (e: Element) => Promise.all(e.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
   // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
   const holds = () => CSS.supports('overlay', 'auto');
   test('opens with a transition and fades and shrinks out faster, its items kept (inert) until the fade ends; focus is back at once', async () => {
@@ -659,13 +658,13 @@ describe('Menu: motion (DZ1)', () => {
       await userEvent.click(el('mb'));
       const m = menuOf('mb');
       expect([runs(m), m.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
-      await settled(m);
+      await settled(m, { subtree: true });
       expect([getComputedStyle(m).opacity, getComputedStyle(m).scale]).toEqual(['1', 'none']);
       await userEvent.keyboard('{Escape}');
       expect([openMenu(), document.activeElement]).toEqual([undefined, el('mb')]);
       if (!holds()) { expect(getComputedStyle(m).display).toBe('none'); return; }
       expect([getComputedStyle(m).display, m.inert, m.querySelectorAll('[role="menuitem"]').length, runs(m)]).toEqual(['block', true, 5, [['opacity', 100], ['scale', 100]]]);
-      await settled(m);
+      await settled(m, { subtree: true });
       await expect.poll(() => m.querySelectorAll('[role="menuitem"]').length).toBe(0);
       expect(getComputedStyle(m).display).toBe('none');
     });
@@ -679,7 +678,7 @@ describe('Menu: motion (DZ1)', () => {
       const moves = (e: Element) => e.getAnimations().map((a) => (a as CSSTransition).transitionProperty).filter((p) => p === 'opacity' || p === 'translate');
       expect(items.flatMap(moves)).toEqual([]);
       expect(items.map((i) => getComputedStyle(i).transitionDelay)).toEqual(items.map(() => '0s'));
-      await settled(m);
+      await settled(m, { subtree: true });
       expect(items.map((i) => getComputedStyle(i).opacity)).toEqual(['1', '1', '0.5', '1', '1']);   // Archive is disabled
     });
   });
@@ -693,12 +692,12 @@ describe('Menu: motion (DZ1)', () => {
       await expect.poll(() => s.hidden).toBe(false);
       expect(el('share').getAttribute('aria-expanded')).toBe('true');
       const m = menuOf('nb');
-      await settled(m);
+      await settled(m, { subtree: true });
       await userEvent.click(page.getByRole('menuitem', { name: 'Email' }));
       expect([openMenu(), s.hidden]).toEqual([undefined, true]);
       if (holds()) {
         expect([runs(m), runs(s), getComputedStyle(s).display]).toEqual([[['opacity', 100], ['scale', 100]], [['opacity', 100], ['scale', 100]], 'block']);
-        await settled(m);
+        await settled(m, { subtree: true });
       }
       await expect.poll(() => m.querySelectorAll('[role="menuitem"]').length).toBe(0);
 
@@ -709,7 +708,7 @@ describe('Menu: motion (DZ1)', () => {
       await render(<ContextMenu aria-label="Card actions" target={<div id="ctx" style={{ width: 200, height: 100 }}>Card</div>}><MenuItem>Rename</MenuItem></ContextMenu>);
       await userEvent.click(el('ctx'), { button: 'right' });
       const c = openMenu()!;
-      await settled(c);
+      await settled(c, { subtree: true });
       await userEvent.keyboard('{Escape}');
       expect(c.hidden).toBe(true);
       if (holds()) expect([c.inert, runs(c), c.querySelectorAll('[role="menuitem"]').length]).toEqual([true, [['opacity', 100], ['scale', 100]], 1]);
