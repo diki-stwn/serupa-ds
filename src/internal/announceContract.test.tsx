@@ -20,6 +20,7 @@ import { InlineEdit } from '../components/InlineEdit/InlineEdit';
 import { Input } from '../components/Input/Input';
 import { Loader } from '../components/Loader/Loader';
 import { LoadMore } from '../components/LoadMore/LoadMore';
+import { SerupaProvider } from './provider';
 import { NumberInput } from '../components/NumberInput/NumberInput';
 import { Progress } from '../components/Progress/Progress';
 import { SaveStatus } from '../components/SaveStatus/SaveStatus';
@@ -78,7 +79,7 @@ const SITES: Record<string, Site> = {
     ui: () => <InlineEdit label="Slug" defaultValue="apollo" validate={(x) => (x.includes(' ') ? 'Use dashes instead of spaces.' : null)} />,
     act: async () => { await userEvent.click($('[data-component="inline-edit"] button')); await userEvent.fill($('[data-component="inline-edit"] input'), 'apollo plan'); await userEvent.keyboard('{Enter}'); }, says: /Use dashes instead of spaces/ },
   'LoadMore: what a load added': {
-    ui: (s) => <LoadMore onLoadMore={() => {}} count={s ? 40 : 20} total={134} />,
+    ui: (s) => <SerupaProvider locale="en-US"><LoadMore onLoadMore={() => {}} count={s ? 40 : 20} total={134} /></SerupaProvider>,   // pinned: the digits follow the browser's locale
     act: (next) => next(), says: /20 more loaded\. Showing 40 of 134/ },
   'NumberInput: typed text that isn\'t a number': {
     ui: () => <NumberInput id="qty" aria-label="Quantity" defaultValue={5} />,

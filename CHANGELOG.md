@@ -4,6 +4,47 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [10.1.0] - 2026-10-27
+
+### Added
+
+- `announcePage()` for single-page apps: after a client-side route change it focuses the new page's main heading and says its title to screen readers, as a full page load would.
+- EmptyState `suggestions` and `onSuggestion` show other searches to try after a search that found nothing ("Did you mean: quarterly"), and `onClearFilters` adds a "Clear filters" button. The words are the new labels `didYouMean` and `clearFilters`.
+- Input `mask` keeps text in a pattern such as `"9999 9999 9999 9999"`, `"99/99/9999"` or `"AA99 **** **** ****"` as people type, paste or delete. The caret stays after the character it was after, and Backspace or Delete next to the pattern's own text removes the typed character beyond it. A digits-only mask gets the number keyboard on phones.
+- `useShortcut(keys, handler, { description, group })` sets up a keyboard shortcut anywhere on the page while a component is mounted. It skips text fields (unless the shortcut has mod), open modals and IME composition, and the newest shortcut wins.
+- `<KeyboardShortcuts />` is a help dialog, opened with "?", that lists every described shortcut by group with its keys in Kbd. It also takes `shortcuts` that aren't set up with `useShortcut`.
+- LoadMore, the end of a paged list: "Showing 20 of 134" over a Load more button or infinite scroll. Each load says what it added to screen readers ("20 more loaded"), and focus goes to "You've reached the end" after the last page.
+- Menu: the other HTML attributes (`id`, `data-*`, `aria-*`) and a ref now reach the menu panel, and the panel's `onKeyDown` runs before the menu's keys.
+- NotificationCenter, a drawer of past notifications with read states (an unread dot, "Mark as read", "Mark all as read" and "Clear all"), and useToastHistory, which keeps the toasts shown for it.
+- SaveStatus, the status line for autosave: "Saving…", "Saved 2 minutes ago" (kept current), or "Couldn't save" with Try again. "Saved" and errors are announced politely once, and it has Indonesian labels.
+- TableActionBar, the bar above a table while rows are selected: "3 selected", your actions for them and "Clear selection". It's a group named by the count, reads a new count out, and when it hides with focus in it, focus moves to the table's "Select all" checkbox.
+- `toast.undo({ title, commit, onUndo })` for the undo pattern. It shows a toast with an Undo button and runs `commit` once, when the toast closes without Undo (its time runs out, it's closed, or the page is left), or `onUndo` if Undo is chosen. There is a new `undo` label.
+
+### Fixed
+
+- Accordion: a word longer than the line (a German compound, a URL) wraps in the title and the content, so the page no longer scrolls sideways at 320px (WCAG 1.4.10).
+- The shipped CSS drops leading indentation (about 7.5 KB off dist/bundle.css). Rules, banners and line breaks stay as they were.
+- Loader and Switch drop their fallbacks for browsers without `color-mix()`. Every supported browser has it, so nothing changes on screen, and the CSS is slightly smaller.
+- An Icon name in another spelling, such as `name="Home"` (the export's name) or `"arrow-forward"`, now warns with the name to use ("Did you mean "home"?") instead of only saying the icon is unknown.
+- An IconButton given `aria-label` instead of `label` had no accessible name, because it set `aria-label={label}` over it, and the warning said the button needed an aria-label it had been given. `aria-label` now names it, and its title too, when `label` is missing.
+- Image: a picture that fails to load stays in the frame, hidden under the fallback, so its className, style, id, data-* and ref keep working and a fixed-ratio frame keeps its size instead of collapsing to 0x0 (GJ1). A failed frame with no size of its own is at least --image-min-size wide.
+- List: in right-to-left text, a row's text keeps its start padding on the right instead of sitting flush against the edge.
+- The mask utilities' internal variables have shorter names (for example `--dk-mask-bottom-from-color` is now `--dk-mask-b-from-c`), so utilities.css and bundle.css are about 54 KB smaller. The classes and how they render are unchanged. These variables were never documented, but if you set one directly, use the new name.
+- Menu: the items arrive with the menu as one, instead of one after another. The same goes for ContextMenu and a MenuSub's submenu.
+- Rating: the stars shrink to fit a narrow grid column too, instead of holding the column at the full row's width.
+- RelativeTime: with numeric "auto", "yesterday", "last month" and "last year" follow the reader's calendar instead of elapsed time (01:00 seen at 23:00 the same day now reads "22 hours ago"), and an invalid date warns once in development.
+- Safari now honours the components' `user-select: none`. Safari reads only `-webkit-user-select`, so the text in Button, Menu, Combobox options, Avatar initials, Breadcrumb separators, Pagination ellipses, Input affixes, icons and the other spots that opt out of selection could still be selected there by a double-click or long-press.
+- KeyboardShortcuts: `useShortcut(["G", "I"])` ran on a lone I, since only its last key was matched, and the help dialog listed it as G + I. Keys that aren't one key plus its modifiers are now not set up or listed, with a development warning.
+- Sidebar: a group's nested items unfold and fold with its chevron (a fade and a clip from the top, as Accordion does) instead of appearing and vanishing at once.
+- Sidebar: in the collapsed rail, an item whose label is an element (a span with a count, a translated node) gets its tooltip too, not only a string label.
+- Splitter: when a parent collapses the first pane while focus is in it, focus moves to the handle instead of dropping to the page.
+- Tabs: the pill fill slides to a new tab by clip-path instead of scale, so its round corners stay round mid-slide.
+- Tabs: the tab list's scrollbar is hidden in Safari before 18.2 as well, which ignores `scrollbar-width`.
+- Tabs: a long tab row in a CSS grid track or a flex row scrolls in its box instead of widening the page.
+- ToggleGroup: an attached row too wide for its container wraps as separate toggles, as ButtonGroup does, instead of widening the page on a phone.
+- ButtonGroup: an attached row in a CSS grid column wraps too, instead of widening the column.
+- In TreeView and Menu, a Space typed within half a second of a letter is part of the typeahead word ("my files", "save as"), as in native lists, instead of picking or choosing the focused item.
+
 ## [10.0.0] - 2026-10-26
 
 ### Added

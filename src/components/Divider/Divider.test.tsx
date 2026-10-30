@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { page } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Stack } from '../Stack/Stack';
 import { Divider } from './Divider';
@@ -56,5 +57,14 @@ describe('Divider', () => {
       if (r < 4.5) low.push(`${th} label ${r.toFixed(2)}`);
     }
     expect(low).toEqual([]);
+  });
+
+  test('a label word longer than the line wraps between two short lines, so at 320px the page doesn\'t scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await page.viewport(320, 640);
+    await render(<div style={{ width: '240px' }}><Divider id="dl" label="Donaudampfschifffahrtsgesellschaftskapitänskajüte" /></div>);
+    const d = el('dl'), label = d.firstElementChild as HTMLElement;
+    expect([d.scrollWidth <= d.clientWidth + 1, label.getBoundingClientRect().width < 240]).toEqual([true, true]);
+    expect(parseFloat(getComputedStyle(d, '::before').minWidth)).toBeGreaterThan(0);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
 });

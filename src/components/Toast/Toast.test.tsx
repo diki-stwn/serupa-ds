@@ -610,3 +610,22 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     await expect.poll(titles, { timeout: 2000 }).toEqual([]);
   });
 });
+
+describe('Toast on a phone (GQ1)', () => {
+  test('at a phone width an action goes under the text, lined up with it, so the text keeps its width; at full width it stays beside it', async () => {
+    const desc = 'The Northwind integration was turned off for the whole workspace.';
+    const at = (w: string) => <Toaster style={{ '--toast-width': w } as React.CSSProperties} />;
+    const screen = await render(at('288px'));
+    React.act(() => { toast({ title: 'Integration disconnected', description: desc, tone: 'danger', action: { label: 'Reconnect', onClick: () => {} } }); toast({ title: 'Archived', description: desc, action: { label: 'Undo', onClick: () => {} } }); });
+    await expect.poll(() => toasts().length).toBe(2);
+    await landed();
+    const probe = () => toasts().map((t) => {
+      const text = t.querySelector('p')!.parentElement!.getBoundingClientRect(), act = undoButton(t).getBoundingClientRect();
+      return [text.width > 180, act.top >= text.bottom, Math.round(act.left - text.left)];
+    });
+    // Before, the danger toast's text was 95px wide and the toast 216px tall.
+    expect(probe()).toEqual([[true, true, 0], [true, true, 0]]);
+    await screen.rerender(at('384px'));
+    expect(probe().map(([, under]) => under)).toEqual([false, false]);
+  });
+});

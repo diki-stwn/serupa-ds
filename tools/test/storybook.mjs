@@ -137,11 +137,10 @@ const cutOff = () => {
 const REFLOW_KNOWN = new Set([
   'components-actions-copybutton--with-a-field', 'components-actions-copybutton--variants-and-sizes',
   'components-actions-togglebutton--sizes',
-  'components-content-accordion--long-text', 'components-content-highlight--long-text',
   'components-content-icon--common-icons', 'components-content-sortablelist--long-text',
-  'components-data-display-timeline--long-text', 'components-feedback-progress--long-label',
+  'components-feedback-progress--long-label',
   'components-forms-pininput--overflow', 'components-layout-and-type-container--long-text',
-  'components-layout-and-type-divider--long-label', 'components-layout-and-type-grid--overflow',
+  'components-layout-and-type-grid--overflow',
   'components-layout-and-type-stack--overflow', 'components-navigation-navbar--overflow',
   'components-navigation-stepper--narrow', 'components-navigation-stepper--long-labels',
   'components-overlays-menu--submenus', 'guides-serupaprovider--default',

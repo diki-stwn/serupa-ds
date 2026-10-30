@@ -7,6 +7,8 @@
 hr.dk-divider, .dk-divider:not(.dk-divider--vertical):not(.dk-divider--label) { width: var(--sizing-full); height: var(--spacing-0); border-top: var(--divider-width, var(--border-width-1)) solid var(--divider-color, var(--border)); }
 .dk-divider--vertical { align-self: stretch; width: var(--spacing-0); min-height: var(--spacing-4); border-inline-start: var(--divider-width, var(--border-width-1)) solid var(--divider-color, var(--border)); }
 .dk-divider--label { display: flex; align-items: center; gap: var(--divider-label-gap, var(--spacing-3)); width: var(--sizing-full); color: var(--divider-label-color, var(--text-muted)); font-family: var(--font-sans); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
-.dk-divider--label::before, .dk-divider--label::after { content: ""; flex: auto; border-top: var(--divider-width, var(--border-width-1)) solid var(--divider-color, var(--border)); }
+/* A word longer than the line breaks instead of pushing the page sideways (WCAG 1.4.10); the lines keep a stub on each side. */
+.dk-divider__label { min-width: var(--spacing-0); overflow-wrap: anywhere; text-align: center; }
+.dk-divider--label::before, .dk-divider--label::after { content: ""; flex: auto; min-width: var(--spacing-4); border-top: var(--divider-width, var(--border-width-1)) solid var(--divider-color, var(--border)); }
 @media (forced-colors: active) { .dk-divider, .dk-divider--label::before, .dk-divider--label::after { border-color: CanvasText; } }
 }

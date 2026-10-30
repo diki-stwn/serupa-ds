@@ -14,16 +14,16 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v10.0.0
+npm install github:diki-stwn/serupa-ds#v10.1.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v10.0.0/serupa-ds-10.0.0.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v10.1.0/serupa-ds-10.1.0.tgz
 ```
 
-Always pin a tag (`#v10.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v10.1.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -232,6 +232,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | [Loader](src/components/Loader/README.md) | Shows that something is loading when you can't say how far along it is. |
 | [Meter](src/components/Meter/README.md) | Shows a measurement within a known range: storage used, a plan's seats, a password's strength, a battery level. |
 | [Progress](src/components/Progress/README.md) | Shows how far along a task is when you can tell: an upload, a setup, a quota. |
+| [SaveStatus](src/components/SaveStatus/README.md) | A small line that says whether autosaved changes are safe: "Saving…", "Saved 2 minutes ago", or "Couldn't save" with a Try again button. |
 | [Toast](src/components/Toast/README.md) | A short message that confirms something happened ("Changes saved", "Moved to trash") without getting in the way. |
 
 ### Forms
@@ -287,6 +288,7 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | Component | What it's for |
 | --- | --- |
 | [Breadcrumb](src/components/Breadcrumb/README.md) | Shows where the current page sits: links to the pages above it, from the top level down, with chevrons between them. |
+| [LoadMore](src/components/LoadMore/README.md) | The end of a list that loads in pages: "Showing 20 of 134" over a Load more button, or infinite scroll, and an announcement of what each load added. |
 | [Navbar](src/components/Navbar/README.md) | The bar across the top of an app: the brand on the left, the main page links, and actions on the right (search, a user menu, sign in). |
 | [Pagination](src/components/Pagination/README.md) | Moves through pages of results: previous and next arrows around the page numbers, with … where pages are skipped. |
 | [Sidebar](src/components/Sidebar/README.md) | A vertical nav for an app's pages: an optional header (a logo, a workspace switcher), sections of items with icons, badges and nested groups, and a footer pinned to the bottom (settings, the signed-in user). |
@@ -300,7 +302,9 @@ Storybook's sidebar lists them by group: Actions, Forms, Feedback, Overlays, Nav
 | --- | --- |
 | [Dialog](src/components/Dialog/README.md) | A modal window over a dimmed page, for a task or a decision that needs attention before people go on: inviting someone, confirming a delete, editing a few fields. |
 | [Drawer](src/components/Drawer/README.md) | A modal panel that slides in from an edge of the screen: navigation on small screens, filters, or details and edits without leaving the page. |
+| [KeyboardShortcuts](src/components/KeyboardShortcuts/README.md) | Keyboard shortcuts for an app, in one place: `useShortcut` sets one up where it's used, and `<KeyboardShortcuts>` is the help dialog that lists them all, opened with <kbd>?</kbd>. |
 | [Menu](src/components/Menu/README.md) | A list of actions behind a button: a row's "More" menu, an "Actions" dropdown, a user menu. |
+| [NotificationCenter](src/components/NotificationCenter/README.md) | A drawer of past notifications with read states: newest first, unread ones with a dot and a bolder title, and buttons to mark them read or clear the list. |
 | [Popover](src/components/Popover/README.md) | A small panel next to its trigger for content people interact with: a short form, filters, details with links. |
 | [Tooltip](src/components/Tooltip/README.md) | A short hint about one element, shown while it's hovered or focused: what an icon button does, a keyboard shortcut, why something is unavailable. |
 
