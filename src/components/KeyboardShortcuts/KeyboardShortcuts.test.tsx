@@ -124,7 +124,8 @@ describe('KeyboardShortcuts', () => {
       return <><button id="open" onClick={() => setOpen(true)}>Shortcuts</button>
         <KeyboardShortcuts id="ks" helpKeys={false} open={open} onOpenChange={(o) => { changes.push(o); setOpen(o); }} /></>;
     }
-    const screen = await render(<KeyboardShortcuts id="ks" helpKeys={['shift', 'F1']} title="Shortcuts" />);
+    // platform="other": WebKit in Playwright says Mac on any OS, and would draw Shift as ⇧.
+    const screen = await render(<SerupaProvider platform="other"><KeyboardShortcuts id="ks" helpKeys={['shift', 'F1']} title="Shortcuts" /></SerupaProvider>);
     await userEvent.keyboard('?');
     expect(dialog()).toBe(null);
     await userEvent.keyboard('{Shift>}{F1}{/Shift}');
@@ -132,7 +133,7 @@ describe('KeyboardShortcuts', () => {
     expect(listed()).toEqual([['', [['Show keyboard shortcuts', 'Shift+F1']]]]);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => dialog()).toBe(null);
-    await screen.rerender(<Controlled />);
+    await screen.rerender(<SerupaProvider platform="other"><Controlled /></SerupaProvider>);
     await userEvent.keyboard('?');
     expect(dialog()).toBe(null);
     await userEvent.click(el('open'));
