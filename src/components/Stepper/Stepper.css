@@ -11,6 +11,8 @@
   --dk-step-line: var(--stepper-connector-width, var(--border-width-2));
   --dk-step-line-top: calc((var(--dk-step-size) - var(--dk-step-line)) / 2);
   --dk-step-line-start: calc((var(--dk-step-size) - var(--dk-step-line)) / 2);
+  /* As a grid or flex item it takes the width it's given, not its circles' width, so compact mode can fit them (GN2b). */
+  min-inline-size: var(--spacing-0);
   color: var(--stepper-title-color, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height);
 }
 .dk-stepper--size-sm { --dk-step-size: var(--stepper-indicator-size-sm, var(--spacing-6)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
