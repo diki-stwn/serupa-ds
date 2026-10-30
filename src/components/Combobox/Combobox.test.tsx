@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Combobox, type ComboboxOption } from './Combobox';
 import { Field } from '../Field/Field';
 import { DEFAULT_LABELS, idLabels } from '../../internal/labels';
@@ -585,7 +585,6 @@ describe('Combobox loadOptions (DG1)', () => {
     await withMotion(async () => {
       const ms = (x: Animation) => Number(x.effect!.getComputedTiming().duration);
       const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition && /^(opacity|scale)$/.test(x.transitionProperty)).map((x) => [(x as CSSTransition).transitionProperty, ms(x)]).sort();
-      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
       await render(<Countries />);
       await userEvent.click(toggleOf('cb'));
       const pop = popOf('cb');

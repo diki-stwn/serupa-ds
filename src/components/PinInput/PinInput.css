@@ -36,6 +36,9 @@
   forced-color-adjust: none;   /* forced colors would paint the selected code in HighlightText over the first box */
 }
 .dk-pin-input__field::selection { background: transparent; color: transparent; }
+/* iOS Safari zooms the page into a focused field whose text is under 16px. The field is transparent (the boxes show
+   the digits), so sm's field takes 16px there and nothing changes on screen (PT2). */
+@supports (-webkit-touch-callout: none) { .dk-pin-input--size-sm .dk-pin-input__field { font-size: var(--text-base); } }
 @media (hover: hover) { .dk-pin-input:hover:not(.dk-pin-input--disabled, .dk-pin-input--readonly, :focus-within) { --dk-pin-bd: var(--pin-input-border-hover, var(--field-border-hover)); } }
 /* The box the caret is in: the focus color on its border and a ring hugging it (2px in all), and a transparent
    outline that forced-colors mode draws, since box-shadow rings disappear there. */

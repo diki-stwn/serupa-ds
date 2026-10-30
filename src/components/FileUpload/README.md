@@ -35,6 +35,7 @@ import { FileUpload } from "serupa-ds";
 - The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it. Text or a link dragged across it doesn't highlight it. While it can take files, a file dropped just outside the area is ignored rather than opened by the browser in place of the page. A dropped folder is refused ("Invoices is a folder: choose the files in it instead."), and a file that's already in the list is skipped with a message ("report.pdf is already added.").
 - Files that don't fit are listed under the area in danger text and passed to `onReject`; the same file picked twice is skipped quietly.
 - Removing a file moves focus to the next file's remove button, or the one before it, so clearing several files stays in the list; with none left, focus goes to the choose button.
+- A long file name is cut in the middle, as Finder and Drive do: "quarterly-report-fi…t-2026.pdf". The last few characters and the extension stay, so files that differ only by year or version still look different. Hover shows the full name, and it's laid out in its own direction.
 - The native input always holds the listed files, including dropped ones, so a form sends exactly what's shown.
 - `readOnly` shows the files without remove buttons and ignores the button and drops; the files are still submitted. `disabled` also fades it and leaves the files out of the form.
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Dialog } from '../Dialog/Dialog';
@@ -627,5 +627,22 @@ describe('Toast on a phone (GQ1)', () => {
     expect(probe()).toEqual([[true, true, 0], [true, true, 0]]);
     await screen.rerender(at('384px'));
     expect(probe().map(([, under]) => under)).toEqual([false, false]);
+  });
+});
+
+describe('Toaster on a short screen (GQ1b)', () => {
+  test('a phone in landscape (568 by 320): only the toasts that fit show, the rest wait under the "+N more" line, and nothing goes past the top; a taller screen shows them all again', async () => {
+    await page.viewport(568, 320);
+    try {
+      await render(<Toaster />);
+      React.act(() => { for (let i = 1; i <= 3; i++) toast({ title: 'Report ' + i + ' is ready', description: 'Quarterly numbers for the finance team, with every region and each product line broken out', action: { label: 'Open', onClick: () => {} }, duration: 0 }); });
+      await landed();
+      const top = () => Math.min(...[...document.querySelectorAll<HTMLElement>('[data-toast]:not([data-leaving]), ol > li:not([data-toast])')].map((x) => x.getBoundingClientRect().top));
+      await expect.poll(top).toBeGreaterThanOrEqual(0);
+      expect(titles().at(-1)).toBe('Report 3 is ready');   // the newest shows
+      expect(q('ol > li:not([data-toast])')?.textContent).toMatch(/^\+\d more$/);
+      await page.viewport(568, 900);
+      await expect.poll(() => toasts().filter((x) => !x.hasAttribute('data-leaving')).length).toBe(3);
+    } finally { await page.viewport(900, 700); }
   });
 });
