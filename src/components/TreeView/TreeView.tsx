@@ -173,7 +173,8 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
       const shut = rows.filter((x) => x.parent === r.parent && opens(x.item) && !x.item.disabled && !openSet.has(x.item.id));
       if (shut.length) setOpen(open.concat(shut.map((x) => x.item.id)));
     }
-    else if (multi && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") pick(rows.filter((x) => !x.item.disabled).map((x) => x.item.id));
+    // Ctrl+A on a Russian, Greek or Arabic layout sends "ф", "α" or "ش", so a key that isn't Latin goes by its position.
+    else if (multi && (e.ctrlKey || e.metaKey) && (/^[\x20-\x7e]$/.test(e.key) ? e.key.toLowerCase() === "a" : e.code === "KeyA")) pick(rows.filter((x) => !x.item.disabled).map((x) => x.item.id));
     else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) to = typeahead(typed.current, e.key, rows.map((x) => textOf(x.item)), i);
     else return;
     e.preventDefault();
