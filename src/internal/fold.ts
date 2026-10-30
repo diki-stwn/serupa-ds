@@ -8,8 +8,12 @@ const LETTERS: Record<string, string> = { "ł": "l", "đ": "d", "ð": "d", "ø":
 // ("काम" is not "कम"), and in Japanese the voicing mark makes "ガ" a different sound from "カ" (GR29).
 const ACCENTS = /[\u0300-\u036f]|[\u1ab0-\u1aff]|[\u1dc0-\u1dff]|[\u20d0-\u20ff]|[\ufe20-\ufe2f]|[\u0591-\u05c7]|[\u0610-\u061a]|[\u064b-\u065f]|[\u0670]|[\u06d6-\u06ed]/g;   // one class per range: a class that runs one mark into the next is "misleading" to lint
 
+// Cyrillic letters that only look like a letter with an accent: й, ў and ї are letters of their own (Russian "мой" is
+// not "мои"), so their marks are put back before the accents go. ё still finds е, as people type it (GR41).
+const CYRILLIC = /[иИуУ]\u0306|[іІ]\u0308/g;
+
 /** Lowercased, without accents or width differences, with ł→l, ø→o, æ→ae, ß→ss and the like. Vowel signs and tone
     marks (Hindi, Thai…) and Japanese voicing marks are kept: they make a different word. */
 export function fold(s: string): string {
-  return s.normalize("NFKD").replace(ACCENTS, "").toLowerCase().replace(/[łđðøæœßħıþŧŋĸ]/g, (c) => LETTERS[c]);
+  return s.normalize("NFKD").replace(CYRILLIC, (m) => m.normalize("NFC")).replace(ACCENTS, "").toLowerCase().replace(/[łđðøæœßħıþŧŋĸ]/g, (c) => LETTERS[c]);
 }
