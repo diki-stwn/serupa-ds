@@ -568,36 +568,6 @@
             "cssVar": "--button-loading-duration"
           }
         }
-      },
-      "ripple-opacity": {
-        "$type": "number",
-        "$value": "{opacity.opacity-20}",
-        "$description": "Strength of the ripple from the press point, in the text color (20%). 0 turns the ripple off.",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--button-ripple-opacity"
-          }
-        }
-      },
-      "ripple-duration": {
-        "$type": "duration",
-        "$value": "{transitions.motion-ripple}",
-        "$description": "How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave.",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--button-ripple-duration"
-          }
-        }
-      },
-      "ripple-fade-duration": {
-        "$type": "duration",
-        "$value": "{transitions.motion-ripple-fade}",
-        "$description": "How long the ripple takes to fade after release (300ms).",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--button-ripple-fade-duration"
-          }
-        }
       }
     }
   }
