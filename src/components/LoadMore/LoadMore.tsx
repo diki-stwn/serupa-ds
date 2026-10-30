@@ -44,11 +44,14 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
   const box = React.useRef<HTMLDivElement | null>(null);
   const end = React.useRef<HTMLParagraphElement | null>(null);
   const hadFocus = React.useRef(false);
+  // A load from the focused button, with the count it started at: keep the button in view once it lands (GR2).
+  const follow = React.useRef<{ from: number | undefined } | null>(null);
   const num = (n: number) => n.toLocaleString(locale);
 
   const run = React.useCallback(() => {
     if (busy) return;
     hadFocus.current = !!box.current && box.current.contains(document.activeElement);
+    follow.current = hadFocus.current ? { from: count } : null;
     const out = onLoadMore();
     if (!isThenable(out)) return;
     setPending(true);
@@ -75,6 +78,16 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
     if (!hasMore && hadFocus.current && end.current && !box.current!.contains(document.activeElement)) end.current.focus();
     if (!hasMore) hadFocus.current = false;
   }, [hasMore]);
+
+  // The new items pushed the focused button down, maybe off screen: once the load settles, scroll it back into view
+  // (only as far as needed), so a keyboard user sees where they are and doesn't press again blind (GR2).
+  React.useEffect(() => {
+    // Landed: settled, and with count, once it has grown (the items can arrive after the promise settles).
+    if (busy || !follow.current || count != null && count === follow.current.from) return;
+    follow.current = null;
+    const at = document.activeElement as HTMLElement | null;
+    if (at && box.current && box.current.contains(at) && typeof at.scrollIntoView === "function") at.scrollIntoView({ block: "nearest" });
+  }, [busy, count]);
 
   // infinite: load as it nears the viewport, once per approach, and again only when count changes.
   const [near, setNear] = React.useState(false);
