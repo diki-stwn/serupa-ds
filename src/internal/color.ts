@@ -1,8 +1,9 @@
 // Colors as hex strings: reading them, and WCAG 2 contrast between two (the same formula tools/test uses).
 
-/** "#1d4ed8" from "#1D4ED8", "1d4ed8", "#14d" or "14d"; null when it isn't a 3- or 6-digit hex color. */
+/** "#1d4ed8" from "#1D4ED8", "1d4ed8", "#14d" or "14d", also typed in full width ("＃１Ｄ４ＥＤ８", from a Japanese or
+    Chinese IME); null when it isn't a 3- or 6-digit hex color. */
 export function normalizeHex(text: string): string | null {
-  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(text.trim());
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(text.normalize("NFKC").trim());
   if (!m) return null;
   const h = m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1];
   return "#" + h.toLowerCase();
