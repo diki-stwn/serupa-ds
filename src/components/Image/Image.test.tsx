@@ -120,6 +120,20 @@ describe('Image', () => {
       .toEqual([true, 'y', true, [192, 108], [240, 135], true]);
   });
 
+  test('with a fixed ratio and no size of its own, the frame takes its container\'s width: loading, broken and loaded are the same shape, so nothing jumps (GR21)', async () => {
+    const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
+    const size = (id: string) => { const r = document.getElementById(id)!.closest('[data-component="image"]')!.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
+    const state = (id: string) => document.getElementById(id)!.closest('[data-component="image"]')!.getAttribute('data-state');
+    await render(<div style={{ width: 300 }}>
+      <Image id="fslow" src={slow} alt="Slow" ratio="video" />
+      <Image id="fbroken" src={BROKEN} alt="Broken" ratio="video" />
+      <Image id="fok" src={PIC} alt="Loaded" ratio="video" />
+      <Image id="fsmall" src={PIC} alt="Own width" ratio="video" className="w-24" />
+    </div>);
+    await expect.poll(() => [state('fbroken'), state('fok'), state('fsmall')]).toEqual(['error', 'loaded', 'loaded']);
+    expect([state('fslow'), size('fslow'), size('fbroken'), size('fok'), size('fsmall')]).toEqual(['loading', [300, 169], [300, 169], [300, 169], [96, 54]]);
+  });
+
   test('a new src starts over: a broken picture given a good src loads it; a slow one replaced before it arrives shows the new one, and the old answer changes nothing', async () => {
     const slow = `/__slow-picture__.svg?${crypto.randomUUID()}`;
     const r = await render(<Pic id="next" alt="Team photo" ratio="square" src={BROKEN} />);
