@@ -72,6 +72,20 @@ describe('NumberInput', () => {
     expect([(document.getElementById('nidr') as HTMLInputElement).value.replace(/\s/g, ' '), document.getElementById('nidr')!.hasAttribute('name')]).toEqual(['Rp 1.500.000', false]);
   });
 
+  test('a default with more decimals than shown is taken as shown: the form sends 20 for US$20,00 and 1250000001 for Rp 1.250.000.001, and leaving the field without an edit changes nothing (GR47)', async () => {
+    const calls: Array<number | null> = [];
+    await render(<SerupaProvider locale="id-ID"><form id="gr47">
+      <NumberInput id="usd" name="usd" currency="USD" defaultValue={19.995} onValueChange={(n) => calls.push(n)} />
+      <NumberInput id="idr" name="amt" currency="IDR" defaultValue={1250000000.5} onValueChange={(n) => calls.push(n)} />
+      <NumberInput id="ctl" name="ctl" currency="USD" value={4.999} onValueChange={(n) => calls.push(n)} />
+    </form></SerupaProvider>);
+    const sent = () => [...new FormData(document.getElementById('gr47') as HTMLFormElement).entries()];
+    expect([field('usd').value, field('idr').value, field('ctl').value].map((s) => s.replace(/\s/g, ' '))).toEqual(['US$20,00', 'Rp 1.250.000.001', 'US$5,00']);
+    expect(sent()).toEqual([['usd', '20'], ['amt', '1250000001'], ['ctl', '5']]);
+    for (const id of ['usd', 'idr', 'ctl']) { field(id).focus(); await blur(id); }
+    expect([sent(), calls]).toEqual([[['usd', '20'], ['amt', '1250000001'], ['ctl', '5']], []]);
+  });
+
   test('form reset: the default comes back, in the field and in what the form sends; a controlled field shows its value again', async () => {
     await render(<form id="nr">
       <NumberInput id="nru" name="u" defaultValue={5} locale="en-US" />
