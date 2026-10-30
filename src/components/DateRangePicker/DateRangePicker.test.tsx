@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { DateRangePicker, type DateRange } from './DateRangePicker';
@@ -242,5 +242,26 @@ describe('DateRangePicker', () => {
     box('trip').style.setProperty('--calendar-range-bg', 'rgb(1, 2, 3)');
     expect(getComputedStyle(pop('trip').querySelector('.dk-calendar__day--in-range')!).backgroundColor).toBe('rgb(1, 2, 3)');
     still.remove();
+  });
+});
+
+describe('DateRangePicker popup on a phone (GR9)', () => {
+  test('with the months stacked, the popup is one month wide and keeps 8px from both sides of the screen, in LTR and RTL', async () => {
+    try {
+      for (const w of [320, 390]) {
+        await page.viewport(w, 900);
+        for (const dir of ['ltr', 'rtl'] as const) {
+          const r = await render(<div dir={dir}><DateRangePicker data-testid="gr9" locale="en-US" defaultValue={{ start: new Date(2025, 2, 10), end: new Date(2025, 3, 2) }} /></div>);
+          await userEvent.click(btn('gr9'));
+          await expect.poll(() => isOpen('gr9')).toBe(true);
+          const p = pop('gr9').getBoundingClientRect(), cals = [...pop('gr9').querySelectorAll('[role=grid]')].map((g) => g.getBoundingClientRect());
+          expect(cals[1].top).toBeGreaterThan(cals[0].bottom);   // stacked
+          expect(p.left).toBeGreaterThanOrEqual(7.5);
+          expect(w - p.right).toBeGreaterThanOrEqual(7.5);
+          expect(p.width).toBeLessThan(cals[0].width + 48);   // one month plus its padding, not two across
+          await r.unmount();
+        }
+      }
+    } finally { await page.viewport(900, 700); }
   });
 });

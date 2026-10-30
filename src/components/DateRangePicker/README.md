@@ -28,7 +28,7 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 - Wrap it in [Field](../Field/README.md) with one label for the range, and put the expected format in the `hint`. Field's `id` goes to the start field.
 - Set `startLabel` and `endLabel` to fit the task ("Check-in", "Check-out") so each field has a clear name.
 - Use `min`, `max` and `isDateDisabled` to block days rather than rejecting a range afterwards. Blocked days can't be an end but can sit inside a range, so check for them yourself if a range must not cross them.
-- In narrow places, such as a side panel, set `months={1}`. Two months stack below 640px anyway.
+- In narrow places, such as a side panel, set `months={1}`. Two months stack below 640px anyway, and the popup is then one month wide, 8px clear of both sides of the screen.
 - In a plain form, use `startName` and `endName`: each end is sent as `yyyy-mm-dd`.
 
 ## Behavior
