@@ -19,4 +19,6 @@
 .dk-notification-center__item:not([data-read]) .dk-notification-center__title { font-weight: var(--notification-center-unread-weight, var(--font-semibold)); }
 .dk-notification-center__description, .dk-notification-center__time, .dk-notification-center__empty { font-size: var(--text-sm); color: var(--notification-center-description, var(--text-muted)); }
 .dk-notification-center__dot { flex-shrink: 0; width: var(--spacing-2); height: var(--spacing-2); margin-block: var(--spacing-2); border-radius: var(--rounded-full); background: var(--notification-center-unread, var(--primary)); }
+/* Forced colors paint every background Canvas, which would erase the dot: draw it in CanvasText, as Badge's indicator (GR27). */
+@media (forced-colors: active) { .dk-notification-center__dot { forced-color-adjust: none; background: CanvasText; } }
 }
