@@ -29,8 +29,8 @@ export const Color: Story = {
 
 export const CommonIcons: Story = {
   name: 'Common icons',
-  render: () => <div className="grid grid-cols-6 gap-4">
+  render: () => <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
     {['add', 'close', 'check', 'search', 'menu', 'more_horiz', 'edit', 'delete', 'download', 'upload', 'settings', 'person', 'home', 'arrow_back', 'arrow_forward', 'expand_more', 'info', 'warning'].map((n) =>
-      <div key={n} className="flex flex-col items-center gap-1 text-xs"><Icon name={n} aria-label={n} /><code>{n}</code></div>)}
+      <div key={n} className="flex flex-col items-center gap-1 text-xs"><Icon name={n} aria-label={n} /><code className="wrap-anywhere text-center">{n}</code></div>)}
   </div>,
 };
