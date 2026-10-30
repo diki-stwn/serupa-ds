@@ -23,8 +23,6 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
   variant?: BadgeVariant;
   /** 'neutral' (default) and 'primary' use the alias colors; 'success' (green), 'warning' (amber), 'danger' (red) and 'info' (sky) are statuses; the palette families are for categories and tags. Every tone and variant keeps 4.5:1 text in light and dark. */
   tone?: BadgeTone;
-  /** @deprecated Removed in 4.0.0: badges have one size (20px, text-xs). Ignored, with a console warning. */
-  size?: never;
   /** A small status dot before the label, in the badge's text color. Ignored with leftIcon or count. With no label, icon or count, renders a lone indicator dot ("something new"): decorative unless given aria-label. */
   dot?: boolean;
   /** With dot (in a label or the lone indicator): a copy of the dot grows and fades every second (the system's ping animation), for live states. Off under reduced motion. Ignored without a dot. Default false. */
@@ -89,7 +87,7 @@ function removeAndRefocus(e: React.MouseEvent<HTMLButtonElement>, onRemove: (e: 
   }, 0);
 }
 
-const OWN = { variant: 1, tone: 1, size: 1, dot: 1, ping: 1, leftIcon: 1, count: 1, max: 1, showZero: 1, onRemove: 1, removeLabel: 1, loading: 1, loadingText: 1, className: 1, children: 1 } as const;
+const OWN = { variant: 1, tone: 1, dot: 1, ping: 1, leftIcon: 1, count: 1, max: 1, showZero: 1, onRemove: 1, removeLabel: 1, loading: 1, loadingText: 1, className: 1, children: 1 } as const;
 
 /** A short label for status, counts and categories. A <span>; a <button> with onClick, a link with href. */
 export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge", function Badge(props, ref) {
@@ -98,7 +96,6 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "subtle");
   const tone = oneOf(TONES, props.tone, "neutral");
-  if (process.env.NODE_ENV !== "production" && props.size != null) warnOnce("badge-size", "Badge: size was removed in 4.0.0; badges have one size (20px, text-xs). Remove the size prop.");   // still swallowed, so it never reaches the DOM
   // Once it shows, the ring stays at least MIN_SHOWN, so loading that ends a moment later doesn't flash it (EB1).
   const loading = useShowAfter(!!props.loading, 0);
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;

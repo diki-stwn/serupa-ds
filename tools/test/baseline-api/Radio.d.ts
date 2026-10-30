@@ -4,7 +4,6 @@ interface RadioGroupProps<V extends number | string = number | string> extends O
     value?: null | V;
     defaultValue?: V;
     onValueChange?: (value: V, event: React.ChangeEvent<HTMLInputElement>) => void;
-    onChange?: (value: V, event: React.ChangeEvent<HTMLInputElement>) => void;
     orientation?: "horizontal" | "vertical";
     size?: "lg" | "md" | "sm";
     invalid?: boolean;

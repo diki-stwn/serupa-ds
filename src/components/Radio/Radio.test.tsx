@@ -140,17 +140,14 @@ describe('Radio', () => {
     expect([document.activeElement!.id, seen.join()]).toEqual(['rtl-c', 'a,c']);
   });
 
-  test('onChange, deprecated: still called with (value, event) after onValueChange, and warns once', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  test('the old onChange alias is gone: from plain JavaScript it is the group div\'s own handler, getting the radios\' bubbling change event after onValueChange', async () => {
     const calls: string[] = [];
-    await render(<Grid><RadioGroup aria-label="Ship" onValueChange={(v, e) => calls.push('value:' + v + ':' + e.type)} onChange={(v, e) => calls.push('change:' + v + ':' + e.type)}>
+    const old = { onChange: (e: React.ChangeEvent<HTMLInputElement>) => calls.push('change:' + e.target.value + ':' + e.type) } as object;   // as plain JavaScript passes it; TypeScript rejects onChange
+    await render(<Grid><RadioGroup aria-label="Ship" onValueChange={(v, e) => calls.push('value:' + v + ':' + e.type)} {...old}>
       <Radio id="dc-air" value="air">Air</Radio><Radio id="dc-sea" value="sea">Sea</Radio>
     </RadioGroup></Grid>);
     await userEvent.click(input('dc-sea'));
-    await userEvent.click(input('dc-air'));
-    expect(calls).toEqual(['value:sea:change', 'change:sea:change', 'value:air:change', 'change:air:change']);
-    expect(warn.mock.calls.filter((c) => String(c[0]).includes('RadioGroup: onChange is deprecated')).length).toBe(1);
-    warn.mockRestore();
+    expect(calls).toEqual(['value:sea:change', 'change:sea:change']);
   });
 
   test('a radio\'s own size wins over the group\'s: lg is a 20px circle with text-base, centered', async () => {

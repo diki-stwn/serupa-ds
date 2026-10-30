@@ -63,7 +63,6 @@ let guides = 0;
 // Callbacks that don't follow the naming yet, each with why. An entry that comes to follow it fails too, so this
 // list only shrinks.
 const NAMING_GAPS = {
-  'RadioGroupProps.onChange': 'CQ1 adds onValueChange and keeps onChange as a deprecated alias until the next major',
   'ComboboxProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
   'ComboboxSingleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
   'ComboboxMultipleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
