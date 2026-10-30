@@ -47,7 +47,7 @@ const { Avatar } = window.Serupa;
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<span>`. |
 | `src` | string | | The picture, cropped to fill the shape |
-| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH": the first letter, digit or emoji of the first and last words, one character each, so "ßen Müller" is "SM") and the accessible name |
+| `name` | string | | Gives the initials ("Grace Brewster Hopper" → "GH": the first letter, digit or emoji of the first and last words, one character each, so "ßen Müller" is "SM"; in a script whose letters join, such as Arabic, the two are kept apart so they don't read as a word) and the accessible name |
 | `alt` | string | the name | The accessible name; `alt=""` hides the avatar from screen readers |
 | `size` | `'xs'` \| `'sm'` \| `'md'` \| `'lg'` \| `'xl'` | `'md'` | 24, 32, 40, 48 or 64px |
 | `shape` | `'circle'` \| `'square'` | `'circle'` | Circles for people, squares (8px corners) for everything else |
