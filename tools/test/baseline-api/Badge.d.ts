@@ -4,7 +4,6 @@ type BadgeTone = "amber" | "blue" | "cyan" | "danger" | "emerald" | "fuchsia" | 
 interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, "onClick"> {
     variant?: BadgeVariant;
     tone?: BadgeTone;
-    size?: never;
     dot?: boolean;
     ping?: boolean;
     leftIcon?: IconSource;
