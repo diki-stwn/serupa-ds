@@ -143,9 +143,11 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => { if (rest.onPointerMove) rest.onPointerMove(e); if (drag.current != null) set(drag.current, fromPoint(e.clientX)); };
   const end = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current == null) return; drag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); commit(); };
-  // Your onKeyDown runs first, so preventDefault() in it keeps the slider's own handling of that key from running.
+  // Your onKeyDown runs first, on the root as the key goes down to the focused part (the capture phase), so its
+  // currentTarget is the root its type names, and preventDefault() in it keeps the control's own handling of that key
+  // from running.
+  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (i: number) => (e: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (rest.onKeyDown) rest.onKeyDown(e as unknown as React.KeyboardEvent<HTMLDivElement>);
     if (still || e.defaultPrevented) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     const by = (e.shiftKey ? large : 1) * step, v = latest.current[i];
@@ -205,7 +207,7 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
       className={cn("dk-slider", props.size === "sm" ? "dk-slider--size-sm" : "dk-slider--size-md", disabled && "dk-slider--disabled", readOnly && "dk-slider--readonly", invalid && "dk-slider--invalid", labelled && "dk-slider--mark-labels", props.className)}
       data-component="slider" data-size={props.size === "sm" ? "sm" : "md"} data-disabled={disabled ? "" : undefined} data-readonly={readOnly ? "" : undefined} data-invalid={invalid ? "" : undefined}
       onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={end} onPointerCancel={end}
-      onKeyDown={undefined} onFocus={onFocus} onBlur={onBlur}>
+      onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} onFocus={onFocus} onBlur={onBlur}>
       <div className="dk-slider__track">
         <div className="dk-slider__fill" style={{ insetInlineStart: lo + "%", inlineSize: hi - lo + "%" }} />
         {marks.map((m, i) => (

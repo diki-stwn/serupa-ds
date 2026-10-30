@@ -86,7 +86,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   if (variant === "circle") {
     return (
       <div {...rest} {...aria} {...data} ref={(n) => { restyle(n); nameRef(n); }} className={cls}>
-        <svg className="dk-progress__ring" viewBox="0 0 24 24" aria-hidden focusable="false">
+        <svg className="dk-progress__ring" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden focusable="false">
           <circle className="dk-progress__track" cx={12} cy={12} r={10.5} />
           <circle className="dk-progress__arc" cx={12} cy={12} r={10.5} pathLength={100} strokeDasharray={known ? share * 100 + " 100" : "25 100"} />
         </svg>

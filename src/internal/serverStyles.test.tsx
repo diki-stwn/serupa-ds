@@ -7,6 +7,7 @@ import { Meter } from '../components/Meter/Meter';
 import { Progress } from '../components/Progress/Progress';
 import { Rating } from '../components/Rating/Rating';
 import { Slider } from '../components/Slider/Slider';
+import { Splitter } from '../components/Splitter/Splitter';
 import { TreeView } from '../components/TreeView/TreeView';
 
 // A page served with a strict policy: style attributes in its HTML are ignored (style-src-attr 'none'), styles set
@@ -74,6 +75,20 @@ describe('TreeView server HTML under a strict Content Security Policy (GR11)', (
     let root: Root | undefined;
     flushSync(() => { root = hydrateRoot(host, tree); });
     await expect.poll(() => pad()).toEqual([4, 20, 36]);
+    root?.unmount(); host.remove();
+  });
+});
+
+describe('Splitter server HTML under a strict Content Security Policy (GR12)', () => {
+  test('the first pane takes its defaultSize once hydrated', async () => {
+    const split = <Splitter id="sp" defaultSize={30} style={{ width: '400px', height: '100px' }}><div>One</div><div>Two</div></Splitter>;
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    host.innerHTML = renderToString(split);
+    const share = () => Math.round(host.querySelector('#sp > *')!.getBoundingClientRect().width / host.querySelector('#sp')!.getBoundingClientRect().width * 100);
+    let root: Root | undefined;
+    flushSync(() => { root = hydrateRoot(host, split); });
+    await expect.poll(() => share()).toBe(30);
     root?.unmount(); host.remove();
   });
 });

@@ -15,6 +15,9 @@
 .dk-image--ratio-square { --dk-image-ratio: var(--aspect-square); }
 .dk-image--ratio-4-3 { --dk-image-ratio: 4 / 3; }
 .dk-image--ratio-video { --dk-image-ratio: var(--aspect-video); }
+/* A fixed ratio with no size of its own fills its container's width, so its shape holds while loading and on error (GR21).
+   A width the frame is given (frameProps' style or a utility class) wins. */
+.dk-image--fill { width: var(--sizing-full); }
 .dk-image--ratio-auto { min-width: var(--image-min-size, var(--spacing-12)); min-height: var(--image-min-size, var(--spacing-12)); }
 .dk-image--ratio-auto.dk-image--loaded { min-width: var(--spacing-0); min-height: var(--spacing-0); background: transparent; }
 .dk-image--rounded { border-radius: var(--image-radius, var(--rounded-lg)); }
