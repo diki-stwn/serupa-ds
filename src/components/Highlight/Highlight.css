@@ -2,9 +2,11 @@
    Highlight: matched parts in <mark>, a warning-subtle tint behind the text's own color, slightly bolder, with
    the corners just rounded; Mark and MarkText in forced-colors mode. In an option or menu item, which is filtered
    as people type, a bolder match would widen its letters on each keystroke (the text reflows and its ellipsis
-   jumps), so there it keeps the text's weight and is underlined instead: still not marked by color alone.
+   jumps), so there it keeps the text's weight and is underlined instead: still not marked by color alone. A word
+   longer than its box (a URL, a German compound) breaks inside, so a 320px page doesn't scroll sideways (WCAG 1.4.10).
    --------------------------------------------------------------- */
 @layer dk.components {
+.dk-highlight { overflow-wrap: anywhere; }
 .dk-highlight__mark {
   padding: var(--spacing-0); border-radius: var(--highlight-radius, var(--rounded-xs));
   background: var(--highlight-bg, var(--warning-subtle)); color: var(--highlight-text, var(--text));
