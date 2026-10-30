@@ -4,6 +4,7 @@ import { announce } from "../../internal/announce";
 import { cn, domId, useIsoLayoutEffect } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
+import { useServerStyles } from "../../internal/serverStyles";
 import { useScrolls } from "../../internal/useScrolls";
 import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
@@ -53,6 +54,7 @@ const save = (key: string | undefined, n: number) => {
 export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>("Splitter", function Splitter(props, ref) {
   const { children, direction: dirIn, size: sizeIn, defaultSize, onSizeChange, min: minIn, max: maxIn, step: stepIn, collapsible, storageKey, separatorLabel, className, ...rest } = props;
   const sds = useSettings(words);
+  const styled = useServerStyles<HTMLDivElement>();   // the first pane's size, from server HTML under a strict CSP (GR12)
   const direction = dirIn === "vertical" ? "vertical" : "horizontal";
   const min = clamp(typeof minIn === "number" && isFinite(minIn) ? minIn : 10, 0, 100);
   const max = clamp(typeof maxIn === "number" && isFinite(maxIn) ? maxIn : 90, min, 100);
@@ -166,7 +168,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     focusedIn.current = false;
   }, [collapsed, paneA]);
   return (
-    <div {...rest} ref={(n) => { root.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <div {...rest} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
       data-placing={placing || undefined} onPointerDownCapture={onPlace}>
       <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={collapsed || undefined}
