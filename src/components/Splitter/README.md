@@ -39,7 +39,7 @@ import { Splitter } from "serupa-ds";
 
 - Dragging the handle moves it with the pointer, even outside the handle, between `min` and `max`. Without dragging (WCAG 2.5.7): a press on the handle, then a press anywhere else in the Splitter, puts the handle there; that second press is the Splitter's, so a button under it isn't pressed. Pressing the handle again, Escape or leaving it cancels. The handle is 8px wide, with a 1px line down its middle that turns 2px primary on hover, while dragged and on focus.
 - With `collapsible`, Enter on the handle or a double-click collapses the first pane to 0, and again brings it back at its last size. A collapsed pane is hidden, so Tab skips what's in it, and an arrow key brings it back at `min`. When your code collapses it (a controlled `size` of 0) while focus is inside it, focus moves to the handle.
-- Collapsing and bringing back with Enter or a double-click slides: the handle and the second pane glide to their new place while the first pane wipes out or in with them, over 200ms. Dragging, the arrow keys and a `size` your code sets move at once, and with reduced motion so does the toggle.
+- Collapsing and bringing back with Enter or a double-click slides: the handle and the second pane glide to their new place while the first pane wipes out or in with them, over 200ms. Press Enter again mid-way and it turns back from where it is. Dragging, the arrow keys and a `size` your code sets move at once, and with reduced motion so does the toggle.
 - In a right-to-left page the first pane is on the right, and the arrow keys follow what you see: ArrowLeft moves the handle left.
 
 ## Accessibility
