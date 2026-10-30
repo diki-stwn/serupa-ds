@@ -361,6 +361,13 @@ describe('Input mask', () => {
     expect(seen.slice(0, 6)).toEqual(['4', '42', '424', '4242', '4242', '4242 4']);
   });
 
+  test('L8E3: digits typed on a full-width or Arabic-Indic keyboard go in as 0-9', async () => {
+    await render(<Input id="c2" aria-label="Card number" mask="9999 9999 9999 9999" />);
+    await userEvent.click(field('c2'));
+    await userEvent.keyboard('٤٢٤٢４２４２');
+    expect([field('c2').value, caret('c2')]).toEqual(['4242 4242', [9, 9]]);
+  });
+
   test('an edit in the middle keeps the caret after the same character; Backspace and Delete next to the pattern\'s text remove the typed character beyond it', async () => {
     await render(<Input id="d" aria-label="Date" mask="99/99/9999" defaultValue="01022024" />);
     expect(field('d').value).toBe('01/02/2024');
