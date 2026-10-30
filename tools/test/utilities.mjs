@@ -37,6 +37,9 @@ const measure = ([list, internal]) => {
   const els = list.map((c) => { const w = document.createElement('section'); w.style.position = 'relative'; w.style.transform = 'translateZ(0)';   /* contains fixed elements too, so their position doesn't depend on the class's place in the list */ const d = document.createElement('div'); d.className = c; d.innerHTML = '<i>a</i><i>b</i>'; w.appendChild(d); host.appendChild(w); return d; });
   const B = getComputedStyle(base), B1 = getComputedStyle(base.firstChild);
   const props = []; for (let j = 0; j < B.length; j++) props.push(B[j]); for (const v of internal) if (!props.includes(v)) props.push(v);
+  // Chromium lists custom properties in an order that changes from run to run (--dk-mask-b-to-p came before or after
+  // --dk-mask-bottom on different CI runners), so they go last, by name, and an effect reads the same on every run.
+  props.sort((x, y) => (x.startsWith('--') ? 1 : 0) - (y.startsWith('--') ? 1 : 0) || (x.startsWith('--') && y.startsWith('--') ? (x < y ? -1 : x > y ? 1 : 0) : 0));
   const bv = {}, b1 = {}; props.forEach((p) => { bv[p] = B.getPropertyValue(p); b1[p] = B1.getPropertyValue(p); });
   return els.map((d) => {
     const s = getComputedStyle(d), s1 = getComputedStyle(d.firstChild); const o = [];
