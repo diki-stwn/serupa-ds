@@ -8,6 +8,7 @@ import { useFieldControl } from "../../internal/field";
 import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
+import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
@@ -139,6 +140,7 @@ const OWN = { size: 1, invalid: 1, indeterminate: 1, selectAll: 1, onCheckedChan
 /** A native checkbox with its label (ref, checked, onChange and every input attribute go to the <input>); className and style go to the <label> around it. */
 export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProps>("Checkbox", function Checkbox(props, ref) {
   const nameRef = useNameCheck("Checkbox", NAME_HOW.label);   // warns when it has no accessible name
+  if (process.env.NODE_ENV !== "production" && (props as { label?: unknown }).label != null) warnOnce("label-prop", "Checkbox: label isn't one of its props, so it lands on the <input> as an attribute and names nothing. Put the text in children.", "label-prop:Checkbox");
   const group = React.useContext(GroupContext);
   // In a group, the group's Field labels and describes the group, not each box.
   const fromField = useFieldControl(props);

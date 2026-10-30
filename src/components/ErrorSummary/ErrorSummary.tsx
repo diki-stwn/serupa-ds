@@ -71,5 +71,13 @@ function go(ev: React.MouseEvent<HTMLAnchorElement>, field: string) {
   const legend = set && (input.type === "radio" || input.type === "checkbox") ? set.querySelector("legend") : null;
   const shown = legend || (input.labels && input.labels[0]) || to;
   shown.scrollIntoView({ block: "start" });
-  to.focus({ preventScroll: true });
+  inner(to).focus({ preventScroll: true });
+}
+
+// A field id on a group that can't take focus itself (RadioGroup's or Rating's root): its checked radio, else the
+// first enabled control in it, as Tab would reach the group (GR15).
+const FOCUSABLE = "input:not(:disabled):not([type=hidden]), select:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href], [tabindex]:not([tabindex='-1'])";
+function inner(to: HTMLElement): HTMLElement {
+  if (to.matches(FOCUSABLE) || to.isContentEditable) return to;
+  return to.querySelector<HTMLElement>("input:checked:not(:disabled), [aria-checked=true]:not([aria-disabled=true])") || to.querySelector<HTMLElement>(FOCUSABLE) || to;
 }

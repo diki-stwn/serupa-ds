@@ -19,7 +19,8 @@ async function typing(id: string, countries?: string[]): Promise<number> {
 describe('PhoneInput re-render cost (AY2)', () => {
   test('a keystroke costs about the same with all 244 countries as with one: the options aren\'t rebuilt on each render', async () => {
     const one = await typing('p1', ['ID']), all = await typing('pall');
-    // With the options rebuilt on each render, all 244 took about six times as long as one.
-    expect(all).toBeLessThan(Math.max(one, 0.5) * 3);
+    // With the options rebuilt on each render, all 244 took about six times as long as one. The browser rounds these
+    // times to 0.1ms, so a run that lands exactly on three times one (0.7 and 2.1) is still a pass.
+    expect(all).toBeLessThanOrEqual(Math.max(one, 0.5) * 3 + 0.1);
   });
 });

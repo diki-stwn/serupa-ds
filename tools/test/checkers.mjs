@@ -37,8 +37,8 @@ const expect = (label, { status, results, output }, want) => {
   }
 };
 
-// Workflows: an action on a tag, a pull request's title pasted into a script, a checkout that keeps its token and
-// Dependabot with no cooldown.
+// Workflows: an action on a tag, a pull request's title pasted into a script, a checkout that keeps its token, a
+// secret in a job that installs dependencies, and Dependabot with no cooldown.
 expect('workflows.mjs', run('workflows.mjs', fixture({
   '.github/actions/.keep': '',
   '.github/workflows/bad.yml': `on: pull_request
@@ -49,6 +49,13 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       - run: echo "\${{ github.event.pull_request.title }}"
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: npm ci
+      - run: npm run build
+        env:
+          TOKEN: \${{ secrets.BOT_TOKEN }}
 `,
   '.github/dependabot.yml': `version: 2
 updates:
@@ -61,6 +68,7 @@ updates:
   ['workflows/bad.yml: every action is pinned', 'actions/checkout@v7'],
   ['workflows/bad.yml: no pull request text', 'line 8'],
   ['workflows/bad.yml: its checkouts keep no token', 'line 6'],
+  ['workflows/bad.yml: job deploy runs dependencies, so it gets no secrets', 'line 15'],
   ['dependabot.yml: npm updates wait', 'default-days: 0'],
 ]);
 

@@ -103,6 +103,8 @@ const OWN = { size: 1, invalid: 1, description: 1, children: 1, className: 1, st
 
 /** A native radio with its label (ref, value and every input attribute go to the <input>); className and style go to the <label> around it. In a RadioGroup, the group sets name and checked. */
 export const Radio = /* @__PURE__ */ component<HTMLInputElement, RadioProps>("Radio", function Radio(props, ref) {
+  const nameRef = useNameCheck("Radio", NAME_HOW.label, ref);   // warns when it has no accessible name
+  if (process.env.NODE_ENV !== "production" && (props as { label?: unknown }).label != null) warnOnce("label-prop", "Radio: label isn't one of its props, so it lands on the <input> as an attribute and names nothing. Put the text in children.", "label-prop:Radio");
   const ctx = React.useContext(RadioContext);
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, oneOf(SIZES, ctx && ctx.size, "md"));
@@ -125,7 +127,7 @@ export const Radio = /* @__PURE__ */ component<HTMLInputElement, RadioProps>("Ra
   return (
     <label className={cn("dk-radio", "dk-radio--size-" + size, (invalid || (ctx && ctx.invalid)) && "dk-radio--invalid", rest.disabled && "dk-radio--disabled", !hasLabel && !hasDesc && "dk-radio--bare", props.className)} style={props.style} data-component="radio" data-size={size as string}>
       <span className="dk-radio__control" key="control">
-        <input {...rest} ref={ref} type="radio" className="dk-radio__input" key="input" />
+        <input {...rest} ref={nameRef} type="radio" className="dk-radio__input" key="input" />
         <span className="dk-radio__dot" aria-hidden key="dot" />
       </span>
       {hasLabel || hasDesc ? <span className="dk-radio__text" key="text">
