@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Stack } from './Stack';
 import { Button } from '../Button/Button';
 
-const Box = ({ children }: { children?: React.ReactNode }) => <div className="rounded-md bg-surface-muted p-3 text-sm text-text">{children}</div>;
+const Box = ({ children, wrap }: { children?: React.ReactNode; wrap?: boolean }) => <div className={`rounded-md bg-surface-muted p-3 text-sm text-text${wrap ? ' wrap-anywhere' : ''}`}>{children}</div>;
 
 const meta = {
   title: 'Components/Layout and type/Stack',
@@ -52,6 +52,6 @@ export const Align: Story = {
 };
 
 export const Overflow: Story = {
-  args: { direction: 'row', wrap: true, gap: 2, children: [<Box key="1">Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="2">A box with a long label</Box>, <Box key="3">Three</Box>, <Box key="4">Four</Box>] },
+  args: { direction: 'row', wrap: true, gap: 2, children: [<Box key="1" wrap>Donaudampfschifffahrtsgesellschaftskapitänskajüte</Box>, <Box key="2">A box with a long label</Box>, <Box key="3">Three</Box>, <Box key="4">Four</Box>] },
   render: (args) => <div style={{ width: 240 }}><Stack {...args} /></div>,
 };
