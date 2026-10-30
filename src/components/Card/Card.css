@@ -34,7 +34,7 @@
    title breaking mid-word (GR7). */
 .dk-card__header { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--spacing-3); }
 .dk-card__header > :first-child { min-width: var(--spacing-0); }
-.dk-card__heading { display: flex; flex-direction: column; gap: var(--card-header-gap, var(--spacing-1)); flex: 1 1 var(--spacing-32); min-width: var(--spacing-0); }
+.dk-card__heading { display: flex; flex-direction: column; gap: var(--card-header-gap, var(--spacing-1)); flex: auto; flex-basis: var(--spacing-32); min-width: var(--spacing-0); }
 .dk-card__title { margin: var(--spacing-0); color: var(--card-title-color, var(--text)); font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: var(--card-title-weight, var(--font-semibold)); }
 .dk-card__description { margin: var(--spacing-0); color: var(--card-description-color, var(--text-muted)); }
 .dk-card__action { flex-shrink: 0; }
