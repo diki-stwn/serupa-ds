@@ -136,7 +136,6 @@ const cutOff = () => {
 // One that stops failing fails here too, so the list only shrinks.
 const REFLOW_KNOWN = new Set([
   'components-actions-copybutton--with-a-field', 'components-actions-copybutton--variants-and-sizes',
-  'components-actions-togglebutton--sizes',
   'components-content-icon--common-icons', 'components-content-sortablelist--long-text',
   'components-layout-and-type-container--long-text',
   'components-layout-and-type-grid--overflow',
