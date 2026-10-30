@@ -357,6 +357,16 @@ The package carries [VS Code custom data](https://code.visualstudio.com/api/exte
 
 The class list works in HTML files. JSX's `className` and `var(--…)` inside a value are completed by other means: VS Code offers inside `var()` only the custom properties of the stylesheet being edited.
 
+## For coding agents
+
+The package carries a skill for coding agents (Claude Code and others that read `SKILL.md`): `skills/serupa/SKILL.md`. It tells an agent how to install and theme Serupa, which component fits which job, to style with tokens only, and what the app must do for accessibility. Add it to a project with the `skills` command:
+
+```sh
+npx skills add diki-stwn/serupa-ds
+```
+
+Or copy `node_modules/serupa-ds/skills/serupa/` into the project's `.claude/skills/`. Its components list is the one above, as of the installed release.
+
 ## Browser support
 
 Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cross-browser test (`tools/test/compat.mjs`) runs the system in Safari's engine (WebKit) or Firefox and compares every utility class and the behaviour of `base.css`, `theme.js`, responsive classes and Button with Chromium. A few classes depend on newer CSS that not every browser has yet; they do nothing where it's missing:
