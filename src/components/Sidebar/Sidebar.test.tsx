@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-react';
 import { SerupaProvider } from '../../internal/provider';
 import { config, configure } from '../../internal/config';
 import { cdp, server, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press, tabTo, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, tabTo, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Badge } from '../Badge/Badge';
 import { Sidebar, SidebarItem as I, SidebarSection as S } from './Sidebar';
 
@@ -108,7 +108,6 @@ describe('Sidebar', () => {
   test('a group\'s items unfold and fold as an Accordion panel does: a fade and a clip from the top, kept (inert) while they fold, then hidden (GM4)', async () => {
     await withMotion(async () => {
       const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition).map((x) => (x).transitionProperty).sort();
-      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
       await render(<App />);
       const b = el('gproj'), list = el(b.getAttribute('aria-controls')!);
       await userEvent.click(b);
@@ -275,12 +274,19 @@ describe('Sidebar', () => {
   });
 
   test('the ref reaches a group item\'s button, expanded and in the rail', async () => {
-    const open = React.createRef<HTMLAnchorElement>(), railed = React.createRef<HTMLAnchorElement>();
+    const open = React.createRef<HTMLElement>(), railed = React.createRef<HTMLElement>();
     await render(<>
       <Sidebar collapsed={false}><I ref={open} icon="folder" label="Docs" id="gref1"><I href="#a" label="A" /></I></Sidebar>
       <Sidebar collapsed><I ref={railed} icon="folder" label="Docs" id="gref2"><I href="#b" label="B" /></I></Sidebar>
     </>);
     expect([open.current === el('gref1'), railed.current === el('gref2'), el('gref2').tagName]).toEqual([true, true, 'BUTTON']);
+  });
+
+  test('onClick on a group gets the button as currentTarget, which its type (HTMLElement) allows, then the group toggles', async () => {
+    const seen: string[] = [];
+    await render(<Sidebar><I icon="folder" label="Docs" id="gclick" onClick={(e) => seen.push(e.currentTarget.tagName)}><I href="#c" label="C" /></I></Sidebar>);
+    await userEvent.click(el('gclick'));
+    expect([seen, el('gclick').getAttribute('aria-expanded')]).toEqual([['BUTTON'], 'true']);
   });
 
   test('links go through the app\'s configure({ link }) component; as still wins for one item (BL1)', async () => {

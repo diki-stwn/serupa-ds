@@ -76,6 +76,14 @@ export async function tabTo(el: HTMLElement): Promise<void> {
  * nothing happens within that time. To wait for something to happen, poll for it with expect.poll instead. */
 export const settle = (ms = 200) => new Promise((ok) => setTimeout(ok, ms));
 
+/** Waits for the finite animations and transitions running now to finish (or be cancelled): on the whole page by
+ * default, or on one element (and, with subtree, everything inside it). Endless ones (spinners, pings) are left out,
+ * since they never finish. */
+export function settled(scope: Document | Element = document, { subtree = false }: { subtree?: boolean } = {}): Promise<void> {
+  const runs = scope instanceof Document ? scope.getAnimations() : scope.getAnimations({ subtree });
+  return Promise.all(runs.filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))).then(() => {});
+}
+
 /**
  * Runs fn with the page's motion back on (setup.ts turns transitions and animations off), for a test that reads
  * which animation a part runs or watches it move. fn may be async; motion goes off again once it settles.

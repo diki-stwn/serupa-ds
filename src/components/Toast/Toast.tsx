@@ -281,7 +281,14 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   }, [list]);
   // The newest few show; the rest wait (their time hasn't started) and come back as those close. A burst can't
   // push the stack past the screen's edge.
-  const max = Math.max(1, Math.floor(limit != null && limit > 0 ? limit : 3));
+  // On a short screen (a phone in landscape) fewer fit: room is how many do, found below; a new size tries all again.
+  const [room, setRoom] = React.useState(Infinity);
+  React.useEffect(() => {
+    const all = () => setRoom(Infinity);
+    window.addEventListener("resize", all);
+    return () => window.removeEventListener("resize", all);
+  }, []);
+  const max = Math.max(1, Math.min(room, Math.floor(limit != null && limit > 0 ? limit : 3)));
   const shown = list.slice(-max), waiting = list.length - shown.length;
   // The waiting line fades in and out (FO1), and glides with the toasts; once gone, it fades out with its last words.
   const [moreWas, setMoreWas] = React.useState({ waiting: 0, words: "" });
@@ -352,6 +359,20 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
       if (Math.abs(dy) < 0.5) continue;
       e.animate([{ translate: "0 " + dy + "px" }, { translate: "0 0" }], { duration: ms, easing: cs.getPropertyValue("--dk-toast-move-ease").trim() || "ease", id: "dk-toast-move" });
     }
+  });
+  // The stack can't run past the far edge of the screen out of reach (GQ1b): when the toasts shown and the waiting
+  // line are taller than the screen less the Toaster's offset at both ends, the oldest shown one waits too.
+  // every render: a toast's height changes with its text and count, and the screen's with a resize.
+  useIsoLayoutEffect(() => {
+    const region = self.current;
+    if (!region) return;
+    const live = [...region.querySelectorAll<HTMLElement>("[data-toast]:not([data-leaving]), .dk-toaster__more:not([data-leaving])")];
+    const toastsLive = live.filter((e) => e.hasAttribute("data-toast")).length;
+    if (toastsLive < 2) return;
+    const cs = getComputedStyle(region), gap = parseFloat(getComputedStyle(region.firstElementChild as Element).rowGap) || 0;
+    const edge = parseFloat(pos.startsWith("top") ? cs.top : cs.bottom) || 0;
+    const tall = live.reduce((h, e) => h + e.getBoundingClientRect().height, 0) + gap * (live.length - 1);
+    if (tall > window.innerHeight - 2 * edge + 0.5) setRoom(toastsLive - 1);
   });
   // While a Dialog or Drawer is open the page behind it is inert and under it, so the toasts move into it: a
   // "Couldn't save, Retry" toast from inside a dialog can be seen and clicked.
