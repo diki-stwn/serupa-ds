@@ -2,7 +2,7 @@ import * as React from 'react';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, settle, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, settle, settled, withMotion } from '../../../tools/test/vitest/helpers';
 import { Dialog } from '../Dialog/Dialog';
 import { Icon } from '../Icon/Icon';
 import { IconButton } from '../IconButton/IconButton';
@@ -261,7 +261,7 @@ describe('Tooltip warm-up (EC1)', () => {
       // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it hides at once.
       if (!CSS.supports('overlay', 'auto')) { expect(css(a).display).toBe('none'); return; }
       expect([css(a).display, runs(a)]).toEqual(['block', [['opacity', 100], ['translate', 100]]]);
-      await Promise.all(a.getAnimations().map((x) => x.finished.catch(() => {})));
+      await settled(a);
       expect(css(a).display).toBe('none');
 
       await away();

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Accordion, AccordionItem } from './Accordion';
@@ -14,7 +14,6 @@ const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('butto
 const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[aria-labelledby]') as HTMLElement;
 const focused = () => (document.activeElement!.matches('button[aria-expanded]') ? document.activeElement!.textContent : undefined);
 // The open and close animation finished (the panel and the chevron).
-const settled = (id: string) => Promise.all(el(id).getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {})));
 
 function Faq({ r, ir }: { r?: React.Ref<HTMLDivElement>; ir?: React.Ref<HTMLDivElement> }) {
   return <div style={{ width: '480px' }}>
@@ -52,7 +51,7 @@ describe('Accordion', () => {
     const content = (n: number) => panel('adef', n).querySelector('.dk-accordion__content') as HTMLElement;
     await userEvent.click(trigger('adef', 2));
     expect(state('adef')).toBe('0100');
-    await settled('adef');
+    await settled(el('adef'), { subtree: true });
     // What the browser does on a match: removes hidden, then fires beforematch on that element.
     content(4).removeAttribute('hidden');
     content(4).dispatchEvent(new Event('beforematch'));
@@ -61,7 +60,7 @@ describe('Accordion', () => {
     expect(content(4).hasAttribute('hidden')).toBe(false);
     // Item 2 is closing: still shown while it folds away, until-found after.
     expect(content(2).hasAttribute('hidden')).toBe(false);
-    await settled('adef');
+    await settled(el('adef'), { subtree: true });
     await expect.poll(() => content(2).getAttribute('hidden')).toBe('until-found');
     content(3).dispatchEvent(new Event('beforematch'));
     await expect.poll(() => state('adef')).toBe('0001');
@@ -98,7 +97,7 @@ describe('Accordion', () => {
     await userEvent.click(trigger('adef', 1));
     expect(runs()).toEqual([['clip-path', 200, root('--ease-enter')], ['dk-accordion-height', 200, root('--ease-enter')], ['opacity', 200, root('--ease-enter')]]);
     const mid = half(100);
-    await settled('adef');
+    await settled(el('adef'), { subtree: true });
     const full = pn.getBoundingClientRect().height;
     expect([full > 0, mid > 0 && mid < full]).toEqual([true, true]);
     expect([css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate])
@@ -107,7 +106,7 @@ describe('Accordion', () => {
     expect(runs().map(([p, d, e]) => `${String(p)} ${String(d)}${p === 'dk-accordion-height' ? ' ' + String(e) : ''}`).filter((x) => /opacity|clip-path|height/.test(x))).toEqual(['clip-path 150', 'dk-accordion-height 150 ' + root('--ease-move'), 'opacity 150']);
     const back = half(75);
     expect(back > 0 && back < full).toBe(true);
-    await settled('adef');
+    await settled(el('adef'), { subtree: true });
     await expect.poll(() => pn.getBoundingClientRect().height).toBe(0);
   }));
 
@@ -139,7 +138,7 @@ describe('Accordion', () => {
   test('Tab goes into open content', async () => {
     await render(<Faq />);
     await userEvent.click(trigger('adef', 1));
-    await settled('adef');
+    await settled(el('adef'), { subtree: true });
     trigger('adef', 1).focus();
     await userEvent.tab();
     expect(document.activeElement!.id).toBe('inner');
@@ -236,15 +235,15 @@ describe('Accordion', () => {
     const count = (name: string) => document.getElementById('count-' + name);
     expect([count('chart'), count('form')?.textContent, mounts]).toEqual([null, '0', ['form']]);
     for (const n of [1, 2]) await userEvent.click(trigger('akeep', n));
-    await settled('akeep');
+    await settled(el('akeep'), { subtree: true });
     await userEvent.click(count('chart')!); await userEvent.click(count('form')!);
     expect([count('chart')?.textContent, count('form')?.textContent]).toEqual(['1', '1']);
     await userEvent.click(trigger('akeep', 2));
-    await settled('akeep');
+    await settled(el('akeep'), { subtree: true });
     trigger('akeep', 1).click();
     await new Promise(requestAnimationFrame);
     expect(count('chart')).not.toBeNull();   // still there while it shrinks
-    await settled('akeep');
+    await settled(el('akeep'), { subtree: true });
     await expect.poll(() => count('chart')).toBeNull();
     expect(count('form')?.textContent).toBe('1');
     await userEvent.click(trigger('akeep', 1));

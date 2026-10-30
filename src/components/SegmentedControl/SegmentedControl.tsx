@@ -136,9 +136,11 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     return () => ro.disconnect();
   }, [measure, options.length]);
 
-  // Your onKeyDown runs first, so preventDefault() in it keeps the control's own handling of that key from running.
+  // Your onKeyDown runs first, on the root as the key goes down to the focused part (the capture phase), so its
+  // currentTarget is the root its type names, and preventDefault() in it keeps the control's own handling of that key
+  // from running.
+  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (rest.onKeyDown) rest.onKeyDown(e as unknown as React.KeyboardEvent<HTMLDivElement>);
     if (!usable.length || e.defaultPrevented) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     // Read-only, the arrows move focus from the focused segment and leave the selection where it is.
@@ -168,7 +170,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
       aria-invalid={invalid || undefined} aria-required={required || undefined} aria-readonly={readOnly || undefined}
       aria-labelledby={props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel)}
       className={cn("dk-segmented", "dk-segmented--size-" + size, props.fullWidth && "dk-segmented--full", disabled && "dk-segmented--disabled", invalid && "dk-segmented--invalid", readOnly && "dk-segmented--readonly", props.className)}
-      data-component="segmented-control" data-size={size} onKeyDown={undefined} onFocus={onFocus} onBlur={onBlur}>
+      data-component="segmented-control" data-size={size} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} onFocus={onFocus} onBlur={onBlur}>
       {box ? <span ref={indicator} className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
       {options.map((o) => {
         const on = o.value === value, off = disabled || !!o.disabled;

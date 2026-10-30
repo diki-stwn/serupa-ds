@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, withMotion, settled } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 import { TimePicker } from './TimePicker';
@@ -265,7 +265,6 @@ describe('TimePicker: autocomplete', () => {
     await withMotion(async () => {
       const ms = (x: Animation) => Number(x.effect!.getComputedTiming().duration);
       const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition && /^(opacity|scale)$/.test(x.transitionProperty)).map((x) => [(x as CSSTransition).transitionProperty, ms(x)]).sort();
-      const settled = (e: Element) => Promise.all(e.getAnimations().map((x) => x.finished.catch(() => {})));
       await render(<Meeting />);
       await openTp();
       const list = listOf('tp'), n = list.querySelectorAll('[role=option]').length;
