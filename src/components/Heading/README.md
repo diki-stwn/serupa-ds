@@ -42,7 +42,7 @@ const { Heading } = window.Serupa;
 | `level` | `1`–`6` | `2` | The element. Keep the levels in order down the page, without skipping |
 | `size` | `'sm'` \| `'base'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'3xl'` \| `'4xl'` \| `'5xl'` | the level's | A step of the type scale, with its line height. Each level's own: 1 `3xl`, 2 `2xl`, 3 `xl`, 4 `lg`, 5 `base`, 6 `sm` |
 
-Every heading is `font-semibold` in `text`, with no margins (space it with the layout). `2xl` and up are tracked tight (`tracking-tight`), and long headings wrap in balanced lines. `className`, `style`, `ref` and everything else go to the heading, which has `data-component="heading"`.
+Every heading is `font-semibold` in `text`, with no margins (space it with the layout). `2xl` and up are tracked tight (`tracking-tight`), and long headings wrap in balanced lines; one long word or URL breaks rather than widen a flex row or grid column. `className`, `style`, `ref` and everything else go to the heading, which has `data-component="heading"`.
 
 ## Component tokens
 
