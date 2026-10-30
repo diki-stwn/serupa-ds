@@ -22,9 +22,10 @@ const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonEle
 // The button opens the picker by clicking the native input; count those clicks and stop the picker from opening.
 const watchPicker = (root: Element) => { const w = { opened: 0 }; input(root).addEventListener('click', (e) => { w.opened++; e.preventDefault(); }); return w; };
 
+// en-US, so the sizes are written the same way under every CI locale (GR20).
 function Many(props: { rejects?: string[]; fref?: React.Ref<HTMLDivElement> }) {
-  return <div style={{ width: '420px' }}><FileUpload id="many" data-testid="many" multiple accept="image/*,.pdf" maxSize={1024 * 1024} maxFiles={3} hint="Images or PDF, up to 1 MB" name="docs" ref={props.fref} className="extra"
-    onReject={(r) => { if (props.rejects) props.rejects.push(r.map((x) => x.reason).join(',')); }} /></div>;
+  return <SerupaProvider locale="en-US"><div style={{ width: '420px' }}><FileUpload id="many" data-testid="many" multiple accept="image/*,.pdf" maxSize={1024 * 1024} maxFiles={3} hint="Images or PDF, up to 1 MB" name="docs" ref={props.fref} className="extra"
+    onReject={(r) => { if (props.rejects) props.rejects.push(r.map((x) => x.reason).join(',')); }} /></div></SerupaProvider>;
 }
 function Controlled(props: { changes: string[]; setRef: { set?: (f: File[]) => void } }) {
   const [files, set] = React.useState<File[]>([]);
@@ -79,7 +80,7 @@ describe('FileUpload', () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><FileUpload id="fid" multiple accept="image/*,.pdf" maxSize={1024} maxFiles={1} /></SerupaProvider>);
     const root = rootOf('fid');
     await userEvent.upload(input(root), [file('catatan.txt', 'text/plain', 10), file('besar.png', 'image/png', 4096), file('a.png', 'image/png', 10), file('b.png', 'image/png', 10)]);
-    expect(errs(root)).toBe('alert: catatan.txt bukan gambar atau PDF. / besar.png lebih besar dari 1 KB. / b.png tidak ditambahkan: maksimal 1 file.');
+    expect(errs(root)).toBe('alert: catatan.txt bukan gambar atau PDF. / besar.png lebih besar dari 1 kB. / b.png tidak ditambahkan: maksimal 1 file.');
   });
 
   test('the button opens the file picker (it clicks the native input, which allows several files)', async () => {
@@ -94,7 +95,7 @@ describe('FileUpload', () => {
     await render(<Many rejects={rejects} />);
     const el = q(many);
     await userEvent.upload(input(el), [file('photo.png', 'image/png', 2048), file('report.pdf', 'application/pdf', 1536 * 1024 / 2)]);
-    expect(list(el)).toEqual(['photo.png 2 KB image', 'report.pdf 768 KB picture_as_pdf']);
+    expect(list(el)).toEqual(['photo.png 2 kB image', 'report.pdf 768 kB picture_as_pdf']);
     await expect.poll(() => [...input(el).files!].map((f) => f.name).join()).toBe('photo.png,report.pdf');
     await userEvent.upload(input(el), [file('notes.txt', 'text/plain', 10), file('huge.png', 'image/png', 2 * 1024 * 1024), file('photo.png', 'image/png', 2048)]);
     expect([list(el).length, errs(el), rejects.join(';')]).toEqual([2, 'alert: notes.txt isn\'t an image or PDF. / huge.png is larger than 1 MB. / photo.png is already added.', 'type,size,duplicate']);
@@ -223,7 +224,7 @@ describe('FileUpload', () => {
   });
 
   test('formatFileSize: 0 B, 12 B, 1023 B, 1 KB, 1.5 KB, 10 MB, 3.3 GB', () => {
-    expect([0, 12, 1023, 1024, 1536, 10 * 1024 * 1024 + 1, 3.25 * 1024 ** 3].map(formatFileSize).join('|')).toBe('0 B|12 B|1023 B|1 KB|1.5 KB|10 MB|3.3 GB');
+    expect([0, 12, 1023, 1024, 1536, 10 * 1024 * 1024 + 1, 3.25 * 1024 ** 3].map((b) => formatFileSize(b)).join('|')).toBe('0 B|12 B|1023 B|1 KB|1.5 KB|10 MB|3.3 GB');
   });
 
   test('contrast: text 4.5:1 (also while dragging), the icon and outline (also invalid) 3:1, in all six themes', async () => {
@@ -377,5 +378,32 @@ describe('FileUpload: long file names (GR17)', () => {
     // The start ends where the end begins, with nothing lost or doubled, and a short name isn't cut at all.
     expect(rows.map((n) => { const [start, end, whole] = n.children; return [n.getAttribute('title'), start.textContent + end.textContent, whole.textContent, start.getAttribute('aria-hidden'), end.getAttribute('aria-hidden')]; })).toEqual(
       [LONG + '2025.pdf', LONG + '2026.pdf', 'a b.pdf'].map((n) => [n, n, n, 'true', 'true']));
+  });
+});
+
+describe('FileUpload: sizes in the reader\'s locale (GR20)', () => {
+  // Each row's size: the dir="auto" span that isn't the name (the name has a title).
+  const sizes = (root: Element) => [...root.querySelectorAll<HTMLElement>('li [dir=auto]:not([title])')].map((x) => [x.textContent, x.dir]);
+  test.each([
+    ['en-US', ['4.8 MB', '2 kB'], 'larger than 1 kB'],
+    ['id-ID', ['4,8 MB', '2 kB'], 'lebih besar dari 1 kB'],
+    ['de-DE', ['4,8 MB', '2 kB'], 'larger than 1 kB'],
+  ] as const)('%s: each size and the size in a refusal are written as FormattedNumber writes bytes', async (locale, want, refusal) => {
+    await render(<SerupaProvider locale={locale} labels={locale === 'id-ID' ? idLabels : undefined}><FileUpload id={'sz-' + locale} multiple maxSize={1024} readOnly={false} /></SerupaProvider>);
+    const root = rootOf('sz-' + locale);
+    await userEvent.upload(input(root), [file('big.png', 'image/png', 4096)]);
+    expect(errs(root)).toContain(refusal);
+    await render(<SerupaProvider locale={locale}><FileUpload id={'sl-' + locale} readOnly files={[file('a.pdf', 'application/pdf', 5_000_000), file('b.png', 'image/png', 2048)]} /></SerupaProvider>);
+    expect(sizes(rootOf('sl-' + locale))).toEqual(want.map((w) => [w, 'auto']));
+  });
+
+  test('ar-EG writes Arabic digits, and the size is isolated with dir="auto" so an English size in an RTL page isn\'t turned round', async () => {
+    await render(<SerupaProvider locale="ar-EG"><div dir="rtl"><FileUpload id="sz-ar" readOnly files={[file('b.png', 'image/png', 2048)]} /></div></SerupaProvider>);
+    const [[text, dir]] = sizes(rootOf('sz-ar'));
+    expect([/[\u0660-\u0669]/.test(text ?? ''), dir]).toEqual([true, 'auto']);
+  });
+
+  test('formatFileSize with a locale matches formatNumber bytes; without one it stays as it was; an index from map() is not a locale', () => {
+    expect([formatFileSize(5_000_000, 'de-DE'), formatFileSize(5_000_000), formatFileSize(2048, 1 as unknown as string)]).toEqual(['4,8 MB', '4.8 MB', '2 KB']);
   });
 });
