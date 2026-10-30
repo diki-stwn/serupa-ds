@@ -305,7 +305,7 @@ describe('ColorPicker', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
   });
-  test('a hex code typed in full width by a Japanese or Chinese IME reads as the same color (GR45)', () => {
+  test('a hex code typed in full width by a Japanese or Chinese IME reads as the same color (L8E2)', () => {
     expect([normalizeHex('＃１Ｄ４ＥＤ８'), normalizeHex('ａｂｃ'), normalizeHex('＃ＧＧＧ')]).toEqual(['#1d4ed8', '#aabbcc', null]);
   });
   test('autoFocus focuses the checked swatch, not the wrapper', async () => {
