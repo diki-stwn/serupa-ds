@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn, oneOf, setRef } from "../../internal/cn";
+import { removeAndRefocus } from "../../internal/removeFocus";
 import { useServerStyles } from "../../internal/serverStyles";
 import { Dialog } from "../Dialog/Dialog";
 import { Icon } from "../Icon/Icon";
@@ -216,7 +217,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
         ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{shown}</button>
         : shown}
       {failed}
-      {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" hideTitle onClick={onRemove} /> : null}
+      {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" hideTitle onClick={(e) => removeAndRefocus(e, onRemove, ".dk-image", ".dk-image__remove")} /> : null}
       {viewable ? (
         <Dialog open={open} onOpenChange={setOpen} size="lg" title={alt || undefined} aria-label={alt ? undefined : viewLabel || sds.labels.image} className="dk-image__viewer">
           {open ? <Full src={fullSrc || shownDark(img.current, darkSrc) || largest(rest.srcSet) || src} alt={alt} fallback={fallback} shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} /> : null}

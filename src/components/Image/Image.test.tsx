@@ -208,6 +208,21 @@ describe('Image', () => {
     await expect.poll(() => dialog().open).toBe(false);
   });
 
+  test('onRemove in a gallery: once the picture is gone, focus goes to the next one\'s ×, else the one before, not to the page', async () => {
+    function Gallery() {
+      const [left, setLeft] = React.useState(['a', 'b', 'c']);
+      return <Row>{left.map((k) => <Pic key={k} id={'g' + k} src={PIC} alt={'Photo ' + k} ratio="square" style={{ width: '120px' }} onRemove={() => setLeft((l) => l.filter((x) => x !== k))} />)}</Row>;
+    }
+    await render(<Gallery />);
+    const x = (k: string) => frame('g' + k).querySelector<HTMLButtonElement>('.dk-image__remove')!;
+    x('a').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement).toBe(x('b'));
+    x('c').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement).toBe(x('b'));
+  });
+
   test('onRemove: the remove button calls it without opening the viewer, 8px from the top end corner', async () => {
     let removed = 0;
     await render(<Viewer removed={() => { removed++; }} />);
