@@ -27,16 +27,17 @@ export function utilityClasses(css) {
   return out;
 }
 
-/** The tokens tokens.css sets on :root, with their value there and their comment. */
-export function tokenList(tokensCss) {
+/** The tokens tokens.css sets on :root, with their value there and their description (from tokens.json: tokens.css
+ * has no comments). */
+export function tokenList(tokensCss, descriptions = new Map()) {
   const root = /:root, \[data-theme="[^"]+"\] \{([\s\S]*?)\n\}/.exec(tokensCss);
   if (!root) throw new Error('tokens.css: no :root block');
-  return [...root[1].matchAll(/^\s*(--[a-z0-9-]+): ([^;]+);(?: \/\* (.*?) \*\/)?$/gm)].map((m) => ({ name: m[1], value: m[2].trim(), description: (m[3] || '').replace(/^Alias\. /, '') }));
+  return [...root[1].matchAll(/^\s*(--[a-z0-9-]+): ([^;]+);$/gm)].map((m) => ({ name: m[1], value: m[2].trim(), description: (descriptions.get(m[1]) || '').replace(/^Alias\. /, '') }));
 }
 
 const values = (list) => [...new Set(list)].sort().map((name) => ({ name }));
 
-export function editorData(utilitiesCss, tokensCss) {
+export function editorData(utilitiesCss, tokensCss, descriptions) {
   const md = (value) => ({ kind: 'markdown', value });
   const html = {
     version: 1.1,
@@ -49,7 +50,7 @@ export function editorData(utilitiesCss, tokensCss) {
   };
   const css = {
     version: 1.1,
-    properties: tokenList(tokensCss).map((t) => ({ name: t.name, description: md(`${t.description ? t.description + '\n\n' : ''}\`${t.value}\` in blue-light. Use it as \`var(${t.name})\`.`) })),
+    properties: tokenList(tokensCss, descriptions).map((t) => ({ name: t.name, description: md(`${t.description ? t.description + '\n\n' : ''}\`${t.value}\` in blue-light. Use it as \`var(${t.name})\`.`) })),
   };
   return { html, css };
 }
