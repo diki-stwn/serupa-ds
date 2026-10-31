@@ -69,6 +69,9 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
   useIsoLayoutEffect(() => {
     const el = nav.current;
     if (!el || vertical) { setCompact(false); return; }
+    // GR62: from here the script fits the row (compact when the titles don't fit), so the no-script layout below in
+    // Stepper.css, which wraps the steps, gives way.
+    el.setAttribute("data-fit", "");
     const fit = () => {
       const list = el.firstElementChild as HTMLElement, has = (c: string) => el.classList.contains(c);
       el.classList.add("dk-stepper--measure");

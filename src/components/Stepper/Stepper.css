@@ -64,6 +64,12 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
   position: absolute; inset-inline-start: var(--dk-step-line-start); width: var(--dk-step-line);
   top: calc(var(--dk-step-size) + var(--stepper-connector-gap, var(--spacing-2))); bottom: var(--stepper-connector-gap, var(--spacing-2));
 }
+/* Before the script measures (server HTML, or no JavaScript), nothing can switch to compact, so titles would shrink
+   to a letter a line ("Profile" 140px tall). Until then (no data-fit) a title is never narrower than its longest
+   word, and steps that don't fit wrap onto another row (GR62). */
+.dk-stepper--horizontal:not([data-fit]) .dk-stepper__list { flex-wrap: wrap; row-gap: var(--spacing-3); }
+.dk-stepper--horizontal:not([data-fit]) .dk-stepper__step, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__head, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { min-width: auto; }
+.dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { overflow-wrap: break-word; }
 /* Too narrow for the titles side by side: the circles and lines only, and one line under them for the current
    step. The titles stay in the list, clipped, for screen readers. --measure lays the titles out at full width for a
    moment, so the script can tell whether they fit. */

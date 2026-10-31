@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -244,5 +245,26 @@ describe('Stepper', () => {
       await press(head, () => expect.poll(() => css(dot).scale).toBe('0.95'));
       await expect.poll(() => css(dot).scale).toBe('none');
     });
+  });
+});
+
+describe('Stepper before the script runs (GR62)', () => {
+  const steps: StepperStep[] = [{ title: 'Account' }, { title: 'Profile', description: 'Your name and photo' }, { title: 'Review everything and confirm' }, { title: 'Done' }];
+  // Lines in an element: its height over the line height.
+  const lines = (e: HTMLElement) => Math.round(e.getBoundingClientRect().height / parseFloat(css(e).lineHeight));
+  const words = (e: HTMLElement) => e.textContent!.trim().split(/\s+/).length;
+  test('server HTML at 320px: no title breaks inside a word (one letter a line), and the row doesn\'t run off the page; once mounted it goes compact', async () => {
+    const ui = <SerupaProvider locale="en-US"><Stepper steps={steps} current={1} /></SerupaProvider>;
+    const host = document.createElement('div');
+    host.style.width = '320px';
+    host.innerHTML = renderToString(ui);
+    document.body.append(host);
+    try {
+      const nav = host.querySelector<HTMLElement>('[data-component="stepper"]')!, titles = [...nav.querySelectorAll<HTMLElement>('.dk-stepper__list .dk-stepper__title')];
+      expect([nav.hasAttribute('data-fit'), titles.every((t) => lines(t) <= words(t)), nav.scrollWidth <= 321]).toEqual([false, true, true]);
+    } finally { host.remove(); }
+    await render(<div style={{ width: '320px' }} id="gr62">{ui}</div>);
+    const nav = document.querySelector<HTMLElement>('#gr62 [data-component="stepper"]')!;
+    expect([nav.hasAttribute('data-fit'), nav.classList.contains('dk-stepper--compact')]).toEqual([true, true]);
   });
 });
