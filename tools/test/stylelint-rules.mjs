@@ -9,12 +9,12 @@ const rules = (extra = {}) => ({
   plugins: [path.join(PROJECT, 'tools', 'lint', 'stylelint-serupa.mjs')],
   rules: { 'serupa/component-layer': true, 'serupa/no-raw-value': true, 'serupa/color-through-component-token': true, 'serupa/focus-ring-outline': true, 'serupa/no-physical-shorthand': true, ...extra },
 });
-const found = async (code, extra) => (await stylelint.lint({ code, config: rules(extra) })).results[0].warnings.map((w) => w.rule);
+const found = async (code, extra, codeFilename) => (await stylelint.lint({ code, codeFilename, config: rules(extra) })).results[0].warnings.map((w) => w.rule);
 const layered = (body) => `/* A comment may sit outside. */\n@layer dk.components {\n${body}\n}\n`;
 
 const R = [];
-const t = async (name, code, want, extra) => {
-  const got = await found(code, extra);
+const t = async (name, code, want, extra, file) => {
+  const got = await found(code, extra, file);
   R.push({ name, ok: JSON.stringify(got) === JSON.stringify(want), detail: `flagged ${JSON.stringify(got)}, expected ${JSON.stringify(want)}` });
 };
 
@@ -34,5 +34,14 @@ await t('no-physical-shorthand: symmetric shorthands and logical corners pass', 
 await t('no-physical-shorthand: right and left differ (padding, inset, border-width) and corners differ left to right', layered(`.dk-x { padding: var(--spacing-3) 0 var(--spacing-3) var(--spacing-6); inset: 0 auto 0 0; border-width: 0 var(--border-width-1) 0 0; }
 .dk-y { border-radius: var(--radius-md) 0 0 var(--radius-md); }
 .dk-z { border-radius: 0 var(--radius-md); }`), ['serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand', 'serupa/no-physical-shorthand']);
+
+const combobox = path.join(PROJECT, 'src', 'components', 'Combobox', 'Combobox.css');
+const own = (known) => ({ 'serupa/own-block': known ? [true, { known }] : true });
+await t('own-block: its own elements, and another block placed or sized, fed a custom property, or used as context, pass', layered(`.dk-combobox__popup { inset-block-start: var(--spacing-1); }
+.dk-combobox .dk-input { inline-size: var(--sizing-full); --input-height: var(--sizing-9); }
+.dk-input__field .dk-combobox__mark { color: inherit; }`), [], own(), combobox);
+await t('own-block: styling another block\'s element (Input\'s field, Button\'s icon) is flagged', layered(`.dk-combobox .dk-input__field { cursor: pointer; }
+.dk-combobox > .dk-btn__icon { opacity: 0; }`), ['serupa/own-block', 'serupa/own-block'], own(), combobox);
+await t('own-block: a known crossing passes, and a known one no longer there is flagged', layered('.dk-combobox .dk-input__field { cursor: pointer; }'), ['serupa/own-block'], own({ Combobox: ['dk-input', 'dk-calendar'] }), combobox);
 
 done(report('Stylelint rules', R));

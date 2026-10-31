@@ -14,6 +14,11 @@
 //                                   color/style) whose right and left values differ, or a border-radius whose corners
 //                                   differ left to right, is physical: it stays put in right-to-left text. Use the
 //                                   -block / -inline longhands (padding-block, padding-inline-start) instead
+//   serupa/own-block                a component's CSS styles its own blocks' elements (dk-block__element) only. Another
+//                                   block it may position or size, or feed through that block's custom properties,
+//                                   but not reach into, so a change inside one component can't break another. A block
+//                                   belongs to the component whose CSS starts the most selectors with it. Option known:
+//                                   { Folder: ['dk-block', …] } for the crossings not fixed yet
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,6 +45,24 @@ for (const c of fs.readdirSync(components)) {
     };
     walk(JSON.parse(fs.readFileSync(path.join(components, c, f), 'utf8')));
   }
+}
+
+// Which component's CSS each block (dk-input, dk-btn …) belongs to: the folder whose CSS starts the most selectors
+// with it, so a block named unlike its folder (Button's dk-btn, Toast's dk-toaster) needs no list.
+const OWNER = new Map();
+{
+  const starts = new Map();
+  for (const c of fs.readdirSync(components)) {
+    for (const f of fs.readdirSync(path.join(components, c)).filter((f) => f.endsWith('.css'))) {
+      const css = fs.readFileSync(path.join(components, c, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      for (const m of css.matchAll(/(?:^|[{},]\s*)\.dk-([a-z0-9]+(?:-[a-z0-9]+)*)(?![\w-])/g)) {
+        const per = starts.get(m[1]) || new Map();
+        per.set(c, (per.get(c) || 0) + 1);
+        starts.set(m[1], per);
+      }
+    }
+  }
+  for (const [block, per] of starts) OWNER.set(block, [...per].sort((a, b) => b[1] - a[1])[0][0]);
 }
 
 const rule = (name, messages, check) => {
@@ -134,4 +157,29 @@ const physical = rule('serupa/no-physical-shorthand', {
   });
 });
 
-export default [layer, raw, color, focus, physical];
+// The last compound of a selector (what the rule styles), past any combinator, with :is()/:where()/:not() kept.
+const subject = (sel) => sel.split(/\s*[>+~]\s*|\s+(?![^(]*\))/).filter(Boolean).at(-1) || '';
+const ownBlock = rule('serupa/own-block', {
+  foreign: (cls, owner) => `.${cls} is inside ${owner}: style it there (a component token or a modifier on ${owner}), not from here, so a change inside ${owner} can't break this one`,
+  stale: (block, folder) => `${block} is listed as known for ${folder}, but nothing here reaches into it any more: take it out of the list in stylelint.config.mjs`,
+}, (root, flag, m, opts) => {
+  const file = root.source?.input?.file;
+  const folder = file && path.relative(components, file).split(path.sep)[0];
+  if (!folder || folder.startsWith('..')) return;
+  const known = new Set(opts.known?.[folder] || []), used = new Set();
+  root.walkRules((r) => {
+    if (r.parent?.type === 'atrule' && /keyframes/i.test(r.parent.name)) return;
+    for (const sel of r.selectors) {
+      const last = subject(sel).replace(/:(?:not|has)\((?:[^()]|\([^()]*\))*\)/g, '');
+      for (const [, block] of last.matchAll(/\.dk-([a-z0-9]+(?:-[a-z0-9]+)*)__/g)) {
+        const owner = OWNER.get(block);
+        if (!owner || owner === folder) continue;
+        if (known.has(`dk-${block}`)) used.add(`dk-${block}`);
+        else flag(r, m.foreign(`dk-${block}__…`, owner), sel);
+      }
+    }
+  });
+  for (const k of known) if (!used.has(k)) flag(root, m.stale(k, folder));
+});
+
+export default [layer, raw, color, focus, physical, ownBlock];
