@@ -30,6 +30,17 @@ describe('TypeToConfirm', () => {
     expect(document.activeElement).toBe(button);
   });
 
+  test('an input method\'s Enter (keyCode 229, as Safari sends it) doesn\'t confirm, even once the phrase matches (L8E34)', async () => {
+    const confirm = vi.fn();
+    await render(<Confirm onConfirm={confirm} />);
+    const { input, button } = parts('t');
+    await userEvent.type(input, 'acme/web');
+    await expect.poll(() => button.getAttribute('aria-disabled')).toBe(null);
+    const ev = Object.defineProperty(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }), 'keyCode', { value: 229 });
+    input.dispatchEvent(ev);
+    expect([confirm.mock.calls.length, ev.defaultPrevented]).toEqual([0, false]);
+  });
+
   test('the button works only once the phrase is typed (spaces around it ignored); Enter confirms; onMatch on each change', async () => {
     const confirm = vi.fn(), match = vi.fn();
     await render(<Confirm onConfirm={confirm} onMatch={match} />);
