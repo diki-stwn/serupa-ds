@@ -128,7 +128,9 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (ip.onBlur) ip.onBlur(e);
-    if (editing && !closing.current && !checking) save(false);
+    // Switching to another window or tab blurs the field but leaves it focused there: that isn't leaving it, and
+    // the edit stays open for when they come back (L8E25).
+    if (editing && !closing.current && !checking && document.activeElement !== e.currentTarget) save(false);
   };
 
   const empty = value === "";
