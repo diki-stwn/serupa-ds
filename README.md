@@ -120,6 +120,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
 | `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
+| `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
 ### For your own components

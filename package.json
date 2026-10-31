@@ -39,6 +39,11 @@
     "./serupa-icons.iife.js": "./dist/serupa-icons.iife.js",
     "./theme.js": "./dist/theme.js",
     "./components.json": "./dist/components.json",
+    "./eslint": {
+      "types": "./dist/eslint.d.ts",
+      "import": "./dist/eslint.js",
+      "default": "./dist/eslint.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",
