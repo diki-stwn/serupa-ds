@@ -6,6 +6,13 @@
 @layer dk.components {
 .dk-navbar { position: relative; background: var(--navbar-bg, var(--surface)); border-bottom: var(--navbar-border-width, var(--border-width-1)) solid var(--navbar-border, var(--border)); font-family: var(--font-sans); }
 .dk-navbar--sticky { position: sticky; top: 0; z-index: var(--navbar-z-index, var(--z-40)); }
+/* Sticky, the bar lifts once the page scrolls under it (149): a shadow fades in over the first bar height of
+   scroll, tied to the scroll rather than a clock, so it never runs on its own. Where scroll-driven animations
+   aren't supported (Firefox), the line under the bar alone, as before. */
+@supports (animation-timeline: scroll()) {
+  .dk-navbar--sticky { animation: dk-navbar-lift var(--ease-linear) both; animation-timeline: scroll(); animation-range: var(--spacing-0) var(--navbar-height, var(--spacing-16)); }
+}
+@keyframes dk-navbar-lift { to { box-shadow: var(--navbar-shadow-scrolled, var(--shadow-md)); } }
 /* What the keyboard focuses, or a #link jumps to, scrolls into view below a sticky bar, not under it (WCAG 2.4.11).
    Navbar measures the bar into --dk-navbar-offset; until then, the default bar height. */
 :root:has(.dk-navbar--sticky) { scroll-padding-top: var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16))); }

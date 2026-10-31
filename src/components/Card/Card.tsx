@@ -50,7 +50,10 @@ export const Card = /* @__PURE__ */ component<HTMLElement, CardProps>("Card", fu
   const isLink = props.href != null;
   const cls = cn("dk-card", variant !== "outline" && "dk-card--" + variant, padding !== "md" && "dk-card--padding-" + padding, isLink && "dk-card--link", props.className);
   const tag = oneOf(TAGS, props.as, "div");
-  if (!isLink) return React.createElement(tag, Object.assign(rest, { ref: ref, className: cls, "data-component": "card", "data-variant": variant }), props.children);
+  // A plain Card inside a link Card's content ends that card's link: its own CardHeader title stays text (L8E65).
+  const inLink = React.useContext(CardLinkContext) != null;
+  if (!isLink) return React.createElement(tag, Object.assign(rest, { ref: ref, className: cls, "data-component": "card", "data-variant": variant }),
+    inLink ? <CardLinkContext.Provider value={null}>{props.children}</CardLinkContext.Provider> : props.children);
   const link: CardLinkProps = { href: props.href!, target: props.target, rel: props.target === "_blank" && props.rel == null ? "noopener noreferrer" : props.rel, "aria-label": rest["aria-label"] };
   delete rest["aria-label"];
   // A direct CardHeader with a title takes the link; otherwise the card gets an empty one, named by its own text.

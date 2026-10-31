@@ -169,6 +169,12 @@ describe('List', () => {
     expect(location.hash).toBe('');
   });
 
+  test('disabled with a router link (as, linkProps.to): still no href, so a middle or Ctrl click can\'t open it either (L8E67)', async () => {
+    await render(<List><ListItem id="irdis" as={RouterLink} linkProps={{ to: '/team', 'aria-label': 'Team page' }} title="Team" disabled /></List>);
+    const a = q('#irdis .dk-list__main');
+    expect([a.tagName, a.getAttribute('href'), a.getAttribute('aria-disabled'), a.getAttribute('aria-label'), a.tabIndex]).toEqual(['A', null, 'true', 'Team page', -1]);
+  });
+
   test('divided={false}: no lines; unknown variant and as fall back to plain and ul', async () => {
     await render(<List id="lnodiv" divided={false} variant={'boxed' as never} as={'table' as never}><ListItem title="A" /><ListItem title="B" /></List>);
     const l = el('lnodiv');
