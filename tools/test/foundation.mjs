@@ -200,7 +200,9 @@ check('responsive variants switch at the screen-* breakpoints', !badBp.length, b
 // 10. base.css reads tokens only
 if (fs.existsSync(path.join(P, 'src', 'styles', 'base.css'))) {
   const base = stripComments(read('src/styles/base.css'));
-  const miss = [...new Set([...base.matchAll(/var\(--([A-Za-z0-9._-]+)/g)].map((m) => m[1]).filter((n) => !isToken(n)))].sort();
+  // A component token (src/components/*/*.tokens.json) counts too: bare links read Link's --link-* tokens.
+  const comp = new Set(fs.readdirSync(path.join(P, 'src', 'components')).flatMap((d) => fs.readdirSync(path.join(P, 'src', 'components', d)).filter((f) => f.endsWith('.tokens.json')).flatMap((f) => [...read(`src/components/${d}/${f}`).matchAll(/"cssVar": "--([^"]+)"/g)].map((m) => m[1]))));
+  const miss = [...new Set([...base.matchAll(/var\(--([A-Za-z0-9._-]+)/g)].map((m) => m[1]).filter((n) => !isToken(n) && !comp.has(n)))].sort();
   const lits = [];
   for (const [, prop, val] of base.matchAll(/([a-z-]+)\s*:\s*([^;{}]+);/g)) {
     if (prop.endsWith('text-size-adjust')) continue;   // a browser behaviour switch (stop phones inflating text), not a design value
