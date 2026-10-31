@@ -212,7 +212,7 @@ describe('FileUpload', () => {
     const b = choose(rootOf('fe')), b2 = choose(rootOf('fe2'));
     expect([b.getAttribute('aria-describedby'), b2.getAttribute('aria-describedby'), b.hasAttribute('aria-errormessage'), input(rootOf('fe')).getAttribute('aria-invalid')]).toEqual(['up-err', 'up-err', false, 'true']);
     const zone = b2.parentElement!;   // the drop area holds the button
-    expect([zone.getAttribute('role'), zone.hasAttribute('aria-disabled')]).toEqual(['presentation', false]);
+    expect([zone.getAttribute('role'), zone.hasAttribute('aria-disabled'), rootOf('fe2').getAttribute('aria-disabled'), rootOf('fe').hasAttribute('aria-disabled')]).toEqual(['presentation', false, 'true', false]);
   });
 
   test('readOnly: the files are listed (and submitted) without remove buttons; the button stays focusable (aria-disabled) but opens no picker; dropped files are ignored', async () => {
