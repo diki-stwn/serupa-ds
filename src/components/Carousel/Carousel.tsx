@@ -10,7 +10,7 @@ import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { en as words } from "./labels";
-import { rubber, settleTime, speed, track as sample, type Samples } from "../../internal/fling";
+import { project, rubber, settleTime, speed, track as sample, type Samples } from "../../internal/fling";
 
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
@@ -182,12 +182,16 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     const v = speed(d.s);   // px per ms, signed like dx
     const flick = Math.abs(dx) > 10 && Math.abs(v) > FLICK && Math.sign(v) === Math.sign(dx);
     const step = (viewport.current ? viewport.current.clientWidth : 0) / per;
+    // Where the release is heading (KW11, fling.ts): a swipe let go of while pulling back to under 40px springs back.
+    const to = dx + project(v);
     setOffset(0);
-    if (Math.abs(dx) >= SWIPE || flick) {
-      // Carries on at the finger's speed (fling.ts), over the distance left to the next slide.
-      const ms = settleTime(Math.max(0, step - Math.abs(dx)), Math.sign(v) === Math.sign(dx) ? v : 0);
+    if (flick || (Math.abs(dx) >= SWIPE && Math.sign(to) === Math.sign(dx) && Math.abs(to) >= SWIPE)) {
+      // The slide nearest where it's heading: one at least, and a view at most, so a hard flick can't skip slides unseen.
+      const n = Math.max(1, Math.min(Math.floor(per), Math.round(Math.abs(to) / Math.max(1, step))));
+      // Carries on at the finger's speed (fling.ts), over the distance left to that slide.
+      const ms = settleTime(Math.max(0, n * step - Math.abs(dx)), Math.sign(v) === Math.sign(dx) ? v : 0);
       setSettle(ms);   // also when there's no slide that way, and the rubber band goes back
-      go(index + ((dx < 0) !== rtl() ? 1 : -1), ms);
+      go(index + n * ((dx < 0) !== rtl() ? 1 : -1), ms);
     } else setSettle(offset ? settleTime(offset, 0) : null);   // back to where it was, briskly
   };
   // The track stopped after a loop carried on: put it at the real index at once, then let it move again.

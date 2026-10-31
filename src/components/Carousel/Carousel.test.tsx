@@ -231,6 +231,18 @@ describe('Carousel', () => {
     expect(state('car').index).toBe(1);
   });
 
+  test('momentum (KW11): a swipe let go of while pulling back springs back; with perView a hard flick carries on to the slide it heads for, a view at most, and a slow drag as far moves one', async () => {
+    await render(<App />);
+    await trace('car', [[-30, 50], [-60, 50], [-70, 100], [-50, 30]]);
+    await new Promise((f) => setTimeout(f, 100));
+    expect(state('car').index).toBe(0);
+    await render(<div style={{ width: '432px' }}><Carousel id="mv" label="Products" perView={3}>{slides(9, 'm')}</Carousel></div>);
+    await trace('mv', [[-40, 100], [-80, 100], [-120, 100], [-160, 100]]);
+    await expect.poll(() => state('mv').index).toBe(1);
+    await trace('mv', [[-10, 100], [-20, 100], [-160, 10]]);
+    await expect.poll(() => state('mv').index).toBe(4);
+  });
+
   test('past the first slide without loop the drag meets resistance (EN1): 200px moves the track less than 120px', async () => {
     await render(<App />);
     await trace('car', [[40, 50], [120, 50], [200, 50]], false);
