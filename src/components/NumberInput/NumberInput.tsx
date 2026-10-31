@@ -94,13 +94,20 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const shownPlaces = React.useMemo(() => { const o = keyed(optionsKey); return o?.style === "currency" ? new Intl.NumberFormat(locale, o).resolvedOptions().maximumFractionDigits ?? 0 : 0; },
     [locale, optionsKey]);
   const places = Math.max(gridPlaces(min, step), shownPlaces);
-  const controlled = props.value !== undefined;
-  const [ownValue, setOwnValue] = React.useState<number | null>(major(props.defaultValue) ?? null);
-  const value = controlled ? (major(props.value) ?? null) : ownValue;
   // What the shown number is multiplied by: 100 for the percent style, 1 otherwise.
   const scale = React.useMemo(() => { const o = keyed(optionsKey); return o ? parseNumber(formatNumber(1, locale, o), locale) || 1 : 1; },
     [locale, optionsKey]);
   const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, formatOptions));
+  // A value is taken as it's shown (GR47): one with more decimals than the format writes (19.995 as US$20,00) is the
+  // number shown, so the form sends what people see, and leaving the field without an edit changes nothing.
+  const asShown = (v: number | null | undefined): number | null => {
+    if (v == null || !formatOptions) return v ?? null;
+    const n = parseNumber(show(v), locale);
+    return typeof n === "number" ? n / scale : v;
+  };
+  const controlled = props.value !== undefined;
+  const [ownValue, setOwnValue] = React.useState<number | null>(() => asShown(major(props.defaultValue)));
+  const value = controlled ? asShown(major(props.value)) : ownValue;
   const shown = show(value);
   const [text, setText] = React.useState(shown);
   const typing = React.useRef(false);
@@ -119,7 +126,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const [, rerender] = React.useState(0);
   useFormReset(name ? raw : el, () => {
     typing.current = false;
-    const v = controlled ? value : (major(props.defaultValue) ?? null);
+    const v = controlled ? value : asShown(major(props.defaultValue));
     if (!controlled) setOwnValue(v);
     setText(show(v));
     rerender((n) => n + 1);

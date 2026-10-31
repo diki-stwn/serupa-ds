@@ -30,7 +30,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 - Label it with [Field](../Field/README.md) and put the unit in the label or hint ("Weight (kg)").
 - Set `min`, `max` and `step` to the real limits, so the field keeps values within them.
 - Match the `size` to the fields and buttons beside it.
-- For money, set `currency` to its ISO 4217 code. The symbol goes where the locale writes it, and the value keeps the currency's decimals however coarse `step` is, so `12.5` stays $12.50.
+- For money, set `currency` to its ISO 4217 code. The symbol goes where the locale writes it, and the value keeps the currency's decimals however coarse `step` is, so `12.5` stays $12.50. A `value` or `defaultValue` with more decimals than that is taken as shown: `19.995` shows as $20.00, and the form gets 20. With `formatOptions`, it's the same for the decimals they show. A controlled parent that keeps 19.995 isn't told, because nothing was edited.
 - Store money as whole minor units with `minorUnits`: `value`, `defaultValue`, `onValueChange`, `min`, `max` and `step` are then cents (`1999` is $19.99, `step={5}` is five cents), which avoids floating-point sums such as `0.1 + 0.2`. The minor units come from ISO 4217: 2 for most currencies, including IDR, 0 for JPY and KRW, 3 for KWD.
 
 ## Behavior
