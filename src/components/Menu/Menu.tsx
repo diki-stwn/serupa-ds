@@ -50,7 +50,8 @@ const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from
    focus back, Tab closes. Shared by Menu and ContextMenu. */
 function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.RefObject<Typed>, close: (reason: OpenChangeReason, focusBack: boolean) => void) {
   return (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isComposing(e)) return;
+    // The arrows, Home and End with Alt, Ctrl or ⌘ are the browser's (L8E36).
+    if (isComposing(e) || (e.altKey || e.ctrlKey || e.metaKey) && /^(Arr|Home|End)/.test(e.key)) return;
     const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
     const list = itemsOf(panel || menuRef.current), i = list.indexOf(document.activeElement as HTMLElement);
     const go = (n: number) => { e.preventDefault(); if (list.length) list[(n + list.length) % list.length].focus(); };
@@ -144,7 +145,8 @@ export const Menu = /* @__PURE__ */ component<HTMLDivElement, MenuProps>("Menu",
     onClick: (e: React.MouseEvent<HTMLElement>) => { if (cp.onClick) cp.onClick(e); if (e.defaultPrevented || pressed.current) return; if (!open) focusOn.current = "first"; set(!open, "trigger"); },
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
       if (cp.onKeyDown) cp.onKeyDown(e);
-      if (e.defaultPrevented) return;
+      // With Alt, Ctrl or ⌘ the arrows are the browser's or the system's (⌘+↓ scrolls to the page's end): leave them (L8E36).
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); focusOn.current = e.key === "ArrowUp" ? "last" : "first"; set(true, "trigger"); }
     },
   });
