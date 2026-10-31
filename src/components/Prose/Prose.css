@@ -58,7 +58,7 @@
 .dk-prose :where(th) { font-weight: var(--font-semibold); }
 /* A bare image never overflows the column. One that fails to load shows its alt text, muted and italic. */
 .dk-prose :where(img, video) { max-inline-size: var(--sizing-full); block-size: auto; }
-.dk-prose :where(img) { color: var(--text-muted); font-style: italic; }
-.dk-prose :where(figcaption) { margin-block-start: var(--spacing-2); color: var(--text-muted); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-prose :where(img) { color: var(--prose-caption, var(--text-muted)); font-style: italic; }
+.dk-prose :where(figcaption) { margin-block-start: var(--spacing-2); color: var(--prose-caption, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 @media (forced-colors: active) { .dk-prose :where(blockquote) { border-inline-start-color: CanvasText; } }
 }

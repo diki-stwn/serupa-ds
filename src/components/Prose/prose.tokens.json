@@ -81,6 +81,16 @@
             "cssVar": "--prose-table-border"
           }
         }
+      },
+      "caption": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "Figure captions, and the alt text of an image that failed to load.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-caption"
+          }
+        }
       }
     },
     "border": {

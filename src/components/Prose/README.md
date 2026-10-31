@@ -19,7 +19,7 @@ import { Prose } from "serupa-ds";
 
 ## Usage
 
-- Sanitize HTML from users or a CMS before you pass it to `dangerouslySetInnerHTML`: Prose only styles it.
+- Sanitize HTML from users or a CMS before you pass it to `dangerouslySetInnerHTML` (through your Trusted Types policy, if the page has one), or render the Markdown to elements: Prose only styles what's inside it.
 - Each block is spaced from the one before it, with more space before a heading and none before the first block, so nothing needs a margin of its own. Lists, quotes, details, cells and definitions are spaced the same way inside.
 - The column is capped at about 65 characters a line (`container-prose`), the comfortable reading width. Give it a `className` such as `max-w-none` to fill its container.
 - Lists get their bullets and numbers back (disc, then circle and square when nested), indented with logical properties, so they sit on the right in RTL.
@@ -56,6 +56,7 @@ Each is an optional override: set it on the page, a container or one Prose. The 
 | `--prose-quote-text` | `text-muted` | A blockquote's text. |
 | `--prose-quote-border` | `border-strong` | The bar at a blockquote's start. |
 | `--prose-code-bg` | `surface-muted` | Behind inline code and code blocks. |
+| `--prose-caption` | `text-muted` | Figure captions, and the alt text of an image that failed to load. |
 | `--prose-table-border` | `border` | The line under each table row. |
 | `--prose-quote-border-width` | `border-width-4` | The width of a blockquote's bar (4px). |
 | `--prose-code-radius` | `rounded-sm` | Inline code's corners. |
