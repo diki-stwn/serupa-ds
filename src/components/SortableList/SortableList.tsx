@@ -145,12 +145,12 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       setDrag(next);
       return next;
     };
-    // Near the top or bottom edge (in a row, the left or right edge) of what scrolls (the list's scrolling container, or the page), it scrolls that way,
+    // Near the top or bottom edge (in a row, the left or right edge) of what scrolls (the list itself, as a row does, its scrolling container, or the page), it scrolls that way,
     // faster the closer the pointer is, so a long list can be reordered past the screen. touch-action: none on the
     // handle means the browser won't scroll for a touch drag on its own.
     let frame = 0;
     const scroller = (): HTMLElement => {
-      for (let n = list.current ? list.current.parentElement : null; n && n !== document.body; n = n.parentElement) {
+      for (let n: HTMLElement | null = list.current; n && n !== document.body; n = n.parentElement) {
         const o = row ? getComputedStyle(n).overflowX : getComputedStyle(n).overflowY;
         if ((o === "auto" || o === "scroll") && (row ? n.scrollWidth > n.clientWidth : n.scrollHeight > n.clientHeight)) return n;
       }

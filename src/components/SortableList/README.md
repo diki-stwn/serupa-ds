@@ -40,7 +40,7 @@ const [tasks, setTasks] = React.useState([{ id: "brief", title: "Write the brief
 - Keyboard: Space or Enter on a handle picks the row up. The arrow keys move it one place, Home and End to either end. Space or Enter drops it, and Escape, Tab or a click elsewhere puts it back where it was. Focus stays on its handle throughout.
 - Nothing is reported until the drop, so a cancelled move leaves your data alone.
 - `disabled` shows the rows without handles.
-- `orientation="horizontal"` lays the items out in a row (a board's columns, a set of tabs): a drag moves sideways and scrolls at the left and right edges, and Left and Right follow the reading direction, so in right-to-left ArrowLeft moves an item later. Up and Down still move it earlier and later.
+- `orientation="horizontal"` lays the items out in a row (a board's columns, a set of tabs) that scrolls sideways inside itself when it doesn't fit: a drag moves sideways and scrolls at the left and right edges, and Left and Right follow the reading direction, so in right-to-left ArrowLeft moves an item later. Up and Down still move it earlier and later.
 
 ## Accessibility
 

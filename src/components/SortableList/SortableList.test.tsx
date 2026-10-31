@@ -208,16 +208,17 @@ describe('SortableList', () => {
     await expect.poll(() => moves).toEqual([{ from: 1, to: 0 }, { from: 0, to: 2 }]);
   });
 
-  test('horizontal: held near the right edge of a sideways-scrolling container, it scrolls that way', async () => {
+  test('horizontal: a row wider than its space scrolls inside itself, not the page (WCAG 1.4.10); held near its right edge, it scrolls that way', async () => {
     const many = Array.from({ length: 20 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + i }));
-    await render(<div id="box" style={{ width: '320px', overflowX: 'auto' }}><SortableList id="sl" aria-label="Missions" orientation="horizontal" items={many} getKey={(i) => i.id} getLabel={(i) => i.name}
+    await render(<div style={{ width: '320px' }}><SortableList id="sl" aria-label="Missions" orientation="horizontal" items={many} getKey={(i) => i.id} getLabel={(i) => i.name}
       onReorder={() => undefined} renderItem={(i) => <span>{i.name}</span>} /></div>);
-    const box = document.getElementById('box')!, h = handle('Mission 0'), r = h.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const ul = document.getElementById('sl')!, h = handle('Mission 0'), r = h.getBoundingClientRect(), b = ul.getBoundingClientRect();
+    expect([Math.round(b.width), ul.scrollWidth > ul.clientWidth]).toEqual([320, true]);
     const at = (type: string, x: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 11, button: 0, isPrimary: true, clientX: x, clientY: r.top + 4 }));
     at('pointerdown', r.left + 4, h);
     at('pointermove', r.left + 20);
     at('pointermove', b.right - 4);
-    await expect.poll(() => box.scrollLeft, { timeout: 3000 }).toBeGreaterThan(150);
+    await expect.poll(() => ul.scrollLeft, { timeout: 3000 }).toBeGreaterThan(150);
     at('pointerup', b.right - 4);
   });
 
