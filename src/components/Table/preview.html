@@ -11,7 +11,7 @@
   var D = window.Serupa, h = React.createElement;
   var rows = [['Ada Lovelace', 'Admin', '1,204'], ['Grace Hopper', 'Editor', '318'], ['Linus Torvalds', 'Viewer', '0']];
   ReactDOM.createRoot(document.getElementById('root')).render(
-    h(D.Table, { caption: 'Team members', captionHidden: true },
+    h(D.Table, { caption: 'Team members', hideCaption: true },
       h(D.TableHead, null, h(D.TableRow, null, h(D.TableHeaderCell, null, 'Name'), h(D.TableHeaderCell, null, 'Role'), h(D.TableHeaderCell, { align: 'end', sort: 'descending' }, 'Calls'))),
       h(D.TableBody, null, rows.map(function (r, i) { return h(D.TableRow, { key: r[0], selected: i === 1 }, h(D.TableCell, null, r[0]), h(D.TableCell, null, h(D.Text, { as: 'span', tone: 'muted' }, r[1])), h(D.TableCell, { align: 'end' }, r[2])); })))
   );

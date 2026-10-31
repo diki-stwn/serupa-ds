@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { isComposing } from "../../internal/ime";
 import { useSettings } from "../../internal/provider";
 import { en as words } from "./labels";
 import { Field } from "../Field/Field";
@@ -55,9 +56,10 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
   return (
     <div {...rest} ref={ref} className={cn("dk-type-to-confirm", className)} data-component="type-to-confirm">
       <Field label={label != null ? label : <>{sds.labels.typeToConfirm} <strong className="dk-type-to-confirm__phrase">{phrase}</strong></>} hint={hint} disabled={disabled}>
+        {/* An input method's Enter (isComposing, or keyCode 229 after it in Safari) confirms the text, not the action (L8E34). */}
         <Input value={text} onChange={(e) => setText(e.currentTarget.value)} disabled={disabled}
           autoComplete="off" spellCheck={false} autoCapitalize="off" autoCorrect="off"
-          onKeyDown={(e) => { if (e.key === "Enter" && matched && !e.nativeEvent.isComposing && button.current) { e.preventDefault(); button.current.click(); } }} />
+          onKeyDown={(e) => { if (e.key === "Enter" && matched && !isComposing(e) && button.current) { e.preventDefault(); button.current.click(); } }} />
       </Field>
       <Button ref={button} className="dk-type-to-confirm__button" destructive wrap disabled={disabled || !matched}
         disabledReason={disabled ? undefined : sds.labels.typePhraseFirst(phrase)} onClick={() => onConfirm()}>{confirmLabel}</Button>

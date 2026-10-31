@@ -44,7 +44,7 @@ const { Table, TableHead, TableBody, TableFoot, TableRow, TableHeaderCell, Table
 
 Table only lays out what you give it: sorting, filtering and selection state stay in your code. Sort text columns with `useCollator().compare`, so names sort the way people in the page's locale expect ("Item 2" before "Item 10", "Äpfel" beside "Apfel" in German).
 
-- Give every table a `caption`. When a heading on the page already says what it holds, add `captionHidden` so screen readers still hear it.
+- Give every table a `caption`. When a heading on the page already says what it holds, add `hideCaption` so screen readers still hear it.
 - Set `align="end"` on number columns, in the header and the cells, so the digits line up.
 - A number given to `TableCell` as its child (`{p.calls}`) is written in the locale's digits, ungrouped as given: 1204 in en-US, ١٢٠٤ in ar-EG. For grouping, currency or units, put a `FormattedNumber` in the cell.
 - Use `size="sm"` for dense data, and `striped` when long rows are hard to follow across.
@@ -79,7 +79,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 | `striped` | boolean | `false` | Shades every other body row (rows then don't change on hover) |
 | `stickyHeader` | boolean | `false` | Keeps the header in view; give the frame a height with `containerProps` |
 | `caption` | node | none | The table's title, as its `<caption>` |
-| `captionHidden` | boolean | `false` | Hides the caption on screen; screen readers still announce it |
+| `hideCaption` | boolean | `false` | Hides the caption on screen; screen readers still announce it. `captionHidden`, its old name, still works and warns |
 | `containerProps` | div props | none | Go to the scrolling frame, which has `data-component="table"`. An `aria-label` or `aria-labelledby` here names the frame only while it scrolls (when it's a region); a caption takes precedence |
 
 `className`, `ref` and everything else go to the `<table>`.
