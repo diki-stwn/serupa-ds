@@ -70,9 +70,7 @@ const NAMING_GAPS = {
   'ComboboxMultipleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
 };
 // Booleans that don't follow the naming yet, each with why. Like NAMING_GAPS, this list only shrinks.
-const BOOLEAN_GAPS = {
-  'TableProps.captionHidden': 'xHidden: to be deprecated for hideCaption (SG3), one component pull request',
-};
+const BOOLEAN_GAPS = {};
 const NEGATIVE = /^(no|not|dont|without|disable)[A-Z]|[a-z]Hidden$|^enabled$/;
 const isBoolean = (p) => {
   const d = (p.declarations || [])[0];
