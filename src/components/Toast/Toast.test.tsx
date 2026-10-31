@@ -661,3 +661,23 @@ describe('Toaster on a short screen (GQ1b)', () => {
     } finally { await page.viewport(900, 700); }
   });
 });
+
+describe('Toaster inside a shadow root (GR60)', () => {
+  test('F8 reaches the newest toast and F8 again goes back to the field it came from', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<><input aria-label="Shadow field" /><Toaster /></>, { container: inner });
+      const root = host.shadowRoot!, field = root.querySelector('input')!;
+      React.act(() => { toast({ title: 'In the shadow', duration: 0 }); });
+      await expect.poll(() => root.querySelectorAll('[data-toast]').length).toBe(1);
+      field.focus();
+      await userEvent.keyboard('{F8}');
+      await expect.poll(() => !!root.activeElement?.closest('[data-toast]')).toBe(true);
+      await userEvent.keyboard('{F8}');
+      await expect.poll(() => root.activeElement).toBe(field);
+    } finally { React.act(() => { toast.dismiss(); }); host.remove(); }
+  });
+});
