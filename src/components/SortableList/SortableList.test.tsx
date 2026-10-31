@@ -33,6 +33,13 @@ describe('SortableList', () => {
       .toEqual(['button', 'false', 'Press Space to pick it up, the arrow keys to move it, Space again to drop it, or Escape to cancel.']);
   });
 
+  test('a long single word wraps inside its row, so a narrow list never makes the page scroll sideways (RF1, WCAG 1.4.10)', async () => {
+    await render(<div style={{ width: '220px' }}><SortableList id="lw" aria-label="Tasks" items={[{ id: 'a', name: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte' }]} getKey={(i) => i.id} getLabel={(i) => i.name} onReorder={() => undefined} renderItem={(i) => i.name} /></div>);
+    const li = document.querySelector('#lw li')!, row = li.getBoundingClientRect();
+    const r = document.createRange(); r.selectNodeContents(li.lastElementChild!);
+    expect([Math.round(row.width), r.getBoundingClientRect().right <= row.right]).toEqual([220, true]);
+  });
+
   test('without items (a plain-JS caller) it renders an empty list instead of throwing', async () => {
     const Loose = SortableList as unknown as React.ComponentType<Record<string, unknown>>;
     const screen = await render(<Loose id="noitems" getKey={(s: string) => s} getLabel={(s: string) => s} renderItem={(s: string) => s} onReorder={() => {}} />);
