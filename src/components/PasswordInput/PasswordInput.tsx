@@ -28,6 +28,9 @@ export interface PasswordInputProps extends Omit<InputProps, "type" | "showCount
 
 const SIZES = ["sm", "md", "lg"] as const;
 
+// What the person does in the field that a late caret restore must not undo.
+const STOP = ["keydown", "pointerdown", "input"] as const;
+
 /* PasswordInput: an Input for passwords with a button at the end that shows and hides what was typed. It uses
    Input's box and tokens. autoComplete defaults to "current-password"; use "new-password" on sign-up forms.
    While Caps Lock is on, a "Caps Lock is on" hint shows in the field and is read out (capsLockHint={false} turns it
@@ -79,8 +82,12 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
       f.scrollLeft = at * f.scrollWidth - (at * c[4] - c[3]);
     };
     put();
+    // The frame can come late (WebKit's can wait past the next keystrokes), so it puts the caret back only while the
+    // person hasn't typed, pressed or selected since: otherwise it would undo what they just did.
     const frame = requestAnimationFrame(put);
-    return () => { cancelAnimationFrame(frame); };
+    const stop = () => { cancelAnimationFrame(frame); for (const t of STOP) f.removeEventListener(t, stop); };
+    for (const t of STOP) f.addEventListener(t, stop);
+    return stop;
   }, [shown]);
   // Read at the button's mousedown when there is one: WebKit collapses the field's selection to its end on the way to the
   // click, so a selection read there is already gone (BW1). A press that never became a click leaves a stale one: kept
