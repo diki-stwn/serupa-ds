@@ -160,6 +160,19 @@ describe('CopyButton', () => {
     vi.restoreAllMocks();
   });
 
+  test('L8E96 without the Clipboard API, in a modal <dialog> (the page behind it is inert), the fallback still copies the text; it selected nothing', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    let selected = '';
+    vi.spyOn(document, 'execCommand').mockImplementation(() => { selected = String(document.getSelection()); return true; });
+    await render(<dialog id="l8e96-d"><CopyButton id="l8e96" value="secret-token" /></dialog>);
+    (document.getElementById('l8e96-d') as HTMLDialogElement).showModal();
+    await userEvent.click(el('l8e96'));
+    await expect.poll(() => el('l8e96').hasAttribute('data-copied')).toBe(true);
+    expect([selected, document.activeElement === el('l8e96'), document.querySelector('textarea')]).toEqual(['secret-token', true, null]);
+    (document.getElementById('l8e96-d') as HTMLDialogElement).close();
+    vi.restoreAllMocks();
+  });
+
   test('labels follow the provider: "Salin", "Disalin" in Indonesian', async () => {
     await render(<SerupaProvider labels={idLabels}><CopyButton id="id" value="x" /></SerupaProvider>);
     expect(shown('id')).toBe('Salin');
