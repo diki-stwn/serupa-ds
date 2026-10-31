@@ -2,7 +2,8 @@
 //   - every Material Symbol works by name and draws exactly as the font did, pixel for pixel at 24px;
 //   - an icon from serupa-ds/icons works through
 //     `icon`, registerIcons() adds a name, an unknown name draws nothing and warns, and on a plain page serupa.iife.js
-//     alone draws any name (serupa-icons.iife.js still loads, for pages that include it).
+//     alone draws any name: it adds serupa-icons.iife.js (the full table, not in serupa.iife.js) the first time it
+//     needs it, once, and not at all when the page included it already.
 //   node tools/test/icon-names.mjs
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -38,6 +39,10 @@ await p.evaluate(() => document.fonts.load('24px "Source"'));
 await p.waitForTimeout(300);
 const drawn = await p.evaluate(() => [...document.querySelectorAll('.dk-icon[data-icon]')].filter((e) => e.querySelector('svg path')).map((e) => e.dataset.icon));
 const missing = names.filter((n) => !drawn.includes(n));
+const iife = read('dist/serupa.iife.js'), table = read('dist/serupa-icons.iife.js');
+t('serupa.iife.js leaves the full table to serupa-icons.iife.js (it has "sports_cricket", serupa.iife.js does not)', !iife.includes('"sports_cricket"') && table.includes('"sports_cricket"'));
+const added = await p.evaluate(() => [...document.scripts].filter((s) => /serupa-icons\.iife\.js$/.test(s.src)).length);
+t('serupa.iife.js alone adds serupa-icons.iife.js to the page once, for all the names outside the everyday set', added === 1, `${added} script tags`);
 t(`all ${names.length} Material Symbols draw by name, as an SVG`, !missing.length, missing.join(', '));
 
 // Pixel for pixel: each SVG against the font glyph it was drawn from, both 24px with the font at its opsz 24.
@@ -70,6 +75,16 @@ if (!window.Serupa || !Serupa.Icon) throw new Error('serupa-icons.iife.js broke 
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Serupa.Icon, { id: 'r', name: 'sports_cricket' }));</script>`, { react: true }));
 await q.waitForTimeout(300);
 t(`on a plain page any of the ${all.size} names works ("sports_cricket"), with serupa-icons.iife.js loaded or not`, await q.evaluate(() => !!document.querySelector('#r svg path')));
+t('a page that includes serupa-icons.iife.js itself gets no second copy', await q.evaluate(() => [...document.scripts].filter((s) => /serupa-icons\.iife\.js$/.test(s.src)).length) === 1);
+// Without the file beside it (a page that copied serupa.iife.js alone), the box stays empty and the warning says what to include.
+const lone = await b.newPage();
+const said = [];
+lone.on('console', (m) => said.push(m.text()));
+await lone.route('**/serupa-icons.iife.js', (r) => r.abort());
+await lone.goto(writePage('icon-lone.html', `<div id="root"></div><script>
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Serupa.Icon, { id: 'r', name: 'sports_cricket' }));</script>`, { react: true }));
+await lone.waitForTimeout(300);
+t('when serupa-icons.iife.js is missing, the icon stays empty and the warning says to include it', !(await lone.evaluate(() => document.querySelector('#r svg'))) && said.some((w) => w.includes('include serupa-icons.iife.js')), said.join(' | '));
 await b.close();
 cleanup();
 done(report('Icon names', R));

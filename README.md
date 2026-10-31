@@ -118,6 +118,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/bundle.css` | `components.css` + `utilities.css`. |
 | `dist/index.js`, `dist/index.d.ts` | The components as ES modules, with types. |
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
+| `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
