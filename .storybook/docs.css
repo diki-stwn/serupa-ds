@@ -35,3 +35,8 @@ html, body { background-color: var(--surface); }
 [data-theme$="-dark"] .docblock-argstable td div:not(:has(input, textarea, select, button)) { color: var(--text-muted) !important; }
 [data-theme$="-dark"] .docblock-argstable td:first-child, [data-theme$="-dark"] .docblock-argstable td:first-child * { color: var(--text) !important; }
 [data-theme$="-dark"] .sbdocs-content .sb-unstyled { color: var(--text); }
+
+/* Running text on the Docs pages stops near 65 characters a line (container-prose, KW14), like Text's measure:
+   a page is 1000px wide, about 120 characters of body text. Tables, code, story frames and the docs' own blocks
+   keep the page's width. */
+.sbdocs-content :is(p, ul, ol, blockquote):not(.docs-story *, .sb-unstyled *, td *, th *, li *) { max-inline-size: var(--container-prose); }

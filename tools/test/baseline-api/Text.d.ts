@@ -8,6 +8,7 @@ interface TextProps extends React.HTMLAttributes<HTMLElement> {
     tone?: TextTone;
     weight?: TextWeight;
     truncate?: boolean;
+    measure?: boolean;
     htmlFor?: string;
 }
 declare const Text: React.ForwardRefExoticComponent<TextProps & React.RefAttributes<HTMLElement>>;

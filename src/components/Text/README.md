@@ -31,6 +31,7 @@ const { Text } = window.Serupa;
 - Leave `size`, `tone` and `weight` out unless you need them, so the text follows its parent.
 - Use `as="span"` inside other text, and a `p` (the default) for paragraphs.
 - It has no margins: space paragraphs with the layout, such as a [Stack](../Stack/README.md).
+- Give running text `measure` on a wide page (an article, a long description, help text), so each line stops near 65 characters: longer lines are hard to follow back to the next one. Lines under 80 characters are WCAG's advice (1.4.8, AAA). It's the same width as `max-w-prose` and Container's `size="prose"`, without the utility classes.
 - Text's tokens (`--text-color`, `--text-color-muted`, `--text-color-primary`, `--text-color-danger`) only change Text's tones. They're separate from the shared theme colors such as `--text` and `--text-muted`, which they default to, and from the type sizes such as `--text-sm`: overriding `--text-color-muted` changes muted Text, not every muted color on the page.
 
 ## Accessibility
@@ -50,6 +51,7 @@ const { Text } = window.Serupa;
 | `tone` | `'default'` \| `'muted'` \| `'primary'` \| `'danger'` | inherited | `text`, `text-muted`, `primary` or `danger-text` |
 | `weight` | `'normal'` \| `'medium'` \| `'semibold'` \| `'bold'` | inherited | 400, 500, 600 or 700 |
 | `truncate` | boolean | `false` | One line, cut with an ellipsis. It becomes a block, so give it a width or a parent that has one |
+| `measure` | boolean | `false` | Caps the line at about 65 characters (`container-prose`, 65ch in the text's own size), for running text on a wide page. A span stays inline, so use it on a block (`p`, `div`, `li`) |
 
 Text has no margins (space it with the layout). `className`, `style`, `ref`, `htmlFor` (with `as="label"`) and everything else go to the element, which has `data-component="text"`.
 
