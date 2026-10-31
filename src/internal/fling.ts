@@ -28,6 +28,13 @@ export function settleTime(distance: number, v: number, { min = 150, max = 400, 
   return Math.round(Math.min(max, Math.max(min, (SLOPE * Math.abs(distance)) / Math.max(Math.abs(v), floor))));
 }
 
+/** Momentum (KW11): how much further something let go of at `v` px/ms would travel if it slowed as a scroll does,
+ *  losing the same share of its speed every ms (`rate` of it kept). A sum of the decaying steps: v × rate / (1 − rate).
+ *  The default, 0.99, is tuned for a panel, which is short and has two places to rest: about ten times the
+ *  deceleration of a page scroll (0.998), so 0.15 px/ms carries on about 15px, and a slow drag still settles near
+ *  where the finger left it. */
+export const project = (v: number, rate = 0.99): number => (v * rate) / (1 - rate);
+
 /** A drag past where it can go meets resistance: it moves less the further it goes, never more than w (Carousel past
  *  its first or last slide, a Drawer pulled away from its edge). */
 export const rubber = (d: number, w: number): number => Math.sign(d) * (1 - 1 / (Math.abs(d) * 0.55 / Math.max(1, w) + 1)) * w;
