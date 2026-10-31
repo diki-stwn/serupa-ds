@@ -34,7 +34,7 @@ const CONTROLS: [string, (size: Size) => React.ReactElement][] = [
   ['PasswordInput', (size) => <PasswordInput size={size} aria-label="Name" />],
   ['PhoneInput', (size) => <PhoneInput size={size} aria-label="Name" />],
   ['SearchInput', (size) => <SearchInput size={size} aria-label="Name" />],
-  ['InlineEdit (editing)', (size) => <InlineEdit size={size} aria-label="Name" defaultValue="Ada" defaultEditing />],
+  ['InlineEdit (editing)', (size) => <InlineEdit size={size} label="Name" defaultValue="Ada" defaultEditing />],
   ['SegmentedControl', (size) => <SegmentedControl size={size} aria-label="View" options={OPTIONS} />],
 ];
 
