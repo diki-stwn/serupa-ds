@@ -378,6 +378,30 @@ describe('Tabs indicator from the keyboard (KW1)', () => {
   });
 });
 
+describe('Tabs indicator after a keyboard pick, moved from elsewhere (GR61)', () => {
+  test('controlled: an arrow moves the line at once; then a mouse click on an outside Next button slides it, with no data-instant', async () => {
+    await withMotion(async () => {
+      const order = ['a', 'b', 'c'];
+      function App() {
+        const [v, set] = React.useState('a');
+        return <>
+          <Tabs id="gr61" value={v} onValueChange={set}><TabList aria-label="Steps">{order.map((k) => <Tab key={k} value={k}>Step {k}</Tab>)}</TabList></Tabs>
+          <button id="gr61-next" onClick={() => set(order[(order.indexOf(v) + 1) % order.length])}>Next</button>
+        </>;
+      }
+      await render(<App />);
+      const tabs = [...document.querySelectorAll<HTMLElement>('#gr61 [role="tab"]')];
+      const on = () => tabs.find((t) => t.getAttribute('aria-selected') === 'true')!;
+      const runs = (t: HTMLElement) => t.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition && /^(translate|scale|clip-path)$/.test(a.transitionProperty)).length;
+      tabs[0].focus();
+      await userEvent.keyboard('{ArrowRight}');
+      expect([on() === tabs[1], tabs[1].hasAttribute('data-instant'), runs(tabs[1])]).toEqual([true, true, 0]);
+      await userEvent.click(document.getElementById('gr61-next')!);
+      expect([on() === tabs[2], tabs[2].hasAttribute('data-instant'), runs(tabs[2]) > 0]).toEqual([true, false, true]);
+    });
+  });
+});
+
 describe('Tabs indicator turned back mid-slide (GQ8)', () => {
   // The selected tab's transitions on one pseudo-element, held halfway.
   const slides = (t: HTMLElement, pseudo: string) => t.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
