@@ -57,11 +57,16 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 
 const OWN = { files: 1, onFilesChange: 1, onReject: 1, accept: 1, multiple: 1, maxSize: 1, maxFiles: 1, disabled: 1, name: 1, form: 1, title: 1, buttonLabel: 1, hint: 1, removeLabel: 1, autoFocus: 1, className: 1, id: 1, "aria-describedby": 1, "aria-errormessage": 1, invalid: 1, required: 1, readOnly: 1, "aria-invalid": 1, "aria-required": 1, "aria-readonly": 1 } as const;
 
+// Extensions and types that name the same kind of file. The file picker offers all of them for any one (accept=".jpg"
+// shows photo.jpeg too), so the check takes them as well (L8E12); image/jpg isn't a registered type but is often written.
+const SAME_EXT = [[".jpg", ".jpeg", ".jpe", ".jfif"], [".tif", ".tiff"], [".htm", ".html"], [".mpg", ".mpeg"], [".yml", ".yaml"], [".mid", ".midi"]];
+const SAME_TYPE: Record<string, string> = { "image/jpg": "image/jpeg", "image/pjpeg": "image/jpeg", "audio/mp3": "audio/mpeg", "image/x-png": "image/png" };
 function accepts(file: File, accept?: string) {
   if (!accept) return true;
-  const name = file.name.toLowerCase(), type = (file.type || "").toLowerCase();
+  const name = file.name.toLowerCase(), type = (file.type || "").toLowerCase(), real = SAME_TYPE[type] || type;
   return accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).some((a) =>
-    a.startsWith(".") ? name.endsWith(a) : a.endsWith("/*") ? type.startsWith(a.slice(0, -1)) : type === a);
+    a.startsWith(".") ? (SAME_EXT.find((g) => g.includes(a)) || [a]).some((e) => name.endsWith(e))
+      : a.endsWith("/*") ? type.startsWith(a.slice(0, -1)) : real === (SAME_TYPE[a] || a));
 }
 // accept in short names, for the message on a refused file: "image/*,.pdf" is ["image", "PDF"] ("an image or PDF"),
 // ".png,.jpg,.jpeg" is ["PNG", "JPG"]. null when a type has no short name (application/vnd.ms-excel), so the message stays general.
