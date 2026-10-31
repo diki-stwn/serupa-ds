@@ -19,6 +19,7 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
 3. Build it to the standard every component meets, which the checks hold it to:
    - **Accessibility:** WCAG 2.2 AA in all six themes (contrast in its test, axe on every story), keyboard use as the ARIA pattern describes, a visible focus ring (the outline recipe, `focus-ring-width` and `focus-ring-offset`), a forced-colors fallback for any state shown only by background, and nothing floating over the page when printing.
    - **Words** come from its `labels.ts`, in English and Indonesian, never written into the JSX (the `serupa/no-literal-words` lint rule).
+   - **Waits** in JavaScript are named in `src/internal/timing.ts`, never a number in a `setTimeout` or `setInterval` (the `serupa/no-literal-delay` lint rule).
    - **Values** read tokens: its own component tokens, falling back to the shared ones (the foundation check).
    - **Tests:** one `test()` per behaviour, found the way people find things (`getByRole`), in random order.
    - **Every option shows:** each value of a prop typed as a short union of strings (`variant`, `size`, `placement`) is rendered by a story or set by a test, unless it is the one the component falls back to (`node tools/test/prop-values.mjs`).

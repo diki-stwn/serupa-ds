@@ -19,6 +19,7 @@ import * as icons from "../../material/builtin";
 import { en as NumberInputWords } from "./labels";
 import { en as DatePickerWords } from "../DatePicker/labels";
 import { windowBlur } from "../../internal/focus";
+import { holdDelay, holdRepeat } from "../../internal/timing";
 // This component's words and the ones it shares with DatePicker.
 const words = /* @__PURE__ */ Object.assign({}, NumberInputWords, DatePickerWords);
 
@@ -236,7 +237,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       if (e.button !== 0) return;
       stop(); press(by);
       const h = { by: by, timer: 0 };
-      h.timer = window.setTimeout(() => { if (hold.current === h) h.timer = window.setInterval(() => latest.current(by), 50); }, 400);
+      h.timer = window.setTimeout(() => { if (hold.current === h) h.timer = window.setInterval(() => latest.current(by), holdRepeat); }, holdDelay);
       hold.current = h;
     },
     onPointerLeave: stop,

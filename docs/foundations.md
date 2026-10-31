@@ -832,6 +832,25 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 
 `tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token, and component CSS that takes the scale itself (`var(--duration-150)`, `var(--ease-in-out)`) instead of a role; `duration-0` and `ease-linear` are allowed, and what hasn't moved to a role yet is listed in the check. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
 
+**Waits.** Some waits live in JavaScript, because CSS can't express them: how long before a spinner shows, or how long a tooltip waits for the pointer to rest. They are named once in `src/internal/timing.ts`, so two that must agree can't drift apart. For example, Button's busy wait is Loader's default delay. The `serupa/no-literal-delay` lint rule fails a number written into a `setTimeout` or `setInterval` in a component.
+
+| Wait | Value | What it's for |
+|---|---|---|
+| `spinnerDelay` | 300ms | Before a loading indicator appears, so a quick wait doesn't flash one: Loader's default `delay`, Button's `loading`. |
+| `spinnerMinShown` | 500ms | Once a loading indicator shows, it stays at least this long. |
+| `feedbackHold` | 2000ms | How long a "done" state holds: Button's `successText`, CopyButton's "Copied". |
+| `hoverIntent` | 400ms | The pointer rests this long before a tooltip shows (Tooltip's default `delay`). |
+| `hoverLeave` | 100ms | A tooltip waits this long after the pointer leaves, so moving onto it keeps it open. |
+| `hoverWarm` | 300ms | After a tooltip closes, the next one opens at once for this long. |
+| `submenuIntent` | 150ms | The pointer rests this long on a menu item before its submenu opens or closes. |
+| `typingPause` | 250ms | Typing pauses this long before Combobox's `loadOptions` runs (its default `debounce`). |
+| `announcePause` | 700ms | Combobox waits this long after the options change before saying how many there are. |
+| `quickArrival` | 250ms | A picture that arrives this soon after mount appears without Image's fade. |
+| `holdDelay`, `holdRepeat` | 400ms, 50ms | A held NumberInput step button waits, then repeats. |
+| `clickAfterDrag` | 500ms | After a Splitter drag, the click the browser sends is ignored for this long. |
+| `repeatQuiet` | 1000ms | The same toast again within this long is a repeat, not a new toast. |
+| `relativeTick` | 15s | How often RelativeTime refreshes. |
+
 **Timing**
 
 - Bigger surfaces take longer, because they travel further: a tooltip enters in 150ms, a dialog in 200ms, a drawer in 300ms.

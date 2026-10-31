@@ -13,6 +13,7 @@ import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import * as icons from "../../material/builtin";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
+import { submenuIntent } from "../../internal/timing";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -421,7 +422,6 @@ export interface MenuSubProps extends Omit<React.HTMLAttributes<HTMLElement>, 'c
    to the item; ↑ ↓ Home End and letters work inside it alone. Hovering the item opens it after a moment, and the
    pointer can cross the items in between on its way: it closes a moment after the focus settles on another item
    of its menu. Choosing an item in it closes the whole menu. */
-const SUB_DELAY = 150;
 /** An item that opens a submenu of more items. */
 export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("MenuSub", function MenuSub(props, ref) {
   const id = domId("dk-menu-sub", React.useId());
@@ -437,7 +437,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
   const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hover = React.useRef(false);   // the pointer is on the item and it opens in a moment
   const stop = () => { clearTimeout(timer.current); hover.current = false; };
-  const later = (fn: () => void) => { stop(); timer.current = setTimeout(fn, SUB_DELAY); };
+  const later = (fn: () => void) => { stop(); timer.current = setTimeout(fn, submenuIntent); };
   const rtl = () => !!itemRef.current && getComputedStyle(itemRef.current).direction === "rtl";
   const show = (focus: boolean) => {
     stop();
@@ -465,7 +465,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
       const t = e.target;
       if (!(t instanceof Node)) return;
       clearTimeout(timer.current);
-      if (t !== item && !(panelRef.current && panelRef.current.contains(t)) && parent.contains(t)) timer.current = setTimeout(() => { setOpen(false); }, SUB_DELAY);
+      if (t !== item && !(panelRef.current && panelRef.current.contains(t)) && parent.contains(t)) timer.current = setTimeout(() => { setOpen(false); }, submenuIntent);
     };
     document.addEventListener("focusin", onFocus);
     return () => { document.removeEventListener("focusin", onFocus); };

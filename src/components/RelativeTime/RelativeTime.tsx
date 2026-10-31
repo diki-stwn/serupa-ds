@@ -6,6 +6,7 @@ import { isoDate, toDay } from "../../internal/dates";
 import { canonicalLocale } from "../../internal/locale";
 import { useLocale, useOwnLang } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
+import { relativeTick } from "../../internal/timing";
 
 export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTimeElement>, 'children' | 'dateTime'> {
   /** The moment: a Date, a timestamp in ms, or a string Date can read ("2026-10-24T09:30:00Z"). A day on its own,
@@ -28,7 +29,6 @@ export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTim
 
 /* One clock for every RelativeTime on the page: it ticks every 15 seconds while any is mounted (and at once when
    the tab comes back into view), so a page of timestamps re-renders together rather than each on its own timer. */
-const TICK = 15000;
 // module state: the browser's one clock (subscribe starts it); a server render reads getServerNow instead.
 let now = Date.now();
 const listeners = new Set<() => void>();
@@ -38,7 +38,7 @@ const onVisible = () => { if (document.visibilityState === "visible") tick(); };
 function subscribe(cb: () => void) {
   listeners.add(cb);
   if (!timer) {
-    timer = setInterval(tick, TICK);
+    timer = setInterval(tick, relativeTick);
     document.addEventListener("visibilitychange", onVisible);
     if (Date.now() - now > 1000) tick();   // the clock stood still while nothing was mounted
   }
@@ -47,7 +47,7 @@ function subscribe(cb: () => void) {
     if (!listeners.size && timer) { clearInterval(timer); timer = null; document.removeEventListener("visibilitychange", onVisible); }
   };
 }
-const getNow = () => { if (!timer && Date.now() - now > TICK) now = Date.now(); return now; };
+const getNow = () => { if (!timer && Date.now() - now > relativeTick) now = Date.now(); return now; };
 // The server's moment is used for hydration too, so the first client render matches the HTML; the browser's clock
 // takes over right after (useSyncExternalStore's server snapshot). It's the same moment for every render within a
 // second (one page's times agree, and React reads the snapshot twice), and a new one after that: a long-running

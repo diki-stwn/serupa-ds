@@ -12,6 +12,7 @@ import { warnOnce } from "../../internal/warn";
 import { schemeOf, useThemeChanges } from "../../internal/scheme";
 import * as icons from "../../material/builtin";
 import { en as words } from "./labels";
+import { quickArrival } from "../../internal/timing";
 
 export type ImageRatio = 'auto' | 'square' | '4:3' | 'video' | number;
 
@@ -69,7 +70,6 @@ export interface ImageSource {
 
 const RATIOS = ["auto", "square", "4:3", "video"] as const;
 const never = () => () => {}, yes = () => true, no = () => false;
-const QUICK = 250;   // ms: a picture that arrives this soon after mount appears without the fade
 
 // sizes for a lazy picture whose srcSet lists widths: "auto" lets the browser pick by the width the picture is laid out
 // at (it knows that before a lazy picture loads), with what was given, or the whole screen, where auto isn't known.
@@ -151,7 +151,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const img = React.useRef<HTMLImageElement | null>(null);
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
   // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
-  // and fades in when it arrives; one that arrives within QUICK ms of mount just appears (no fade as a page
+  // and fades in when it arrives; one that arrives within quickArrival ms of mount just appears (no fade as a page
   // opens); a priority one never hides. A broken one drops it too, so its frame is the same whenever it fails. One
   // that hydrates from server HTML never hides either: it may have painted in part already (a large JPEG on a slow
   // link), and hiding it would make it flicker; a later src is the client's, and fades.
@@ -179,7 +179,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const themes = useThemeChanges(!!darkSrc);
   const [scheme, setScheme] = React.useState<"light" | "dark" | null>(null);
   React.useEffect(() => { if (darkSrc && frame.current) setScheme(schemeOf(frame.current)); }, [darkSrc, themes]);
-  const arrived = () => { if (performance.now() - since.current < QUICK) setLive(false); };
+  const arrived = () => { if (performance.now() - since.current < quickArrival) setLive(false); };
   const named = (base: string) => (alt ? base + ": " + alt : base);
   // With ratio "auto", width and height (the picture's size) shape the frame before the picture arrives, so the
   // page doesn't jump when it loads.
