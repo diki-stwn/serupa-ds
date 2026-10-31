@@ -81,7 +81,7 @@ Each is an optional override: set it on the page, a container or one PinInput. T
 | `--pin-input-border-hover` | `field-border-hover` | The boxes' border on hover. |
 | `--pin-input-focus-ring` | `focus-ring` | The border and ring of the box the caret is in. |
 | `--pin-input-invalid` | `danger` | Every box's border when invalid (3:1 on the surface). |
-| `--pin-input-bg-readonly` | `surface-muted` | The boxes' background when read-only or disabled. |
+| `--pin-input-bg-readonly` | `field-readonly` | The boxes' background when read-only or disabled. |
 | `--pin-input-radius` | `rounded-md` | A box's corners (6px). |
 | `--pin-input-box-sm` | `control-height-sm` | A box's width and height, size="sm" (24px). |
 | `--pin-input-box-md` | `control-height-md` | A box's width and height, size="md", the default (32px). |

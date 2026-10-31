@@ -418,4 +418,16 @@ describe('Slider at 320px (GM2)', () => {
     const half = [...el('gm2-l').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')][1].getBoundingClientRect(), t = el('gm2-l').querySelector('[role="slider"]')!.parentElement!.getBoundingClientRect();
     expect(Math.round(half.left + half.width / 2)).toBe(Math.round(t.left + t.width / 2));
   });
+  test('L8E84 in a Field, a level down (a row with a unit after it): the label, hint, error and disabled still reach it', async () => {
+    await render(<>
+      <Field label="Volume" hint="0 is muted" error="Too loud" disabled><div><Slider data-testid="sd1" defaultValue={90} /><span>dB</span></div></Field>
+      <Field label="Price" hint="In dollars"><div><Slider data-testid="sd2" defaultValue={[20, 80]} /></div></Field>
+    </>);
+    const root = (t: string) => document.querySelector<HTMLElement>(`[data-testid=${t}]`)!;
+    const text = (ids: string | null) => (ids || '').split(' ').map((i) => document.getElementById(i)?.textContent).join(' / ');
+    const one = root('sd1').querySelector('[role=slider]')!, two = root('sd2');
+    expect([text(one.getAttribute('aria-labelledby')), text(one.getAttribute('aria-describedby')), one.getAttribute('aria-invalid'), one.getAttribute('aria-disabled')])
+      .toEqual(['Volume', '0 is muted / Too loud', 'true', 'true']);
+    expect([two.getAttribute('role'), text(two.getAttribute('aria-labelledby')), text(two.getAttribute('aria-describedby'))]).toEqual(['group', 'Price', 'In dollars']);
+  });
 });

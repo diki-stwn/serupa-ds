@@ -14,7 +14,7 @@
       },
       "bg-readonly": {
         "$type": "color",
-        "$value": "{color.surface-muted}",
+        "$value": "{color.field-readonly}",
         "$description": "Background when read-only or disabled.",
         "$extensions": {
           "com.serupa": {
