@@ -7,7 +7,7 @@ import { IconButton } from '../IconButton/IconButton';
 const meta = {
   title: 'Components/Overlays/Tooltip',
   component: Tooltip,
-  args: { content: 'Download as PDF', placement: 'top', open: true, children: <IconButton icon="download" label="Download" variant="secondary" noTitle /> },
+  args: { content: 'Download as PDF', placement: 'top', open: true, children: <IconButton icon="download" label="Download" variant="secondary" hideTitle /> },
   argTypes: { placement: { control: 'select', options: ['top', 'bottom', 'left', 'right', 'top-start', 'top-end', 'bottom-start', 'bottom-end', 'left-start', 'right-end'] }, children: { control: false } },
   decorators: [(Story) => <div style={{ padding: '56px 120px' }}><Story /></div>],
 } satisfies Meta<typeof Tooltip>;
@@ -20,7 +20,7 @@ export const OnHover: Story = {
   name: 'On hover and focus',
   args: { open: undefined },
   render: () => <div className="flex gap-3">
-    <Tooltip content="Download as PDF"><IconButton icon="download" label="Download" variant="secondary" noTitle /></Tooltip>
+    <Tooltip content="Download as PDF"><IconButton icon="download" label="Download" variant="secondary" hideTitle /></Tooltip>
     <Tooltip content="Ctrl + S" placement="bottom"><Button variant="secondary">Save</Button></Tooltip>
     <Tooltip content="Only owners can delete a project" placement="right"><Button variant="outline" destructive aria-disabled="true">Delete</Button></Tooltip>
   </div>,

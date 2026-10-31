@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
@@ -19,7 +19,7 @@ const NONE = 'rgba(0, 0, 0, 0)';
 function Sortable() {
   const [s, set] = React.useState<SortDirection>('none');
   const sorted = ROWS.slice().sort((a, b) => (s === 'none' ? 0 : (s === 'ascending' ? 1 : -1) * (a[2] - b[2])));
-  return <Table id="tsort" caption="Usage" captionHidden>
+  return <Table id="tsort" caption="Usage" hideCaption>
     <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell id="hsort" align="end" sort={s} onSort={() => set(s === 'ascending' ? 'descending' : 'ascending')}>Calls</TableHeaderCell></TableRow></TableHead>
     <TableBody>{sorted.map((r) => <TableRow key={r[0]}><TableCell>{r[0]}</TableCell><TableCell align="end">{r[2]}</TableCell></TableRow>)}</TableBody>
   </Table>;
@@ -243,6 +243,17 @@ describe('Table', () => {
     await expect.poll(() => f.scrollTop).toBe(80);
     expect(Math.round(th.getBoundingClientRect().top - f.getBoundingClientRect().top)).toBeLessThanOrEqual(1);
     expect([css(th).position, f.getAttribute('aria-label'), f.getAttribute('tabindex')]).toEqual(['sticky', 'Sticky', '0']);
+  });
+
+  test('captionHidden, the deprecated name, still hides the caption on screen and warns once to use hideCaption', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(<><Table id="old" caption="Old"><TableBody><TableRow><TableCell>1</TableCell></TableRow></TableBody></Table>
+      <Table caption="Old 2" captionHidden><TableBody><TableRow><TableCell>2</TableCell></TableRow></TableBody></Table>
+      <Table caption="Old 3" captionHidden><TableBody><TableRow><TableCell>3</TableCell></TableRow></TableBody></Table></>);
+    const caps = [...document.querySelectorAll('caption')];
+    expect(caps.map((c) => c.classList.contains('dk-visually-hidden'))).toEqual([false, true, true]);
+    expect(warn.mock.calls.filter(([m]) => /captionHidden is deprecated/.test(String(m)))).toHaveLength(1);
+    warn.mockRestore();
   });
 
   test('unknown size and align fall back to md and start', async () => {
