@@ -1,0 +1,37 @@
+[
+  {
+    "id": "sign-in",
+    "prompt": "A sign-in form: email and password, a \"Keep me signed in\" option, a submit button, and a \"Forgot password?\" link. Show an error under the email field when it is empty on submit.",
+    "expect": ["Field", "Input", "PasswordInput", "Checkbox", "Button", "Link"]
+  },
+  {
+    "id": "settings-table",
+    "prompt": "A team settings page: a heading, and a table of members with name, email, role and a remove button per row. Above the table, an \"Invite\" button.",
+    "expect": ["Heading", "Table", "Button|IconButton"]
+  },
+  {
+    "id": "confirm-delete",
+    "prompt": "A \"Delete project\" button that opens a confirmation before deleting. The confirmation says what will be lost and has Cancel and Delete.",
+    "expect": ["Dialog|TypeToConfirm", "Button"]
+  },
+  {
+    "id": "save-toast",
+    "prompt": "A profile form with a display name and a bio. On save, tell the person it worked with a short message that goes away on its own.",
+    "expect": ["Field", "Input", "Textarea", "Button", "toast", "Toaster"]
+  },
+  {
+    "id": "toolbar",
+    "prompt": "A text editor's formatting bar: bold, italic and underline toggles that show only icons, and an alignment choice of left, center or right.",
+    "expect": ["Toolbar|ToggleGroup", "ToggleButton|ToggleGroup"]
+  },
+  {
+    "id": "empty-list",
+    "prompt": "A projects page whose list is empty: a message that there are no projects yet and a button to create the first one, all inside a card.",
+    "expect": ["EmptyState", "Button|Card"]
+  },
+  {
+    "id": "filters",
+    "prompt": "A product search bar with a search field, a category picker (All, Books, Music, Games), an \"In stock only\" switch and a price range slider.",
+    "expect": ["SearchInput", "Select|SegmentedControl|Combobox", "Switch", "Slider"]
+  }
+]
