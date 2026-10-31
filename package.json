@@ -44,6 +44,11 @@
       "import": "./dist/eslint.js",
       "default": "./dist/eslint.js"
     },
+    "./stylelint": {
+      "types": "./dist/stylelint.d.ts",
+      "import": "./dist/stylelint.js",
+      "default": "./dist/stylelint.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",
@@ -97,10 +102,14 @@
   "peerDependencies": {
     "@types/react": "^19.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "stylelint": ">=16.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
+      "optional": true
+    },
+    "stylelint": {
       "optional": true
     }
   },
