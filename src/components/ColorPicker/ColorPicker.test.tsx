@@ -377,4 +377,11 @@ describe('ColorPicker', () => {
     expect(group().closest('.dk-color-picker')!.hasAttribute('autofocus')).toBe(false);
   });
 
+  test('L8E86 in a Field, a level down (a row with a note after it): the label, hint, error, required and disabled still reach it', async () => {
+    await render(<Field label="Accent" hint="Used for links" error="Pick one" required disabled><div><ColorPicker swatches={SW} /><span>Brand</span></div></Field>);
+    const g = group(), text = (ids: string | null) => (ids || '').split(' ').map((i) => document.getElementById(i)?.textContent).join(' / ');
+    expect([text(g.getAttribute('aria-labelledby')), text(g.getAttribute('aria-describedby')), g.getAttribute('aria-invalid'), g.getAttribute('aria-required'), g.getAttribute('aria-disabled')])
+      .toEqual(['Accent*', 'Used for links / Pick one', 'true', 'true', 'true']);   // the * is aria-hidden
+    expect([radios().every((r) => r.disabled), hex().disabled]).toEqual([true, true]);
+  });
 });
