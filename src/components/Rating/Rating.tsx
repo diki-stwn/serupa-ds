@@ -73,7 +73,9 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
     if (!controlled) setOwn(n);
     if (onValueChange) onValueChange(n);
   };
-  const shown = readOnly ? value : hover ?? (value == null ? null : round(value, step));
+  // The choice the stars draw: a value between the choices (3.3, or 3.7 with halves) checks the radio of the star it shows (L8E61).
+  const picked = value == null ? null : round(value, step);
+  const shown = readOnly ? value : hover ?? picked;
   const stars = Array.from({ length: max }, (_, i) => {
     const share = shown == null ? 0 : Math.min(1, Math.max(0, shown - i));
     return { i, fill: Math.round(share * 100) + "%" };
@@ -98,8 +100,8 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
     const choices = allowHalf ? [i + 0.5, i + 1] : [i + 1];
     return choices.map((v) => (
       <input key={v} type="radio" className="dk-rating__choice"
-        name={name || auto} form={form} value={v} checked={value === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
-        onChange={() => set(v)} onClick={() => { if (clearable && value === v) set(null); }}
+        name={name || auto} form={form} value={v} checked={picked === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
+        onChange={() => set(v)} onClick={() => { if (clearable && picked === v) set(null); }}
         onPointerEnter={(e) => { if (e.pointerType !== "touch") setHover(v); }} />
     ));
   };
