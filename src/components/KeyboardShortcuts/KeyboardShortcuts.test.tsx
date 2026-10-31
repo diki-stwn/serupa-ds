@@ -23,6 +23,18 @@ function Shortcut({ keys, log, name, ...options }: { keys: string[]; log: string
 }
 
 describe('useShortcut', () => {
+  test('a letter matches what the layout types, and by position only when it types no Latin letter (AZERTY, Cyrillic, Mac Option) (L8E16)', async () => {
+    const log: string[] = [];
+    await render(<SerupaProvider platform="other">
+      <Shortcut keys={['mod', 'Q']} log={log} name="quit" /><Shortcut keys={['mod', 'A']} log={log} name="all" />
+    </SerupaProvider>);
+    const press = (key: string, code: string) => document.body.dispatchEvent(new KeyboardEvent('keydown', { key, code, ctrlKey: true, bubbles: true, cancelable: true }));
+    press('a', 'KeyQ');   // AZERTY: the key in Q's place types "a"
+    press('q', 'KeyA');   // and the one in A's place types "q"
+    press('й', 'KeyQ');   // Russian: the key in Q's place
+    expect(log).toEqual(['all', 'quit', 'quit']);
+  });
+
   test('runs on its keys anywhere on the page ("mod" is Ctrl off Apple devices); not while typing unless it has mod; the newest wins; gone when unmounted or disabled', async () => {
     const log: string[] = [];
     const screen = await render(<SerupaProvider platform="other">

@@ -73,8 +73,10 @@ function matches(c: Combo, e: KeyboardEvent, apple: boolean): boolean {
   const symbol = c.key.length === 1 && !/[a-z0-9 ]/.test(c.key);
   if (!symbol && e.shiftKey !== c.shift) return false;
   if ((e.key.length === 1 ? e.key.toLowerCase() : e.key) === c.key) return true;
-  // Option changes the character a letter types on a Mac (⌥K is "˚"), so letters and digits also match by position.
-  return /^[a-z]$/.test(c.key) ? e.code === "Key" + c.key.toUpperCase() : /^[0-9]$/.test(c.key) ? e.code === "Digit" + c.key : false;
+  // Option changes the character a letter types on a Mac (⌥K is "˚"), and a Cyrillic or Greek layout types "л" there,
+  // so letters and digits also match by position. Not when the key typed another Latin character: on AZERTY the key
+  // in Q's place types "a", and Ctrl+A was running a Ctrl+Q shortcut (L8E16).
+  return /^[a-z]$/.test(c.key) ? !/^[\x20-\x7e]$/.test(e.key) && e.code === "Key" + c.key.toUpperCase() : /^[0-9]$/.test(c.key) ? e.code === "Digit" + c.key : false;
 }
 const NOT_TYPED = /^(checkbox|radio|button|submit|reset|range|color|file|image)$/;
 const typing = (t: EventTarget | null): boolean =>
