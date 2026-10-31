@@ -8,6 +8,7 @@ import './docs.css';
 import tokens from '../tokens.json';
 import * as ALL_ICONS from '../src/material/icons';
 import { registerIcons } from '../src/icons';
+import { CONTENT, ContentContext, type Content } from './content';
 
 // Every icon name draws at once in Storybook (apps load the full set the first time they need it).
 registerIcons(ALL_ICONS);
@@ -78,7 +79,8 @@ const WithTheme: Decorator = (Story, context) => {
     document.documentElement.setAttribute('dir', dir);
     axes({ contrast, density, motion });
   }, [theme, dir, contrast, density, motion]);
-  return <Story />;
+  const content = CONTENT.some((c) => c.value === context.globals.content) ? context.globals.content as Content : 'demo';
+  return <ContentContext.Provider value={content}><Story /></ContentContext.Provider>;
 };
 
 const preview: Preview = {
@@ -115,8 +117,13 @@ const preview: Preview = {
       toolbar: { title: 'Motion', icon: 'time', dynamicTitle: true, items: [
         { value: '1', title: 'Motion ×1' }, { value: '4', title: 'Slow motion ×4' }, { value: '10', title: 'Slow motion ×10' }] },
     },
+    // The sample data a story shows (.storybook/content.ts): demo, the worst case, none or one.
+    content: {
+      description: 'Sample content',
+      toolbar: { title: 'Content', icon: 'document', dynamicTitle: true, items: CONTENT.map((c) => ({ ...c })) },
+    },
   },
-  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr', contrast: 'default', density: 'default', motion: '1' },
+  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr', contrast: 'default', density: 'default', motion: '1', content: 'demo' },
   decorators: [WithTheme],
   parameters: {
     layout: 'padded',

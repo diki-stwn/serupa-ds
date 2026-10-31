@@ -108,12 +108,9 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     setSlide(moves ? { to: closing ? "closed" : "open", px: closing && paneA ? extent(paneA) : 0, at, run: false } : null);
   };
 
-  // Your onKeyDown runs first, on the root as the key goes down (the capture phase), so preventDefault() in it keeps
-  // the component's own handling of that key from running (L8E32).
-  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const horizontal = direction === "horizontal";
     const back = horizontal ? (rtl(e.currentTarget) ? "ArrowRight" : "ArrowLeft") : "ArrowUp";
     const on = horizontal ? (rtl(e.currentTarget) ? "ArrowLeft" : "ArrowRight") : "ArrowDown";
@@ -216,7 +213,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   const slideStyle = sliding ? { "--dk-splitter-from": along((sliding.to === "open" ? -left : left) * back), "--dk-splitter-px": sliding.px + "px", "--dk-splitter-shut": clip("100%"),
     "--dk-splitter-clip-from": clip(Math.max(0, sliding.to === "open" ? left : sliding.px - left) + "px") } as React.CSSProperties : null;
   return (
-    <div {...rest} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} style={slideStyle ? { ...rest.style, ...slideStyle } : rest.style} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+    <div {...rest} style={slideStyle ? { ...rest.style, ...slideStyle } : rest.style} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}
       data-placing={placing || undefined} data-slide={sliding ? (sliding.run ? "run" : "start") : undefined} data-slide-to={sliding ? sliding.to : undefined} onPointerDownCapture={onPlace}>
       <div ref={setPaneA} id={first} tabIndex={scrollsA ? 0 : undefined} className="dk-splitter__pane dk-splitter__pane--first" style={{ flexBasis: size + "%" }} hidden={(collapsed && !(sliding && sliding.to === "closed")) || undefined} inert={(collapsed && !!sliding) || undefined}
