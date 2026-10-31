@@ -17,6 +17,11 @@ export interface RelativeTimeProps extends Omit<React.TimeHTMLAttributes<HTMLTim
   numeric?: 'auto' | 'always';
   /** How the exact date in the tooltip (title) is written. Default: { dateStyle: "long", timeStyle: "short" }. false: no tooltip. */
   titleFormat?: Intl.DateTimeFormatOptions | false;
+  /** After how many days, ago or ahead, it shows the date instead of words ("Oct 24, 2026" rather than "340 days
+      ago"), as absoluteFormat writes it. Default 7. false: words however far. */
+  absoluteAfter?: number | false;
+  /** How that date is written. Default: { dateStyle: "medium" }. */
+  absoluteFormat?: Intl.DateTimeFormatOptions;
   /** A locale for this one; otherwise the SerupaProvider's, else the browser's. */
   locale?: string;
 }
@@ -91,17 +96,21 @@ export function relativeTime(date: Date | number | string, now: number, locale?:
 
 /* RelativeTime: a <time datetime> that says how long ago (or how far ahead) a moment is, in the locale's words:
    "3 minutes ago", "yesterday", "in 2 hours". It updates on one shared 15-second clock, and the exact date is its
-   tooltip (title). format "long" (default), "short" or "narrow"; numeric "auto" (default) or "always". */
+   tooltip (title). format "long" (default), "short" or "narrow"; numeric "auto" (default) or "always". More than
+   absoluteAfter days away (7 by default) it shows the date instead. */
 /** How long ago a moment was, in words ("3 minutes ago"), kept up to date; the exact date in its tooltip. */
 export const RelativeTime = /* @__PURE__ */ component<HTMLTimeElement, RelativeTimeProps>("RelativeTime", function RelativeTime(props, ref) {
-  const rest = omit(props, { date: 1, format: 1, numeric: 1, titleFormat: 1, locale: 1, className: 1 });
+  const rest = omit(props, { date: 1, format: 1, numeric: 1, titleFormat: 1, absoluteAfter: 1, absoluteFormat: 1, locale: 1, className: 1 });
   const locale = useLocale(props.locale), lang = useOwnLang(props.locale);
   const current = React.useSyncExternalStore(subscribe, getNow, getServerNow);
   const day = dayOf(props.date), d = day || new Date(props.date), valid = isFinite(d.getTime());
   React.useEffect(() => {   // in the browser only, once per page
     if (process.env.NODE_ENV !== "production" && !valid) warnOnce("relative-time-date", "RelativeTime: date " + JSON.stringify(String(props.date)) + " isn't a date, so it shows nothing. Pass a Date, a timestamp in ms, or a string Date can read, such as \"2026-10-24T09:30:00Z\".");
   }, [valid, props.date]);
-  const text = valid ? relativeTime(day ? props.date : d, current, locale, { format: props.format, numeric: props.numeric }) : "";
+  // Far off, a date says more than "340 days ago" (KW8); the tooltip keeps the exact date either way.
+  const after = props.absoluteAfter ?? 7, far = valid && after !== false && Math.abs(d.getTime() - current) > after * 86400000;
+  const text = !valid ? "" : far ? new Intl.DateTimeFormat(locale, props.absoluteFormat || { dateStyle: "medium" }).format(d)
+    : relativeTime(day ? props.date : d, current, locale, { format: props.format, numeric: props.numeric });
   // A day has no time of day to show, and its datetime is the day itself.
   const title = !valid || props.titleFormat === false ? undefined : new Intl.DateTimeFormat(locale, props.titleFormat || { dateStyle: "long", timeStyle: day ? undefined : "short" }).format(d);
   return <time lang={lang} {...rest} ref={ref} dateTime={valid ? (day ? isoDate(d) : d.toISOString()) : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}
