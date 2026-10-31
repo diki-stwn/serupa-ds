@@ -35,11 +35,11 @@ const ICONS: Record<AlertTone, IconData> = { info: icons.Info, success: icons.Ch
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 // Dismissing with the focused × would drop focus on <body> once the app removes the alert (DQ1). It goes to the next
-// focusable element after the alert instead, else the one before it. A handler that moves focus, or keeps the alert, is
-// left alone.
+// focusable element after the alert instead, else the one before it, in the Tab order (not a roving tab that isn't
+// the current one, tabindex -1: L8E23). A handler that moves focus, or keeps the alert, is left alone.
 function dismissAndRefocus(e: React.MouseEvent<HTMLElement>, onDismiss: () => void): void {
   const me = e.currentTarget, box = me.closest(".dk-alert"), doc = me.ownerDocument;
-  const near = box && doc.activeElement === me ? Array.from(doc.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => !box.contains(el)) : [];
+  const near = box && doc.activeElement === me ? Array.from(doc.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.tabIndex >= 0 && !box.contains(el)) : [];
   const next = near.filter((el) => box!.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
   const prev = near.filter((el) => !next.includes(el)).reverse();
   onDismiss();
