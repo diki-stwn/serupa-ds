@@ -23,6 +23,18 @@ function Controlled({ calls }: { calls: string[] }) {
 }
 
 describe('ColorPicker', () => {
+  test('switching to another window or tab mid-typing a hex keeps the text (L8E27)', async () => {
+    const commits: string[] = [];
+    await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" onValueCommit={(v) => commits.push(v)} />);
+    await userEvent.click(hex());
+    await userEvent.clear(hex());
+    await userEvent.keyboard('fde0');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    hex().dispatchEvent(new FocusEvent('focusout', { bubbles: true })); hex().dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([hex().value, commits]).toEqual(['fde0', []]);
+  });
+
   test('in a required Field with a hint: the control id once, the radiogroup named by the label, described by the hint and required; the hex field stays its own field', async () => {
     await render(<Field label="Accent" hint="Used for links" required><ColorPicker swatches={SW} /></Field>);
     const g = group(), label = document.querySelector('.dk-field__label') as HTMLLabelElement, hint = document.querySelector('.dk-field__hint') as HTMLElement;

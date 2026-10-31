@@ -76,7 +76,9 @@
 .dk-toast--success .dk-toast__icon { color: var(--toast-icon-success, var(--success)); }
 .dk-toast--warning .dk-toast__icon { color: var(--toast-icon-warning, var(--warning)); }
 .dk-toast--danger .dk-toast__icon { color: var(--toast-icon-danger, var(--danger)); }
-.dk-toast__content { overflow-wrap: anywhere; display: flex; flex-direction: column; gap: var(--spacing-0\.5); flex: auto; min-width: var(--spacing-0); }
+/* A long word in a narrow toast breaks where its language hyphenates it (191), with a hyphen, before
+   overflow-wrap cuts it anywhere. It follows the nearest lang. */
+.dk-toast__content { overflow-wrap: anywhere; hyphens: auto; display: flex; flex-direction: column; gap: var(--spacing-0\.5); flex: auto; min-width: var(--spacing-0); }
 .dk-toast__title { margin: var(--spacing-0); font-weight: var(--toast-title-weight, var(--font-semibold)); }
 /* "×12": the same message came 12 times. */
 .dk-toast__count { margin-inline-start: var(--spacing-1\.5); color: var(--toast-description-color, var(--text-muted)); font-weight: var(--font-normal); font-variant-numeric: tabular-nums; }
