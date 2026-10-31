@@ -294,6 +294,9 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (rest.onKeyDown) rest.onKeyDown(e);
     if (e.defaultPrevented || locked || isComposing(e)) return;
+    // With Ctrl or ⌘ the arrows and Page keys are the system's or the browser's (⌘+↓ ends the line, Ctrl+PageDown
+    // switches tabs): leave them. Alt+↓ stays the popup's, as the combobox pattern asks (L8E35).
+    if ((e.ctrlKey || e.metaKey) && /^(Arrow|Page)/.test(e.key)) return;
     if (e.key === "ArrowDown") { e.preventDefault(); if (!open) show(e.altKey ? "selected" : "first"); else move(1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); if (!open) show("last"); else move(-1); }
     else if (e.key === "Enter" && open) { e.preventDefault(); const o = opts[active]; if (o && shown.includes(o)) pick(o); else { const x = exact(); if (x) pick(x); else hide(); } }

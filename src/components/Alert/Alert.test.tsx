@@ -28,6 +28,14 @@ const Tones = () => <>{TONES.map((t) => <Alert key={t} data-t={t} tone={t} title
 const Box = ({ children }: { children: React.ReactNode }) => <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '480px' }}>{children}</div>;
 
 describe('Alert', () => {
+  // 191: a long word breaks where its language hyphenates it, before overflow-wrap cuts it anywhere.
+  test('the title and message hyphenate in the language around them, and a long word still never overflows (191)', async () => {
+    await render(<div lang="de" style={{ width: '240px' }}><Alert id="hy" title="Donaudampfschifffahrtsgesellschaftskapitän">Rechtsschutzversicherungsgesellschaften</Alert></div>);
+    const a = el('hy');
+    const parts = [...a.querySelectorAll<HTMLElement>('*')].filter((e) => e.children.length === 0 && /Donau|Rechts/.test(e.textContent ?? ''));
+    expect([parts.length, ...parts.map((e) => css(e).hyphens), parts[0].closest('[lang]')!.getAttribute('lang'), parts.every((e) => e.scrollWidth <= e.clientWidth), a.scrollWidth <= a.clientWidth]).toEqual([2, 'auto', 'auto', 'de', true, true]);
+  });
+
   test('defaults: an info alert (role status) with the info icon, hidden from screen readers; no title or close button; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLDivElement>();
     await render(<Alert id="def" ref={r} className="extra" data-x="y">Plain message</Alert>);

@@ -47,6 +47,25 @@ describe('Drawer', () => {
   beforeEach(async () => { await page.viewport(1000, 700); });
   afterAll(async () => { await page.viewport(900, 700); });
 
+  // GR52: at 320x256 (400% zoom) a bottom drawer's header and footer filled the panel, the body was squeezed to 0px
+  // and the footer sat below the screen (309-341px), clipped, with nothing to scroll; Tab focused Apply off screen.
+  test('a short screen (320x256, 400% zoom), bottom and right: the panel scrolls as a whole, the body keeps its height, and focusing Apply brings it into view (GR52)', async () => {
+    await page.viewport(320, 256);
+    const ctl: Partial<Ctl> = {};
+    await render(<App asks={[]} ctl={ctl} />);
+    for (const side of ['bottom', 'right'] as const) {
+      React.act(() => ctl.setSide!(side));
+      await openDrw();
+      const p = panel(), r = p.getBoundingClientRect(), body = p.children[1] as HTMLElement;
+      expect([side, Math.round(r.bottom) <= 256, body.getBoundingClientRect().height >= el('q').getBoundingClientRect().height, getComputedStyle(p).overflowY, p.scrollWidth <= p.clientWidth])
+        .toEqual([side, true, true, 'auto', true]);
+      el('apply').focus();
+      await expect.poll(() => { const b = el('apply').getBoundingClientRect(), q = p.getBoundingClientRect(); return b.top >= q.top - 0.5 && b.bottom <= q.bottom + 0.5 && b.bottom <= 256; }).toBe(true);
+      React.act(() => ctl.setOpen!(false));
+      await expect.poll(() => isOpen()).toBe(false);
+    }
+  });
+
   test('closed at first: not shown', async () => {
     await render(<App asks={[]} ctl={{}} />);
     expect([isOpen(), getComputedStyle(drw()).display]).toEqual([false, 'none']);

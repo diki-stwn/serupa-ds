@@ -8,7 +8,9 @@ import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ContextMenu, keyShortcuts, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
+import { useShortcut } from '../KeyboardShortcuts/KeyboardShortcuts';
 
+const modded = (t: Element, key: string) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
 const openMenu = () => [...document.querySelectorAll<HTMLElement>('[role="menu"]')].find((m) => !m.hidden);
@@ -45,6 +47,29 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('with Alt, Ctrl or ⌘ the arrows, Home and End are left to the browser, on the trigger and in the open menu (L8E36)', async () => {
+    await render(<Menu trigger={<Button id="mmk">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Paste</MenuItem><MenuItem>Delete</MenuItem></Menu>);
+    const t = el('mmk');
+    t.focus();
+    const trigger = [modded(t, 'ArrowDown'), modded(t, 'ArrowUp'), t.getAttribute('aria-expanded')];
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Copy');
+    const first = document.activeElement as HTMLElement;
+    expect([trigger, modded(first, 'ArrowDown'), modded(first, 'End'), document.activeElement === first]).toEqual([[[false, false, false], [false, false, false], 'false'], [false, false, false], [false, false, false], true]);
+  });
+
+  test('a letter typed to find an item doesn\'t also run a page shortcut on that letter (L8E42)', async () => {
+    const ran: string[] = [];
+    const Page = () => { useShortcut('g', () => ran.push('g')); return <Menu trigger={<Button id="mts">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Go to file</MenuItem></Menu>; };
+    await render(<Page />);
+    el('mts').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Copy');
+    await userEvent.keyboard('g');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Go to file');
+    expect(ran).toEqual([]);
+  });
+
   test('the panel takes the other HTML attributes and a ref: id, data-testid, aria-describedby, and an onKeyDown that runs first (GJ2)', async () => {
     const ref = React.createRef<HTMLDivElement>();
     const keys: string[] = [];

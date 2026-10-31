@@ -43,6 +43,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
   const busy = !!loading || pending;
   const box = React.useRef<HTMLDivElement | null>(null);
   const end = React.useRef<HTMLParagraphElement | null>(null);
+  const summary = React.useRef<HTMLParagraphElement | null>(null);
   const hadFocus = React.useRef(false);
   // A load from the focused button, with the count it started at: keep the button in view once it lands (GR2).
   const follow = React.useRef<{ from: number | undefined } | null>(null);
@@ -73,9 +74,10 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
     announce(all != null ? added + ". " + l.showingOf(n(count), n(all)) + "." : added);
   }, [count]);
 
-  // The last page took the focused button away: focus the end text, not the page.
+  // The last page took the focused button away: focus the end text, not the page (with endText={null}, the summary).
   React.useEffect(() => {
-    if (!hasMore && hadFocus.current && end.current && !box.current!.contains(document.activeElement)) end.current.focus();
+    const to = end.current || summary.current;
+    if (!hasMore && hadFocus.current && to && !box.current!.contains(document.activeElement)) to.focus();
     if (!hasMore) hadFocus.current = false;
   }, [hasMore]);
 
@@ -112,7 +114,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
 
   return (
     <div {...rest} ref={setRef} className={cn("dk-load-more", className)} data-component="load-more">
-      {count != null && total != null ? <p className="dk-load-more__summary">{labels.showingOf(num(count), num(total))}</p> : null}
+      {count != null && total != null ? <p ref={summary} className="dk-load-more__summary" tabIndex={!hasMore && endText === null ? -1 : undefined}>{labels.showingOf(num(count), num(total))}</p> : null}
       {hasMore
         ? <Button variant="outline" className="dk-load-more__button" wrap loading={busy} loadingText="" onClick={run}>{label != null ? label : labels.loadMore}</Button>
         : endText !== null ? <p className="dk-load-more__end" ref={end} tabIndex={-1}>{endText !== undefined ? endText : labels.allLoaded}</p> : null}

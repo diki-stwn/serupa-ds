@@ -22,7 +22,7 @@ import { LoadMore } from "serupa-ds";
 
 - Pass `count` (how many are shown) and `total` when you know it, so people see "Showing 20 of 134" and hear "20 more loaded. Showing 40 of 134."
 - Return the fetch's promise from `onLoadMore`: the button shows loading and takes no second press until it settles. Or set `loading` from your own fetch state. A rejected promise just ends the loading state: show the error yourself (an [Alert](../Alert/README.md) above the button, say), since LoadMore says nothing about it.
-- Set `hasMore={false}` after the last page. The button gives way to "You've reached the end" (`endText`, or `null` for nothing).
+- Set `hasMore={false}` after the last page. The button gives way to "You've reached the end" (`endText`, or `null` for nothing). If the button had focus, focus moves to that text, or with `null` to the "Showing 30 of 30" line, so it isn't lost.
 - Put it right after the list, inside the same region, so new items appear just above it.
 
 ## Accessibility
