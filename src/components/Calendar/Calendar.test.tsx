@@ -233,6 +233,19 @@ describe('Calendar: long jumps and midnight (EM1)', () => {
       vi.useRealTimers();
     }
   });
+
+  test('L8E78: with no value, a today outside min..max opens on the nearest month that can be picked, with the Tab stop on min or max', async () => {
+    const t = new Date(), at = (n: number) => new Date(t.getFullYear(), t.getMonth(), t.getDate() + n);
+    const iso = (d: Date) => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+    const name = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
+    const lo = at(400), hi = at(-400);
+    await render(<><Calendar data-testid="lo" locale="en-US" min={lo} /><Calendar data-testid="hi" locale="en-US" max={hi} /></>);
+    const grid = (id: string) => q(`[data-testid=${id}] [role=grid]`);
+    const stop = (id: string) => grid(id).querySelector<HTMLElement>('button[tabindex="0"]')!.dataset.date;
+    const named = (id: string) => document.getElementById(grid(id).getAttribute('aria-labelledby')!)!.textContent;
+    expect([named('lo'), stop('lo'), named('hi'), stop('hi')])
+      .toEqual([name(lo), iso(lo), name(hi), iso(hi)]);
+  });
 });
 
 describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {

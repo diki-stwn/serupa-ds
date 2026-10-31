@@ -149,4 +149,25 @@ describe('Toolbar', () => {
       expect(contrast(css(el('c')).color, css(el('c')).backgroundColor), th).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  test('L8E77: a control hidden by CSS (display: none) is skipped by the arrows and never holds the Tab stop', async () => {
+    await render(
+      <>
+        <button id="before">Before</button>
+        <Toolbar id="tb" aria-label="Tools">
+          <Button id="h0" style={{ display: 'none' }}>Hidden first</Button>
+          <Button id="a">A</Button>
+          <Button id="h1" style={{ display: 'none' }}>Hidden</Button>
+          <Button id="c">C</Button>
+        </Toolbar>
+      </>,
+    );
+    el('before').focus();
+    await userEvent.tab();
+    expect(focused()).toBe('a');
+    const seen: (string | null)[] = [];
+    for (const k of ['{ArrowRight}', '{ArrowRight}', '{End}', '{Home}', '{ArrowLeft}']) { await userEvent.keyboard(k); seen.push(focused()); }
+    expect(seen).toEqual(['c', 'a', 'c', 'a', 'c']);
+    expect(el('c').tabIndex).toBe(0);
+  });
 });
