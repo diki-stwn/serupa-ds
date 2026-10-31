@@ -43,8 +43,14 @@ const OWN_MENU = { trigger: 1, children: 1, "aria-label": 1, "aria-labelledby": 
 interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean; typed: React.RefObject<Typed> }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
-/** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
-const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
+/** The items of one panel (the menu or a submenu), not those of the submenus inside it. An item hidden by CSS or the
+    hidden attribute can't take focus, so the keys skip it rather than stick on it (L8E80), unless the panel isn't
+    laid out yet, when none of them is. */
+const itemsOf = (panel: HTMLElement | null): HTMLElement[] => {
+  const all = panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
+  const shown = all.filter((it) => it.getClientRects().length > 0);
+  return shown.length ? shown : all;
+};
 
 /* The keys inside an open menu (or a submenu's panel, whose keys bubble to the menu's element): ↑ ↓ move,
    wrapping, Home and End jump, typing goes to the next item starting with what was typed, Escape closes and puts
