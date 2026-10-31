@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, oneOf, omit, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { Icon } from "../Icon/Icon";
+import { Select } from "../Select/Select";
 import { component } from "../../internal/component";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSettings } from "../../internal/provider";
@@ -44,6 +45,10 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>,
   total?: number;
   /** How many items a page holds. With total, shows the summary. */
   pageSize?: number;
+  /** The page sizes to offer, as a select labelled "Items per page" after the summary: [10, 25, 50]. Needs pageSize (the one picked). */
+  pageSizeOptions?: number[];
+  /** Called with the size picked in the select, and the page that keeps the first item shown in view (page 5 at 10 a page starts with item 41, which is on page 2 at 25 a page). Set pageSize, and page when controlled; uncontrolled, the page moves by itself. */
+  onPageSizeChange?: (pageSize: number, page: number) => void;
 }
 
 
@@ -58,7 +63,7 @@ function int(v: unknown, min: number, fallback: number): number {
 export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps>("Pagination", function Pagination(props, ref) {
   const sds = useSettings(words);
   const locale = useLocale();
-  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, total: 1, pageSize: 1, className: 1 });
+  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, total: 1, pageSize: 1, pageSizeOptions: 1, onPageSizeChange: 1, className: 1 });
   const count = int(props.count, 0, 0);
   const [own, setOwn] = React.useState(() => int(props.defaultPage, 1, 1));
   const controlled = props.page !== undefined;
@@ -115,9 +120,20 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   // O7: with total and pageSize, which items this page shows, in the locale's digits and grouping ("1,001–1,010 of 12,345").
   const total = int(props.total, 0, -1), per = int(props.pageSize, 1, 0);
   const summary = total >= 0 && per > 0 ? sds.labels.itemsOf(displayNumber(total ? Math.min((page - 1) * per + 1, total) : 0, locale), displayNumber(Math.min(page * per, total), locale), displayNumber(total, locale)) : null;
+  // O7: the page-size select. A new size keeps the first item shown on the page it lands on.
+  const sizeId = React.useId();
+  const sizes = Array.isArray(props.pageSizeOptions) && props.pageSizeOptions.length && per > 0 ? props.pageSizeOptions.filter((n) => int(n, 1, 0) > 0) : null;
+  const resize = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const next = int(Number(e.currentTarget.value), 1, per), to = Math.floor(((page - 1) * per) / next) + 1;
+    if (!controlled) setOwn(to);
+    if (props.onPageSizeChange) props.onPageSizeChange(next, to);
+  };
+  const bar = summary != null || sizes != null;
   return (
-    <nav aria-label={sds.labels.pagination} {...rest} ref={ref} data-component="pagination" className={cn("dk-pagination", size === "sm" && "dk-pagination--sm", summary != null && "dk-pagination--summary", props.className)}>
+    <nav aria-label={sds.labels.pagination} {...rest} ref={ref} data-component="pagination" className={cn("dk-pagination", size === "sm" && "dk-pagination--sm", bar && "dk-pagination--summary", props.className)}>
       {summary != null ? <p className="dk-pagination__summary">{summary}</p> : null}
+      {sizes ? <span className="dk-pagination__page-size"><label htmlFor={sizeId}>{sds.labels.perPage}</label>
+        <Select id={sizeId} size={size} value={String(per)} onChange={resize} options={(sizes.indexOf(per) < 0 ? sizes.concat(per).sort((a, b) => a - b) : sizes).map((n) => ({ value: String(n), label: displayNumber(n, locale) }))} /></span> : null}
       <ul className="dk-pagination__list" ref={list}>
         {arrow("prev")}
         {paginationRange(page, count, Math.max(siblings - cut, 0), Math.max(boundaries - Math.max(cut - siblings, 0), 0)).map((e) => typeof e === "number"
