@@ -197,7 +197,7 @@ npm run storybook         # the documentation at http://localhost:6006, updating
 npm run build-storybook   # a static copy in storybook-static/ (CI builds it and the Storybook test opens every page)
 ```
 
-Storybook is the system's documentation. `.storybook/` holds its setup (the brand and mode toolbar sets `data-theme`, with the brands taken from `tokens.json`; the Accessibility addon checks each story). The pages are in `docs/` (introduction, getting started, foundations, versioning, changelog) and `src/components/<Name>/<Name>.mdx`; they read `tokens.json`, the README and each component's `README.md`, so they can't drift. Stories are `src/components/<Name>/<Name>.stories.tsx`, one per state and variant.
+Storybook is the system's documentation. `.storybook/` holds its setup (the brand and mode toolbar sets `data-theme`, with the brands taken from `tokens.json`; the Motion menu slows every duration and delay token ×4 or ×10, to watch an animation frame by frame; the Accessibility addon checks each story). The pages are in `docs/` (introduction, getting started, foundations, versioning, changelog) and `src/components/<Name>/<Name>.mdx`; they read `tokens.json`, the README and each component's `README.md`, so they can't drift. Stories are `src/components/<Name>/<Name>.stories.tsx`, one per state and variant.
 
 ## Rules the tests enforce
 
