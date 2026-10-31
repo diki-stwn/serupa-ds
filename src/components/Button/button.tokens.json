@@ -34,8 +34,8 @@
       },
       "secondary-bg": {
         "$type": "color",
-        "$value": "{color.surface}",
-        "$description": "Secondary background: the page surface (an outline in the brand color).",
+        "$value": "{color.surface-raised}",
+        "$description": "Secondary background: `surface-raised`, white in light and a step above the page in dark (an outline in the brand color).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-bg"
@@ -94,7 +94,7 @@
       },
       "outline-bg": {
         "$type": "color",
-        "$value": "{color.surface}",
+        "$value": "{color.surface-raised}",
         "$description": "Outline background.",
         "$extensions": {
           "com.serupa": {
@@ -213,8 +213,8 @@
       },
       "destructive-secondary-bg": {
         "$type": "color",
-        "$value": "{color.surface}",
-        "$description": "Destructive secondary background: the page surface (an outline in red).",
+        "$value": "{color.surface-raised}",
+        "$description": "Destructive secondary background: `surface-raised`, white in light and a step above the page in dark (an outline in red).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-destructive-secondary-bg"
@@ -253,7 +253,7 @@
       },
       "destructive-outline-bg": {
         "$type": "color",
-        "$value": "{color.surface}",
+        "$value": "{color.surface-raised}",
         "$description": "Destructive outline background.",
         "$extensions": {
           "com.serupa": {

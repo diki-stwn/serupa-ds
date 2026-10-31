@@ -51,8 +51,8 @@ const { Button, buttonClass } = window.Serupa;
 | `variant` | Looks | Use for |
 | --- | --- | --- |
 | `primary` *(default)* | Solid `primary`, `on-primary` text | The one main action in a view. |
-| `secondary` | `primary` outline and text on `surface`; `primary-subtle` tint on hover | Alternative actions beside a primary: on-brand, a step quieter. |
-| `outline` | `surface` with a `border` | Neutral actions, toolbars, "Cancel". |
+| `secondary` | `primary` outline and text on `surface-raised`; `primary-subtle` tint on hover | Alternative actions beside a primary: on-brand, a step quieter. |
+| `outline` | `surface-raised` with a `border` | Neutral actions, toolbars, "Cancel". |
 | `ghost` | No fill until hover | Low-emphasis actions, icon buttons in dense UI. |
 | `link` | `primary` text, underline on hover | Inline actions that read like a link. |
 
@@ -249,13 +249,13 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | `--button-primary-bg` | `primary` | Primary background. |
 | `--button-primary-bg-hover` | `primary-hover` | Primary background on hover. |
 | `--button-primary-text` | `on-primary` | Primary text and icons. |
-| `--button-secondary-bg` | `surface` | Secondary background. |
+| `--button-secondary-bg` | `surface-raised` | Secondary background. |
 | `--button-secondary-bg-hover` | `primary-subtle` | Secondary background on hover. |
 | `--button-secondary-text` | `primary` | Secondary text and icons. |
 | `--button-secondary-text-hover` | `primary-hover` | Secondary text and icons on hover. |
 | `--button-secondary-border` | `primary` | Secondary border. |
 | `--button-secondary-border-hover` | `primary-hover` | Secondary border on hover. |
-| `--button-outline-bg` | `surface` | Outline background. |
+| `--button-outline-bg` | `surface-raised` | Outline background. |
 | `--button-outline-bg-hover` | `secondary` | Outline background on hover. |
 | `--button-outline-text` | `text` | Outline text and icons. |
 | `--button-outline-border` | `border` | Outline border. |
@@ -266,11 +266,11 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | `--button-destructive-primary-bg` | `danger` | Destructive primary background. |
 | `--button-destructive-primary-bg-hover` | `danger-hover` | Destructive primary background on hover. |
 | `--button-destructive-primary-text` | `on-danger` | Destructive primary text and icons. |
-| `--button-destructive-secondary-bg` | `surface` | Destructive secondary background. |
+| `--button-destructive-secondary-bg` | `surface-raised` | Destructive secondary background. |
 | `--button-destructive-secondary-bg-hover` | `danger-subtle` | Destructive secondary background on hover. |
 | `--button-destructive-secondary-text` | `danger-text` | Destructive secondary text and icons. |
 | `--button-destructive-secondary-border` | `danger` | Destructive secondary border (solid red, stronger than the outline's). |
-| `--button-destructive-outline-bg` | `surface` | Destructive outline background. |
+| `--button-destructive-outline-bg` | `surface-raised` | Destructive outline background. |
 | `--button-destructive-outline-bg-hover` | `danger-subtle` | Destructive outline background on hover. |
 | `--button-destructive-outline-text` | `danger-text` | Destructive outline text and icons. |
 | `--button-destructive-outline-border` | `danger-border` | Destructive outline border. |
@@ -328,7 +328,7 @@ Every value comes from a token. Colors, spacing, sizes, borders and micro-intera
 
 | Part | Tokens |
 | --- | --- |
-| Colors | `primary`, `primary-hover`, `on-primary`, `secondary`, `secondary-hover`, `surface`, `text`, `border`, `danger`, `danger-hover`, `on-danger`, `danger-subtle`, `danger-subtle-hover`, `danger-text`, `danger-border`, `focus-ring` |
+| Colors | `primary`, `primary-hover`, `on-primary`, `secondary`, `secondary-hover`, `surface-raised`, `text`, `border`, `danger`, `danger-hover`, `on-danger`, `danger-subtle`, `danger-subtle-hover`, `danger-text`, `danger-border`, `focus-ring` |
 | Height | `control-height-sm` / `control-height-md` / `control-height-lg` (shared with every control, so a Button lines up with an Input) |
 | Padding, gap, icon size | `spacing-2` / `spacing-3` / `spacing-5`; `spacing-1`, `spacing-1.5`, `spacing-2`; `spacing-3.5`, `spacing-4`, `spacing-5` |
 | Type | `font-sans`, `font-medium`, `tracking-normal`, `text-xs`, `text-sm`, `text-base` (each with its `--line-height`) |
