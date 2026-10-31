@@ -23,9 +23,6 @@ const KNOWN = new Map<string, string>([
   ['Stepper/Narrow', 'stacks to fit'],
   // Drops page numbers one by one until the row fits.
   ['Pagination/Overflow', 'cuts to fit'],
-  // The server draws one slide per view and the browser switches to the width's count (matchMedia after mount).
-  // CSS media queries could draw the right count from the start: a fix of its own for Carousel.
-  ['Carousel/PerView', 'slides per view follow matchMedia'],
 ]);
 // About a fifth of what Core Web Vitals counts as a good page (CLS 0.1) for one story.
 const KNOWN_BUDGET = 0.03;
