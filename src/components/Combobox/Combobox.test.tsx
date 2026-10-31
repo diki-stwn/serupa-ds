@@ -17,7 +17,9 @@ const popOf = (id: string) => el(id).parentElement!.querySelector('[role=listbox
 const toggleOf = (id: string) => el(id).parentElement!.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
 const clearOf = (id: string) => el(id).parentElement!.querySelector<HTMLButtonElement>('button:not([aria-expanded])');
 const activeOf = (id: string) => document.getElementById(el(id).getAttribute('aria-activedescendant')!)!;
-const statusOf = (id: string) => popOf(id).querySelector('[role=status]')!;
+// The popup's message rows: Loading (role=status), "No results" and "Couldn't load" (plain text: the announcer says them, GR53).
+const messagesOf = (pop: Element) => [...pop.children].filter((c) => c.getAttribute('role') !== 'listbox');
+const statusOf = (id: string) => messagesOf(popOf(id))[0];
 const label = (o: Element) => o.querySelector('.dk-combobox__label')!.textContent;
 const st = (id: string) => {
   const i = el(id), list = i.closest('[data-component=combobox]')!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
@@ -178,7 +180,7 @@ describe('Combobox', () => {
     expect([s.open, s.opts, s.active]).toEqual(['true', ['Côte d’Ivoire'], 'Côte d’Ivoire']);
     await userEvent.keyboard('xyz');
     const m = statusOf('cb');
-    expect([st('cb').opts.length, m.textContent, m.getAttribute('role')]).toEqual([0, 'No results', 'status']);
+    expect([st('cb').opts.length, m.textContent, m.getAttribute('role')]).toEqual([0, 'No results', null]);
     await userEvent.keyboard('{Escape}');
     s = st('cb');
     expect([s.open, s.text]).toEqual(['false', 'Egypt']);
@@ -346,6 +348,33 @@ describe('Combobox', () => {
     await expect.poll(() => said.at(-1), { timeout: 3000 }).toBe('2 results');
     seen.disconnect();
     expect([idLabels.resultsCount(2), DEFAULT_LABELS.resultsCount(1)]).toEqual(['2 hasil', '1 result']);
+  });
+
+  // GR53: "No results" sat in a role=status row inserted with its text already in it, which VoiceOver and JAWS don't
+  // read, so typing that matched nothing said nothing. The shared announcer says it now, as it says the counts.
+  test('typing that matches nothing says "No results" through the announcer, then a match says its count again; the row is plain text, said once (GR53)', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await render(<Countries />);
+    el('cb').focus();
+    await userEvent.keyboard('{ArrowDown}zzz');
+    await expect.poll(() => said.at(-1), { timeout: 3000 }).toBe('No results');
+    expect([statusOf('cb').textContent, statusOf('cb').getAttribute('role'), popOf('cb').querySelectorAll('[role=status], [aria-live]').length]).toEqual(['No results', null, 0]);
+    await selectAll(); await userEvent.keyboard('an');
+    await expect.poll(() => said.at(-1), { timeout: 3000 }).toBe('2 results');
+    seen.disconnect();
+  });
+
+  test('a load that fails says "Couldn\'t load" through the announcer (GR53)', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    await render(<Combobox id="lf" aria-label="Country" debounce={0} loadOptions={() => Promise.reject(new Error('offline'))} />);
+    el('lf').focus();
+    await userEvent.keyboard('{ArrowDown}ca');
+    await expect.poll(() => said.at(-1), { timeout: 3000 }).toBe(DEFAULT_LABELS.loadFailed);
+    seen.disconnect();
   });
 
   test('contrast: labels and descriptions keep 4.5:1, even highlighted, and the chevron 3:1, in all six themes', async () => {
@@ -534,7 +563,7 @@ describe('Combobox loadOptions (DG1)', () => {
     return { calls, loadOptions };
   }
   const box = (id: string) => el(id).closest('[data-component=combobox]') as HTMLElement;
-  const status = (id: string) => [...box(id).querySelectorAll('[role=status]')].map((s) => s.textContent).join(' | ');
+  const status = (id: string) => messagesOf(box(id).querySelector('[popover]')!).map((s) => s.textContent).join(' | ');
 
   test('each new text aborts the request before it, and a late answer for older text is dropped ("ca" never replaces "can")', async () => {
     const s = server();
