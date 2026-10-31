@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Tabs/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Tab, TabList, TabPanel, Tabs } from \"./Tabs\";\nexport type { TabListProps, TabPanelProps, TabProps, TabsProps, TabsVariant } from \"./Tabs\";\n"],
+  "mappings": ";AACA,SAAS,KAAK,SAAS,UAAU,YAAY;",
+  "names": []
+}

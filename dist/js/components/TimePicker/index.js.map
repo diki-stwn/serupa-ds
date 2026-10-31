@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/TimePicker/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { TimePicker } from \"./TimePicker\";\nexport type { TimePickerProps } from \"./TimePicker\";\n"],
+  "mappings": ";AACA,SAAS,kBAAkB;",
+  "names": []
+}

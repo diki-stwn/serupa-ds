@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/locale.ts"],
+  "sourcesContent": ["/* Every Intl constructor throws RangeError on a locale it can't parse, which would unmount the tree. \"en_US\" is the\n   common one (a server's LANG, Java's Locale.toString), so \"_\" becomes \"-\" first; whatever still fails gives undefined. */\n\n// module state: each locale string's answer, kept, since checking one builds a list; it holds no request's data, only\n// whether a string is a locale, so every request can share it.\nconst checked = new Map<string, string | undefined>();\n\n/** The locale in canonical BCP 47 form (\"en_US\" and \"EN-us\" are \"en-US\"), or undefined when Intl can't use it. */\nexport function canonicalLocale(locale: string): string | undefined {\n  if (checked.has(locale)) return checked.get(locale);\n  let ok: string | undefined;\n  try { ok = Intl.getCanonicalLocales(locale.trim().replace(/_/g, \"-\"))[0]; } catch { ok = undefined; }\n  if (checked.size > 100) checked.clear();\n  checked.set(locale, ok);\n  return ok;\n}\n"],
+  "mappings": ";AAKA,IAAM,UAAU,oBAAI,IAAgC;AAG7C,SAAS,gBAAgB,QAAoC;AAClE,MAAI,QAAQ,IAAI,MAAM,EAAG,QAAO,QAAQ,IAAI,MAAM;AAClD,MAAI;AACJ,MAAI;AAAE,SAAK,KAAK,oBAAoB,OAAO,KAAK,EAAE,QAAQ,MAAM,GAAG,CAAC,EAAE,CAAC;AAAA,EAAG,QAAQ;AAAE,SAAK;AAAA,EAAW;AACpG,MAAI,QAAQ,OAAO,IAAK,SAAQ,MAAM;AACtC,UAAQ,IAAI,QAAQ,EAAE;AACtB,SAAO;AACT;",
+  "names": []
+}

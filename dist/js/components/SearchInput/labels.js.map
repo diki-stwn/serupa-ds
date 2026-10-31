@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/SearchInput/labels.ts"],
+  "sourcesContent": ["// SearchInput's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface SearchInputLabels {\n  /** SearchInput while loading. */\n  searching: string;\n  /** SearchInput clear button. */\n  clearSearch: string;\n}\nexport const en: SearchInputLabels = {\n  searching: \"Searching\",\n  clearSearch: \"Clear search\",\n};\nexport const id: SearchInputLabels = {\n  searching: \"Mencari\",\n  clearSearch: \"Hapus pencarian\",\n};\n"],
+  "mappings": ";AAQO,IAAM,KAAwB;AAAA,EACnC,WAAW;AAAA,EACX,aAAa;AACf;AACO,IAAM,KAAwB;AAAA,EACnC,WAAW;AAAA,EACX,aAAa;AACf;",
+  "names": []
+}

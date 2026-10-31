@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Heading/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Heading } from \"./Heading\";\nexport type { HeadingLevel, HeadingProps, HeadingSize } from \"./Heading\";\n"],
+  "mappings": ";AACA,SAAS,eAAe;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Dialog/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Dialog } from \"./Dialog\";\nexport type { DialogProps } from \"./Dialog\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

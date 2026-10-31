@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Rating/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Rating } from \"./Rating\";\nexport type { RatingProps } from \"./Rating\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

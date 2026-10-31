@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/KeyboardShortcuts/labels.ts"],
+  "sourcesContent": ["// KeyboardShortcuts's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface KeyboardShortcutsLabels {\n  /** KeyboardShortcuts: the help dialog's title. */\n  keyboardShortcuts: string;\n  /** KeyboardShortcuts: the group for shortcuts given no group. */\n  generalShortcuts: string;\n  /** KeyboardShortcuts: what \"?\" does, listed in the dialog. */\n  showShortcuts: string;\n}\nexport const en: KeyboardShortcutsLabels = {\n  keyboardShortcuts: \"Keyboard shortcuts\",\n  generalShortcuts: \"General\",\n  showShortcuts: \"Show keyboard shortcuts\",\n};\nexport const id: KeyboardShortcutsLabels = {\n  keyboardShortcuts: \"Pintasan keyboard\",\n  generalShortcuts: \"Umum\",\n  showShortcuts: \"Tampilkan pintasan keyboard\",\n};\n"],
+  "mappings": ";AAUO,IAAM,KAA8B;AAAA,EACzC,mBAAmB;AAAA,EACnB,kBAAkB;AAAA,EAClB,eAAe;AACjB;AACO,IAAM,KAA8B;AAAA,EACzC,mBAAmB;AAAA,EACnB,kBAAkB;AAAA,EAClB,eAAe;AACjB;",
+  "names": []
+}
