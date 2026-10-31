@@ -14,6 +14,7 @@ import { isComposing } from "../../internal/ime";
 import * as icons from "../../material/builtin";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 import { submenuIntent } from "../../internal/timing";
+import { activeIn } from "../../internal/root";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -54,7 +55,7 @@ function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.
     // The arrows, Home and End with Alt, Ctrl or ⌘ are the browser's (L8E36).
     if (isComposing(e) || (e.altKey || e.ctrlKey || e.metaKey) && /^(Arr|Home|End)/.test(e.key)) return;
     const panel = e.target instanceof HTMLElement ? e.target.closest<HTMLElement>('[role="menu"]') : null;
-    const list = itemsOf(panel || menuRef.current), i = list.indexOf(document.activeElement as HTMLElement);
+    const list = itemsOf(panel || menuRef.current), i = list.indexOf(activeIn(e.currentTarget) as HTMLElement);   // its own root's focus, in a shadow root too (GR60)
     const go = (n: number) => { e.preventDefault(); if (list.length) list[(n + list.length) % list.length].focus(); };
     if (e.key === "ArrowDown") go(i + 1);
     else if (e.key === "ArrowUp") go(i < 0 ? list.length - 1 : i - 1);
@@ -224,7 +225,8 @@ export const ContextMenu = /* @__PURE__ */ component<HTMLDivElement, ContextMenu
   }, [open, at]);
 
   const show = (x: number, y: number) => {
-    if (!open) back.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    const was = activeIn(targetRef.current);
+    if (!open) back.current = was instanceof HTMLElement && was !== document.body ? was : null;
     setAt({ x: x, y: y });
     if (!open) set(true, "trigger");
   };
@@ -327,7 +329,7 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
     if (props.disabled) { e.preventDefault(); return; }
     if (props.onSelect) props.onSelect(e);
     // onSelect may move focus itself (to the next row, after deleting this one): then it stays there (L8E21).
-    const a = document.activeElement;
+    const a = activeIn(e.currentTarget as Element);
     if (!e.defaultPrevented && ctx) ctx.close("select", !a || a === document.body || !!a.closest('[role="menu"]'));
   };
   const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close("select", false); return; } choose(e); };
@@ -346,7 +348,7 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
   return React.createElement(isLink ? props.as || config.link : "div", Object.assign(rest, {
     ref: ref, role: checkable ? rest.role : "menuitem", tabIndex: -1, "aria-disabled": props.disabled || undefined,
     className: cn("dk-menu__item", props.destructive && "dk-menu__item--destructive", props.className),
-    onClick: onClick, onKeyDown: onKeyDown, onPointerMove: (e: React.PointerEvent<HTMLElement>) => { if (own.onPointerMove) own.onPointerMove(e); if (document.activeElement !== e.currentTarget) e.currentTarget.focus(); },
+    onClick: onClick, onKeyDown: onKeyDown, onPointerMove: (e: React.PointerEvent<HTMLElement>) => { if (own.onPointerMove) own.onPointerMove(e); if (activeIn(e.currentTarget) !== e.currentTarget) e.currentTarget.focus(); },
   }),
     checkable ? <span className="dk-menu__check" aria-hidden="true"><Icon icon={icons.Check} /></span> : null,
     props.icon != null ? <span className="dk-menu__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null,
@@ -491,7 +493,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
         },
         onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
           if (props.onPointerMove) props.onPointerMove(e);
-          if (document.activeElement !== e.currentTarget) e.currentTarget.focus();
+          if (activeIn(e.currentTarget) !== e.currentTarget) e.currentTarget.focus();
           if (!open && !props.disabled && !hover.current) { later(() => { show(false); }); hover.current = true; }
         },
         onPointerLeave: (e: React.PointerEvent<HTMLElement>) => { if (props.onPointerLeave) props.onPointerLeave(e); if (hover.current) stop(); },
