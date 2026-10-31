@@ -268,7 +268,7 @@ describe('Popover: motion (DZ1)', () => {
       await settled(p);
       expect([getComputedStyle(p).opacity, getComputedStyle(p).scale]).toEqual(['1', 'none']);
 
-      await userEvent.keyboard('{Escape}');
+      await userEvent.click(el('tshare'));
       expect([isOpen('tshare'), active()]).toEqual([false, 'tshare']);
       // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
       if (!CSS.supports('overlay', 'auto')) { expect(getComputedStyle(p).display).toBe('none'); return; }
@@ -296,6 +296,20 @@ describe('Popover: motion (DZ1)', () => {
       await render(<Popover title="Share" defaultOpen trigger={<Button id="tarr">Share</Button>}><input aria-label="Email" /></Popover>);
       await expect.poll(() => isOpen('tarr')).toBe(true);
       expect([panel('tarr').getAnimations().length, getComputedStyle(panel('tarr')).opacity]).toEqual([0, '1']);
+    });
+  });
+
+  test('from the keyboard (KW1): opened by Enter it is there at once, closed by Escape it is gone at once; a press after keeps the motion', async () => {
+    await withMotion(async () => {
+      await render(<Share />);
+      el('tshare').focus();
+      await userEvent.keyboard('{Enter}');
+      const p = panel('tshare');
+      expect([isOpen('tshare'), p.getAnimations().length, getComputedStyle(p).opacity]).toEqual([true, 0, '1']);
+      await userEvent.keyboard('{Escape}');
+      expect([isOpen('tshare'), getComputedStyle(p).display, p.getAnimations().length, !!p.querySelector('#email')]).toEqual([false, 'none', 0, false]);
+      await userEvent.click(el('tshare'));
+      expect([isOpen('tshare'), runs(p).length > 0]).toEqual([true, true]);
     });
   });
 });

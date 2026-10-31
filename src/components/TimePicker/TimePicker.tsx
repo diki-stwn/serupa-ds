@@ -174,7 +174,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
       {/* The format to type, read after the field's name (a placeholder is gone once something is typed). */}
       <span id={id + "-format"} hidden>{sds.labels.formatHint(timePattern(locale, h12))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value == null ? "" : toHHmm(value)} disabled={disabled} /> : null}
-      <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-time-picker__list">
+      <ul ref={list} id={id} role="listbox" aria-label={label} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} data-instant={exit.instant ? "" : undefined} className="dk-time-picker__list">
         {open || exit.leaving ? times.map((n, i) => (
           <li key={n} id={`${id}-${i}`} lang={lang} role="option" aria-selected={n === value} data-value={toHHmm(n)}
             className={cn("dk-time-picker__option", i === active && "dk-time-picker__option--active", n === value && "dk-time-picker__option--selected")}

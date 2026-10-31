@@ -48,6 +48,14 @@ const Variants = () => <Col>
 </Col>;
 
 describe('Card', () => {
+  // 191: a long word in the title or description breaks where its language hyphenates it, before overflow-wrap cuts it.
+  test('the title and description hyphenate in the language around them, a long word never overflows, and the body is left as it is (191)', async () => {
+    await render(<div lang="de" style={{ width: '200px' }}><Card id="hy"><CardHeader title="Donaudampfschifffahrtsgesellschaftskapitän" description="Rechtsschutzversicherungsgesellschaften" /><CardBody><p id="hyb">Text</p></CardBody></Card></div>);
+    const card = el('hy'), parts = [...card.querySelectorAll<HTMLElement>('*')].filter((e) => e.children.length === 0 && /Donau|Rechts/.test(e.textContent ?? ''));
+    expect([parts.length, ...parts.map((e) => css(e).hyphens), parts[0].closest('[lang]')!.getAttribute('lang'), parts.every((e) => e.scrollWidth <= e.clientWidth), card.scrollWidth <= card.clientWidth, css(el('hyb')).hyphens])
+      .toEqual([2, 'auto', 'auto', 'de', true, true, 'manual']);
+  });
+
   test('defaults: a <div> card (outline, padding md) with header, body and footer; ref, className and other props reach it', async () => {
     const r = React.createRef<HTMLElement>();
     await render(<Card id="def" ref={r} className="extra" data-x="y"><Parts /></Card>);

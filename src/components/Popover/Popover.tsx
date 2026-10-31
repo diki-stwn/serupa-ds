@@ -109,7 +109,7 @@ export const Popover = /* @__PURE__ */ component<HTMLDivElement, PopoverProps>("
       {trigger}
       <div {...omit(props, OWN)} ref={(n) => { panelRef.current = n; setRef(ref, n); if (!titled) nameRef(n); }} id={id} role="dialog" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-labelledby={titled ? id + "-title" : props["aria-labelledby"]} aria-label={titled ? undefined : props["aria-label"]}
-        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        className={cn("dk-popover", props.className)} style={props.style} data-component="popover" data-state={open ? "open" : "closed"} data-instant={exit.instant ? "" : undefined}
         inert={!open || undefined} onKeyDown={onKeyDown} onBlur={onBlur}>
         {open || exit.leaving ? <>
           {titled ? <H id={id + "-title"} className="dk-popover__title">{props.title}</H> : null}
