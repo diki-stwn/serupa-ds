@@ -35,7 +35,7 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 
 ## Usage
 
-- Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways: the edge with more tabs past it fades out, and the selected tab is always scrolled into view, but tabs out of view are still easy to miss. It scrolls in a CSS grid track or a flex row too, without widening the page.
+- Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways: the edge with more tabs past it fades out, and the selected tab is always scrolled into view, but people can still miss the tabs out of view. It scrolls in a CSS grid track or a flex row too, without widening the page.
 - Use `orientation="vertical"` for a settings page or anything with more than about six tabs: a column at the start of the panels, which has room for them all.
 - Set `activation="manual"` when a panel is slow to show, so arrowing past a tab doesn't select it.
 - Hidden panels keep their state. Set `keepMounted={false}` on a panel that doesn't need to, so it renders only while it's selected.
