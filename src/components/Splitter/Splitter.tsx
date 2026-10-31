@@ -90,14 +90,22 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   // second pane start where they were and slide to where they are on translate, while the first pane's clip opens or
   // closes with them (a closing one stays over its old place, inert, until then), so every frame is the compositor's.
   // Not on mount, a drag or the keys' steps, and not when there's no transition to run (reduced motion).
-  const [slide, setSlide] = React.useState<{ to: "open" | "closed"; px: number; run: boolean } | null>(null);
+  // Toggled again mid-way, it turns back from where the handle is (at: its offset along the axis then), not from the
+  // end it was heading for (GR46).
+  const [slide, setSlide] = React.useState<{ to: "open" | "closed"; px: number; at: number; run: boolean } | null>(null);
   const extent = (n: HTMLElement) => (direction === "horizontal" ? n.offsetWidth : n.offsetHeight);
+  const offset = () => {
+    const h = handle.current, t = h ? getComputedStyle(h).translate : "none";
+    if (!h || !t || t === "none") return 0;
+    const v = parseFloat(t.split(" ")[direction === "horizontal" ? 0 : 1] || "0") || 0;
+    return direction === "horizontal" && rtl(h) ? -v : v;
+  };
   const toggle = () => {
     if (!collapsible) return;
-    const closing = size > 0;
+    const closing = size > 0, at = slide ? offset() : 0;
     change(closing ? 0 : restore.current);
     const moves = paneB && parseFloat(getComputedStyle(paneB).transitionDuration) > 0;
-    setSlide(moves ? { to: closing ? "closed" : "open", px: closing && paneA ? extent(paneA) : 0, run: false } : null);
+    setSlide(moves ? { to: closing ? "closed" : "open", px: closing && paneA ? extent(paneA) : 0, at, run: false } : null);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -196,8 +204,12 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   const sliding = slide && slide.px ? slide : null;
   const along = (v: number) => (direction === "horizontal" ? v + "px 0" : "0 " + v + "px");
   const back = sliding && root.current && direction === "horizontal" && rtl(root.current) ? -1 : 1;
-  const shut = direction === "vertical" ? "inset(0 0 100% 0)" : back < 0 ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)";
-  const slideStyle = sliding ? { "--dk-splitter-from": along((sliding.to === "open" ? -sliding.px : sliding.px) * back), "--dk-splitter-px": sliding.px + "px", "--dk-splitter-shut": shut } as React.CSSProperties : null;
+  const clip = (x: string) => (direction === "vertical" ? "inset(0 0 " + x + " 0)" : back < 0 ? "inset(0 0 0 " + x + ")" : "inset(0 " + x + " 0 0)");
+  // How far the handle is from where it's going, and how much of the first pane is hidden there: the whole pane from
+  // rest, less when it turns back mid-way.
+  const left = sliding ? Math.max(0, Math.min(2 * sliding.px, sliding.to === "open" ? sliding.px - sliding.at : sliding.px + sliding.at)) : 0;
+  const slideStyle = sliding ? { "--dk-splitter-from": along((sliding.to === "open" ? -left : left) * back), "--dk-splitter-px": sliding.px + "px", "--dk-splitter-shut": clip("100%"),
+    "--dk-splitter-clip-from": clip(Math.max(0, sliding.to === "open" ? left : sliding.px - left) + "px") } as React.CSSProperties : null;
   return (
     <div {...rest} style={slideStyle ? { ...rest.style, ...slideStyle } : rest.style} ref={(n) => { root.current = n; styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
       className={cn("dk-splitter", "dk-splitter--" + direction, className)} data-component="splitter" data-direction={direction}

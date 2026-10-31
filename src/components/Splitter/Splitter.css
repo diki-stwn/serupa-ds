@@ -44,8 +44,8 @@
 .dk-splitter[data-slide] { position: relative; overflow: clip; }
 .dk-splitter[data-slide] > .dk-splitter__pane--first { clip-path: inset(var(--spacing-0)); }   /* from or to the shut clip: none would not interpolate */
 .dk-splitter[data-slide="start"] > .dk-splitter__handle, .dk-splitter[data-slide="start"] > .dk-splitter__pane--second { translate: var(--dk-splitter-from); transition: none; }
-.dk-splitter[data-slide="start"] > .dk-splitter__pane--first { transition: none; }
-.dk-splitter[data-slide="start"][data-slide-to="open"] > .dk-splitter__pane--first, .dk-splitter[data-slide="run"][data-slide-to="closed"] > .dk-splitter__pane--first { clip-path: var(--dk-splitter-shut); }
+.dk-splitter[data-slide="start"] > .dk-splitter__pane--first { clip-path: var(--dk-splitter-clip-from); transition: none; }   /* shut, open, or part way when it turns back */
+.dk-splitter[data-slide="run"][data-slide-to="closed"] > .dk-splitter__pane--first { clip-path: var(--dk-splitter-shut); }
 .dk-splitter[data-slide-to="closed"] > .dk-splitter__pane--first { position: absolute; inset-block-start: var(--spacing-0); inset-inline-start: var(--spacing-0); width: var(--dk-splitter-px); height: var(--sizing-full); }
 .dk-splitter--vertical[data-slide-to="closed"] > .dk-splitter__pane--first { width: var(--sizing-full); height: var(--dk-splitter-px); }
 @media (forced-colors: active) {

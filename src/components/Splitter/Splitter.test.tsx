@@ -188,4 +188,32 @@ describe('Splitter collapse motion (GN3b)', () => {
     await new Promise((r) => setTimeout(r, 50));
     expect([h.getAttribute('aria-valuenow'), ran, root.hasAttribute('data-slide')]).toEqual(['45', [], false]);   // a step doesn't slide
   });
+
+  test('Enter again mid-way turns the slide back from where the handle is, with the first pane\'s clip at the same place, not from either end (GR46)', async () => {
+    await render(<Splitter id="mr" collapsible defaultSize={40} style={{ width: '500px', height: '80px' }}><p>A</p><p>B</p></Splitter>);
+    const root = document.getElementById('mr')!, [a, h] = [...root.children] as HTMLElement[];
+    const x = () => Math.round(h.getBoundingClientRect().left - root.getBoundingClientRect().left);
+    // Holds every running slide half way, as if Enter came again in the middle of it.
+    const halfway = async () => {
+      await expect.poll(() => root.getAttribute('data-slide') === 'run' && h.getAnimations().length > 0, { timeout: 2000 }).toBe(true);
+      for (const an of root.getAnimations({ subtree: true })) { an.pause(); an.currentTime = Number(an.effect!.getTiming().duration) / 2; }
+      return x();
+    };
+    h.focus();
+    await userEvent.keyboard('{Enter}');
+    const closingAt = await halfway();
+    expect(closingAt > 20 && closingAt < 180, String(closingAt)).toBe(true);
+    await userEvent.keyboard('{Enter}');
+    // Opening again: laid out open at once, but the handle is still where it was, and the clip hides the same part.
+    expect([h.getAttribute('aria-valuenow'), root.getAttribute('data-slide-to'), Math.abs(x() - closingAt) <= 2]).toEqual(['40', 'open', true]);
+    expect(getComputedStyle(a).clipPath).toBe('inset(0px ' + (200 - closingAt) + 'px 0px 0px)');
+    const openingAt = await halfway();
+    expect(openingAt > closingAt && openingAt < 200, String(openingAt)).toBe(true);
+    // …and back again: from there toward the start.
+    await userEvent.keyboard('{Enter}');
+    expect([h.getAttribute('aria-valuenow'), root.getAttribute('data-slide-to'), Math.abs(x() - openingAt) <= 2, Math.round(h.offsetLeft)]).toEqual(['0', 'closed', true, 0]);
+    for (const an of root.getAnimations({ subtree: true })) an.finish();
+    await expect.poll(() => root.hasAttribute('data-slide'), { timeout: 2000 }).toBe(false);
+    expect([x(), a.hidden]).toEqual([0, true]);
+  });
 });
