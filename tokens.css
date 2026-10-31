@@ -1107,6 +1107,13 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --success: light-dark(var(--green-700), var(--green-300));
+  --success-text: light-dark(var(--green-900), var(--green-200));
+  --warning: light-dark(var(--amber-700), var(--amber-300));
+  --warning-text: light-dark(var(--amber-900), var(--amber-200));
+  --danger-text: light-dark(var(--red-900), var(--red-200));
+  --info: light-dark(var(--sky-800), var(--sky-300));
+  --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
 }
 @media (prefers-contrast: more) {
@@ -1118,6 +1125,13 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --success: light-dark(var(--green-700), var(--green-300));
+  --success-text: light-dark(var(--green-900), var(--green-200));
+  --warning: light-dark(var(--amber-700), var(--amber-300));
+  --warning-text: light-dark(var(--amber-900), var(--amber-200));
+  --danger-text: light-dark(var(--red-900), var(--red-200));
+  --info: light-dark(var(--sky-800), var(--sky-300));
+  --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
 }
 }

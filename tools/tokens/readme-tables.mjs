@@ -28,7 +28,11 @@ function defaultOf(value) {
   if (value && typeof value === 'object' && value.hex) return '`' + value.hex + '`';
   return '`' + JSON.stringify(value) + '`';
 }
-const cell = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+// A description as one table cell. Outside code, a backslash is doubled and a pipe escaped, so both show as typed
+// (`\.` in prose would otherwise lose its backslash). Inside `code` a backslash is already literal, so only the
+// pipe, which would end the cell, is escaped (GitHub reads \| there as |).
+export const cell = (s) => String(s).replace(/\n/g, ' ').split('`')
+  .map((part, i) => part.replace(i % 2 ? /\|/g : /[\\|]/g, (c) => '\\' + c)).join('`');
 
 export function tableFor(tokensFile) {
   const root = Object.values(JSON.parse(fs.readFileSync(tokensFile, 'utf8')))[0];
