@@ -14,7 +14,7 @@
       },
       "bg-disabled": {
         "$type": "color",
-        "$value": "{color.surface-muted}",
+        "$value": "{color.field-readonly}",
         "$description": "Background when disabled.",
         "$extensions": {
           "com.serupa": {

@@ -48,7 +48,7 @@ const { Select, Field } = window.Serupa;
 | Hover | `field-border-hover` |
 | Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all), like Input; a visible outline in forced-colors mode |
 | Invalid | `danger` border, and a `danger` focus ring |
-| Disabled | `surface-muted` background at 50%, `not-allowed` cursor |
+| Disabled | `field-readonly` background at 50%, `not-allowed` cursor |
 
 ## Accessibility
 
@@ -88,7 +88,7 @@ Each is an optional override: set it on the page, a container or one select. The
 | Token | Default | Use |
 | --- | --- | --- |
 | `--select-bg` | `field` | Background, and the options where the browser draws them |
-| `--select-bg-disabled` | `surface-muted` | Background when disabled |
+| `--select-bg-disabled` | `field-readonly` | Background when disabled |
 | `--select-text` | `text` | The chosen value, and the options where the browser draws them |
 | `--select-border` | `field-border` | Border |
 | `--select-border-hover` | `field-border-hover` | Border on hover |

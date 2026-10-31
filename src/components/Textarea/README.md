@@ -42,8 +42,8 @@ const { Textarea } = window.Serupa;
 | Hover | `field-border-hover` |
 | Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all), like Input; a visible outline in forced-colors mode |
 | Invalid | `danger` border, and a `danger` focus ring |
-| Read-only | `surface-muted` background, no hover change, no resize handle; still focusable and selectable |
-| Disabled | `surface-muted` background at 50%, `not-allowed` cursor, no resize handle |
+| Read-only | `field-readonly` background, no hover change, no resize handle; still focusable and selectable |
+| Disabled | `field-readonly` background at 50%, `not-allowed` cursor, no resize handle |
 
 ## Accessibility
 
@@ -86,7 +86,7 @@ Each is an optional override: set it on the page, a container or one textarea. T
 | Token | Default | Use |
 | --- | --- | --- |
 | `--textarea-bg` | `field` | Background |
-| `--textarea-bg-readonly` | `surface-muted` | Background when read-only or disabled |
+| `--textarea-bg-readonly` | `field-readonly` | Background when read-only or disabled |
 | `--textarea-text` | `text` | The typed text |
 | `--textarea-border` | `field-border` | Border |
 | `--textarea-border-hover` | `field-border-hover` | Border on hover |
