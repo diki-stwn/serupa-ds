@@ -81,6 +81,9 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
   const cutAt = React.useRef(0);
   // A new page or count may need fewer cuts (60 → 9 is narrower): start over, and the next effect cuts again if needed.
   useIsoLayoutEffect(function () { setCut(0); }, [page, count]);
+  // GR62: until this runs (server HTML before hydration, or with no JavaScript) nothing can cut the row, so it wraps
+  // onto more lines rather than running off the page. From here on it stays on one line, and is cut to fit.
+  useIsoLayoutEffect(function () { if (list.current) list.current.setAttribute("data-fit", ""); }, []);
   // every render: any change (page, count, labels, the locale's digits, the box) can change the room, so it is measured each time.
   useIsoLayoutEffect(function () {
     const l = list.current;
