@@ -29,6 +29,8 @@
    one line the pages wrap under the summary, and only then show fewer pages (ET1). */
 .dk-pagination--summary { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--pagination-summary-gap, var(--spacing-4)); row-gap: var(--spacing-2); }
 .dk-pagination__summary { margin: var(--spacing-0); color: var(--pagination-summary, var(--text-muted)); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* With pageSizeOptions (O7): "Items per page" and a select of the sizes, after the summary, muted like it. */
+.dk-pagination__page-size { display: inline-flex; align-items: center; gap: var(--spacing-2); color: var(--pagination-summary, var(--text-muted)); white-space: nowrap; }
 .dk-pagination--summary .dk-pagination__list { flex: auto; min-width: var(--spacing-0); }
 /* At the end by the first item's auto margin, not justify-content: flex-end, which spilled pages that don't fit
    past the start edge, where scrollWidth doesn't see them, so they were never cut down (GR56). An auto margin is

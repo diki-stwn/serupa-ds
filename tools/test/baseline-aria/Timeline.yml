@@ -17,24 +17,12 @@
 
 # Dots
 - list "Order history":
-  - listitem:
-    - text: Neutral
-    - time: Now
-  - listitem:
-    - text: Primary
-    - time: 1 minute ago
-  - listitem:
-    - text: Success
-    - time: 5 minutes ago
-  - listitem:
-    - text: Warning
-    - time: 1 hour ago
-  - listitem:
-    - text: Danger
-    - time: Yesterday
-  - listitem:
-    - text: Info
-    - time: Last week
+  - listitem: Neutral Now
+  - listitem: Primary 1 minute ago
+  - listitem: Success 5 minutes ago
+  - listitem: Warning 1 hour ago
+  - listitem: Danger Yesterday
+  - listitem: Info Last week
 
 # LongText
 - list "Order history":

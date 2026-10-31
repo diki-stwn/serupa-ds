@@ -96,6 +96,16 @@ export async function inParallel(items, workers, fn) {
 // tests and -t picks one out; run with node, a suite prints its results and exits with whether they passed.
 const vt = process.env.VITEST ? await import('vitest') : null;
 
+// Opens a story URL and returns '' or why it didn't open. A run of hundreds of pages on a busy runner has had one
+// goto time out on its load event (Menu in #1080, TreeView in #1110), and a goto that throws ended the whole group
+// instead of failing that one story, so a timeout is tried once more and then reported as that story's failure.
+export async function openUrl(page, url) {
+  for (let attempt = 1; ; attempt++) {
+    try { await page.goto(url); return ''; }
+    catch (err) { if (err.name !== 'TimeoutError') throw err; if (attempt === 2) return `the page did not open in 30 s, twice (${url})`; }
+  }
+}
+
 export function report(name, results) {
   if (vt) {
     vt.describe(name, () => { for (const r of results) vt.test(r.name, () => { if (!r.ok) throw new Error(r.detail || 'failed'); }); });

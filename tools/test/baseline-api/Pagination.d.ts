@@ -4,6 +4,7 @@ interface PaginationLabels {
     previousPage: string;
     nextPage: string;
     itemsOf: (first: string, last: string, total: string) => string;
+    perPage: string;
 }
 type Entry = "end-ellipsis" | "start-ellipsis" | number;
 declare function paginationRange(page: number, count: number, siblings?: number, boundaries?: number): Entry[];
@@ -23,5 +24,7 @@ interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>, "onCha
     pageLabel?: (page: number) => string;
     total?: number;
     pageSize?: number;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (pageSize: number, page: number) => void;
 }
 declare const Pagination: React.ForwardRefExoticComponent<PaginationProps & React.RefAttributes<HTMLElement>>;

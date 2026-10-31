@@ -122,6 +122,11 @@ describe('Rating', () => {
     expect([radios('fr').every((r) => r.required), radios('d').every((r) => r.disabled), el('d').getAttribute('aria-disabled')]).toEqual([true, true, 'true']);
   });
 
+  test('a value between the choices (3.3, or 3.7 with halves) checks the star it draws, so the radios, a screen reader and the form agree with the stars (L8E61)', async () => {
+    await render(<div><Rating id="w" aria-label="Whole" value={3.3} /><Rating id="h" aria-label="Halves" allowHalf defaultValue={3.7} /></div>);
+    expect([picked('w'), filled('w'), picked('h')]).toEqual([['3'], [24, 24, 24, 0, 0], ['3.5']]);
+  });
+
   test('form: outside its form, its reset brings the default back too, in the stars as in the radios', async () => {
     await render(<><form id="of" /><Rating id="or" aria-label="Outside" name="stars" form="of" defaultValue={2} /></>);
     const form = el('of') as HTMLFormElement;

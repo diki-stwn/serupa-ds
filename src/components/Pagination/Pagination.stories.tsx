@@ -33,3 +33,12 @@ export const Summary: Story = {
   args: { count: 25, defaultPage: 3, total: 245, pageSize: 10 },
   render: (args) => <div style={{ maxWidth: 560 }}><Pagination {...args} /></div>,
 };
+
+/** pageSizeOptions: a select of page sizes after the summary. A new size keeps the first item shown in view. */
+export const PageSize: Story = {
+  args: { total: 245, pageSizeOptions: [10, 25, 50] },
+  render: function Render(args) {
+    const [per, setPer] = React.useState(10), [page, setPage] = React.useState(3);
+    return <div style={{ maxWidth: 640 }}><Pagination {...args} count={Math.ceil(245 / per)} page={page} onPageChange={setPage} pageSize={per} onPageSizeChange={(n, p) => { setPer(n); setPage(p); }} /></div>;
+  },
+};

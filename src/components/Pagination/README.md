@@ -15,6 +15,10 @@ const [page, setPage] = React.useState(1);
 
 // Which items show: "21–30 of 245" before the pages
 <Pagination count={25} page={3} total={245} pageSize={10} />
+
+// …and a page-size select
+<Pagination count={Math.ceil(245 / per)} page={page} onPageChange={setPage} total={245} pageSize={per}
+  pageSizeOptions={[10, 25, 50]} onPageSizeChange={(n, p) => { setPer(n); setPage(p); }} />
 ```
 
 ## When to use
@@ -38,6 +42,7 @@ const [page, setPage] = React.useState(1);
   other labels.
 
 - With `total` and `pageSize`, a summary before the pages says which items show: "21–30 of 245", in the locale's digits and grouping ("1.001–1.010 dari 12.345" in id-ID). The pages sit at the end of the row, and wrap under the summary when both don't fit on one line. Change its words with the `itemsOf` label.
+- With `pageSizeOptions` (and `pageSize`), an "Items per page" select after the summary offers the sizes, in the locale's digits. Picking one calls `onPageSizeChange(size, page)` with the page that keeps the first item shown in view: page 5 at 10 a page starts with item 41, which is on page 2 at 25 a page. Set both; an uncontrolled `page` moves by itself. Change its label with the `perPage` label.
 
 `paginationRange(page, count, siblings, boundaries)` returns the same list of pages and ellipses, for building your own.
 
@@ -77,6 +82,8 @@ An arrow that takes you to the first or last page turns disabled, so focus moves
 | `pageLabel` | `(page) => string` | `"Page " + page` | A page's name |
 | `total` | number | none | How many items there are in all. With `pageSize`, shows the summary |
 | `pageSize` | number | none | How many items a page holds. With `total`, shows the summary |
+| `pageSizeOptions` | number[] | none | The page sizes to offer in an "Items per page" select after the summary. Needs `pageSize` |
+| `onPageSizeChange` | (pageSize, page) => void | none | Called with the size picked and the page that keeps the first item shown in view |
 
 `className`, `style`, `ref` and everything else go to the `<nav>`, which has `data-component="pagination"`.
 
