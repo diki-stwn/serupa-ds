@@ -19,6 +19,8 @@
 .dk-segmented--size-lg { --dk-seg-h: var(--segmented-control-height-lg, var(--control-height-lg)); font-size: var(--text-base); line-height: var(--text-base--line-height); }
 .dk-segmented--size-lg .dk-segmented__item { padding-inline: var(--segmented-control-padding-x-lg, var(--spacing-4)); }
 .dk-segmented--full { display: grid; grid-auto-columns: minmax(var(--spacing-0), 1fr); width: var(--sizing-full); }
+/* A label too long for its equal share: share by content instead, the columns stretched to fill (GR50). */
+.dk-segmented--full.dk-segmented--fit { grid-auto-columns: minmax(var(--spacing-0), auto); }
 .dk-segmented__indicator {
   position: absolute; inset-block: var(--segmented-control-padding, var(--spacing-0\.5)); box-sizing: border-box;
   border: var(--border-width-1) solid var(--segmented-control-indicator-border, var(--field-border));
