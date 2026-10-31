@@ -214,7 +214,7 @@ describe('Image', () => {
       return <Row>{left.map((k) => <Pic key={k} id={'g' + k} src={PIC} alt={'Photo ' + k} ratio="square" style={{ width: '120px' }} onRemove={() => setLeft((l) => l.filter((x) => x !== k))} />)}</Row>;
     }
     await render(<Gallery />);
-    const x = (k: string) => frame('g' + k).querySelector<HTMLButtonElement>('.dk-image__remove')!;
+    const x = (k: string) => document.querySelector<HTMLButtonElement>(`button[aria-label="Remove image: Photo ${k}"]`)!;
     x('a').focus();
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => document.activeElement).toBe(x('b'));
