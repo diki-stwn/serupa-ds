@@ -423,10 +423,14 @@ describe('Badge', () => {
     expect([xf.ldr, xf.ldd]).toEqual(['dk-badge-loader-in', '0.15s']);
     // They cross as one change, as on Button: the content ends blurred (blur-xs) and the ring sharpens from the same blur.
     const grow = sp.getAnimations().find((a) => (a as CSSAnimation).animationName === 'dk-badge-loader-in')!;
+    // Paused first, as on Button: WebKit lets a running animation move on from 0 before the style is read.
+    grow.pause();
     grow.currentTime = 0;
     const blurFrom = css(sp).filter;
     grow.finish();
-    expect([blurFrom, css(ld.querySelector('.dk-badge__label')).filter, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'blur(4px)', 'none']);
+    expect([blurFrom, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'none']);
+    // The label's blur is a transition, which WebKit can start after the wait above has already seen nothing running.
+    await expect.poll(() => css(ld.querySelector('.dk-badge__label')).filter).toBe('blur(4px)');
     const art = sp.querySelector('.dk-loader__art')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
     expect(!!sp.querySelector('.dk-loader--ring')).toBe(true);
     expect(Math.round(art.width)).toBe(12);
