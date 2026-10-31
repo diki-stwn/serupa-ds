@@ -2,7 +2,10 @@
 //  - submits its value under its name with the form around it,
 //  - submits with a form elsewhere on the page through form="…",
 //  - goes back to its default on form.reset() after a change,
-//  - in a <fieldset disabled>, submits nothing and is skipped by Tab.
+//  - in a <fieldset disabled>, submits nothing and is skipped by Tab,
+//  - takes focus inside it from autoFocus and from ref.current.focus() (a form library focusing the first invalid
+//    field), as a native field does: a group's <div> took neither, and Rating, RadioGroup and CheckboxGroup dropped
+//    them (L8E89-L8E93).
 // The single-feature tests (useFormReset, formAttribute) cover a few controls each; this runs the same four checks
 // over the whole list, so a new control is added to CONTROLS and can't quietly skip one.
 import * as React from 'react';
@@ -140,5 +143,21 @@ describe.each(TABLE)('$name keeps the form contract', (c) => {
     document.getElementById('before')!.focus();
     await userEvent.tab();
     expect(document.activeElement?.id).toBe('after');
+  });
+});
+
+// The element itself, when it is one component (not a fragment or a <table> around it), to give it a ref or autoFocus.
+const own = (c: Control) => { const el = c.el(); return el.type === React.Fragment || el.type === 'table' ? null : el; };
+describe.each(TABLE.filter((c) => own(c)))('$name takes focus as a field does (L8E95)', (c) => {
+  test('autoFocus focuses it', async () => {
+    await render(<><button type="button">Before</button><div id="af">{React.cloneElement(own(c)!, { autoFocus: true } as object)}</div></>);
+    await expect.poll(() => document.getElementById('af')!.contains(document.activeElement)).toBe(true);
+  });
+
+  test('ref.current.focus() focuses it', async () => {
+    const ref = React.createRef<HTMLElement>();
+    await render(<div id="rf">{React.cloneElement(own(c)!, { ref } as object)}</div>);
+    React.act(() => ref.current!.focus());
+    expect(document.getElementById('rf')!.contains(document.activeElement)).toBe(true);
   });
 });

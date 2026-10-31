@@ -123,8 +123,10 @@ if (D) {
   t('a component draws its own icons on the server (Checkbox\'s check)', /<path d="/.test(renderToString(h(D.Checkbox, { defaultChecked: true, 'aria-label': 'Done' }))));
   t('a name ("close", "sports_cricket") keeps its empty box on the server until it loads in the browser', !/<svg/.test(iconHtml({ name: 'close' })) && !/<svg/.test(iconHtml({ name: 'sports_cricket' })), iconHtml({ name: 'close' }));
   // index.js and every module it imports (dist/js/), as a bundler puts them together, without the full icon set.
-  const indexJs = esbuild.buildSync({ entryPoints: [path.join(PROJECT, 'dist', 'index.js')], bundle: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].text;
-  t('index.js leaves the full icon set out (loaded on demand) and stays under 150 KB gzipped', !indexJs.includes('"sports_cricket"') && zlib.gzipSync(indexJs).length < 150 * 1024, `${Math.round(zlib.gzipSync(indexJs).length / 1024)} KB`);
+  // Measured minified, as a project ships it. 31 Oct 2026: it was measured unminified, so comments counted, and main
+  // sat 3 B under 150 KB; minified it is 117 KB. This is a backstop: the tight line is "All components (index.js)" in size.mjs.
+  const indexJs = esbuild.buildSync({ entryPoints: [path.join(PROJECT, 'dist', 'index.js')], bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].text;
+  t('index.js leaves the full icon set out (loaded on demand) and stays under 130 KB gzipped, minified', !indexJs.includes('"sports_cricket"') && zlib.gzipSync(indexJs).length < 130 * 1024, `${Math.round(zlib.gzipSync(indexJs).length / 1024)} KB`);
   // Tree-shaking: a bundler keeps only what a project imports. Every component is made by component() or named()
   // with a /* @__PURE__ */ mark and nothing else runs at the top of a module, so Divider alone is a few hundred bytes.
   const alone = (name) => zlib.gzipSync(esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].contents).length;
