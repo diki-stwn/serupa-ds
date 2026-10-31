@@ -7,18 +7,18 @@ import { PAIRS } from '../tools/tokens/contrast-pairs.mjs';
 import { contrastRatio } from '../src/internal/color';
 
 type Value = string | Record<string, string>;
-type ColorToken = { name: string; value: Value; contrastMore?: string | { light: string; dark: string } };
+type ColorToken = { name: string; value: Value; contrastMore?: string | Record<string, string> };
 const C = (tokens as unknown as { color: { tokens: ColorToken[]; themes: { id: string; name: string }[] } }).color;
 const BY_NAME = new Map(C.tokens.map((t) => [t.name, t]));
 
 // A token's color in a theme, following references ({zinc-900}) to the hex; with more contrast, a token's
-// contrastMore pair (its light or dark half, by the theme's mode) takes the place of its value.
+// contrastMore (its value for the theme, as a brand color has, or its light or dark half) takes the place of its value.
 function hex(name: string, theme: string, more: boolean, depth = 0): string {
   const t = BY_NAME.get(name);
   if (!t || depth > 8) return '';
   const mode = theme.endsWith('-dark') ? 'dark' : 'light';
   const cm = more ? t.contrastMore : undefined;
-  const v = cm ? (typeof cm === 'string' ? cm : cm[mode]) : typeof t.value === 'string' ? t.value : t.value[theme] ?? Object.values(t.value)[0];
+  const v = cm ? (typeof cm === 'string' ? cm : cm[theme] ?? cm[mode]) : typeof t.value === 'string' ? t.value : t.value[theme] ?? Object.values(t.value)[0];
   const ref = /^\{([^}]+)\}$/.exec(v)?.[1];
   return ref ? hex(ref, theme, more, depth + 1) : v;
 }
