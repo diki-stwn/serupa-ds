@@ -5,14 +5,18 @@ export interface PaginationLabels {
   pagination: string;
   previousPage: string;
   nextPage: string;
+  /** The summary with total and pageSize: "21–30 of 245" (the numbers come in the locale's digits and grouping). */
+  itemsOf: (first: string, last: string, total: string) => string;
 }
 export const en: PaginationLabels = {
   pagination: "Pagination",
   previousPage: "Previous page",
   nextPage: "Next page",
+  itemsOf: (first, last, total) => (first === last ? first : first + "–" + last) + " of " + total,
 };
 export const id: PaginationLabels = {
   pagination: "Halaman",
   previousPage: "Halaman sebelumnya",
   nextPage: "Halaman berikutnya",
+  itemsOf: (first, last, total) => (first === last ? first : first + "–" + last) + " dari " + total,
 };

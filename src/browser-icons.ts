@@ -1,3 +1,5 @@
-// serupa-icons.iife.js: from 6.1 every Material Symbol works by name with serupa.iife.js alone, so this script does
-// nothing. It's kept so pages that still include it keep working; you can remove it from your page.
-export {};
+// serupa-icons.iife.js: every Material Symbol by name, for plain pages. serupa.iife.js adds it to the page itself
+// the first time an Icon meets a name outside the everyday set; include it up front to draw those on the first try.
+import * as all from "./material/icons";
+
+window.SerupaIcons = all;

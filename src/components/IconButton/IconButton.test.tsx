@@ -19,7 +19,7 @@ function Icons({ ibRef }: { ibRef?: React.Ref<HTMLButtonElement | HTMLAnchorElem
     <IconButton id="ib" icon="more_vert" label="More actions" onClick={() => { clicks++; }} ref={ibRef} className="extra" />
     <IconButton id="ibr" icon="edit" label="Edit" shape="round" variant="secondary" size="lg" />
     <IconButton id="ibl" icon="open_in_new" label="Open" href="#x" />
-    <IconButton id="ibt" icon="close" label="Close" noTitle destructive />
+    <IconButton id="ibt" icon="close" label="Close" hideTitle destructive />
     <IconButton id="ibtitle" icon="close" label="Close" title="Close (Esc)" />
   </div>;
 }
@@ -43,7 +43,7 @@ describe('IconButton', () => {
     expect([s.width, s.height, el('ibr').dataset.variant]).toEqual(['44px', '44px', 'secondary']);
   });
 
-  test('with href it is a link; noTitle leaves out the tooltip; a given title wins; destructive passes through', async () => {
+  test('with href it is a link; hideTitle leaves out the tooltip; a given title wins; destructive passes through', async () => {
     await render(<Icons />);
     expect([el('ibl').tagName, el('ibl').getAttribute('href'), el('ibl').getAttribute('aria-label')]).toEqual(['A', '#x', 'Open']);
     expect([el('ibt').hasAttribute('title'), el('ibt').hasAttribute('data-destructive'), el('ibtitle').title]).toEqual([false, true, 'Close (Esc)']);
@@ -94,6 +94,13 @@ describe('IconButton', () => {
     await render(<IconButton {...plain} />);
     expect([el('iaria').getAttribute('aria-label'), el('iaria').title]).toEqual(['Close', 'Close']);
     await expect.poll(() => warns.slice(before).filter((m) => /aria-label|label/.test(m))).toEqual([]);
+  });
+
+  test('noTitle, the deprecated name, still leaves out the title and warns once to use hideTitle', async () => {
+    const before = warns.length;
+    await render(<><IconButton id="old" icon="close" label="Close" noTitle /><IconButton id="old2" icon="close" label="Close" noTitle /></>);
+    expect(el('old').hasAttribute('title')).toBe(false);
+    expect(warns.slice(before).filter((m) => /noTitle is deprecated/.test(m))).toHaveLength(1);
   });
 
   test('no warnings about missing labels', () => {

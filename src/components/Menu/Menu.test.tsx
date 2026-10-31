@@ -455,7 +455,7 @@ describe('Menu', () => {
 
   test('a Tooltip around the trigger: the button still gets aria-haspopup, opens the menu on click and keeps its own onClick and ref', async () => {
     const clicks: string[] = [], ref = React.createRef<HTMLButtonElement>();
-    await render(<Menu trigger={<Tooltip content="More"><IconButton id="tb" ref={ref} icon="more_vert" label="More" noTitle onClick={() => clicks.push('own')} /></Tooltip>}>
+    await render(<Menu trigger={<Tooltip content="More"><IconButton id="tb" ref={ref} icon="more_vert" label="More" hideTitle onClick={() => clicks.push('own')} /></Tooltip>}>
       <MenuItem>Edit</MenuItem>
     </Menu>);
     const b = el('tb');
