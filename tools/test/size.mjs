@@ -47,8 +47,9 @@ const LABELS = [2.6, 1.9];
 // 2.4 on 26 Oct 2026). It's data, not code, and grows a row at a time, so it has its own line: a country added is
 // a choice made here, not a few bytes lost in PhoneInput's own budget.
 const PHONE_DATA = 2.8;
-// Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.3, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
+// Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set), and to 2.4 on
+// 31 Oct 2026 with the choice read again on a return from the back/forward cache (FEC6: 2.37).
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
 // KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
 // whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
 const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
