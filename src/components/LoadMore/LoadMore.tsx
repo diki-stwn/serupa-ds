@@ -74,10 +74,14 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
     announce(all != null ? added + ". " + l.showingOf(n(count), n(all)) + "." : added);
   }, [count]);
 
-  // The last page took the focused button away: focus the end text, not the page (with endText={null}, the summary).
+  // The last page took the focused button away: focus the end text, not the page (with endText={null}, the summary;
+  // with neither, LoadMore itself, focusable only until focus leaves it, so Tab goes on from here: L8E58).
   React.useEffect(() => {
-    const to = end.current || summary.current;
-    if (!hasMore && hadFocus.current && to && !box.current!.contains(document.activeElement)) to.focus();
+    const to = end.current || summary.current || box.current;
+    if (!hasMore && hadFocus.current && to && !box.current!.contains(document.activeElement)) {
+      if (to === box.current) to.tabIndex = -1;
+      to.focus();
+    }
     if (!hasMore) hadFocus.current = false;
   }, [hasMore]);
 
@@ -113,7 +117,8 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
   }, [ref]);
 
   return (
-    <div {...rest} ref={setRef} className={cn("dk-load-more", className)} data-component="load-more">
+    <div {...rest} ref={setRef} className={cn("dk-load-more", className)} data-component="load-more"
+      onBlur={(e) => { if (rest.onBlur) rest.onBlur(e); if (e.target === e.currentTarget) e.currentTarget.removeAttribute("tabindex"); }}>
       {count != null && total != null ? <p ref={summary} className="dk-load-more__summary" tabIndex={!hasMore && endText === null ? -1 : undefined}>{labels.showingOf(num(count), num(total))}</p> : null}
       {hasMore
         ? <Button variant="outline" className="dk-load-more__button" wrap loading={busy} loadingText="" onClick={run}>{label != null ? label : labels.loadMore}</Button>
