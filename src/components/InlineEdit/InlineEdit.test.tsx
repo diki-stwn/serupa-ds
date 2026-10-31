@@ -216,6 +216,27 @@ describe('InlineEdit', () => {
     expect([view('ph').textContent, view('ph').querySelector('.dk-inline-edit__text--placeholder') != null]).toEqual(['Description: Add a description, Ubah', true]);
   });
 
+  test('opened by the editing prop: the field starts from the current text, not a draft from before or the text at first (L8E53)', async () => {
+    let set: (e: { editing: boolean; value: string }) => void = () => {};
+    function Own() {
+      const [s, setS] = React.useState({ editing: false, value: 'Apollo' });
+      set = setS;
+      return <InlineEdit id="op" label="Name" value={s.value} editing={s.editing} onEditingChange={(editing) => setS((x) => ({ ...x, editing }))} validate={(v) => (v ? null : 'Required')} />;
+    }
+    await render(<Own />);
+    set({ editing: true, value: 'Gemini' });
+    await expect.poll(() => input('op')?.value).toBe('Gemini');
+    await userEvent.clear(input('op')!);
+    await userEvent.keyboard('{Enter}');
+    expect([root('op').textContent, input('op')!.getAttribute('aria-invalid')]).toEqual(['Required', 'true']);
+    // Closed from outside (a Menu's Rename again, say), with the empty draft and its error still there.
+    set({ editing: false, value: 'Gemini' });
+    await expect.poll(() => input('op')).toBe(null);
+    set({ editing: true, value: 'Mercury' });
+    await expect.poll(() => input('op')?.value).toBe('Mercury');
+    expect([root('op').textContent, input('op')!.getAttribute('aria-invalid')]).toEqual(['', null]);
+  });
+
   test('opening moves nothing: the button and the field have the same height at sm, md and lg, and the text starts at the same x', async () => {
     const out: string[] = [];
     await render(<Box>{(['sm', 'md', 'lg'] as const).map((s) => <InlineEdit key={s} id={'s-' + s} size={s} label="Name" defaultValue="Apollo" />)}</Box>);
