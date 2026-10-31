@@ -7,6 +7,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
+import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { useLocale, useSettings } from "../../internal/provider";
 import { displayNumber } from "../../internal/numbers";
@@ -77,6 +78,9 @@ function markList(marks: SliderProps["marks"], min: number, max: number, step: n
 /** Picks a number, or a range with two thumbs, on a track. */
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
+  // A surrounding Field's id, hint, error, required and disabled, at any depth: a Slider in a row with its unit
+  // after it (<div><Slider /><span>dB</span></div>) was left unnamed, undescribed and enabled (L8E84).
+  props = useFieldControl(props);
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSettings(words), locale = useLocale();
