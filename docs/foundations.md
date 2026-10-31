@@ -769,6 +769,34 @@ Rules of thumb:
 
 Motion explains a change: where a menu came from, that a press registered, that something is still loading. It never decorates and never makes anyone wait. Most of it takes 100–300ms.
 
+**Should it animate?** Ask before choosing a duration. Motion earns its place by doing one of these, and only these:
+
+- **Shows where something came from or went**: a menu growing from its button, a drawer sliding from its edge, a row gliding to its new place.
+- **Confirms the hand was felt**: a press scaling down, a switch thumb travelling, a check popping in.
+- **Shows that something is still happening**: a spinner, a placeholder's pulse, an indeterminate bar.
+- **Joins two states that would otherwise jump**: a panel opening, an indicator sliding between segments, a fill arriving at its value.
+
+If none fits, it doesn't move. How often someone sees it decides how much it may move:
+
+| How often | Examples | Motion |
+| --- | --- | --- |
+| Hundreds of times a day | Typing, a key held in a list, hover across a toolbar, a menu opened again and again | None, or a color change at `motion-hover`. Never a delay, never a scale or slide that has to finish before the next one. |
+| Many times a session | Opening a menu, popover or select; a toggle; a tab | Short: the `-sm` roles, `ease-enter` / `ease-exit`. |
+| Now and then | A dialog, a drawer, a toast, a page's first list of results | The `-md` and `-lg` roles; a stagger is allowed here. |
+| Rarely | A first-run hint, a task finished, an upload done | The one place for `ease-celebrate`. |
+
+**Keyboard.** An action someone repeats from the keyboard (arrow keys through a list, a calendar or a tab list; Tab through a form; a shortcut) should answer at once: focus and selection move in the same frame, with no slide or fade to wait for. What a key opens (Enter on a menu button) may enter as it would on a click, and Escape closes as a click outside does.
+
+**Turned down.** Examples of motion this system says no to, and why: a menu's items arriving one by one (people open menus all day, and the last item would be late every time); a hover lift on every card in a grid (the page shimmers as the pointer crosses it); a dialog that bounces as it opens (overshoot is for small things); a toast that wobbles (it would be the tenth one today); a delay before a dropdown opens on click (it reads as lag); a page fading in on every navigation (it slows what people do most).
+
+**Reviewing motion.** A note on a pull request's motion says what it does now, what it should do, and which rule says so, so the change can be checked against the rule rather than a taste:
+
+| Before | After | Why |
+| --- | --- | --- |
+| Menu items arrive one by one over 250ms | They appear with the menu | Opened many times a session: no stagger |
+| The panel closes over `motion-enter-md` | It closes over `motion-exit-md` | An exit takes about two thirds of its enter |
+| ArrowDown slides the highlight to the next option | The highlight moves in the same frame | A key repeated from the keyboard answers at once |
+
 Transition and animation scales are tokens in one `transitions` group (`var(--duration-150)`, `var(--ease-out)`, `var(--animate-spin)`), with matching utility classes in `bundle.css` (`.transition`, `.duration-200`, `.ease-out`, `.animate-pulse`). Components use the **roles**. A role names what is moving rather than how long it takes, and points at a step of the scale, so one change to a role moves every component that uses it.
 
 **Roles**
@@ -776,7 +804,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | Role | Today | What moves |
 | --- | --- | --- |
 | `motion-press` | `duration-100` | A control answering while it's held down (Button scales down). |
-| `motion-release` | `duration-300` | A press let go springing back to size with `ease-spring` (back in place in about a third of it, then settling). |
+| `motion-release` | `duration-300` | A press let go coming back to size: Button with `ease-enter`, settling with no overshoot; Badge still springs back with `ease-spring`. |
 | `motion-hover` | `duration-150` | Hover and focus changes on a control that stays put: colors, borders, shadows. |
 | `motion-enter-sm` | `duration-150` | A small surface appearing: tooltips, popovers, menus, date pickers. |
 | `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |
@@ -789,7 +817,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
-| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Button, Badge). |
+| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Badge; Button has none). |
 | `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
 | `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
@@ -820,7 +848,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 - **Fling.** What the hand lets go of mid-motion (a drawer swiped, a carousel flicked) carries on at the hand's speed and slows to rest, instead of jumping to a speed of its own. The speed is the pointer's over its last 100ms, and the settle runs on `ease-fling` for 3 × distance ÷ speed, since that curve starts at three times its average speed (between 150 and 400ms).
 - **Interruptible.** Animate opening and closing with transitions, not keyframes. A transition turns around from where it is when the state flips half way (a menu closed while it opens), where a keyframe animation jumps to its start. The overlays enter from `@starting-style` for this reason.
 
-**Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a list's items or a loader's dots, stagger them by `motion-stagger` (50ms) and cap the wait at `motion-stagger-limit` (300ms), so items past the sixth arrive together. The `stagger` utility does this: put it on the parent, and each child gets `animation-delay` and `--dk-stagger-delay` (for a transition of your own) from its place, with `sibling-index()` where the browser has it. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
+**Sequencing.** Animate one thing at a time where you can. When a group must arrive together, as with a page's first list of results or a loader's dots, stagger them by `motion-stagger` (50ms) and cap the wait at `motion-stagger-limit` (300ms), so items past the sixth arrive together. Stagger only a group seen now and then: never a menu's items or a stack of toasts, which people open over and over and would wait for every time. The `stagger` utility does this: put it on the parent, and each child gets `animation-delay` and `--dk-stagger-delay` (for a transition of your own) from its place, with `sibling-index()` where the browser has it. A surface's content appears with it, never after it. Hover and focus changes start at once (no delay). Tooltips wait 400ms before showing (their `delay` prop), so passing the pointer over a toolbar doesn't flash them.
 
 **Layout changes.** When things move to a new place (a list reordered or filtered, a card expanded, a grid switched to a list), let them glide there instead of jumping: run the change inside `withViewTransition(() => …)` and mark what should travel with `view-transition-name`, or the `view-transition-match` class, which names each element after itself. The browser does the measuring (FLIP), off the main thread, over `motion-change-md` with `ease-move` (set for every View Transition in `base.css`). Under reduced motion nothing travels; the old and new states crossfade. Where View Transitions are missing the change just happens. `view-transition-none` keeps an element out of it.
 

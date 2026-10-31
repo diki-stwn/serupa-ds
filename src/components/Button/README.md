@@ -164,16 +164,15 @@ Small motion that confirms what happened, all built in:
 
 | Interaction | What it does | Turn off or tune |
 | --- | --- | --- |
-| Press | While held (pointer, Space or Enter) the button shrinks to 97% in 100ms and springs back on release, a real spring (`ease-spring`) over 300ms (`motion-release`) | `--button-press-scale: 1` |
-| Ripple | A circle in the text color, 20% strong, spreads across the button from the press point over 500ms, then fades once released; even a quick click shows the whole wave | `--button-ripple-opacity: 0` |
+| Press | While held (pointer, Space or Enter) the button shrinks to 97% in 100ms and comes back on release over 300ms (`motion-release`) with `ease-enter`, settling at full size with no overshoot | `--button-press-scale: 1` |
 | Icon nudge (off by default) | When turned on, a right icon slides in its direction on hover (on devices that hover), mirrored in right-to-left text. Left icons stay still. It suits forward arrows ("Continue →"), not chevrons or other icons, so it's off unless you turn it on | On: `--button-icon-nudge: var(--spacing-0\.5)` (2px) |
-| Loading | The label and icons fade out while the spinner fades and grows in, in 150ms; they fade back when done | `--button-loading-duration: 0ms` |
+| Loading | The label and icons fade out while the spinner fades and grows in, in 150ms; both blur a little (`blur-xs`) as they cross, so it reads as one change; they fade back when done | `--button-loading-duration: 0ms` |
 
-- They animate only `scale`, `translate` and `opacity`, so nothing around the button reflows, and they never change its size, name or behaviour: clicks, keys, forms and your own `onPointerDown`, `onKeyDown` and `onKeyUp` work as before. If your `onPointerDown` calls `preventDefault()`, there's no ripple.
-- No press or ripple on disabled, loading or `link`-variant buttons (the link variant reads as text).
-- Hover colors apply only on devices that hover (a mouse or trackpad). A phone keeps hover on the last button tapped, so on touch screens a tapped button goes straight back to its resting color, and the press and ripple are the feedback. This holds for every component's hover styles (`tools/test/touch-hover.mjs`).
-- With reduced motion turned on (an operating-system setting), there's no press, nudge or ripple, and loading only fades.
-- `buttonClass()` on another element gets the press, nudge and loading fade (they're CSS); the ripple needs the Button component.
+- They animate only `scale`, `translate`, `opacity` and the loading blur (`filter`), so nothing around the button reflows, and they never change its size, name or behaviour: clicks, keys, forms and your own `onPointerDown`, `onKeyDown` and `onKeyUp` work as before.
+- No press on disabled, loading or `link`-variant buttons (the link variant reads as text).
+- Hover colors apply only on devices that hover (a mouse or trackpad). A phone keeps hover on the last button tapped, so on touch screens a tapped button goes straight back to its resting color, and the press is the feedback. This holds for every component's hover styles (`tools/test/touch-hover.mjs`).
+- With reduced motion turned on (an operating-system setting), there's no press or nudge, and loading only fades (no blur).
+- `buttonClass()` on another element gets the press, nudge and loading fade (they're all CSS).
 - To turn the icon nudge on for a flow of "next" buttons:
 
   ```css
@@ -188,7 +187,7 @@ Small motion that confirms what happened, all built in:
 | --- | --- | --- |
 | Default | Variant colors, `shadow-xs` on filled and outline buttons | `pointer` |
 | Hover | `primary` darkens one step (`primary-hover`); secondary gains a `primary-subtle` tint and its text and border darken to `primary-hover`; outline and ghost gain a `secondary` fill; link underlines; a right icon slides 2px forward | `pointer` |
-| Pressed | Hover colors, shrinks to 97% (`scale-97`); a ripple spreads from the press point | `pointer` |
+| Pressed | Hover colors, shrinks to 97% (`scale-97`) | `pointer` |
 | Focus (keyboard) | A 2px `focus-ring` outline 2px out (`danger` when destructive). The gap is transparent, so it reads on tinted backgrounds; forced-colors (high-contrast) mode draws it in the system color | `pointer` |
 | Disabled | 50% opacity, no shadow, no hover change, ignores clicks | `not-allowed` |
 | Loading | Full color, the content fades into a spinner, no hover change, no press, ignores clicks, keeps focus | `progress` |
@@ -209,7 +208,7 @@ Button's behaviour follows web standards; its look comes only from this design s
 | An `aria-label` on a button with visible text should start with that text ("Delete project", not "Remove") | [WCAG 2.5.3 Label in Name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html) |
 | Visible keyboard focus, also in forced-colors (high-contrast) mode | [WCAG 2.4.7 Focus Visible](https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html), [WCAG 2.4.11 Focus Not Obscured](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html) |
 | Every size is at least 24×24px; use `lg` (44px) on touch-first screens | [WCAG 2.5.8 Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [WCAG 2.5.5 Target Size (Enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) |
-| Under reduced motion the spinner turns slower with a steady arc, and press, nudge and ripple are off | [WCAG 2.3.3 Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) |
+| Under reduced motion the spinner turns slower with a steady arc, and press and nudge are off | [WCAG 2.3.3 Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) |
 | Toggle buttons pass `aria-pressed`; menu buttons pass `aria-haspopup`, `aria-expanded` and `aria-controls` | [APG: Button pattern (toggle)](https://www.w3.org/WAI/ARIA/apg/patterns/button/), [APG: Menu Button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) |
 
 ### Keyboard
@@ -318,13 +317,10 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-press-scale` | `scale-97` | Size while pressed (97%). 1 turns press feedback off. |
-| `--button-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release`. |
+| `--button-press-duration` | `motion-press` | How fast the press scales down (100ms). The release comes back over `motion-release`. |
 | `--button-icon-nudge` | `spacing-0` | How far a right icon slides on hover. Off by default (0); set it to `var(--spacing-0\.5)` (2px) where right icons are forward arrows. |
 | `--button-icon-nudge-duration` | `motion-change-sm` | How fast the right icon slides (150ms). |
 | `--button-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading spinner (150ms). |
-| `--button-ripple-opacity` | `opacity-20` | Strength of the ripple from the press point, in the text color (20%). 0 turns the ripple off. |
-| `--button-ripple-duration` | `motion-ripple` | How long the ripple takes to spread across the button (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave. |
-| `--button-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms). |
 
 ### All tokens Button reads
 

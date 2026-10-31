@@ -1009,7 +1009,7 @@
   --motion-loop-progress: var(--duration-1200); /* One pass of an indeterminate progress bar. */
   --motion-ripple: var(--duration-500); /* A press ripple spreading out from the pointer: Button and Badge. */
   --motion-ripple-fade: var(--duration-300); /* A press ripple fading once it has spread. */
-  --motion-stagger: var(--delay-50); /* The gap between items of a group arriving one after another: menu items, list rows, toasts, grid cards. Each item waits its index times this. */
+  --motion-stagger: var(--delay-50); /* The gap between items of a group arriving one after another, for a group seen now and then (a page's cards, a first list of results), never one opened over and over (menu items, toasts). Each item waits its index times this. */
   --motion-stagger-limit: var(--delay-300); /* The longest any item of a staggered group waits, so a long list still arrives within a moment: items past the sixth arrive together. */
   --motion-sequence: var(--delay-50); /* The offset between the steps of one entrance, so they read as a sequence: a dialog or drawer’s backdrop starts, then its panel. Exits don’t sequence; everything leaves together. */
   --ease-enter: var(--ease-out-quart); /* Something appearing: quick off the mark, then a long smooth landing. */

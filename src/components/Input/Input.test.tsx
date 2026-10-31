@@ -401,4 +401,11 @@ describe('Input mask', () => {
     await userEvent.keyboard('{Backspace}');
     expect(field('phone').value).toBe('+62 812-3456-789');
   });
+
+  test('L8E7: a number autofilled or pasted with the mask\'s own prefix written differently ("+6281…", "+62-812…") isn\'t read as typed digits', async () => {
+    await render(<Input id="p2" aria-label="Phone" mask="+62 999-9999-9999" />);
+    const seen: string[] = [];
+    for (const v of ['+6281234567890', '+62-812-3456-7890', '+62  812 3456 7890', '81234567890']) { await userEvent.fill(field('p2'), v); seen.push(field('p2').value); }
+    expect(seen).toEqual(Array(4).fill('+62 812-3456-7890'));
+  });
 });

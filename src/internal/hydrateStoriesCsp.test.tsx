@@ -3,6 +3,7 @@ import { hydrateRoot, type Root } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { afterEach, beforeEach, describe, expect, inject, test, vi } from 'vitest';
 import { storiesToRun } from '../../tools/test/vitest/stories';
+import { fiberOf, fromRenderProp, fromStory } from '../../tools/test/vitest/storyOwner';
 
 // Every story's server HTML, hydrated on a page with a strict Content Security Policy, has to lay out as the same
 // HTML hydrated on a page without one (GR16). Under style-src-attr 'none' the browser ignores the style attributes in
@@ -54,25 +55,22 @@ function setStyle(el: Element, text: string) {
 //   'unsafe-inline' (or a class);
 // - Grid's and Stack's: they're Server Components, which don't hydrate, so their columns and gaps need
 //   'unsafe-inline' in server HTML (docs/GettingStarted.mdx).
-type Fiber = { return: Fiber | null; memoizedProps?: Record<string, unknown> & { style?: unknown }; _debugStack?: Error };
-const fromStory = (f: Fiber) => {
-  const frame = String(f._debugStack?.stack || '').split('\n').slice(1).find((l) => !l.includes('/node_modules/'));
-  return !!frame && /\.stories\.tsx|\/tools\/test\//.test(frame);
-};
+// Where the element was made is tools/test/vitest/storyOwner.ts, shared with the digits check.
+const sources = import.meta.glob<string>('../components/*/*.stories.tsx', { eager: true, query: '?raw', import: 'default' });
+const storySource = (name: string) => Object.entries(sources).find(([f]) => f.split('/').at(-2) === name)?.[1] || '';
 const SERVER_ONLY = '[data-component="grid"], [data-component="stack"]';
-function appStyled(el: Element) {
+function appStyled(el: Element, source: string) {
   if (el.matches(SERVER_ONLY)) return true;
-  const key = Object.keys(el).find((k) => k.startsWith('__reactFiber$'));
-  let f = key ? (Reflect.get(el, key) as Fiber) : null;
+  let f = fiberOf(el);
   if (!f) return false;
   const style = f.memoizedProps?.style;
   for (let up = f.return; style && up; up = up.return) if (Object.values(up.memoizedProps || {}).some((v) => v === style || (!!v && typeof v === 'object' && (v as { style?: unknown }).style === style))) f = up;
-  return fromStory(f);
+  return fromStory(f) || fromRenderProp(f, source);
 }
 
 // Hydrates the server HTML, with the style attributes at the indexes given (all of them, for the page without the
 // policy) set through the CSSOM first. Returns the boxes and which elements' styles are the app's.
-async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: number) => boolean) {
+async function hydrate(ui: React.ReactElement, serverHtml: string, source: string, apply: (i: number) => boolean) {
   // React's development build records where an element was made for only 10,000 elements a second, and a story
   // with many (PhoneInput's country list), straight after others, gets "unknown" past that, so the count starts again.
   const internals = Reflect.get(React, '__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE') as { recentlyCreatedOwnerStacks?: number } | undefined;
@@ -87,7 +85,7 @@ async function hydrate(ui: React.ReactElement, serverHtml: string, apply: (i: nu
   let root: Root | undefined;
   const errors: string[] = [];
   flushSync(() => { root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
-  const app = new Set(els.flatMap((el, i) => (texts[i] && appStyled(el) ? [i] : [])));
+  const app = new Set(els.flatMap((el, i) => (texts[i] && appStyled(el, source) ? [i] : [])));
   const out = await boxes(host);
   root?.unmount();
   host.remove();
@@ -108,13 +106,13 @@ for (const [name, list] of storiesToRun()) {
   describe(`${name} stories hydrate under a strict CSP`, () => {
     for (const [exportName, ui] of list) {
       test(`${exportName} lays out as it does without the policy`, async () => {
-        const serverHtml = html[`${name}/${exportName}`];
+        const serverHtml = html[`${name}/${exportName}`], source = storySource(name);
         expect(serverHtml, 'the server render in Node').not.toMatch(/^Error: /);
         // The first hydration loads what the story loads on demand (icons drawn by name) and finds the app's styles;
         // the two compared come after it, so both find the same things ready.
-        const { app } = await hydrate(ui, serverHtml, () => true);
-        const { out: got, errors } = await hydrate(ui, serverHtml, (i) => app.has(i));
-        const { out: want } = await hydrate(ui, serverHtml, () => true);
+        const { app } = await hydrate(ui, serverHtml, source, () => true);
+        const { out: got, errors } = await hydrate(ui, serverHtml, source, (i) => app.has(i));
+        const { out: want } = await hydrate(ui, serverHtml, source, () => true);
         expect(errors, 'recoverable errors').toEqual([]);
         // Only the elements that differ, so a failure names them.
         const off = got.map((g, i) => ({ ...g, want: want[i]?.box })).filter((g, i) => !want[i] || want[i].el !== g.el || g.box.some((v, k) => Math.abs(v - want[i].box[k]) > 1));

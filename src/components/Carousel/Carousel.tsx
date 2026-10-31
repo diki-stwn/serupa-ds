@@ -10,7 +10,7 @@ import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { en as words } from "./labels";
-import { settleTime, speed, track as sample, type Samples } from "../../internal/fling";
+import { rubber, settleTime, speed, track as sample, type Samples } from "../../internal/fling";
 
 export interface CarouselProps extends Omit<React.HTMLAttributes<HTMLElement>, "onChange"> {
   /** The slides, one per child (pictures, cards, anything). */
@@ -75,8 +75,6 @@ function usePerView(per: CarouselProps["perView"]): number {
 const OWN = { children: 1, label: 1, index: 1, defaultIndex: 1, onIndexChange: 1, loop: 1, arrows: 1, dots: 1, previousLabel: 1, nextLabel: 1, slideLabel: 1, perView: 1, className: 1, style: 1 } as const;
 const SWIPE = 40; // px a swipe must travel to change the slide
 const FLICK = 0.3; // px per ms over the last 100ms: a shorter swipe this fast changes the slide too
-/** Past the first or last slide a drag meets resistance: it moves less the further it goes, never more than w. */
-const rubber = (d: number, w: number) => Math.sign(d) * (1 - 1 / (Math.abs(d) * 0.55 / Math.max(1, w) + 1)) * w;
 
 /** One slide at a time, with previous and next buttons, dots and swipe. */
 export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("Carousel", function Carousel(props, ref) {

@@ -1,0 +1,48 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Build a page" />
+
+# Build a page
+
+The components take care of themselves: their roles, names, focus, keyboard and contrast in all six themes. The page around them is the app's, because only the app knows its language, its routes and its content. This is that list, with where each part is shown.
+
+```html
+<!doctype html>
+<html lang="en" dir="ltr" data-brand="blue" data-mode="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoices · Acme</title>
+  <script src="dist/theme.js"></script>
+  <link rel="preload" href="fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="dist/base.css">
+  <link rel="stylesheet" href="serupa.min.css">
+</head>
+<body>
+  <!-- first: <VisuallyHidden focusable as="div"><a href="#main">Skip to content</a></VisuallyHidden> -->
+  <header>…the Navbar…</header>
+  <main id="main" tabindex="-1">
+    <h1>Invoices</h1>
+    …
+  </main>
+  <footer>…</footer>
+</body>
+</html>
+```
+
+## What the page sets
+
+- **`<!doctype html>` and `<meta charset="utf-8">`.** Without the doctype the browser lays the page out in quirks mode, and without the charset it may guess the encoding wrong for "Rp", "é" or Arabic text. Put the charset first in `<head>`.
+- **`<html lang>`, and `dir` for right-to-left languages.** Screen readers pick their voice from `lang`, and the browser picks hyphenation and quotes from it (WCAG 3.1.1). With `dir="rtl"` the components mirror. See [Localization](?path=/docs/guides-localization--docs), which also sets the components' locale to match.
+- **A viewport that lets people zoom.** Use `width=device-width, initial-scale=1` and nothing more. Never add `maximum-scale=1` or `user-scalable=no`: people who need text larger can't then pinch to zoom (1.4.4). The layouts reflow at 320px wide (1.4.10), so nothing needs the zoom locked.
+- **A title for each route.** Each page's `<title>` says what's on it, the page before the site: "Invoices · Acme" (2.4.2). In a single-page app, set `document.title` on every route change.
+- **One `h1`, and the landmarks.** One `h1` per page names it, and the headings below go down a level at a time ([Heading](?path=/docs/components-layout-and-type-heading--docs) sets the level apart from the look). Give the page one `main`, such as `<Container as="main">` ([Container](?path=/docs/components-layout-and-type-container--docs)), with a header and a footer around it. [Navbar](?path=/docs/components-navigation-navbar--docs) is a `header` with a `nav` inside, and [Sidebar](?path=/docs/components-navigation-sidebar--docs) renders its own `nav`. Give each `nav` a different name when there are two.
+- **A skip link.** "Skip to content" comes first in the page and points at `main`'s `id`. Wrap it in [`<VisuallyHidden focusable>`](?path=/docs/components-layout-and-type-visuallyhidden--docs), which hides it until it's tabbed to and then shows it (2.4.1). `tabindex="-1"` on `main` lets focus land there in every browser.
+- **Focus after a route change.** A single-page app doesn't reload, so nothing moves focus or says the page changed. After a route change, move focus to the new page's `h1` or `main` (give it `tabindex="-1"`). The [Accessibility](?path=/docs/foundations-accessibility--docs) foundation lists what else stays the app's: errors, color in your own content, media and help.
+- **The theme, before anything paints.** Load `theme.js` first in `<head>`, before the stylesheets, so the page never flashes the wrong theme. It also keeps `<meta name="theme-color">` on the page's surface, so a phone's status bar and address bar follow light and dark. A `theme-color` meta the page writes itself is left as it is ([Themes](?path=/docs/foundations-themes--docs)).
+- **Preload the font.** Inter is one variable file, `fonts/InterVariable.woff2`, for every weight, so a single preload covers the regular, medium and semibold text at the top of the page. Text then appears in Inter on the first paint instead of swapping in. Keep `crossorigin` even on your own server: fonts are fetched that way, and a preload without it is downloaded twice. Preload the italic file only when italic text shows at the top of the page.
+
+## What stays the app's
+
+The components can't know these, so they're the app's to check on every page: the words in labels, links and errors; `alt` text for meaningful images; color carrying meaning only together with a second cue in your own content; captions for media; and a way to pause anything that moves for more than five seconds. Test each flow with the keyboard alone, a screen reader and 400% zoom.
