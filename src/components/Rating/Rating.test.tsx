@@ -193,4 +193,8 @@ describe('Rating', () => {
     r.current!.focus();
     expect(document.activeElement === r.current!.querySelectorAll('input')[0]).toBe(true);
   });
+  test('L8E92 autoFocus focuses the picked star (else the first), as it does on SegmentedControl and Slider', async () => {
+    await render(<><button>Before</button><Rating aria-label="Stay" defaultValue={2} autoFocus /></>);
+    await expect.poll(() => document.activeElement === page.getByRole('radiogroup', { name: 'Stay' }).element().querySelectorAll('input')[1]).toBe(true);
+  });
 });
