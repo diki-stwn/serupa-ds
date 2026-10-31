@@ -1,4 +1,5 @@
 import * as React from "react";
+import { activeIn } from "./root";
 
 const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
 
@@ -11,7 +12,7 @@ export function pressFocuses(field: React.RefObject<HTMLInputElement | HTMLTextA
     const f = field.current, t = e.target as Element;
     if (e.button !== 0 || !f || f.disabled || t === f || t.closest("button, a, input, select, textarea, [tabindex], [popover]")) return;
     e.preventDefault();
-    if (document.activeElement === f) return;
+    if (activeIn(f) === f) return;
     f.focus();
     try { f.setSelectionRange(f.value.length, f.value.length); } catch { /* email and number fields have no caret to place */ }
   };

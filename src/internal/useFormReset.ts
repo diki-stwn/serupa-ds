@@ -1,4 +1,5 @@
 import * as React from "react";
+import { byId } from "./root";
 
 /* Custom inputs submit through a hidden input whose value comes from React state, and form.reset() (or React 19
    resetting a form after its action) doesn't touch state: the form kept submitting and showing the old choice.
@@ -10,7 +11,7 @@ export function useFormReset(el: React.RefObject<HTMLElement | null>, reset: () 
   run.current = reset;
   React.useEffect(() => {
     const node = el.current;
-    const named = formId ? document.getElementById(formId) : null;
+    const named = formId ? byId(node, formId) : null;   // in node's document or shadow root (GR60)
     // Last, a group (a div) outside any form whose controls name one with their form attribute: RadioGroup and
     // CheckboxGroup kept the old choice when that form reset (L8E54).
     const inner = node && node.querySelector<HTMLInputElement>("input[form], select[form], textarea[form]");
