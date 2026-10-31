@@ -88,6 +88,7 @@ import { Carousel, Image } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one carousel. The list lives in `src/components/Carousel/carousel.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from carousel.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--carousel-dot` | `field-border` | The dots for the slides not shown (3:1 on surface). |
@@ -101,3 +102,4 @@ Each is an optional override: set it on the page, a container or one carousel. T
 | `--carousel-slide-gap` | `spacing-4` | Space between slides shown side by side, with `perView` (16px). |
 | `--carousel-arrow-offset` | `spacing-2` | The previous and next buttons' distance from the sides (8px). |
 | `--carousel-arrow-shadow` | `shadow-sm` | The previous and next buttons' shadow, so they stand out on any slide. |
+<!-- token-table:end -->

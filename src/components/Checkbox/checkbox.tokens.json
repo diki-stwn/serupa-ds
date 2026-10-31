@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "The box's background while unchecked.",
+        "$description": "The box while unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-bg"
@@ -15,7 +15,7 @@
       "bg-disabled": {
         "$type": "color",
         "$value": "{color.surface-muted}",
-        "$description": "The box's background when disabled and unchecked.",
+        "$description": "The box when disabled and unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-bg-disabled"
@@ -25,7 +25,7 @@
       "bg-checked": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Fill and border when checked or indeterminate (3:1 on the page in every theme).",
+        "$description": "Fill and border when checked or indeterminate",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-bg-checked"
@@ -35,7 +35,7 @@
       "bg-checked-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "Fill and border when checked, on hover.",
+        "$description": "The same, on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-bg-checked-hover"
@@ -45,7 +45,7 @@
       "border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "The box's border while unchecked (3:1 on the field and the page).",
+        "$description": "Border while unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-border"
@@ -55,7 +55,7 @@
       "border-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "The border on hover.",
+        "$description": "Border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-border-hover"
@@ -65,7 +65,7 @@
       "icon-color": {
         "$type": "color",
         "$value": "{color.on-primary}",
-        "$description": "The check and the dash.",
+        "$description": "The check and the dash",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-icon-color"
@@ -75,7 +75,7 @@
       "label-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The label.",
+        "$description": "The label",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-label-color"
@@ -85,7 +85,7 @@
       "description-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The description (4.5:1 on the page).",
+        "$description": "The description",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-description-color"
@@ -95,7 +95,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The focus ring.",
+        "$description": "The focus ring",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-focus-ring"
@@ -105,7 +105,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Border and focus ring when invalid.",
+        "$description": "Border and focus ring when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-invalid"
@@ -179,7 +179,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between the box and the label (8px).",
+        "$description": "Box to label (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-gap"
@@ -189,7 +189,7 @@
       "group-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between boxes in a vertical CheckboxGroup, and between rows of a horizontal one (8px).",
+        "$description": "Between boxes in a CheckboxGroup stack, and between rows (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-group-gap"
@@ -199,7 +199,7 @@
       "group-gap-horizontal": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "Gap between boxes in a horizontal CheckboxGroup (16px).",
+        "$description": "Between boxes in a CheckboxGroup row (16px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-group-gap-horizontal"
@@ -211,7 +211,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "The box's border width (1px).",
+        "$description": "Border width (1px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-border-width"
@@ -221,7 +221,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-sm}",
-        "$description": "The box's corner radius (4px).",
+        "$description": "Corner radius (4px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-radius"
@@ -233,7 +233,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-90}",
-        "$description": "Size of the box while the checkbox is held down (90%). 1 turns press feedback off.",
+        "$description": "Size of the box while it's held down (90%). 1 turns it off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--checkbox-press-scale"

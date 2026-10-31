@@ -172,6 +172,7 @@ By hand, without GitHub: write the notes under `## [Unreleased]` and run `node t
 npm run tokens                                       # after changing tokens.json: tokens.css and design-tokens/
 node tools/tokens/build.mjs                          # tokens.css only (--check: exit 1 if it's out of date)
 node tools/tokens/export.mjs                         # design-tokens/ only (--check: exit 1 if it's out of date)
+node tools/tokens/readme-tables.mjs                 # each component README's token table, from its tokens.json (--check: exit 1 if one is out of date)
 node tools/tokens/style-dictionary.config.mjs out/   # build them into CSS with Style Dictionary (one file per theme)
 ```
 

@@ -99,6 +99,9 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 
 Each is an optional override: set it on the page, a container or one sidebar. The list lives in `src/components/Sidebar/sidebar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from sidebar.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--sidebar-bg` | `surface` | The sidebar's background. |
@@ -112,17 +115,43 @@ Each is an optional override: set it on the page, a container or one sidebar. Th
 | `--sidebar-item-bg-active` | `highlight` | The current page's item background. |
 | `--sidebar-section-title-color` | `text-muted` | A section's title (4.5:1 on bg). |
 | `--sidebar-focus-ring` | `focus-ring` | The keyboard focus ring. |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--sidebar-item-size` | `text-sm` | Item text (14px). |
 | `--sidebar-item-weight` | `font-medium` | Item weight (500). |
 | `--sidebar-section-title-size` | `text-xs` | Section titles (12px). |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--sidebar-width` | `container-3xs` | The sidebar's width (256px). |
 | `--sidebar-width-collapsed` | `spacing-16` | Its width when collapsed to icons (64px). |
 | `--sidebar-icon-size` | `spacing-5` | An item's icon (20px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--sidebar-padding` | `spacing-3` | Space inside the sidebar (12px). |
 | `--sidebar-item-padding-x` | `spacing-3` | An item's side padding (12px). |
 | `--sidebar-item-padding-y` | `spacing-2` | An item's top and bottom padding (8px). |
 | `--sidebar-item-gap` | `spacing-3` | Space between an item's icon and label (12px). |
 | `--sidebar-section-gap` | `spacing-6` | Space between sections (24px). |
 | `--sidebar-nested-indent` | `spacing-11` | Where nested items' labels start, lined up with their parent's label (44px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--sidebar-border-width` | `border-width-1` | The edge line (1px). |
+
+**Radius**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--sidebar-item-radius` | `rounded-md` | An item's corners (6px). |
+<!-- token-table:end -->

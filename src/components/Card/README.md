@@ -103,29 +103,58 @@ Children come after the description.
 
 Each is an optional override: set it on the page, a container or one card. The list lives in `src/components/Card/card.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from card.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--card-bg` | `surface` | The background of an outline card |
+| `--card-bg-filled` | `surface-muted` | The background of a filled card |
 | `--card-bg-elevated` | `surface-raised` | The background of an elevated card (one step up from the page in dark). |
 | `--card-border-elevated` | `border-raised` | An elevated card's edge: invisible in light, a 1px lighter edge in dark |
-| `--card-bg-filled` | `surface-muted` | The background of a filled card |
 | `--card-border` | `border` | The border of an outline card |
 | `--card-title-color` | `text` | The title |
 | `--card-description-color` | `text-muted` | The description |
 | `--card-text` | `text` | Text in the body and footer |
 | `--card-border-hover` | `border-strong` | A linked card's border on hover |
 | `--card-focus-ring` | `focus-ring` | A linked card's keyboard focus ring |
+
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--card-shadow` | `shadow-xs` | An outline card's shadow |
 | `--card-shadow-elevated` | `shadow-md` | An elevated card's shadow |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--card-radius` | `rounded-xl` | The corners |
 | `--card-border-width` | `border-width-1` | The border |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--card-padding-sm` | `spacing-3` | Padding, `sm` |
 | `--card-padding-md` | `spacing-5` | Padding, `md` |
 | `--card-padding-lg` | `spacing-6` | Padding, `lg` |
 | `--card-gap` | `spacing-4` | The space between the parts |
 | `--card-header-gap` | `spacing-1` | The space between the title and the description |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--card-title-weight` | `font-semibold` | The title's weight |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--card-press-scale` | `scale-97` | Size of a card with `href` while it's held down (97%). 1 turns it off |
+<!-- token-table:end -->
 
 ## Related
 

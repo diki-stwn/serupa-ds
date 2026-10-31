@@ -100,6 +100,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 
 Each is an optional override: set it on the page, a container or one combobox. The field uses Input's tokens. The list lives in `src/components/Combobox/combobox.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from combobox.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--combobox-chevron` | `text-muted` | The chevron button's icon (3:1 on the field). |
@@ -122,3 +123,4 @@ Each is an optional override: set it on the page, a container or one combobox. T
 | `--combobox-option-padding-x` | `spacing-2` | Space on each side of an option (8px). |
 | `--combobox-offset` | `spacing-1` | The gap between the field and the list (4px). |
 | `--combobox-z-index` | `z-popover` | The list's stacking order, where the top layer isn't available. |
+<!-- token-table:end -->

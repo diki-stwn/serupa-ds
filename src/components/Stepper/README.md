@@ -78,6 +78,9 @@ It renders a `<nav>`; name it with `aria-label` (default `'Progress'`). `classNa
 
 Each is an optional override: set it on the page, a container or one stepper. The list lives in `src/components/Stepper/stepper.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from stepper.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--stepper-indicator-bg` | `surface` | An upcoming step's circle. |
@@ -95,11 +98,37 @@ Each is an optional override: set it on the page, a container or one stepper. Th
 | `--stepper-connector` | `field-border` | The line to an upcoming step. |
 | `--stepper-connector-complete` | `primary` | The line after a completed step. |
 | `--stepper-focus-ring` | `focus-ring` | A clickable step's keyboard focus ring. |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--stepper-indicator-size-sm` | `spacing-6` | The circle, size="sm" (24px). |
 | `--stepper-indicator-size-md` | `spacing-8` | The circle, size="md", the default (32px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--stepper-connector-width` | `border-width-2` | The line's thickness (2px). |
 | `--stepper-radius` | `rounded-full` | The circle. |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--stepper-gap` | `spacing-3` | Space between a circle and its text (12px). |
 | `--stepper-connector-gap` | `spacing-2` | Space around a line (8px). |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--stepper-title-weight` | `font-medium` | Step titles (500). |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--stepper-press-scale` | `scale-95` | Size of a step's indicator while its head is held down (95%). 1 turns it off. |
+<!-- token-table:end -->
