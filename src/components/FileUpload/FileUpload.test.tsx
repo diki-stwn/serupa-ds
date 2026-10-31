@@ -297,6 +297,13 @@ describe('FileUpload', () => {
     }
     expect(msgs).toEqual(['alert: photo.heic isn\'t a PNG or JPG.', 'alert: photo.heic isn\'t an SVG.', 'alert: photo.heic isn\'t an audio file or MP4.', 'alert: photo.heic: this type of file isn\'t accepted.']);
   });
+  test('L8E12: accept takes the names a file picker treats as one: .jpg lets photo.jpeg in, image/jpg a JPEG, .tiff a .tif', async () => {
+    await render(<><FileUpload id="ax" multiple accept=".jpg,.tiff" /><FileUpload id="am" multiple accept="image/jpg" /></>);
+    const ax = rootOf('ax'), am = rootOf('am');
+    await userEvent.upload(input(ax), [file('photo.jpeg', 'image/jpeg', 10), file('scan.TIF', 'image/tiff', 10), file('a.png', 'image/png', 10)]);
+    await userEvent.upload(input(am), [file('b.jpg', 'image/jpeg', 10), file('c.png', 'image/png', 10)]);
+    await expect.poll(() => [items(ax).length, items(am).length]).toEqual([2, 1]);
+  });
   test('a <label for> that focuses the hidden input (as its click does) hands focus to the choose button', async () => {
     await render(<><label htmlFor="ful">Attachment</label><FileUpload id="ful" /></>);
     const inp = document.getElementById('ful') as HTMLInputElement;
