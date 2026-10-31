@@ -146,6 +146,8 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     setFocus(d);
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     let n: Date | null = null;
     switch (e.key) {
