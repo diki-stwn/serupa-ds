@@ -455,8 +455,8 @@ describe('Badge', () => {
     await expect.poll(() => ld.getAttribute('aria-busy')).toBe(null);
     expect(!!ld.querySelector('.dk-badge__loader')).toBe(false);
     expect([ld.offsetWidth, ld.offsetHeight]).toEqual(busy);
-    ended(ld.querySelector('.dk-badge__label')!);
-    expect(css(ld.querySelector('.dk-badge__label')).opacity).toBe('1');
+    ended(label);
+    expect(css(label).opacity).toBe('1');
   });
 
   test('loading on a plain badge: aria-busy, stays a span, no aria-disabled; a remove button is disabled while it loads', async () => {
