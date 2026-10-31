@@ -211,7 +211,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
         <FieldContext.Provider value={null}><div className="dk-color-picker__custom">
           <input ref={native} type="color" className="dk-color-picker__native" aria-label={sds.labels.customColor} value={value || "#000000"} disabled={disabled} data-empty={value ? undefined : ""}
             onChange={(e) => choose(e.target.value, false, false)} />
-          <Input size="sm" className="dk-color-picker__hex" aria-label={sds.labels.hexCode} value={text} disabled={disabled} maxLength={7} spellCheck={false} autoComplete="off"
+          <Input size="sm" className="dk-color-picker__hex" aria-label={sds.labels.hexCode} value={text} disabled={disabled} maxLength={7} spellCheck={false} autoCorrect="off" autoCapitalize="off" autoComplete="off"
             leftIcon={<span className="dk-color-picker__hash">#</span>} aria-invalid={bad || undefined}
             onFocus={() => { typing.current = true; }}
             onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); setTried(false); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
