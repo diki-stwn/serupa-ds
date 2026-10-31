@@ -18,7 +18,7 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onValueChange?: (value: Date, iso: string) => void;
   /** The month shown (controlled): any day in it. Use with onMonthChange. */
   month?: Date;
-  /** The month shown at first. Default: the selected day's, or today's. */
+  /** The month shown at first. Default: the selected day's, or today's (min's or max's when today is outside them). */
   defaultMonth?: Date;
   /** Called when the shown month changes. */
   onMonthChange?: (month: Date) => void;
@@ -112,10 +112,13 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     const t = setTimeout(() => setTick((n) => n + 1), addDays(new Date(todayTime), 1).getTime() - Date.now() + 50);
     return () => clearTimeout(t);
   }, [todayTime]);
+  // Where it opens with no value: today, or min or max when today is outside them, so a booking that starts next
+  // year doesn't open on a month where nothing can be picked (L8E78).
+  const home = min && compare(today, min) < 0 ? min : max && compare(today, max) > 0 ? max : today;
   const controlledMonth = props.month !== undefined;
-  const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || today));
+  const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || home));
   const month = controlledMonth && isValid(props.month) ? startOfMonth(props.month) : ownMonth;
-  const [focus, setFocus] = React.useState<Date>(() => (value && sameMonth(value, month) ? value : sameMonth(today, month) ? today : month));
+  const [focus, setFocus] = React.useState<Date>(() => (value && sameMonth(value, month) ? value : sameMonth(home, month) ? home : month));
   const grid = React.useRef<HTMLTableElement | null>(null);
   const wantFocus = React.useRef(!!props.autoFocus);
 
@@ -127,7 +130,7 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const [focusMonth, setFocusMonth] = React.useState(monthTime);
   if (focusMonth !== monthTime) {
     setFocusMonth(monthTime);
-    if (!sameMonth(focus, month)) setFocus(value && sameMonth(value, month) ? value : sameMonth(today, month) ? today : month);
+    if (!sameMonth(focus, month)) setFocus(value && sameMonth(value, month) ? value : sameMonth(home, month) ? home : month);
   }
   // every render: autoFocus or a key that moves focus asks for it, and the day's button is there only after the render.
   React.useEffect(() => {
