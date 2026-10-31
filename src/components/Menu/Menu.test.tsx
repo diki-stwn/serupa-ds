@@ -594,6 +594,20 @@ describe('Menu', () => {
     radios()[2].click();
     expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
   });
+
+  test('L8E80: an item hidden by CSS or the hidden attribute is skipped by the arrows, Home, End and on open, so focus never sticks', async () => {
+    await render(<Menu trigger={<Button id="hb">More</Button>}>
+      <MenuItem hidden>Gone first</MenuItem>
+      <MenuItem>One</MenuItem>
+      <MenuItem style={{ display: 'none' }}>Gone</MenuItem>
+      <MenuItem>Two</MenuItem>
+      <MenuItem hidden>Gone last</MenuItem>
+    </Menu>);
+    await userEvent.click(el('hb'));
+    const seen = [focus()];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowUp}', '{End}', '{Home}', '{ArrowUp}']) { await userEvent.keyboard(k); seen.push(focus()); }
+    expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One', 'Two']);
+  });
 });
 
 describe('ContextMenu', () => {
