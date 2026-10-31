@@ -8,6 +8,7 @@ import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { useServerStyles } from "../../internal/serverStyles";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { FieldContext, useFieldControl } from "../../internal/field";
+import { delegateFocus } from "../../internal/focus";
 import { en as words } from "./labels";
 
 export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
@@ -92,7 +93,9 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
     </span>
   );
   const styled = useServerStyles<HTMLDivElement>();   // each star's share, from server HTML under a strict CSP (GR10)
-  const ref2 = (n: HTMLDivElement | null) => { root.current = n; nameRef(n); styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
+  // A Field's label click and ref.current.focus() (a form library focusing the first invalid field) land on the
+  // star in the Tab order, the picked one or else the first; the <div> took no focus (L8E88).
+  const ref2 = (n: HTMLDivElement | null) => { root.current = n; if (!readOnly) delegateFocus(n, () => n && (n.querySelector<HTMLElement>("input:checked:enabled") || n.querySelector<HTMLElement>("input:enabled"))); nameRef(n); styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
   const classes = cn("dk-rating", "dk-rating--size-" + size, readOnly && "dk-rating--readonly", off && "dk-rating--disabled", className);
 
   if (readOnly) {
