@@ -6,7 +6,8 @@ import { usePeople, useContent } from '../../../.storybook/content';
 
 const COUNTRIES = ['Argentina', 'Australia', 'Brazil', 'Canada', 'Côte d’Ivoire', 'Denmark', 'Egypt', 'France', 'Germany', 'India', 'Japan', 'Kenya', 'Mexico', 'Norway', 'Peru'];
 // The people come from the Content menu in the toolbar (demo, worst case, empty, one). The third one can't be picked.
-const usePeopleOptions = () => usePeople().map((p, i) => ({ value: p.name, label: p.name, description: p.email, disabled: i === 2 || undefined }));
+// Each value is the first name in lower case ("ada"), which is unique in every content set.
+const usePeopleOptions = () => usePeople().map((p, i) => ({ value: p.name.split(' ')[0].toLowerCase(), label: p.name, description: p.email, disabled: i === 2 || undefined }));
 const meta = {
   title: 'Components/Forms/Combobox',
   component: Combobox as React.ComponentType<ComboboxSingleProps>,   // one pick; several are in Multiple
