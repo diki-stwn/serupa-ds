@@ -428,7 +428,9 @@ describe('Badge', () => {
     grow.currentTime = 0;
     const blurFrom = css(sp).filter;
     grow.finish();
-    expect([blurFrom, css(ld.querySelector('.dk-badge__label')).filter, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'blur(4px)', 'none']);
+    expect([blurFrom, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'none']);
+    // The label's blur is a transition, which WebKit can start after the wait above has already seen nothing running.
+    await expect.poll(() => css(ld.querySelector('.dk-badge__label')).filter).toBe('blur(4px)');
     const art = sp.querySelector('.dk-loader__art')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
     expect(!!sp.querySelector('.dk-loader--ring')).toBe(true);
     expect(Math.round(art.width)).toBe(12);
