@@ -242,4 +242,18 @@ describe('Pagination', () => {
     await expect.poll(() => l2.getBoundingClientRect().top >= p2.getBoundingClientRect().bottom).toBe(true);
     expect([l2.scrollWidth <= l2.clientWidth + 1, el('w2').scrollWidth <= 300]).toEqual([true, true]);
   });
+
+  // GR56: with justify-content: flex-end the pages that didn't fit spilled past the start edge, unmeasured and never
+  // cut: at 288px Previous sat at x -99, page 1 and the ellipsis off screen, and Tab focused Previous there.
+  test('total and pageSize, too narrow for every page (288px, LTR and RTL): the pages are cut to fit, none past either edge (GR56)', async () => {
+    await render(<EnUS>
+      <div style={{ width: '288px' }}><Pagination id="n1" count={1235} defaultPage={1000} total={12345} pageSize={10} /></div>
+      <div dir="rtl" style={{ width: '288px' }}><Pagination id="n2" count={1235} defaultPage={1000} total={12345} pageSize={10} /></div>
+    </EnUS>);
+    for (const id of ['n1', 'n2']) {
+      await expect.poll(() => { const l = el(id).querySelector('ul')!; return l.scrollWidth <= l.clientWidth + 1; }).toBe(true);
+      const box = el(id).getBoundingClientRect(), items = [...el(id).querySelectorAll('li')].map((li) => li.getBoundingClientRect());
+      expect([items.every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5), shown(id).startsWith('<'), shown(id).endsWith('>')]).toEqual([true, true, true]);
+    }
+  });
 });

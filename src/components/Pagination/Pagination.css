@@ -29,7 +29,11 @@
    one line the pages wrap under the summary, and only then show fewer pages (ET1). */
 .dk-pagination--summary { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--pagination-summary-gap, var(--spacing-4)); row-gap: var(--spacing-2); }
 .dk-pagination__summary { margin: var(--spacing-0); color: var(--pagination-summary, var(--text-muted)); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.dk-pagination--summary .dk-pagination__list { flex: auto; min-width: var(--spacing-0); justify-content: flex-end; }
+.dk-pagination--summary .dk-pagination__list { flex: auto; min-width: var(--spacing-0); }
+/* At the end by the first item's auto margin, not justify-content: flex-end, which spilled pages that don't fit
+   past the start edge, where scrollWidth doesn't see them, so they were never cut down (GR56). An auto margin is
+   0 when there's no room, so the overflow goes to the end, is measured, and the pages are cut to fit. */
+.dk-pagination--summary .dk-pagination__list > :first-child { margin-inline-start: auto; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }
