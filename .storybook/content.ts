@@ -52,3 +52,9 @@ const PEOPLE: Record<Content, Person[]> = { demo: DEMO, worst: WORST, empty: [],
 
 /** The people a story shows, for the Content menu's choice. */
 export const usePeople = (): Person[] => PEOPLE[useContent()];
+
+/** Names for a story that has its own demo list: that list, the worst-case names, none, or its first one. */
+export const useNames = (demo: readonly string[]): string[] => {
+  const content = useContent();
+  return content === 'demo' ? [...demo] : content === 'one' ? demo.slice(0, 1) : PEOPLE[content].map((p) => p.name);
+};
