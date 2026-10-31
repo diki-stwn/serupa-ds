@@ -69,9 +69,15 @@ export const ListItem = /* @__PURE__ */ component<HTMLLIElement, ListItemProps>(
   let main: React.ReactNode;
   if (props.href != null || props.as) {
     const attrs: Record<string, unknown> = Object.assign(lp, { className: cn("dk-list__main", lp.className), "aria-current": lp["aria-current"] !== undefined ? lp["aria-current"] : props.selected ? "true" : undefined });
-    if (props.disabled) { attrs["aria-disabled"] = true; attrs.tabIndex = -1; attrs.onClick = (e: React.MouseEvent) => e.preventDefault(); }
+    // Disabled, it's a plain <a> without an address: a router link would still draw its href from to (or a similar
+    // prop), which a middle or Ctrl click opens. Only the names, data and look of linkProps stay (L8E67).
+    const keep = (k: string) => /^(aria-|data-)/.test(k) || k === "id" || k === "title" || k === "style" || k === "className" || k === "lang" || k === "dir";
+    if (props.disabled) {
+      for (const k of Object.keys(attrs)) if (!keep(k)) delete attrs[k];
+      Object.assign(attrs, { "aria-disabled": true, tabIndex: -1, onClick: (e: React.MouseEvent) => e.preventDefault() });
+    }
     else { attrs.href = props.href; if (props.onClick) attrs.onClick = props.onClick; }
-    main = React.createElement(props.as || config.link, attrs, body);
+    main = React.createElement(props.disabled ? "a" : props.as || config.link, attrs, body);
   } else if (props.onClick) {
     main = <button type="button" {...lp} className={cn("dk-list__main", lp.className)} onClick={props.onClick} disabled={props.disabled} aria-pressed={props.selected === undefined ? undefined : !!props.selected}>{body}</button>;
   } else {
