@@ -52,6 +52,9 @@ export interface NumberInputProps extends Omit<InputProps, "type" | "showCount" 
   /** How the number is shown, as Intl.NumberFormat options: `{ style: "currency", currency: "IDR" }`, `{ useGrouping: true }`,
       or the percent style (the value is the fraction: 0.15 shows 15%). Default: no grouping and every decimal the value has. */
   formatOptions?: Intl.NumberFormatOptions;
+  /** The digits the value is written in. Default: the locale's own, as other components write numbers (١٬٢٥٠ in ar-EG,
+      ۱۲۵۰ in fa-IR); "latn" for Latin digits. Typed digits are read in any script either way. */
+  numberingSystem?: string;
   /** An ISO 4217 code ("IDR", "USD", "JPY"): shows the amount as money, with the symbol where the locale puts it, and keeps
       the currency's decimals (19.99, not 20). Short for formatOptions { style: "currency", currency }; formatOptions still wins. */
   currency?: string;
@@ -73,7 +76,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   const nameRef = useNameCheck("NumberInput", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const sds = useSettings(words);
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, onInvalidInput: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, currency: 1, minorUnits: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, prefix: 1, suffix: 1, className: 1, style: 1, value: 1, defaultValue: 1, onValueChange: 1, onInvalidInput: 1, min: 1, max: 1, step: 1, largeStep: 1, steppers: 1, decrementLabel: 1, incrementLabel: 1, locale: 1, formatOptions: 1, numberingSystem: 1, currency: 1, minorUnits: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -98,7 +101,12 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   // What the shown number is multiplied by: 100 for the percent style, 1 otherwise.
   const scale = React.useMemo(() => { const o = keyed(optionsKey); return o ? parseNumber(formatNumber(1, locale, o), locale) || 1 : 1; },
     [locale, optionsKey]);
-  const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, formatOptions));
+  // GR48: the value in the locale's own digits, as Meter, Pagination and Calendar write numbers (١٬٢٥٠٬٠٠٠ ج.م.‏ in
+  // ar-EG), unless numberingSystem (or formatOptions') says otherwise. parseNumber reads it back in any script.
+  const digits = props.numberingSystem || formatOptions?.numberingSystem;
+  const shownOptions = React.useMemo((): Intl.NumberFormatOptions => ({ ...(keyed(optionsKey) || { useGrouping: false, maximumFractionDigits: 20 }),
+    numberingSystem: digits || new Intl.NumberFormat(locale).resolvedOptions().numberingSystem }), [locale, optionsKey, digits]);
+  const show = (v: number | null) => (v == null ? "" : formatNumber(v, locale, shownOptions));
   // A value is taken as it's shown (GR47): one with more decimals than the format writes (19.995 as US$20,00) is the
   // number shown, so the form sends what people see, and leaving the field without an edit changes nothing.
   const asShown = (v: number | null | undefined): number | null => {
@@ -242,7 +250,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
       {affix.prefix}
       <input {...rest} ref={(n) => { el.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         lang={rest.lang ?? lang} type="text" inputMode={rest.inputMode || (places > 0 || (min !== undefined && min < 0) || min === undefined ? "decimal" : "numeric")}
-        role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? formatNumber(now, locale, formatOptions) : undefined} aria-valuemin={min} aria-valuemax={max}
+        role="spinbutton" aria-valuenow={now ?? undefined} aria-valuetext={formatOptions && now != null ? show(now) : undefined} aria-valuemin={min} aria-valuemax={max}
         autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text}
         aria-describedby={cn(rest["aria-describedby"], affix.ids) || undefined}
         onChange={onChange} onBlur={onBlur} onKeyDown={onKeyDown} onFocus={rest.onFocus} />
