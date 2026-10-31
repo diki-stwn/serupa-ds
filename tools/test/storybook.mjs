@@ -140,6 +140,44 @@ const REFLOW_KNOWN = new Set([
 // The stories whose text a box still cuts off at 200% (queue item TX1).
 const TEXT_200_KNOWN = new Set([
 ]);
+// A pattern story is a whole page (FEC1), so it also gets the rules a component's story can't: axe's page rules
+// (one main, everything in a landmark, landmarks of a kind told apart by name, an h1, no skipped heading level), no id
+// twice, and a skip link as the first Tab stop that puts focus in main, below the sticky Navbar. Returns the problems.
+const PAGE_RULES = ['landmark-one-main', 'region', 'landmark-unique', 'page-has-heading-one', 'heading-order', 'landmark-no-duplicate-banner',
+  'landmark-no-duplicate-contentinfo', 'landmark-no-duplicate-main', 'landmark-banner-is-top-level', 'landmark-contentinfo-is-top-level', 'landmark-main-is-top-level'];
+async function pageRules(page) {
+  const out = await page.evaluate(async (rules) => {
+    // Storybook's own hidden screens (no preview, error) hold links ahead of the story, which would make axe take the
+    // story's skip link for an ordinary one; they aren't part of the page, so they go before the page rules run.
+    for (const n of document.querySelectorAll('body > .sb-nopreview, body > .sb-errordisplay, body > .sb-wrapper')) n.remove();
+    const r = await window.axe.run(document, { runOnly: { type: 'rule', values: rules } });
+    const v = r.violations.map((x) => `page: ${x.id} (${x.nodes.map((n) => n.target.join(' ')).slice(0, 2).join(', ')})`);
+    const ids = [...document.querySelectorAll('#storybook-root [id]')].map((n) => n.id);
+    const twice = [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
+    if (twice.length) v.push(`page: the id ${twice.slice(0, 3).map((x) => `"${x}"`).join(', ')} is used twice`);
+    return v;
+  }, PAGE_RULES);
+  await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
+  await page.keyboard.press('Tab');
+  const skip = await page.evaluate(() => {
+    const a = document.activeElement;
+    const target = a instanceof HTMLAnchorElement && a.hash ? document.getElementById(decodeURIComponent(a.hash.slice(1))) : null;
+    return target && target.closest('main') ? '' : `the first Tab stop is ${a ? `<${a.tagName.toLowerCase()}> "${(a.textContent || '').trim().slice(0, 30)}"` : 'nothing'}, not a skip link to main`;
+  });
+  if (skip) return [...out, `page: ${skip}`];
+  // From the bottom of the page, so main has to scroll back into view and the bar's scroll-padding is what keeps it clear.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.keyboard.press('Enter');
+  await page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+  const landed = await page.evaluate(() => {
+    const a = document.activeElement, main = document.querySelector('main');
+    if (!main || !a || !main.contains(a)) return `following the skip link leaves focus on <${a ? a.tagName.toLowerCase() : 'nothing'}>, not in main (give main tabIndex={-1})`;
+    const bar = document.querySelector('.dk-navbar--sticky');
+    const under = bar ? bar.getBoundingClientRect().bottom - a.getBoundingClientRect().top : 0;
+    return under > 1 ? `after the skip link, the top ${Math.round(under)}px of main is under the sticky Navbar (WCAG 2.4.11)` : '';
+  });
+  return landed ? [...out, `page: ${landed}`] : out;
+}
 async function checkStory(e, w) {
   const out = [];
   const problems = [];
@@ -157,6 +195,7 @@ async function checkStory(e, w) {
         .filter((x) => x.nodes.length).map((x) => `${x.id} (${x.nodes.map((n) => n.target.join(' ')).slice(0, 2).join(', ')})`);
     });
     if (v.length) problems.push(`${th}: ${v.join('; ')}`);
+    if (th === RUNS[0] && e.title.startsWith('Patterns/')) problems.push(...(await pageRules(w.page)));
     if (th === RUNS[0]) {
       await w.page.setViewportSize({ width: 320, height: 256 });
       await w.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
