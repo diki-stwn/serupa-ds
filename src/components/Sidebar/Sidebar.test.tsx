@@ -165,6 +165,21 @@ describe('Sidebar', () => {
     expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);
   });
 
+  test('collapsed: a long header or footer stays in the rail and ends in an ellipsis, in both directions (GR51)', async () => {
+    await render(<>{(['ltr', 'rtl'] as const).map((dir) => <div key={dir} dir={dir} style={{ display: 'flex', height: '300px', width: '390px' }}>
+      <Sidebar id={'sb' + dir} collapsed header={<b id={'h' + dir}>Toko Serupa Nusantara</b>} footer={<span id={'f' + dir}>Ada Lovelace Wijaya</span>}><S><I href="#h" icon="home" label="Home" /></S></Sidebar>
+      <div style={{ flex: 'auto' }}>Page</div>
+    </div>)}</>);
+    for (const dir of ['ltr', 'rtl']) {
+      const n = el('sb' + dir), sb = rect(n);
+      for (const box of [el('h' + dir).parentElement!, el('f' + dir).parentElement!]) {
+        const b = rect(box);
+        // The name is wider than the rail, and its box clips it there with an ellipsis instead of painting it over the page.
+        expect([box.scrollWidth > box.clientWidth, pick(box, ['overflowX', 'textOverflow', 'whiteSpace']), b.left >= sb.left - 0.5 && b.right <= sb.right + 0.5]).toEqual([true, ['hidden', 'ellipsis', 'nowrap'], true]);
+      }
+    }
+  });
+
   // EA1: the collapse animated width, so the page beside it laid out on every frame (225ms of layout in a 200ms
   // collapse next to 3,000 rows). Now the width changes once and only a clip-path and a translate move.
   test('collapsing and expanding with motion on: the width changes once, only clip-path and translate animate, the page lays out at most twice, and a reversal turns back', async () => {
