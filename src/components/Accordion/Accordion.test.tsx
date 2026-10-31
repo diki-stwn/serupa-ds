@@ -6,6 +6,7 @@ import { THEMES, color, contrast, css, press, withMotion, settled } from '../../
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Accordion, AccordionItem } from './Accordion';
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > .dk-accordion__item')];
@@ -280,5 +281,12 @@ describe('Accordion', () => {
     const t = trigger('lw', 1), p = panel('lw');
     expect([t.scrollWidth <= t.clientWidth + 1, p.scrollWidth <= p.clientWidth + 1, t.textContent]).toEqual([true, true, WORD]);
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+  });
+
+  test('with Alt, Ctrl or ⌘ the arrows, Home and End are left to the browser (L8E29)', async () => {
+    await render(<Accordion id="mk"><AccordionItem title="A">1</AccordionItem><AccordionItem title="B">2</AccordionItem></Accordion>);
+    const t = document.querySelector('#mk button[aria-expanded]') as HTMLElement;
+    t.focus();
+    expect([modified(t, 'ArrowDown'), modified(t, 'End'), document.activeElement === t]).toEqual([[false, false, false], [false, false, false], true]);
   });
 });

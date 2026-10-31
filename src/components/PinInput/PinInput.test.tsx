@@ -5,6 +5,7 @@ import { cdp, page, server, userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, withMotion } from '../../../tools/test/vitest/helpers';
 import { Field } from '../Field/Field';
 import { PinInput } from './PinInput';
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const root = (id: string) => el(id).closest('.dk-pin-input') as HTMLElement;
@@ -187,4 +188,11 @@ describe('PinInput', () => {
     await expect.poll(() => boxes('pm')[1].classList.contains('dk-pin-input__box--active')).toBe(true);
     expect([shadows(boxes('pm')[1]), shadows(boxes('pm')[0])]).toEqual([0, 1]);
   }));
+
+  test('with Alt, Ctrl or ⌘ the arrows are left to the browser (Alt+← goes back a page) (L8E29)', async () => {
+    await render(<PinInput id="mk" aria-label="Code" length={4} defaultValue="12" />);
+    const t = document.querySelector('#mk input, input#mk') as HTMLElement;
+    t.focus();
+    expect([modified(t, 'ArrowLeft'), modified(t, 'Home')]).toEqual([[false, false, false], [false, false, false]]);
+  });
 });
