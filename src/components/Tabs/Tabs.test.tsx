@@ -224,6 +224,17 @@ describe('Tabs', () => {
     still.remove();
     expect([low, n]).toEqual([[], 30]);
   });
+
+  test('L8E81: a tab hidden by CSS or the hidden attribute is skipped by the arrows, Home and End, and never selected from the keyboard', async () => {
+    await render(<Tabs id="h" defaultValue="a">
+      <TabList aria-label="Hidden"><Tab value="z" hidden>Z</Tab><Tab value="a">A</Tab><Tab value="x" style={{ display: 'none' }}>X</Tab><Tab value="b">B</Tab><Tab value="y" hidden>Y</Tab></TabList>
+      <TabPanel value="z">pz</TabPanel><TabPanel value="a">pa</TabPanel><TabPanel value="x">px</TabPanel><TabPanel value="b">pb</TabPanel><TabPanel value="y">py</TabPanel>
+    </Tabs>);
+    selected('h').focus();
+    const seen: (string | null)[] = [];
+    for (const k of ['{ArrowRight}', '{ArrowRight}', '{ArrowLeft}', '{End}', '{Home}', '{ArrowLeft}']) { await userEvent.keyboard(k); seen.push(focused() + ':' + selected('h').dataset.value); }
+    expect(seen).toEqual(['B:b', 'A:a', 'B:b', 'B:b', 'A:a', 'B:b']);
+  });
 });
 
 // Server rendering: without defaultValue the first enabled tab is picked while rendering, so the HTML already

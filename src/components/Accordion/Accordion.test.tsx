@@ -313,4 +313,18 @@ describe('Accordion', () => {
       root.unmount();
     } finally { host.remove(); }
   });
+
+  test('L8E83: an item hidden by the hidden attribute or CSS (a filtered FAQ) is skipped by Down, Up, Home and End, so focus never sticks', async () => {
+    await render(<Accordion id="hid">
+      <AccordionItem value="z" title="Gone first" hidden>z</AccordionItem>
+      <AccordionItem value="a" title="One">a</AccordionItem>
+      <AccordionItem value="x" title="Gone" style={{ display: 'none' }}>x</AccordionItem>
+      <AccordionItem value="b" title="Two">b</AccordionItem>
+      <AccordionItem value="y" title="Gone last" hidden>y</AccordionItem>
+    </Accordion>);
+    (page.getByRole('button', { name: 'One' }).element() as HTMLElement).focus();
+    const seen: Array<string | undefined> = [focused()];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowUp}', '{End}', '{Home}']) { await userEvent.keyboard(k); seen.push(focused()); }
+    expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One']);
+  });
 });
