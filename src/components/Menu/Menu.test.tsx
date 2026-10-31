@@ -281,6 +281,17 @@ describe('Menu', () => {
     history.replaceState(null, '', location.pathname + location.search);
   });
 
+  test('Space on a link item follows it, as Enter does: runs onSelect, closes the menu and goes there (L8E66)', async () => {
+    const chosen: string[] = [];
+    await render(<Actions chosen={chosen} />);
+    await userEvent.click(el('mb'));
+    el('lnk').focus();
+    await userEvent.keyboard(' ');
+    await expect.poll(() => location.hash).toBe('#share');
+    expect([chosen.join(), !!openMenu()]).toEqual(['share', false]);
+    history.replaceState(null, '', location.pathname + location.search);
+  });
+
   test('aria-label names the menu; bottom-end lines up the ends; onSelect with preventDefault keeps it open', async () => {
     const chosen: string[] = [];
     await render(<div style={{ paddingLeft: '300px' }}><Menu trigger={<IconButton id="ib" icon="more_vert" label="More" />} placement="bottom-end" aria-label="Row actions">

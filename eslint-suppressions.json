@@ -57,17 +57,6 @@
       "count": 1
     }
   },
-  "src/components/FileUpload/FileUpload.tsx": {
-    "jsx-a11y-x/click-events-have-key-events": {
-      "count": 1
-    },
-    "jsx-a11y-x/no-static-element-interactions": {
-      "count": 1
-    },
-    "jsx-a11y-x/role-supports-aria-props": {
-      "count": 2
-    }
-  },
   "src/components/Input/Input.tsx": {
     "jsx-a11y-x/no-static-element-interactions": {
       "count": 1

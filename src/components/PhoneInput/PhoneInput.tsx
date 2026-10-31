@@ -186,7 +186,8 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     props.onKeyDown?.(e);
     const el = e.currentTarget, s = el.selectionStart, end = el.selectionEnd;
     // With Alt, Ctrl or ⌘ held, Backspace and Delete take a word or the line: the browser's, not one digit (L8E30).
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || s == null || s !== end || (e.key !== "Backspace" && e.key !== "Delete")) return;
+    // A readOnly field takes no edit from them either (L8E69).
+    if (e.defaultPrevented || el.readOnly || e.altKey || e.ctrlKey || e.metaKey || s == null || s !== end || (e.key !== "Backspace" && e.key !== "Delete")) return;
     const back = e.key === "Backspace";
     let i = back ? s - 1 : s;
     if (i < 0 || i >= text.length || /\d/.test(text[i])) return;
