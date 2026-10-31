@@ -503,10 +503,12 @@ describe('Badge', () => {
       if (id === 'mioff' || id === 'def') await expect.poll(() => el(id).matches(':active')).toBe(true);
       await new Promise(requestAnimationFrame);
       await settled();
-      return { scale: css(el(id)).scale };
+      const e = el(id);
+      return { scale: css(e).scale, active: e.matches(':active'), pressed: e.hasAttribute('data-pressed'), press: css(e).getPropertyValue('--dk-badge-press'), tl: document.timeline.currentTime, anims: e.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, a.playState, a.currentTime, a.startTime]) };
     }, { ms: 250, at: { x: 6, y: 6 } });
     const unscaled = (s: string) => s === 'none' || s === '1';
     const off = await press('mioff'), pd = await press('mipd'), plain = await press('def');
+    if (unscaled(pd.scale)) console.log('DIAG2', JSON.stringify(pd));
     const dis = await hold(el('dis'), () => ({ scale: css(el('dis')).scale }), { ms: 150, at: { x: 6, y: 6 } });
     expect([unscaled(off.scale), unscaled(pd.scale), unscaled(dis.scale), unscaled(plain.scale)]).toEqual([true, false, true, true]);
   });
