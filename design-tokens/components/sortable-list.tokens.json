@@ -45,7 +45,7 @@
       "handle": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The drag handle (3:1 on the row).",
+        "$description": "The handle (3:1 on the row).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--sortable-list-handle"
@@ -55,7 +55,7 @@
       "handle-active": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The handle on hover and while its row is moved.",
+        "$description": "The handle on hover and while its row moves.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--sortable-list-handle-active"
@@ -121,7 +121,7 @@
       "item-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Space between the handle and the row's content (8px).",
+        "$description": "Space between the handle and the content (8px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--sortable-list-item-gap"

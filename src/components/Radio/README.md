@@ -100,6 +100,9 @@ Other props (`id`, `disabled`, `aria-*`, `onChange`…) and `ref` go to the `<in
 
 Each is an optional override: set it on the page, a container or one radio. The list lives in `src/components/Radio/radio.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from radio.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--radio-bg` | `field` | The circle while unchecked |
@@ -113,10 +116,35 @@ Each is an optional override: set it on the page, a container or one radio. The 
 | `--radio-description-color` | `text-muted` | The description |
 | `--radio-focus-ring` | `focus-ring` | The focus ring |
 | `--radio-invalid` | `danger` | Border and focus ring when invalid |
-| `--radio-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Circle sizes (14, 16, 20px) |
-| `--radio-dot-size-sm` / `-md` / `-lg` | `spacing-1.5` / `spacing-1.5` / `spacing-2` | Dot sizes (6, 6, 8px) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--radio-size-sm` | `spacing-3.5` | Circle size, sm (14px). |
+| `--radio-size-md` | `spacing-4` | Circle size, md (16px, default). |
+| `--radio-size-lg` | `spacing-5` | Circle size, lg (20px). |
+| `--radio-dot-size-sm` | `spacing-1.5` | Dot size, sm (6px). |
+| `--radio-dot-size-md` | `spacing-1.5` | Dot size, md (6px). |
+| `--radio-dot-size-lg` | `spacing-2` | Dot size, lg (8px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--radio-gap` | `spacing-2` | Circle to label (8px) |
 | `--radio-group-gap` | `spacing-2` | Between radios in a stack, and between rows (8px) |
 | `--radio-group-gap-horizontal` | `spacing-4` | Between radios in a row (16px) |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--radio-border-width` | `border-width-1` | Border width (1px) |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--radio-press-scale` | `scale-90` | Size of the circle while it's held down (90%). 1 turns it off |
+<!-- token-table:end -->

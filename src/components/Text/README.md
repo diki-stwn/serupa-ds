@@ -59,9 +59,11 @@ Text has no margins (space it with the layout). `className`, `style`, `ref`, `ht
 
 Each is an optional override: set it on the page, a container or one element. The list lives in `src/components/Text/text.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from text.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--text-color` | `text` | tone="default". |
 | `--text-color-muted` | `text-muted` | tone="muted": secondary text (4.5:1 on surface). |
 | `--text-color-primary` | `primary` | tone="primary". |
 | `--text-color-danger` | `danger-text` | tone="danger": error text (4.5:1 on surface and danger-subtle). |
+<!-- token-table:end -->

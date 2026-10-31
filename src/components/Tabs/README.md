@@ -87,6 +87,9 @@ Each part takes `className`, `style`, `ref` and other props. `Tabs` has `data-co
 
 Each is an optional override: set it on the page, a container or one set of tabs. The list lives in `src/components/Tabs/tabs.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from tabs.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--tabs-text` | `text-muted` | A tab's label (4.5:1 on surface). |
@@ -100,13 +103,34 @@ Each is an optional override: set it on the page, a container or one set of tabs
 | `--tabs-pill-text-selected` | `on-primary` | The selected pill tab's label. |
 | `--tabs-focus-ring` | `focus-ring` | The keyboard focus ring, on a tab and on the panel. |
 | `--tabs-focus-gap-color` | `surface` | The gap between the focus ring and the selected pill's fill. |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--tabs-height-sm` | `control-height-md` | A tab's height with size="sm" (32px). |
 | `--tabs-height-md` | `spacing-9` | A tab's height with size="md", the default (36px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--tabs-indicator-width` | `border-width-2` | The thickness of the selected tab's line (2px). |
 | `--tabs-radius` | `rounded-md` | A tab's corners (6px): the focus ring, and the pills. |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--tabs-padding-x` | `spacing-3` | Padding at a tab's sides (12px). |
 | `--tabs-gap` | `spacing-1` | Space between tabs (4px). |
 | `--tabs-icon-gap` | `spacing-2` | Space between a tab's icon and label (8px). |
 | `--tabs-panel-gap` | `spacing-4` | Space above a panel, or beside it when vertical (16px). |
 | `--tabs-fade-size` | `spacing-8` | How far the row fades out at an edge with more tabs past it (32px). |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--tabs-weight` | `font-medium` | A tab's label weight (500). |
+<!-- token-table:end -->

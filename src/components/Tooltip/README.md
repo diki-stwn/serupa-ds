@@ -77,6 +77,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one tooltip. The list lives in `src/components/Tooltip/tooltip.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from tooltip.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--tooltip-bg` | `surface-inverse` | The background: the inverse surface, so it stands out in light and dark themes. |
@@ -85,6 +86,7 @@ Each is an optional override: set it on the page, a container or one tooltip. Th
 | `--tooltip-radius` | `rounded-md` | The corners (6px). |
 | `--tooltip-padding-x` | `spacing-2` | Padding at the sides (8px). |
 | `--tooltip-padding-y` | `spacing-1` | Padding at the top and bottom (4px). |
-| `--tooltip-offset` | `spacing-1_5` | The gap between the tooltip and what it describes (6px). |
+| `--tooltip-offset` | `spacing-1.5` | The gap between the tooltip and what it describes (6px). |
 | `--tooltip-max-width` | `spacing-60` | The widest a tooltip gets before it wraps (240px). |
 | `--tooltip-z-index` | `z-tooltip` | The stacking level where the browser has no top layer (popover). |
+<!-- token-table:end -->

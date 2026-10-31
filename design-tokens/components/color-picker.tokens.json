@@ -15,7 +15,7 @@
       "swatch-border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "The thin inset border on every swatch and round the native color well (3:1 on the page), so a white swatch shows on a white page and a black one on a dark page.",
+        "$description": "The thin inset border on every swatch and round the native color well (3:1 on the page).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-swatch-border"
@@ -25,7 +25,7 @@
       "ring": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "The ring around the picked swatch (3:1 on the page).",
+        "$description": "The ring around the picked swatch (3:1).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-ring"
@@ -35,7 +35,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "The swatches' border when invalid (3:1 on the page), so the error shows on the swatches as well as in the Field's message.",
+        "$description": "The swatches' border while invalid (3:1), so the error shows on the swatches as well as in the Field's message.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-invalid"
@@ -45,7 +45,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The keyboard focus ring on a swatch and the color button.",
+        "$description": "The keyboard focus ring.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-focus-ring"
@@ -55,7 +55,7 @@
       "contrast": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The contrast line (4.5:1 on the page).",
+        "$description": "The contrast line (4.5:1).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-contrast"
@@ -65,7 +65,7 @@
       "contrast-low": {
         "$type": "color",
         "$value": "{color.warning-text}",
-        "$description": "The contrast line when it's below minContrast (4.5:1 on the page).",
+        "$description": "The contrast line below `minContrast` (4.5:1).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-contrast-low"
@@ -77,7 +77,7 @@
       "swatch-radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-full}",
-        "$description": "A swatch's shape (round).",
+        "$description": "A swatch's shape.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-swatch-radius"
@@ -109,7 +109,7 @@
       "swatch-size-sm": {
         "$type": "dimension",
         "$value": "{spacing.spacing-6}",
-        "$description": "A swatch, size=\"sm\" (24px).",
+        "$description": "A swatch at `size=\"sm\"` (24px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-swatch-size-sm"
@@ -119,7 +119,7 @@
       "swatch-size-md": {
         "$type": "dimension",
         "$value": "{spacing.spacing-8}",
-        "$description": "A swatch, size=\"md\", the default (32px).",
+        "$description": "A swatch at `size=\"md\"` (32px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--color-picker-swatch-size-md"
