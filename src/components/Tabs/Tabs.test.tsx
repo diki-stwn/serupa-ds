@@ -449,3 +449,24 @@ describe('Tabs in a grid or flex row (GO2)', () => {
     }
   });
 });
+
+describe('Tabs inside a shadow root (GR60)', () => {
+  test('the arrows, Home and End move focus and the selection, as on the page', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Tabs defaultValue="a"><TabList aria-label="Shadow"><Tab value="a">A</Tab><Tab value="b">B</Tab><Tab value="c">C</Tab></TabList></Tabs>, { container: inner });
+      const root = host.shadowRoot!, tabs = [...root.querySelectorAll<HTMLElement>('[role="tab"]')];
+      const at = () => [tabs.indexOf(root.activeElement as HTMLElement), tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true')];
+      tabs[0].focus();
+      await userEvent.keyboard('{ArrowRight}');
+      expect(at()).toEqual([1, 1]);
+      await userEvent.keyboard('{End}');
+      expect(at()).toEqual([2, 2]);
+      await userEvent.keyboard('{Home}');
+      expect(at()).toEqual([0, 0]);
+    } finally { host.remove(); }
+  });
+});

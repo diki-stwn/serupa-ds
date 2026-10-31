@@ -6,6 +6,7 @@ import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { warnOnce } from "../../internal/warn";
 import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
+import { activeIn } from "../../internal/root";
 
 export type TabsVariant = 'line' | 'pill';
 
@@ -112,7 +113,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     select(next);
     // Focus was on the closed tab (its own close button, or a Delete key the app handles): it goes to the tab now
     // selected, not to the page. A removed element can still read as the active one until the browser next looks.
-    const active = document.activeElement;
+    const active = activeIn(self.current);
     if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
   });
   return (
@@ -229,7 +230,7 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'));
-    const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+    const i = tabs.indexOf(activeIn(e.currentTarget) as HTMLButtonElement);
     if (i < 0 || !tabs.length) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     const fwd = ctx.vertical ? "ArrowDown" : rtl ? "ArrowLeft" : "ArrowRight", back = ctx.vertical ? "ArrowUp" : rtl ? "ArrowRight" : "ArrowLeft";
