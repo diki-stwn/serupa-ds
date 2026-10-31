@@ -69,8 +69,10 @@ export const Popover = /* @__PURE__ */ component<HTMLDivElement, PopoverProps>("
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
     if (!open || !panel) return;
-    const first = focusFirst ? panel.querySelector<HTMLElement>(FOCUSABLE) : null;
-    (first || panel).focus();
+    // The first control that takes focus: one hidden (display: none, in a closed <details>) or in a disabled
+    // <fieldset> doesn't, and focus would have stayed on the trigger, where Escape doesn't close it (L8E22).
+    const took = focusFirst && Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).some((el) => el.tabIndex >= 0 && (el.focus(), document.activeElement === el));
+    if (!took) panel.focus();
   }, [open]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

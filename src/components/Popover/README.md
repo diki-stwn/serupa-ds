@@ -69,7 +69,7 @@ const { Popover, Button, Field, Input } = window.Serupa;
 | `open`, `onOpenChange` | boolean, function | none | Open it yourself (controlled). onOpenChange(open, { reason }) says why: `'trigger'`, `'escape'`, `'outside'`, `'blur'` or `'close'` |
 | `defaultOpen` | boolean | `false` | Open at first (uncontrolled) |
 | `aria-label` | string | none | Its name when there's no title |
-| `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside, or the panel itself (for text only) |
+| `initialFocus` | `'first'` \| `'panel'` | `'first'` | Focus the first control inside that can take it (not a hidden one, or one in a disabled fieldset), or the panel itself (for text only) |
 | `className`, `style`, other HTML attributes and a ref | | | Go to the panel, which has `data-component="popover"` and `data-side`: `data-testid`, an `id`, other `aria-*` and a ref reach it, as on Radix's and React Aria's popover content. Its `onKeyDown` runs first and can call `preventDefault()` to keep Escape from closing it |
 
 The panel's id is made for you unless you pass one, and the trigger's `aria-controls` points at it while it's open. An id on the trigger stays on the trigger.
