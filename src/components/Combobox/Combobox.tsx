@@ -21,22 +21,23 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Badge } from "../Badge/Badge";
 import { en as words } from "./labels";
 
-export type ComboboxOption = string | { value: string; label: string; description?: React.ReactNode; disabled?: boolean };
-interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
+/** V is the options' values, inferred from options or given, such as Combobox<"red" | "green">. */
+export type ComboboxOption<V extends string = string> = V | { value: V; label: string; description?: React.ReactNode; disabled?: boolean };
+interface ComboboxBaseProps<V extends string = string> extends Omit<InputProps, "type" | "showCount" | "prefix" | "suffix" | "value" | "defaultValue" | "rightIcon" | "onChange"> {
   /** The choices: strings, or { value, label, description, disabled }. The label is what's typed to find it and shown once picked.
       With loadOptions, the ones shown before anything has loaded (or leave it out). */
-  options?: ComboboxOption[];
+  options?: readonly ComboboxOption<V>[];
   /** Loads the options for the typed text, such as from a server: called after typing pauses (debounce), and with ""
       when the list first opens. The signal aborts when newer text is typed or the field goes away, so a slow answer
       for "ca" never replaces the one for "can". The list shows the loading row while it waits and the loadFailed
       message if it rejects; filtering is then yours (filter is ignored). */
-  loadOptions?: (text: string, context: { signal: AbortSignal }) => Promise<ComboboxOption[]>;
+  loadOptions?: (text: string, context: { signal: AbortSignal }) => Promise<readonly ComboboxOption<V>[]>;
   /** With loadOptions, how long typing must pause before loading, in ms. Default: 250. */
   debounce?: number;
   /** Called with the text as it's typed: for loading options from a server (with filter={false} and loading). */
   onInputChange?: (text: string) => void;
   /** How typing narrows the list. Default: options whose label contains the text, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße"). false shows every option (filter them yourself). */
-  filter?: false | ((option: { value: string; label: string }, text: string) => boolean);
+  filter?: false | ((option: { value: V; label: string }, text: string) => boolean);
   /** Shows a × that clears the selection once something is picked. Default: false. */
   clearable?: boolean;
   /** Shows a loading row in the list. Default: false. */
@@ -51,29 +52,29 @@ interface ComboboxBaseProps extends Omit<InputProps, "type" | "showCount" | "pre
   clearLabel?: string;
 }
 /** Picks one option. */
-export interface ComboboxSingleProps extends ComboboxBaseProps {
+export interface ComboboxSingleProps<V extends string = string> extends ComboboxBaseProps<V> {
   /** Picks one option (default); true picks any number, as tags. */
   multiple?: false;
   /** The selected value (controlled), or null. Use with onValueChange. */
-  value?: string | null;
+  value?: V | null;
   /** The value selected at first (uncontrolled). */
-  defaultValue?: string | null;
+  defaultValue?: V | null;
   /** Called with the picked value, or null when the field is emptied or cleared. */
-  onValueChange?: (value: string | null) => void;
+  onValueChange?: (value: V | null) => void;
 }
 /** Picks any number of options, each shown as a tag in the field. */
-export interface ComboboxMultipleProps extends ComboboxBaseProps {
+export interface ComboboxMultipleProps<V extends string = string> extends ComboboxBaseProps<V> {
   /** Picks any number of options: each shows as a removable tag before the text, picking toggles an option and keeps
       the list open, and Backspace in the empty field removes the last tag. */
   multiple: true;
   /** The selected values in order (controlled). Use with onValueChange. */
-  value?: string[];
+  value?: readonly V[];
   /** The values selected at first (uncontrolled). */
-  defaultValue?: string[];
+  defaultValue?: readonly V[];
   /** Called with every selected value, in the order they were picked. */
-  onValueChange?: (value: string[]) => void;
+  onValueChange?: (value: V[]) => void;
 }
-export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
+export type ComboboxProps<V extends string = string> = ComboboxSingleProps<V> | ComboboxMultipleProps<V>;
 type AnyProps = ComboboxBaseProps & { multiple?: boolean; value?: string | string[] | null; defaultValue?: string | string[] | null; onValueChange?: unknown };
 const list = (v: string | string[] | null | undefined): string[] => (Array.isArray(v) ? v : []);
 
@@ -122,7 +123,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const base = domId("dk-cbx", React.useId());
   // Mapped, with each label folded for matching, once per options array rather than on every render and keystroke.
   // With loadOptions, the options are the latest answer (the options prop until one comes).
-  const [loaded, setLoaded] = React.useState<ComboboxOption[] | null>(null);
+  const [loaded, setLoaded] = React.useState<readonly ComboboxOption[] | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
   const source = props.loadOptions && loaded ? loaded : props.options;
@@ -148,11 +149,11 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     const go = () => {
       const ctl = new AbortController(), n = ++l.n;
       l.ctl = ctl;
-      let answer: Promise<ComboboxOption[]>;
+      let answer: Promise<readonly ComboboxOption[]>;
       try { answer = Promise.resolve(fn(q, { signal: ctl.signal })); } catch (err) { answer = Promise.reject(err instanceof Error ? err : new Error(String(err))); }
       answer.then((list) => {
         if (n !== l.n || ctl.signal.aborted) return;
-        const got = Array.isArray(list) ? list : [];
+        const got: readonly ComboboxOption[] = Array.isArray(list) ? list : [];
         setLoaded(got); setBusy(false);
         setActive(q.trim() ? got.findIndex((o) => typeof o === "string" || !o.disabled) : -1);   // the first match, as typing does
       },
@@ -384,4 +385,4 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       {props.name && !multi ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
     </span>
   );
-});
+}) as (<V extends string = string>(props: ComboboxProps<V> & React.RefAttributes<HTMLInputElement>) => React.ReactElement | null) & { displayName?: string };

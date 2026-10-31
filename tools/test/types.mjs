@@ -45,7 +45,7 @@ R.push({ name: 'every name a README or guide imports from serupa-ds is exported'
 // the same on every run and machine (the time isn't). Measured on 25 Oct 2026 at 92,126 and 197,269, about 15,000 of
 // the types being the Material Symbol names in IconName, which cost about 10 ms and 2.5 MB and give autocomplete, so
 // they stay. The budgets are about 10% over; a TypeScript upgrade that moves the counts may raise them. SegmentedControl's
-// typed values (83) cost about 1,900 instantiations, which took them from 216,882 to 218,811.
+// and Combobox's typed values (83) cost about 1,900 and 470 instantiations, which took them from 216,882 to about 219,300.
 const BUDGET = { Types: 101000, Instantiations: 220000 };
 const diag = built && spawnSync(process.execPath, [tsc, '-p', path.join(HERE, 'types'), '--extendedDiagnostics'], { cwd: PROJECT, encoding: 'utf8' });
 for (const [what, budget] of Object.entries(BUDGET)) {
