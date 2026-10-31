@@ -156,7 +156,7 @@ export const Menu = /* @__PURE__ */ component<HTMLDivElement, MenuProps>("Menu",
       {trigger}
       <div {...omit(props, OWN_MENU)} ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined}
         aria-label={props["aria-label"]} aria-labelledby={props["aria-label"] || props["aria-labelledby"] ? props["aria-labelledby"] : cp.id || (triggerRef.current && triggerRef.current.id) || own + "-button"}
-        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.instant ? "" : undefined}
         inert={!open || undefined} onKeyDown={onMenuKey}>
         {open || exit.leaving ? props.children : null}
       </div>
@@ -258,7 +258,7 @@ export const ContextMenu = /* @__PURE__ */ component<HTMLDivElement, ContextMenu
       {target}
       <span ref={point} className="dk-menu__point" aria-hidden style={spot ? { left: spot.x + "px", top: spot.y + "px" } : undefined} />
       <div {...omit(props, OWN_CONTEXT)} ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-label={props["aria-label"]}
-        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.arrived ? "" : undefined}
+        className={cn("dk-menu", props.className)} style={props.style} data-component="menu" data-state={open ? "open" : "closed"} data-instant={exit.instant ? "" : undefined}
         inert={!open || undefined} onKeyDown={onMenuKey}>
         {open || exit.leaving ? props.children : null}
       </div>
@@ -499,7 +499,7 @@ export const MenuSub = /* @__PURE__ */ component<HTMLElement, MenuSubProps>("Men
         props.icon != null ? <span className="dk-menu__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null,
         <span className="dk-menu__label" id={id + "-label"}>{props.label}</span>,
         <span className="dk-menu__chevron" aria-hidden="true"><Icon icon={icons.ChevronRight} /></span>)}
-      <div ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} aria-labelledby={id + "-label"}
+      <div ref={panelRef} id={id} role="menu" tabIndex={-1} {...{ popover: "manual" }} hidden={!open || undefined} data-instant={exit.instant ? "" : undefined} aria-labelledby={id + "-label"}
         className="dk-menu dk-menu--sub" data-component="menu" data-state={open ? "open" : "closed"} inert={!open || undefined} onKeyDown={onPanelKey}>
         {open || exit.leaving ? props.children : null}
       </div>
