@@ -31,6 +31,10 @@
 .dk-alert__icon { display: flex; flex-shrink: 0; color: var(--dk-alert-icon); }
 .dk-alert__icon .dk-icon { font-size: var(--spacing-5); }
 /* A word longer than the line (a German compound, a URL) wraps inside the alert instead of widening the page. */
+/* Only words of 10 letters or more hyphenate, 4 on each side, so ordinary words still wrap whole ("recur-ring"
+   isn't split) where hyphenate-limit-chars is supported (191). */
+/* stylelint-disable-next-line serupa/no-raw-value -- letter counts, not a design value */
+.dk-alert__content { hyphenate-limit-chars: 10 4 4; }
 .dk-alert__content { overflow-wrap: anywhere; hyphens: auto; display: flex; flex-direction: column; gap: var(--alert-content-gap, var(--spacing-1)); flex: auto; min-width: var(--spacing-0); }
 .dk-alert__title { margin: var(--spacing-0); color: var(--alert-title-color, var(--text)); font-weight: var(--alert-title-weight, var(--font-semibold)); }
 .dk-alert__message > :first-child { margin-top: var(--spacing-0); }
