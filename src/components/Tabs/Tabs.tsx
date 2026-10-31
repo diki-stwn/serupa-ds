@@ -80,6 +80,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
   const self = React.useRef<HTMLDivElement | null>(null);
   const order = React.useRef<string[]>([]);
+  const focusedIn = React.useRef(false);   // focus is in the Tabs, so a closed tab that had it hands it on
   // every render: tabs come and go with the children, which change in any render; it reads attributes, not layout.
   useIsoLayoutEffect(() => {
     if (!self.current) return;
@@ -99,11 +100,18 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     if (process.env.NODE_ENV !== "production" && at < 0 && value != null && !before.length) warnOnce("tabs-value", `Tabs: defaultValue "${value}" matches no Tab, so the first tab is selected. Set it to one of the Tabs' values.`);
     if (at < 0) { setInner(enabled[0]); return; }   // nothing chosen yet (or a defaultValue with no tab): no onValueChange
     const after = before.slice(at + 1).find((v) => enabled.includes(v)), prev = before.slice(0, at).reverse().find((v) => enabled.includes(v));
-    select(after ?? prev ?? enabled[0]);
+    const next = after ?? prev ?? enabled[0];
+    select(next);
+    // Focus was on the closed tab (its own close button, or a Delete key the app handles): it goes to the tab now
+    // selected, not to the page. A removed element can still read as the active one until the browser next looks.
+    const active = document.activeElement;
+    if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
   });
   return (
     <TabsContext.Provider value={ctx}>
       <div {...rest} ref={(n) => { self.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+        onFocus={(e) => { focusedIn.current = true; if (rest.onFocus) rest.onFocus(e); }}
+        onBlur={(e) => { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusedIn.current = false; if (rest.onBlur) rest.onBlur(e); }}
         className={cn("dk-tabs", "dk-tabs--" + variant, size === "sm" && "dk-tabs--sm", vertical && "dk-tabs--vertical", props.className)} data-component="tabs" data-variant={variant} data-orientation={vertical ? "vertical" : "horizontal"} />
     </TabsContext.Provider>
   );
