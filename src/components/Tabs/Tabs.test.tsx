@@ -308,7 +308,8 @@ describe('Tabs on the server', () => {
     // Polled: once the fonts load, the tabs change width and the list scrolls the selected one back into view.
     await expect.poll(() => { const box = list.getBoundingClientRect(), t = selected('ov').getBoundingClientRect(); return [list.scrollLeft > 0, t.right <= box.right + 0.5, t.left >= box.left]; }).toEqual([true, true, true]);
     await expect.poll(() => [list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([true, false]);
-    expect(css(list).maskImage).toMatch(/linear-gradient/);
+    // The fade eases in (KW13): stops at 16% and 84% between clear and solid, so it has no hard line where it starts.
+    expect([/linear-gradient/.test(css(list).maskImage), (css(list).maskImage.match(/0\.16\)/g) || []).length, (css(list).maskImage.match(/0\.84\)/g) || []).length]).toEqual([true, 2, 2]);
     await userEvent.click(el('first'));
     await expect.poll(() => [list.scrollLeft, list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([0, false, true]);
     const fit = el('fit').querySelector<HTMLElement>('[role="tablist"]')!;

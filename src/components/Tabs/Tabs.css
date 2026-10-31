@@ -26,7 +26,21 @@
 .dk-tabs__list[data-fade-after] { --dk-tabs-fade-b: var(--dk-tabs-fade); }
 .dk-tabs__list:is([data-fade-before], [data-fade-after]) {
   --dk-tabs-fade-end: calc(var(--sizing-full) - var(--dk-tabs-fade-b));
-  mask-image: linear-gradient(var(--dk-tabs-fade-to), transparent, black var(--dk-tabs-fade-a), black var(--dk-tabs-fade-end), transparent);
+  /* Each fade follows a smoothstep curve (16% at a quarter of its width, 84% at three quarters, and so 50% half way),
+     so it has no visible line where it starts or ends, as a straight two-stop gradient does (KW13). */
+  /* stylelint-disable serupa/no-raw-value -- the curve's points are its geometry, not design values */
+  --dk-tabs-fade-16: color-mix(in srgb, black 16%, transparent);
+  --dk-tabs-fade-84: color-mix(in srgb, black 84%, transparent);
+  mask-image: linear-gradient(var(--dk-tabs-fade-to),
+    transparent,
+    var(--dk-tabs-fade-16) calc(var(--dk-tabs-fade-a) * 0.25),
+    var(--dk-tabs-fade-84) calc(var(--dk-tabs-fade-a) * 0.75),
+    black var(--dk-tabs-fade-a),
+    black var(--dk-tabs-fade-end),
+    var(--dk-tabs-fade-84) calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.25),
+    var(--dk-tabs-fade-16) calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.75),
+    transparent);
+  /* stylelint-enable serupa/no-raw-value */
 }
 .dk-tabs--line .dk-tabs__list { border-bottom: var(--border-width-1) solid var(--tabs-border, var(--border)); }
 .dk-tabs__tab {
