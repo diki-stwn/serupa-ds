@@ -163,6 +163,22 @@ describe('Popover', () => {
     expect(tags).toEqual(['H2', 'H4', 'H2']);
   });
 
+  test('focus goes to the first control that can take it: past one hidden, in a closed <details>, in a disabled <fieldset> or out of the Tab order; Escape then closes it (L8E22)', async () => {
+    await render(<Popover title="Filters" trigger={<Button id="tff">Filters</Button>}>
+      <button id="ffh" style={{ display: 'none' }}>Hidden</button>
+      <details><summary>More</summary><button id="ffd">Inside</button></details>
+      <fieldset disabled><button id="ffx">Off</button></fieldset>
+      <button id="ffn" tabIndex={-1}>Skipped</button>
+      <input id="ffi" aria-label="Name" />
+    </Popover>);
+    await userEvent.click(el('tff'));
+    await expect.poll(() => isOpen('tff')).toBe(true);
+    expect(active()).toBe('ffi');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('tff')).toBe(false);
+    expect(active()).toBe('tff');
+  });
+
   test('aria-label names it without a title; right-start sits to the right, tops lined up; initialFocus="panel" focuses the panel', async () => {
     await render(<Popover aria-label="Info" placement="right-start" initialFocus="panel" trigger={<Button id="tinfo">Info</Button>}><p>Plain text, nothing to focus.</p></Popover>);
     await userEvent.click(el('tinfo'));
