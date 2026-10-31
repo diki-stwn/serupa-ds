@@ -22,6 +22,10 @@ A Badge with `onClick` or `href` is a button or a link, which can't hold another
 
 A Button with only an icon has no text for a screen reader to say. Give it an `aria-label` (or `aria-labelledby`, or a `title`), or use IconButton, whose `label` is required.
 
+## datetime-string
+
+A date component got a date and time as a string (`"2026-10-24T00:00:00Z"`, as an API often sends a date). It's read as the day it writes, 24 October, and the time is ignored, so the day doesn't move with the reader's time zone. Pass the `"yyyy-mm-dd"` day itself (`value.slice(0, 10)`) to say that's what you mean.
+
 ## field-control
 
 A Field's label points at its control by id, and nothing on the page has that id, so the label names nothing. Put the control inside the Field, or pass the control's `id`.
