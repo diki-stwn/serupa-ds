@@ -54,7 +54,7 @@ describe('Tooltip', () => {
 
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
     await render(<>
-      <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" noTitle aria-describedby="other" /></Tooltip>
+      <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" hideTitle aria-describedby="other" /></Tooltip>
       <Tooltip content="Settings" role="label"><button id="b"><Icon name="settings" /></button></Tooltip>
     </>);
     const a = el('a'), b = el('b');

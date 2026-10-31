@@ -12,6 +12,9 @@ const [page, setPage] = React.useState(1);
 <Pagination count={20} page={page} getHref={(n) => `/orders?page=${n}`} />
 
 <Pagination count={8} size="sm" siblings={0} />
+
+// Which items show: "21–30 of 245" before the pages
+<Pagination count={25} page={3} total={245} pageSize={10} />
 ```
 
 ## When to use
@@ -33,6 +36,8 @@ const [page, setPage] = React.useState(1);
 - Page numbers are written in the digits of the locale from `SerupaProvider` (or the browser), as Calendar writes its
   days: ١ ٢ ٣ in Egyptian Arabic, ۱ ۲ ۳ in Persian. A page's name comes from `pageLabel`, so translate it with the
   other labels.
+
+- With `total` and `pageSize`, a summary before the pages says which items show: "21–30 of 245", in the locale's digits and grouping ("1.001–1.010 dari 12.345" in id-ID). The pages sit at the end of the row, and wrap under the summary when both don't fit on one line. Change its words with the `itemsOf` label.
 
 `paginationRange(page, count, siblings, boundaries)` returns the same list of pages and ellipses, for building your own.
 
@@ -70,6 +75,8 @@ An arrow that takes you to the first or last page turns disabled, so focus moves
 | `aria-label` | string | `"Pagination"` | The nav's name |
 | `previousLabel`, `nextLabel` | string | `"Previous page"`, `"Next page"` | The arrows' names |
 | `pageLabel` | `(page) => string` | `"Page " + page` | A page's name |
+| `total` | number | none | How many items there are in all. With `pageSize`, shows the summary |
+| `pageSize` | number | none | How many items a page holds. With `total`, shows the summary |
 
 `className`, `style`, `ref` and everything else go to the `<nav>`, which has `data-component="pagination"`.
 
@@ -85,12 +92,14 @@ Each is an optional override: set it on the page, a container or one pagination.
 | `--pagination-current-bg` | `primary` | The current page's background. |
 | `--pagination-current-text` | `on-primary` | The current page's number (4.5:1 on current-bg). |
 | `--pagination-ellipsis` | `text-muted` | The … between page ranges (4.5:1 on surface). |
+| `--pagination-summary` | `text-muted` | The summary with total and pageSize, "21–30 of 245" (4.5:1 on surface). |
 | `--pagination-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--pagination-font-size` | `text-sm` | Page numbers (14px). |
 | `--pagination-weight-current` | `font-semibold` | The current page's weight (600). |
 | `--pagination-size` | `control-height-md` | A page's width and height at size md (32px). |
 | `--pagination-size-sm` | `control-height-sm` | At size sm (24px). |
 | `--pagination-gap` | `spacing-1` | Space between pages (4px). |
+| `--pagination-summary-gap` | `spacing-4` | Space between the summary and the pages (16px). |
 | `--pagination-padding-x` | `spacing-2` | Side padding inside a page, for wide numbers (8px). |
 | `--pagination-padding-x-sm` | `spacing-0.5` | At size sm (2px), so two semibold digits fit in the 24px square. |
 | `--pagination-radius` | `rounded-md` | A page's corners (6px). |

@@ -12,6 +12,7 @@ import { useTextLimit } from "../../internal/textLimit";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { pressFocuses, useAffixes } from "../../internal/affix";
 import { applyMask, digitsOnly, isPlain, parseMask, unmask } from "../../internal/mask";
+import { isComposing } from "../../internal/ime";
 
 const PLAIN = { useGrouping: false } as const;
 // Fields whose text isn't words: the phone keyboard shouldn't capitalize, correct or underline it.
@@ -63,14 +64,16 @@ function useMask(rest: InputProps, mask: string | undefined): void {
     if (change) change(e);
   };
   rest.onKeyDown = function (e) {
+    // Yours runs first, so preventing Backspace or Delete there stops the caret skip too; and the skip waits while
+    // an input method is composing, whose Backspace edits the composition (L8E31).
+    if (key) key(e);
     const el = e.currentTarget, at = el.selectionStart;
-    if ((e.key === "Backspace" || e.key === "Delete") && at != null && at === el.selectionEnd) {
+    if (!e.defaultPrevented && !isComposing(e) && (e.key === "Backspace" || e.key === "Delete") && at != null && at === el.selectionEnd) {
       const back = e.key === "Backspace";
       let p = at;
       while (back ? p > 0 && isPlain(slots, el.value, p - 1) : p < el.value.length && isPlain(slots, el.value, p)) p += back ? -1 : 1;
       if (p !== at && (back ? p > 0 : p < el.value.length)) el.setSelectionRange(p, p);
     }
-    if (key) key(e);
   };
 }
 

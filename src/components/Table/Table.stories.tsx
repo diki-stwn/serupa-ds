@@ -5,25 +5,22 @@ import { Text } from '../Text/Text';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
 import { FormattedNumber } from '../FormattedNumber/FormattedNumber';
+import { usePeople } from '../../../.storybook/content';
 
-const people = [
-  { name: 'Ada Lovelace', role: 'Admin', status: 'Active', calls: 1204 },
-  { name: 'Grace Hopper', role: 'Editor', status: 'Active', calls: 318 },
-  { name: 'Linus Torvalds', role: 'Viewer', status: 'Invited', calls: 0 },
-  { name: 'Margaret Hamilton', role: 'Editor', status: 'Active', calls: 87 },
-];
-
+// The rows follow the toolbar's Content menu: demo, the worst case, none or one (.storybook/content.ts).
 function Rows({ selected }: { selected?: number }) {
+  const people = usePeople();
   return (
     <>
       <TableHead>
         <TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Role</TableHeaderCell><TableHeaderCell>Status</TableHeaderCell><TableHeaderCell align="end">Calls</TableHeaderCell></TableRow>
       </TableHead>
       <TableBody>
+        {people.length ? null : <TableRow><TableCell colSpan={4}><Text as="span" tone="muted">No team members yet</Text></TableCell></TableRow>}
         {people.map((p, i) => (
           <TableRow key={p.name} selected={selected === undefined ? undefined : i === selected}>
             <TableCell>{p.name}</TableCell>
-            <TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell>
+            <TableCell><Text as="span" tone="muted">{p.role || 'No role'}</Text></TableCell>
             <TableCell><Badge tone={p.status === 'Active' ? 'success' : 'neutral'}>{p.status}</Badge></TableCell>
             <TableCell align="end"><FormattedNumber value={p.calls} /></TableCell>
           </TableRow>
@@ -51,8 +48,9 @@ export const Selected: Story = { render: (args) => <Table {...args}><Rows select
 
 export const SelectableRows: Story = {
   render: function Render(args) {
-    const [picked, setPicked] = React.useState<string[]>([people[1].name]);
-    const all = picked.length === people.length;
+    const people = usePeople();
+    const [picked, setPicked] = React.useState<string[]>(people.slice(1, 2).map((p) => p.name));
+    const all = people.length > 0 && picked.length === people.length;
     const toggle = (n: string) => setPicked(picked.includes(n) ? picked.filter((x) => x !== n) : [...picked, n]);
     return <Table {...args}>
       <TableHead><TableRow>
@@ -61,7 +59,7 @@ export const SelectableRows: Story = {
       </TableRow></TableHead>
       <TableBody>{people.map((p) => <TableRow key={p.name} selected={picked.includes(p.name)}>
         <TableSelectCell label={'Select ' + p.name} checked={picked.includes(p.name)} onChange={() => toggle(p.name)} />
-        <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell><TableCell align="end"><FormattedNumber value={p.calls} /></TableCell>
+        <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role || 'No role'}</Text></TableCell><TableCell align="end"><FormattedNumber value={p.calls} /></TableCell>
       </TableRow>)}</TableBody>
     </Table>;
   },
@@ -70,8 +68,9 @@ export const SelectableRows: Story = {
 // With rows selected, the bar above the table shows the count, actions for them, and Clear selection.
 export const ActionBar: Story = {
   render: function Render(args) {
-    const [picked, setPicked] = React.useState<string[]>([people[0].name, people[2].name]);
-    const all = picked.length === people.length;
+    const people = usePeople();
+    const [picked, setPicked] = React.useState<string[]>([people[0], people[2]].filter(Boolean).map((p) => p.name));
+    const all = people.length > 0 && picked.length === people.length;
     const toggle = (n: string) => setPicked(picked.includes(n) ? picked.filter((x) => x !== n) : [...picked, n]);
     return <>
       <TableActionBar count={picked.length} onClear={() => setPicked([])}>
@@ -85,7 +84,7 @@ export const ActionBar: Story = {
         </TableRow></TableHead>
         <TableBody>{people.map((p) => <TableRow key={p.name} selected={picked.includes(p.name)}>
           <TableSelectCell label={'Select ' + p.name} checked={picked.includes(p.name)} onChange={() => toggle(p.name)} />
-          <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role}</Text></TableCell>
+          <TableCell>{p.name}</TableCell><TableCell><Text as="span" tone="muted">{p.role || 'No role'}</Text></TableCell>
         </TableRow>)}</TableBody>
       </Table>
     </>;
@@ -94,6 +93,7 @@ export const ActionBar: Story = {
 
 export const Sortable: Story = {
   render: function Render(args) {
+    const people = usePeople();
     const [sort, setSort] = React.useState<SortDirection>('descending');
     const rows = [...people].sort((a, b) => (sort === 'ascending' ? 1 : -1) * (a.calls - b.calls));
     return (

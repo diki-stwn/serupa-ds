@@ -40,6 +40,10 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>,
   nextLabel?: string;
   /** A page's accessible name. Default: (n) => "Page " + n. */
   pageLabel?: (page: number) => string;
+  /** How many items there are in all. With pageSize, a summary before the pages says which ones show: "21–30 of 245". */
+  total?: number;
+  /** How many items a page holds. With total, shows the summary. */
+  pageSize?: number;
 }
 
 
@@ -54,7 +58,7 @@ function int(v: unknown, min: number, fallback: number): number {
 export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps>("Pagination", function Pagination(props, ref) {
   const sds = useSettings(words);
   const locale = useLocale();
-  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, className: 1 });
+  const rest = omit(props, { count: 1, page: 1, defaultPage: 1, onPageChange: 1, getHref: 1, linkAs: 1, siblings: 1, boundaries: 1, size: 1, previousLabel: 1, nextLabel: 1, pageLabel: 1, total: 1, pageSize: 1, className: 1 });
   const count = int(props.count, 0, 0);
   const [own, setOwn] = React.useState(() => int(props.defaultPage, 1, 1));
   const controlled = props.page !== undefined;
@@ -108,8 +112,12 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
     const arrows = <Icon icon={dir === "prev" ? icons.ChevronLeft : icons.ChevronRight} />;
     return <li key={dir}>{item(n, arrows, { "aria-label": dir === "prev" ? props.previousLabel || sds.labels.previousPage : props.nextLabel || sds.labels.nextPage, rel: props.getHref ? dir : undefined }, n < 1 || n > count, "dk-pagination__arrow")}</li>;
   };
+  // O7: with total and pageSize, which items this page shows, in the locale's digits and grouping ("1,001–1,010 of 12,345").
+  const total = int(props.total, 0, -1), per = int(props.pageSize, 1, 0);
+  const summary = total >= 0 && per > 0 ? sds.labels.itemsOf(displayNumber(total ? Math.min((page - 1) * per + 1, total) : 0, locale), displayNumber(Math.min(page * per, total), locale), displayNumber(total, locale)) : null;
   return (
-    <nav aria-label={sds.labels.pagination} {...rest} ref={ref} data-component="pagination" className={cn("dk-pagination", size === "sm" && "dk-pagination--sm", props.className)}>
+    <nav aria-label={sds.labels.pagination} {...rest} ref={ref} data-component="pagination" className={cn("dk-pagination", size === "sm" && "dk-pagination--sm", summary != null && "dk-pagination--summary", props.className)}>
+      {summary != null ? <p className="dk-pagination__summary">{summary}</p> : null}
       <ul className="dk-pagination__list" ref={list}>
         {arrow("prev")}
         {paginationRange(page, count, Math.max(siblings - cut, 0), Math.max(boundaries - Math.max(cut - siblings, 0), 0)).map((e) => typeof e === "number"

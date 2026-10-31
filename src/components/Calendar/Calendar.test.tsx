@@ -21,6 +21,17 @@ function Cal(props: { picks?: string[]; months?: string[]; cref?: React.Ref<HTML
 const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 describe('Calendar', () => {
+  test('your onKeyDown runs first, on the root, and preventDefault() in it keeps the arrow keys from moving anything (L8E32)', async () => {
+    const seen: string[] = [];
+    const stop = (e: React.KeyboardEvent) => { seen.push(String((e.currentTarget as HTMLElement).dataset.component)); e.preventDefault(); };
+    await render(<Calendar data-testid="mk" locale="en-US" defaultMonth={new Date(2025, 2, 1)} onKeyDown={stop} />);
+    const t = document.querySelector('[data-testid=mk] [tabindex="0"]') as HTMLElement;
+    t.focus();
+    const before = t.textContent;
+    await userEvent.keyboard('{ArrowRight}');
+    expect([seen.length > 0, seen.every((n) => n !== 'undefined'), document.activeElement === t, t.textContent === before]).toEqual([true, true, true, true]);
+  });
+
   test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
     await render(<Calendar data-testid="mk" locale="en-US" defaultMonth={new Date(2025, 2, 1)} />);
     const t = document.querySelector('[data-testid=mk] [tabindex="0"]') as HTMLElement;

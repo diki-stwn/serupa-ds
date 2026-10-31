@@ -145,9 +145,12 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
     if (!sameMonth(d, month)) showMonth(d);
     setFocus(d);
   };
+  // Your onKeyDown runs first, on the root as the key goes down (the capture phase), so preventDefault() in it keeps
+  // the component's own handling of that key from running (L8E32).
+  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (e: React.KeyboardEvent) => {
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
-    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     let n: Date | null = null;
     switch (e.key) {
@@ -181,13 +184,13 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const handover = useFocusHandover();
   const prevNav = React.useRef<HTMLButtonElement | null>(null), nextNav = React.useRef<HTMLButtonElement | null>(null);
   return (
-    <div {...rest} ref={ref} className={cn("dk-calendar", props.className)} data-component="calendar">
+    <div {...rest} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} ref={ref} className={cn("dk-calendar", props.className)} data-component="calendar">
       <div className="dk-calendar__header">
-        <IconButton icon={icons.ChevronLeft} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" noTitle
+        <IconButton icon={icons.ChevronLeft} className="dk-calendar__nav dk-calendar__nav--prev" label={props.previousLabel || sds.labels.previousMonth} size="sm" variant="ghost" hideTitle
           disabled={!!min && compare(addDays(month, -1), min) < 0} onClick={(e) => { handover(e.currentTarget, () => nextNav.current); showMonth(addMonths(month, -1)); }} ref={prevNav} />
         <h2 className={cn("dk-calendar__title", props.monthYearPicker && "dk-visually-hidden")} id={titleId} lang={lang} aria-live="polite">{title}</h2>
         {props.monthYearPicker ? <MonthYear month={month} min={min} max={max} today={today} names={monthName} lang={lang} monthLabel={sds.labels.month} yearLabel={sds.labels.year} onPick={showMonth} /> : null}
-        <IconButton icon={icons.ChevronRight} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" noTitle
+        <IconButton icon={icons.ChevronRight} className="dk-calendar__nav dk-calendar__nav--next" label={props.nextLabel || sds.labels.nextMonth} size="sm" variant="ghost" hideTitle
           disabled={!!max && compare(addMonths(month, 1), max) > 0} onClick={(e) => { handover(e.currentTarget, () => prevNav.current); showMonth(addMonths(month, 1)); }} ref={nextNav} />
       </div>
       <table ref={grid} lang={lang} className="dk-calendar__grid" role="grid" aria-labelledby={titleId} onKeyDown={onKeyDown}>
