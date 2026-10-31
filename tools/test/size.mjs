@@ -42,7 +42,7 @@ const TOTALS = {
   'serupa.iife.js': [123.5, 99.0, 'share'],   // 119.4 on 31 Oct 2026, once the full icon table moved to serupa-icons.iife.js (PF1); 610.1 with it
 };
 // KiB, gzipped: [budget, the size it was set at]. The totals that count shared code move with the budget.
-const LABELS = [2.8, 2.6];
+const LABELS = [2.8, 1.9];
 // KiB, gzipped: PhoneInput's country table (PHONE_COUNTRIES in phone.ts, the calling codes, groupings and lengths;
 // 2.4 on 26 Oct 2026). It's data, not code, and grows a row at a time, so it has its own line: a country added is
 // a choice made here, not a few bytes lost in PhoneInput's own budget.
