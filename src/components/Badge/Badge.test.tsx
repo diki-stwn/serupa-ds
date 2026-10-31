@@ -484,7 +484,15 @@ describe('Badge', () => {
     e.focus();
     await userEvent.keyboard('{Enter>}');
     expect(e.hasAttribute('data-pressed')).toBe(true);
-    await expect.poll(() => css(e).scale).toBe('0.97');
+    try { await expect.poll(() => css(e).scale).toBe('0.97'); } catch (err) {
+      const d = () => ({ sc: css(e).scale, pressed: e.hasAttribute('data-pressed'), match: e.matches('.dk-badge--interactive[data-pressed]'), press: css(e).getPropertyValue('--dk-badge-press'), tprop: css(e).transitionProperty, dur: css(e).transitionDuration, tl: document.timeline.currentTime, vis: document.visibilityState, focus: document.hasFocus(), anims: e.getAnimations().map((a) => [(a as CSSTransition).transitionProperty, a.playState, a.currentTime, a.startTime, a.pending]) });
+      const before = d();
+      const t0 = performance.now(); let raf = 0;
+      await Promise.race([new Promise((ok) => requestAnimationFrame(() => { raf = performance.now() - t0; ok(null); })), new Promise((ok) => setTimeout(ok, 1000))]);
+      await new Promise((ok) => setTimeout(ok, 300));
+      console.log('DIAG', JSON.stringify({ before, raf, after: d() }));
+      throw err;
+    }
     await userEvent.keyboard('{/Enter}');
     expect(e.hasAttribute('data-pressed')).toBe(false);
   });
