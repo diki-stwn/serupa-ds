@@ -27,6 +27,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { HERE, projectArg, report, done } from './lib.mjs';
+import { PAIRS } from '../tokens/contrast-pairs.mjs';
 
 const P = projectArg();
 const results = [];
@@ -170,19 +171,7 @@ const lum = (h) => {
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 };
 const ratio = (a, b) => { const la = lum(a), lb = lum(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
-/** @type {Array<[string, string, number]>} */
-const PAIRS = [['text', 'surface', 4.5], ['text', 'surface-muted', 4.5], ['text-muted', 'surface', 4.5], ['text-muted', 'surface-muted', 4.5],
-  ['text', 'surface-raised', 4.5], ['text-muted', 'surface-raised', 4.5], ['text', 'surface-overlay', 4.5], ['text-muted', 'surface-overlay', 4.5],
-  ['primary', 'surface-overlay', 3], ['focus-ring', 'surface-overlay', 3], ['danger-text', 'surface-overlay', 4.5],
-  ['text-inverse', 'surface-inverse', 4.5], ['on-primary', 'primary', 4.5], ['on-primary', 'primary-hover', 4.5],
-  ['on-danger', 'danger', 4.5], ['on-danger', 'danger-hover', 4.5], ['danger-text', 'surface', 4.5], ['danger-text', 'danger-subtle', 4.5],
-  ['danger-text', 'surface-muted', 4.5], ['success-text', 'surface', 4.5], ['success-text', 'surface-muted', 4.5], ['success-text', 'success-subtle', 4.5],
-  ['warning-text', 'surface', 4.5], ['warning-text', 'surface-muted', 4.5], ['warning-text', 'warning-subtle', 4.5],
-  ['info-text', 'surface', 4.5], ['info-text', 'surface-muted', 4.5], ['info-text', 'info-subtle', 4.5],
-  ['primary', 'surface', 3], ['focus-ring', 'surface', 3], ['text', 'secondary', 4.5], ['text', 'secondary-hover', 4.5], ['text', 'pressed', 4.5],
-  ['text', 'field', 4.5], ['placeholder', 'field', 4.5], ['field-border', 'field', 3], ['field-border', 'surface', 3],
-  ['info', 'surface', 4.5], ['text', 'primary-subtle', 4.5], ['link-visited', 'surface', 4.5], ['link-visited', 'surface-muted', 4.5],
-  ['primary', 'surface', 4.5], ['primary-hover', 'primary-subtle', 4.5], ['danger', 'surface', 3]];   // secondary button: brand text and border on surface, hover tint; destructive secondary border
+// The pairs live in tools/tokens/contrast-pairs.mjs, which the Foundations/Contrast matrix page shows too.
 const known = (n) => ALIAS.has(n) || PAL.has(n);
 const low = [];
 for (const th of THEMES) for (const [fg, bg, need] of PAIRS) {
