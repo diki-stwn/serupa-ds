@@ -434,6 +434,9 @@ describe('FileUpload: sizes in the reader\'s locale (GR20)', () => {
     expect([/[\u0660-\u0669]/.test(text ?? ''), dir]).toEqual([true, 'auto']);
   });
 
+  test('formatFileSize: a size that rounds up to 1024 of a unit is written in the next one, as formatNumber bytes does', () => {
+    expect([1024 ** 2 - 1, 1024 ** 3 - 1, 1023.6 * 1024].map((b) => [formatFileSize(b), formatFileSize(b, 'en-US')])).toEqual([['1 MB', '1 MB'], ['1 GB', '1 GB'], ['1 MB', '1 MB']]);
+  });
   test('formatFileSize with a locale matches formatNumber bytes; without one it stays as it was; an index from map() is not a locale', () => {
     expect([formatFileSize(5_000_000, 'de-DE'), formatFileSize(5_000_000), formatFileSize(2048, 1 as unknown as string)]).toEqual(['4,8 MB', '4.8 MB', '2 KB']);
   });
