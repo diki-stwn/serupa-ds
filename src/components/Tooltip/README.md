@@ -27,7 +27,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 ## When not to use
 
-- Content with links, buttons or fields: use a [Popover](../Popover/README.md) instead; people can't reach anything inside a tooltip.
+- Content with links, buttons or fields: use a [Popover](../Popover/README.md) instead. People can't reach anything inside a tooltip: focus leaving the element hides it, and touch screens never show it. A link on its inverse fill also reads under 4.5:1 in every theme (1.84:1 to 3.43:1). A focusable element in `content` warns once in development (`tooltip-interactive`).
 - Anything people need to do the task: put it in the page instead, such as the `hint` of a [Field](../Field/README.md). Touch screens have no hover.
 - Error or status messages: use the error in [Field](../Field/README.md) or an [Alert](../Alert/README.md) instead.
 

@@ -106,6 +106,10 @@ Tabs' `value` or `defaultValue` matches no Tab. With `value`, no tab is selected
 
 A second Toaster mounted, so only the newer one shows toasts. Render one Toaster, once, near the root of the app.
 
+## tooltip-interactive
+
+A Tooltip's `content` holds a link, button, field or other focusable element. Nobody can use it: focus leaving the tooltip's element hides it, so the keyboard can't reach what's inside, touch screens don't show tooltips, and on the tooltip's inverse fill a link's color reads under 4.5:1 in every theme. Keep the content to short plain text, and use a Popover for anything people press.
+
 ## trigger-ref
 
 The element given to a Popover, Menu, ContextMenu or Tooltip as its trigger doesn't pass its ref to a DOM element, so the panel can't be placed beside it or give focus back to it. Use a component that forwards its ref (every Serupa control does), or wrap it in one.

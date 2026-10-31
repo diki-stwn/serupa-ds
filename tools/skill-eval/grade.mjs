@@ -26,8 +26,8 @@ const STILL = new Set(['div', 'span', 'li', 'tr', 'td', 'p', 'img', 'section']);
 // Style properties whose bare numbers are not lengths.
 const UNITLESS = new Set(['opacity', 'flex', 'flexGrow', 'flexShrink', 'zIndex', 'lineHeight', 'fontWeight', 'order', 'gridColumn', 'gridRow', 'aspectRatio']);
 const RAW_COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla|oklch)\(/i;
-const RAW_LENGTH = /(?<![\w-])-?\d*\.?\d+(?:px|rem|em)\b|\[\d+(?:px|rem)\]/;
-const RAW_TIME = /(?<![\w-])\d*\.?\d+m?s\b/;
+const RAW_LENGTH = /(?<![\w-])-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em)\b|\[\d+(?:px|rem)\]/;
+const RAW_TIME = /(?<![\w-])(?:\d+(?:\.\d+)?|\.\d+)m?s\b/;
 
 /** One answer's results: { check: { ok, why } }. `expect` is the task's component list. */
 export function grade(source, expect = []) {
@@ -107,7 +107,7 @@ export function gradeDir(dir) {
 /** A Markdown table of one run: a row per task, a column per check, and the score. */
 export function table(rows) {
   const head = `| Task | ${CHECKS.join(' | ')} | Score |\n|---|${CHECKS.map(() => '---').join('|')}|---|\n`;
-  const body = rows.map((r) => `| ${r.id} | ${CHECKS.map((c) => r.results[c].ok ? '✓' : '✗ ' + r.results[c].why.replace(/\|/g, '\\|')).join(' | ')} | ${r.passed}/${CHECKS.length} |`).join('\n');
+  const body = rows.map((r) => `| ${r.id} | ${CHECKS.map((c) => r.results[c].ok ? '✓' : '✗ ' + r.results[c].why.replace(/[\\|]/g, '\\$&')).join(' | ')} | ${r.passed}/${CHECKS.length} |`).join('\n');
   const total = rows.reduce((s, r) => s + r.passed, 0);
   return head + body + `\n\n**${total} of ${rows.length * CHECKS.length} checks passed.**\n`;
 }
