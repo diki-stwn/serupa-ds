@@ -98,6 +98,53 @@
       - cell "Active"
       - cell "87"
 
+# RowLinks
+- table "Team members":
+  - caption: Team members
+  - rowgroup:
+    - row "Select Name Role Actions":
+      - columnheader "Select"
+      - columnheader "Name"
+      - columnheader "Role"
+      - columnheader "Actions"
+  - rowgroup:
+    - row "Select Ada Lovelace Ada Lovelace Admin Edit":
+      - cell "Select Ada Lovelace":
+        - checkbox "Select Ada Lovelace"
+      - cell "Ada Lovelace":
+        - link "Ada Lovelace":
+          - /url: "#Ada%20Lovelace"
+      - cell "Admin"
+      - cell "Edit":
+        - button "Edit"
+    - row "Select Grace Hopper Grace Hopper Editor Edit":
+      - cell "Select Grace Hopper":
+        - checkbox "Select Grace Hopper"
+      - cell "Grace Hopper":
+        - link "Grace Hopper":
+          - /url: "#Grace%20Hopper"
+      - cell "Editor"
+      - cell "Edit":
+        - button "Edit"
+    - row "Select Linus Torvalds Linus Torvalds Viewer Edit":
+      - cell "Select Linus Torvalds":
+        - checkbox "Select Linus Torvalds"
+      - cell "Linus Torvalds":
+        - link "Linus Torvalds":
+          - /url: "#Linus%20Torvalds"
+      - cell "Viewer"
+      - cell "Edit":
+        - button "Edit"
+    - row "Select Margaret Hamilton Margaret Hamilton Editor Edit":
+      - cell "Select Margaret Hamilton":
+        - checkbox "Select Margaret Hamilton"
+      - cell "Margaret Hamilton":
+        - link "Margaret Hamilton":
+          - /url: "#Margaret%20Hamilton"
+      - cell "Editor"
+      - cell "Edit":
+        - button "Edit"
+
 # SelectableRows
 - table "Team members":
   - caption: Team members
