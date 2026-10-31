@@ -31,6 +31,7 @@ import { Splitter } from "serupa-ds";
 
 - Name the handle after the pane it resizes (`separatorLabel="Folders"`), so a screen reader says what moving it changes.
 - Give the Splitter a height (a vertical one needs it; a horizontal one fills its parent's height when you give it one), and set `min` so the first pane never gets too narrow to use.
+- Printed, the panes show their whole content rather than their scrolled windows: the Splitter drops its height, the panes grow to fit, and the separator isn't printed.
 - Set `storageKey` so people's layout comes back on their next visit. It's read after the page loads, so a server-rendered page first shows `defaultSize`.
 - Sizes are percent of the Splitter, so the layout keeps its proportions when the window resizes.
 - Each pane scrolls on its own. Put one Splitter inside another's pane for three panes.
