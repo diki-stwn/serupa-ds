@@ -1,21 +1,21 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
-    "src/index.ts",
-    "src/icons.ts",
-    "src/browser.ts",
-    "src/browser-icons.ts",
-    "src/theme.js",
-    "bin/*.mjs",
+    "src/index.ts!",
+    "src/icons.ts!",
+    "src/browser.ts!",
+    "src/browser-icons.ts!",
+    "src/theme.js!",
+    "bin/*.mjs!",
     "tools/**/*.mjs",
     "src/**/*.stories.tsx",
     "src/**/*.test.{ts,tsx}",
     ".storybook/*.{ts,tsx}"
   ],
   "project": [
-    "src/**/*.{ts,tsx,js}",
+    "src/**/*.{ts,tsx,js}!",
     "tools/**/*.mjs",
-    "bin/*.mjs",
+    "bin/*.mjs!",
     ".storybook/*.{ts,tsx}"
   ],
   "ignoreExportsUsedInFile": true,

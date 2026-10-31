@@ -72,7 +72,7 @@ export function announce(text: string, options?: { assertive?: boolean }): void 
   pump(ch);
 }
 
-/** True when nothing waits to be said (tests wait for this before checking what a component announces). */
+/** True when nothing waits to be said (tests wait for this before checking what a component announces). @testseam */
 export function announcerIdle(): boolean {
   return !polite.timer && !polite.queue.length && !assertive.timer && !assertive.queue.length;
 }

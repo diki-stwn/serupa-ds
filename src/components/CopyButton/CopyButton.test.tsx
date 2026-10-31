@@ -137,6 +137,19 @@ describe('CopyButton', () => {
     vi.restoreAllMocks();
   });
 
+  test('a copy that fails while the last one still shows "Copied" takes the check away, so it doesn\'t claim this one worked (L8E60)', async () => {
+    const errs: unknown[] = [];
+    await render(<CopyButton id="again" value="x" onCopyError={(e) => errs.push(e)} />);
+    await userEvent.click(el('again'));
+    await expect.poll(() => el('again').hasAttribute('data-copied')).toBe(true);
+    writeText.mockRejectedValue(new DOMException('Denied', 'NotAllowedError'));
+    vi.spyOn(document, 'execCommand').mockReturnValue(false);
+    await userEvent.click(el('again'));
+    await expect.poll(() => errs.length).toBe(1);
+    expect([el('again').hasAttribute('data-copied'), shown('again')]).toEqual([false, 'Copy']);
+    vi.restoreAllMocks();
+  });
+
   test('without the Clipboard API it falls back to execCommand("copy") and keeps focus on the button', async () => {
     Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
     const exec = vi.spyOn(document, 'execCommand').mockReturnValue(true);
