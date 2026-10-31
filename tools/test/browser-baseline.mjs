@@ -39,6 +39,7 @@ const KNOWN = {
   'view-transition-name: none': { why: 'as view-transition-name' },
   'view-transition-name: match-element': { why: 'as view-transition-name' },
   'text-wrap: pretty': { why: 'line breaking only (Safari 26, not Firefox)' },
+  'property hyphenate-limit-chars': { why: 'Card, Alert and Toast hyphenate only words of 10 letters or more (not Safari, nor Firefox before 137): shorter words hyphenate too there' },
   'property scrollbar-gutter': { why: 'Dialog and Drawer keep the page from shifting (Safari 18.2): the page shifts by the scrollbar width there' },
   'scrollbar-gutter: stable': { why: 'as scrollbar-gutter' },
   'scrollbar-gutter: auto': { why: 'as scrollbar-gutter' },
