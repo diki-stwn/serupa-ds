@@ -236,7 +236,9 @@ export const TableActionBar = /* @__PURE__ */ component<HTMLDivElement, TableAct
     const box = bar.nextElementSibling && bar.nextElementSibling.querySelector<HTMLInputElement>('input[type="checkbox"]:not(:disabled)');
     if (box) box.focus();
   }, [count]);
-  const was = React.useRef(count);
+  // From 0, not the mounted count: a bar rendered only while rows are selected ({n > 0 && <TableActionBar />}) says
+  // its first count too (GR55).
+  const was = React.useRef(0);
   React.useEffect(() => {
     if (count === was.current) return;
     was.current = count;

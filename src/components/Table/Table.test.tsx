@@ -379,6 +379,16 @@ describe('TableActionBar (62)', () => {
     expect([idLabels.tableSelected(3), idLabels.clearSelection]).toEqual(['3 dipilih', 'Hapus pilihan']);
   });
 
+  test('GR55: a bar rendered only while rows are selected reads out its first count', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    const screen = await render(<div />);
+    await screen.rerender(<TableActionBar id="bar" count={1} />);
+    await expect.poll(() => said.at(-1)).toMatch(/1 selected$/);
+    seen.disconnect();
+  });
+
   test('no "Clear selection" without onClear; clearLabel renames it; Indonesian labels from the provider', async () => {
     const screen = await render(<TableActionBar id="bar" count={1}><Button size="sm">Export</Button></TableActionBar>);
     expect([...el('bar').querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Export']);

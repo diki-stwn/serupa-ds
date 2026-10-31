@@ -28,7 +28,7 @@ const STATES: readonly SaveState[] = ["idle", "saving", "saved", "error"];
 
 /* SaveStatus: a small line saying whether an autosaving form or document is saved: a ring and "Saving…", a check and
    "Saved 2 minutes ago" (the time kept current), or an error icon, "Couldn't save" and a Try again button. Screen
-   readers hear "Saved" and the error once, politely, when the status changes to them; "Saving…" isn't announced (it
+   readers hear "Saved" and the error once, politely, when the status changes to them (an error also on the first render); "Saving…" isn't announced (it
    comes and goes with every save), and the time ticking isn't either. The wrapper keeps its place when idle, so the
    layout doesn't jump. className and other props go to the wrapper <div>. */
 /** Whether autosaved changes are saved: "Saving…", "Saved 2 minutes ago", or "Couldn't save" with Try again; announced politely. */
@@ -37,7 +37,9 @@ export const SaveStatus = /* @__PURE__ */ component<HTMLDivElement, SaveStatusPr
   const { status: _s, savedAt, onRetry, errorText, className, ...rest } = props;
   const status = oneOf(STATES, props.status, "idle");
   const text = React.useRef<HTMLSpanElement | null>(null);
-  const before = React.useRef(status);
+  // A first "Saved" isn't news, but a first error is: a SaveStatus rendered only once a save fails
+  // ({failed && <SaveStatus status="error" />}) says it too.
+  const before = React.useRef<SaveState>(status === "error" ? "idle" : status);
   React.useEffect(() => {
     const was = before.current;
     before.current = status;
