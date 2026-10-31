@@ -92,12 +92,11 @@ Only a clickable badge (`onClick` or `href`) has hover, focus and active states,
 
 ### Micro-interactions
 
-The same as Button's, each with a component token to tune it or turn it off. Only scale and opacity move, so nothing around the badge reflows.
+The same as Button's, each with a component token to tune it or turn it off. Only scale, opacity and the loading blur move, so nothing around the badge reflows.
 
-- **Press** (clickable badges): shrinks to 97% while held by pointer, Space or Enter, in 100ms. Off: `--badge-press-scale: 100%`.
-- **Ripple** (clickable badges): a circle in the text color at 20% spreads from the press point in 500ms, under the label, then fades in 300ms once released; even a quick click shows the whole wave. Off: `--badge-ripple-opacity: 0`.
-- **Loading** (any badge): the content fades out while the ring fades and grows in, in 150ms.
-- Under reduced motion, press and ripple are off and loading only fades. Your `onPointerDown`, `onKeyDown`, `onKeyUp` and `onBlur` still run first; calling `preventDefault()` in `onPointerDown` skips the ripple.
+- **Press** (clickable badges): shrinks to 97% while held by pointer, Space or Enter, in 100ms, and comes back over 300ms with `ease-enter`, settling at full size with no overshoot. Off: `--badge-press-scale: 100%`.
+- **Loading** (any badge): the content fades out while the ring fades and grows in, in 150ms; both blur a little (`blur-xs`) as they cross, so it reads as one change.
+- Under reduced motion, the press is off and loading only fades (no blur). Your `onPointerDown`, `onKeyDown`, `onKeyUp` and `onBlur` still run first.
 
 ## Accessibility
 
@@ -175,8 +174,5 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-state-text` | `opacity-30` | Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%) |
 | `--badge-focus-ring` | `focus-ring` | Clickable badges: the keyboard focus ring |
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
-| `--badge-press-duration` | `motion-press` | How fast the press scales down (100ms). The release springs back over `motion-release` with `ease-spring`. |
-| `--badge-ripple-opacity` | `opacity-20` | Ripple strength, in the text color (20%); `0` turns it off |
-| `--badge-ripple-duration` | `motion-ripple` | How long the ripple takes to spread (500ms) |
-| `--badge-ripple-fade-duration` | `motion-ripple-fade` | How long the ripple takes to fade after release (300ms) |
+| `--badge-press-duration` | `motion-press` | How fast the press scales down (100ms). The release comes back over `motion-release` with `ease-enter`. |
 | `--badge-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading ring (150ms) |

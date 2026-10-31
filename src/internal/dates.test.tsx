@@ -34,6 +34,14 @@ describe('typed dates', () => {
     expect(parseDate('২২/১১/২০০১', 'bn')?.toDateString()).toBe(new Date(2001, 10, 22).toDateString());
   });
 
+  test('L8E8: a month written as a word, as dates are pasted from an email: in the locale or in English, in full or cut short', () => {
+    const iso = (t: string, locale: string) => { const d = parseDate(t, locale); return d && `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+    expect([
+      iso('12 Mei 2025', 'id'), iso('12 Des 2025', 'id'), iso('May 12, 2025', 'en-US'), iso('12 May 2025', 'en-GB'), iso('Sept 3, 2025', 'en-US'),
+      iso('12. März 2025', 'de'), iso('12 мая 2025 г.', 'ru'), iso('3 de septiembre de 2025', 'es'), iso('Monday, May 12, 2025', 'en-US'), iso('12 May 2025', 'id'),
+    ]).toEqual(['2025-5-12', '2025-12-12', '2025-5-12', '2025-5-12', '2025-9-3', '2025-3-12', '2025-5-12', '2025-9-3', '2025-5-12', '2025-5-12']);
+    expect([parseDate('May 2025', 'en-US'), parseDate('31 Feb 2025', 'en-US'), parseDate('Ma 12 2025', 'en-US')]).toEqual([null, null, null]);
+  });
   test('a two-digit year is the one within 50 years of now: birth dates go back, deadlines go forward; four digits are kept', () => {
     const y = (text: string, now: Date) => parseDate(text, 'en-US', now)?.getFullYear();
     const in2026 = new Date(2026, 9, 25), in2081 = new Date(2081, 0, 1);

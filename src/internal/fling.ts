@@ -27,3 +27,7 @@ export function speed(s: Samples): number {
 export function settleTime(distance: number, v: number, { min = 150, max = 400, floor = 1 }: { min?: number; max?: number; floor?: number } = {}): number {
   return Math.round(Math.min(max, Math.max(min, (SLOPE * Math.abs(distance)) / Math.max(Math.abs(v), floor))));
 }
+
+/** A drag past where it can go meets resistance: it moves less the further it goes, never more than w (Carousel past
+ *  its first or last slide, a Drawer pulled away from its edge). */
+export const rubber = (d: number, w: number): number => Math.sign(d) * (1 - 1 / (Math.abs(d) * 0.55 / Math.max(1, w) + 1)) * w;

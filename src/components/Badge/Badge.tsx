@@ -6,7 +6,7 @@ import { displayNumber } from "../../internal/numbers";
 import { useLocale, useSettings } from "../../internal/provider";
 import { useShowAfter } from "../../internal/showAfter";
 import { announce, ensureAnnouncer } from "../../internal/announce";
-import { block, both, chain, pressKey, releaseKey, ripple } from "../../internal/interactions";
+import { block, both, chain, pressKey, releaseKey } from "../../internal/interactions";
 import { warnOnce } from "../../internal/warn";
 import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
@@ -64,7 +64,7 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
    max: shows "99+" past max, and nothing at 0 unless showZero) and a remove button (onRemove; its accessible
    name is removeLabel + the label, "Remove Design"). Interactive: with onClick it renders a <button type="button">,
    with href a link (the configured link component, like Button), and only then has hover, focus and active
-   states and Button's micro-interactions (press, ripple). loading cross-fades the content to a centered ring (the width stays), sets aria-busy, announces
+   states and Button's micro-interactions (the press). loading cross-fades the content to a centered ring (the width stays), sets aria-busy, announces
    loadingText ("Loading") and, on an interactive badge, blocks clicks while keeping focus. */
 const VARIANTS: readonly BadgeVariant[] = ["subtle", "solid", "outline"];
 const TONES: readonly BadgeTone[] = ["neutral", "primary", "success", "warning", "danger", "info", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"];
@@ -183,9 +183,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const classes = cn("dk-badge", "dk-badge--" + variant, "dk-badge--tone-" + tone, isCount && "dk-badge--count", (icon || dot) && "dk-badge--lead", dot && props.ping && "dk-badge--ping", removable && "dk-badge--removable", interactive && "dk-badge--interactive", loading && "dk-badge--loading", props.className);
   const content: React.ReactNode[] = [dot, icon, <span className="dk-badge__label" key="label">{label}</span>, remove, spin];
   if (interactive) {
-    // Micro-interactions, as on Button: a ripple from the press point, and Enter shows the press like Space (your handlers run first)
-    content.unshift(<span className="dk-badge__ripples" aria-hidden key="ripples" />);
-    rest.onPointerDown = chain(rest.onPointerDown, ripple);
+    // Micro-interactions, as on Button: Enter shows the press like Space (your handlers run first)
     rest.onKeyDown = chain(rest.onKeyDown, pressKey);
     rest.onKeyUp = both(rest.onKeyUp, releaseKey);
     rest.onBlur = both(rest.onBlur, releaseKey);

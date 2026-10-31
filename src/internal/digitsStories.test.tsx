@@ -4,6 +4,7 @@ import { flushSync } from 'react-dom';
 import { expect, test } from 'vitest';
 import { SerupaProvider } from './provider';
 import { storiesToRun } from '../../tools/test/vitest/stories';
+import { fiberOf, fromStory } from '../../tools/test/vitest/storyOwner';
 
 // Numbers a component writes itself follow the locale (GR20, GR22, GR24: three components wrote String(n) where Badge,
 // Pagination and Meter use displayNumber, and each was found by hand). Every story is drawn in ar-EG, whose digits are
@@ -17,14 +18,9 @@ const storyText = (name: string) => {
   return [...src.matchAll(/'[^'\n]*'|"[^"\n]*"|`[^`]*`|>[^<>]+</g)].map((m) => m[0]).join('\n');
 };
 // The element holding the text was made by the story file (a wrapper's caption, a list it maps), found from where
-// React's development build says the element was made, as the strict-CSP sweep does: its text is the story's.
-type Fiber = { _debugStack?: Error };
-const byStory = (el: Element) => {
-  const key = Object.keys(el).find((k) => k.startsWith('__reactFiber$'));
-  const f = key ? (Reflect.get(el, key) as Fiber) : null;
-  const made = String(f?._debugStack?.stack || '').split('\n').find((l) => /https?:|@/.test(l) && !l.includes('/node_modules/'));
-  return !!made && /\.stories\.tsx|\/tools\/test\//.test(made);
-};
+// React's development build says the element was made (tools/test/vitest/storyOwner.ts, shared with the strict-CSP
+// sweep): its text is the story's.
+const byStory = (el: Element) => { const f = fiberOf(el); return !!f && fromStory(f); };
 const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
 // Latin digits on purpose, each with its reason: a component, or one story as "<Component>/<Story>".

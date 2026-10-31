@@ -1,6 +1,8 @@
-// Page groundwork: responsive variants, base.css, theme.js (automatic dark mode) and the CSS trimmer (bin/serupa-purge.mjs).
+// Page groundwork: responsive variants, base.css, theme.js (automatic dark mode), the CSS trimmer (bin/serupa-purge.mjs)
+// and the plain-page sample in Getting started.
 //   node tools/test/page.mjs
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -219,6 +221,39 @@ for (const scheme of ['light', 'dark']) {
     t(`serupa-purge --components: ${c}'s preview renders identically`, !d.length, d.slice(0, 3).join(' | '));
   }
   t(`serupa-purge --components: ${comps.length} previews average ${(small / comps.length / 1024).toFixed(0)} KB of CSS`, small < full);
+}
+
+// 6. The plain-page sample in docs/GettingStarted.mdx works as written: served from the project over HTTP (a font
+// preload is fetched with CORS, which file:// doesn't do), it's in standards mode, UTF-8, titled, draws its Button in
+// Inter inside main, gets a theme-color, fetches the font once (the preload is the one the page uses) and logs nothing.
+{
+  const html = fs.readFileSync(path.join(PROJECT, 'docs', 'GettingStarted.mdx'), 'utf8').match(/^## Or on a plain page\s+```html\n([\s\S]*?)```/m)?.[1] || '';
+  const TYPES = { '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+  const server = http.createServer((req, res) => {
+    const url = decodeURIComponent(new URL(req.url || '/', 'http://x').pathname);
+    const file = path.join(PROJECT, url);
+    if (url === '/') { res.setHeader('content-type', 'text/html'); res.end(html); }
+    else if (!file.startsWith(PROJECT + path.sep) || !fs.existsSync(file)) { res.statusCode = 404; res.end(); }
+    else { res.setHeader('content-type', TYPES[path.extname(file)] || 'application/octet-stream'); res.end(fs.readFileSync(file)); }
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', () => r(undefined)));
+  const port = /** @type {import('node:net').AddressInfo} */ (server.address()).port;
+  const p = await b.newPage();
+  const logged = [], fonts = [];
+  p.on('console', (m) => logged.push(`${m.type()}: ${m.text()}`));
+  p.on('pageerror', (e) => logged.push(e.message));
+  p.on('request', (q) => { if (q.url().endsWith('.woff2')) fonts.push(new URL(q.url()).pathname); });
+  await p.goto(`http://127.0.0.1:${port}/`);
+  await p.waitForFunction(() => !!document.querySelector('#root button'), null, { timeout: 10000 }).catch(() => undefined);
+  await p.evaluate(() => document.fonts.ready);
+  const r = await p.evaluate(() => {
+    const btn = document.querySelector('main button');
+    return { mode: document.compatMode, charset: document.characterSet, title: document.title, button: btn?.textContent, font: btn && getComputedStyle(btn).fontFamily.split(',')[0], themeColor: !!document.querySelector('meta[name="theme-color"]')?.getAttribute('content') };
+  });
+  await p.close();
+  server.close();
+  t('Getting started\'s plain page: standards mode, UTF-8, a title, its Button in Inter inside main, a theme-color', html && r.mode === 'CSS1Compat' && r.charset === 'UTF-8' && r.title && r.button === 'Hello' && r.font === 'Inter' && r.themeColor, html ? JSON.stringify(r) : 'no ```html block under "Or on a plain page"');
+  t('Getting started\'s plain page: the font is fetched once, and nothing is logged', fonts.length === 1 && !logged.length, JSON.stringify({ fonts, logged }));
 }
 
 await b.close();
