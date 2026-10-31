@@ -69,7 +69,7 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
    is never narrower than its longest word, and a row that still doesn't fit scrolls in its own box instead of running
    off the page. Wider screens keep the layout the script keeps, so nothing moves when it takes over (GR62). */
 @media (max-width: 639.98px) {
-  .dk-stepper--horizontal:not([data-fit]) .dk-stepper__list { overflow-x: auto; }
+  .dk-stepper--horizontal:not([data-fit]) .dk-stepper__list { overflow-x: auto; overscroll-behavior-x: contain; }
   .dk-stepper--horizontal:not([data-fit]) .dk-stepper__step, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__head, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { min-width: auto; }
   .dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { overflow-wrap: break-word; }
 }
