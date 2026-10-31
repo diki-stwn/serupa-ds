@@ -151,4 +151,10 @@ describe('EmptyState', () => {
     }
     expect(low).toEqual([]);
   });
+  test('a long action label wraps in a narrow box (200px) instead of widening the state past it (GR71)', async () => {
+    await render(<div style={{ width: '200px' }}><EmptyState id="esn" title="No projects" description="Start one." actions={<Button>Create your first project from a template</Button>} /></div>);
+    const b = el('esn').querySelector('.dk-btn') as HTMLElement;
+    expect([el('esn').getBoundingClientRect().width <= 201, b.getBoundingClientRect().right <= el('esn').getBoundingClientRect().right + 1, b.getBoundingClientRect().height > 40]).toEqual([true, true, true]);
+    expect(b.textContent).toBe('Create your first project from a template');
+  });
 });
