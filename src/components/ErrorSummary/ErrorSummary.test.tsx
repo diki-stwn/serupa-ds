@@ -157,4 +157,21 @@ describe('ErrorSummary links to a group root (GR15)', () => {
     await userEvent.click(link(2));
     expect(el('gr15-stars').contains(document.activeElement) && document.activeElement !== el('gr15-stars')).toBe(true);
   });
+
+  test("a link to a RadioGroup in a fieldset scrolls the group's legend (the question) to the top, as a link to a radio does (L8E56)", async () => {
+    await render(<form noValidate>
+      <ErrorSummary errors={[{ field: 'l56-plan', message: 'Choose a plan' }]} autoFocus={false} />
+      <div style={{ height: '150vh' }} />
+      <fieldset>
+        <legend id="l56-legend">Plan</legend>
+        <p style={{ margin: 0, height: '40px' }}>Prices are per month.</p>
+        <RadioGroup id="l56-plan" aria-labelledby="l56-legend"><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
+      </fieldset>
+      <div style={{ height: '150vh' }} />
+    </form>);
+    await userEvent.click(document.querySelector<HTMLAnchorElement>('a[href="#l56-plan"]')!);
+    expect((document.activeElement as HTMLInputElement).value).toBe('free');
+    await expect.poll(() => atTop(el('l56-legend'))).toBe(true);
+    window.scrollTo(0, 0);
+  });
 });

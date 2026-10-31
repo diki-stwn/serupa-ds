@@ -33,7 +33,7 @@ import { ErrorSummary } from "serupa-ds";
 
 - With no errors it renders nothing.
 - It takes focus when it appears, and again when its errors change (another failed submit), so the page scrolls to it and a screen reader reads its heading. `autoFocus={false}` turns this off.
-- Clicking an error moves focus to its field and scrolls the field's label to the top, so the question shows above the answer. For a radio or checkbox in a fieldset, the group's legend shows. A modified click (new tab) or a field that isn't on the page follows the link as usual.
+- Clicking an error moves focus to its field and scrolls the field's label to the top, so the question shows above the answer. For a radio or checkbox in a fieldset, the group's legend shows, also when the error names a RadioGroup by its id. A modified click (new tab) or a field that isn't on the page follows the link as usual.
 
 ## Accessibility
 
