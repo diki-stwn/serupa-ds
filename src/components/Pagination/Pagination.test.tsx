@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -270,5 +271,24 @@ describe('Pagination', () => {
       const box = el(id).getBoundingClientRect(), items = [...el(id).querySelectorAll('li')].map((li) => li.getBoundingClientRect());
       expect([items.every((r) => r.left >= box.left - 0.5 && r.right <= box.right + 0.5), shown(id).startsWith('<'), shown(id).endsWith('>')]).toEqual([true, true, true]);
     }
+  });
+});
+
+describe('Pagination before the script runs (GR62)', () => {
+  test('server HTML at 320px: the row wraps rather than run off the page, and no page number breaks across lines; once mounted it fits on one line', async () => {
+    const ui = <Pagination count={120} defaultPage={10} />;
+    const host = document.createElement('div');
+    host.style.width = '320px';
+    host.innerHTML = renderToString(ui);
+    document.body.append(host);
+    try {
+      const l = host.querySelector<HTMLElement>('ul')!, items = [...l.querySelectorAll<HTMLElement>('li > *')];
+      const h = items[0].getBoundingClientRect().height;
+      expect([l.hasAttribute('data-fit'), l.scrollWidth <= l.clientWidth + 1, items.every((i) => i.getBoundingClientRect().height === h), new Set(items.map((i) => i.offsetTop)).size > 1])
+        .toEqual([false, true, true, true]);
+    } finally { host.remove(); }
+    await render(<div style={{ width: '320px' }} id="gr62">{ui}</div>);
+    const l = document.querySelector<HTMLElement>('#gr62 ul')!, items = [...l.querySelectorAll<HTMLElement>('li > *')];
+    expect([l.hasAttribute('data-fit'), l.scrollWidth <= l.clientWidth + 1, new Set(items.map((i) => i.offsetTop)).size]).toEqual([true, true, 1]);
   });
 });
