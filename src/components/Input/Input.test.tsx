@@ -386,6 +386,18 @@ describe('Input mask', () => {
     expect([field('d').value, caret('d')]).toEqual(['01/22/02', [2, 2]]);
   });
 
+  test('L8E31: an onKeyDown that prevents Backspace or Delete also stops the caret skip past the pattern\'s text, and the skip waits while an input method is composing', async () => {
+    await render(<Input id="mk" aria-label="Date" mask="99/99/9999" defaultValue="01022024" onKeyDown={(e) => { if (e.key === 'Delete') e.preventDefault(); }} />);
+    const i = field('mk');
+    i.focus();
+    i.setSelectionRange(2, 2);   // just before the first "/"
+    i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }));
+    const prevented = caret('mk');
+    i.setSelectionRange(3, 3);   // just after it
+    i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', isComposing: true, bubbles: true, cancelable: true }));
+    expect([prevented, caret('mk'), i.value]).toEqual([[2, 2], [3, 3], '01/02/2024']);
+  });
+
   test('text set at once (a paste, autofill) is laid into the pattern; A makes letters capitals; plain text at the start stays; \\ makes a pattern character plain; value and defaultValue show masked', async () => {
     function Iban() {
       const [v, setV] = React.useState('');
