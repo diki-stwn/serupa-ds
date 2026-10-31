@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press, iconPoints } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 import { Pagination, paginationRange } from './Pagination';
 
 // The tests that read digits say they mean en-US: with no locale, a count is in the browser's digits ("٣" in ar-EG).
@@ -209,4 +210,36 @@ describe('Pagination', () => {
     }
   });
 
+
+  // O7: with total and pageSize, which items the page shows, in the locale's digits and grouping.
+  test('total and pageSize: a muted "21–30 of 245" before the pages, the last page cut to the total, one item alone, none at all; Indonesian under id-ID (O7)', async () => {
+    const summary = (id: string) => el(id).querySelector('p')?.textContent;
+    await render(<EnUS>
+      <Pagination id="s1" count={25} page={3} total={245} pageSize={10} />
+      <Pagination id="s2" count={25} page={25} total={245} pageSize={10} />
+      <Pagination id="s3" count={2} page={2} total={11} pageSize={10} />
+      <Pagination id="s4" count={0} total={0} pageSize={10} />
+      <Pagination id="s5" count={1235} page={101} total={12345} pageSize={10} />
+      <Pagination id="s6" count={25} page={3} total={245} />
+    </EnUS>);
+    expect(['s1', 's2', 's3', 's4', 's5', 's6'].map(summary)).toEqual(['21–30 of 245', '241–245 of 245', '11 of 11', '0 of 0', '1,001–1,010 of 12,345', undefined]);
+    // Before the list, inside the nav, muted at 4.5:1.
+    expect([el('s1').firstElementChild!.tagName, css(el('s1').firstElementChild!).color === css(el('s1')).color]).toEqual(['P', false]);
+    await render(<SerupaProvider locale="id-ID" labels={idLabels}><Pagination id="s7" count={1235} page={101} total={12345} pageSize={10} /></SerupaProvider>);
+    expect(summary('s7')).toBe('1.001–1.010 dari 12.345');
+  });
+
+  test('total and pageSize: the pages sit at the end of the row, and wrap under the summary before showing fewer (O7)', async () => {
+    await render(<EnUS>
+      <div style={{ width: '560px' }}><Pagination id="w1" count={25} page={3} total={245} pageSize={10} /></div>
+      <div style={{ width: '300px' }}><Pagination id="w2" count={25} page={12} total={245} pageSize={10} /></div>
+    </EnUS>);
+    const [p1, l1] = [el('w1').querySelector('p')!, el('w1').querySelector('ul')!], last1 = l1.lastElementChild!.getBoundingClientRect();
+    expect([Math.round(p1.getBoundingClientRect().top) === Math.round(l1.getBoundingClientRect().top) || p1.getBoundingClientRect().bottom > l1.getBoundingClientRect().top, Math.round(last1.right), shown('w1')])
+      .toEqual([true, Math.round(el('w1').getBoundingClientRect().right), '< 1 2 [3] 4 5 … 25 >']);
+    const [p2, l2] = [el('w2').querySelector('p')!, el('w2').querySelector('ul')!];
+    // At 300px the summary and the full row don't fit on one line: the pages go under it, and fit.
+    await expect.poll(() => l2.getBoundingClientRect().top >= p2.getBoundingClientRect().bottom).toBe(true);
+    expect([l2.scrollWidth <= l2.clientWidth + 1, el('w2').scrollWidth <= 300]).toEqual([true, true]);
+  });
 });

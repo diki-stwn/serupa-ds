@@ -25,6 +25,11 @@
 .dk-pagination__item--current { background: var(--pagination-current-bg, var(--primary)); color: var(--pagination-current-text, var(--on-primary)); font-weight: var(--pagination-weight-current, var(--font-semibold)); cursor: default; }
 .dk-pagination__item:disabled, .dk-pagination__item[aria-disabled="true"] { opacity: var(--pagination-disabled, var(--opacity-disabled)); cursor: not-allowed; }
 .dk-pagination__ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); color: var(--pagination-ellipsis, var(--text-muted)); -webkit-user-select: none; user-select: none; }
+/* With total and pageSize (O7): the summary, muted, then the pages at the end of the row. When both don't fit on
+   one line the pages wrap under the summary, and only then show fewer pages (ET1). */
+.dk-pagination--summary { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--pagination-summary-gap, var(--spacing-4)); row-gap: var(--spacing-2); }
+.dk-pagination__summary { margin: var(--spacing-0); color: var(--pagination-summary, var(--text-muted)); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dk-pagination--summary .dk-pagination__list { flex: 1 1 auto; min-width: var(--spacing-0); justify-content: flex-end; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }
