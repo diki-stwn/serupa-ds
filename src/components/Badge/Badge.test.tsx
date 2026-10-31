@@ -554,6 +554,22 @@ describe('Badge', () => {
       expect([o.from, o.anim]).toEqual([expect.stringMatching(/100%/), 'dk-loader-in']);
     } finally { restore(); }
   });
+  test('probe: press loop', async () => {
+    await show();
+    const e = el('mi'), bad: unknown[] = [];
+    for (let i = 0; i < 25; i++) {
+      e.focus();
+      await userEvent.keyboard('{Enter>}');
+      const t0 = performance.now();
+      let sc = css(e).scale;
+      while (sc !== '0.97' && performance.now() - t0 < 700) { await new Promise(requestAnimationFrame); sc = css(e).scale; }
+      if (sc !== '0.97') bad.push({ i, sc, pressed: e.hasAttribute('data-pressed'), match: e.matches('.dk-badge--interactive[data-pressed]'), press: css(e).getPropertyValue('--dk-badge-press'), dur: css(e).transitionDuration, tl: document.timeline.currentTime, vis: document.visibilityState, anims: e.getAnimations().map((a) => [a.constructor.name, (a as CSSTransition).transitionProperty, a.playState, a.currentTime, a.startTime, a.pending]) });
+      await userEvent.keyboard('{/Enter}');
+      await settled(e);
+    }
+    console.log('PROBE', JSON.stringify(bad));
+    expect(bad).toEqual([]);
+  }, 90000);
 });
 
 describe('focus after removing a tag (179)', () => {
