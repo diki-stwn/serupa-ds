@@ -139,3 +139,11 @@ describe('TypeToConfirm at 320px (GQ5)', () => {
     expect(el('gq5').scrollWidth).toBe(320);
   });
 });
+
+describe('TypeToConfirm autoFocus (L8E94)', () => {
+  test('L8E94 autoFocus focuses the field, as in a dialog that opens on it; it went to the wrapper <div> and did nothing', async () => {
+    await render(<><button>Before</button><Confirm id="l8e94" autoFocus /></>);
+    await expect.poll(() => document.activeElement === parts('l8e94').input).toBe(true);
+    expect(parts('l8e94').root.hasAttribute('autofocus')).toBe(false);
+  });
+});
