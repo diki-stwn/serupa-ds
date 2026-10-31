@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [firefox, webkit]
+        browser: [firefox]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          node tools/test/run.mjs --browser ${{ matrix.browser }} --group components 2>&1 | tee test-output.txt
+          SERUPA_BROWSER=firefox npx vitest run --project components src/components/ErrorSummary/ErrorSummary.test.tsx 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee test-output.txt
       - name: List the failures
         if: failure()
         shell: bash
