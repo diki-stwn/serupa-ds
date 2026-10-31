@@ -109,6 +109,10 @@ export const generics = [
   <SegmentedControl<'list' | 'board'> aria-label="View" options={[{ value: 'list', label: 'List' }]} onValueChange={(_v) => is<Equal<typeof _v, 'list' | 'board'>>()} />,
   // @ts-expect-error: a value none of the segments has
   <SegmentedControl<'list' | 'board'> aria-label="View" options={[{ value: 'list', label: 'List' }]} defaultValue="grid" />,
+  <Combobox aria-label="Color" options={['red', 'green']} onValueChange={(_v) => is<Equal<typeof _v, 'red' | 'green' | null>>()} />,
+  <Combobox<'red' | 'green'> multiple aria-label="Colors" options={[{ value: 'red', label: 'Red' }]} onValueChange={(_v) => is<Equal<typeof _v, ('red' | 'green')[]>>()} />,
+  // @ts-expect-error: a value none of the options has
+  <Combobox<'red' | 'green'> aria-label="Color" options={['red']} defaultValue="blue" />,
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.name} renderItem={(t) => t.name} onReorder={(_items) => is<Equal<typeof _items, { id: number; name: string }[]>>()} />,
   // @ts-expect-error: the item has no title
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.title} renderItem={(t) => t.name} onReorder={() => {}} />,
