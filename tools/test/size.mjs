@@ -39,7 +39,7 @@ import { purge, unusedComponentClasses, usedClasses } from '../../bin/serupa-pur
 const TOTALS = {
   'All components (index.js)': [70.7, 59.3, 'share'],   // +1.0 KiB on 31 Oct 2026: headroom for shared code (after #1047 main sat within bytes of the line and #1048 went 3 B over; three lanes land shared code at once, and 0.5 left none for the day); +0.5 KiB on 31 Oct 2026: headroom for shared code (#997, #1000, #1001 and #1002 landed together and took main 57 B over); +0.5 KiB on 26 Oct 2026: headroom for shared code (main sat 0.2 KiB under, and #735, #777 and #781 each went 0.0 to 0.1 over it); +0.2 KiB on 26 Oct 2026: Firefox strict-CSP server styles applied from React's props (internal/serverStyles.ts, FW1); +1.0 KiB on 25 Oct 2026: headroom for shared code (the trigger contract, internal/trigger.ts, G9, needs 0.2 with the total at its budget); +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
   'components.css': [28.5, 53.6, 'css'],
-  'serupa.iife.js': [630, 59.3, 'share'],
+  'serupa.iife.js': [123.5, 99.0, 'share'],   // 119.4 on 31 Oct 2026, once the full icon table moved to serupa-icons.iife.js (PF1); 610.1 with it
 };
 // KiB, gzipped: [budget, the size it was set at]. The totals that count shared code move with the budget.
 const LABELS = [2.6, 1.9];
@@ -49,7 +49,7 @@ const LABELS = [2.6, 1.9];
 const PHONE_DATA = 2.8;
 // Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set), and to 2.4 on
 // 31 Oct 2026 with the choice read again on a return from the back/forward cache (FEC6: 2.37).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.8, 'serupa-icons.iife.js': 525 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2); serupa-icons.iife.js: 492.9 the same day, every Material Symbol, loaded only when a plain page names one outside the everyday set (PF1)
 // KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
 // whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
 const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
@@ -137,7 +137,7 @@ const sum = (k) => folders.reduce((t, n) => t + (budgets[n]?.[k] || 0), 0);
 const BUDGET = { ...Object.fromEntries(Object.entries(TOTALS).map(([f, [at, was, k]]) => [f, +(at + sum(k) - was + (k === 'share' ? LABELS[0] - LABELS[1] : 0)).toFixed(1)])), ...FIXED };
 BUDGET['bundle.css'] = +(BUDGET['components.css'] + BUDGET['utilities.css']).toFixed(1);
 const size = { 'All components (index.js)': whole }, brotli = {};
-for (const f of ['components.css', 'utilities.css', 'bundle.css', 'base.css', 'theme.js', 'serupa.iife.js']) { size[f] = file(f); brotli[f] = br(fs.readFileSync(path.join(PROJECT, 'dist', f))); }
+for (const f of ['components.css', 'utilities.css', 'bundle.css', 'base.css', 'theme.js', 'serupa.iife.js', 'serupa-icons.iife.js']) { size[f] = file(f); brotli[f] = br(fs.readFileSync(path.join(PROJECT, 'dist', f))); }
 const tokensCss = fs.readFileSync(path.join(PROJECT, 'tokens.css'));
 size['tokens.css'] = gz(tokensCss); brotli['tokens.css'] = br(tokensCss);
 

@@ -118,6 +118,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/bundle.css` | `components.css` + `utilities.css`. |
 | `dist/index.js`, `dist/index.d.ts` | The components as ES modules, with types. |
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
+| `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
@@ -132,7 +133,7 @@ The package also exports what the components use themselves, so a component you 
 | `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
 | `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
 | `announcePage({ title?, focus? })` | After a client-side route change, does what a full page load would: focuses the new page's main heading (the `h1` in `<main>`, made focusable with `tabindex="-1"`) and says its title (`document.title` by default) to screen readers, unless the focused heading already says it. `focus` takes an element or a selector, or `false` to leave focus where it is. Call it in an effect once the new page has rendered. |
-| `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and simply applies the change where View Transitions are missing. |
+| `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and applies the change at once where View Transitions are missing. |
 
 ```tsx
 import { announce, useLocale } from "serupa-ds";

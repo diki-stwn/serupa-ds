@@ -39,5 +39,7 @@ declare global {
       withoutTransitions: typeof withoutTransitions; withViewTransition: typeof withViewTransition;
       /** Present when theme.js is loaded. */ theme?: ThemeApi;
     };
+    /** Every Material Symbol, once serupa-icons.iife.js has run (serupa.iife.js adds it when an Icon needs it). */
+    SerupaIcons?: Readonly<Record<string, unknown>>;
   }
 }

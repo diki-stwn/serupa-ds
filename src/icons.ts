@@ -32,7 +32,9 @@ let loadingNamed: Promise<void> | undefined;
 const LOADED = new Set<string>();
 const loaded = (v: IconData) => { if (!NAMED.has(v.name)) { NAMED.set(v.name, v); LOADED.add(v.name); } };
 // The two chunks, as an object so a test can make a load fail (Icon's IconLoad.test.tsx).
-export const iconChunks = { named: () => import("./material/named"), all: () => import("./material/icons") };
+// serupa.iife.js swaps `all` for a script tag (src/browser.ts): an IIFE can't split, so the table is a script of its own.
+export const iconChunks: { named: () => Promise<{ NAMED_ICONS: readonly IconData[] }>; all: () => Promise<Readonly<Record<string, unknown>>> } =
+  { named: () => import("./material/named"), all: () => import("./material/icons") };
 
 /** Loads the icon for a name (Icon calls it when it meets a name it doesn't know yet): the components' own icons first,
  * from a small chunk, then every Material Symbol. Resolves to the icon, or undefined if no icon has that name. */

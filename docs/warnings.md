@@ -32,7 +32,7 @@ A Field's label points at its control by id, and nothing on the page has that id
 
 ## icon-load
 
-The icons drawn by name come from a chunk loaded on demand, and that load failed: a network error, or a deploy that removed the chunk the page asked for. The box stays empty; the next Icon tries again, and each empty one tries again when the browser is back online. To draw an icon without loading anything, import it and pass `icon={…}`, or register the icons first.
+The icons drawn by name come from a chunk loaded on demand (on a plain page, `serupa-icons.iife.js` from beside `serupa.iife.js`), and that load failed: a network error, a deploy that removed the chunk the page asked for, or `serupa.iife.js` copied without `serupa-icons.iife.js`. The box stays empty; the next Icon tries again, and each empty one tries again when the browser is back online. To draw an icon without loading anything, import it and pass `icon={…}`, or register the icons first.
 
 ## icon-unknown
 
