@@ -1,11 +1,16 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
-import { render } from 'vitest-browser-react';
+import { render as mount } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { NumberInput } from './NumberInput';
+
+// The tests that read digits mean en-US: with no locale the field writes the browser's digits ("٥" in ar-EG, GR48),
+// so every render is inside an en-US provider; a test about another locale puts its own provider inside, which wins.
+const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider locale="en-US">{children}</SerupaProvider>;
+const render: typeof mount = (ui, options) => mount(ui, { wrapper: EnUS, ...options });
 const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 // The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
