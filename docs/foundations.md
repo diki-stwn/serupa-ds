@@ -843,6 +843,8 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `hoverIntent` | 400ms | The pointer rests this long before a tooltip shows (Tooltip's default `delay`). |
 | `hoverLeave` | 100ms | A tooltip waits this long after the pointer leaves, so moving onto it keeps it open. |
 | `hoverWarm` | 300ms | After a tooltip closes, the next one opens at once for this long. |
+| `cardIntent` | 500ms | The pointer rests this long on a link, or focus stays on it, before its HoverCard opens (its default `openDelay`). |
+| `cardLeave` | 300ms | A HoverCard waits this long after the pointer or focus leaves it and its link (its default `closeDelay`). |
 | `submenuIntent` | 150ms | The pointer rests this long on a menu item before its submenu opens or closes. |
 | `typingPause` | 250ms | Typing pauses this long before Combobox's `loadOptions` runs (its default `debounce`). |
 | `announcePause` | 700ms | Combobox waits this long after the options change before saying how many there are. |

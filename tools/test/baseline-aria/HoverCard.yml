@@ -1,0 +1,50 @@
+# BottomStart
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- img "Dewi Lestari"
+- strong: Dewi Lestari
+- text: Design lead, Payments
+- paragraph: Owns the checkout and invoice screens. In Jakarta, usually online 9 to 5 WIB.
+- link "See Dewi's projects":
+  - /url: "#dewi-projects"
+- text: on Monday.
+
+# LongText
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- strong: Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung
+- paragraph: A summary long enough to wrap several times inside the card, so the card grows taller rather than wider, and scrolls inside itself once it would be taller than the screen.
+- text: on Monday.
+
+# Open
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- img "Dewi Lestari"
+- strong: Dewi Lestari
+- text: Design lead, Payments
+- paragraph: Owns the checkout and invoice screens. In Jakarta, usually online 9 to 5 WIB.
+- link "See Dewi's projects":
+  - /url: "#dewi-projects"
+- text: on Monday.
+
+# Playground
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- text: on Monday.
+
+# Top
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- img "Dewi Lestari"
+- strong: Dewi Lestari
+- text: Design lead, Payments
+- paragraph: Owns the checkout and invoice screens. In Jakarta, usually online 9 to 5 WIB.
+- link "See Dewi's projects":
+  - /url: "#dewi-projects"
+- text: on Monday.
+
