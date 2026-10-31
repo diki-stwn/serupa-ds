@@ -261,7 +261,7 @@ describe('DateRangePicker', () => {
     const name = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
     const lo = at(400), hi = at(-400);
     await render(<><DateRangePicker data-testid="lo" aria-label="Lo" locale="en-US" months={1} min={lo} /><DateRangePicker data-testid="hi" aria-label="Hi" locale="en-US" months={1} max={hi} /></>);
-    const title = async (tid: string) => { await userEvent.click(btn(tid)); const s = pop(tid).querySelector('.dk-calendar__title')!.textContent; await userEvent.keyboard('{Escape}'); return s; };
+    const title = async (tid: string) => { await userEvent.click(btn(tid)); const g = pop(tid).querySelector('[role=grid]')!, s = document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent; await userEvent.keyboard('{Escape}'); return s; };
     expect([await title('lo'), await title('hi')]).toEqual([name(lo), name(hi)]);
   });
 });
