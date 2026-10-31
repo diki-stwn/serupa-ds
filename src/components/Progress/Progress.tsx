@@ -21,7 +21,8 @@ export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   size?: 'sm' | 'md' | 'lg';
   /** The fill color: 'primary' (default), 'success', 'warning' or 'danger'. */
   tone?: ProgressTone;
-  /** A visible name above the bar (bar only), which also names it. Without one, give it an aria-label. */
+  /** A visible name above the bar, which also names it; a ring has no room to show it, so there it only names it.
+      Without one, give it an aria-label. */
   label?: React.ReactNode;
   /** Shows the value: at the end of the label row, or inside the ring (md and lg). Default: false. */
   showValue?: boolean;
@@ -79,7 +80,12 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   }, [done]);
   const aria: React.AriaAttributes & { role?: React.AriaRole } = { role: "progressbar", "aria-valuemin": 0, "aria-valuemax": max };
   if (known) { aria["aria-valuenow"] = value; aria["aria-valuetext"] = text; }
-  if (hasLabel && variant === "bar" && !rest["aria-label"] && !rest["aria-labelledby"]) aria["aria-labelledby"] = base + "-label";
+  // A ring has no room to show its label, so the label names it: as its aria-label when it's text, else through a
+  // hidden copy (L8E70). aria-label or aria-labelledby, when given, win.
+  const nameless = hasLabel && !rest["aria-label"] && !rest["aria-labelledby"];
+  const ringText = nameless && variant === "circle" && (typeof props.label === "string" || typeof props.label === "number");
+  if (ringText) aria["aria-label"] = String(props.label);
+  else if (nameless) aria["aria-labelledby"] = base + "-label";
   const cls = cn("dk-progress", "dk-progress--" + variant, "dk-progress--size-" + size, tone !== "primary" && "dk-progress--" + tone, !known && "dk-progress--indeterminate", props.className);
   const data = { "data-component": "progress", "data-variant": variant, "data-size": size, "data-tone": tone, "data-state": known ? (value >= max ? "complete" : "loading") : "indeterminate" };
 
@@ -91,6 +97,7 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
           <circle className="dk-progress__arc" cx={12} cy={12} r={10.5} pathLength={100} strokeDasharray={known ? share * 100 + " 100" : "25 100"} />
         </svg>
         {showValue && size !== "sm" ? <span className="dk-progress__value" aria-hidden>{text}</span> : null}
+        {nameless && !ringText ? <span id={base + "-label"} hidden>{props.label}</span> : null}
       </div>
     );
   }
