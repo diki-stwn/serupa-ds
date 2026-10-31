@@ -30,6 +30,18 @@ function Ctl(props: { changes: string[]; setRef: { set?: (r: DateRange) => void 
 }
 
 describe('DateRangePicker', () => {
+  test('switching to another window or tab mid-typing keeps the typed text and says nothing (L8E27)', async () => {
+    const calls: string[] = [];
+    await render(<DateRangePicker data-testid="drpw" locale="en-US" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    const f = fields('drpw')[0];
+    await userEvent.click(f);
+    await userEvent.keyboard('5/1');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    f.dispatchEvent(new FocusEvent('focusout', { bubbles: true })); f.dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([f.value, calls]).toEqual(['5/1', []]);
+  });
+
   test('both fields are described by the Field hint and the format to type', async () => {
     await render(<Trip />);
     expect(fields('trip').map((f) => (f.getAttribute('aria-describedby') || '').split(' ').map((i) => document.getElementById(i)!.textContent).join(' | '))).toEqual(['mm/dd/yyyy | Format: mm/dd/yyyy', 'mm/dd/yyyy | Format: mm/dd/yyyy']);
