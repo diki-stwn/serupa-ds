@@ -8,7 +8,7 @@ import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { useServerStyles } from "../../internal/serverStyles";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { FieldContext, useFieldControl } from "../../internal/field";
-import { delegateFocus } from "../../internal/focus";
+import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { en as words } from "./labels";
 
 export interface RatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
@@ -54,7 +54,7 @@ const round = (n: number, by: number) => Math.round(n / by) * by;
 export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Rating", function Rating(given, ref) {
   const props = useFieldControl(given);   // a surrounding Field's id, hint, required, invalid and disabled
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // a Field's <label for> can't name a group, so it's aria-labelledby
-  const { invalid, value: valueIn, defaultValue, onValueChange, max: maxIn, allowHalf, clearable, readOnly, disabled, name, form, required, size: sizeIn, className, onKeyDown, onPointerLeave, ...rest } = props;
+  const { invalid, value: valueIn, defaultValue, onValueChange, max: maxIn, allowHalf, clearable, readOnly, disabled, name, form, required, size: sizeIn, className, onKeyDown, onPointerLeave, autoFocus, ...rest } = props;
   const nameRef = useNameCheck("Rating", NAME_HOW.group);
   const sds = useSettings(words);
   const size = oneOf(SIZES, sizeIn, "md");
@@ -96,6 +96,7 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   // A Field's label click and ref.current.focus() (a form library focusing the first invalid field) land on the
   // star in the Tab order, the picked one or else the first; the <div> took no focus (L8E89).
   const ref2 = (n: HTMLDivElement | null) => { root.current = n; if (!readOnly) delegateFocus(n, () => n && (n.querySelector<HTMLElement>("input:checked:enabled") || n.querySelector<HTMLElement>("input:enabled"))); nameRef(n); styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
+  useAutoFocus(autoFocus, () => root.current);   // through the delegation above; the <div> ignored it (L8E92)
   const classes = cn("dk-rating", "dk-rating--size-" + size, readOnly && "dk-rating--readonly", off && "dk-rating--disabled", className);
 
   if (readOnly) {
