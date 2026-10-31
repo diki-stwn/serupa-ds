@@ -224,7 +224,7 @@ describe('Pagination', () => {
     </EnUS>);
     expect(['s1', 's2', 's3', 's4', 's5', 's6'].map(summary)).toEqual(['21–30 of 245', '241–245 of 245', '11 of 11', '0 of 0', '1,001–1,010 of 12,345', undefined]);
     // Before the list, inside the nav, muted at 4.5:1.
-    expect([el('s1').firstElementChild!.tagName, css(el('s1').firstElementChild!).color === css(el('s1')).color]).toEqual(['P', false]);
+    expect([el('s1').firstElementChild!.tagName, css(el('s1').firstElementChild).color === css(el('s1')).color]).toEqual(['P', false]);
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><Pagination id="s7" count={1235} page={101} total={12345} pageSize={10} /></SerupaProvider>);
     expect(summary('s7')).toBe('1.001–1.010 dari 12.345');
   });
