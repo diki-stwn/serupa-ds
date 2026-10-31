@@ -27,6 +27,21 @@ describe('RelativeTime', () => {
       .toEqual(['1 day ago', '3 min. ago', new Intl.RelativeTimeFormat('en-US', { style: 'narrow' }).format(-3, 'minute'), '']);
   });
 
+  test('a day on its own ("2026-10-24") is that local day, in days: today, yesterday, in 3 days; its datetime is the day (L8E13)', async () => {
+    const L = (mo: number, d: number, h: number) => new Date(2026, mo, d, h).getTime();
+    const f = (d: string, now: number, numeric?: 'always') => relativeTime(d, now, 'en-US', numeric ? { numeric } : undefined);
+    expect([f('2026-10-24', L(9, 24, 14)), f('2026-10-23', L(9, 24, 0)), f('2026-10-27', L(9, 24, 23)), f('2026-10-23', L(9, 24, 14), 'always'), f('2026-09-20', L(9, 24, 14)), f('2026-02-30', L(9, 24, 14))])
+      .toEqual(['today', 'yesterday', 'in 3 days', '1 day ago', 'last month', '']);
+    // West of Greenwich, Date reads "2026-10-24" as 23 Oct in the evening.
+    const offset = vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(300);
+    try { expect(f('2026-10-24', L(9, 24, 9))).toBe('today'); } finally { offset.mockRestore(); }
+    // The page's one clock is the real one, so the day rendered is today's.
+    const n = new Date(), today = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+    await render(<SerupaProvider locale="en-US"><RelativeTime id="tday" date={today} /></SerupaProvider>);
+    const t = el('tday');
+    expect([t.textContent, t.dateTime, t.title]).toEqual(['today', today, new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(n)]);
+  });
+
   test('numeric auto counts yesterday, last month and last year on the viewer\'s calendar, not by elapsed time (GL2)', () => {
     // Local times: the viewer's calendar is the one that says what yesterday is.
     const L = (mo: number, d: number, h: number, mi = 0) => new Date(2026, mo, d, h, mi).getTime();

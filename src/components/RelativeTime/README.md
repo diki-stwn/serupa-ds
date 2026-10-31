@@ -24,6 +24,7 @@ import { RelativeTime } from "serupa-ds";
 ## Usage
 
 - Pass `date` as a `Date`, a timestamp in ms or an ISO string. Strings without a time zone (`"2026-10-24 09:30"`) are read in the browser's time zone, so prefer ISO strings with `Z` or an offset.
+- A day on its own, `"2026-10-24"` (a date column, `<input type="date">`), is that day on the reader's calendar and is counted in days or more: "today", "yesterday", "in 3 days". Its tooltip is the date alone, and its `datetime` the day itself.
 - The words follow the locale from `SerupaProvider` (or the `locale` prop, or the browser's): "3 menit yang lalu" in Indonesian, "٣ ساعات" digits in Egyptian Arabic. `relativeTime(date, now, locale)` gives the same words outside React.
 - Use `numeric="always"` where elapsed time matters more than the calendar, such as in logs.
 - An invalid `date` shows nothing; in development it warns once in the console.
