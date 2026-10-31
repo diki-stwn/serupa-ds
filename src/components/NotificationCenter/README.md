@@ -41,6 +41,7 @@ function Layout() {
 - It's a [Drawer](../Drawer/README.md) from the right: it opens and closes like one, and takes its `side`, `size` and `modal` props.
 - Each notification shows its tone icon, title, description and time ("5 min. ago", in [RelativeTime](../RelativeTime/README.md)). Unread ones have a dot at the end and a semibold title.
 - "Mark as read" goes away once chosen, and focus moves to its notification, so it isn't lost.
+- When you take the focused notification out of `items` (an inbox that hides read ones), focus goes to the one now in its place, else the last, else the "No notifications yet" line, not to the page.
 - `useToastHistory` records a toast when it's shown, unread. A toast replaced by its id (`toast.promise`'s "Saving…" then "Saved") stays one entry with the newer words. A repeat ("×3" in the Toaster) moves it back to the top, unread again.
 - With no notifications, it says "No notifications yet" (`empty`).
 
@@ -100,6 +101,6 @@ Each is an optional override: set it on the page, a container or one Notificatio
 | `--notification-center-icon-success` | `success` | The success tone's icon. |
 | `--notification-center-icon-warning` | `warning` | The warning tone's icon. |
 | `--notification-center-icon-danger` | `danger` | The danger tone's icon. |
-| `--notification-center-focus-ring` | `focus-ring` | The ring around a notification focused after "Mark as read". |
+| `--notification-center-focus-ring` | `focus-ring` | The ring around a notification (or the empty line) focused after "Mark as read". |
 | `--notification-center-row-padding` | `spacing-3` | Space above and below each notification (12px). |
 | `--notification-center-unread-weight` | `font-semibold` | An unread notification's title. |
