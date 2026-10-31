@@ -13,5 +13,6 @@ interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>
     closeOnBackdrop?: boolean;
     fullScreen?: "mobile" | boolean;
     initialFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?: React.RefObject<HTMLElement | null>;
 }
 declare const Dialog: React.ForwardRefExoticComponent<DialogProps & React.RefAttributes<HTMLDialogElement>>;
