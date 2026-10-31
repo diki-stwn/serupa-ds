@@ -40,7 +40,8 @@ for (const f of sources) {
     due(`${rel(f)}:${i + 1}`, `@deprecated ${name}`, comment);
     t(`${rel(f)}:${i + 1}: ${name} is named in CHANGELOG.md or a pending changeset`, named(name), `say in a changeset that \`${name}\` is deprecated`);
   });
-  for (const m of text.matchAll(/warnOnce\(\s*"([\w-]+)"\s*,\s*((?:"[^"]*"|`[^`]*`|'[^']*'|[^;])*?)\)\s*;/g)) {
+  // The message's alternatives can't overlap (a quote only starts a string), so a long call can't backtrack forever.
+  for (const m of text.matchAll(/warnOnce\(\s*"([\w-]+)"\s*,((?:"[^"]*"|`[^`]*`|'[^']*'|[^;"'`])*?)\)\s*;/g)) {
     if (!/deprecat/i.test(m[2])) continue;
     const at = `${rel(f)}:${text.slice(0, m.index).split('\n').length}`;
     due(at, `the ${m[1]} warning`, m[2]);
