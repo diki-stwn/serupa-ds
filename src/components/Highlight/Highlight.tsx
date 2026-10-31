@@ -14,6 +14,9 @@ export interface HighlightProps extends Omit<React.HTMLAttributes<HTMLSpanElemen
   words?: boolean;
 }
 
+// module state: a sticky pattern; its lastIndex is set before each use.
+const UNIT = /.\p{M}*/suy;
+
 /** Where query matches text, as [start, end) offsets into text (UTF-16), in order and not overlapping. Matched as
     fold() matches: case, accents and width ignored. */
 export function highlightRanges(text: string, query: string | ReadonlyArray<string>, words?: boolean): Array<[number, number]> {
@@ -24,7 +27,10 @@ export function highlightRanges(text: string, query: string | ReadonlyArray<stri
   let folded = "";
   const from: number[] = [], to: number[] = [];
   for (let i = 0; i < text.length;) {
-    const ch = String.fromCodePoint(text.codePointAt(i)!);
+    // A letter with the marks after it, folded together: decomposed "и" + "̆" (as macOS writes file names) is й,
+    // not и (L8E14).
+    UNIT.lastIndex = i;
+    const ch = UNIT.exec(text)![0];
     const f = fold(ch);
     for (let k = 0; k < f.length; k++) { from.push(i); to.push(i + ch.length); }
     folded += f;
