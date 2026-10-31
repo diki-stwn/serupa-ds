@@ -3,7 +3,6 @@ import * as React from "react";
 import { cn, oneOf, setRef } from "../../internal/cn";
 import { removeAndRefocus } from "../../internal/removeFocus";
 import { useServerStyles } from "../../internal/serverStyles";
-import { Dialog } from "../Dialog/Dialog";
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
@@ -106,22 +105,12 @@ function onSaveData(f: () => void) {
   return () => { if (c) c.removeEventListener("change", f); if (m) m.removeEventListener("change", f); };
 }
 
-/* The viewer's picture: the frame's placeholder (and its sweep) while it loads, the frame's fallback if it fails. The
-   stage has the picture's shape (its width and height, the thumbnail's, then its own once it arrives), within the
-   screen. The Dialog is titled with the alt text, so the picture itself has alt="" and isn't read twice. */
-function Full({ src, alt, fallback, shape }: { src: string; alt: string; fallback: React.ReactNode; shape: [number, number] | null }) {
-  const [state, setState] = React.useState<"loading" | "loaded" | "error">("loading");
-  const [own, setOwn] = React.useState<[number, number] | null>(null);
-  const [w, h] = own || shape || [4, 3];
-  return (
-    <span className={cn("dk-image__stage", "dk-image--" + state)} data-state={state} style={{ "--dk-image-ratio": w + " / " + h, "--dk-image-w": own || shape ? w + "px" : "100%" } as React.CSSProperties}>
-      {state === "error"
-        ? <span className="dk-image__fallback" role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback != null ? fallback : <Icon icon={icons.BrokenImage} />}</span>
-        : <img src={src} alt="" className="dk-image__full" decoding="async"
-            onLoad={(e) => { const i = e.currentTarget; if (i.naturalWidth > 0) setOwn([i.naturalWidth, i.naturalHeight]); setState("loaded"); }} onError={() => setState("error")} />}
-    </span>
-  );
-}
+// The full-size viewer (a Dialog, ImageViewer.tsx) loads the first time a picture is about to be viewed: hovered,
+// focused, pressed or opened. A page of plain pictures never pays for a modal, and a bundler splits it off (GQ9).
+let viewer: Promise<{ default: typeof import("./ImageViewer").ImageViewer }> | undefined;
+const loadViewer = () => (viewer = viewer || import("./ImageViewer").then((m) => ({ default: m.ImageViewer })));
+const Viewer = /* @__PURE__ */ React.lazy(loadViewer);
+const preload = () => { void loadViewer(); };
 
 /* Image: a picture in a frame. ratio fixes the frame's shape (fit says whether the picture crops or fits), with
    rounded corners from --image-radius; with ratio "auto", width and height shape the frame before it loads. It
@@ -148,6 +137,7 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
   const fit = oneOf(["cover", "contain"] as const, props.fit, "cover");
   const [state, setState] = React.useState<"loading" | "loaded" | "error">("loading");
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);   // the viewer, once opened, stays mounted so it can close
   const img = React.useRef<HTMLImageElement | null>(null);
   // The picture is hidden while it loads only once the page's script runs (live), so server-rendered HTML paints
   // it as soon as it arrives, with or without JavaScript. A lazy one still loading a frame after mount is hidden
@@ -214,14 +204,16 @@ export const Image = /* @__PURE__ */ component<HTMLImageElement, ImageProps>("Im
       className={cn("dk-image", "dk-image--ratio-" + (typeof ratio === "number" ? "custom" : ratio.replace(":", "-")), sized && "dk-image--sized", fill && "dk-image--fill", "dk-image--" + fit, dim && "dk-image--dim", rounded !== false && "dk-image--rounded", "dk-image--" + state, live && !priority && "dk-image--fades", frameProps && frameProps.className)}
       data-component="image" data-state={state}>
       {viewable && state !== "error"
-        ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onClick={() => setOpen(true)}>{shown}</button>
+        ? <button type="button" className="dk-image__view" aria-label={viewLabel || named(sds.labels.viewImage)} aria-haspopup="dialog" onPointerEnter={preload} onFocus={preload} onClick={() => { setMounted(true); setOpen(true); }}>{shown}</button>
         : shown}
       {failed}
       {onRemove ? <IconButton className="dk-image__remove" icon={icons.Close} label={removeLabel || named(sds.labels.removeImage)} size="sm" variant="secondary" shape="round" hideTitle onClick={(e) => removeAndRefocus(e, onRemove, ".dk-image", ".dk-image__remove")} /> : null}
-      {viewable ? (
-        <Dialog open={open} onOpenChange={setOpen} size="lg" title={alt || undefined} aria-label={alt ? undefined : viewLabel || sds.labels.image} className="dk-image__viewer">
-          {open ? <Full src={fullSrc || shownDark(img.current, darkSrc) || largest(rest.srcSet) || src} alt={alt} fallback={fallback} shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} /> : null}
-        </Dialog>
+      {viewable && mounted ? (
+        <React.Suspense fallback={null}>
+          <Viewer open={open} onOpenChange={setOpen} title={alt || undefined} label={alt ? undefined : viewLabel || sds.labels.image}
+            src={fullSrc || shownDark(img.current, darkSrc) || largest(rest.srcSet) || src} alt={alt} fallback={fallback}
+            shape={w > 0 && h > 0 ? [w, h] : img.current && img.current.naturalWidth > 0 ? [img.current.naturalWidth, img.current.naturalHeight] : null} />
+        </React.Suspense>
       ) : null}
     </span>
   );

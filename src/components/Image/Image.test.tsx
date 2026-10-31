@@ -23,7 +23,7 @@ function Viewer({ removed }: { removed: () => void }) {
   return <Pic id="view" fullSrc={PIC + '#full'} alt="Harbor at dusk" ratio="video" viewable onRemove={removed} />;
 }
 const dialog = () => frame('view').querySelector('dialog') as HTMLDialogElement;
-const viewBtn = () => frame('view').querySelector('.dk-image__view') as HTMLButtonElement;
+const viewBtn = () => frame('view').querySelector('button[aria-haspopup=dialog]') as HTMLButtonElement;
 const finished = () => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined)));
 
 describe('Image', () => {
@@ -223,12 +223,22 @@ describe('Image', () => {
     await expect.poll(() => document.activeElement).toBe(x('b'));
   });
 
+  test('the viewer (a Dialog) is not in the page until the picture is first opened, then stays for its close (GQ9)', async () => {
+    await render(<Viewer removed={() => {}} />);
+    expect(dialog()).toBe(null);
+    await userEvent.click(viewBtn());
+    await expect.poll(() => dialog()?.open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => dialog().open).toBe(false);
+    expect(document.activeElement).toBe(viewBtn());
+  });
+
   test('onRemove: the remove button calls it without opening the viewer, 8px from the top end corner', async () => {
     let removed = 0;
     await render(<Viewer removed={() => { removed++; }} />);
     const rm = frame('view').querySelector('.dk-image__remove')!;
     await userEvent.click(rm);
-    expect([removed, dialog().open]).toEqual([1, false]);
+    expect([removed, dialog()?.open ?? false]).toEqual([1, false]);
     const f = frame('view').getBoundingClientRect(), r = rm.getBoundingClientRect();
     expect([Math.round(r.top - f.top), Math.round(f.right - r.right)]).toEqual([8, 8]);
   });
@@ -350,8 +360,7 @@ describe('Image loading motion', () => {
     await expect.poll(() => i().currentSrc).toBe(DARK);
     await expect.poll(() => frame('dark').dataset.state).toBe('loaded');
     await userEvent.click(frame('dark').querySelector('button')!);
-    const full = document.querySelector('dialog img') as HTMLImageElement;
-    expect(full.getAttribute('src')).toBe(DARK);
+    await expect.poll(() => document.querySelector('dialog img')?.getAttribute('src')).toBe(DARK);
   });
 
   test('dim (115): a loaded photo is a shade darker in a dark theme only, and the remove button stays above the layer', async () => {
