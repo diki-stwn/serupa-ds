@@ -8,6 +8,7 @@ import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ContextMenu, keyShortcuts, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
+import { useShortcut } from '../KeyboardShortcuts/KeyboardShortcuts';
 
 const modded = (t: Element, key: string) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -55,6 +56,18 @@ describe('Menu', () => {
     await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Copy');
     const first = document.activeElement as HTMLElement;
     expect([trigger, modded(first, 'ArrowDown'), modded(first, 'End'), document.activeElement === first]).toEqual([[[false, false, false], [false, false, false], 'false'], [false, false, false], [false, false, false], true]);
+  });
+
+  test('a letter typed to find an item doesn\'t also run a page shortcut on that letter (L8E42)', async () => {
+    const ran: string[] = [];
+    const Page = () => { useShortcut('g', () => ran.push('g')); return <Menu trigger={<Button id="mts">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Go to file</MenuItem></Menu>; };
+    await render(<Page />);
+    el('mts').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Copy');
+    await userEvent.keyboard('g');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Go to file');
+    expect(ran).toEqual([]);
   });
 
   test('the panel takes the other HTML attributes and a ref: id, data-testid, aria-describedby, and an onKeyDown that runs first (GJ2)', async () => {
@@ -695,7 +708,7 @@ describe('Menu: motion (DZ1)', () => {
       expect([runs(m), m.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
       await settled(m, { subtree: true });
       expect([getComputedStyle(m).opacity, getComputedStyle(m).scale]).toEqual(['1', 'none']);
-      await userEvent.keyboard('{Escape}');
+      await userEvent.click(el('mb'));
       expect([openMenu(), document.activeElement]).toEqual([undefined, el('mb')]);
       if (!holds()) { expect(getComputedStyle(m).display).toBe('none'); return; }
       expect([getComputedStyle(m).display, m.inert, m.querySelectorAll('[role="menuitem"]').length, runs(m)]).toEqual(['block', true, 5, [['opacity', 100], ['scale', 100]]]);
@@ -744,9 +757,28 @@ describe('Menu: motion (DZ1)', () => {
       await userEvent.click(el('ctx'), { button: 'right' });
       const c = openMenu()!;
       await settled(c, { subtree: true });
-      await userEvent.keyboard('{Escape}');
+      await userEvent.click(el('ctx'), { position: { x: 4, y: 4 } });
       expect(c.hidden).toBe(true);
       if (holds()) expect([c.inert, runs(c), c.querySelectorAll('[role="menuitem"]').length]).toEqual([true, [['opacity', 100], ['scale', 100]], 1]);
+    });
+  });
+
+  test('from the keyboard (KW1): opened by Enter, a submenu by ArrowRight, both are there at once; Escape takes each away at once', async () => {
+    await withMotion(async () => {
+      await render(<Nested chosen={[]} />);
+      el('nb').focus();
+      await userEvent.keyboard('{Enter}');
+      const m = menuOf('nb');
+      expect([m.hidden, m.getAnimations().length, getComputedStyle(m).opacity]).toEqual([false, 0, '1']);
+      el('share').focus();
+      await userEvent.keyboard('{ArrowRight}');
+      const s = sub('share')!;
+      await expect.poll(() => s.hidden).toBe(false);
+      expect([s.getAnimations().length, getComputedStyle(s).opacity]).toEqual([0, '1']);
+      await userEvent.keyboard('{Escape}');
+      expect([s.hidden, getComputedStyle(s).display, s.getAnimations().length, m.hidden]).toEqual([true, 'none', 0, false]);
+      await userEvent.keyboard('{Escape}');
+      expect([m.hidden, getComputedStyle(m).display, m.getAnimations().length, m.querySelectorAll('[role="menuitem"]').length]).toEqual([true, 'none', 0, 0]);
     });
   });
 });

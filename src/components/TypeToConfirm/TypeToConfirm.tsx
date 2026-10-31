@@ -39,7 +39,10 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
   const sds = useSettings(words);
   const { phrase, confirmLabel, onConfirm, label, hint, caseSensitive, onMatch, disabled, className, ...rest } = props;
   const [text, setText] = React.useState("");
-  const same = (a: string, b: string) => (caseSensitive === false ? a.toLocaleLowerCase() === b.toLocaleLowerCase() : a === b);
+  // Without case, the Turkish i's fold to one "i" both ways: "İSTANBUL" lowercases to "i" + a dot, and a Turkish
+  // browser lowercases the "I" of "INVOICE" to "ı", which the "i" a person types wouldn't match (L8E41).
+  const fold = (x: string) => x.toLowerCase().replace(/i\u0307|\u0131/g, "i");
+  const same = (a: string, b: string) => (caseSensitive === false ? fold(a) === fold(b) : a === b);
   // Both in one Unicode form: "é" pasted from a macOS file name, or typed by some Vietnamese input methods, is "e" +
   // an accent, and must still match the "é" in the phrase (GR40). NFKC, not NFC: a Japanese or Chinese IME left in
   // full-width mode types "ｍｙ－ｒｅｐｏ", which is "my-repo" to the reader, and runs of spaces (or a no-break

@@ -9,6 +9,7 @@
 //   base.css, theme.js     page defaults and automatic dark mode, from src/
 //   vscode/                VS Code custom data for editor autocomplete: utility classes and tokens (editor-data.mjs)
 //   components.json        each component's exports, CSS classes and the components it needs (for serupa-purge --components)
+//   eslint.js, eslint.d.ts what each component renders, for eslint-plugin-jsx-a11y in a project's lint (serupa-ds/eslint)
 //   lib/                   React for plain pages: react.production.min.js sets window.React, and
 //                          react-dom.production.min.js sets window.ReactDOM (react-dom and react-dom/client)
 //   node tools/build/build.mjs [--css]     --css skips the JavaScript (tsup) step
@@ -21,6 +22,7 @@ import { buildUtilities } from '../utilities/build.mjs';
 import { buildRegistry, cascade } from './registry.mjs';
 import { editorData } from './editor-data.mjs';
 import { tokenDescriptions } from '../tokens/build.mjs';
+import { a11yComponents } from '../lint/a11y-components.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const D = path.join(P, 'dist');
@@ -90,6 +92,32 @@ const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
+// eslint.js (TF2): jsx-a11y skips a component it doesn't know, so a project's <Image src> with no alt or an
+// <IconButton> with no name passes its lint. This teaches it what each component renders, from the same map our own
+// lint uses (tools/lint/a11y-components.mjs), under both plugins' settings keys: eslint-plugin-jsx-a11y reads
+// "jsx-a11y" and its maintained fork eslint-plugin-jsx-a11y-x reads "jsx-a11y-x". labelAttributes is for the rule
+// control-has-associated-label: IconButton and TableSelectCell take their name as label.
+const a11y = { components: a11yComponents(P), polymorphicPropName: 'as' };
+const eslintConfig = { name: 'serupa-ds/jsx-a11y', settings: { 'jsx-a11y': a11y, 'jsx-a11y-x': a11y } };
+fs.writeFileSync(path.join(D, 'eslint.js'), `// serupa-ds/eslint ${version}: an ESLint flat-config object that tells eslint-plugin-jsx-a11y what each Serupa
+// component renders, so its rules check <Image>, <Link> and <IconButton> as they check img, a and button.
+/** The props that name a control, for control-has-associated-label's labelAttributes. */
+export const labelAttributes = ["label"];
+export default ${JSON.stringify(eslintConfig, null, 1)};
+`);
+fs.writeFileSync(path.join(D, 'eslint.d.ts'), `/** What each Serupa component renders, under eslint-plugin-jsx-a11y's settings ("jsx-a11y") and its fork's ("jsx-a11y-x"). */
+export interface SerupaA11ySettings {
+  /** Each component's name and the element it renders: Image is "img", Link is "a". */
+  components: Record<string, string>;
+  /** The prop that changes the element a component renders. */
+  polymorphicPropName: "as";
+}
+/** The props that name a control, for control-has-associated-label's labelAttributes. */
+export declare const labelAttributes: string[];
+/** An ESLint flat-config object: put it in your eslint.config.js array, after the jsx-a11y config. */
+declare const config: { name: string; settings: { "jsx-a11y": SerupaA11ySettings; "jsx-a11y-x": SerupaA11ySettings } };
+export default config;
+`);
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
 const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });

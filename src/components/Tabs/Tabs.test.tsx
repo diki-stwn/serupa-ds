@@ -160,6 +160,22 @@ describe('Tabs', () => {
       expect(el('ctl').querySelector('[role="tab"][aria-selected="true"]')).toBe(null);
       expect(warned.join()).toMatch(/Tabs: the selected tab "b" was removed/);
     } finally { console.warn = warn; }
+    // Closing the focused tab from within (its own × or a Delete key the app handles): focus goes to the tab now
+    // selected, not to the page. Focus elsewhere stays put.
+    let close: (x: string) => void = () => {};
+    function Own() {
+      const [open, setOpen] = React.useState(['p', 'q', 'r']);
+      close = (x) => setOpen((o) => o.filter((y) => y !== x));
+      return <><Tabs id="own" defaultValue="q"><TabList aria-label="Docs">{open.map((x) => <Tab key={x} value={x}>{x.toUpperCase()}</Tab>)}</TabList></Tabs><button id="own-out">Out</button></>;
+    }
+    await render(<Own />);
+    selected('own').focus();
+    close('q');
+    await expect.poll(() => [selected('own').dataset.value, document.activeElement === selected('own')]).toEqual(['r', true]);
+    el('own-out').focus();
+    close('r');
+    await expect.poll(() => selected('own').dataset.value).toBe('p');
+    expect(document.activeElement).toBe(el('own-out'));
     await render(<Tabs id="nomatch" defaultValue="zzz"><TabList aria-label="X"><Tab value="p">P</Tab><Tab value="q">Q</Tab></TabList></Tabs>);
     expect(el('nomatch').querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.dataset.value).toBe('p');
   });
@@ -339,6 +355,25 @@ describe('Tabs on the server', () => {
       await Promise.all(cuts.map((a) => a.finished));
       const rest = getComputedStyle(to, '::before'), r = to.getBoundingClientRect(), box = { w: parseFloat(rest.width), cut: px(rest.clipPath) };
       expect([Math.round(box.w - box.cut[1] - box.cut[3]), box.cut[0], box.cut[2], /round/.test(rest.clipPath)]).toEqual([Math.round(r.width), 0, 0, true]);
+    });
+  });
+});
+
+describe('Tabs indicator from the keyboard (KW1)', () => {
+  test('an arrow moves the line and the pill fill at once, with no slide; a click after slides again', async () => {
+    await withMotion(async () => {
+      await setup();
+      for (const id of ['un', 'dv']) {
+        const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
+        const on = () => tabs.find((t) => t.getAttribute('aria-selected') === 'true')!;
+        const runs = (t: HTMLElement) => t.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition && /^(translate|scale|clip-path)$/.test(a.transitionProperty)).length;
+        const was = on();
+        was.focus();
+        await userEvent.keyboard('{ArrowLeft}');
+        expect([id, on() !== was, runs(on())]).toEqual([id, true, 0]);
+        await userEvent.click(was);
+        expect([id, on() === was, runs(was) > 0]).toEqual([id, true, true]);
+      }
     });
   });
 });

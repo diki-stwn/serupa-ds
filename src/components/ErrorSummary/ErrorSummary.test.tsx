@@ -7,6 +7,8 @@ import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { Radio, RadioGroup } from '../Radio/Radio';
 import { Rating } from '../Rating/Rating';
+import { Field } from '../Field/Field';
+import { Input } from '../Input/Input';
 import { ErrorSummary, type ErrorSummaryItem } from './ErrorSummary';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -80,6 +82,16 @@ describe('ErrorSummary', () => {
     expect(document.activeElement).toBe(el('f-name'));
   });
 
+  test('a link still moves focus where there is no scrollIntoView (jsdom, where apps run unit tests) (L8E46)', async () => {
+    await render(<Form autoFocus={false} />);
+    const own = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView')!;
+    Object.defineProperty(Element.prototype, 'scrollIntoView', { value: undefined, configurable: true, writable: true });
+    try {
+      el('sum').querySelector('a')!.click();
+      expect(document.activeElement).toBe(el('f-name'));
+    } finally { Object.defineProperty(Element.prototype, 'scrollIntoView', own); }
+  });
+
   test("a link focuses its field and scrolls its label (a radio's legend) to the top; a field that isn't there is a plain link", async () => {
     await render(<Form autoFocus={false} errors={[...ERRORS, { field: 'nowhere', message: 'Missing' }]} />);
     const links = [...el('sum').querySelectorAll('a')];
@@ -94,6 +106,28 @@ describe('ErrorSummary', () => {
     await userEvent.click(links[2]);
     expect(location.hash).toBe('#nowhere');
     history.replaceState(null, '', location.pathname + location.search);
+  });
+
+  test('GR54: when it takes focus, the Fields in its form don\'t also say their new errors; a Field elsewhere still does', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    const Form = ({ failed, other }: { failed: boolean; other?: string }) => <>
+      <form>
+        <ErrorSummary errors={failed ? [{ field: 'g-name', message: 'Enter a name' }, { field: 'g-city', message: 'Choose a city' }] : []} />
+        <Field label="Name" error={failed ? 'Enter a name' : undefined}><Input id="g-name" /></Field>
+        <Field label="City" error={failed ? 'Choose a city' : undefined}><Input id="g-city" /></Field>
+      </form>
+      <Field label="Note" error={other}><Input id="g-note" /></Field>
+    </>;
+    const screen = await render(<Form failed={false} />);
+    await screen.rerender(<Form failed />);
+    await expect.poll(() => (document.activeElement as HTMLElement).dataset.component).toBe('error-summary');
+    await new Promise((r) => setTimeout(r, 400));
+    expect(said.filter((t) => /Enter a name|Choose a city/.test(t))).toEqual([]);
+    await screen.rerender(<Form failed other="Too long" />);
+    await expect.poll(() => said.at(-1)).toBe('Too long');
+    seen.disconnect();
   });
 
   test('its text and links read 4.5:1 on its background in all six themes', async () => {

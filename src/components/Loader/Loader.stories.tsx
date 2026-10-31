@@ -42,6 +42,19 @@ export const PixelPatterns: Story = {
   render: () => <Row>{(['wave', 'random', 'sweep', 'fall', 'rise', 'snake', 'spiral', 'cross', 'checker'] as const).map((p) => <Loader key={p} variant="pixel" pattern={p} size="lg" delay={0} />)}</Row>,
 };
 
+// KW22: which spinner speed feels quickest? The ring at today's motion-loop-spinner (1s a turn) beside 800ms and
+// 700ms, set on a wrapper so only these three change. A faster turn can make a wait feel shorter; too fast reads as
+// alarm. Pick by watching them side by side; reduced motion keeps its slow breathe at any speed.
+export const SpinnerSpeeds: Story = {
+  name: 'Spinner speeds',
+  render: () => <Row>
+    {([1000, 800, 700] as const).map((ms) => <div key={ms} className="flex flex-col items-center gap-2 text-sm text-text-muted" style={{ '--motion-loop-spinner': `${ms}ms` } as React.CSSProperties}>
+      <Loader size="lg" delay={0} label={`Loading, one turn every ${ms}ms`} />
+      <span aria-hidden="true">{ms === 1000 ? '1000ms (today)' : `${ms}ms`}</span>
+    </div>)}
+  </Row>,
+};
+
 export const Text: Story = { args: { variant: 'text', label: 'Generating summary' } };
 
 export const Skeleton: Story = {

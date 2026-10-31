@@ -5,6 +5,7 @@ import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { warnOnce } from "../../internal/warn";
+import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
 
 export type TabsVariant = 'line' | 'pill';
 
@@ -25,7 +26,7 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   orientation?: 'horizontal' | 'vertical';
 }
 
-interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null; before: { current: (() => void) | null } }
+interface Ctx { base: string; value: string | null; select: (v: string) => void; manual: boolean; vertical: boolean; panels: Record<string, number>; register: (v: string, d: number) => void; stop: string | null; before: { current: (() => void) | null }; keyed: boolean }
 const FROM = ["--dk-tabs-from-shift", "--dk-tabs-from-scale", "--dk-tabs-span-l", "--dk-tabs-span-r", "--dk-tabs-span-t", "--dk-tabs-span-b", "--dk-tabs-from-l", "--dk-tabs-from-r", "--dk-tabs-from-t", "--dk-tabs-from-b"];
 const TabsContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const useTabs = (who: string): Ctx => {
@@ -64,7 +65,10 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // TabList's hook to note where the line or fill is just before the selection changes, so a slide that is still
   // running turns back from where it has got to (EH1).
   const before = React.useRef<(() => void) | null>(null);
-  const select = React.useCallback((v: string) => { if (before.current) before.current(); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
+  // Picked from the keyboard (an arrow, Home, End), the line or fill is there at once rather than sliding (KW1).
+  const [keyed, setKeyed] = React.useState(false);
+  useIsoLayoutEffect(listenForInput, []);
+  const select = React.useCallback((v: string) => { if (before.current) before.current(); setKeyed(lastInputKeyboard()); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
   const variant = oneOf(["line", "pill"] as const, props.variant, "line");
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   // Which values have a TabPanel, so a tab only points (aria-controls) at a panel that exists: a tab row can
@@ -74,12 +78,13 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
   // so the tab list can still be reached from the keyboard.
   const [stop, setStop] = React.useState<string | null>(null);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop, before }), [base, value, select, props.activation, vertical, panels, register, stop]);
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop, before, keyed }), [base, value, select, props.activation, vertical, panels, register, stop, keyed]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
   const self = React.useRef<HTMLDivElement | null>(null);
   const order = React.useRef<string[]>([]);
+  const focusedIn = React.useRef(false);   // focus is in the Tabs, so a closed tab that had it hands it on
   // every render: tabs come and go with the children, which change in any render; it reads attributes, not layout.
   useIsoLayoutEffect(() => {
     if (!self.current) return;
@@ -99,11 +104,18 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     if (process.env.NODE_ENV !== "production" && at < 0 && value != null && !before.length) warnOnce("tabs-value", `Tabs: defaultValue "${value}" matches no Tab, so the first tab is selected. Set it to one of the Tabs' values.`);
     if (at < 0) { setInner(enabled[0]); return; }   // nothing chosen yet (or a defaultValue with no tab): no onValueChange
     const after = before.slice(at + 1).find((v) => enabled.includes(v)), prev = before.slice(0, at).reverse().find((v) => enabled.includes(v));
-    select(after ?? prev ?? enabled[0]);
+    const next = after ?? prev ?? enabled[0];
+    select(next);
+    // Focus was on the closed tab (its own close button, or a Delete key the app handles): it goes to the tab now
+    // selected, not to the page. A removed element can still read as the active one until the browser next looks.
+    const active = document.activeElement;
+    if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
   });
   return (
     <TabsContext.Provider value={ctx}>
       <div {...rest} ref={(n) => { self.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
+        onFocus={(e) => { focusedIn.current = true; if (rest.onFocus) rest.onFocus(e); }}
+        onBlur={(e) => { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusedIn.current = false; if (rest.onBlur) rest.onBlur(e); }}
         className={cn("dk-tabs", "dk-tabs--" + variant, size === "sm" && "dk-tabs--sm", vertical && "dk-tabs--vertical", props.className)} data-component="tabs" data-variant={variant} data-orientation={vertical ? "vertical" : "horizontal"} />
     </TabsContext.Provider>
   );
@@ -246,7 +258,7 @@ export const Tab = /* @__PURE__ */ component<HTMLButtonElement, TabProps>("Tab",
   const id = ctx.base + "-tab-" + safe(props.value), panel = ctx.base + "-panel-" + safe(props.value);
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => { if (props.onClick) props.onClick(e); if (!e.defaultPrevented) ctx.select(props.value); };
   return (
-    <button {...rest} ref={ref} type="button" role="tab" id={id} aria-controls={ctx.panels[props.value] ? panel : undefined} aria-selected={selected} tabIndex={selected || ctx.stop === props.value ? 0 : -1}
+    <button {...rest} ref={ref} type="button" role="tab" id={id} aria-controls={ctx.panels[props.value] ? panel : undefined} aria-selected={selected} data-instant={selected && ctx.keyed ? "" : undefined} tabIndex={selected || ctx.stop === props.value ? 0 : -1}
       data-value={props.value} data-state={selected ? "active" : "inactive"} className={cn("dk-tabs__tab", props.className)} onClick={onClick}>
       {props.icon != null ? <span className="dk-tabs__icon" aria-hidden="true">{asIcon(props.icon)}</span> : null}
       <span className="dk-tabs__label">{props.children}</span>

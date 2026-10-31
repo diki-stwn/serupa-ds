@@ -65,6 +65,13 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   const editing = !locked && (props.editing ?? ownEditing);
   const [draft, setDraft] = React.useState(value);
   const [error, setError] = React.useState<React.ReactNode>(null);
+  // Opened by the editing prop rather than open(): the field starts from the text as it is now, not from a draft left
+  // when it was last closed from outside, or the text at first (L8E53).
+  const [wasEditing, setWasEditing] = React.useState(editing);
+  if (wasEditing !== editing) {
+    setWasEditing(editing);
+    if (editing) { setDraft(value); setError(null); }
+  }
   const field = React.useRef<HTMLInputElement | null>(null);
   const view = React.useRef<HTMLButtonElement | null>(null);
   const refocus = React.useRef(false);   // a keyboard save or cancel puts focus back on the button

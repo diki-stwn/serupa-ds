@@ -48,11 +48,11 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 - With `multiple`, each picked option is a tag before the text, in the order it was picked, with a remove button. Picking an option toggles it and keeps the list open on it, and the text empties so the next search starts from every option. Backspace in the empty field removes the last tag. Leaving the field empties the text and picks nothing. The box grows a row at a time as tags wrap.
 - Text that is exactly one option's label ("brazil" for Brazil: any case, with or without accents) picks that option when focus leaves the field (Tab or a click elsewhere), as Enter would.
 - The list opens under the field in the top layer, at least as wide as the field and up to 240px tall, and flips above when there's no room. With no room above or below either, it takes the roomier side and gets shorter, scrolling inside.
-- It fades and grows in from the edge facing the field, and fades and shrinks back out a little faster on close, inert while it goes, as Menu, Popover and DatePicker do. Closed mid-way, it turns back from where it is. Under reduced motion it only fades.
+- It fades and grows in from the edge facing the field, and fades and shrinks back out a little faster on close, inert while it goes, as Menu, Popover and DatePicker do. Closed mid-way, it turns back from where it is. Under reduced motion it only fades. From the keyboard there is no motion: opened by typing or an arrow the list is there at once, and Escape takes it away at once.
 
 ## Accessibility
 
-- The ARIA combobox pattern: `role="combobox"` with `aria-expanded`, `aria-controls` (while the list is open), `aria-autocomplete="list"` and `aria-activedescendant`, and a `role="listbox"` of `role="option"` items with `aria-selected`. Empty and loading messages are `role="status"`.
+- The ARIA combobox pattern: `role="combobox"` with `aria-expanded`, `aria-controls` (while the list is open), `aria-autocomplete="list"` and `aria-activedescendant`, and a `role="listbox"` of `role="option"` items with `aria-selected`. The loading message is `role="status"`. Once typing stops, the number of matches ("2 results"), "No results" and "Couldn't load" are said through the shared announcer, since a status row that appears with its text already in it isn't read by every screen reader. A string `emptyText` is said in place of "No results".
 - An option is named by its label alone. A text `description` is its `aria-description`, so it's read after a pause instead of run into the name.
 - When typing stops, the number of matching options is said ("3 results", `labels.resultsCount`).
 - With `multiple`, the listbox has `aria-multiselectable="true"` and each picked option `aria-selected="true"`. Focus stays in the field, so each pick and removal is read out ("Brazil added", "Brazil removed": the `valueAdded` and `valueRemoved` labels). Each tag's remove button is named "Remove" and the label ("Remove Brazil").
@@ -89,7 +89,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo", "こーひー" finds "コーヒー") | `false` shows every option you pass. |
 | `clearable` | `boolean` | `false` | A × that clears the selection (every tag, with `multiple`). |
 | `loading` | `boolean` | `false` | A loading row in the list. |
-| `emptyText` | `ReactNode` | `'No results'` | |
+| `emptyText` | `ReactNode` | `'No results'` | Shown when nothing matches. A string is also what screen readers hear |
 | `loadingText` | `string` | `'Loading…'` | |
 | `toggleLabel`, `clearLabel` | `string` | `'Show options'`, `'Clear'` and the field's label | The buttons' names. The × reads "Clear Country" when the field's label is "Country", and "Clear" when it has none. By default they come from the `showOptions` and `clearValue` labels ("Tampilkan pilihan", "Hapus Negara" in `idLabels`). |
 | `name` | `string` | | Sends the value with a form, in a hidden input (one per value with `multiple`, so `formData.getAll(name)` lists them). With `form`, the hidden input belongs to that form too. |

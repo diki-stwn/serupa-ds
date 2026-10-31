@@ -41,14 +41,14 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 - Hidden panels keep their state. Set `keepMounted={false}` on a panel that doesn't need to, so it renders only while it's selected.
 - The browser's find-in-page searches kept panels too. They're `hidden="until-found"`, so a match on another tab selects that tab and shows it, as Accordion opens an item. A disabled tab's panel isn't searched.
 - Show a tab people can't use yet as `disabled` rather than leaving it out, when knowing it exists helps them.
-- Tabs that can be closed: when the selected tab is removed, uncontrolled Tabs select the next enabled tab (or else the previous one) and call `onValueChange`. With `value`, set it to another tab yourself when you remove the selected one; Tabs warns in the console otherwise.
+- Tabs that can be closed: when the selected tab is removed, uncontrolled Tabs select the next enabled tab (or else the previous one) and call `onValueChange`. If focus was on the closed tab (its own close button, or a Delete key you handle), it moves to the tab now selected, not to the page. With `value`, set it to another tab yourself when you remove the selected one; Tabs warns in the console otherwise.
 
 ## Accessibility
 
 - `role="tablist"`, `"tab"` and `"tabpanel"`, with `aria-selected`, `aria-controls` and `aria-labelledby` set for you.
 - Only the selected tab is in the Tab order, and the shown panel itself can take focus, so keyboard users always reach the content (a kept panel of another tab is out of the Tab order). When a controlled `value` matches no tab (a stale link, data still loading), the first enabled tab takes the Tab stop instead, so the list can still be reached.
 - Tab labels keep 4.5:1, and the selected line and pill 3:1 against `surface`, in all six themes (`Tabs.test.tsx`). The focus ring sits inside the tab so the scrolling row can't clip it.
-- The selected line or fill slides from the tab selected before. Pick another tab mid-slide and it turns back from where it is, not from the last tab. With reduced motion it moves at once.
+- The selected line or fill slides from the tab selected before. Pick another tab mid-slide and it turns back from where it is, not from the last tab. With reduced motion it moves at once, and so it does when an arrow, Home or End picks the tab.
 - In forced-colors mode the selected tab is marked in `Highlight`.
 
 ### Keyboard

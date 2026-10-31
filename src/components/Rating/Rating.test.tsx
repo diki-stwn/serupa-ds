@@ -122,6 +122,18 @@ describe('Rating', () => {
     expect([radios('fr').every((r) => r.required), radios('d').every((r) => r.disabled), el('d').getAttribute('aria-disabled')]).toEqual([true, true, 'true']);
   });
 
+  test('form: outside its form, its reset brings the default back too, in the stars as in the radios', async () => {
+    await render(<><form id="of" /><Rating id="or" aria-label="Outside" name="stars" form="of" defaultValue={2} /></>);
+    const form = el('of') as HTMLFormElement;
+    const full = filled('or')[0];
+    await userEvent.click(radios('or')[3]);
+    await userEvent.unhover(el('or'));
+    expect(new FormData(form).get('stars')).toBe('4');
+    form.reset();
+    await expect.poll(() => filled('or').map((w) => w === full)).toEqual([true, true, false, false, false]);
+    expect(picked('or')).toEqual(['2']);
+  });
+
   test('in a Field: the label names the group and the hint describes it; error marks it invalid', async () => {
     await render(<Field label="How was your stay?" hint="Pick again to clear." error="Pick a rating."><Rating clearable /></Field>);
     const group = page.getByRole('radiogroup', { name: 'How was your stay?' }).element();
