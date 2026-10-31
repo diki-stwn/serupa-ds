@@ -16,6 +16,7 @@ import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { en as words } from "./labels";
+import { windowBlur } from "../../internal/focus";
 
 export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'children'> {
   /** The chosen day (controlled), or null. Use with onValueChange. A "yyyy-mm-dd" string is that day, wherever the
@@ -115,7 +116,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
         lang={rest.lang ?? lang} type="text" inputMode="numeric" autoComplete={rest.autoComplete || "off"} className="dk-input__field" value={text} disabled={disabled} readOnly={readOnly}
         placeholder={placeholder != null ? placeholder : datePattern(locale)} aria-invalid={invalid || undefined} aria-describedby={cn(rest["aria-describedby"], id + "-format")}
         onChange={(e) => setText(e.target.value)}
-        onBlur={(e) => { read(); if (onBlur) onBlur(e); }}
+        onBlur={(e) => { if (!windowBlur(e)) read(); if (onBlur) onBlur(e); }}
         onKeyDown={(e) => {
           if (onKeyDown) onKeyDown(e);
           if (e.defaultPrevented || isComposing(e)) return;

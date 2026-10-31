@@ -34,6 +34,20 @@ function Countries(props: { cref?: React.Ref<HTMLInputElement> }) {
 const open = async () => { el('before').focus(); await userEvent.keyboard('{Tab}{ArrowDown}'); };
 
 describe('Combobox', () => {
+  test('switching to another window or tab mid-typing keeps the typed text and the value; leaving the field then puts the text back (L8E26)', async () => {
+    const calls: unknown[] = [];
+    await render(<><Combobox id="cwb" aria-label="Country" options={COUNTRIES} defaultValue="Brazil" onValueChange={(v) => calls.push(v)} /><button id="cwbn">Next</button></>);
+    await userEvent.click(el('cwb'));
+    await userEvent.clear(el('cwb'));
+    await userEvent.keyboard('Arg');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    el('cwb').dispatchEvent(new FocusEvent('focusout', { bubbles: true })); el('cwb').dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([el('cwb').value, document.activeElement, calls]).toEqual(['Arg', el('cwb'), []]);
+    document.getElementById('cwbn')!.focus();
+    await expect.poll(() => el('cwb').value).toBe('Brazil');
+  });
+
   test('required with multiple: the form submits once a tag is picked and not before; it stays aria-required (L8E18)', async () => {
     const screen = await render(<form id="rq"><Combobox aria-label="Fruit" id="rm" multiple required name="fruit" options={['Apple', 'Banana']} defaultValue={['Apple']} /></form>);
     const f = () => document.getElementById('rq') as HTMLFormElement, field = () => document.getElementById('rm') as HTMLInputElement;

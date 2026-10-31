@@ -23,6 +23,21 @@ function Ctl(props: { calls: string[]; setRef?: { set?: (d: Date | null) => void
 }
 
 describe('DatePicker', () => {
+  test('switching to another window or tab mid-typing keeps the typed text and says nothing; leaving the field then reads it (L8E26)', async () => {
+    const calls: string[] = [];
+    await render(<><DatePicker id="dwb" aria-label="Start" locale="en-US" onInvalidInput={(t, r) => calls.push(t + ':' + r)} /><button id="dwbn">Next</button></>);
+    await userEvent.click(el('dwb'));
+    await userEvent.keyboard('5/1');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    el('dwb').dispatchEvent(new FocusEvent('focusout', { bubbles: true })); el('dwb').dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([el('dwb').value, calls]).toEqual(['5/1', []]);
+    el('dwb').focus();
+    await userEvent.keyboard('2/2026');
+    await userEvent.click(document.getElementById('dwbn')!);
+    await expect.poll(() => el('dwb').value).toBe('05/12/2026');
+  });
+
   test('a press on the box (side padding, past the calendar button) focuses the field with the caret at the end; a press in the open calendar is not taken for one on the box; a disabled box stays put (GG2)', async () => {
     await render(<div style={{ width: '320px' }}>
       <DatePicker id="bx" size="lg" defaultValue={new Date(2026, 2, 14)} aria-label="Due" />

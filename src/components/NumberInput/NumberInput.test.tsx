@@ -34,6 +34,17 @@ function Controlled({ calls, set }: { calls: Array<number | null>; set?: (f: (v:
 }
 
 describe('NumberInput', () => {
+  test('switching to another window or tab mid-typing keeps the typed text and says nothing (L8E26)', async () => {
+    const calls: string[] = [];
+    await render(<NumberInput id="nwb" aria-label="Amount" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await userEvent.click(field('nwb'));
+    await userEvent.keyboard('-');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    field('nwb').dispatchEvent(new FocusEvent('focusout', { bubbles: true })); field('nwb').dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([field('nwb').value, calls]).toEqual(['-', []]);
+  });
+
   test('Input\'s box (32px) around a spinbutton with valuenow 5, min 0, max 100, numeric keyboard; − and + buttons out of the Tab order; ref to the input, className to the box', async () => {
     const r = React.createRef<HTMLInputElement>();
     await render(<Qty r={r} />);
