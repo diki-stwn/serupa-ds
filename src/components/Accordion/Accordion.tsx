@@ -82,7 +82,8 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
     const t = e.target as HTMLElement;
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !t.classList.contains("dk-accordion__trigger") || t.closest(".dk-accordion") !== e.currentTarget) return;
-    const all = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".dk-accordion__trigger")).filter((b) => b.closest(".dk-accordion") === e.currentTarget && !b.disabled);
+    // An item hidden by the hidden attribute or CSS (a filtered FAQ) can't take focus: skip it rather than stick (L8E83).
+    const all = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".dk-accordion__trigger")).filter((b) => b.closest(".dk-accordion") === e.currentTarget && !b.disabled && b.getClientRects().length > 0);
     const i = all.indexOf(t as HTMLButtonElement);
     const to = e.key === "ArrowDown" ? all[(i + 1) % all.length] : e.key === "ArrowUp" ? all[(i - 1 + all.length) % all.length] : e.key === "Home" ? all[0] : e.key === "End" ? all[all.length - 1] : null;
     if (to) { e.preventDefault(); to.focus(); }
