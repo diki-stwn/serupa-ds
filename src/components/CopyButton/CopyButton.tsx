@@ -87,6 +87,9 @@ export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButto
       timer.current = setTimeout(() => setCopied(false), timeout ?? 2000);
       if (onCopy) onCopy(text);
     } catch (err) {
+      // The last copy's "Copied" may still show: take it away, so the button doesn't say this one worked (L8E60).
+      if (timer.current) { clearTimeout(timer.current); timer.current = null; }
+      setCopied(false);
       announce(sds.labels.copyFailed, { assertive: true });
       if (onCopyError) onCopyError(err);
     }

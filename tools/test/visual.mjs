@@ -23,7 +23,7 @@
 // touches only components (SERUPA_ONLY), since a component can't change them.
 import fs from 'node:fs';
 import path from 'node:path';
-import { HERE, PAGES, PROJECT, browser, fixClock, inParallel, report, serve, suffix, onlyComponents } from './lib.mjs';
+import { HERE, PAGES, PROJECT, browser, fixClock, inParallel, openUrl, report, serve, suffix, onlyComponents } from './lib.mjs';
 
 const TOLERANCE = 0.002;          // share of pixels allowed to differ
 const DIR = path.join(HERE, `baseline-visual${suffix}`);
@@ -116,7 +116,8 @@ async function tabTo(page, el) {
 // Opens a story in a theme, with motion off, once it has drawn and its fonts have loaded. '' when ready.
 async function open(page, e, theme, more = '') {
   const [brand, mode] = theme.split('-');
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};${more ? `${more};` : ''}a11y.manual:!true`);
+  const notOpen = await openUrl(page, `${base}/iframe.html?id=${e.id}&viewMode=story&globals=brand:${brand};mode:${mode};${more ? `${more};` : ''}a11y.manual:!true`);
+  if (notOpen) return notOpen;
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) return 'did not render in 15 s';
   if (await page.evaluate(() => document.body.classList.contains('sb-show-errordisplay'))) return 'Storybook shows an error';
@@ -208,7 +209,8 @@ async function checkSheets(e, page) {
   const pageName = `Foundations/${e.title.split('/').pop().replace(/\s+/g, '-')}`;
   fs.mkdirSync(path.join(DIR, 'Foundations'), { recursive: true });
   const [brand, mode] = THEMES[0].split('-');
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=docs&globals=brand:${brand};mode:${mode}`);
+  const notOpen = await openUrl(page, `${base}/iframe.html?id=${e.id}&viewMode=docs&globals=brand:${brand};mode:${mode}`);
+  if (notOpen) { sheetsFailed = true; return [{ name: pageName, ok: false, detail: notOpen }]; }
   const drawn = await page.waitForFunction(() => document.querySelector('#storybook-docs .sbdocs-content')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) { sheetsFailed = true; return [{ name: pageName, ok: false, detail: 'did not render in 15 s' }]; }
   await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });

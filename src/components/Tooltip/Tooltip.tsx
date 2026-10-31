@@ -42,7 +42,7 @@ type Handler = (e: React.SyntheticEvent<HTMLElement>) => void;
 const WARM_MS = 300;
 // module state: browser only (pointer and focus events set it); a server never shows a tooltip.
 const warm: { until: number; owner: object | null; close: (() => void) | null } = { until: 0, owner: null, close: null };
-/** For tests: start cold, as if no tooltip had shown. Not exported from the package. */
+/** For tests: start cold, as if no tooltip had shown. Not exported from the package. @testseam */
 export function coolTooltips(): void { warm.until = 0; }
 
 const OWN = { content: 1, children: 1, placement: 1, delay: 1, role: 1, open: 1, defaultOpen: 1, onOpenChange: 1, disabled: 1, className: 1, style: 1, ref: 1 } as const;

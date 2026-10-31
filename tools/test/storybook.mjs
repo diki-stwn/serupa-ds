@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { PAGES, PROJECT, browser, fixClock, inParallel, report, serve, onlyComponents } from './lib.mjs';
+import { PAGES, PROJECT, browser, fixClock, inParallel, openUrl, report, serve, onlyComponents } from './lib.mjs';
 
 const DIR = path.join(PROJECT, 'storybook-static');
 if (!fs.existsSync(path.join(DIR, 'index.json'))) {
@@ -53,7 +53,8 @@ async function open(w, e, run) {
   const { page } = w;
   w.errors = [];
   // a11y.manual stops the a11y addon's own axe run after each story: it shares window.axe with this check's run.
-  await page.goto(`${base}/iframe.html?id=${e.id}&viewMode=${e.type === 'docs' ? 'docs' : 'story'}&globals=brand:${brand};mode:${mode};contrast:${contrast};a11y.manual:!true`);
+  const notOpen = await openUrl(page, `${base}/iframe.html?id=${e.id}&viewMode=${e.type === 'docs' ? 'docs' : 'story'}&globals=brand:${brand};mode:${mode};contrast:${contrast};a11y.manual:!true`);
+  if (notOpen) return notOpen;
   const drawn = await page.waitForFunction(() => document.body.classList.contains('sb-show-errordisplay') || document.querySelector('#storybook-root')?.children.length > 0 || document.querySelector('#storybook-docs')?.children.length > 0, null, { timeout: 15000 }).then(() => true, () => false);
   if (!drawn) return 'did not render in 15 s';
   await page.evaluate(() => document.fonts.ready.then(() => undefined));

@@ -61,6 +61,20 @@ describe('LoadMore', () => {
     expect(sum.tabIndex).toBe(-1);
   });
 
+  test('with endText={null} and no summary, the last page leaves focus on LoadMore itself, not the page; it isn\'t a tab stop after (L8E58)', async () => {
+    function Bare() {
+      const [more, setMore] = React.useState(true);
+      return <><button id="lm-before">Before</button><LoadMore id="bare" onLoadMore={() => setMore(false)} hasMore={more} endText={null} /></>;
+    }
+    await render(<Bare />);
+    button('bare').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('bare').querySelector('button')).toBe(null);
+    await expect.poll(() => document.activeElement).toBe(el('bare'));
+    await userEvent.tab({ shift: true });
+    expect([document.activeElement, el('bare').hasAttribute('tabindex')]).toEqual([el('lm-before'), false]);
+  });
+
   test('without count, "More loaded" once the load settles; endText null shows nothing at the end; label replaces the words', async () => {
     await expect.poll(announcerIdle, { timeout: 3000 }).toBe(true);
     await render(<>
