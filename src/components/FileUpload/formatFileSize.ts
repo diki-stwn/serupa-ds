@@ -10,6 +10,8 @@ export function formatFileSize(bytes: number, locale?: string): string {
   if (typeof locale === "string" && locale) return formatNumber(bytes, locale, { format: "bytes" });
   const units = ["B", "KB", "MB", "GB", "TB"];
   let i = 0, n = bytes;
-  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-  return (i === 0 ? String(n) : n >= 10 ? String(Math.round(n)) : String(Math.round(n * 10) / 10)) + " " + units[i];
+  const rounded = () => (i === 0 ? n : n >= 10 ? Math.round(n) : Math.round(n * 10) / 10);
+  // A size that rounds up to 1024 steps up too, as formatNumber's does: 1,048,575 is "1 MB", not "1024 KB".
+  while ((n >= 1024 || rounded() >= 1024) && i < units.length - 1) { n /= 1024; i++; }
+  return String(rounded()) + " " + units[i];
 }
