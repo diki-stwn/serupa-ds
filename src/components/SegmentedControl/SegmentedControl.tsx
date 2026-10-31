@@ -9,8 +9,8 @@ import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
-export interface SegmentedControlOption {
-  value: string;
+export interface SegmentedControlOption<V extends string = string> {
+  value: V;
   /** The segment's text. With only an icon, pass aria-label instead. */
   label?: React.ReactNode;
   /** An icon name or element before the label. */
@@ -20,15 +20,16 @@ export interface SegmentedControlOption {
   /** Turns this segment off. */
   disabled?: boolean;
 }
-export interface SegmentedControlProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
+/** V is the segments' values, inferred from options or given, such as SegmentedControl<'list' | 'board'>. */
+export interface SegmentedControlProps<V extends string = string> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
   /** The segments, in order: 2 to about 5. */
-  options: SegmentedControlOption[];
+  options: readonly SegmentedControlOption<V>[];
   /** The selected value (controlled). Use with onValueChange. */
-  value?: string;
+  value?: V;
   /** The value selected at first (uncontrolled). Default: the first segment that isn't disabled. */
-  defaultValue?: string;
+  defaultValue?: V;
   /** Called with the new value when a segment is chosen. */
-  onValueChange?: (value: string) => void;
+  onValueChange?: (value: V) => void;
   /** 'sm' (24px), 'md' (32px, default) or 'lg' (44px): the control heights. */
   size?: 'sm' | 'md' | 'lg';
   /** Stretches to its container, with equal segments. Default: false. */
@@ -190,4 +191,4 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
       {props.name ? <input type="hidden" name={props.name} form={props.form} value={value ?? ""} disabled={disabled} /> : null}
     </div>
   );
-});
+}) as (<V extends string = string>(props: SegmentedControlProps<V> & React.RefAttributes<HTMLDivElement>) => React.ReactElement | null) & { displayName?: string };

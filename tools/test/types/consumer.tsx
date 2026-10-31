@@ -105,6 +105,10 @@ export const generics = [
   <Slider value={range} onValueChange={(_v) => is<Equal<typeof _v, [number, number]>>()} />,
   // @ts-expect-error: a range has two ends
   <Slider value={[10, 50, 90]} />,
+  <SegmentedControl aria-label="View" options={[{ value: 'list', label: 'List' }, { value: 'board', label: 'Board' }]} defaultValue="list" onValueChange={(_v) => is<Equal<typeof _v, 'list' | 'board'>>()} />,
+  <SegmentedControl<'list' | 'board'> aria-label="View" options={[{ value: 'list', label: 'List' }]} onValueChange={(_v) => is<Equal<typeof _v, 'list' | 'board'>>()} />,
+  // @ts-expect-error: a value none of the segments has
+  <SegmentedControl<'list' | 'board'> aria-label="View" options={[{ value: 'list', label: 'List' }]} defaultValue="grid" />,
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.name} renderItem={(t) => t.name} onReorder={(_items) => is<Equal<typeof _items, { id: number; name: string }[]>>()} />,
   // @ts-expect-error: the item has no title
   <SortableList items={[{ id: 1, name: 'Apollo' }]} getKey={(t) => t.id} getLabel={(t) => t.title} renderItem={(t) => t.name} onReorder={() => {}} />,
