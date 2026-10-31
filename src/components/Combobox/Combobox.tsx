@@ -20,6 +20,7 @@ import { announce } from "../../internal/announce";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Badge } from "../Badge/Badge";
 import { en as words } from "./labels";
+import { windowBlur } from "../../internal/focus";
 
 /** V is the options' values, inferred from options or given, such as Combobox<"red" | "green">. */
 export type ComboboxOption<V extends string = string> = V | { value: V; label: string; description?: React.ReactNode; disabled?: boolean };
@@ -302,6 +303,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (rest.onBlur) rest.onBlur(e);
+    if (windowBlur(e)) return;   // switched windows: the typing goes on when they come back
     if (multi) { hide(); if (text && props.onInputChange) props.onInputChange(""); return; }
     const x = exact();
     if (text.trim() === "" && value != null) { commit(null); setOpen(false); setActive(-1); setTyped(false); setText(""); }
