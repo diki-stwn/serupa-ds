@@ -40,8 +40,8 @@ These names (in any case, and with any spaces, `_` or `-`: `page_up` and `Page U
 | `shift` | ⇧ | Shift |
 | `enter`, `return` | ↵ | Enter |
 | `backspace`, `delete` | ⌫, ⌦ | Backspace, Del |
-| `tab`, `esc`, `space` | ⇥, Esc, Space | Tab, Esc, Space |
-| `up`, `down`, `left`, `right` | ↑ ↓ ← → | ↑ ↓ ← → |
+| `tab`, `esc`, `space` (or `" "`) | ⇥, Esc, Space | Tab, Esc, Space |
+| `up`, `down`, `left`, `right` (or `ArrowUp`…`ArrowRight`, as `KeyboardEvent.key` names them) | ↑ ↓ ← → | ↑ ↓ ← → |
 | `home`, `end` | ↖ ↘ | Home, End |
 | `pageup` (`pgup`), `pagedown` (`pgdn`) | ⇞ ⇟ | PgUp, PgDn |
 | `capslock`, `insert` (`ins`), `fn` | ⇪, Ins, fn | Caps Lock, Ins, Fn |
