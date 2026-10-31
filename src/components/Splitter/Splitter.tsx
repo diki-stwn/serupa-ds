@@ -109,6 +109,8 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const horizontal = direction === "horizontal";
     const back = horizontal ? (rtl(e.currentTarget) ? "ArrowRight" : "ArrowLeft") : "ArrowUp";
     const on = horizontal ? (rtl(e.currentTarget) ? "ArrowLeft" : "ArrowRight") : "ArrowDown";

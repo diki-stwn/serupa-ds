@@ -41,7 +41,17 @@ function App(props: { tref?: React.Ref<HTMLDivElement> }) {
 }
 const setup = async (tref?: React.Ref<HTMLDivElement>) => { changes = []; await render(<App tref={tref} />); await expect.poll(() => !!selected('un')).toBe(true); };
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('Tabs', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<Tabs id="mk" defaultValue="p"><TabList aria-label="X"><Tab value="p">P</Tab><Tab value="q">Q</Tab></TabList></Tabs>);
+    const t = document.querySelector('#mk [role=tab]') as HTMLElement;
+    t.focus();
+    const before = t.getAttribute('aria-selected');
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-selected') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('roles: a tablist of type="button" tabs, each controlling its tabpanel (labelled by the tab, focusable); unique ids; ref and className reach Tabs', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await setup(ref);

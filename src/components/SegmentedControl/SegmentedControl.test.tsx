@@ -38,7 +38,17 @@ function Controlled({ calls, api }: { calls: string[]; api: { set?: (v: string) 
     options={[{ value: 'list', icon: 'list', label: 'List' }, { value: 'board', icon: 'view_kanban', label: 'Board' }]} />;
 }
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('SegmentedControl', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<SegmentedControl id="mk" aria-label="Period" options={PERIODS} defaultValue="day" />);
+    const t = document.querySelector('#mk button') as HTMLElement;
+    t.focus();
+    const before = t.outerHTML;
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.outerHTML === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('your onKeyDown runs first, with the root as currentTarget: preventDefault() on a key keeps the selection; onFocus and onBlur fire only entering and leaving, not while arrowing between segments', async () => {
     const seen: string[] = [], targets: (EventTarget | null)[] = [];
     await render(<><SegmentedControl id="ev" aria-label="Period" options={PERIODS} defaultValue="day"
