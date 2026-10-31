@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          SERUPA_BROWSER=webkit npx vitest run --project components src/components/Badge/Badge.test.tsx 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee test-output.txt
+          { for seed in 1793423590319 1793423590319 11 22; do echo "== seed $seed"; SERUPA_BROWSER=webkit npx vitest run --project components src/components/Badge/Badge.test.tsx --sequence.seed=$seed; done; } 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee test-output.txt
       - name: List the failures
         if: failure()
         shell: bash
