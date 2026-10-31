@@ -106,5 +106,6 @@ declare global {
             withViewTransition: typeof withViewTransition;
             theme?: ThemeApi;
         };
+        SerupaIcons?: Readonly<Record<string, unknown>>;
     }
 }
