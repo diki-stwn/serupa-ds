@@ -144,7 +144,7 @@
     "rolldown": "1.2.14",
     "rollup": "4.64.10",
     "storybook": "10.6.5",
-    "style-dictionary": "5.7.0",
+    "style-dictionary": "5.7.1",
     "stylelint": "17.16.0",
     "stylelint-config-recommended": "18.0.0",
     "tsup": "9.0.0",
