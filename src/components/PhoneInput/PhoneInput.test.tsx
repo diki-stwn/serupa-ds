@@ -105,6 +105,14 @@ describe('PhoneInput', () => {
     expect([order, i.value]).toEqual([[true, true], '(201) 555-123']);
   });
 
+  test('with Alt, Ctrl or ⌘ held, Backspace and Delete after a separator are left to the browser (word or line deletion) (L8E30)', async () => {
+    await render(<Wrap><PhoneInput id="pm" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
+    const i = field('pm');
+    i.focus();
+    const held = (key: string, at: number) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { i.setSelectionRange(at, at); const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); i.dispatchEvent(ev); return ev.defaultPrevented; });
+    expect([held('Backspace', 10), held('Delete', 9), i.value]).toEqual([[false, false, false], [false, false, false], '(201) 555-0123']);
+  });
+
   test('Backspace after a separator removes the digit before it; typing in the middle keeps the caret after the new digit', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
     const i = field('p');

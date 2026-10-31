@@ -18,6 +18,16 @@ const windowReact = {
   },
 };
 
+// serupa.iife.js leaves out the full icon table (src/material/icons.ts): src/browser.ts loads serupa-icons.iife.js,
+// which has it, when an Icon first needs it. Here src/icons.ts's import of it is an empty module.
+const noTable = {
+  name: 'no-icon-table',
+  setup(build) {
+    build.onResolve({ filter: /^\.\/material\/icons$/ }, (a) => (/[\\/]src[\\/]icons\.ts$/.test(a.importer) ? { path: 'icons', namespace: 'no-icon-table' } : undefined));
+    build.onLoad({ filter: /.*/, namespace: 'no-icon-table' }, () => ({ contents: 'export {};', loader: 'js' }));
+  },
+};
+
 // SERUPA_BUILD=iife builds the browser script only (the icon test builds a scratch copy that way).
 const only = process.env.SERUPA_BUILD;
 
@@ -38,13 +48,13 @@ export default defineConfig([
     platform: 'browser',
     clean: false,
     define,
-    esbuildPlugins: [windowReact],
+    esbuildPlugins: name === 'serupa.iife' ? [windowReact, noTable] : [windowReact],
     minify: true,
     // A map beside the browser script, so a stack trace on a page can be read; the map points to the sources by
     // path without carrying them, which would double the package.
     ...(name === 'serupa.iife' ? { sourcemap: true, esbuildOptions(o) { o.sourcesContent = false; } } : {}),
     banner: {
-      js: name === 'serupa.iife' ? `/*! Serupa v${version} by Diki · components (needs React 19) · CHANGELOG.md */` : `/*! Serupa v${version} · serupa-icons.iife.js is empty since 6.1 (serupa.iife.js has every icon): remove it from your page */`,
+      js: name === 'serupa.iife' ? `/*! Serupa v${version} by Diki · components (needs React 19) · CHANGELOG.md */` : `/*! Serupa v${version} · every Material Symbol by name (Apache 2.0): serupa.iife.js loads this itself when an Icon needs it */`,
     },
   })),
 ]);
