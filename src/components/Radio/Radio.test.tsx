@@ -270,4 +270,16 @@ describe('Radio', () => {
     expect([await at('ArrowRight'), await at('ArrowLeft')]).toEqual(['hid-a*', 'hid-b*']);
     expect(seen.join()).toBe('a,b');
   });
+  test('L8E90 ref.current.focus() (a form library focusing the first invalid field) focuses the checked radio, else the first one that isn\'t disabled; aria-required is kept', async () => {
+    const a = React.createRef<HTMLDivElement>(), b = React.createRef<HTMLDivElement>();
+    await render(<>
+      <RadioGroup ref={a} aria-label="Plan" defaultValue="pro"><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
+      <RadioGroup ref={b} aria-label="Size" aria-required><Radio value="s" disabled>S</Radio><Radio value="m">M</Radio></RadioGroup>
+    </>);
+    a.current!.focus();
+    const now = () => (document.activeElement as HTMLInputElement).value;
+    const first = now();
+    b.current!.focus();
+    expect([first, now(), b.current!.getAttribute('aria-required')]).toEqual(['pro', 'm', 'true']);
+  });
 });

@@ -5,6 +5,7 @@ import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { warnOnce } from "../../internal/warn";
+import { delegateFocus } from "../../internal/focus";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onValueChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -90,7 +91,14 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
     to.click();
   };
   return (
-    <div {...rest} ref={function (n) { root.current = n; nameRef(n); setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) {
+      root.current = n;
+      // ref.current.focus() (a form library focusing the first invalid field) lands on the radio in the Tab order, the
+      // checked one or else the first that can be picked; the <div> took no focus. aria-required given to the group
+      // is kept, not overwritten by the required prop (L8E90).
+      delegateFocus(n, () => n && (n.querySelector<HTMLElement>("input:checked:enabled") || n.querySelector<HTMLElement>("input:enabled")));
+      nameRef(n); setRef(ref, n);
+    }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || rest["aria-required"] || undefined} aria-disabled={props.disabled || undefined}
       className={cn("dk-radio-group", "dk-radio-group--" + orientation, invalid && "dk-radio-group--invalid", props.className)} data-component="radio-group" data-orientation={orientation}>
       <RadioContext.Provider value={ctx}>{props.children}</RadioContext.Provider>
     </div>

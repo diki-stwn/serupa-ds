@@ -1,0 +1,12 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ContrastMatrix } from '../contrast';
+
+<Meta title="Foundations/Contrast matrix" />
+
+# Contrast matrix
+
+Every text, icon, border and focus-ring color pair the components put on screen, with its WCAG 2.2 contrast ratio in each of the six themes. Text needs 4.5:1. Icons, borders and the focus ring need 3:1. Where `data-contrast="more"` (or the system's more-contrast setting) changes a pair, the ratio it reaches then is shown under it.
+
+The page is worked out from `tokens.json` on each build. The pairs come from `tools/tokens/contrast-pairs.mjs`, which the foundation test checks in every theme too, so a pair that falls below what it needs fails the build before it reaches this page.
+
+<ContrastMatrix />
