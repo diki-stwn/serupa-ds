@@ -149,6 +149,9 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   valueRef.current = value;
   const picked = swatches.findIndex((s) => s.value === value);
   const tabStop = picked >= 0 ? picked : 0;
+  // Your onKeyDown runs first, on the root as the key goes down (the capture phase), so preventDefault() in it keeps
+  // the component's own handling of that key from running (L8E32).
+  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
     if (e.defaultPrevented || !swatches.length || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -184,7 +187,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const low = ratio != null && ratio < min;
   useAutoFocus(props.autoFocus, () => root.current && root.current.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]);
   return (
-    <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); restyle(n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
+    <div {...rest} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} ref={(n) => { root.current = n; delegateFocus(n, () => n && n.querySelectorAll<HTMLButtonElement>(".dk-color-picker__swatch")[tabStop]); restyle(n); }} className={cn("dk-color-picker", "dk-color-picker--size-" + size, disabled && "dk-color-picker--disabled", props.className)}
       data-component="color-picker" data-size={size}>
       {/* The description and states a Field hands the picker go on the radiogroup, the control screen readers reach.
           The id stays on the outer div, so a label click focuses the picked swatch through it. */}

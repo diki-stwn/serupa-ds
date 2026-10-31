@@ -151,7 +151,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
               {has(props.title) ? <h2 className="dk-dialog__title" id={base + "-title"}>{props.title}</h2> : null}
               {has(props.description) ? <p className="dk-dialog__description" id={base + "-desc"}>{props.description}</p> : null}
             </div>
-            {showClose ? <IconButton className="dk-dialog__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" noTitle onClick={() => close("close")} /> : null}
+            {showClose ? <IconButton className="dk-dialog__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" hideTitle onClick={() => close("close")} /> : null}
           </div>
         ) : null}
         {has(props.children) ? <div {...region} ref={setBody} className="dk-dialog__body">{props.children}</div> : null}

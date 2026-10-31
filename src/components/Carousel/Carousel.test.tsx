@@ -97,6 +97,17 @@ async function swipe(id: string, dx: number, from?: HTMLElement) {
 const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 describe('Carousel', () => {
+  test('your onKeyDown runs first, on the root, and preventDefault() in it keeps the arrow keys from moving anything (L8E32)', async () => {
+    const seen: string[] = [];
+    const stop = (e: React.KeyboardEvent) => { seen.push(String((e.currentTarget as HTMLElement).dataset.component)); e.preventDefault(); };
+    await render(<Carousel id="mk" label="Photos" onKeyDown={stop}><div>A</div><div>B</div><div>C</div></Carousel>);
+    const t = document.querySelector('#mk button[aria-current="true"]') as HTMLElement;
+    t.focus();
+    const before = t.getAttribute('aria-current');
+    await userEvent.keyboard('{ArrowRight}');
+    expect([seen.length > 0, seen.every((n) => n !== 'undefined'), document.activeElement === t, t.getAttribute('aria-current') === before]).toEqual([true, true, true, true]);
+  });
+
   test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
     await render(<Carousel id="mk" label="Photos"><div>A</div><div>B</div><div>C</div></Carousel>);
     const t = document.querySelector('#mk button[aria-current="true"]') as HTMLElement;

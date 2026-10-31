@@ -134,7 +134,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
           {open || leaving ? null : nav}
           {props.actions != null ? <div className="dk-navbar__actions">{props.actions}</div> : null}
           {hasLinks ? (
-            <IconButton ref={toggle} className="dk-navbar__toggle" icon={open ? icons.Close : icons.Menu} label={props.menuLabel || sds.labels.menu} noTitle
+            <IconButton ref={toggle} className="dk-navbar__toggle" icon={open ? icons.Close : icons.Menu} label={props.menuLabel || sds.labels.menu} hideTitle
               aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)} />
           ) : null}
           {open || leaving ? nav : null}
