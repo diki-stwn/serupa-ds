@@ -275,6 +275,14 @@ describe('Card', () => {
     } finally { restore(); }
   });
 
+  test('a plain Card inside a link Card keeps its own title as text: the outer card\'s link doesn\'t reach into it (L8E65)', async () => {
+    await render(<Card id="outer" href="#project">
+      <CardHeader title="Project" />
+      <CardBody><Card id="inner"><CardHeader title="Latest build" /></Card></CardBody>
+    </Card>);
+    expect([el('outer').querySelectorAll('a').length, el('inner').querySelector('a'), el('inner').querySelector('h3')!.textContent]).toEqual([1, null, 'Latest build']);
+  });
+
   test('no errors or React warnings', async () => {
     const error = vi.spyOn(console, 'error');
     await render(<Col><Variants /><Card href="#x" target="_blank">Out</Card><Card href="#y"><CardHeader title="T" /><CardFooter><Button>Save</Button></CardFooter></Card></Col>);

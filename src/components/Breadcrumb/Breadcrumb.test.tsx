@@ -114,6 +114,20 @@ describe('Breadcrumb', () => {
     await expect.poll(() => document.activeElement).toBe(b);
   });
 
+  test('collapse="menu": a hidden page given as a router link keeps its own props in the menu (to, target, data-*), so it still goes there (L8E64)', async () => {
+    await render(<Breadcrumb id="brouter" maxItems={2} collapse="menu">
+      <BreadcrumbItem href="#home">Home</BreadcrumbItem>
+      <BreadcrumbItem as={RouterLink} to="/org" data-track="org">Org</BreadcrumbItem>
+      <BreadcrumbItem href="#help" target="_blank">Help</BreadcrumbItem>
+      <BreadcrumbItem href="#here">Here</BreadcrumbItem>
+    </Breadcrumb>);
+    await userEvent.click(q('#brouter .dk-breadcrumb__more'));
+    await expect.poll(() => document.querySelectorAll('[role="menu"] [role="menuitem"]').length).toBe(2);
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[role="menu"] [role="menuitem"]')];
+    expect(links.map((l) => [l.getAttribute('href'), l.dataset.track ?? '', l.target, l.textContent])).toEqual([['#router/org', 'org', '', 'Org'], ['#help', '', '_blank', 'Help']]);
+    await userEvent.keyboard('{Escape}');
+  });
+
   test('the "…" button is named "Show all pages" by default', async () => {
     await render(<Breadcrumb id="bdef" maxItems={2}>
       {['Home', 'Org', 'Team'].map((l) => <BreadcrumbItem key={l} href={'#' + l}>{l}</BreadcrumbItem>)}
