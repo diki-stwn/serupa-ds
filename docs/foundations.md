@@ -92,22 +92,22 @@ Alias tokens give a colour a **job** instead of a hue. Each one points to a pale
 | `primary-hover` | `‹brand›-700` | `‹brand›-300` | Hover / pressed state of `primary`. |
 | `primary-subtle` | `‹brand›-50` | `‹brand›-950` | Brand tint for selected rows and badges. |
 | `on-primary` | `white` | `‹brand›-950` | Text and icons on `primary` fills. |
-| `secondary` | `zinc-100` | `zinc-800` | Secondary button fill; hover fill for outline and ghost buttons. |
-| `secondary-hover` | `zinc-200` | `zinc-700` | Hover state of `secondary`. |
+| `secondary` | `zinc-100` | `zinc-700` | Secondary button fill; hover fill for outline and ghost buttons. |
+| `secondary-hover` | `zinc-200` | `zinc-600` | Hover state of `secondary`. |
 | `highlight` | `zinc-200` | `zinc-700` | The highlighted row in a list: a focused Menu item, the active Combobox or TimePicker option, the current Sidebar page. Text, icons and a primary bar keep AA on it; muted text does not, so a highlighted row switches its muted lines to `text`. |
 | `pressed` | `zinc-300` | `zinc-600` | The fill while a row, tab, day or page button is held down: one step past its hover. |
-| `surface` | `white` | `zinc-950` | Page and card background. |
-| `surface-muted` | `zinc-50` | `zinc-900` | Secondary panels, sidebars, table headers. |
-| `surface-raised` | `white` | `zinc-900` | A raised card (Card `elevated`). In dark, where shadows don't show, the lighter surface carries the lift. |
-| `surface-overlay` | `white` | `zinc-900` | Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast, and the Combobox, DatePicker and TimePicker lists. |
+| `surface` | `white` | `zinc-900` | Page and card background. |
+| `surface-muted` | `zinc-50` | `zinc-800` | Secondary panels, sidebars, table headers. |
+| `surface-raised` | `white` | `zinc-800` | A raised card (Card `elevated`). In dark, where shadows don't show, the lighter surface carries the lift. |
+| `surface-overlay` | `white` | `zinc-800` | Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast, and the Combobox, DatePicker and TimePicker lists. |
 | `surface-inverse` | `zinc-900` | `zinc-50` | Contrasting blocks: tooltips, inverse banners. |
 | `text` | `zinc-900` | `zinc-50` | Body text and headings on `surface`. |
 | `text-muted` | `zinc-500` | `zinc-400` | Secondary text, captions, placeholders. |
 | `text-inverse` | `white` | `zinc-900` | Text on `surface-inverse`. |
-| `border` | `zinc-200` | `zinc-800` | Default borders and dividers. |
-| `border-strong` | `zinc-300` | `zinc-700` | Emphasised dividers and outlines. Form fields use `field-border`. |
-| `border-raised` | `white` | `zinc-800` | A raised card's edge: invisible in light, a 1px lighter edge in dark. |
-| `border-overlay` | `zinc-200` | `zinc-700` | The edge of a top-layer surface; one step stronger than `border` in dark. |
+| `border` | `zinc-200` | `zinc-700` | Default borders and dividers. |
+| `border-strong` | `zinc-300` | `zinc-600` | Emphasised dividers and outlines. Form fields use `field-border`. |
+| `border-raised` | `white` | `zinc-700` | A raised card's edge: invisible in light, a 1px lighter edge in dark. |
+| `border-overlay` | `zinc-200` | `zinc-600` | The edge of a top-layer surface; one step stronger than `border` in dark. |
 | `focus-ring` | `‹brand›-500` | `‹brand›-400` | Keyboard focus outline, in the brand hue. |
 | `success` | `green-600` | `green-500` | Success icons and fills (3:1). Not for text: use `success-text`. |
 | `success-subtle` | `green-50` | `green-950` | Success alert / badge background. |
@@ -441,7 +441,7 @@ How things sit above one another: the page, raised cards, floating menus and dia
 
 **Light and dark**
 
-In light themes, shadows carry the lift: `surface-raised` and `surface-overlay` are white like `surface`, and `border-raised` is invisible. In dark themes, shadows hardly show against a near-black page, so the surface steps up to `zinc-900` and the edge to `zinc-800` or `zinc-700`. Because the tokens change with the theme, the same classes work in both: `bg-surface-overlay border border-border-overlay shadow-lg` is a correct floating panel in all six themes.
+In light themes, shadows carry the lift: `surface-raised` and `surface-overlay` are white like `surface`, and `border-raised` is invisible. In dark themes (a `zinc-900` page), shadows hardly show, so the surface steps up to `zinc-800` and the edge to `zinc-700` or `zinc-600`. Because the tokens change with the theme, the same classes work in both: `bg-surface-overlay border border-border-overlay shadow-lg` is a correct floating panel in all six themes.
 
 In forced-colors mode, backgrounds and shadows are replaced, so only the edge survives. Every floating surface has a real border for that reason; keep it if you restyle one.
 

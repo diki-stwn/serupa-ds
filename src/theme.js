@@ -62,7 +62,7 @@
       tint.name = "theme-color";
     }
     var b = document.body ? getComputedStyle(document.body).backgroundColor : "";
-    tint.content = /\d/.test(b) && !/, 0\)$/.test(b) ? b : resolved() === "dark" ? "#09090b" : "#fff";
+    tint.content = /\d/.test(b) && !/, 0\)$/.test(b) ? b : resolved() === "dark" ? "#18181b" : "#fff";
   }
   function apply(always) {
     var i = info();
