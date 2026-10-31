@@ -25,6 +25,9 @@
 @media (forced-colors: active) { .dk-sidebar[data-slide]::after { background: CanvasText; } }
 .dk-sidebar--collapsed { width: var(--sidebar-width-collapsed, var(--spacing-16)); }
 .dk-sidebar__header, .dk-sidebar__footer { flex-shrink: 0; padding: var(--sidebar-padding, var(--spacing-3)); }
+/* Collapsed (GR51): the header and footer stay in the rail, a long name ends in an ellipsis rather than spilling
+   over the page. Pass a logo mark when collapsed (README). */
+.dk-sidebar--collapsed :is(.dk-sidebar__header, .dk-sidebar__footer) { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .dk-sidebar__footer { border-top: var(--sidebar-border-width, var(--border-width-1)) solid var(--sidebar-border, var(--border)); }
 .dk-sidebar__body { display: flex; flex-direction: column; gap: var(--sidebar-section-gap, var(--spacing-6)); flex: auto; min-height: var(--spacing-0); overflow-y: auto; overscroll-behavior-y: contain; padding: var(--sidebar-padding, var(--spacing-3)); }
 .dk-sidebar__section-title { padding: var(--spacing-0) var(--sidebar-item-padding-x, var(--spacing-3)) var(--spacing-2); color: var(--sidebar-section-title-color, var(--text-muted)); font-size: var(--sidebar-section-title-size, var(--text-xs)); line-height: var(--text-xs--line-height); font-weight: var(--font-medium); }
