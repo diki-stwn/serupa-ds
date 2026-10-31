@@ -77,8 +77,15 @@
     var onScheme = function () { if (state.mode === "auto") apply(); };
     if (media.addEventListener) media.addEventListener("change", onScheme); else if (media.addListener) media.addListener(onScheme);
   }
-  // Another tab changed the choice, or cleared storage (key null): follow it.
-  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) { state = Object.assign({}, page, load()); apply(true); } });
+  // Another tab changed the choice, or cleared storage (key null): follow it. Back from the back/forward cache, that
+  // storage event may not have reached this page (browsers differ): read the choice again.
+  function follow(e) {
+    var was = state.brand + state.mode;
+    state = Object.assign({}, page, load());
+    if (e.type === "storage" || was !== state.brand + state.mode) apply(true);
+  }
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) follow(e); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) follow(e); });
 
   var api = {
     get: info,

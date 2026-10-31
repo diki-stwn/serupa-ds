@@ -16,7 +16,17 @@ const Two = (p: Partial<React.ComponentProps<typeof Splitter>>) => <Splitter id=
   <main id="main"><button>Reply</button></main>
 </Splitter>;
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('Splitter', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<Two />);
+    const t = document.querySelector('[role=separator]') as HTMLElement;
+    t.focus();
+    const before = t.getAttribute('aria-valuenow');
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-valuenow') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('two panes and a focusable role="separator" between them: aria-orientation, aria-valuenow (the first pane\'s percent), min, max, aria-controls the first pane, a name; ref, className and other props reach the root', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Two ref={ref} className="extra" data-x="y" defaultSize={25} separatorLabel="Folders" />);

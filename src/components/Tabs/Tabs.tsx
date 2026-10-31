@@ -210,7 +210,8 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
   }, [reveal]);
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (props.onKeyDown) props.onKeyDown(e);
-    if (e.defaultPrevented) return;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'));
     const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
     if (i < 0 || !tabs.length) return;
