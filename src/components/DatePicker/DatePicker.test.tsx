@@ -203,6 +203,15 @@ describe('DatePicker', () => {
     } finally { warn.mockRestore(); offset.mockRestore(); }
   });
 
+  test('L8E10: an ISO date and time from an API ("2026-10-24T00:00:00Z", "2026-10-24 09:30:00") reads as the day it writes, with one warning, instead of an empty field', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await render(<form><DatePicker id="dt1" aria-label="A" locale="en-US" name="a" defaultValue="2026-10-24T00:00:00Z" /><DatePicker id="dt2" aria-label="B" locale="en-US" defaultValue="2026-10-24 23:30:00+07:00" min="2026-10-01T00:00:00.000Z" /></form>);
+      expect([el('dt1').value, el('dt2').value, (document.querySelector('input[name=a]') as HTMLInputElement).value]).toEqual(['10/24/2026', '10/24/2026', '2026-10-24']);
+      expect(warn.mock.calls.map((c) => String(c[0])).filter((m) => m.startsWith('DatePicker'))).toEqual([expect.stringMatching(/is a date and time; it's read as 2026-10-24/)]);
+    } finally { warn.mockRestore(); }
+  });
+
   test('disabled: the field and button are disabled and faded', async () => {
     await render(<DatePicker id="dis" aria-label="Off" disabled />);
     expect([el('dis').disabled, el('dis').parentElement!.querySelector('button')!.disabled]).toEqual([true, true]);

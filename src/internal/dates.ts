@@ -22,11 +22,14 @@ export const isValid = (d: unknown): d is Date => d instanceof Date && !isNaN(d.
 export const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 /** A day given as a Date or a plain "yyyy-mm-dd" string (read as that local day, not UTC midnight), or null when
  *  it's neither. With who, warns once about a Date at UTC midnight west of Greenwich: new Date("2026-10-24") is
- *  23 Oct there, so pass the string instead. */
+ *  23 Oct there, so pass the string instead. An ISO date and time as an API sends it ("2026-10-24T00:00:00Z",
+ *  "2026-10-24 09:30:00") is read as the day it writes, its time ignored, and with who warns once (L8E10). */
 export function toDay(v: unknown, who?: string): Date | null {
   if (typeof v === "string") {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v.trim());
+    const m = /^(\d{4})-(\d{2})-(\d{2})([T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/.exec(v.trim());
     if (!m) return null;
+    if (process.env.NODE_ENV !== "production" && who && m[4])
+      warnOnce("datetime-string", `${who}: "${v.trim()}" is a date and time; it's read as ${m[1]}-${m[2]}-${m[3]}, the day it writes, and its time is ignored. Pass the "yyyy-mm-dd" day itself.`, who + ":datetime");
     const d = new Date(2000, +m[2] - 1, +m[3]); d.setFullYear(+m[1]);
     return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null;
   }
