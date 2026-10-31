@@ -135,6 +135,10 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
   // Closed content is hidden="until-found": hidden from everyone, but the browser's find-in-page still searches it,
   // and on a match fires beforematch, which opens the item. It's set once the closing animation ends, so the
   // content stays visible while it folds away. React renders any hidden value as hidden="", so it's set here.
+  // The first render (the server's HTML) marks closed content plain hidden, so it stays hidden before the stylesheet
+  // arrives (or without it: tools/test/no-css.mjs); the effect below then makes it until-found. The prop never
+  // changes after that, so React leaves the attribute to the effect.
+  const [startsClosed] = React.useState(!open);
   const content = React.useRef<HTMLDivElement>(null);
   const toggle = React.useRef<(() => void) | null>(null);
   toggle.current = ctx && !open && !props.disabled ? () => ctx.toggle(value) : null;
@@ -200,7 +204,7 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
         </button>
       </H>
       <div id={id + "-p"} role={open && !(ctx && ctx.many) ? "region" : undefined} aria-labelledby={id + "-t"} className="dk-accordion__panel">
-        <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content">{mounted ? props.children : null}</div></div>
+        <div className="dk-accordion__clip"><div ref={content} className="dk-accordion__content" hidden={startsClosed || undefined}>{mounted ? props.children : null}</div></div>
       </div>
     </div>
   );
