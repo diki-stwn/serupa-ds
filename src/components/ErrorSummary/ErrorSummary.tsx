@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
+import { summaryTookFocus } from "../../internal/summaryFocus";
 import { en as words } from "./labels";
 
 /** One error in the summary: the field it's about and what's wrong. */
@@ -41,7 +42,7 @@ export const ErrorSummary = /* @__PURE__ */ component<HTMLDivElement, ErrorSumma
   // Focus when the summary appears and whenever its errors change (another failed submit); not on every render.
   const key = list.map((e) => e.field).join("\n");
   React.useEffect(() => {
-    if (key && autoFocus !== false && box.current) box.current.focus();
+    if (key && autoFocus !== false && box.current) { box.current.focus(); summaryTookFocus(box.current); }
   }, [key, autoFocus]);
   if (!list.length) return null;
   const level = [2, 3, 4, 5, 6].indexOf(headingLevel as number) < 0 ? 2 : (headingLevel as number);
