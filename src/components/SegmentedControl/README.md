@@ -67,7 +67,7 @@ Your `onKeyDown` runs before the control's own keys, so `e.preventDefault()` in 
 | `defaultValue` | `V` | the first enabled option | Uncontrolled. |
 | `onValueChange` | `(value: V) => void` | | When a different segment is chosen. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 24, 32 or 44px tall, like the control heights, so it lines up with an Input, Select or Button of the same size. |
-| `fullWidth` | `boolean` | `false` | Fills its container with equal segments. |
+| `fullWidth` | `boolean` | `false` | Fills its container with equal segments. When a label doesn't fit its equal share, the segments share the width by content instead, still filling it, so short labels give their spare room to long ones. |
 | `disabled` | `boolean` | `false` | |
 | `invalid` | `boolean` | `false` | A danger outline and `aria-invalid`. Field's `error` sets it. |
 | `required` | `boolean` | `false` | `aria-required` on the group. Field's `required` sets it. |

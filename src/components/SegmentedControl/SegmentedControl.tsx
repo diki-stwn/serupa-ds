@@ -90,16 +90,31 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   // A label cut with an ellipsis shows in full as its segment's title on hover (the same words as its name, so nothing
   // is read twice), as Button does.
   const [cut, setCut] = React.useState("");
+  // fullWidth: equal segments while every label fits its equal share; when one doesn't, they share by content as
+  // without it, still filling the width, so a short label leaves its spare room to a long one (GR50).
+  const [tight, setTight] = React.useState(false);
   const measure = React.useCallback(() => {
     const r = root.current, b = value != null ? buttons.current[value] : null;
-    let c = "";
-    for (const k in buttons.current) { const l = buttons.current[k]?.querySelector<HTMLElement>(".dk-segmented__label"); if (l && l.scrollWidth > l.clientWidth) c += k + "\n"; }
+    let c = "", total = 0, n = 0, most = 0;
+    for (const k in buttons.current) {
+      const btn = buttons.current[k], l = btn?.querySelector<HTMLElement>(".dk-segmented__label");
+      if (!btn) continue;
+      total += btn.offsetWidth; n++;
+      if (props.fullWidth) {   // the width its content asks for: padding, then the icon and the whole label, gap apart
+        const cs = getComputedStyle(btn), kids = [...btn.children] as HTMLElement[];
+        let need = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + (parseFloat(cs.columnGap) || 0) * Math.max(0, kids.length - 1);
+        for (const kid of kids) need += kid === l ? l.scrollWidth : kid.offsetWidth;
+        most = Math.max(most, need);
+      }
+      if (l && l.scrollWidth > l.clientWidth) c += k + "\n";
+    }
     setCut(c);
+    setTight(!!props.fullWidth && n > 0 && most > total / n + 0.5);
     if (!r || !b) { setBox(null); return; }
     const x = b.offsetLeft, w = b.offsetWidth;
     setBox((p) => (p && p.x === x && p.w === w ? p : { x, w }));   // the same box when nothing moved, so a slide under way runs on
-  }, [value]);
-  useIsoLayoutEffect(measure, [measure, options.length, size, props.fullWidth]);
+  }, [value, props.fullWidth]);
+  useIsoLayoutEffect(measure, [measure, options.length, size, tight]);
   // A new choice slides the indicator from the last one (CSS above it, EG1, GL1): for the slide it spans both segments,
   // cut to the last one's shape at once (data-flip, no transition), then to the new one's, which the CSS animates.
   // When the cut has arrived (or straight away, when nothing animates) it sits on the new segment alone again. A new
@@ -170,7 +185,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
       role="radiogroup" aria-disabled={disabled || undefined}
       aria-invalid={invalid || undefined} aria-required={required || undefined} aria-readonly={readOnly || undefined}
       aria-labelledby={props["aria-labelledby"] ?? (props["aria-label"] ? undefined : fieldLabel)}
-      className={cn("dk-segmented", "dk-segmented--size-" + size, props.fullWidth && "dk-segmented--full", disabled && "dk-segmented--disabled", invalid && "dk-segmented--invalid", readOnly && "dk-segmented--readonly", props.className)}
+      className={cn("dk-segmented", "dk-segmented--size-" + size, props.fullWidth && "dk-segmented--full", props.fullWidth && tight && "dk-segmented--fit", disabled && "dk-segmented--disabled", invalid && "dk-segmented--invalid", readOnly && "dk-segmented--readonly", props.className)}
       data-component="segmented-control" data-size={size} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} onFocus={onFocus} onBlur={onBlur}>
       {box ? <span ref={indicator} className="dk-segmented__indicator" aria-hidden style={{ left: box.x, width: box.w }} /> : null}
       {options.map((o) => {
