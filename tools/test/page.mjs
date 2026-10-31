@@ -88,7 +88,7 @@ for (const scheme of ['light', 'dark']) {
 }
 {
   // <meta name="theme-color"> follows the page's surface in all six themes, so a phone's bars change with the mode.
-  // Before any stylesheet it is the token value (white, zinc-950); a page's own theme-color meta is left alone.
+  // Before any stylesheet it is the token value (white, zinc-900); a page's own theme-color meta is left alone.
   const ctx = await b.newContext({ colorScheme: 'light' });
   const p = await ctx.newPage();
   await p.goto(writePage('theme-color.html', '<p>x</p>', { theme: true, base: true, htmlAttrs: 'data-brand="blue" data-mode="auto"' }));
@@ -97,11 +97,11 @@ for (const scheme of ['light', 'dark']) {
     const m = document.querySelectorAll('meta[name="theme-color"]');
     return [m.length, m[0] && m[0].getAttribute('content'), getComputedStyle(document.body).backgroundColor].join(' ');
   })));
-  t('theme.js: theme-color is the page\'s surface in all six themes', tints.every((x, k) => x === (k % 2 ? '1 rgb(9, 9, 11) rgb(9, 9, 11)' : '1 rgb(255, 255, 255) rgb(255, 255, 255)')), tints.join(', '));
+  t('theme.js: theme-color is the page\'s surface in all six themes', tints.every((x, k) => x === (k % 2 ? '1 rgb(24, 24, 27) rgb(24, 24, 27)' : '1 rgb(255, 255, 255) rgb(255, 255, 255)')), tints.join(', '));
   await p.evaluate(() => Serupa.theme.reset());
   await p.goto(writePage('theme-color-bare.html', '<p>x</p>', { theme: true, bundle: 'none.css', htmlAttrs: 'data-mode="dark"', extraHead: '<script>window.__early = document.querySelector(\'meta[name="theme-color"]\').content;</script>' }));
   const early = await p.evaluate(() => window.__early);
-  t('theme.js: before the stylesheets, theme-color is the token value (zinc-950 in dark)', early === '#09090b', early);
+  t('theme.js: before the stylesheets, theme-color is the token value (zinc-900 in dark)', early === '#18181b', early);
   const own = writePage('theme-color-own.html', '<p>x</p>', { theme: true, base: true, htmlAttrs: 'data-mode="dark"' });
   fs.writeFileSync(fileURLToPath(own), fs.readFileSync(fileURLToPath(own), 'utf8').replace('<script src="../dist/theme.js">', '<meta name="theme-color" content="#123456"><script src="../dist/theme.js">'));
   await p.goto(own);
