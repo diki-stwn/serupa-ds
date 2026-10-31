@@ -11,7 +11,7 @@
 }
 /* A row scrolls sideways inside itself rather than widening the page (WCAG 1.4.10); the block padding leaves room for
    the raised row's shadow and the focus ring, which the scroll box would clip. */
-.dk-sortable-list[data-orientation="horizontal"] { flex-direction: row; align-items: stretch; overflow-x: auto; padding-block: var(--spacing-2); }
+.dk-sortable-list[data-orientation="horizontal"] { flex-direction: row; align-items: stretch; overflow-x: auto; overscroll-behavior-x: contain; padding-block: var(--spacing-2); }
 .dk-sortable-list[data-orientation="horizontal"] .dk-sortable-list__item { flex: none; }
 .dk-sortable-list__item {
   position: relative; display: flex; align-items: center; gap: var(--sortable-list-item-gap, var(--spacing-2));
