@@ -22,7 +22,17 @@ function Controlled({ calls }: { calls: string[] }) {
   return <ColorPicker aria-label="Label color" swatches={SW} value={v} onValueChange={(x) => { calls.push(x); setV(x); }} contrastWith="#ffffff" />;
 }
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('ColorPicker', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" />);
+    const t = document.querySelector('[role=radio]') as HTMLElement;
+    t.focus();
+    const before = t.getAttribute('aria-checked');
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-checked') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('switching to another window or tab mid-typing a hex keeps the text (L8E27)', async () => {
     const commits: string[] = [];
     await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" onValueCommit={(v) => commits.push(v)} />);
