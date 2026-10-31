@@ -74,6 +74,29 @@ describe('Menu', () => {
     expect([box.current === q('grid'), q('grid')!.getAttribute('role'), radio.current === q('sort-a'), q('sort-a')!.getAttribute('role'), sub.current === q('more'), q('more')!.getAttribute('aria-haspopup')])
       .toEqual([true, 'menuitemcheckbox', true, 'menuitemradio', true, 'menu']);
   });
+  test('an onSelect that moves focus itself keeps it there: a row\'s Delete that focuses the next row; one that doesn\'t sends focus back to the button (L8E21)', async () => {
+    function Rows() {
+      const [rows, setRows] = React.useState(['a', 'b']);
+      return <>{rows.map((r, i) => <div key={r} id={'row-' + r} tabIndex={-1}>
+        <Menu trigger={<Button id={'mb-' + r}>More</Button>}>
+          <MenuItem onSelect={() => { el('row-' + rows[i + 1])?.focus(); setRows(rows.filter((x) => x !== r)); }}>Delete</MenuItem>
+          <MenuItem>Rename</MenuItem>
+        </Menu>
+      </div>)}</>;
+    }
+    await render(<Rows />);
+    await userEvent.click(el('mb-a'));
+    await expect.poll(() => focus()).toBe('Delete');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.getElementById('row-a')).toBeNull();
+    expect(document.activeElement!.id).toBe('row-b');
+    await userEvent.click(el('mb-b'));
+    await expect.poll(() => focus()).toBe('Delete');
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await expect.poll(() => openMenu()).toBeUndefined();
+    expect(document.activeElement!.id).toBe('mb-b');
+  });
+
   test('defaultOpen: open on arrival, uncontrolled; Escape closes it by itself and tells onOpenChange(false)', async () => {
     const asks: boolean[] = [];
     await render(<Menu defaultOpen onOpenChange={(v) => asks.push(v)} trigger={<Button id="mdef">Actions</Button>}><MenuItem>Edit</MenuItem></Menu>);

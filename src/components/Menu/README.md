@@ -121,7 +121,7 @@ An id on the target stays on the target.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `onSelect` | `(event) => void` | | Runs when it's chosen (click, Enter or Space). The menu then closes and focus goes back to the button, unless you call `event.preventDefault()` |
+| `onSelect` | `(event) => void` | | Runs when it's chosen (click, Enter or Space). The menu then closes and focus goes back to the button, unless you call `event.preventDefault()`. If it moves focus itself (to the next row, after deleting this one), focus stays there |
 | `icon` | icon name \| element | | A muted 16px icon before the label |
 | `shortcut` | string | | A hint at the end, such as `⌘K` (wire the shortcut yourself); also sets `aria-keyshortcuts` |
 | `destructive` | boolean | `false` | Danger colors |
