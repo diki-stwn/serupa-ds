@@ -98,6 +98,19 @@ describe('SegmentedControl', () => {
     expect(seen).toEqual(['week/week', 'month/month', 'day/day', 'month/month']);   // Year is disabled
   });
 
+  test('L8E72 nothing checked that can be chosen (null, or a disabled segment): the arrows go from the focused segment, as in a native radio group', async () => {
+    const seen: Array<string | null | undefined> = [];
+    for (const v of [null, 'year']) {
+      const { unmount } = await render(<SegmentedControl id="nc" aria-label="Period" options={PERIODS} value={v as string} onValueChange={(x) => seen.push(x)} />);
+      seg('nc', 'day').focus();
+      await userEvent.keyboard('{ArrowRight}');
+      seg('nc', 'day').focus();
+      await userEvent.keyboard('{ArrowLeft}');
+      await unmount();
+    }
+    expect(seen).toEqual(['week', 'month', 'week', 'month']);
+  });
+
   test('a click selects, and the selection moves to it; a disabled segment can\'t be chosen', async () => {
     await render(<Col><Period /></Col>);
     await userEvent.click(seg('per', 'month'));

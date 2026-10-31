@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
+import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { stories } from '../../tools/test/vitest/stories';
+import { Combobox } from '../components/Combobox/Combobox';
 
 // How long the page takes to answer a click or a key in the four components people open and type into most (F9, 119):
 // the browser's own Event Timing, from the input to the next paint, which is what Interaction to Next Paint (INP)
@@ -20,17 +22,22 @@ const settle = () => new Promise((r) => setTimeout(r, 300));
 const story = (component: string, name = 'Playground') => stories.find(([n]) => n === component)![1].find(([n]) => n === name)![1];
 const $ = (sel: string) => document.querySelector(sel) as HTMLElement;
 
-const INTERACTIONS: Array<[string, string, () => Promise<void>]> = [
+// J11: ten thousand options, as a long list of products or people would have. Combobox puts at most 100 rows in the
+// page and folds each label once, so filtering stays inside the same budget with no deferred rendering.
+const TEN_THOUSAND = Array.from({ length: 10_000 }, (_, i) => ({ value: 'o' + i, label: `Option ${i} ${['and', 'ant', 'bee', 'cat'][i % 4]}` }));
+
+const INTERACTIONS: Array<[string, string, () => Promise<void>, React.ReactElement?]> = [
   ['Combobox', 'opening it and typing two letters', async () => { await userEvent.click($('[role=combobox]')); await userEvent.keyboard('an'); }],
   ['Dialog', 'opening it', async () => { await userEvent.click($('button')); }],
   ['Menu', 'opening it, moving down and closing it', async () => { await userEvent.click($('button')); await userEvent.keyboard('{ArrowDown}{Escape}'); }],
+  ['Combobox', 'with 10,000 options, opening it and typing two letters', async () => { await userEvent.click($('[role=combobox]')); await userEvent.keyboard('an'); }, <Combobox aria-label="Products" options={TEN_THOUSAND} />],
   ['Select', 'picking the next option with the keyboard', async () => { $('select').focus(); await userEvent.keyboard('{ArrowDown}'); }],
 ];
 
 describe('interaction to next paint', () => {
-  for (const [component, what, act] of INTERACTIONS) {
+  for (const [component, what, act, ui] of INTERACTIONS) {
     test.runIf(supported)(`${component}: ${what} answers within ${BUDGET} ms`, async () => {
-      const r = await render(story(component));
+      const r = await render(ui ?? story(component));
       await settle();
       timings.length = 0;
       await act();

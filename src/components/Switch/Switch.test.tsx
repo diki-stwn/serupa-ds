@@ -213,6 +213,13 @@ describe('Switch', () => {
     expect(low).toEqual([]);
   });
 
+  test('L8E74 pending and controlled (checked with onChange): no React warning while it waits, and it stays as it was', async () => {
+    const warned: unknown[] = [], warn = console.error;
+    console.error = (...a: unknown[]) => { warned.push(a[0]); };
+    try { await render(<Switch id="pdc" checked pending onChange={() => {}}>Saving</Switch>); } finally { console.error = warn; }
+    expect([el('pdc').checked, warned]).toEqual([true, []]);
+  });
+
   test('readOnly and controlled (checked without onChange): no React warning, and it stays on', async () => {
     const warned: unknown[] = [], warn = console.error;
     console.error = (...a: unknown[]) => { warned.push(a[0]); };

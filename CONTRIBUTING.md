@@ -14,6 +14,8 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
 
 ## A new component
 
+**First, pick a direction by looking.** `npm run new-component -- <Name> --directions` writes one story, Directions/<Name> in `src/directions/`, with two or three takes behind one Storybook switch. The takes should differ in kind, such as layout, density or motion, not in polish. Draw each one just far enough to judge, flip between them, and pick one. Write the pick and the reason in the pull request, then delete the file. The contract check fails while it's there, so it never merges.
+
 1. `npm run new-component -- <Name> --group <Storybook group>` writes `src/components/<Name>/` with every file the contract asks for, already wired to the system: the component through `component()`, its CSS in `@layer dk.components` reading its own tokens, its tokens file, stories, a starting test, the Storybook page, the usage guide with its required headings, the preview page and the server-render case.
 2. Fill in every `TODO(new-component)`. The contract check fails while one is left.
 3. Build it to the standard every component meets, which the checks hold it to:
