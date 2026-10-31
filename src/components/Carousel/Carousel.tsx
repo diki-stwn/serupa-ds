@@ -132,6 +132,8 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   useIsoLayoutEffect(() => { const d = rtl() ? "rtl" : "ltr"; if (d !== dir) setDir(d); });
 
   const onDotsKey = (e: React.KeyboardEvent) => {
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const back = rtl() ? "ArrowRight" : "ArrowLeft", fwd = rtl() ? "ArrowLeft" : "ArrowRight";
     let to = -1;
     if (e.key === back) to = loop ? page - 1 : Math.max(0, page - 1);

@@ -157,7 +157,8 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   // from running.
   const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (!usable.length || e.defaultPrevented) return;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (!usable.length || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     // Read-only, the arrows move focus from the focused segment and leave the selection where it is.
     const from = readOnly ? e.currentTarget.dataset.value : value;
