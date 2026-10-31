@@ -46,9 +46,18 @@ describe('PhoneInput', () => {
     expect([menu('p').getAttribute('aria-label'), menu('p').value, dial('p')]).toEqual(['Country', 'ID', '+62']);
     // Each option names the country in the locale's words, with its calling code, sorted by name.
     const names = [...menu('p').options].map((o) => o.textContent);
-    expect(names).toContain('Indonesia (+62)');
+    expect(names).toContain('Indonesia (\u2066+62\u2069)');   // the code isolated left to right (GR49)
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en-US')));
     expect(names.length).toBe(PHONE_COUNTRIES.length);
+  });
+
+  test('right to left (GR49): the calling code still reads "+20", the plus before the digits, and each option keeps its code in a left-to-right isolate', async () => {
+    await render(<div dir="rtl"><SerupaProvider locale="ar-EG"><PhoneInput id="prtl" aria-label="Phone" defaultCountry="EG" /></SerupaProvider></div>);
+    const prefix = menu('prtl').parentElement!.firstElementChild!;   // first in the country part: "+" and the code
+    const left = (n: Node) => { const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().left; };
+    expect([prefix.textContent, left(prefix.firstChild!) < left(prefix.lastChild!)]).toEqual(['+20', true]);
+    const eg = [...menu('prtl').options].find((o) => o.value === 'EG')!.textContent;
+    expect(eg.endsWith('(\u2066+20\u2069)')).toBe(true);
   });
 
   test('digits from an Arabic or Persian keyboard, or full width from a Japanese IME, are the same number (GR43)', async () => {
