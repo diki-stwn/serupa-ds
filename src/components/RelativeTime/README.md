@@ -19,14 +19,15 @@ import { RelativeTime } from "serupa-ds";
 ## When not to use
 
 - Dates people compare or act on, such as a due date in a table or a receipt: show the date itself.
-- Times more than a few months away, where "last year" is too vague: show the date.
+- Times more than a few months away, where "last year" is too vague: show the date. RelativeTime does this itself after a week (`absoluteAfter`).
 
 ## Usage
 
 - Pass `date` as a `Date`, a timestamp in ms or an ISO string. Strings without a time zone (`"2026-10-24 09:30"`) are read in the browser's time zone, so prefer ISO strings with `Z` or an offset.
 - A day on its own, `"2026-10-24"` (a date column, `<input type="date">`), is that day on the reader's calendar and is counted in days or more: "today", "yesterday", "in 3 days". Its tooltip is the date alone, and its `datetime` the day itself.
-- The words follow the locale from `SerupaProvider` (or the `locale` prop, or the browser's): "3 menit yang lalu" in Indonesian, "٣ ساعات" digits in Egyptian Arabic. `relativeTime(date, now, locale)` gives the same words outside React.
+- The words follow the locale from `SerupaProvider` (or the `locale` prop, or the browser's): "3 menit yang lalu" in Indonesian, "٣ ساعات" digits in Egyptian Arabic. `relativeTime(date, now, locale)` gives the same words outside React, however far (it doesn't switch to a date).
 - Use `numeric="always"` where elapsed time matters more than the calendar, such as in logs.
+- More than 7 days away, ago or ahead, it shows the date instead of words: "Oct 24, 2026" rather than "340 days ago". Set `absoluteAfter` to another number of days, or `false` to keep the words however far, and `absoluteFormat` to write the date another way.
 - An invalid `date` shows nothing; in development it warns once in the console.
 
 ## Behavior
@@ -51,6 +52,8 @@ import { RelativeTime } from "serupa-ds";
 | `format` | `'long' \| 'short' \| 'narrow'` | `'long'` | "3 minutes ago", "3 min. ago", "3m ago". |
 | `numeric` | `'auto' \| 'always'` | `'auto'` | "yesterday" or "1 day ago". With `'auto'`, days, months and years are counted on the reader's calendar: 01:00 seen at 23:00 the same day is "22 hours ago", and the 1st seen on the 27th is "26 days ago", not "last month". `'always'` counts elapsed time. |
 | `titleFormat` | `Intl.DateTimeFormatOptions \| false` | `{ dateStyle: 'long', timeStyle: 'short' }` | The tooltip's date; `false` leaves it out. Your own `title` wins. |
+| `absoluteAfter` | `number \| false` | `7` | After this many days, ago or ahead, it shows the date instead of words. `false`: words however far. |
+| `absoluteFormat` | `Intl.DateTimeFormatOptions` | `{ dateStyle: 'medium' }` | How that date is written. |
 | `locale` | `string` | the provider's, else the browser's | When it differs from the provider's, the element carries `lang`, so screen readers read the words in that language. |
 Every other prop, `className` and `ref` go to the `<time>`, which has `data-component="relative-time"`.
 

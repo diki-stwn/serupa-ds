@@ -26,7 +26,7 @@ export const InASentence: Story = {
 export const LongText: Story = {
   render: () => (
     <p style={{ margin: 0, width: 100 }}>
-      Edited <RelativeTime date={Date.now() - 400 * 24 * 60 * 60 * 1000} format="long" numeric="always" />, by someone else.
+      Edited <RelativeTime date={Date.now() - 400 * 24 * 60 * 60 * 1000} format="long" numeric="always" absoluteAfter={false} />, by someone else.
     </p>
   ),
 };

@@ -85,6 +85,25 @@ describe('RelativeTime', () => {
       .toEqual([new Intl.DateTimeFormat('en-US', { dateStyle: 'short' }).format(at), '1 day ago', false, 'yesterday', 'Sent on Friday']);
   });
 
+  test('more than absoluteAfter days away (7 by default), ago or ahead, it shows the date instead, in absoluteFormat; the tooltip stays; false keeps the words (KW8)', async () => {
+    const day = 86400 * 1000, now = Date.now(), at = (d: number) => now - d * day;
+    const med = (t: number) => new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(t);
+    await render(<SerupaProvider locale="en-US">
+      <RelativeTime id="w6" date={at(6)} numeric="always" />
+      <RelativeTime id="w8" date={at(8)} />
+      <RelativeTime id="w340" date={at(340)} />
+      <RelativeTime id="wf" date={at(-30)} />
+      <RelativeTime id="wn" date={at(340)} absoluteAfter={false} numeric="always" />
+      <RelativeTime id="w2" date={at(3)} absoluteAfter={2} absoluteFormat={{ month: 'long', day: 'numeric' }} />
+      <RelativeTime id="wid" date={at(340)} locale="id-ID" />
+    </SerupaProvider>);
+    expect(['w6', 'w8', 'w340', 'wf', 'wn', 'w2', 'wid'].map((id) => el(id).textContent)).toEqual([
+      '6 days ago', med(at(8)), med(at(340)), med(at(-30)), '1 year ago',
+      new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(at(3)), new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(at(340)),
+    ]);
+    expect([el('w340').title, el('w340').dateTime]).toEqual([new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeStyle: 'short' }).format(at(340)), new Date(at(340)).toISOString()]);
+  });
+
   test('an invalid date renders an empty <time> without datetime, no errors, and one development warning naming the date (GL3)', async () => {
     const error = vi.spyOn(console, 'error'), warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     await render(<><RelativeTime id="bad" date="not a date" /><RelativeTime id="bad2" date="2026-13-45" /></>);
