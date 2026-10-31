@@ -41,7 +41,7 @@ import { Carousel, Image } from "serupa-ds";
 ## Behavior
 
 - The previous and next buttons move one slide. A click on a dot goes to that slide. On the dots, the arrow keys move to the previous or next slide, and Home and End go to the first and last.
-- A swipe of 40px or more, with touch, pen or mouse, moves one slide; a shorter one springs back. Up and down swipes still scroll the page. Swiping works over pictures, and a swipe that starts on a link doesn't follow it.
+- A swipe of 40px or more, with touch, pen or mouse, moves one slide; a shorter one springs back. A swipe let go of while pulling back, so that it's heading under 40px, springs back too. With `perView`, a hard flick carries on to the slide it's heading for, a whole view at most. Up and down swipes still scroll the page. Swiping works over pictures, and a swipe that starts on a link doesn't follow it.
 - Without `loop`, the button for the way you can't go hides; if it had focus, focus moves to the other button.
 - Slides slide in over 300ms, and change at once with reduced motion. With one slide there are no buttons or dots.
 - With `perView`, the slides share the width, 16px apart (`--carousel-slide-gap`). `index` is the first slide shown, the buttons and a swipe still move one slide, and they stop once the last slide is in view. The dots count pages: with 3 per view and 7 slides, three dots for slides 1–3, 4–6 and 5–7, named "1–3 of 7" (the `slidesOf` label). `{ base, sm, md, lg }` follows the screen width (from 640, 768 and 1024px up) as it changes. With as many slides as fit, or fewer, there are no buttons or dots.
