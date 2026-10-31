@@ -108,7 +108,10 @@ export const RelativeTime = /* @__PURE__ */ component<HTMLTimeElement, RelativeT
     if (process.env.NODE_ENV !== "production" && !valid) warnOnce("relative-time-date", "RelativeTime: date " + JSON.stringify(String(props.date)) + " isn't a date, so it shows nothing. Pass a Date, a timestamp in ms, or a string Date can read, such as \"2026-10-24T09:30:00Z\".");
   }, [valid, props.date]);
   // Far off, a date says more than "340 days ago" (KW8); the tooltip keeps the exact date either way.
-  const after = props.absoluteAfter ?? 7, far = valid && after !== false && Math.abs(d.getTime() - current) > after * 86400000;
+  // A day on its own counts calendar days from today, as its words do: from now, 7 days ago (that day's midnight) was
+  // over 7 days, so it showed the date a day earlier than "in 7 days" did (L8E97).
+  const gap = (d.getTime() - (day ? new Date(current).setHours(0, 0, 0, 0) : current)) / 864e5;   // in days (rounded for a day: DST)
+  const after = props.absoluteAfter ?? 7, far = valid && after !== false && Math.abs(day ? Math.round(gap) : gap) > after;
   const text = !valid ? "" : far ? new Intl.DateTimeFormat(locale, props.absoluteFormat || { dateStyle: "medium" }).format(d)
     : relativeTime(day ? props.date : d, current, locale, { format: props.format, numeric: props.numeric });
   // A day has no time of day to show, and its datetime is the day itself.
