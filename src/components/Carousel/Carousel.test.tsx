@@ -409,18 +409,18 @@ describe('Carousel', () => {
   test('perView as { base, md }, before JavaScript: the server HTML already shows two slides from 768px up, and only the dots of its pages (PF4b)', async () => {
     const w = window.innerWidth, h = window.innerHeight;
     const host = document.createElement('div');
+    const width = (e: Element) => e.getBoundingClientRect().width;
+    const slide = () => host.querySelector('[role=group]')!, region = () => host.querySelector('section')!;
+    const dots = () => [...host.querySelectorAll('button')].filter((b) => /of 5$/.test(b.getAttribute('aria-label') || '') && getComputedStyle(b).display !== 'none');
     try {
       await page.viewport(900, 700);
       host.innerHTML = renderToString(<Carousel id="ssr" label="Reviews" perView={{ base: 1, md: 2 }}>{slides(5, 's')}</Carousel>);
       document.body.appendChild(host);
-      const slideW = (host.querySelector('.dk-carousel__slide') as HTMLElement).getBoundingClientRect().width;
-      const viewW = (host.querySelector('.dk-carousel__viewport') as HTMLElement).getBoundingClientRect().width;
-      expect(slideW).toBeCloseTo((viewW - 16) / 2, 0);
-      const shown = [...host.querySelectorAll('.dk-carousel__dot')].filter((d) => getComputedStyle(d).display !== 'none');
-      expect(shown.length).toBe(3);
+      expect(width(slide())).toBeCloseTo((width(region()) - 16) / 2, 0);
+      expect(dots().length).toBe(3);
       await page.viewport(500, 700);
-      expect((host.querySelector('.dk-carousel__slide') as HTMLElement).getBoundingClientRect().width).toBeCloseTo((host.querySelector('.dk-carousel__viewport') as HTMLElement).getBoundingClientRect().width, 0);
-      expect([...host.querySelectorAll('.dk-carousel__dot')].filter((d) => getComputedStyle(d).display !== 'none').length).toBe(5);
+      expect(width(slide())).toBeCloseTo(width(region()), 0);
+      expect(dots().length).toBe(5);
     } finally { host.remove(); await page.viewport(w, h); }
   });
 
