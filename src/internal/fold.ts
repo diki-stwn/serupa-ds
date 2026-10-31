@@ -1,5 +1,5 @@
 // Text folded for matching what people type against labels: case, accents and width ignored, so "lodz" finds "Łódź",
-// "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo" and "トウキョウ" finds "ﾄｳｷｮｳ". NFKD splits accents off
+// "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo" and "トウキョウ" finds "ﾄｳｷｮｳ" (and "とうきょう"). NFKD splits accents off
 // and maps full- and half-width forms to the usual ones; a few letters don't decompose and get a table.
 const LETTERS: Record<string, string> = { "ł": "l", "đ": "d", "ð": "d", "ø": "o", "æ": "ae", "œ": "oe", "ß": "ss", "ħ": "h", "ı": "i", "þ": "th", "ŧ": "t", "ŋ": "n", "ĸ": "k", "ς": "σ" };
 
@@ -14,8 +14,11 @@ const CYRILLIC = /[иИуУ]\u0306|[іІ]\u0308/g;
 
 // Greek final sigma ς is σ at the end of a word (L8E14): lowercasing "ΑΣ" gives "ας" but "ΑΣΤΥ" gives "αστυ", so a
 // search typed in capitals found nothing, and "οδος" didn't find "ΟΔΟΣ" marked one letter at a time.
+// Katakana are read as hiragana, as Japanese search does (L8E17): an IME types "こーひー" until it's converted, and
+// it must still find "コーヒー". NFKD has already turned half-width katakana into full-width ones.
 /** Lowercased, without accents or width differences, with ł→l, ø→o, æ→ae, ß→ss, ς→σ and the like. Vowel signs and tone
     marks (Hindi, Thai…) and Japanese voicing marks are kept: they make a different word. */
 export function fold(s: string): string {
-  return s.normalize("NFKD").replace(CYRILLIC, (m) => m.normalize("NFC")).replace(ACCENTS, "").toLowerCase().replace(/[łđðøæœßħıþŧŋĸς]/g, (c) => LETTERS[c]);
+  return s.normalize("NFKD").replace(CYRILLIC, (m) => m.normalize("NFC")).replace(ACCENTS, "").toLowerCase().replace(/[łđðøæœßħıþŧŋĸς]/g, (c) => LETTERS[c])
+    .replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 }
