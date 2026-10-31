@@ -9,11 +9,6 @@
       "count": 10
     }
   },
-  "src/components/Carousel/Carousel.stories.tsx": {
-    "jsx-a11y-x/alt-text": {
-      "count": 2
-    }
-  },
   "src/components/Carousel/Carousel.tsx": {
     "jsx-a11y-x/no-static-element-interactions": {
       "count": 1
@@ -76,11 +71,6 @@
     },
     "jsx-a11y-x/role-supports-aria-props": {
       "count": 2
-    }
-  },
-  "src/components/Image/Image.stories.tsx": {
-    "jsx-a11y-x/alt-text": {
-      "count": 1
     }
   },
   "src/components/Input/Input.tsx": {

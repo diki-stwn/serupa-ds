@@ -17,7 +17,7 @@ const meta = {
   title: 'Components/Content/Carousel',
   component: Carousel,
   args: { label: 'Landscape photos', loop: false, arrows: true, dots: true },
-  render: (args) => <div style={{ maxWidth: 480 }}><Carousel {...args}>{PICS.map((p) => <Image key={p.alt} {...p} ratio="4:3" rounded={false} />)}</Carousel></div>,
+  render: (args) => <div style={{ maxWidth: 480 }}><Carousel {...args}>{PICS.map((p) => <Image key={p.alt} {...p} alt={p.alt} ratio="4:3" rounded={false} />)}</Carousel></div>,
 } satisfies Meta<typeof Carousel>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -28,7 +28,7 @@ export const Controlled: Story = {
   render: function Render(args) {
     const [i, setI] = React.useState(2);
     return <div style={{ maxWidth: 480 }}>
-      <Carousel {...args} index={i} onIndexChange={setI}>{PICS.map((p) => <Image key={p.alt} {...p} ratio="4:3" rounded={false} />)}</Carousel>
+      <Carousel {...args} index={i} onIndexChange={setI}>{PICS.map((p) => <Image key={p.alt} {...p} alt={p.alt} ratio="4:3" rounded={false} />)}</Carousel>
       <p>Showing {PICS[i].alt}.</p>
     </div>;
   },
