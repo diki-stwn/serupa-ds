@@ -88,7 +88,7 @@ export const PinInput = /* @__PURE__ */ component<HTMLInputElement, PinInputProp
         onFocus={function (e) { setFocused(true); if (rest.onFocus) rest.onFocus(e); }}
         onBlur={function (e) { setFocused(false); if (rest.onBlur) rest.onBlur(e); }}
         // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
-        onKeyDown={function (e) { if (rest.onKeyDown) rest.onKeyDown(e); if (e.defaultPrevented) return; if (!e.altKey && !e.ctrlKey && !e.metaKey && /^(Arrow(Left|Right|Up|Down)|Home|End|PageUp|PageDown)$/.test(e.key)) e.preventDefault(); else toEnd(e); }}
+        onKeyDown={function (e) { if (rest.onKeyDown) rest.onKeyDown(e); if (e.defaultPrevented) return; if (!(e.altKey || e.ctrlKey || e.metaKey) && /^(Arrow(Left|Right|Up|Down)|Home|End|PageUp|PageDown)$/.test(e.key)) e.preventDefault(); else toEnd(e); }}
         onSelect={function (e) { toEnd(e); if (rest.onSelect) rest.onSelect(e); }}
         ref={function (n) { input.current = n; nameRef(n); setRef(ref, n); }} className="dk-pin-input__field" />
     </span>
