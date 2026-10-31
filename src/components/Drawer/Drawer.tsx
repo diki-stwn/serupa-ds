@@ -10,7 +10,7 @@ import { useScrolls } from "../../internal/useScrolls";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
-import { settleTime, speed, track, type Samples } from "../../internal/fling";
+import { rubber, settleTime, speed, track, type Samples } from "../../internal/fling";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -43,6 +43,8 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   swipeToClose?: boolean;
 }
 
+const FLICK = 0.2;   // px per ms over the last 100ms toward the edge: a let-go this fast closes it, however short (KW5a)
+const INWARD = 24;   // px at most a drag away from the edge moves the panel, against growing resistance
 const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, className: 1, children: 1 } as const;
 
 /* Drawer: a modal panel that slides in from an edge of the screen, for navigation on small screens, filters,
@@ -140,20 +142,20 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const horiz = side === "left" || side === "right", away = side === "right" || side === "bottom" ? 1 : -1;
   const settling = React.useRef<(() => void) | null>(null);
   const shift = (d: number) => horiz ? d * away + "px 0" : "0 " + d * away + "px";
-  const drag = React.useRef<{ id: number; x: number; y: number; d: number; on: boolean; s: Samples } | null>(null);
+  const drag = React.useRef<{ id: number; x: number; y: number; d: number; at: number; on: boolean; s: Samples } | null>(null);
   const onSwipeDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const t = e.target as Element;
     if (!swipe || e.pointerType !== "touch" || !e.isPrimary || t.closest("input, textarea, select, [contenteditable]")) return;
     if (!horiz && t.closest(".dk-drawer__body")) return;
-    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, d: 0, on: false, s: [{ t: e.timeStamp, p: 0 }] };
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, d: 0, at: 0, on: false, s: [{ t: e.timeStamp, p: 0 }] };
   };
   const onSwipeMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const g = drag.current;
     if (!g || e.pointerId !== g.id) return;
-    const d = Math.max(0, (horiz ? e.clientX - g.x : e.clientY - g.y) * away), across = Math.abs(horiz ? e.clientY - g.y : e.clientX - g.x);
+    const d = (horiz ? e.clientX - g.x : e.clientY - g.y) * away, across = Math.abs(horiz ? e.clientY - g.y : e.clientX - g.x);
     if (!g.on) {
-      if (across > 10 && across > d) { drag.current = null; return; }
-      if (d < 10) return;
+      if (across > 10 && across > Math.abs(d)) { drag.current = null; return; }
+      if (Math.abs(d) < 10) return;
       g.on = true;
       e.currentTarget.setAttribute("data-dragging", "");   // follows the finger, with no transition behind it
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* a pointer that already ended */ }
@@ -162,7 +164,11 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     }
     g.d = d;
     track(g.s, e.timeStamp, d);
-    e.currentTarget.style.translate = shift(d);
+    // Inward it gives a little and resists (KW5a), as Carousel's ends do, up to INWARD px; while it's inward
+    // (data-inward), the panel's ::after (a copy of its background past its edge) fills the gap behind it.
+    g.at = d >= 0 ? d : rubber(d, INWARD);
+    e.currentTarget.style.translate = shift(g.at);
+    e.currentTarget.toggleAttribute("data-inward", g.at < 0);
   };
   const onSwipeEnd = (e: React.PointerEvent<HTMLDivElement>) => {
     const g = drag.current;
@@ -170,12 +176,13 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     drag.current = null;
     const p = e.currentTarget, size = horiz ? p.offsetWidth : p.offsetHeight;
     p.removeAttribute("data-dragging");
-    if (!g.on) { p.style.translate = ""; return; }
+    if (!g.on) { p.style.translate = ""; delete p.dataset.inward; return; }
     const v = speed(g.s);   // px per ms, toward the edge
-    const out = e.type === "pointerup" && (v > 0.5 || (g.d > size / 3 && v > -0.1));
-    const left = out ? size - g.d : g.d;
+    const out = e.type === "pointerup" && (v > FLICK || (g.d > size / 3 && v > -0.1));
+    const left = out ? size - g.at : Math.abs(g.at);
     const done = () => {
       delete p.dataset.settling;
+      delete p.dataset.inward;
       if (!out) { p.style.translate = ""; return; }
       close("swipe");
       // Back in place once it's closed (two frames: the close renders first), so it opens from the edge next time.

@@ -41,7 +41,11 @@
   padding: var(--drawer-padding, var(--spacing-6));
   background: var(--drawer-bg, var(--surface-overlay));
   box-shadow: var(--drawer-shadow, var(--shadow-xl));
+  position: relative;
 }
+/* Behind the panel's outer edge, a copy of its background while a drag pulls it away from the edge (up to 24px,
+   Drawer.tsx INWARD) and while it settles back, so a pull inward never opens a gap at the screen's edge (KW5a). */
+.dk-drawer__panel[data-inward]::after { content: ""; position: absolute; inset: var(--spacing-0); translate: var(--dk-drawer-from); background: inherit; pointer-events: none; }
 .dk-drawer--right { --dk-drawer-from: var(--sizing-full) 0; }
 .dk-drawer--left { --dk-drawer-from: calc(var(--spacing-0) - var(--sizing-full)) 0; }
 .dk-drawer--top { --dk-drawer-from: 0 calc(var(--spacing-0) - var(--sizing-full)); }

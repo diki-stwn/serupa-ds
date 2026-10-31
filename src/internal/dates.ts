@@ -1,4 +1,5 @@
 import { latinDigits } from "./digits";
+import { fold } from "./fold";
 import { warnOnce } from "./warn";
 
 // Calendar dates without times: local midnight, so days compare and step reliably across daylight saving.
@@ -86,10 +87,18 @@ export function dateOrder(locale?: string): Field[] {
 /** A typed date in the locale's numeric order (11/22/2001, 22.11.2001, 2001-11-22, or digits alone: 11222001), or null. A one- or two-digit
  * year is the one within 50 years of now (in 2026: 85 is 1985, 30 is 2030, 75 is 2075 and 77 is 1977), so a birth
  * date or a deadline both read right. A leading 4-digit year reads as ISO year-month-day unless the locale writes its
- * year first. */
+ * year first. A month written as a word (12 Mei 2025, May 12, 2025) reads in the locale or in English. */
 export function parseDate(text: string, locale?: string, now: Date = new Date()): Date | null {
   const nums = latinDigits(text).trim().split(/[^0-9]+/).filter(Boolean);
   const own = dateOrder(locale);
+  // A month written as a word, as dates are pasted from an email or a document ("12 Mei 2025", "May 12, 2025",
+  // "12. März 2025"): the four-digit number (or else the last) is the year and the other is the day (L8E8).
+  const month = monthIn(text, locale);
+  if (month) {
+    if (nums.length !== 2) return null;
+    const y = nums.findIndex((n) => n.length === 4), yi = y < 0 ? 1 : y;
+    return fromParts([nums[1 - yi], String(month), nums[yi]], ["day", "month", "year"], now);
+  }
   // Digits alone, as typed on a number keypad: 6 or 8 of them, split in the locale's order (11222001 and 112201 in
   // en-US, 22112001 in de-DE), or as an ISO yyyymmdd. When both make a date (20011122 in de-DE is also 20.01.1122),
   // the one nearer now wins.
@@ -104,6 +113,45 @@ export function parseDate(text: string, locale?: string, now: Date = new Date())
   // A leading 4-digit year is ISO (2001-11-22), unless the locale itself writes the year first in another order
   // (Kyrgyz: year-day-month).
   return fromParts(nums, /^\d{4}$/.test(nums[0]) && own[0] !== "year" ? ["year", "month", "day"] : own, now);
+}
+// Month names in the locale and in English, long and short, as they stand alone and inside a date (Russian "май"
+// and "мая"), folded and without a closing dot.
+// module state: a cache by locale, as numericFormats; a locale's month names are the same in every request.
+const monthNames = new Map<string, string[][]>();
+function monthsOf(locale?: string): string[][] {
+  const key = locale || "";
+  let m = monthNames.get(key);
+  if (!m) {
+    m = Array.from({ length: 12 }, () => [] as string[]);
+    for (const loc of [locale, "en"]) {
+      for (const month of ["long", "short"] as const) {
+        let alone: Intl.DateTimeFormat, inDate: Intl.DateTimeFormat;
+        try { alone = new Intl.DateTimeFormat(loc, { month }); inDate = new Intl.DateTimeFormat(loc, { day: "numeric", month }); } catch { continue; }
+        for (let i = 0; i < 12; i++) {
+          const d = new Date(2000, i, 1), part = inDate.formatToParts(d).find((p) => p.type === "month");
+          for (const name of [alone.format(d), part ? part.value : ""]) {
+            const f = fold(name).replace(/\.$/, "");
+            if (f && !/^\d+$/.test(f) && !m[i].includes(f)) m[i].push(f);
+          }
+        }
+      }
+    }
+    monthNames.set(key, m);
+  }
+  return m;
+}
+// The month (1–12) a word in text names, in full or by its first three or more letters ("Sept", "Des"), or 0 when
+// no word names one month.
+function monthIn(text: string, locale?: string): number {
+  const words = text.match(/\p{L}[\p{L}\p{M}]*/gu);
+  if (!words) return 0;
+  const months = monthsOf(locale);
+  let found = 0;
+  for (const w of words.map((x) => fold(x))) {
+    const hits = months.map((names, i) => (names.some((n) => n === w || (w.length >= 3 && n.startsWith(w))) ? i + 1 : 0)).filter(Boolean);
+    if (hits.length === 1) { if (found && found !== hits[0]) return 0; found = hits[0]; }
+  }
+  return found;
 }
 function fromParts(nums: string[], order: readonly string[], now: Date): Date | null {
   const v: Record<string, number> = {};
