@@ -29,7 +29,7 @@
    one line the pages wrap under the summary, and only then show fewer pages (ET1). */
 .dk-pagination--summary { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--pagination-summary-gap, var(--spacing-4)); row-gap: var(--spacing-2); }
 .dk-pagination__summary { margin: var(--spacing-0); color: var(--pagination-summary, var(--text-muted)); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.dk-pagination--summary .dk-pagination__list { flex: 1 1 auto; min-width: var(--spacing-0); justify-content: flex-end; }
+.dk-pagination--summary .dk-pagination__list { flex: auto; min-width: var(--spacing-0); justify-content: flex-end; }
 @media (forced-colors: active) { .dk-pagination__item--current { outline: var(--outline-width-2) solid CanvasText; } }
 @media (prefers-reduced-motion: reduce) { .dk-pagination__item { transition: none; } }
 }
