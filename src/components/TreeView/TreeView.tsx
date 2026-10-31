@@ -108,6 +108,27 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
     if (el) el.focus();
   }, [focusId, rows]);
   const go = (id: string) => { moveFocus.current = true; setFocusId(id); };
+  // The focused item leaving the page from outside (taken out of items, or its parent closed through a controlled
+  // expanded) would drop focus to the page: it goes to the nearest parent still in view, else the item now in its
+  // place (else the last), as Splitter's handle takes it (GN3). focusedIn notes focus was in the tree, for a
+  // browser that has already moved it to the body; focus elsewhere on the page is left where it is.
+  const focusedIn = React.useRef(false);
+  const lastAt = React.useRef(-1);
+  useIsoLayoutEffect(function () {
+    const at = index(focusId);
+    if (at >= 0) { lastAt.current = at; return; }
+    const active = document.activeElement;
+    // Focus still on the leaving item (a closed parent's rows go a render later) counts as lost too.
+    const r = root.current;
+    if (focusId == null || !rows.length || !r || !focusedIn.current || (active && active !== document.body && active.isConnected && !r.contains(active))) return;
+    const up = (list: TreeViewItem[]): string[] | null => {
+      for (const x of list) { if (x.id === focusId) return []; const p = x.children ? up(x.children) : null; if (p) return [x.id].concat(p); }
+      return null;
+    };
+    const parents = up(props.items) || [];
+    const parent = parents.reverse().find((p) => index(p) >= 0);
+    go(parent != null ? parent : rows[Math.min(Math.max(lastAt.current, 0), rows.length - 1)].item.id);
+  }, [rows, focusId]);
 
   const pick = (next: string[]) => {
     if (props.value === undefined) setOwnValue(next);
@@ -198,7 +219,9 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   return (
     <ul {...rest} ref={function (n) { root.current = n; nameRef(n); styled(n); setRef(ref, n); }} role="tree"
       aria-multiselectable={multi || undefined}
-      className={cn("dk-tree-view", props.className)} data-component="tree-view" onKeyDown={onKeyDown}>
+      className={cn("dk-tree-view", props.className)} data-component="tree-view" onKeyDown={onKeyDown}
+      onFocus={(e) => { focusedIn.current = true; if (rest.onFocus) rest.onFocus(e); }}
+      onBlur={(e) => { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusedIn.current = false; if (rest.onBlur) rest.onBlur(e); }}>
       <TreeContext.Provider value={ctx}><Rows list={props.items} level={1} /></TreeContext.Provider>
     </ul>
   );

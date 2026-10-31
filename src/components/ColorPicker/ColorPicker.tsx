@@ -112,8 +112,9 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   commitRef.current = commit;
   // A form reset puts the first color back (uncontrolled), as a native input does.
   const hidden = React.useRef<HTMLInputElement>(null);
-  // The hidden input knows its form even through the form attribute; without a name, the picker's own form.
-  useFormReset(props.name ? hidden : root, () => { if (!controlled) { const d = normalizeHex(props.defaultValue || ""); setOwn(d); committed.current = d; } });
+  // The hidden input knows its form even through the form attribute; without a name, the form that form names, else
+  // the picker's own form.
+  useFormReset(props.name ? hidden : root, () => { if (!controlled) { const d = normalizeHex(props.defaultValue || ""); setOwn(d); committed.current = d; } }, props.form);
   // React's onChange on <input type="color"> fires on every step of a drag; the native change event fires once the
   // picker closes, which is the commit.
   const native = React.useRef<HTMLInputElement | null>(null);

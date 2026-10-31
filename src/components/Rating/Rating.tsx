@@ -65,7 +65,8 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   const [hover, setHover] = React.useState<number | null>(null);
   const root = React.useRef<HTMLDivElement | null>(null);
   const auto = domId("dk-rating", React.useId());
-  useFormReset(root, () => { if (!controlled) setOwn(fit(defaultValue)); });
+  // form: a rating outside the form it names is reset with that form too, as Slider and SegmentedControl are.
+  useFormReset(root, () => { if (!controlled) setOwn(fit(defaultValue)); }, form);
 
   const set = (n: number | null) => {
     if (n === value) return;

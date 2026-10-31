@@ -75,6 +75,17 @@ describe('TypeToConfirm', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
+  test('L8E41: without case, a dotted capital İ matches the i a person types, and ı matches i', async () => {
+    const screen = await render(<Confirm phrase="İSTANBUL" caseSensitive={false} />);
+    await userEvent.fill(parts('t').input, 'istanbul');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await screen.rerender(<Confirm phrase="INVOICE" caseSensitive={false} />);
+    await userEvent.fill(parts('t').input, 'ınvoıce');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await userEvent.fill(parts('t').input, 'invoce');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe('true');
+  });
+
   test('a full-width phrase (an IME in full-width mode) and a no-break or doubled space match; other text still doesn\'t (L8E15)', async () => {
     await render(<Confirm phrase="my-repo 2" />);
     await userEvent.fill(parts('t').input, '\uff4d\uff59\uff0d\uff52\uff45\uff50\uff4f\u3000\uff12');

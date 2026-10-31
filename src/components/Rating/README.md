@@ -37,7 +37,7 @@ const [stars, setStars] = React.useState<number | null>(null);
 ## Behavior
 
 - A click (or a tap) on a star picks it; with `allowHalf`, the start half of a star picks the half. The stars up to the pointer light up while it hovers, without picking.
-- Form reset brings back `defaultValue`. With `name`, the rating is sent with the form as one value.
+- Form reset brings back `defaultValue`, also for a rating outside the form that `form` names. With `name`, the rating is sent with the form as one value.
 - In a right-to-left page the stars run from the right, and halves fill from the right.
 
 ## Accessibility

@@ -63,7 +63,8 @@ function menuKeys(menuRef: React.RefObject<HTMLDivElement | null>, typed: React.
     else if (e.key === "Tab") close("blur", false);
     // Space only while a word is being typed ("my files"); otherwise the item chose itself on it.
     else if (e.key.length === 1 && (/\S/.test(e.key) || typing(typed.current)) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      if (e.key === " ") e.preventDefault();
+      // Taken, so a page shortcut on the same letter (useShortcut("g")) doesn't also run: a menu is no text field (L8E42).
+      e.preventDefault();
       const n = typeahead(typed.current, e.key, list.map((it) => (it.querySelector(".dk-menu__label") || it).textContent || ""), i);
       if (n >= 0) list[n].focus();
     }

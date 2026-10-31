@@ -18,6 +18,10 @@
     - link "Linus Torvalds linus@example.com":
       - /url: "#"
     - button "More for Linus Torvalds"
+  - listitem:
+    - link "Margaret Hamilton margaret@example.com":
+      - /url: "#"
+    - button "More for Margaret Hamilton"
 
 # LongText
 - list "Members":
@@ -29,6 +33,7 @@
   - listitem: Ada Lovelace ada@example.com Admin
   - listitem: Grace Hopper grace@example.com Editor
   - listitem: Linus Torvalds linus@example.com Viewer
+  - listitem: Margaret Hamilton margaret@example.com Editor
 
 # Settings
 - list "Settings":

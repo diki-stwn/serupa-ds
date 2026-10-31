@@ -17,6 +17,7 @@ interface NumberInputProps extends Omit<InputProps, "defaultValue" | "max" | "mi
     incrementLabel?: string;
     locale?: string;
     formatOptions?: Intl.NumberFormatOptions;
+    numberingSystem?: string;
     currency?: string;
     minorUnits?: boolean;
 }
