@@ -123,6 +123,18 @@
         }
       }
     },
+    "shadow": {
+      "head-scrolled": {
+        "$type": "shadow",
+        "$value": "{shadow.shadow-sm}",
+        "$description": "A sticky header's shadow once rows have scrolled under it, faded in over the first header height of the frame's scroll (where scroll-driven animations are supported).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--table-head-shadow-scrolled"
+          }
+        }
+      }
+    },
     "typography": {
       "font-size": {
         "$type": "dimension",

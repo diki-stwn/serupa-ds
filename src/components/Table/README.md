@@ -117,6 +117,12 @@ Each is an optional override: set it on the page, a container or one table's fra
 | `--table-action-bar-bg` | `primary-subtle` | TableActionBar's background. |
 | `--table-action-bar-text` | `text` | TableActionBar's count (4.5:1 on its background). |
 
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--table-head-shadow-scrolled` | `shadow-sm` | A sticky header's shadow once rows have scrolled under it, faded in over the first header height of the frame's scroll (where scroll-driven animations are supported). |
+
 **Type**
 
 | Token | Default | Use |
