@@ -44,6 +44,7 @@ import { Image } from "serupa-ds";
 - For a reader saving data (Data Saver, `navigator.connection.saveData`, or `prefers-reduced-data: reduce`), only a `priority` picture loads at once; any other is lazy even with `loading="eager"`. Each `srcSet` (the `<img>`'s and each source's) is cut to its smallest version. Server HTML can't know this, so it changes once the page's script runs, before a lazy picture loads.
 - The viewer is a large Dialog titled with the alt text: Escape, the × or a click on the backdrop close it, and focus goes back to the picture. Its picture has the frame's placeholder while it loads (in the shape `width` and `height` give, or the thumbnail's) and the frame's fallback if it fails. Since the title already names it, the picture itself has `alt=""`, so it isn't read twice.
 - The remove button only calls `onRemove`; ask for confirmation yourself if removing can't be undone.
+- Once a removed picture is gone, focus moves to the next picture's remove button in the same list, else the one before, so it isn't lost (as with Badge's tags). A handler that moves focus itself is left alone.
 
 ## Accessibility
 
