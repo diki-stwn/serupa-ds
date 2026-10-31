@@ -195,6 +195,29 @@ describe('Drawer', () => {
     expect(why).toEqual(['swipe']);
   });
 
+  test('a gentle flick closes it (0.2px/ms over the last 100ms); a pull away from the edge gives a little against resistance, with no gap behind it, and goes back (KW5a)', async () => {
+    const why: string[] = [];
+    const one = (k: string) => <Drawer key={k} id="sk" defaultOpen onOpenChange={(_, d) => why.push(d.reason)} title="Filters"><p>Body</p></Drawer>;
+    const d = () => el('sk') as HTMLDialogElement;
+    const screen = await render(one('a'));
+    await expect.poll(() => d().open).toBe(true);
+    // 25px in the last 100ms (0.25px/ms), 45px in all: short of a third, but a flick.
+    await trace(panel('sk'), [[12, 100], [20, 100], [45, 100]]);
+    await expect.poll(() => d().open).toBe(false);
+    await screen.rerender(one('b'));
+    await expect.poll(() => d().open).toBe(true);
+    // Away from the edge: 200px inward moves it a little, at most 24px; the panel's ::after, a copy of its background just past its edge, covers the gap.
+    const p = panel('sk');
+    await trace(p, [[-40, 100], [-120, 100], [-200, 100]], false);
+    const moved = -parseFloat(p.style.translate);
+    const behind = getComputedStyle(p, '::after');
+    expect([moved > 10 && moved < 24, behind.content, behind.translate, behind.backgroundColor === getComputedStyle(p).backgroundColor]).toEqual([true, '""', "100%", true]);   // a copy just past its edge
+    p.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 8, isPrimary: true, pointerType: 'touch', clientX: 0, clientY: 0 }));
+    await expect.poll(() => p.style.translate).toBe('');
+    await expect.poll(() => getComputedStyle(p, '::after').content).toBe('none');   // back in place: no copy, so nothing spills
+    expect([d().open, why]).toEqual([true, ['swipe']]);
+  });
+
   test('let go after a swipe (EN1), the panel carries on from under the finger on a translate transition: back when it stays, out past its edge when it closes', async () => {
     await withMotion(async () => {
       const screen = await render(<Drawer key="a" id="sg" defaultOpen title="Filters"><p>Body</p></Drawer>);
