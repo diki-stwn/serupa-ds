@@ -11,7 +11,10 @@ export function useFormReset(el: React.RefObject<HTMLElement | null>, reset: () 
   React.useEffect(() => {
     const node = el.current;
     const named = formId ? document.getElementById(formId) : null;
-    const form = node && ((named instanceof HTMLFormElement ? named : null) || (node as HTMLInputElement).form || node.closest("form"));
+    // Last, a group (a div) outside any form whose controls name one with their form attribute: RadioGroup and
+    // CheckboxGroup kept the old choice when that form reset (L8E54).
+    const inner = node && node.querySelector<HTMLInputElement>("input[form], select[form], textarea[form]");
+    const form = node && ((named instanceof HTMLFormElement ? named : null) || (node as HTMLInputElement).form || node.closest("form") || (inner && inner.form));
     if (!form) return;
     // The browser resets the fields right after this event; the state update renders after that, so it wins.
     const on = () => run.current();
