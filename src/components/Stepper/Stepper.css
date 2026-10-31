@@ -64,6 +64,15 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
   position: absolute; inset-inline-start: var(--dk-step-line-start); width: var(--dk-step-line);
   top: calc(var(--dk-step-size) + var(--stepper-connector-gap, var(--spacing-2))); bottom: var(--stepper-connector-gap, var(--spacing-2));
 }
+/* Before the script measures (server HTML, or no JavaScript), nothing can switch to compact, so on a phone titles
+   would shrink to a letter a line ("Profile" 140px tall). There, until the script takes over (no data-fit), a title
+   is never narrower than its longest word, and a row that still doesn't fit scrolls in its own box instead of running
+   off the page. Wider screens keep the layout the script keeps, so nothing moves when it takes over (GR62). */
+@media (max-width: 639.98px) {
+  .dk-stepper--horizontal:not([data-fit]) .dk-stepper__list { overflow-x: auto; }
+  .dk-stepper--horizontal:not([data-fit]) .dk-stepper__step, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__head, .dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { min-width: auto; }
+  .dk-stepper--horizontal:not([data-fit]) .dk-stepper__text { overflow-wrap: break-word; }
+}
 /* Too narrow for the titles side by side: the circles and lines only, and one line under them for the current
    step. The titles stay in the list, clipped, for screen readers. --measure lays the titles out at full width for a
    moment, so the script can tell whether they fit. */

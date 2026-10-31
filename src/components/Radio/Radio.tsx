@@ -74,13 +74,14 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
     select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onValueChange) onValueChange(v as string | number, e); } };
   // The arrows wrap from the last radio to the first and back, as the radio group pattern asks: Chromium and Firefox
-  // do that themselves, but WebKit stops at the ends.
+  // do that themselves, but WebKit stops at the ends. A radio hidden by CSS isn't one of the ends: wrapping to it checked
+  // it out of sight while focus stayed put (L8E82).
   const own = rest.onKeyDown;
   rest.onKeyDown = function (e: React.KeyboardEvent<HTMLDivElement>) {
     if (own) own(e);
     const t = e.target as HTMLInputElement, k = e.key;
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || t.type !== "radio" || k.indexOf("Arrow") !== 0) return;
-    const all = Array.prototype.filter.call(root.current!.querySelectorAll("input[type=radio]"), function (r: HTMLInputElement) { return r.name === t.name && !r.disabled; }) as HTMLInputElement[];
+    const all = Array.prototype.filter.call(root.current!.querySelectorAll("input[type=radio]"), function (r: HTMLInputElement) { return r.name === t.name && !r.disabled && r.getClientRects().length > 0; }) as HTMLInputElement[];
     const fwd = k === "ArrowDown" || k === (getComputedStyle(t).direction === "rtl" ? "ArrowLeft" : "ArrowRight"), i = all.indexOf(t);
     const to = fwd ? (i === all.length - 1 ? all[0] : null) : (i === 0 ? all[all.length - 1] : null);
     if (!to || to === t) return;
