@@ -36,6 +36,11 @@ const NAMED: Record<string, [string, string, string, string]> = {
   down: ["↓", "Down arrow", "↓", "Down arrow"],
   left: ["←", "Left arrow", "←", "Left arrow"],
   right: ["→", "Right arrow", "→", "Right arrow"],
+  // KeyboardEvent.key's names, as useShortcut takes them (L8E57).
+  arrowup: ["↑", "Up arrow", "↑", "Up arrow"],
+  arrowdown: ["↓", "Down arrow", "↓", "Down arrow"],
+  arrowleft: ["←", "Left arrow", "←", "Left arrow"],
+  arrowright: ["→", "Right arrow", "→", "Right arrow"],
   home: ["↖", "Home", "Home", "Home"],
   end: ["↘", "End", "End", "End"],
   pageup: ["⇞", "Page Up", "PgUp", "Page Up"],
@@ -52,7 +57,8 @@ export const isApple = () => typeof navigator !== "undefined" && [(navigator as 
 
 function Key({ k, apple, say }: { k: string; apple: boolean; say: (name: string) => string }) {
   // "page_up", "Page Up" and "page-up" all find pageup.
-  const n = NAMED[k.length > 1 ? k.toLowerCase().replace(/[\s_-]/g, "") : k.toLowerCase()];
+  // " " is the space bar, as KeyboardEvent.key gives it.
+  const n = NAMED[k === " " ? "space" : k.length > 1 ? k.toLowerCase().replace(/[\s_-]/g, "") : k.toLowerCase()];
   if (!n) return <kbd className="dk-kbd__key">{k.length === 1 ? k.toUpperCase() : k}</kbd>;
   const shown = apple ? n[0] : n[2], name = say(apple ? n[1] : n[3]);
   return <kbd className="dk-kbd__key" title={shown === name ? undefined : name}>{shown === name ? shown : <><span aria-hidden>{shown}</span><VisuallyHidden>{name}</VisuallyHidden></>}</kbd>;

@@ -109,6 +109,13 @@ describe('Kbd', () => {
     expect(spoken('locks')).toBe('Caps Lock + Insert + Function + Caps Lock');
   });
 
+  test('KeyboardEvent.key names, as useShortcut takes them, are named keys too: "ArrowUp" is ↑ and " " is Space (L8E57)', async () => {
+    windows();
+    await render(<Kbd id="ev" keys={['ArrowUp', 'arrow-down', 'ArrowLeft', 'ArrowRight', ' ']} />);
+    expect(keys('ev')).toBe('↑Up arrow(Up arrow) ↓Down arrow(Down arrow) ←Left arrow(Left arrow) →Right arrow(Right arrow) Space');
+    vi.restoreAllMocks();
+  });
+
   test('inline in a sentence it sits with the text (centered within 3px of the words)', async () => {
     windows();
     await render(<p id="para" style={{ margin: 0 }}>Press <Kbd id="inline">/</Kbd> to search.</p>);
