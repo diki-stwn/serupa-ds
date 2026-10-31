@@ -83,6 +83,7 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one list. The list lives in `src/components/List/list.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from list.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--list-border` | `border` | Lines between items, and the frame of variant="card". |
@@ -103,3 +104,4 @@ Each is an optional override: set it on the page, a container or one list. The l
 | `--list-border-width` | `border-width-1` | Lines and frame (1px). |
 | `--list-indicator-width` | `border-width-2` | The selected item's bar (2px). |
 | `--list-radius` | `rounded-lg` | The corners of variant="card" (8px). |
+<!-- token-table:end -->

@@ -9,6 +9,7 @@ import * as MATERIAL from '../src/material/icons';
 import { Icon } from '../src/components/Icon/Icon';
 import { Button } from '../src/components/Button/Button';
 import { SearchInput } from '../src/components/SearchInput/SearchInput';
+import { CopyButton } from '../src/components/CopyButton/CopyButton';
 import { customIcons, isIconData } from '../src/icons';
 import { DEFAULT_LABELS, idLabels, type SerupaLabels } from '../src/internal/labels';
 import labelsSource from '../src/internal/labels.ts?raw';
@@ -197,5 +198,93 @@ export function ElevationLevels() {
         <strong>{name}</strong> <span style={{ color: 'var(--text-muted)' }}>{mode}: <code>{bg}</code>{shadow !== 'none' && <>, <code>{shadow}</code></>}</span>
       </div>)}
     </div>)}
+  </div>;
+}
+
+// The token explorer's index: every shared token in tokens.json and every component token (<name>.tokens.json),
+// with the components whose CSS reads it. Built once, when the page first draws.
+type Found = { css: string; group: string; values: { theme?: string; ref?: string; value: string }[]; usage: string; usedBy: string[] };
+const componentTokenFiles = import.meta.glob('../src/components/*/*.tokens.json', { import: 'default', eager: true }) as Record<string, Record<string, Record<string, unknown>>>;
+const componentCss = import.meta.glob('../src/components/*/*.css', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const COLOR = new Map(T.color.tokens.map((t) => [t.name, t.value]));
+// A color token's value in one theme, following references ({blue-600}) to the literal color.
+function resolve(value: Token['value'], theme: string, depth = 0): string {
+  const v = typeof value === 'string' ? value : value[theme] ?? Object.values(value)[0];
+  const ref = /^\{([^}]+)\}$/.exec(v)?.[1];
+  return ref && COLOR.has(ref) && depth < 8 ? resolve(COLOR.get(ref)!, theme, depth + 1) : v;
+}
+let INDEX: Found[] | undefined;
+function tokenIndex(): Found[] {
+  if (INDEX) return INDEX;
+  const usedBy = new Map<string, Set<string>>();
+  for (const [file, css] of Object.entries(componentCss)) {
+    const name = file.split('/').at(-2)!;
+    for (const m of css.matchAll(/var\(\s*(--[\w\\.-]+)/g)) {
+      const v = m[1].replace(/\\/g, '');
+      if (!usedBy.has(v)) usedBy.set(v, new Set());
+      usedBy.get(v)!.add(name);
+    }
+  }
+  const users = (css: string, own?: string) => [...new Set([...(usedBy.get(css) ?? []), ...(own ? [own] : [])])].sort();
+  const out: Found[] = [];
+  for (const [group, g] of Object.entries(T)) {
+    if (!g || typeof g !== 'object' || !Array.isArray((g as Group).tokens)) continue;
+    for (const t of (g as Group).tokens) {
+      const css = `--${t.name}`;
+      const values = typeof t.value === 'object' && Object.keys(t.value).length > 1
+        ? T.color.themes.map((th) => ({ theme: th.name, ref: String((t.value as Record<string, string>)[th.id]).replace(/[{}]/g, ''), value: resolve(t.value, th.id) }))
+        : [{ value: group === 'color' ? resolve(t.value, T.color.themes[0].id) : val(t.value) }];
+      out.push({ css, group, values, usage: t.usage ?? '', usedBy: users(css) });
+    }
+  }
+  for (const [file, json] of Object.entries(componentTokenFiles)) {
+    const name = file.split('/').at(-2)!;
+    for (const [group, entries] of Object.entries(Object.values(json)[0] as Record<string, Record<string, { $value: unknown; $description?: string; $extensions: { 'com.serupa': { cssVar: string } } }>>)) {
+      if (group.startsWith('$')) continue;
+      for (const [key, t] of Object.entries(entries)) {
+        if (key.startsWith('$')) continue;
+        const css = t.$extensions['com.serupa'].cssVar;
+        const v = t.$value;
+        const ref = typeof v === 'string' ? /^\{[^.}]+\.([^}]+)\}$/.exec(v)?.[1]?.replace(/_/g, '.') : undefined;
+        const value = ref ? `--${ref}` : (v && typeof v === 'object' && (v as { alpha?: number }).alpha === 0 ? 'transparent' : typeof v === 'string' ? v : (v as { hex?: string })?.hex ?? JSON.stringify(v));
+        out.push({ css, group: name, values: [{ value }], usage: t.$description ?? '', usedBy: users(css, name) });
+      }
+    }
+  }
+  return (INDEX = out);
+}
+// The text to paste into CSS: a dot in a token name is escaped there (--spacing-1\.5).
+const asVar = (css: string) => `var(${css.replace(/\./g, '\\.')})`;
+const isColor = (v: string) => /^(#|rgb|hsl|oklch|oklab|color\(|transparent$)/.test(v);
+
+/** Every token, shared and component: search by name, value, use or component, see its value in each theme and
+ * which components read it, and copy it as var(--name). */
+export function TokenExplorer() {
+  const all = tokenIndex();
+  const [q, setQ] = React.useState('');
+  const [limit, setLimit] = React.useState(60);
+  const term = q.trim().toLowerCase().replace(/^var\(|\)$/g, '');
+  React.useEffect(() => setLimit(60), [term]);
+  const hits = term ? all.filter((t) => [t.css, t.group, t.usage, ...t.usedBy, ...t.values.flatMap((v) => [v.value, v.ref ?? ''])].some((s) => s.toLowerCase().includes(term))) : all;
+  const swatch = (v: string) => isColor(v) ? <span aria-hidden="true" style={{ display: 'inline-block', width: 14, height: 14, marginInlineEnd: 6, verticalAlign: 'middle', borderRadius: 3, border: '1px solid var(--border)', background: v }} /> : null;
+  // sb-unstyled: keeps Storybook's docs styles off the controls.
+  return <div className="sb-unstyled" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ maxWidth: 360 }}><SearchInput aria-label="Find a token" placeholder="Find a token, such as primary or Button" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+    <p role="status" style={{ margin: 0, color: 'var(--text-muted)' }}>{hits.length === all.length ? `${all.length} tokens.` : `${hits.length} of ${all.length} tokens match.`}</p>
+    {hits.length ? <div style={{ overflowX: 'auto' }}>
+      <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
+        <thead><tr><th style={cell}>Token</th><th style={cell}>Value</th><th style={cell}>Used by</th><th style={cell}>Use</th></tr></thead>
+        <tbody>{hits.slice(0, limit).map((t) => <tr key={t.css}>
+          <td style={cell}><div style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}><code>{t.css}</code><CopyButton value={asVar(t.css)} iconOnly size="sm" variant="ghost">{`Copy ${asVar(t.css)}`}</CopyButton></div><div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t.group}</div></td>
+          <td style={cell}>{t.values.map((v, i) => <div key={i} style={{ whiteSpace: 'nowrap' }}>
+            {v.theme && <span style={{ color: 'var(--text-muted)' }}>{v.theme}: </span>}
+            {swatch(v.value)}{v.ref && v.ref !== v.value ? <><code>{v.ref}</code> </> : null}<code>{v.value}</code>
+          </div>)}</td>
+          <td style={cell}>{t.usedBy.length ? t.usedBy.map((n, i) => <React.Fragment key={n}>{i ? ', ' : ''}<a href={`?path=/docs/${docsId[n] || `components-${n.toLowerCase()}`}--docs`} target="_top">{n}</a></React.Fragment>) : <span style={{ color: 'var(--text-muted)' }}>No component</span>}</td>
+          <td style={cell}>{code(t.usage)}</td>
+        </tr>)}</tbody>
+      </table>
+    </div> : <p style={{ margin: 0 }}>No token matches.</p>}
+    {hits.length > limit ? <div><Button variant="secondary" size="sm" onClick={() => setLimit(limit + 200)}>Show more ({hits.length - limit} left)</Button></div> : null}
   </div>;
 }

@@ -55,9 +55,11 @@ Without a label, a horizontal divider is an `<hr>`; otherwise a `<div>`. It has 
 
 Each is an optional override: set it on the page, a container or one element. The list lives in `src/components/Divider/divider.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from divider.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--divider-color` | `border` | The line. |
 | `--divider-label-color` | `text-muted` | A label in the line (4.5:1 on surface). |
 | `--divider-width` | `border-width-1` | The line's thickness (1px). |
 | `--divider-label-gap` | `spacing-3` | Space on each side of a label (12px). |
+<!-- token-table:end -->

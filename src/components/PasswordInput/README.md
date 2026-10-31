@@ -68,12 +68,14 @@ const { PasswordInput, Field } = window.Serupa;
 
 The field uses Input's tokens. These style the show/hide button; each is an optional override. The list lives in `src/components/PasswordInput/password-input.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from password-input.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--password-input-toggle` | `text-muted` | The show/hide button's icon (3:1 on the field). |
 | `--password-input-toggle-hover` | `text` | The icon on hover. |
 | `--password-input-toggle-bg-hover` | `secondary` | The button's background on hover. |
 | `--password-input-focus-ring` | `focus-ring` | The button's keyboard focus ring. |
+| `--password-input-caps` | `text-muted` | The Caps Lock hint (4.5:1 on the field). |
 | `--password-input-toggle-radius` | `rounded-sm` | The button's corners (4px). |
 | `--password-input-toggle-padding` | `spacing-1` | Space around the button's icon (4px). |
-| `--password-input-caps` | `text-muted` | The Caps Lock hint (4.5:1 on the field). |
+<!-- token-table:end -->

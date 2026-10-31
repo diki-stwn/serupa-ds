@@ -92,6 +92,7 @@ Every calling code in the world: 244 countries and territories, one row each in 
 
 The box and the number use Input's tokens. These style the country part; each is an optional override. The list lives in `src/components/PhoneInput/phone-input.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from phone-input.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--phone-input-dial` | `text` | The calling code (4.5:1 on the field). |
@@ -100,3 +101,4 @@ The box and the number use Input's tokens. These style the country part; each is
 | `--phone-input-bg-hover` | `surface-muted` | The country part's background on hover. |
 | `--phone-input-focus-ring` | `focus-ring` | The menu's keyboard focus ring. |
 | `--phone-input-gap` | `spacing-1` | Space around the chevron (4px). |
+<!-- token-table:end -->

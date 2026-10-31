@@ -35,7 +35,7 @@
       "secondary-bg": {
         "$type": "color",
         "$value": "{color.surface-raised}",
-        "$description": "Secondary background: `surface-raised`, white in light and a step above the page in dark (an outline in the brand color).",
+        "$description": "Secondary background.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-bg"
@@ -45,7 +45,7 @@
       "secondary-bg-hover": {
         "$type": "color",
         "$value": "{color.primary-subtle}",
-        "$description": "Secondary background on hover: a tint of the brand color.",
+        "$description": "Secondary background on hover.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-bg-hover"
@@ -55,7 +55,7 @@
       "secondary-text": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Secondary label and icon color: the brand color (4.5:1+ on surface in every theme).",
+        "$description": "Secondary text and icons.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-text"
@@ -65,7 +65,7 @@
       "secondary-text-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "Secondary label and icon color on hover (4.5:1+ on the hover tint in every theme).",
+        "$description": "Secondary text and icons on hover.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-text-hover"
@@ -75,7 +75,7 @@
       "secondary-border": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Secondary border: the brand color (3:1+ on surface in every theme).",
+        "$description": "Secondary border.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-secondary-border"
@@ -214,7 +214,7 @@
       "destructive-secondary-bg": {
         "$type": "color",
         "$value": "{color.surface-raised}",
-        "$description": "Destructive secondary background: `surface-raised`, white in light and a step above the page in dark (an outline in red).",
+        "$description": "Destructive secondary background.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-destructive-secondary-bg"
@@ -244,7 +244,7 @@
       "destructive-secondary-border": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Destructive secondary border: solid red (3:1+ on surface), stronger than the destructive outline's.",
+        "$description": "Destructive secondary border (solid red, stronger than the outline's).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-destructive-secondary-border"
@@ -416,7 +416,7 @@
       "padding-y-wrap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Top and bottom padding of a wrap button, md and lg, whose label can take more than one line (4px).",
+        "$description": "Top and bottom padding of a `wrap` button, md and lg (4px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-padding-y-wrap"
@@ -426,7 +426,7 @@
       "padding-y-wrap-sm": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0_5}",
-        "$description": "Top and bottom padding of a wrap button, sm (2px).",
+        "$description": "Top and bottom padding of a `wrap` button, sm (2px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-padding-y-wrap-sm"
@@ -532,7 +532,7 @@
       "press-duration": {
         "$type": "duration",
         "$value": "{transitions.motion-press}",
-        "$description": "How fast the press scales down and back (100ms).",
+        "$description": "How fast the press scales down (100ms). The release comes back over `motion-release`.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-press-duration"
@@ -542,7 +542,7 @@
       "icon-nudge": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0}",
-        "$description": "How far a right icon slides on hover. Off by default (0); set it to {spacing.spacing-0_5} (2px) where right icons are forward arrows.",
+        "$description": "How far a right icon slides on hover. Off by default (0); set it to `var(--spacing-0\\.5)` (2px) where right icons are forward arrows.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-icon-nudge"

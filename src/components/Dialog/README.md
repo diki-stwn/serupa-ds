@@ -93,6 +93,7 @@ const [open, setOpen] = React.useState(false);
 
 Each is an optional override: set it on the page, a container or one dialog. The list lives in `src/components/Dialog/dialog.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from dialog.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--dialog-bg` | `surface-overlay` | The panel's background. |
@@ -110,3 +111,4 @@ Each is an optional override: set it on the page, a container or one dialog. The
 | `--dialog-gap` | `spacing-4` | Space between the header, body and footer (16px). |
 | `--dialog-margin` | `spacing-4` | The least space between the panel and the edge of the screen (16px). |
 | `--dialog-title-weight` | `font-semibold` | The title's weight (600). |
+<!-- token-table:end -->

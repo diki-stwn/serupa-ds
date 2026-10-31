@@ -65,7 +65,9 @@ import { TypeToConfirm } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one TypeToConfirm. The list lives in `src/components/TypeToConfirm/type-to-confirm.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from type-to-confirm.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--type-to-confirm-gap` | `spacing-3` | Space between the field and the button (12px). |
 | `--type-to-confirm-phrase-weight` | `font-semibold` | The phrase's weight in the label. |
+<!-- token-table:end -->

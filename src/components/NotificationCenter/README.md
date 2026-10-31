@@ -92,6 +92,7 @@ function Layout() {
 
 Each is an optional override: set it on the page, a container or one NotificationCenter. The list lives in `src/components/NotificationCenter/notification-center.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from notification-center.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--notification-center-unread` | `primary` | The unread dot (3:1 on the drawer). |
@@ -104,3 +105,4 @@ Each is an optional override: set it on the page, a container or one Notificatio
 | `--notification-center-focus-ring` | `focus-ring` | The ring around a notification (or the empty line) focused after "Mark as read". |
 | `--notification-center-row-padding` | `spacing-3` | Space above and below each notification (12px). |
 | `--notification-center-unread-weight` | `font-semibold` | An unread notification's title. |
+<!-- token-table:end -->
