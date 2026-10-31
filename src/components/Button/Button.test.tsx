@@ -510,22 +510,20 @@ describe('Button micro-interactions', () => {
 
   test('loading: the label fades and blurs out instead of vanishing while the spinner fades, sharpens and grows in; once faded, label and icon are hidden; the content fades back when done', async () => {
     await render(<Motion />);
-    expect(getComputedStyle(q('#busy .dk-btn__label')).opacity).toBe('1');   // its style before loading, for the transition to start from
+    const label = q('#busy .dk-btn__label');
+    expect(getComputedStyle(label).opacity).toBe('1');   // its style before loading, for the transition to start from
+    // What starts on the label, heard as it starts (transitionrun), and its opacity each frame: neither depends on
+    // catching the 150ms fade still running at one moment, which a slow engine (WebKit in CI) can miss.
+    const ran: string[] = [], seen: number[] = [];
+    label.addEventListener('transitionrun', (ev) => ran.push(ev.propertyName));
     await frame();
     setBusy(true);
-    await expect.poll(() => document.querySelector('#busy .dk-btn__loader')).toBeTruthy();
-    await frame();
-    const label = q('#busy .dk-btn__label'), fade = label.getAnimations().find((a) => (a as CSSTransition).transitionProperty === 'opacity');
-    expect(fade, 'the label has an opacity transition').toBeTruthy();
-    fade!.pause();
-    fade!.currentTime = 75;
-    const mid = parseFloat(getComputedStyle(label).opacity);
-    fade!.play();
-    expect(mid).toBeGreaterThan(0);
-    expect(mid).toBeLessThan(1);
+    const t0 = performance.now();
+    while (performance.now() - t0 < 400) { seen.push(parseFloat(getComputedStyle(label).opacity)); await frame(); }
+    expect([...new Set(ran)].sort(), 'the label fades and blurs on transitions').toEqual(['filter', 'opacity']);
+    expect(seen.some((o) => o > 0 && o < 1), 'part way through: ' + seen.join(' ')).toBe(true);
     expect(getComputedStyle(q('#busy .dk-btn__loader')).animationName).toBe('dk-btn-loader-in');
     // They cross as one change: the label blurs on its way out, the spinner starts blurred (blur-xs) and sharpens.
-    expect(label.getAnimations().some((a) => (a as CSSTransition).transitionProperty === 'filter'), 'the label has a filter transition').toBe(true);
     const ld = q('#busy .dk-btn__loader'), grow = ld.getAnimations().find((a) => (a as CSSAnimation).animationName === 'dk-btn-loader-in')!;
     grow.pause();
     grow.currentTime = 0;

@@ -296,7 +296,10 @@ describe('SegmentedControl', () => {
       await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
       const [a, b] = items('sl');
       const ind = el('sl').firstElementChild as HTMLElement;
-      await userEvent.click(b);
+      // A click from the page itself, so the transitions are read a frame after the choice. A driver click (userEvent)
+      // comes back after a round trip, which in WebKit can outlast the 200ms slide, leaving nothing to read.
+      b.click();
+      await new Promise(requestAnimationFrame);
       const moves = document.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition && (x.effect as KeyframeEffect).target === ind);
       expect(moves.map((x) => [(x.effect as KeyframeEffect).pseudoElement, x.transitionProperty]).sort()).toEqual([['::after', 'clip-path'], ['::before', 'clip-path']]);
       // The border layer starts cut to the first segment (nothing cut from its start, the second segment's extra width
