@@ -51,7 +51,7 @@ The thumb slides in 100ms (`motion-press`, `ease-move`: feedback for a toggle ta
 ## Accessibility
 
 - A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves. On a touch screen it's 44px high, as Apple and Material ask.
-- A native checkbox with `role="switch"`: Space flips it, forms submit it (as a checkbox), and screen readers say "on" or "off".
+- A native checkbox with `role="switch"`: Space flips it, forms submit it (as a checkbox), and screen readers say "on" or "off". It also carries the native `switch` attribute, so Safari 18 on iPhone gives its haptic tick when it flips, as a system switch does. The tick follows the phone's own haptics setting, and the switch always shows its change, so the tick is never the only feedback.
 - The label names it; a description is read after it. The thumb is decorative.
 - `pending` sets `aria-busy` and stops clicks and Space from flipping it until the save is done, so a change can't be sent twice. It stays focusable and is still submitted. The ring is Loader's: a quarter arc on a faint track of the same color, turning once a second (`motion-loop-spinner`). It is decorative (`aria-hidden`), stands still and breathes with `prefers-reduced-motion`, and uses system colors in forced-colors mode.
 - `readOnly` keeps it focusable and read out with `aria-readonly`, but a click or Space doesn't flip it, and `onChange` doesn't run (your `onClick` does). The browser's own `readonly` does nothing on a checkbox, so Switch cancels the click. An on read-only switch is still submitted, which `disabled` isn't.
