@@ -50,6 +50,15 @@
 .dk-table__sort-icon.dk-icon { font-size: var(--spacing-4); }
 .dk-table__sort-icon--idle { opacity: var(--opacity-50); }
 @media (hover: hover) { .dk-table__sort:hover .dk-table__sort-icon--idle { opacity: var(--opacity-100); } }
+/* A row with href is one link: the <a> in its link cell stretches its ::after over the row, which shades on hover as
+   any row does. Buttons, checkboxes and links in other cells sit above it, so they work on their own; the row shows
+   the link's focus ring. */
+.dk-table__row--link { position: relative; cursor: pointer; }
+.dk-table__row-link { color: inherit; text-decoration: none; outline: none; }
+.dk-table__row-link::after { content: ""; position: absolute; inset: var(--spacing-0); z-index: var(--z-0); }
+.dk-table__row--link :is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-table__row-link) { position: relative; z-index: var(--z-10); }
+@media (hover: hover) { .dk-table__row--link:hover .dk-table__row-link { text-decoration: underline; } }
+.dk-table__row--link:has(.dk-table__row-link:focus-visible) { outline: var(--focus-ring-width) solid var(--table-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 @media (forced-colors: active) { .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { border-inline-start: var(--table-indicator-width, var(--border-width-2)) solid Highlight; } }
 @media (prefers-reduced-motion: reduce) { .dk-table__body .dk-table__row { transition: none; } }
 /* Print: the whole table, not its scrolled window; the header row repeats on every page, and a row isn't split
