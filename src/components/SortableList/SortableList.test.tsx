@@ -280,4 +280,18 @@ describe('SortableList', () => {
     });
   });
 
+  for (const orientation of ['horizontal', 'vertical'] as const) {
+    test(`GR69: an item moved with the keyboard stays in view, ${orientation}, in a box shorter than the list`, async () => {
+      const many = Array.from({ length: 12 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + (i + 1) }));
+      await render(<div id="box" style={{ width: 300, height: 200, overflow: 'auto' }}><SortableList id="sl" aria-label="Missions" orientation={orientation} items={many} getKey={(i) => i.id} getLabel={(i) => i.name}
+        renderItem={(i) => i.name} onReorder={() => {}} /></div>);
+      const box = document.getElementById('box')!, h = handle('Mission 1');
+      h.focus();
+      await userEvent.keyboard(' ');
+      for (let i = 0; i < 11; i++) await userEvent.keyboard(orientation === 'horizontal' ? '{ArrowRight}' : '{ArrowDown}');
+      const row = h.closest('li')!.getBoundingClientRect(), b = box.getBoundingClientRect();
+      expect([row.left >= b.left - 1, row.right <= b.right + 1, row.top >= b.top - 1, row.bottom <= b.bottom + 1]).toEqual([true, true, true, true]);
+      await userEvent.keyboard(' ');
+    });
+  }
 });
