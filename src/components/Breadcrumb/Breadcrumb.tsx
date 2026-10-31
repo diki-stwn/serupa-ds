@@ -8,7 +8,7 @@ import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
-import { Menu, MenuItem } from "../Menu/Menu";
+import { Menu, MenuItem, type MenuItemProps } from "../Menu/Menu";
 import * as icons from "../../material/builtin";
 import { en as words } from "./labels";
 
@@ -102,7 +102,12 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
         onClick={asMenu ? undefined : () => { focusAfter.current = true; setExpanded(true); }}>…</button>;
       out.push(<li key="more" className="dk-breadcrumb__li">{sep}
         {asMenu ? <Menu trigger={more} aria-label={label}>
-          {items.slice(1, items.length - (max - 1)).map((h, k) => <MenuItem key={h.key != null ? h.key : k} href={h.props.href} as={h.props.as} icon={h.props.icon}>{h.props.children}</MenuItem>)}
+          {items.slice(1, items.length - (max - 1)).map((h, k) => {
+            // A hidden page keeps its own props in the menu: a router link's to, target, data-*, onClick (L8E64). Its
+            // trail styling (className, style) and current stay behind.
+            const { current: _c, className: _n, style: _s, children, ...own } = h.props as BreadcrumbItemProps & { style?: React.CSSProperties; children?: React.ReactNode };
+            return <MenuItem key={h.key != null ? h.key : k} {...(own as MenuItemProps)}>{children}</MenuItem>;
+          })}
         </Menu> : more}
       </li>);
     }
