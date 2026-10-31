@@ -261,8 +261,8 @@ describe('Stepper before the script runs (GR62)', () => {
     host.innerHTML = renderToString(ui);
     document.body.append(host);
     try {
-      const nav = host.querySelector<HTMLElement>('[data-component="stepper"]')!, titles = [...nav.querySelectorAll<HTMLElement>('.dk-stepper__list .dk-stepper__title')];
-      expect([nav.hasAttribute('data-fit'), titles.every((t) => lines(t) <= words(t)), nav.scrollWidth <= 321]).toEqual([false, true, true]);
+      const nav = host.querySelector<HTMLElement>('[data-component="stepper"]')!, titles = [...nav.querySelectorAll<HTMLElement>('ol *')].filter((e) => steps.some((st) => st.title === e.firstChild?.nodeValue));   // each title, by the text it starts with
+      expect([nav.hasAttribute('data-fit'), titles.length, titles.every((t) => lines(t) <= words(t)), nav.scrollWidth <= 321]).toEqual([false, steps.length, true, true]);
     } finally { host.remove(); }
     await render(<div style={{ width: '320px' }} id="gr62">{ui}</div>);
     const nav = document.querySelector<HTMLElement>('#gr62 [data-component="stepper"]')!;
