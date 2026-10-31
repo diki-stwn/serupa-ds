@@ -86,6 +86,25 @@ describe('NumberInput', () => {
     expect([sent(), calls]).toEqual([[['usd', '20'], ['amt', '1250000001'], ['ctl', '5']], []]);
   });
 
+  // GR48: the field wrote Latin digits in ar-EG while Meter beside it wrote ٨٨٪. It follows the locale's digits now.
+  test('the value is written in the locale\'s digits (Arabic-Indic in ar-EG, with ٫ and ٬), reads back typed Latin digits, steps from them, and the form still gets Latin; numberingSystem="latn" keeps Latin (GR48)', async () => {
+    await render(<SerupaProvider locale="ar-EG"><form id="fd">
+      <NumberInput id="d1" aria-label="Amount" name="a" defaultValue={1250.5} step={0.5} />
+      <NumberInput id="d2" aria-label="Price" name="p" currency="IDR" defaultValue={1250000001} />
+      <NumberInput id="d3" aria-label="Latin" defaultValue={1250.5} numberingSystem="latn" />
+      <NumberInput id="d4" aria-label="Latin by options" defaultValue={42} formatOptions={{ numberingSystem: 'latn' }} />
+    </form></SerupaProvider>);
+    const sent = () => [...new FormData(document.getElementById('fd') as HTMLFormElement).values()];
+    expect([field('d1').value, /[\u0660-\u0669]{3}\u066c/.test(field('d2').value) && !/[0-9]/.test(field('d2').value), field('d3').value, field('d4').value, sent()])
+      .toEqual(['١٢٥٠٫٥', true, '1250.5', '42', ['1250.5', '1250000001']]);
+    await fill('d1', '42');
+    await blur('d1');
+    expect([field('d1').value, field('d1').getAttribute('aria-valuenow'), sent()[0]]).toEqual(['٤٢', '42', '42']);
+    field('d1').focus();
+    await userEvent.keyboard('{ArrowUp}');
+    expect([field('d1').value, field('d1').getAttribute('aria-valuenow')]).toEqual(['٤٢٫٥', '42.5']);
+  });
+
   test('form reset: the default comes back, in the field and in what the form sends; a controlled field shows its value again', async () => {
     await render(<form id="nr">
       <NumberInput id="nru" name="u" defaultValue={5} locale="en-US" />

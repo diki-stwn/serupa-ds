@@ -36,6 +36,7 @@ const [cents, setCents] = React.useState<number | null>(1999);
 ## Behavior
 
 - On blur the text is parsed in the locale's marks, clamped, rounded to the step's decimals and written back in the locale's form. The locale's group mark counts as grouping only when the digits are grouped in threes, so `1.500` is 1500 in `id-ID` and `de-DE`, and `9.5` or `9,5` is 9.5 in any locale. Spaces, a currency symbol or %, a typographic minus and digits in other scripts are accepted. Text that isn't a number goes back to the last number, and screen readers are told ("\"abc\" wasn't accepted, so the previous value was kept.").
+- The value is written in the locale's own digits, as Meter, Pagination and Calendar write numbers: `١٢٥٠٫٥` in `ar-EG`, `۱۲۵۰٫۵` in `fa-IR`. People can type digits in any script, Latin ones too, and the form always gets Latin digits (`1250.5`). Pass `numberingSystem="latn"` to show Latin digits instead.
 - A typed number outside `min`..`max` is brought back within them on blur or Enter, as spinbuttons do. `onInvalidInput(text, "range")` tells the app, so a form can say "Quantity was reduced to 100"; text that isn't a number calls it with `"unreadable"`.
 - **Forms get the number.** With `name`, the form submits the number itself from a hidden input (`1500000`, not "Rp 1.500.000"; whole cents with `minorUnits`, so `1999` for $19.99), and the visible field has no name. `form` works for a field outside its form. A disabled field sends nothing.
 - **Form reset** puts `defaultValue` back, in the field and in what the form sends. A controlled field shows its `value` again.
@@ -80,6 +81,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `prefix`, `suffix`, `plac
 | `currency` | `string` | | An ISO 4217 code: shows the amount as money and keeps its decimals. Short for `formatOptions={{ style: 'currency', currency }}`; `formatOptions` still wins. |
 | `minorUnits` | `boolean` | `false` | With `currency`: the value props and `onValueChange` are whole minor units (cents). `aria-valuenow` stays in the currency's units. |
 | `formatOptions` | `Intl.NumberFormatOptions` | no grouping | How the number is shown: `{ style: 'currency', currency: 'IDR' }`, `{ useGrouping: true }`, `{ style: 'percent' }` (the value is the fraction, so 0.15 shows 15%), `{ style: 'unit', unit: 'kilometer' }`, or `currencySign: 'accounting'` (a negative in parentheses, read back as negative). Sets `aria-valuetext` too. |
+| `numberingSystem` | string | the locale's | The digits the value is written in: `"latn"` for Latin, `"arab"` for Arabic-Indic. Typed digits are read in any script either way |
 
 `className` and `style` go to the box; `ref` and every other prop go to the `<input>`.
 
