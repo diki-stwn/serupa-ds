@@ -93,7 +93,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const typing = React.useRef(false);
   // A code on its way to six digits ("1d4") isn't marked invalid until Enter: only one that can't become a color is.
   const [tried, setTried] = React.useState(false);
-  const bad = text !== "" && (/[^0-9a-f]/i.test(text) || text.length > 6 || (tried && !normalizeHex(text)));
+  const bad = text !== "" && !(text.length > 6 && normalizeHex(text)) && (/[^0-9a-f]/i.test(text) || text.length > 6 || (tried && !normalizeHex(text)));
   /* The field follows the color: on blur it shows the current one, and if the parent takes the typed color the
      change brings it here; a parent that turns it down leaves the field on its own color, not the rejected text. */
   React.useEffect(() => { if (!typing.current) setText((value || "").replace("#", "")); }, [value]);
@@ -216,7 +216,7 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
             onFocus={() => { typing.current = true; }}
             onChange={(e) => { const t = e.target.value.replace(/^#/, ""); setText(t); setTried(false); const v = normalizeHex(t); if (v && t.length === 6) choose(v, false, false); }}
             // A copied code often comes with a space or a newline, which maxLength would cut before it's trimmed.
-            onPaste={(e) => { const t = e.clipboardData.getData("text").trim().replace(/^#/, ""); if (!normalizeHex(t)) return; e.preventDefault(); setText(t); setTried(false); if (t.length === 6) choose(t, false, false); }}
+            onPaste={(e) => { const t = e.clipboardData.getData("text").trim().replace(/^#/, ""), v = normalizeHex(t); if (!v) return; e.preventDefault(); setTried(false); const plain = /^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(t); setText(plain ? t : v.slice(1)); if (t.length !== 3) choose(v, false, false); }}
             onBlur={() => { typing.current = false; setTried(false); const v = normalizeHex(text); if (v) choose(v); setText((value || "").replace("#", "")); }}
             onKeyDown={(e) => { if (e.key === "Enter" && !isComposing(e)) { const v = normalizeHex(text); if (v) { choose(v); setText(v.slice(1)); } else setTried(true); } }} />
         </div></FieldContext.Provider>
