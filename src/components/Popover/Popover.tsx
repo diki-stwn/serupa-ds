@@ -9,6 +9,7 @@ import { useExit } from "../../internal/useExit";
 import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
+import { activeIn } from "../../internal/root";
 
 /** The trigger element's props this component reads and adds to. */
 type TriggerProps = React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>;
@@ -71,7 +72,7 @@ export const Popover = /* @__PURE__ */ component<HTMLDivElement, PopoverProps>("
     if (!open || !panel) return;
     // The first control that takes focus: one hidden (display: none, in a closed <details>) or in a disabled
     // <fieldset> doesn't, and focus would have stayed on the trigger, where Escape doesn't close it (L8E22).
-    const took = focusFirst && Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).some((el) => el.tabIndex >= 0 && (el.focus(), document.activeElement === el));
+    const took = focusFirst && Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).some((el) => el.tabIndex >= 0 && (el.focus(), activeIn(el) === el));   // its own root's focus, in a shadow root too (GR60)
     if (!took) panel.focus();
   }, [open]);
 
