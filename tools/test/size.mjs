@@ -19,12 +19,17 @@
 // dozen more labels; while the text is within it, a pull request that adds a label edits no total, and the totals
 // allow for it. A component's bundle carries only its own words and the shared ones (GL4, 26 Oct 2026): before, it
 // carried every folder's, about 1.9 KiB gzipped, so "alone" was measured without them.
-// CI writes the table to the run's summary page.
+// Also held: tokens.css (it ships from the package root), the two font files (as they are: woff2 is already
+// compressed), and a starter page, what a first page with a sign-in form costs (STARTER below).
+// CI writes the table to the run's summary page, with each file's Brotli size beside it (most servers send Brotli;
+// the budgets stay on gzip).
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import * as esbuild from 'esbuild';
 import { HERE, PROJECT, done, report } from './lib.mjs';
+import { purge, unusedComponentClasses, usedClasses } from '../../bin/serupa-purge.mjs';
 
 // A pull request whose shared code (src/internal, labels) grows on purpose may raise its line here itself, by up to
 // 0.5 KiB, with a dated note saying what grew; a bigger raise needs a reason in the pull request.
@@ -43,7 +48,28 @@ const LABELS = [2.6, 1.9];
 // a choice made here, not a few bytes lost in PhoneInput's own budget.
 const PHONE_DATA = 2.8;
 // Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.3 };
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.3, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
+// KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
+// whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
+const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
+// KiB, gzipped, each file on its own as a server sends it: what a first page costs, a sign-in form (STARTER_PAGE)
+// with tokens.css, base.css, bundle.css trimmed by serupa-purge --components to what the page uses, and the
+// JavaScript of Button, Field and Input (29.5 on 31 Oct 2026: 7.4 + 1.3 + 9.9 of CSS, 10.8 of JavaScript). The
+// number to watch when shared code or the base styles grow, since no single component's budget sees it.
+const STARTER = 31;
+const STARTER_PAGE = `import { Button, Field, Input } from 'serupa-ds';
+export function SignIn() {
+  return (
+    <main className="mx-auto max-w-sm p-6 flex flex-col gap-4">
+      <h1 className="type-2xl">Sign in</h1>
+      <Field label="Email"><Input type="email" autoComplete="email" /></Field>
+      <Field label="Password"><Input type="password" autoComplete="current-password" /></Field>
+      <Button type="submit" className="w-full mt-2">Sign in</Button>
+      <p className="text-center">No account yet?</p>
+    </main>
+  );
+}
+`;
 // KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
 // comes along (512.7 on 25 Oct 2026). Icon's README and Getting started say so; this keeps the number in sight.
 const NO_SPLIT = 530;
@@ -59,6 +85,7 @@ const KEYS = ['alone', 'share', 'css'];
 const SHARE_NOISE = 64;
 
 const gz = (buf) => zlib.gzipSync(buf, { level: 9 }).length;
+const br = (buf) => zlib.brotliCompressSync(buf, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }).length;
 // Icons drawn by name are a dynamic import(): a project loads them only when a page draws an icon by its name.
 const lazy = { name: 'lazy', setup(b) { b.onResolve({ filter: /.*/ }, (a) => a.kind === 'dynamic-import' ? { path: a.path, external: true } : undefined); } };
 const build = async (code, plugins) => (await esbuild.build({ stdin: { contents: code, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom'], plugins, logLevel: 'silent' })).outputFiles[0].contents;
@@ -108,12 +135,26 @@ const budgets = Object.fromEntries(folders.map((n) => [n, fs.existsSync(budgetFi
 const sum = (k) => folders.reduce((t, n) => t + (budgets[n]?.[k] || 0), 0);
 const BUDGET = { ...Object.fromEntries(Object.entries(TOTALS).map(([f, [at, was, k]]) => [f, +(at + sum(k) - was + (k === 'share' ? LABELS[0] - LABELS[1] : 0)).toFixed(1)])), ...FIXED };
 BUDGET['bundle.css'] = +(BUDGET['components.css'] + BUDGET['utilities.css']).toFixed(1);
-const size = { 'All components (index.js)': whole };
-for (const f of ['components.css', 'utilities.css', 'bundle.css', 'base.css', 'theme.js', 'serupa.iife.js']) size[f] = file(f);
+const size = { 'All components (index.js)': whole }, brotli = {};
+for (const f of ['components.css', 'utilities.css', 'bundle.css', 'base.css', 'theme.js', 'serupa.iife.js']) { size[f] = file(f); brotli[f] = br(fs.readFileSync(path.join(PROJECT, 'dist', f))); }
+const tokensCss = fs.readFileSync(path.join(PROJECT, 'tokens.css'));
+size['tokens.css'] = gz(tokensCss); brotli['tokens.css'] = br(tokensCss);
+
+// The starter page: serupa-purge reads sources from files, so the page goes in a scratch folder for it.
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-size-'));
+fs.writeFileSync(path.join(scratch, 'SignIn.tsx'), STARTER_PAGE);
+const manifest = JSON.parse(fs.readFileSync(path.join(PROJECT, 'dist', 'components.json'), 'utf8'));
+const used = usedClasses([scratch], manifest.runtimeUtilities);
+fs.rmSync(scratch, { recursive: true, force: true });
+const trimmed = Buffer.from(purge(fs.readFileSync(path.join(PROJECT, 'dist', 'bundle.css'), 'utf8'), used, unusedComponentClasses(manifest, used)) + '\n');
+const starterJs = await build(pick(['Button', 'Field', 'Input']), [lazy]);
+const starterParts = [tokensCss, fs.readFileSync(path.join(PROJECT, 'dist', 'base.css')), trimmed, starterJs];
+const starter = starterParts.reduce((t, b) => t + gz(b), 0);
 
 const rows = Object.entries(BUDGET).map(([name, budget]) => ({ name, now: size[name], budget }));
 if (process.env.GITHUB_STEP_SUMMARY) {
-  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Size (gzipped)\n\n| | Size | Budget | |\n| --- | ---: | ---: | --- |\n${rows.map((r) => `| ${r.name} | ${kib(r.now)} KiB | ${r.budget} KiB | ${r.now <= r.budget * 1024 ? 'ok' : '**over**'} |`).join('\n')}\n`);
+  const brCell = (name) => (name in brotli ? `${kib(brotli[name])} KiB` : '');
+  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Size (gzipped; Brotli for reference)\n\n| | Size | Brotli | Budget | |\n| --- | ---: | ---: | ---: | --- |\n${rows.map((r) => `| ${r.name} | ${kib(r.now)} KiB | ${brCell(r.name)} | ${r.budget} KiB | ${r.now <= r.budget * 1024 ? 'ok' : '**over**'} |`).join('\n')}\n| Starter page | ${kib(starter)} KiB | ${kib(starterParts.reduce((t, b) => t + br(b), 0))} KiB | ${STARTER} KiB | ${starter <= STARTER * 1024 ? 'ok' : '**over**'} |\n`);
 }
 const totals = rows.map((r) => ({
   name: `${r.name}: ${kib(r.now)} KiB gzipped, within ${r.budget} KiB`,
@@ -122,6 +163,15 @@ const totals = rows.map((r) => ({
   detail: r.now < 1024 ? 'not measured: its line in `size` must measure the build, not repeat the budget'
     : `${over(r.now - r.budget * 1024)} over; ${r.name in FIXED ? 'if the growth is worth it, raise its budget in tools/test/size.mjs' : 'the shared code grew (each component is held to its own budget): if that is worth it, raise its line in TOTALS in tools/test/size.mjs'}`,
 }));
+for (const [f, budget] of Object.entries(FONTS)) {
+  const bytes = fs.statSync(path.join(PROJECT, f)).size;
+  totals.push({ name: `${f}: ${kib(bytes)} KiB, within ${budget} KiB`, ok: bytes <= budget * 1024,
+    detail: `${over(bytes - budget * 1024)} over; a bigger font is a slower first paint for every page: if it's worth it, raise FONTS in tools/test/size.mjs` });
+}
+totals.push({ name: `Starter page (sign-in form: tokens.css, base.css, bundle.css trimmed to it, Button, Field and Input): ${kib(starter)} KiB gzipped, within ${STARTER} KiB`,
+  // Under 8 KiB means part of it went missing (the trim kept nothing, or the components didn't bundle).
+  ok: starter <= STARTER * 1024 && starter >= 8 * 1024,
+  detail: starter < 8 * 1024 ? 'not measured: the trimmed CSS or the components came out nearly empty' : `${over(starter - STARTER * 1024)} over: a first page got heavier (tokens, base styles, shared code or one of the three); if that's worth it, raise STARTER in tools/test/size.mjs` });
 const noSplit = gz(await build(pick(['Button']), []));
 totals.push({ name: `Button in a build without code splitting (the icon set comes along): ${kib(noSplit)} KiB gzipped, within ${NO_SPLIT} KiB`,
   ok: noSplit <= NO_SPLIT * 1024 && noSplit > 100 * 1024,
