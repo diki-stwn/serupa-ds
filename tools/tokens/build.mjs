@@ -20,19 +20,28 @@ import path from 'node:path';
 const P = path.resolve(process.argv.slice(2).find((a) => !a.startsWith('--')) || path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..'));
 const OUT = path.join(P, 'tokens.css');
 
+/** Each token's description from tokens.json, by its property name (--primary → "Main action color…"). */
+export function tokenDescriptions(t) {
+  const out = new Map();
+  for (const g of Object.values(t)) if (g && Array.isArray(g.tokens)) for (const x of g.tokens) if (x.usage) out.set(`--${x.name}`, x.usage);
+  return out;
+}
+
 export function buildTokensCss(t) {
   const themes = t.color.themes.map((x) => x.id);
   const themed = (x) => x.value && typeof x.value === 'object';
   const name = (n) => n.replace(/[\\.]/g, '\\$&');
   const ref = (v) => String(v).replace(/\{([^}]+)\}/g, (_, n) => `var(--${name(n)})`);
-  const line = (n, v, usage) => `  --${name(n)}: ${ref(v)};${usage ? ` /* ${usage} */` : ''}\n`;
+  // No comments: tokens.css is the first stylesheet a page waits for, and the descriptions were over half of it. They
+  // stay in tokens.json (tokenDescriptions below), design-tokens/ and the editor data.
+  const line = (n, v) => `  --${name(n)}: ${ref(v)};\n`;
   const groups = Object.values(t).filter((g) => g && Array.isArray(g.tokens));
   const all = groups.flatMap((g) => g.tokens);
 
   let css = '/* Serupa — generated from tokens.json */\n';
   css += '@layer dk.tokens, dk.base, dk.components, dk.utilities;\n@layer dk.tokens {\n';
   css += `:root, [data-theme="${themes[0]}"] {\n`;
-  for (const x of all.filter(themed)) css += line(x.name, x.value[themes[0]], x.usage);
+  for (const x of all.filter(themed)) css += line(x.name, x.value[themes[0]]);
   css += '}\n';
   for (const th of themes.slice(1)) {
     css += `[data-theme="${th}"] {\n`;
@@ -44,9 +53,9 @@ export function buildTokensCss(t) {
 
   const styles = t.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s, family: s.family || g.family })));
   css += ':root {\n';
-  for (const x of all.filter((x) => !themed(x))) css += line(x.name, x.value, x.usage);
+  for (const x of all.filter((x) => !themed(x))) css += line(x.name, x.value);
   for (const [k, v] of Object.entries(t.type.families)) css += `  --font-${k}: ${v};\n`;
-  for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`, s.usage);
+  for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`);
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
   for (const s of styles) {

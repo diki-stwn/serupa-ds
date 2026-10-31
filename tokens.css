@@ -2,310 +2,310 @@
 @layer dk.tokens, dk.base, dk.components, dk.utilities;
 @layer dk.tokens {
 :root, [data-theme="blue-light"] {
-  --primary: var(--blue-600); /* Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text. */
-  --primary-hover: var(--blue-700); /* Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark). */
-  --primary-subtle: var(--blue-50); /* Alias. Brand tint for selected rows and badges (brand 50 light, brand 950 dark). */
-  --on-primary: var(--white); /* Alias. Text and icons on `primary` fills (white in light themes, brand 950 in dark). */
-  --secondary: var(--zinc-100); /* Alias. Secondary button fill; hover fill for outline and ghost buttons. */
-  --secondary-hover: var(--zinc-200); /* Alias. Hover state of `secondary`. */
-  --highlight: var(--zinc-200); /* The keyboard-highlighted item in a list: Menu items, Combobox and TimePicker options, the Sidebar's current page. One step stronger than `secondary` (about 1.3:1 on `surface` in light, 2:1 in dark), paired with a 2px `primary` bar at the item's start. Text on it keeps 4.5:1. */
-  --pressed: var(--zinc-300); /* Alias. The fill while a row, tab, day or page button is held down (`:active`): one step past its hover. `text` keeps 7:1+ on it. */
-  --surface: var(--white); /* Alias. Page and card background (white light, zinc-950 dark). */
-  --surface-muted: var(--zinc-50); /* Alias. Secondary panels, sidebars, table headers. */
-  --surface-raised: var(--white); /* Alias. A raised card (Card `elevated`). One step up from `surface` in dark, where a shadow doesn't show. */
-  --surface-overlay: var(--white); /* Alias. Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast and the Combobox, DatePicker and TimePicker lists. */
-  --field: var(--white); /* Alias. Background of text inputs, selects and other form fields. */
-  --field-border: var(--zinc-500); /* Alias. Border of form fields. 3:1+ against `field` and `surface` in every theme, as WCAG 1.4.11 requires for a control's boundary. */
-  --field-border-hover: var(--zinc-600); /* Alias. Field border on hover. */
-  --placeholder: var(--zinc-500); /* Alias. Placeholder text in form fields (4.5:1+ on `field`). Placeholders are hints, never labels. */
-  --overlay: #18181b80; /* Alias. The dimmed backdrop behind dialogs and drawers (zinc-900 at 50% in light themes, zinc-950 at 70% in dark). */
-  --surface-inverse: var(--zinc-900); /* Alias. Contrasting blocks: tooltips, inverse banners. */
-  --text: var(--zinc-900); /* Alias. Body text and headings on `surface`. */
-  --text-muted: var(--zinc-500); /* Alias. Secondary text, captions, placeholders (4.5:1+ on `surface` in every theme). */
-  --text-inverse: var(--white); /* Alias. Text on `surface-inverse`. */
-  --border: var(--zinc-200); /* Alias. Default borders and dividers. */
-  --border-strong: var(--zinc-300); /* Alias. Emphasised dividers and outlines. Form fields use `field-border`, which meets the 3:1 a control boundary needs. */
-  --border-raised: var(--white); /* Alias. A raised card's edge: invisible in light (white on white), a 1px lighter edge in dark. */
-  --border-overlay: var(--zinc-200); /* Alias. The edge of a top-layer surface. In dark it is one step stronger than `border`, so a menu stands off the page. */
-  --focus-ring: var(--blue-500); /* Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme). */
-  --success: var(--green-600); /* Alias. Success icons and fills (3:1). For success text use `success-text`. */
-  --success-subtle: var(--green-50); /* Alias. Success alert / badge background. */
-  --success-text: var(--green-700); /* Alias. Success text on `surface`, `surface-muted` and `success-subtle` (4.5:1+ in every theme). */
-  --warning: var(--amber-600); /* Alias. Warning icons and fills; put dark text on it. For warning text use `warning-text`. */
-  --warning-subtle: var(--amber-50); /* Alias. Warning alert / badge background. */
-  --warning-text: var(--amber-700); /* Alias. Warning text on `surface`, `surface-muted` and `warning-subtle` (4.5:1+ in every theme). */
-  --danger: var(--red-600); /* Alias. Errors, destructive buttons; white text on it (4.8:1). For error text on dark surfaces use `red-400`. */
-  --danger-hover: var(--red-700); /* Alias. Hover / pressed state of `danger`. */
-  --on-danger: var(--white); /* Alias. Text and icons on `danger` fills. */
-  --danger-subtle: var(--red-50); /* Alias. Error alert / badge background. */
-  --danger-text: var(--red-700); /* Alias. Destructive text and icons on `surface`, `danger-subtle` and its hover (5.3:1+ in every theme). */
-  --danger-subtle-hover: var(--red-100); /* Alias. Hover fill for destructive secondary, outline and ghost buttons. */
-  --danger-border: var(--red-300); /* Alias. Border of a destructive outline button. */
-  --info: var(--sky-700); /* Alias. Informational icons and text. */
-  --info-subtle: var(--sky-50); /* Alias. Info alert / badge background. */
-  --info-text: var(--sky-700); /* Alias. Info text on `surface`, `surface-muted` and `info-subtle` (4.5:1+ in every theme). */
-  --white: #ffffff; /* Pure white. */
-  --black: #000000; /* Pure black. */
-  --slate-50: #f8fafc; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --slate-100: #f1f5f9; /* Tints, subtle backgrounds. Use dark text on it (black 19.2:1). */
-  --slate-200: #e2e8f0; /* Tints, subtle backgrounds. Use dark text on it (black 17.0:1). */
-  --slate-300: #cbd5e1; /* Borders, accents, decorative fills. Use dark text on it (black 14.1:1). */
-  --slate-400: #94a3b8; /* Borders, accents, decorative fills. Use dark text on it (black 8.2:1). */
-  --slate-500: #64748b; /* Solid fills, buttons, brand accents. Text: white passes on it (4.8:1). */
-  --slate-600: #475569; /* Solid fills, buttons, brand accents. Text: white passes on it (7.6:1). */
-  --slate-700: #334155; /* Text, dark surfaces. Text: white passes on it (10.4:1). */
-  --slate-800: #1e293b; /* Text, dark surfaces. Text: white passes on it (14.6:1). */
-  --slate-900: #0f172a; /* Text, dark surfaces. Text: white passes on it (17.9:1). */
-  --slate-950: #020617; /* Text, dark surfaces. Text: white passes on it (20.2:1). */
-  --gray-50: #f9fafb; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --gray-100: #f3f4f6; /* Tints, subtle backgrounds. Use dark text on it (black 19.1:1). */
-  --gray-200: #e5e7eb; /* Tints, subtle backgrounds. Use dark text on it (black 17.0:1). */
-  --gray-300: #d1d5db; /* Borders, accents, decorative fills. Use dark text on it (black 14.3:1). */
-  --gray-400: #9ca3af; /* Borders, accents, decorative fills. Use dark text on it (black 8.3:1). */
-  --gray-500: #6b7280; /* Solid fills, buttons, brand accents. Text: white passes on it (4.8:1). */
-  --gray-600: #4b5563; /* Solid fills, buttons, brand accents. Text: white passes on it (7.6:1). */
-  --gray-700: #374151; /* Text, dark surfaces. Text: white passes on it (10.3:1). */
-  --gray-800: #1f2937; /* Text, dark surfaces. Text: white passes on it (14.7:1). */
-  --gray-900: #111827; /* Text, dark surfaces. Text: white passes on it (17.7:1). */
-  --gray-950: #030712; /* Text, dark surfaces. Text: white passes on it (20.1:1). */
-  --zinc-50: #fafafa; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --zinc-100: #f4f4f5; /* Tints, subtle backgrounds. Use dark text on it (black 19.1:1). */
-  --zinc-200: #e4e4e7; /* Tints, subtle backgrounds. Use dark text on it (black 16.6:1). */
-  --zinc-300: #d4d4d8; /* Borders, accents, decorative fills. Use dark text on it (black 14.2:1). */
-  --zinc-400: #a1a1aa; /* Borders, accents, decorative fills. Use dark text on it (black 8.2:1). */
-  --zinc-500: #71717a; /* Solid fills, buttons, brand accents. Text: white passes on it (4.8:1). */
-  --zinc-600: #52525b; /* Solid fills, buttons, brand accents. Text: white passes on it (7.7:1). */
-  --zinc-700: #3f3f46; /* Text, dark surfaces. Text: white passes on it (10.4:1). */
-  --zinc-800: #27272a; /* Text, dark surfaces. Text: white passes on it (14.9:1). */
-  --zinc-900: #18181b; /* Text, dark surfaces. Text: white passes on it (17.7:1). */
-  --zinc-950: #09090b; /* Text, dark surfaces. Text: white passes on it (19.9:1). */
-  --neutral-50: #fafafa; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --neutral-100: #f5f5f5; /* Tints, subtle backgrounds. Use dark text on it (black 19.3:1). */
-  --neutral-200: #e5e5e5; /* Tints, subtle backgrounds. Use dark text on it (black 16.7:1). */
-  --neutral-300: #d4d4d4; /* Borders, accents, decorative fills. Use dark text on it (black 14.2:1). */
-  --neutral-400: #a3a3a3; /* Borders, accents, decorative fills. Use dark text on it (black 8.3:1). */
-  --neutral-500: #737373; /* Solid fills, buttons, brand accents. Text: white passes on it (4.7:1). */
-  --neutral-600: #525252; /* Solid fills, buttons, brand accents. Text: white passes on it (7.8:1). */
-  --neutral-700: #404040; /* Text, dark surfaces. Text: white passes on it (10.4:1). */
-  --neutral-800: #262626; /* Text, dark surfaces. Text: white passes on it (15.1:1). */
-  --neutral-900: #171717; /* Text, dark surfaces. Text: white passes on it (17.9:1). */
-  --neutral-950: #0a0a0a; /* Text, dark surfaces. Text: white passes on it (19.8:1). */
-  --stone-50: #fafaf9; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --stone-100: #f5f5f4; /* Tints, subtle backgrounds. Use dark text on it (black 19.2:1). */
-  --stone-200: #e7e5e4; /* Tints, subtle backgrounds. Use dark text on it (black 16.7:1). */
-  --stone-300: #d6d3d1; /* Borders, accents, decorative fills. Use dark text on it (black 14.1:1). */
-  --stone-400: #a8a29e; /* Borders, accents, decorative fills. Use dark text on it (black 8.3:1). */
-  --stone-500: #78716c; /* Solid fills, buttons, brand accents. Text: white passes on it (4.8:1). */
-  --stone-600: #57534e; /* Solid fills, buttons, brand accents. Text: white passes on it (7.6:1). */
-  --stone-700: #44403c; /* Text, dark surfaces. Text: white passes on it (10.3:1). */
-  --stone-800: #292524; /* Text, dark surfaces. Text: white passes on it (15.2:1). */
-  --stone-900: #1c1917; /* Text, dark surfaces. Text: white passes on it (17.5:1). */
-  --stone-950: #0c0a09; /* Text, dark surfaces. Text: white passes on it (19.8:1). */
-  --red-50: #fef2f2; /* Tints, subtle backgrounds. Use dark text on it (black 19.2:1). */
-  --red-100: #fee2e2; /* Tints, subtle backgrounds. Use dark text on it (black 17.2:1). */
-  --red-200: #fecaca; /* Tints, subtle backgrounds. Use dark text on it (black 14.5:1). */
-  --red-300: #fca5a5; /* Borders, accents, decorative fills. Use dark text on it (black 11.1:1). */
-  --red-400: #f87171; /* Borders, accents, decorative fills. Use dark text on it (black 7.6:1). */
-  --red-500: #ef4444; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.8:1); black 5.6:1. */
-  --red-600: #dc2626; /* Solid fills, buttons, brand accents. Text: white passes on it (4.8:1). */
-  --red-700: #b91c1c; /* Text, dark surfaces. Text: white passes on it (6.5:1). */
-  --red-800: #991b1b; /* Text, dark surfaces. Text: white passes on it (8.3:1). */
-  --red-900: #7f1d1d; /* Text, dark surfaces. Text: white passes on it (10.0:1). */
-  --red-950: #450a0a; /* Text, dark surfaces. Text: white passes on it (16.1:1). */
-  --orange-50: #fff7ed; /* Tints, subtle backgrounds. Use dark text on it (black 19.8:1). */
-  --orange-100: #ffedd5; /* Tints, subtle backgrounds. Use dark text on it (black 18.3:1). */
-  --orange-200: #fed7aa; /* Tints, subtle backgrounds. Use dark text on it (black 15.5:1). */
-  --orange-300: #fdba74; /* Borders, accents, decorative fills. Use dark text on it (black 12.5:1). */
-  --orange-400: #fb923c; /* Borders, accents, decorative fills. Use dark text on it (black 9.3:1). */
-  --orange-500: #f97316; /* Solid fills, buttons, brand accents. Use dark text on it (black 7.5:1). */
-  --orange-600: #ea580c; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.6:1); black 5.9:1. */
-  --orange-700: #c2410c; /* Text, dark surfaces. Text: white passes on it (5.2:1). */
-  --orange-800: #9a3412; /* Text, dark surfaces. Text: white passes on it (7.3:1). */
-  --orange-900: #7c2d12; /* Text, dark surfaces. Text: white passes on it (9.4:1). */
-  --orange-950: #431407; /* Text, dark surfaces. Text: white passes on it (15.7:1). */
-  --amber-50: #fffbeb; /* Tints, subtle backgrounds. Use dark text on it (black 20.3:1). */
-  --amber-100: #fef3c7; /* Tints, subtle backgrounds. Use dark text on it (black 18.9:1). */
-  --amber-200: #fde68a; /* Tints, subtle backgrounds. Use dark text on it (black 16.9:1). */
-  --amber-300: #fcd34d; /* Borders, accents, decorative fills. Use dark text on it (black 14.6:1). */
-  --amber-400: #fbbf24; /* Borders, accents, decorative fills. Use dark text on it (black 12.6:1). */
-  --amber-500: #f59e0b; /* Solid fills, buttons, brand accents. Use dark text on it (black 9.8:1). */
-  --amber-600: #d97706; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.2:1); black 6.6:1. */
-  --amber-700: #b45309; /* Text, dark surfaces. Text: white passes on it (5.0:1). */
-  --amber-800: #92400e; /* Text, dark surfaces. Text: white passes on it (7.1:1). */
-  --amber-900: #78350f; /* Text, dark surfaces. Text: white passes on it (9.1:1). */
-  --amber-950: #451a03; /* Text, dark surfaces. Text: white passes on it (15.0:1). */
-  --yellow-50: #fefce8; /* Tints, subtle backgrounds. Use dark text on it (black 20.3:1). */
-  --yellow-100: #fef9c3; /* Tints, subtle backgrounds. Use dark text on it (black 19.6:1). */
-  --yellow-200: #fef08a; /* Tints, subtle backgrounds. Use dark text on it (black 18.0:1). */
-  --yellow-300: #fde047; /* Borders, accents, decorative fills. Use dark text on it (black 15.9:1). */
-  --yellow-400: #facc15; /* Borders, accents, decorative fills. Use dark text on it (black 13.7:1). */
-  --yellow-500: #eab308; /* Solid fills, buttons, brand accents. Use dark text on it (black 11.0:1). */
-  --yellow-600: #ca8a04; /* Solid fills, buttons, brand accents. Use dark text on it (black 7.1:1). */
-  --yellow-700: #a16207; /* Text, dark surfaces. Text: white passes on it (4.9:1). */
-  --yellow-800: #854d0e; /* Text, dark surfaces. Text: white passes on it (6.9:1). */
-  --yellow-900: #713f12; /* Text, dark surfaces. Text: white passes on it (8.7:1). */
-  --yellow-950: #422006; /* Text, dark surfaces. Text: white passes on it (14.6:1). */
-  --lime-50: #f7fee7; /* Tints, subtle backgrounds. Use dark text on it (black 20.3:1). */
-  --lime-100: #ecfccb; /* Tints, subtle backgrounds. Use dark text on it (black 19.4:1). */
-  --lime-200: #d9f99d; /* Tints, subtle backgrounds. Use dark text on it (black 18.0:1). */
-  --lime-300: #bef264; /* Borders, accents, decorative fills. Use dark text on it (black 16.1:1). */
-  --lime-400: #a3e635; /* Borders, accents, decorative fills. Use dark text on it (black 13.9:1). */
-  --lime-500: #84cc16; /* Solid fills, buttons, brand accents. Use dark text on it (black 10.6:1). */
-  --lime-600: #65a30d; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.1:1); black 6.8:1. */
-  --lime-700: #4d7c0f; /* Text, dark surfaces. Text: white passes on it (5.0:1). */
-  --lime-800: #3f6212; /* Text, dark surfaces. Text: white passes on it (7.1:1). */
-  --lime-900: #365314; /* Text, dark surfaces. Text: white passes on it (8.7:1). */
-  --lime-950: #1a2e05; /* Text, dark surfaces. Text: white passes on it (14.6:1). */
-  --green-50: #f0fdf4; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --green-100: #dcfce7; /* Tints, subtle backgrounds. Use dark text on it (black 19.1:1). */
-  --green-200: #bbf7d0; /* Tints, subtle backgrounds. Use dark text on it (black 17.3:1). */
-  --green-300: #86efac; /* Borders, accents, decorative fills. Use dark text on it (black 15.0:1). */
-  --green-400: #4ade80; /* Borders, accents, decorative fills. Use dark text on it (black 12.1:1). */
-  --green-500: #22c55e; /* Solid fills, buttons, brand accents. Use dark text on it (black 9.2:1). */
-  --green-600: #16a34a; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.3:1); black 6.4:1. */
-  --green-700: #15803d; /* Text, dark surfaces. Text: white passes on it (5.0:1). */
-  --green-800: #166534; /* Text, dark surfaces. Text: white passes on it (7.1:1). */
-  --green-900: #14532d; /* Text, dark surfaces. Text: white passes on it (9.1:1). */
-  --green-950: #052e16; /* Text, dark surfaces. Text: white passes on it (14.9:1). */
-  --emerald-50: #ecfdf5; /* Tints, subtle backgrounds. Use dark text on it (black 19.9:1). */
-  --emerald-100: #d1fae5; /* Tints, subtle backgrounds. Use dark text on it (black 18.5:1). */
-  --emerald-200: #a7f3d0; /* Tints, subtle backgrounds. Use dark text on it (black 16.4:1). */
-  --emerald-300: #6ee7b7; /* Borders, accents, decorative fills. Use dark text on it (black 13.8:1). */
-  --emerald-400: #34d399; /* Borders, accents, decorative fills. Use dark text on it (black 10.9:1). */
-  --emerald-500: #10b981; /* Solid fills, buttons, brand accents. Use dark text on it (black 8.3:1). */
-  --emerald-600: #059669; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.8:1); black 5.6:1. */
-  --emerald-700: #047857; /* Text, dark surfaces. Text: white passes on it (5.5:1). */
-  --emerald-800: #065f46; /* Text, dark surfaces. Text: white passes on it (7.7:1). */
-  --emerald-900: #064e3b; /* Text, dark surfaces. Text: white passes on it (9.7:1). */
-  --emerald-950: #022c22; /* Text, dark surfaces. Text: white passes on it (15.2:1). */
-  --teal-50: #f0fdfa; /* Tints, subtle backgrounds. Use dark text on it (black 20.1:1). */
-  --teal-100: #ccfbf1; /* Tints, subtle backgrounds. Use dark text on it (black 18.6:1). */
-  --teal-200: #99f6e4; /* Tints, subtle backgrounds. Use dark text on it (black 16.7:1). */
-  --teal-300: #5eead4; /* Borders, accents, decorative fills. Use dark text on it (black 14.2:1). */
-  --teal-400: #2dd4bf; /* Borders, accents, decorative fills. Use dark text on it (black 11.3:1). */
-  --teal-500: #14b8a6; /* Solid fills, buttons, brand accents. Use dark text on it (black 8.4:1). */
-  --teal-600: #0d9488; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.7:1); black 5.6:1. */
-  --teal-700: #0f766e; /* Text, dark surfaces. Text: white passes on it (5.5:1). */
-  --teal-800: #115e59; /* Text, dark surfaces. Text: white passes on it (7.6:1). */
-  --teal-900: #134e4a; /* Text, dark surfaces. Text: white passes on it (9.5:1). */
-  --teal-950: #042f2e; /* Text, dark surfaces. Text: white passes on it (14.5:1). */
-  --cyan-50: #ecfeff; /* Tints, subtle backgrounds. Use dark text on it (black 20.2:1). */
-  --cyan-100: #cffafe; /* Tints, subtle backgrounds. Use dark text on it (black 18.8:1). */
-  --cyan-200: #a5f3fc; /* Tints, subtle backgrounds. Use dark text on it (black 16.8:1). */
-  --cyan-300: #67e8f9; /* Borders, accents, decorative fills. Use dark text on it (black 14.5:1). */
-  --cyan-400: #22d3ee; /* Borders, accents, decorative fills. Use dark text on it (black 11.6:1). */
-  --cyan-500: #06b6d4; /* Solid fills, buttons, brand accents. Use dark text on it (black 8.6:1). */
-  --cyan-600: #0891b2; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.7:1); black 5.7:1. */
-  --cyan-700: #0e7490; /* Text, dark surfaces. Text: white passes on it (5.4:1). */
-  --cyan-800: #155e75; /* Text, dark surfaces. Text: white passes on it (7.3:1). */
-  --cyan-900: #164e63; /* Text, dark surfaces. Text: white passes on it (9.1:1). */
-  --cyan-950: #083344; /* Text, dark surfaces. Text: white passes on it (13.4:1). */
-  --sky-50: #f0f9ff; /* Tints, subtle backgrounds. Use dark text on it (black 19.7:1). */
-  --sky-100: #e0f2fe; /* Tints, subtle backgrounds. Use dark text on it (black 18.3:1). */
-  --sky-200: #bae6fd; /* Tints, subtle backgrounds. Use dark text on it (black 15.8:1). */
-  --sky-300: #7dd3fc; /* Borders, accents, decorative fills. Use dark text on it (black 12.6:1). */
-  --sky-400: #38bdf8; /* Borders, accents, decorative fills. Use dark text on it (black 9.8:1). */
-  --sky-500: #0ea5e9; /* Solid fills, buttons, brand accents. Use dark text on it (black 7.6:1). */
-  --sky-600: #0284c7; /* Solid fills, buttons, brand accents. White passes only for large text/icons (4.1:1); black 5.1:1. */
-  --sky-700: #0369a1; /* Text, dark surfaces. Text: white passes on it (5.9:1). */
-  --sky-800: #075985; /* Text, dark surfaces. Text: white passes on it (7.6:1). */
-  --sky-900: #0c4a6e; /* Text, dark surfaces. Text: white passes on it (9.5:1). */
-  --sky-950: #082f49; /* Text, dark surfaces. Text: white passes on it (13.9:1). */
-  --blue-50: #eff6ff; /* Tints, subtle backgrounds. Use dark text on it (black 19.3:1). */
-  --blue-100: #dbeafe; /* Tints, subtle backgrounds. Use dark text on it (black 17.2:1). */
-  --blue-200: #bfdbfe; /* Tints, subtle backgrounds. Use dark text on it (black 14.8:1). */
-  --blue-300: #93c5fd; /* Borders, accents, decorative fills. Use dark text on it (black 11.6:1). */
-  --blue-400: #60a5fa; /* Borders, accents, decorative fills. Use dark text on it (black 8.3:1). */
-  --blue-500: #3b82f6; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.7:1); black 5.7:1. */
-  --blue-600: #2563eb; /* Solid fills, buttons, brand accents. Text: white passes on it (5.2:1). */
-  --blue-700: #1d4ed8; /* Text, dark surfaces. Text: white passes on it (6.7:1). */
-  --blue-800: #1e40af; /* Text, dark surfaces. Text: white passes on it (8.7:1). */
-  --blue-900: #1e3a8a; /* Text, dark surfaces. Text: white passes on it (10.4:1). */
-  --blue-950: #172554; /* Text, dark surfaces. Text: white passes on it (14.7:1). */
-  --indigo-50: #eef2ff; /* Tints, subtle backgrounds. Use dark text on it (black 18.8:1). */
-  --indigo-100: #e0e7ff; /* Tints, subtle backgrounds. Use dark text on it (black 17.0:1). */
-  --indigo-200: #c7d2fe; /* Tints, subtle backgrounds. Use dark text on it (black 14.1:1). */
-  --indigo-300: #a5b4fc; /* Borders, accents, decorative fills. Use dark text on it (black 10.5:1). */
-  --indigo-400: #818cf8; /* Borders, accents, decorative fills. Use dark text on it (black 7.0:1). */
-  --indigo-500: #6366f1; /* Solid fills, buttons, brand accents. White passes only for large text/icons (4.5:1); black 4.7:1. */
-  --indigo-600: #4f46e5; /* Solid fills, buttons, brand accents. Text: white passes on it (6.3:1). */
-  --indigo-700: #4338ca; /* Text, dark surfaces. Text: white passes on it (7.9:1). */
-  --indigo-800: #3730a3; /* Text, dark surfaces. Text: white passes on it (9.9:1). */
-  --indigo-900: #312e81; /* Text, dark surfaces. Text: white passes on it (11.4:1). */
-  --indigo-950: #1e1b4b; /* Text, dark surfaces. Text: white passes on it (16.0:1). */
-  --violet-50: #f5f3ff; /* Tints, subtle backgrounds. Use dark text on it (black 19.1:1). */
-  --violet-100: #ede9fe; /* Tints, subtle backgrounds. Use dark text on it (black 17.7:1). */
-  --violet-200: #ddd6fe; /* Tints, subtle backgrounds. Use dark text on it (black 15.1:1). */
-  --violet-300: #c4b5fd; /* Borders, accents, decorative fills. Use dark text on it (black 11.4:1). */
-  --violet-400: #a78bfa; /* Borders, accents, decorative fills. Use dark text on it (black 7.7:1). */
-  --violet-500: #8b5cf6; /* Solid fills, buttons, brand accents. White passes only for large text/icons (4.2:1); black 5.0:1. */
-  --violet-600: #7c3aed; /* Solid fills, buttons, brand accents. Text: white passes on it (5.7:1). */
-  --violet-700: #6d28d9; /* Text, dark surfaces. Text: white passes on it (7.1:1). */
-  --violet-800: #5b21b6; /* Text, dark surfaces. Text: white passes on it (9.0:1). */
-  --violet-900: #4c1d95; /* Text, dark surfaces. Text: white passes on it (11.0:1). */
-  --violet-950: #2e1065; /* Text, dark surfaces. Text: white passes on it (15.2:1). */
-  --purple-50: #faf5ff; /* Tints, subtle backgrounds. Use dark text on it (black 19.6:1). */
-  --purple-100: #f3e8ff; /* Tints, subtle backgrounds. Use dark text on it (black 17.8:1). */
-  --purple-200: #e9d5ff; /* Tints, subtle backgrounds. Use dark text on it (black 15.4:1). */
-  --purple-300: #d8b4fe; /* Borders, accents, decorative fills. Use dark text on it (black 11.9:1). */
-  --purple-400: #c084fc; /* Borders, accents, decorative fills. Use dark text on it (black 7.9:1). */
-  --purple-500: #a855f7; /* Solid fills, buttons, brand accents. White passes only for large text/icons (4.0:1); black 5.3:1. */
-  --purple-600: #9333ea; /* Solid fills, buttons, brand accents. Text: white passes on it (5.4:1). */
-  --purple-700: #7e22ce; /* Text, dark surfaces. Text: white passes on it (7.0:1). */
-  --purple-800: #6b21a8; /* Text, dark surfaces. Text: white passes on it (8.7:1). */
-  --purple-900: #581c87; /* Text, dark surfaces. Text: white passes on it (10.9:1). */
-  --purple-950: #3b0764; /* Text, dark surfaces. Text: white passes on it (15.0:1). */
-  --fuchsia-50: #fdf4ff; /* Tints, subtle backgrounds. Use dark text on it (black 19.6:1). */
-  --fuchsia-100: #fae8ff; /* Tints, subtle backgrounds. Use dark text on it (black 18.1:1). */
-  --fuchsia-200: #f5d0fe; /* Tints, subtle backgrounds. Use dark text on it (black 15.3:1). */
-  --fuchsia-300: #f0abfc; /* Borders, accents, decorative fills. Use dark text on it (black 11.9:1). */
-  --fuchsia-400: #e879f9; /* Borders, accents, decorative fills. Use dark text on it (black 8.5:1). */
-  --fuchsia-500: #d946ef; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.5:1); black 6.1:1. */
-  --fuchsia-600: #c026d3; /* Solid fills, buttons, brand accents. Text: white passes on it (4.7:1). */
-  --fuchsia-700: #a21caf; /* Text, dark surfaces. Text: white passes on it (6.3:1). */
-  --fuchsia-800: #86198f; /* Text, dark surfaces. Text: white passes on it (8.2:1). */
-  --fuchsia-900: #701a75; /* Text, dark surfaces. Text: white passes on it (10.0:1). */
-  --fuchsia-950: #4a044e; /* Text, dark surfaces. Text: white passes on it (14.8:1). */
-  --pink-50: #fdf2f8; /* Tints, subtle backgrounds. Use dark text on it (black 19.2:1). */
-  --pink-100: #fce7f3; /* Tints, subtle backgrounds. Use dark text on it (black 17.9:1). */
-  --pink-200: #fbcfe8; /* Tints, subtle backgrounds. Use dark text on it (black 15.2:1). */
-  --pink-300: #f9a8d4; /* Borders, accents, decorative fills. Use dark text on it (black 11.6:1). */
-  --pink-400: #f472b6; /* Borders, accents, decorative fills. Use dark text on it (black 7.9:1). */
-  --pink-500: #ec4899; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.5:1); black 6.0:1. */
-  --pink-600: #db2777; /* Solid fills, buttons, brand accents. Text: white passes on it (4.6:1). */
-  --pink-700: #be185d; /* Text, dark surfaces. Text: white passes on it (6.0:1). */
-  --pink-800: #9d174d; /* Text, dark surfaces. Text: white passes on it (7.9:1). */
-  --pink-900: #831843; /* Text, dark surfaces. Text: white passes on it (9.6:1). */
-  --pink-950: #500724; /* Text, dark surfaces. Text: white passes on it (15.0:1). */
-  --rose-50: #fff1f2; /* Tints, subtle backgrounds. Use dark text on it (black 19.1:1). */
-  --rose-100: #ffe4e6; /* Tints, subtle backgrounds. Use dark text on it (black 17.5:1). */
-  --rose-200: #fecdd3; /* Tints, subtle backgrounds. Use dark text on it (black 14.9:1). */
-  --rose-300: #fda4af; /* Borders, accents, decorative fills. Use dark text on it (black 11.1:1). */
-  --rose-400: #fb7185; /* Borders, accents, decorative fills. Use dark text on it (black 7.8:1). */
-  --rose-500: #f43f5e; /* Solid fills, buttons, brand accents. White passes only for large text/icons (3.7:1); black 5.7:1. */
-  --rose-600: #e11d48; /* Solid fills, buttons, brand accents. Text: white passes on it (4.7:1). */
-  --rose-700: #be123c; /* Text, dark surfaces. Text: white passes on it (6.3:1). */
-  --rose-800: #9f1239; /* Text, dark surfaces. Text: white passes on it (8.0:1). */
-  --rose-900: #881337; /* Text, dark surfaces. Text: white passes on it (9.6:1). */
-  --rose-950: #4c0519; /* Text, dark surfaces. Text: white passes on it (15.6:1). */
-  --shadow-2xs: 0 1px rgb(0 0 0 / 0.05); /* `shadow-2xs`. Hairline lift under flat controls. */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* `shadow-xs`. Buttons and inputs (Button uses it). */
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* `shadow-sm`. Cards at rest. */
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* `shadow-md`. Raised cards, hover states. */
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* `shadow-lg`. Dropdowns, popovers. */
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); /* `shadow-xl`. Dialogs, floating panels. */
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* `shadow-2xl`. Modals, the highest elevation. */
-  --shadow-none: 0 0 #0000; /* `shadow-none`. Removes a shadow. */
-  --inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05); /* `inset-shadow-2xs`. A hairline inner edge. */
-  --inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05); /* `inset-shadow-xs`. Inputs and wells. */
-  --inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 / 0.05); /* `inset-shadow-sm`. Pressed or recessed areas (was `shadow-inner`). */
-  --inset-shadow-none: inset 0 0 #0000; /* `inset-shadow-none`. Removes an inner shadow. */
-  --text-shadow-2xs: 0px 1px 0px rgb(0 0 0 / 0.15); /* `text-shadow-2xs`. Crisp edge on small text over images. */
-  --text-shadow-xs: 0px 1px 1px rgb(0 0 0 / 0.2); /* `text-shadow-xs`. Text over busy backgrounds. */
-  --text-shadow-sm: 0px 1px 0px rgb(0 0 0 / 0.075), 0px 1px 1px rgb(0 0 0 / 0.075), 0px 2px 2px rgb(0 0 0 / 0.075); /* `text-shadow-sm`. Headings over photos. */
-  --text-shadow-md: 0px 1px 1px rgb(0 0 0 / 0.1), 0px 1px 2px rgb(0 0 0 / 0.1), 0px 2px 4px rgb(0 0 0 / 0.1); /* `text-shadow-md`. Large display text. */
-  --text-shadow-lg: 0px 1px 2px rgb(0 0 0 / 0.1), 0px 3px 2px rgb(0 0 0 / 0.1), 0px 4px 8px rgb(0 0 0 / 0.1); /* `text-shadow-lg`. Hero text. */
-  --text-shadow-none: none; /* `text-shadow-none`. Removes a text shadow. */
+  --primary: var(--blue-600);
+  --primary-hover: var(--blue-700);
+  --primary-subtle: var(--blue-50);
+  --on-primary: var(--white);
+  --secondary: var(--zinc-100);
+  --secondary-hover: var(--zinc-200);
+  --highlight: var(--zinc-200);
+  --pressed: var(--zinc-300);
+  --surface: var(--white);
+  --surface-muted: var(--zinc-50);
+  --surface-raised: var(--white);
+  --surface-overlay: var(--white);
+  --field: var(--white);
+  --field-border: var(--zinc-500);
+  --field-border-hover: var(--zinc-600);
+  --placeholder: var(--zinc-500);
+  --overlay: #18181b80;
+  --surface-inverse: var(--zinc-900);
+  --text: var(--zinc-900);
+  --text-muted: var(--zinc-500);
+  --text-inverse: var(--white);
+  --border: var(--zinc-200);
+  --border-strong: var(--zinc-300);
+  --border-raised: var(--white);
+  --border-overlay: var(--zinc-200);
+  --focus-ring: var(--blue-500);
+  --success: var(--green-600);
+  --success-subtle: var(--green-50);
+  --success-text: var(--green-700);
+  --warning: var(--amber-600);
+  --warning-subtle: var(--amber-50);
+  --warning-text: var(--amber-700);
+  --danger: var(--red-600);
+  --danger-hover: var(--red-700);
+  --on-danger: var(--white);
+  --danger-subtle: var(--red-50);
+  --danger-text: var(--red-700);
+  --danger-subtle-hover: var(--red-100);
+  --danger-border: var(--red-300);
+  --info: var(--sky-700);
+  --info-subtle: var(--sky-50);
+  --info-text: var(--sky-700);
+  --white: #ffffff;
+  --black: #000000;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --gray-950: #030712;
+  --zinc-50: #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+  --stone-50: #fafaf9;
+  --stone-100: #f5f5f4;
+  --stone-200: #e7e5e4;
+  --stone-300: #d6d3d1;
+  --stone-400: #a8a29e;
+  --stone-500: #78716c;
+  --stone-600: #57534e;
+  --stone-700: #44403c;
+  --stone-800: #292524;
+  --stone-900: #1c1917;
+  --stone-950: #0c0a09;
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-200: #fecaca;
+  --red-300: #fca5a5;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+  --red-800: #991b1b;
+  --red-900: #7f1d1d;
+  --red-950: #450a0a;
+  --orange-50: #fff7ed;
+  --orange-100: #ffedd5;
+  --orange-200: #fed7aa;
+  --orange-300: #fdba74;
+  --orange-400: #fb923c;
+  --orange-500: #f97316;
+  --orange-600: #ea580c;
+  --orange-700: #c2410c;
+  --orange-800: #9a3412;
+  --orange-900: #7c2d12;
+  --orange-950: #431407;
+  --amber-50: #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-200: #fde68a;
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --amber-800: #92400e;
+  --amber-900: #78350f;
+  --amber-950: #451a03;
+  --yellow-50: #fefce8;
+  --yellow-100: #fef9c3;
+  --yellow-200: #fef08a;
+  --yellow-300: #fde047;
+  --yellow-400: #facc15;
+  --yellow-500: #eab308;
+  --yellow-600: #ca8a04;
+  --yellow-700: #a16207;
+  --yellow-800: #854d0e;
+  --yellow-900: #713f12;
+  --yellow-950: #422006;
+  --lime-50: #f7fee7;
+  --lime-100: #ecfccb;
+  --lime-200: #d9f99d;
+  --lime-300: #bef264;
+  --lime-400: #a3e635;
+  --lime-500: #84cc16;
+  --lime-600: #65a30d;
+  --lime-700: #4d7c0f;
+  --lime-800: #3f6212;
+  --lime-900: #365314;
+  --lime-950: #1a2e05;
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-300: #86efac;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #14532d;
+  --green-950: #052e16;
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-200: #a7f3d0;
+  --emerald-300: #6ee7b7;
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --emerald-800: #065f46;
+  --emerald-900: #064e3b;
+  --emerald-950: #022c22;
+  --teal-50: #f0fdfa;
+  --teal-100: #ccfbf1;
+  --teal-200: #99f6e4;
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+  --teal-800: #115e59;
+  --teal-900: #134e4a;
+  --teal-950: #042f2e;
+  --cyan-50: #ecfeff;
+  --cyan-100: #cffafe;
+  --cyan-200: #a5f3fc;
+  --cyan-300: #67e8f9;
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
+  --cyan-600: #0891b2;
+  --cyan-700: #0e7490;
+  --cyan-800: #155e75;
+  --cyan-900: #164e63;
+  --cyan-950: #083344;
+  --sky-50: #f0f9ff;
+  --sky-100: #e0f2fe;
+  --sky-200: #bae6fd;
+  --sky-300: #7dd3fc;
+  --sky-400: #38bdf8;
+  --sky-500: #0ea5e9;
+  --sky-600: #0284c7;
+  --sky-700: #0369a1;
+  --sky-800: #075985;
+  --sky-900: #0c4a6e;
+  --sky-950: #082f49;
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  --blue-950: #172554;
+  --indigo-50: #eef2ff;
+  --indigo-100: #e0e7ff;
+  --indigo-200: #c7d2fe;
+  --indigo-300: #a5b4fc;
+  --indigo-400: #818cf8;
+  --indigo-500: #6366f1;
+  --indigo-600: #4f46e5;
+  --indigo-700: #4338ca;
+  --indigo-800: #3730a3;
+  --indigo-900: #312e81;
+  --indigo-950: #1e1b4b;
+  --violet-50: #f5f3ff;
+  --violet-100: #ede9fe;
+  --violet-200: #ddd6fe;
+  --violet-300: #c4b5fd;
+  --violet-400: #a78bfa;
+  --violet-500: #8b5cf6;
+  --violet-600: #7c3aed;
+  --violet-700: #6d28d9;
+  --violet-800: #5b21b6;
+  --violet-900: #4c1d95;
+  --violet-950: #2e1065;
+  --purple-50: #faf5ff;
+  --purple-100: #f3e8ff;
+  --purple-200: #e9d5ff;
+  --purple-300: #d8b4fe;
+  --purple-400: #c084fc;
+  --purple-500: #a855f7;
+  --purple-600: #9333ea;
+  --purple-700: #7e22ce;
+  --purple-800: #6b21a8;
+  --purple-900: #581c87;
+  --purple-950: #3b0764;
+  --fuchsia-50: #fdf4ff;
+  --fuchsia-100: #fae8ff;
+  --fuchsia-200: #f5d0fe;
+  --fuchsia-300: #f0abfc;
+  --fuchsia-400: #e879f9;
+  --fuchsia-500: #d946ef;
+  --fuchsia-600: #c026d3;
+  --fuchsia-700: #a21caf;
+  --fuchsia-800: #86198f;
+  --fuchsia-900: #701a75;
+  --fuchsia-950: #4a044e;
+  --pink-50: #fdf2f8;
+  --pink-100: #fce7f3;
+  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+  --pink-700: #be185d;
+  --pink-800: #9d174d;
+  --pink-900: #831843;
+  --pink-950: #500724;
+  --rose-50: #fff1f2;
+  --rose-100: #ffe4e6;
+  --rose-200: #fecdd3;
+  --rose-300: #fda4af;
+  --rose-400: #fb7185;
+  --rose-500: #f43f5e;
+  --rose-600: #e11d48;
+  --rose-700: #be123c;
+  --rose-800: #9f1239;
+  --rose-900: #881337;
+  --rose-950: #4c0519;
+  --shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-none: 0 0 #0000;
+  --inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05);
+  --inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05);
+  --inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 / 0.05);
+  --inset-shadow-none: inset 0 0 #0000;
+  --text-shadow-2xs: 0px 1px 0px rgb(0 0 0 / 0.15);
+  --text-shadow-xs: 0px 1px 1px rgb(0 0 0 / 0.2);
+  --text-shadow-sm: 0px 1px 0px rgb(0 0 0 / 0.075), 0px 1px 1px rgb(0 0 0 / 0.075), 0px 2px 2px rgb(0 0 0 / 0.075);
+  --text-shadow-md: 0px 1px 1px rgb(0 0 0 / 0.1), 0px 1px 2px rgb(0 0 0 / 0.1), 0px 2px 4px rgb(0 0 0 / 0.1);
+  --text-shadow-lg: 0px 1px 2px rgb(0 0 0 / 0.1), 0px 3px 2px rgb(0 0 0 / 0.1), 0px 4px 8px rgb(0 0 0 / 0.1);
+  --text-shadow-none: none;
 }
 [data-theme="blue-dark"] {
   --primary: var(--blue-400);
@@ -614,480 +614,480 @@
 :root[data-mode="light"]:not([data-theme]), [data-mode="light"]:not([data-theme]) { color-scheme: light; }
 :root[data-mode="dark"]:not([data-theme]), [data-mode="dark"]:not([data-theme]) { color-scheme: dark; }
 :root {
-  --spacing-0: 0px; /* `0` (`p-0`, `m-0`, `gap-0`…): 0px. */
-  --spacing-px: 1px; /* `px` (`p-px`, `m-px`, `gap-px`…): 1px. */
-  --spacing-0\.5: 0.125rem; /* `0.5` (`p-0.5`, `m-0.5`, `gap-0.5`…): 2px. */
-  --spacing-1: 0.25rem; /* `1` (`p-1`, `m-1`, `gap-1`…): 4px. Icon-to-label gaps. */
-  --spacing-1\.5: 0.375rem; /* `1.5` (`p-1.5`, `m-1.5`, `gap-1.5`…): 6px. */
-  --spacing-2: 0.5rem; /* `2` (`p-2`, `m-2`, `gap-2`…): 8px. Tight gaps inside controls. */
-  --spacing-2\.5: 0.625rem; /* `2.5` (`p-2.5`, `m-2.5`, `gap-2.5`…): 10px. */
-  --spacing-3: 0.75rem; /* `3` (`p-3`, `m-3`, `gap-3`…): 12px. */
-  --spacing-3\.5: 0.875rem; /* `3.5` (`p-3.5`, `m-3.5`, `gap-3.5`…): 14px. */
-  --spacing-4: 1rem; /* `4` (`p-4`, `m-4`, `gap-4`…): 16px. Default padding and gaps. */
-  --spacing-5: 1.25rem; /* `5` (`p-5`, `m-5`, `gap-5`…): 20px. */
-  --spacing-6: 1.5rem; /* `6` (`p-6`, `m-6`, `gap-6`…): 24px. Card padding. */
-  --spacing-7: 1.75rem; /* `7` (`p-7`, `m-7`, `gap-7`…): 28px. */
-  --spacing-8: 2rem; /* `8` (`p-8`, `m-8`, `gap-8`…): 32px. Gaps between groups. */
-  --spacing-9: 2.25rem; /* `9` (`p-9`, `m-9`, `gap-9`…): 36px. */
-  --spacing-10: 2.5rem; /* `10` (`p-10`, `m-10`, `gap-10`…): 40px. */
-  --spacing-11: 2.75rem; /* `11` (`p-11`, `m-11`, `gap-11`…): 44px. */
-  --spacing-12: 3rem; /* `12` (`p-12`, `m-12`, `gap-12`…): 48px. Section spacing. */
-  --spacing-14: 3.5rem; /* `14` (`p-14`, `m-14`, `gap-14`…): 56px. */
-  --spacing-16: 4rem; /* `16` (`p-16`, `m-16`, `gap-16`…): 64px. Large section spacing. */
-  --spacing-20: 5rem; /* `20` (`p-20`, `m-20`, `gap-20`…): 80px. */
-  --spacing-24: 6rem; /* `24` (`p-24`, `m-24`, `gap-24`…): 96px. */
-  --spacing-28: 7rem; /* `28` (`p-28`, `m-28`, `gap-28`…): 112px. */
-  --spacing-32: 8rem; /* `32` (`p-32`, `m-32`, `gap-32`…): 128px. */
-  --spacing-36: 9rem; /* `36` (`p-36`, `m-36`, `gap-36`…): 144px. */
-  --spacing-40: 10rem; /* `40` (`p-40`, `m-40`, `gap-40`…): 160px. */
-  --spacing-44: 11rem; /* `44` (`p-44`, `m-44`, `gap-44`…): 176px. */
-  --spacing-48: 12rem; /* `48` (`p-48`, `m-48`, `gap-48`…): 192px. */
-  --spacing-52: 13rem; /* `52` (`p-52`, `m-52`, `gap-52`…): 208px. */
-  --spacing-56: 14rem; /* `56` (`p-56`, `m-56`, `gap-56`…): 224px. */
-  --spacing-60: 15rem; /* `60` (`p-60`, `m-60`, `gap-60`…): 240px. */
-  --spacing-64: 16rem; /* `64` (`p-64`, `m-64`, `gap-64`…): 256px. */
-  --spacing-72: 18rem; /* `72` (`p-72`, `m-72`, `gap-72`…): 288px. */
-  --spacing-80: 20rem; /* `80` (`p-80`, `m-80`, `gap-80`…): 320px. */
-  --spacing-96: 24rem; /* `96` (`p-96`, `m-96`, `gap-96`…): 384px. */
-  --rounded-none: 0px; /* `rounded-none`: Square corners. */
-  --rounded-xs: 0.125rem; /* `rounded-xs`: 2px. Tags, small chips, focus outlines. */
-  --rounded-sm: 0.25rem; /* `rounded-sm`: 4px. Inputs, small buttons, checkboxes. */
-  --rounded: 0.25rem; /* `rounded`: 4px. Same as `rounded-sm`; kept for older code. */
-  --rounded-md: 0.375rem; /* `rounded-md`: 6px. Buttons, inputs (Button uses it). */
-  --rounded-lg: 0.5rem; /* `rounded-lg`: 8px. Cards, menus, popovers. */
-  --rounded-xl: 0.75rem; /* `rounded-xl`: 12px. Large cards, panels. */
-  --rounded-2xl: 1rem; /* `rounded-2xl`: 16px. Modals, feature cards. */
-  --rounded-3xl: 1.5rem; /* `rounded-3xl`: 24px. Hero blocks, large surfaces. */
-  --rounded-4xl: 2rem; /* `rounded-4xl`: 32px. Very large surfaces, marketing blocks. */
-  --rounded-full: 9999px; /* `rounded-full`: Pills and circles: avatars, badges, toggles. */
-  --border-width-0: 0px; /* `border-0`. */
-  --border-width-1: 1px; /* `border-1` (`border`): the default hairline. */
-  --border-width-2: 2px; /* `border-2`. Focus and selected states. */
-  --border-width-4: 4px; /* `border-4`. */
-  --border-width-8: 8px; /* `border-8`. */
-  --outline-width-0: 0px; /* `outline-0`. */
-  --outline-width-1: 1px; /* `outline-1` (`outline`). */
-  --outline-width-2: 2px; /* `outline-2`. Focus outlines. */
-  --outline-width-4: 4px; /* `outline-4`. */
-  --outline-width-8: 8px; /* `outline-8`. */
-  --outline-offset-0: 0px; /* `outline-offset-0`. */
-  --outline-offset-1: 1px; /* `outline-offset-1`. */
-  --outline-offset-2: 2px; /* `outline-offset-2`. Gap between an element and its focus outline. */
-  --outline-offset-4: 4px; /* `outline-offset-4`. */
-  --outline-offset-8: 8px; /* `outline-offset-8`. */
-  --focus-ring-width: var(--outline-width-2); /* The focus ring's width: `outline: var(--focus-ring-width) solid var(--focus-ring)`. Every component's focus ring uses it. A third thicker (3px) with more contrast. */
-  --focus-ring-offset: var(--outline-offset-2); /* The transparent gap between an element and its focus ring (`outline-offset`). Inset rings, where an outline would be clipped, use 0. */
-  --stroke-width-0: 0; /* `stroke-0`. No stroke. */
-  --stroke-width-1: 1; /* `stroke-1`. Hairline outlines and dividers in illustrations. */
-  --stroke-width-2: 2; /* `stroke-2`. The usual weight for outline icons (as in Lucide/Heroicons). */
-  --stroke-width-3: 3; /* `stroke-3`. Bold strokes for large or emphasized icons. */
-  --stroke-width-4: 4; /* `stroke-4`. Heavy strokes for charts and display graphics. */
-  --font-thin: 100; /* `font-thin` (100). Available for special cases (marketing, display type, data viz); not used by components. */
-  --font-extralight: 200; /* `font-extralight` (200). Available for special cases (marketing, display type, data viz); not used by components. */
-  --font-light: 300; /* `font-light` (300). Available for special cases (marketing, display type, data viz); not used by components. */
-  --font-normal: 400; /* Default · Regular (400): body text, long-form reading, inputs. */
-  --font-medium: 500; /* Default · Medium (500): buttons, labels, tabs, table headers, emphasis inside body text. */
-  --font-semibold: 600; /* Default · Semibold (600): headings and titles at every size. */
-  --font-bold: 700; /* `font-bold` (700). Available for special cases (marketing, display type, data viz); not used by components. */
-  --font-extrabold: 800; /* `font-extrabold` (800). Available for special cases (marketing, display type, data viz); not used by components. */
-  --font-black: 900; /* `font-black` (900). Available for special cases (marketing, display type, data viz); not used by components. */
-  --tracking-tighter: -0.05em; /* Very large display text. */
-  --tracking-tight: -0.025em; /* Headings, text-2xl and up. */
-  --tracking-normal: 0em; /* Body text. */
-  --tracking-wide: 0.025em; /* `tracking-wide`. */
-  --tracking-wider: 0.05em; /* Small caps labels. */
-  --tracking-widest: 0.1em; /* Uppercase eyebrows, overlines. */
-  --leading-none: 1; /* Display numerals, single-line headings. */
-  --leading-tight: 1.25; /* Headings. */
-  --leading-snug: 1.375; /* `leading-snug`. */
-  --leading-normal: 1.5; /* Body text. */
-  --leading-relaxed: 1.625; /* Long-form reading. */
-  --leading-loose: 2; /* `leading-loose`. */
-  --leading-3: .75rem; /* `leading-3`. */
-  --leading-4: 1rem; /* `leading-4`. */
-  --leading-5: 1.25rem; /* `leading-5`. */
-  --leading-6: 1.5rem; /* `leading-6`. */
-  --leading-7: 1.75rem; /* `leading-7`. */
-  --leading-8: 2rem; /* `leading-8`. */
-  --leading-9: 2.25rem; /* `leading-9`. */
-  --leading-10: 2.5rem; /* `leading-10`. */
-  --font-stretch-ultra-condensed: ultra-condensed; /* `font-stretch-ultra-condensed` (50%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-extra-condensed: extra-condensed; /* `font-stretch-extra-condensed` (62.5%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-condensed: condensed; /* `font-stretch-condensed` (75%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-semi-condensed: semi-condensed; /* `font-stretch-semi-condensed` (87.5%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-normal: normal; /* `font-stretch-normal` (100%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-semi-expanded: semi-expanded; /* `font-stretch-semi-expanded` (112.5%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-expanded: expanded; /* `font-stretch-expanded` (125%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-extra-expanded: extra-expanded; /* `font-stretch-extra-expanded` (150%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --font-stretch-ultra-expanded: ultra-expanded; /* `font-stretch-ultra-expanded` (200%). Only for fonts with width variants; Inter has none, so the browser picks the closest. */
-  --decoration-0: 0px; /* `decoration-0`: underline thickness 0px. */
-  --decoration-1: 1px; /* `decoration-1`: underline thickness 1px. */
-  --decoration-2: 2px; /* `decoration-2`: underline thickness 2px. */
-  --decoration-4: 4px; /* `decoration-4`: underline thickness 4px. */
-  --decoration-8: 8px; /* `decoration-8`: underline thickness 8px. */
-  --decoration-auto: auto; /* `decoration-auto`: browser default thickness. */
-  --decoration-from-font: from-font; /* `decoration-from-font`: the thickness the font recommends. */
-  --underline-offset-0: 0px; /* `underline-offset-0`. */
-  --underline-offset-1: 1px; /* `underline-offset-1`. */
-  --underline-offset-2: 2px; /* Links in body text. */
-  --underline-offset-4: 4px; /* Button `link` variant. */
-  --underline-offset-8: 8px; /* `underline-offset-8`. */
-  --underline-offset-auto: auto; /* `underline-offset-auto`. */
-  --line-clamp-1: 1; /* `line-clamp-1`: cut text after 1 line with an ellipsis. */
-  --line-clamp-2: 2; /* `line-clamp-2`: cut text after 2 lines with an ellipsis. */
-  --line-clamp-3: 3; /* `line-clamp-3`: cut text after 3 lines with an ellipsis. */
-  --line-clamp-4: 4; /* `line-clamp-4`: cut text after 4 lines with an ellipsis. */
-  --line-clamp-5: 5; /* `line-clamp-5`: cut text after 5 lines with an ellipsis. */
-  --line-clamp-6: 6; /* `line-clamp-6`: cut text after 6 lines with an ellipsis. */
-  --tab-2: 2; /* `tab-2`: tab characters as wide as 2 spaces (code blocks). */
-  --tab-4: 4; /* `tab-4`: tab characters as wide as 4 spaces (code blocks). */
-  --tab-8: 8; /* `tab-8`: tab characters as wide as 8 spaces (code blocks). */
-  --screen-sm: 640px; /* `sm:` breakpoint, `@media (min-width: 640px)`. Large phones in landscape, small tablets. Container max-width 640px. */
-  --screen-md: 768px; /* `md:` breakpoint, `@media (min-width: 768px)`. Tablets. Container max-width 768px. */
-  --screen-lg: 1024px; /* `lg:` breakpoint, `@media (min-width: 1024px)`. Laptops and small desktops. Container max-width 1024px. */
-  --screen-xl: 1280px; /* `xl:` breakpoint, `@media (min-width: 1280px)`. Desktops. Container max-width 1280px. */
-  --screen-2xl: 1536px; /* `2xl:` breakpoint, `@media (min-width: 1536px)`. Large desktops. Container max-width 1536px. */
-  --z-0: 0; /* `z-0`. Base layer. */
-  --z-10: 10; /* `z-10`. Local stacking, step 1: lift an element over its siblings, such as a badge over an avatar. */
-  --z-20: 20; /* `z-20`. Local stacking, step 2. */
-  --z-30: 30; /* `z-30`. Local stacking, step 3. */
-  --z-40: 40; /* `z-40`. Local stacking, step 4. */
-  --z-50: 50; /* `z-50`. Local stacking, step 5. For page layers (menus, dialogs, toasts) use the named layers. */
-  --z-auto: auto; /* Follow the parent stacking context. */
-  --z-sticky: 20; /* Layer: Sticky headers and toolbars. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-dropdown: 30; /* Layer: Dropdown menus and select lists. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-overlay: 40; /* Layer: The `overlay` backdrop behind a dialog. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-modal: 50; /* Layer: Dialogs and drawers, above their backdrop. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-popover: 60; /* Layer: Popovers opened from inside a dialog. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-toast: 70; /* Layer: Toast notifications, above dialogs. Use the named layers instead of numbers so stacking stays consistent. */
-  --z-tooltip: 80; /* Layer: Tooltips, above everything. Use the named layers instead of numbers so stacking stays consistent. */
-  --aspect-auto: auto; /* Natural ratio of the content. */
-  --aspect-square: 1 / 1; /* Avatars, thumbnails, icon tiles. */
-  --aspect-video: 16 / 9; /* Video, hero media, cover images. */
-  --columns-3xs: 16rem; /* `columns-3xs`: as many columns as fit at least 256px wide. */
-  --columns-2xs: 18rem; /* `columns-2xs`: as many columns as fit at least 288px wide. */
-  --columns-xs: 20rem; /* `columns-xs`: as many columns as fit at least 320px wide. */
-  --columns-sm: 24rem; /* `columns-sm`: as many columns as fit at least 384px wide. */
-  --columns-md: 28rem; /* `columns-md`: as many columns as fit at least 448px wide. */
-  --columns-lg: 32rem; /* `columns-lg`: as many columns as fit at least 512px wide. */
-  --columns-xl: 36rem; /* `columns-xl`: as many columns as fit at least 576px wide. */
-  --columns-2xl: 42rem; /* `columns-2xl`: as many columns as fit at least 672px wide. */
-  --columns-3xl: 48rem; /* `columns-3xl`: as many columns as fit at least 768px wide. */
-  --columns-4xl: 56rem; /* `columns-4xl`: as many columns as fit at least 896px wide. */
-  --columns-5xl: 64rem; /* `columns-5xl`: as many columns as fit at least 1024px wide. */
-  --columns-6xl: 72rem; /* `columns-6xl`: as many columns as fit at least 1152px wide. */
-  --columns-7xl: 80rem; /* `columns-7xl`: as many columns as fit at least 1280px wide. */
-  --container-3xs: 16rem; /* 256px, used by `w-3xs`, `min-w-3xs`, `max-w-3xs`, `inline-3xs`, `min-inline-3xs`, `max-inline-3xs`. Narrow popovers, sidebars. */
-  --container-2xs: 18rem; /* 288px, used by `w-2xs`, `min-w-2xs`, `max-w-2xs`, `inline-2xs`, `min-inline-2xs`, `max-inline-2xs`. Sidebars, filter panels. */
-  --container-xs: 20rem; /* 320px, used by `w-xs`, `min-w-xs`, `max-w-xs`, `inline-xs`, `min-inline-xs`, `max-inline-xs`. Small dialogs, popover cards. */
-  --container-sm: 24rem; /* 384px, used by `w-sm`, `min-w-sm`, `max-w-sm`, `inline-sm`, `min-inline-sm`, `max-inline-sm`. Sign-in forms, narrow dialogs. */
-  --container-md: 28rem; /* 448px, used by `w-md`, `min-w-md`, `max-w-md`, `inline-md`, `min-inline-md`, `max-inline-md`. Standard dialogs. */
-  --container-lg: 32rem; /* 512px, used by `w-lg`, `min-w-lg`, `max-w-lg`, `inline-lg`, `min-inline-lg`, `max-inline-lg`. Wide dialogs, forms. */
-  --container-xl: 36rem; /* 576px, used by `w-xl`, `min-w-xl`, `max-w-xl`, `inline-xl`, `min-inline-xl`, `max-inline-xl`. Side panels, form pages. */
-  --container-2xl: 42rem; /* 672px, used by `w-2xl`, `min-w-2xl`, `max-w-2xl`, `inline-2xl`, `min-inline-2xl`, `max-inline-2xl`. Settings pages, long forms. */
-  --container-3xl: 48rem; /* 768px, used by `w-3xl`, `min-w-3xl`, `max-w-3xl`, `inline-3xl`, `min-inline-3xl`, `max-inline-3xl`. Article and document bodies with images. */
-  --container-4xl: 56rem; /* 896px, used by `w-4xl`, `min-w-4xl`, `max-w-4xl`, `inline-4xl`, `min-inline-4xl`, `max-inline-4xl`. Content pages. */
-  --container-5xl: 64rem; /* 1024px, used by `w-5xl`, `min-w-5xl`, `max-w-5xl`, `inline-5xl`, `min-inline-5xl`, `max-inline-5xl`. Dashboards with a sidebar. */
-  --container-6xl: 72rem; /* 1152px, used by `w-6xl`, `min-w-6xl`, `max-w-6xl`, `inline-6xl`, `min-inline-6xl`, `max-inline-6xl`. Wide app layouts. */
-  --container-7xl: 80rem; /* 1280px, used by `w-7xl`, `min-w-7xl`, `max-w-7xl`, `inline-7xl`, `min-inline-7xl`, `max-inline-7xl`. Marketing and full app shells. */
-  --container-prose: 65ch; /* `max-w-prose`: about 65 characters per line, the comfortable reading width for body text. */
-  --sizing-1-2: 50%; /* Fraction 1/2: `w-1/2`, `h-1/2`, `inline-1/2`… = 50% of the parent. */
-  --sizing-1-3: 33.333333%; /* Fraction 1/3: `w-1/3`, `h-1/3`, `inline-1/3`… = 33.333333% of the parent. */
-  --sizing-2-3: 66.666667%; /* Fraction 2/3: `w-2/3`, `h-2/3`, `inline-2/3`… = 66.666667% of the parent. */
-  --sizing-1-4: 25%; /* Fraction 1/4: `w-1/4`, `h-1/4`, `inline-1/4`… = 25% of the parent. */
-  --sizing-2-4: 50%; /* Fraction 2/4: `w-2/4`, `h-2/4`, `inline-2/4`… = 50% of the parent. */
-  --sizing-3-4: 75%; /* Fraction 3/4: `w-3/4`, `h-3/4`, `inline-3/4`… = 75% of the parent. */
-  --sizing-1-5: 20%; /* Fraction 1/5: `w-1/5`, `h-1/5`, `inline-1/5`… = 20% of the parent. */
-  --sizing-2-5: 40%; /* Fraction 2/5: `w-2/5`, `h-2/5`, `inline-2/5`… = 40% of the parent. */
-  --sizing-3-5: 60%; /* Fraction 3/5: `w-3/5`, `h-3/5`, `inline-3/5`… = 60% of the parent. */
-  --sizing-4-5: 80%; /* Fraction 4/5: `w-4/5`, `h-4/5`, `inline-4/5`… = 80% of the parent. */
-  --sizing-1-6: 16.666667%; /* Fraction 1/6: `w-1/6`, `h-1/6`, `inline-1/6`… = 16.666667% of the parent. */
-  --sizing-2-6: 33.333333%; /* Fraction 2/6: `w-2/6`, `h-2/6`, `inline-2/6`… = 33.333333% of the parent. */
-  --sizing-3-6: 50%; /* Fraction 3/6: `w-3/6`, `h-3/6`, `inline-3/6`… = 50% of the parent. */
-  --sizing-4-6: 66.666667%; /* Fraction 4/6: `w-4/6`, `h-4/6`, `inline-4/6`… = 66.666667% of the parent. */
-  --sizing-5-6: 83.333333%; /* Fraction 5/6: `w-5/6`, `h-5/6`, `inline-5/6`… = 83.333333% of the parent. */
-  --sizing-1-12: 8.333333%; /* Fraction 1/12: `w-1/12`, `h-1/12`, `inline-1/12`… = 8.333333% of the parent. */
-  --sizing-2-12: 16.666667%; /* Fraction 2/12: `w-2/12`, `h-2/12`, `inline-2/12`… = 16.666667% of the parent. */
-  --sizing-3-12: 25%; /* Fraction 3/12: `w-3/12`, `h-3/12`, `inline-3/12`… = 25% of the parent. */
-  --sizing-4-12: 33.333333%; /* Fraction 4/12: `w-4/12`, `h-4/12`, `inline-4/12`… = 33.333333% of the parent. */
-  --sizing-5-12: 41.666667%; /* Fraction 5/12: `w-5/12`, `h-5/12`, `inline-5/12`… = 41.666667% of the parent. */
-  --sizing-6-12: 50%; /* Fraction 6/12: `w-6/12`, `h-6/12`, `inline-6/12`… = 50% of the parent. */
-  --sizing-7-12: 58.333333%; /* Fraction 7/12: `w-7/12`, `h-7/12`, `inline-7/12`… = 58.333333% of the parent. */
-  --sizing-8-12: 66.666667%; /* Fraction 8/12: `w-8/12`, `h-8/12`, `inline-8/12`… = 66.666667% of the parent. */
-  --sizing-9-12: 75%; /* Fraction 9/12: `w-9/12`, `h-9/12`, `inline-9/12`… = 75% of the parent. */
-  --sizing-10-12: 83.333333%; /* Fraction 10/12: `w-10/12`, `h-10/12`, `inline-10/12`… = 83.333333% of the parent. */
-  --sizing-11-12: 91.666667%; /* Fraction 11/12: `w-11/12`, `h-11/12`, `inline-11/12`… = 91.666667% of the parent. */
-  --sizing-auto: auto; /* Let the browser decide (not for max-*). */
-  --sizing-px: 1px; /* One pixel: hairlines. */
-  --sizing-full: 100%; /* Fill the parent. */
-  --sizing-screen-w: 100vw; /* Viewport width: `w-screen`, `inline-screen`. */
-  --sizing-screen-h: 100vh; /* Viewport height: `h-screen`, `block-screen`. */
-  --sizing-dvw: 100dvw; /* Dynamic viewport width. */
-  --sizing-dvh: 100dvh; /* Dynamic viewport height: tracks the mobile browser bar. */
-  --sizing-lvw: 100lvw; /* Large viewport width. */
-  --sizing-lvh: 100lvh; /* Large viewport height (browser bar hidden). */
-  --sizing-svw: 100svw; /* Small viewport width. */
-  --sizing-svh: 100svh; /* Small viewport height (browser bar shown). */
-  --sizing-min: min-content; /* Narrowest the content allows. */
-  --sizing-max: max-content; /* Widest the content wants, no wrapping. */
-  --sizing-fit: fit-content; /* Content size, capped by the space available. */
-  --sizing-none: none; /* No limit (max-* only). */
-  --sizing-lh: 1lh; /* One line of text (height-axis). */
-  --control-height-sm: 1.5rem; /* Height of small controls (24px): `sm` buttons, compact inputs. The WCAG 2.2 AA minimum target size. */
-  --control-height-md: 2rem; /* Height of default controls (32px): buttons, inputs and selects line up at this height. */
-  --control-height-lg: 2.75rem; /* Height of large controls (44px), the comfortable touch target (WCAG 2.5.5). */
-  --flex-auto: auto; /* `flex-auto`: grow and shrink from the content size. */
-  --flex-initial: 0 auto; /* `flex-initial`: shrink but don't grow. */
-  --flex-none: none; /* `flex-none`: keep the content size. */
-  --flex-1: 1; /* `flex-1`: share the free space equally (`flex: 1`). */
-  --grid-auto-auto: auto; /* `auto-cols-auto` / `auto-rows-auto`. */
-  --grid-auto-min: min-content; /* `auto-cols-min` / `auto-rows-min`. */
-  --grid-auto-max: max-content; /* `auto-cols-max` / `auto-rows-max`. */
-  --grid-auto-fr: minmax(0, 1fr); /* `auto-cols-fr` / `auto-rows-fr`, and each track of `grid-cols-<n>` / `grid-rows-<n>`. */
-  --order-first: -9999; /* `order-first`: before every other item. */
-  --order-last: 9999; /* `order-last`: after every other item. */
-  --order-none: 0; /* `order-none`: source order. */
-  --blur-xs: 4px; /* `blur-xs`, `backdrop-blur-xs`. Soften a background image slightly. */
-  --blur-sm: 8px; /* `blur-sm`, `backdrop-blur-sm`. Frosted glass behind menus and popovers (`backdrop-blur-sm`). */
-  --blur-md: 12px; /* `blur-md`, `backdrop-blur-md`. Frosted glass behind sticky headers and sheets. */
-  --blur-lg: 16px; /* `blur-lg`, `backdrop-blur-lg`. Dialog overlays (`backdrop-blur-lg`). */
-  --blur-xl: 24px; /* `blur-xl`, `backdrop-blur-xl`. Strong glass effects. */
-  --blur-2xl: 40px; /* `blur-2xl`, `backdrop-blur-2xl`. Decorative glows and blurred blobs. */
-  --blur-3xl: 64px; /* `blur-3xl`, `backdrop-blur-3xl`. Large ambient background glows. */
-  --drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.05); /* `drop-shadow-xs`. Barely-there lift for icons and small shapes. */
-  --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15); /* `drop-shadow-sm`. Icons and logos on a surface. */
-  --drop-shadow-md: 0 3px 3px rgb(0 0 0 / 0.12); /* `drop-shadow-md`. Floating shapes and cut-out images. */
-  --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15); /* `drop-shadow-lg`. Illustrations and product shots. */
-  --drop-shadow-xl: 0 9px 7px rgb(0 0 0 / 0.1); /* `drop-shadow-xl`. Hero illustrations. */
-  --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15); /* `drop-shadow-2xl`. The highest drop shadow. */
-  --drop-shadow-none: 0 0 #0000; /* `drop-shadow-none`. Removes a drop shadow. */
-  --brightness-0: 0%; /* `brightness-0`, `backdrop-brightness-0`. */
-  --brightness-50: 50%; /* `brightness-50`, `backdrop-brightness-50`. Dims an image behind text. */
-  --brightness-75: 75%; /* `brightness-75`, `backdrop-brightness-75`. */
-  --brightness-90: 90%; /* `brightness-90`, `backdrop-brightness-90`. */
-  --brightness-95: 95%; /* `brightness-95`, `backdrop-brightness-95`. */
-  --brightness-100: 100%; /* `brightness-100`, `backdrop-brightness-100`. Unchanged. */
-  --brightness-105: 105%; /* `brightness-105`, `backdrop-brightness-105`. */
-  --brightness-110: 110%; /* `brightness-110`, `backdrop-brightness-110`. Hover lift on images. */
-  --brightness-125: 125%; /* `brightness-125`, `backdrop-brightness-125`. */
-  --brightness-150: 150%; /* `brightness-150`, `backdrop-brightness-150`. */
-  --brightness-200: 200%; /* `brightness-200`, `backdrop-brightness-200`. */
-  --contrast-0: 0%; /* `contrast-0`, `backdrop-contrast-0`. */
-  --contrast-50: 50%; /* `contrast-50`, `backdrop-contrast-50`. */
-  --contrast-75: 75%; /* `contrast-75`, `backdrop-contrast-75`. */
-  --contrast-100: 100%; /* `contrast-100`, `backdrop-contrast-100`. Unchanged. */
-  --contrast-125: 125%; /* `contrast-125`, `backdrop-contrast-125`. */
-  --contrast-150: 150%; /* `contrast-150`, `backdrop-contrast-150`. */
-  --contrast-200: 200%; /* `contrast-200`, `backdrop-contrast-200`. */
-  --saturate-0: 0%; /* `saturate-0`, `backdrop-saturate-0`. Fully desaturated. */
-  --saturate-50: 50%; /* `saturate-50`, `backdrop-saturate-50`. */
-  --saturate-100: 100%; /* `saturate-100`, `backdrop-saturate-100`. Unchanged. */
-  --saturate-150: 150%; /* `saturate-150`, `backdrop-saturate-150`. Richer colors behind frosted glass. */
-  --saturate-200: 200%; /* `saturate-200`, `backdrop-saturate-200`. */
-  --hue-rotate-0: 0deg; /* `hue-rotate-0`, `-hue-rotate-0`, `backdrop-hue-rotate-0`. */
-  --hue-rotate-15: 15deg; /* `hue-rotate-15`, `-hue-rotate-15`, `backdrop-hue-rotate-15`. */
-  --hue-rotate-30: 30deg; /* `hue-rotate-30`, `-hue-rotate-30`, `backdrop-hue-rotate-30`. */
-  --hue-rotate-60: 60deg; /* `hue-rotate-60`, `-hue-rotate-60`, `backdrop-hue-rotate-60`. */
-  --hue-rotate-90: 90deg; /* `hue-rotate-90`, `-hue-rotate-90`, `backdrop-hue-rotate-90`. */
-  --hue-rotate-180: 180deg; /* `hue-rotate-180`, `-hue-rotate-180`, `backdrop-hue-rotate-180`. */
-  --perspective-dramatic: 100px; /* `perspective-dramatic`. Strong, close-up 3D: card flips at small sizes. */
-  --perspective-near: 300px; /* `perspective-near`. Noticeable depth for tilted cards. */
-  --perspective-normal: 500px; /* `perspective-normal`. The everyday choice for 3D transforms. */
-  --perspective-midrange: 800px; /* `perspective-midrange`. Subtle depth for large panels. */
-  --perspective-distant: 1200px; /* `perspective-distant`. Barely-there depth. */
-  --rotate-0: 0deg; /* `rotate-0`, `-rotate-0`, `rotate-x-0`, `rotate-y-0`, `rotate-z-0`. */
-  --rotate-1: 1deg; /* `rotate-1`, `-rotate-1`, `rotate-x-1`, `rotate-y-1`, `rotate-z-1`. */
-  --rotate-2: 2deg; /* `rotate-2`, `-rotate-2`, `rotate-x-2`, `rotate-y-2`, `rotate-z-2`. */
-  --rotate-3: 3deg; /* `rotate-3`, `-rotate-3`, `rotate-x-3`, `rotate-y-3`, `rotate-z-3`. */
-  --rotate-6: 6deg; /* `rotate-6`, `-rotate-6`, `rotate-x-6`, `rotate-y-6`, `rotate-z-6`. */
-  --rotate-12: 12deg; /* `rotate-12`, `-rotate-12`, `rotate-x-12`, `rotate-y-12`, `rotate-z-12`. */
-  --rotate-45: 45deg; /* `rotate-45`, `-rotate-45`, `rotate-x-45`, `rotate-y-45`, `rotate-z-45`. */
-  --rotate-90: 90deg; /* `rotate-90`, `-rotate-90`, `rotate-x-90`, `rotate-y-90`, `rotate-z-90`. Quarter turns. */
-  --rotate-180: 180deg; /* `rotate-180`, `-rotate-180`, `rotate-x-180`, `rotate-y-180`, `rotate-z-180`. Chevrons and expand icons. */
-  --scale-0: 0%; /* `scale-0`, `-scale-0`, `scale-x-0`, `scale-y-0`, `scale-z-0`. Hidden (enter/exit animations). */
-  --scale-50: 50%; /* `scale-50`, `-scale-50`, `scale-x-50`, `scale-y-50`, `scale-z-50`. */
-  --scale-75: 75%; /* `scale-75`, `-scale-75`, `scale-x-75`, `scale-y-75`, `scale-z-75`. */
-  --scale-90: 90%; /* `scale-90`, `-scale-90`, `scale-x-90`, `scale-y-90`, `scale-z-90`. Enter animations for menus and dialogs. */
-  --scale-95: 95%; /* `scale-95`, `-scale-95`, `scale-x-95`, `scale-y-95`, `scale-z-95`. Pressed cards and large surfaces. */
-  --scale-97: 97%; /* `scale-97`, `-scale-97`, `scale-x-97`, `scale-y-97`, `scale-z-97`. Pressed buttons and small controls (Button's press feedback). */
-  --scale-100: 100%; /* `scale-100`, `-scale-100`, `scale-x-100`, `scale-y-100`, `scale-z-100`. Unchanged. */
-  --scale-105: 105%; /* `scale-105`, `-scale-105`, `scale-x-105`, `scale-y-105`, `scale-z-105`. Hover lift on cards and images. */
-  --scale-110: 110%; /* `scale-110`, `-scale-110`, `scale-x-110`, `scale-y-110`, `scale-z-110`. */
-  --scale-125: 125%; /* `scale-125`, `-scale-125`, `scale-x-125`, `scale-y-125`, `scale-z-125`. */
-  --scale-150: 150%; /* `scale-150`, `-scale-150`, `scale-x-150`, `scale-y-150`, `scale-z-150`. */
-  --scale-200: 200%; /* `scale-200`, `-scale-200`, `scale-x-200`, `scale-y-200`, `scale-z-200`. Doubles the size. */
-  --skew-0: 0deg; /* `skew-0`, `-skew-0`, `skew-x-0`, `skew-y-0`. */
-  --skew-1: 1deg; /* `skew-1`, `-skew-1`, `skew-x-1`, `skew-y-1`. */
-  --skew-2: 2deg; /* `skew-2`, `-skew-2`, `skew-x-2`, `skew-y-2`. */
-  --skew-3: 3deg; /* `skew-3`, `-skew-3`, `skew-x-3`, `skew-y-3`. */
-  --skew-6: 6deg; /* `skew-6`, `-skew-6`, `skew-x-6`, `skew-y-6`. */
-  --skew-12: 12deg; /* `skew-12`, `-skew-12`, `skew-x-12`, `skew-y-12`. */
-  --zoom-50: 50%; /* `zoom-50`. */
-  --zoom-75: 75%; /* `zoom-75`. */
-  --zoom-90: 90%; /* `zoom-90`. */
-  --zoom-95: 95%; /* `zoom-95`. */
-  --zoom-100: 100%; /* `zoom-100`. Unchanged. */
-  --zoom-105: 105%; /* `zoom-105`. */
-  --zoom-110: 110%; /* `zoom-110`. */
-  --zoom-125: 125%; /* `zoom-125`. */
-  --zoom-150: 150%; /* `zoom-150`. */
-  --zoom-200: 200%; /* `zoom-200`. */
-  --opacity-0: 0%; /* `opacity-0`, `backdrop-opacity-0`. Hidden but still in the layout. */
-  --opacity-5: 5%; /* `opacity-5`, `backdrop-opacity-5`. */
-  --opacity-10: 10%; /* `opacity-10`, `backdrop-opacity-10`. */
-  --opacity-15: 15%; /* `opacity-15`, `backdrop-opacity-15`. */
-  --opacity-20: 20%; /* `opacity-20`, `backdrop-opacity-20`. */
-  --opacity-25: 25%; /* `opacity-25`, `backdrop-opacity-25`. */
-  --opacity-30: 30%; /* `opacity-30`, `backdrop-opacity-30`. */
-  --opacity-35: 35%; /* `opacity-35`, `backdrop-opacity-35`. */
-  --opacity-40: 40%; /* `opacity-40`, `backdrop-opacity-40`. */
-  --opacity-45: 45%; /* `opacity-45`, `backdrop-opacity-45`. */
-  --opacity-50: 50%; /* `opacity-50`, `backdrop-opacity-50`. For disabled controls use `opacity-disabled`. */
-  --opacity-55: 55%; /* `opacity-55`, `backdrop-opacity-55`. */
-  --opacity-60: 60%; /* `opacity-60`, `backdrop-opacity-60`. */
-  --opacity-65: 65%; /* `opacity-65`, `backdrop-opacity-65`. */
-  --opacity-70: 70%; /* `opacity-70`, `backdrop-opacity-70`. */
-  --opacity-75: 75%; /* `opacity-75`, `backdrop-opacity-75`. */
-  --opacity-80: 80%; /* `opacity-80`, `backdrop-opacity-80`. */
-  --opacity-85: 85%; /* `opacity-85`, `backdrop-opacity-85`. */
-  --opacity-90: 90%; /* `opacity-90`, `backdrop-opacity-90`. */
-  --opacity-95: 95%; /* `opacity-95`, `backdrop-opacity-95`. */
-  --opacity-100: 100%; /* `opacity-100`, `backdrop-opacity-100`. Fully opaque. */
-  --opacity-disabled: 50%; /* `opacity-disabled`. Every disabled control and item (50%). Set it once to change how disabled looks everywhere. */
-  --duration-0: 0ms; /* Instant: no transition. */
-  --duration-75: 75ms; /* Micro feedback: checkbox ticks, toggles. */
-  --duration-100: 100ms; /* Presses and small exits: a button held down, a tooltip leaving. */
-  --duration-150: 150ms; /* Default: hover and focus colors, and small surfaces entering (tooltips, popovers, menus, date pickers). */
-  --duration-200: 200ms; /* Medium surfaces entering: dialogs and toasts. */
-  --duration-300: 300ms; /* Large surfaces entering: drawers and sheets. */
-  --duration-500: 500ms; /* Large surfaces or page-level changes. */
-  --duration-700: 700ms; /* Slow, deliberate emphasis. Use rarely. */
-  --duration-1000: 1000ms; /* Decorative or attention animations only. */
-  --duration-1200: 1200ms; /* Long loops, such as the pixel loader (1.2s). Decorative only. */
-  --delay-0: 0ms; /* `delay-0`. */
-  --delay-75: 75ms; /* `delay-75`. */
-  --delay-50: 50ms; /* One step of a stagger: the gap between list items arriving (`motion-stagger`). */
-  --delay-100: 100ms; /* `delay-100`. */
-  --delay-150: 150ms; /* `delay-150`. */
-  --delay-200: 200ms; /* `delay-200`. */
-  --delay-300: 300ms; /* Tooltips: wait before showing. */
-  --delay-500: 500ms; /* Tooltips: wait before showing. */
-  --delay-700: 700ms; /* `delay-700`. */
-  --delay-1000: 1000ms; /* `delay-1000`. */
-  --ease-linear: linear; /* Constant speed: spinners, progress bars. */
-  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Starts slow: elements leaving the screen. */
-  --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Ends slow: elements entering (menus, dialogs, toasts). */
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* Default: state changes that stay on screen (hover, toggles). */
-  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1); /* Decelerates gently: a soft arrival. */
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1); /* Decelerates firmly: quick off the mark, a long smooth landing. Surfaces entering (`ease-enter`). */
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerates hard: almost all of the travel at once, then a long glide to rest. Values arriving and slides let go (`ease-settle`). */
-  --ease-in-cubic: cubic-bezier(0.32, 0, 0.67, 0); /* Accelerates gently from a standstill: something drifting off. Slower to get going than `ease-in`, so not for closing surfaces. */
-  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0); /* Accelerates firmly: something thrown off screen. */
-  --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0); /* Accelerates hard: barely moves, then gone. Rarely right for UI. */
-  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1); /* Smooth start and finish: something that stays on screen and changes (`ease-move`). */
-  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1); /* A pronounced start and finish: a large panel or page-level change. */
-  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1); /* The most pronounced start and finish: a deliberate, dramatic move. Use rarely. */
-  --ease-out-back: cubic-bezier(0.34, 1.36, 0.64, 1); /* Decelerates past the end by about 4%, then comes back: something small popping into place (`ease-pop`). */
-  --ease-spring-soft: linear(0, 0.007 2%, 0.027 4%, 0.065 6.5%, 0.125 9.5%, 0.245 14.5%, 0.47 23.5%, 0.582 28.5%, 0.679 33.5%, 0.753 38%, 0.821 43%, 0.878 48.5%, 0.924 54.5%, 0.959 61%, 0.985 69%, 1.001 79.5%, 1.006 97%, 1.006 99.5%, 1); /* A damped spring (damping ratio 0.85) that barely overshoots, written as `linear()`: something released that comes to rest naturally. Generated by `tools/tokens/spring.mjs`. */
-  --ease-spring-snappy: linear(0, 0.008 1.5%, 0.031 3%, 0.067 4.5%, 0.129 6.5%, 0.224 9%, 0.418 13.5%, 0.61 18%, 0.726 21%, 0.811 23.5%, 0.884 26%, 0.945 28.5%, 0.994 31%, 1.038 34%, 1.068 37%, 1.088 40.5%, 1.095 44.5%, 1.087 49.5%, 1.016 68.5%, 0.998 77.5%, 0.991 89%, 0.994 99.5%, 1); /* A damped spring (damping ratio 0.6) that overshoots by about 9% and settles, written as `linear()`: a press let go springing back (`ease-spring`). Generated by `tools/tokens/spring.mjs`. */
-  --ease-elastic: linear(0, 0.004 0.5%, 0.015 1%, 0.033 1.5%, 0.058 2%, 0.088 2.5%, 0.124 3%, 0.164 3.5%, 0.258 4.5%, 0.363 5.5%, 0.595 7.5%, 0.828 9.5%, 0.936 10.5%, 1.035 11.5%, 1.123 12.5%, 1.199 13.5%, 1.261 14.5%, 1.31 15.5%, 1.344 16.5%, 1.364 17.5%, 1.372 18.5%, 1.368 19.5%, 1.354 20.5%, 1.316 22%, 1.263 23.5%, 1.135 26.5%, 1.03 29%, 0.975 30.5%, 0.93 32%, 0.896 33.5%, 0.874 35%, 0.863 36.5%, 0.862 38%, 0.876 40%, 0.907 42.5%, 1.001 48.5%, 1.034 51.5%, 1.048 54%, 1.051 57%, 1.035 61%, 0.993 68.5%, 0.982 73%, 0.985 78.5%, 1.005 89.5%, 1.005 98%, 1.004 99.5%, 1); /* A loose spring (damping ratio 0.3) that overshoots by about 37% and wobbles a few times before it settles, written as `linear()`. Only for small, rare, celebratory moments (`ease-celebrate`), never for surfaces or anything people do over and over. Generated by `tools/tokens/spring.mjs`. */
-  --motion-press: var(--duration-100); /* A press: a control answering while it's held down (Button scales down). */
-  --motion-release: var(--duration-300); /* A press let go: the control springing back to its size with `ease-spring`. Longer than the press, because a spring spends its end settling; it is back in place in about a third of this. */
-  --motion-hover: var(--duration-150); /* Hover and focus changes: colors, borders and shadows on a control that stays put. */
-  --motion-enter-sm: var(--duration-150); /* A small surface appearing: tooltips, popovers, menus, date pickers. */
-  --motion-enter-md: var(--duration-200); /* A medium surface appearing: dialogs and toasts. */
-  --motion-enter-lg: var(--duration-300); /* A large surface appearing: drawers and sheets. */
-  --motion-exit-sm: var(--duration-100); /* A small surface leaving. An exit takes about two thirds of its enter, so what was closed gets out of the way. */
-  --motion-exit-md: var(--duration-150); /* A medium surface leaving: dialogs and toasts. */
-  --motion-exit-lg: var(--duration-200); /* A large surface leaving: drawers and sheets. */
-  --motion-change-sm: var(--duration-150); /* A small part changing in place: a chevron turning, a slider thumb growing, a dot widening, a row gliding to its place. */
-  --motion-change-md: var(--duration-200); /* A panel opening or collapsing in place, or an indicator sliding to the selected option: Accordion, Sidebar, SegmentedControl, Tabs. */
-  --motion-change-lg: var(--duration-300); /* Something travelling far on screen: a progress or meter fill moving to its value, a carousel slide. */
-  --motion-loop-spinner: var(--duration-1000); /* One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this. */
-  --motion-loop-placeholder: var(--duration-1000); /* One pass of a loading placeholder's pulse: Image while it loads. */
-  --motion-loop-blink: var(--duration-1000); /* One blink of a text caret: PinInput. */
-  --motion-loop-progress: var(--duration-1200); /* One pass of an indeterminate progress bar. */
-  --motion-ripple: var(--duration-500); /* A press ripple spreading out from the pointer: Button and Badge. */
-  --motion-ripple-fade: var(--duration-300); /* A press ripple fading once it has spread. */
-  --motion-stagger: var(--delay-50); /* The gap between items of a group arriving one after another, for a group seen now and then (a page's cards, a first list of results), never one opened over and over (menu items, toasts). Each item waits its index times this. */
-  --motion-stagger-limit: var(--delay-300); /* The longest any item of a staggered group waits, so a long list still arrives within a moment: items past the sixth arrive together. */
-  --motion-sequence: var(--delay-50); /* The offset between the steps of one entrance, so they read as a sequence: a dialog or drawer’s backdrop starts, then its panel. Exits don’t sequence; everything leaves together. */
-  --ease-enter: var(--ease-out-quart); /* Something appearing: quick off the mark, then a long smooth landing. */
-  --ease-exit: var(--ease-in); /* Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once. */
-  --ease-move: var(--ease-in-out-cubic); /* Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. A smooth start and finish. */
-  --ease-settle: var(--ease-out-expo); /* Something arriving at a new value or let go by the hand: a fill, a slide, a drawer dropped. Most of the travel at once, then a long glide to rest. */
-  --ease-pop: var(--ease-out-back); /* Something small popping into place: a check mark, a count, a dot. Overshoots a touch, then settles. */
-  --ease-spring: var(--ease-spring-snappy); /* A press let go springing back, or a thumb or indicator landing: a real spring that overshoots and settles. Pair it with a duration about twice the motion it answers (a press of `motion-press` springs back over `motion-change-md`). */
-  --ease-fling: var(--ease-out-cubic); /* Something the hand let go of mid-motion carrying on to rest: a drawer or carousel slide flicked. It starts at three times its average speed, so a settle timed as 3 × distance ÷ the hand’s speed starts exactly at that speed and slows from there (`settleTime()` in the components). */
-  --ease-celebrate: var(--ease-elastic); /* A small, rare moment worth celebrating: a success check landing, a count bumping, an item snapping into its slot after a drag. Wobbles, then settles. Give it about three times the motion it answers (`motion-change-lg` or longer) so the wobble reads, and never use it for menus, dialogs, page moves or repeated actions. Off under reduced motion. */
-  --transition: opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events; /* `transition` (default) animates `transition-colors` plus these: opacity, shadow, transforms, filters and discrete properties like display. */
-  --transition-colors: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --dk-gradient-from, --dk-gradient-via, --dk-gradient-to; /* `transition-colors`: hover and focus color changes, gradients included. */
-  --transition-opacity: opacity; /* `transition-opacity`: fades. */
-  --transition-shadow: box-shadow; /* `transition-shadow`: elevation changes. */
-  --transition-transform: transform, translate, scale, rotate; /* `transition-transform`: moves, scales and rotations, including the translate/scale/rotate classes. */
-  --transition-all: all; /* Avoid in components: it also animates layout properties. */
-  --transition-none: none; /* `transition-none`. */
-  --animate-none: none; /* `animate-none`. */
-  --animate-spin: spin 1s linear infinite; /* `animate-spin`: loading spinners (Button uses it). */
-  --animate-spin-reduced: spin 3s linear infinite; /* `animate-spin` when the viewer prefers reduced motion: the same turn, three times slower. Applied automatically. */
-  --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; /* `animate-ping`: a radar ping behind a notification dot or live badge. */
-  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; /* `animate-pulse`: skeleton placeholders while content loads. */
-  --animate-bounce: bounce 1s infinite; /* `animate-bounce`: a scroll-down hint. Use sparingly. */
-  --animate-enter: enter var(--motion-enter-md) var(--ease-enter) backwards; /* `animate-enter`: content arriving, fading in as it rises a little into place. With `stagger` on the parent, the items arrive one after another. Under reduced motion it only fades. */
-  --text-xs: 0.75rem; /* `text-xs` font size (12px). */
-  --text-sm: 0.875rem; /* `text-sm` font size (14px). */
-  --text-base: 1rem; /* `text-base` font size (16px). */
-  --text-lg: 1.125rem; /* `text-lg` font size (18px). */
-  --text-xl: 1.25rem; /* `text-xl` font size (20px). */
-  --text-2xl: 1.5rem; /* `text-2xl` font size (24px). */
-  --text-3xl: 1.875rem; /* `text-3xl` font size (30px). */
-  --text-4xl: 2.25rem; /* `text-4xl` font size (36px). */
-  --text-5xl: 3rem; /* `text-5xl` font size (48px). */
-  --text-6xl: 3.75rem; /* `text-6xl` font size (60px). */
-  --text-7xl: 4.5rem; /* `text-7xl` font size (72px). */
-  --text-8xl: 6rem; /* `text-8xl` font size (96px). */
-  --text-9xl: 8rem; /* `text-9xl` font size (128px). */
-  --text-xs--line-height: 1rem; /* The line height that goes with `text-xs`. */
-  --text-sm--line-height: 1.25rem; /* The line height that goes with `text-sm`. */
-  --text-base--line-height: 1.5rem; /* The line height that goes with `text-base`. */
-  --text-lg--line-height: 1.75rem; /* The line height that goes with `text-lg`. */
-  --text-xl--line-height: 1.75rem; /* The line height that goes with `text-xl`. */
-  --text-2xl--line-height: 2rem; /* The line height that goes with `text-2xl`. */
-  --text-3xl--line-height: 2.25rem; /* The line height that goes with `text-3xl`. */
-  --text-4xl--line-height: 2.5rem; /* The line height that goes with `text-4xl`. */
-  --text-5xl--line-height: 1; /* The line height that goes with `text-5xl`. */
-  --text-6xl--line-height: 1; /* The line height that goes with `text-6xl`. */
-  --text-7xl--line-height: 1; /* The line height that goes with `text-7xl`. */
-  --text-8xl--line-height: 1; /* The line height that goes with `text-8xl`. */
-  --text-9xl--line-height: 1; /* The line height that goes with `text-9xl`. */
+  --spacing-0: 0px;
+  --spacing-px: 1px;
+  --spacing-0\.5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1\.5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2\.5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3\.5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: 3rem;
+  --spacing-14: 3.5rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
+  --rounded-none: 0px;
+  --rounded-xs: 0.125rem;
+  --rounded-sm: 0.25rem;
+  --rounded: 0.25rem;
+  --rounded-md: 0.375rem;
+  --rounded-lg: 0.5rem;
+  --rounded-xl: 0.75rem;
+  --rounded-2xl: 1rem;
+  --rounded-3xl: 1.5rem;
+  --rounded-4xl: 2rem;
+  --rounded-full: 9999px;
+  --border-width-0: 0px;
+  --border-width-1: 1px;
+  --border-width-2: 2px;
+  --border-width-4: 4px;
+  --border-width-8: 8px;
+  --outline-width-0: 0px;
+  --outline-width-1: 1px;
+  --outline-width-2: 2px;
+  --outline-width-4: 4px;
+  --outline-width-8: 8px;
+  --outline-offset-0: 0px;
+  --outline-offset-1: 1px;
+  --outline-offset-2: 2px;
+  --outline-offset-4: 4px;
+  --outline-offset-8: 8px;
+  --focus-ring-width: var(--outline-width-2);
+  --focus-ring-offset: var(--outline-offset-2);
+  --stroke-width-0: 0;
+  --stroke-width-1: 1;
+  --stroke-width-2: 2;
+  --stroke-width-3: 3;
+  --stroke-width-4: 4;
+  --font-thin: 100;
+  --font-extralight: 200;
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  --font-black: 900;
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  --leading-3: .75rem;
+  --leading-4: 1rem;
+  --leading-5: 1.25rem;
+  --leading-6: 1.5rem;
+  --leading-7: 1.75rem;
+  --leading-8: 2rem;
+  --leading-9: 2.25rem;
+  --leading-10: 2.5rem;
+  --font-stretch-ultra-condensed: ultra-condensed;
+  --font-stretch-extra-condensed: extra-condensed;
+  --font-stretch-condensed: condensed;
+  --font-stretch-semi-condensed: semi-condensed;
+  --font-stretch-normal: normal;
+  --font-stretch-semi-expanded: semi-expanded;
+  --font-stretch-expanded: expanded;
+  --font-stretch-extra-expanded: extra-expanded;
+  --font-stretch-ultra-expanded: ultra-expanded;
+  --decoration-0: 0px;
+  --decoration-1: 1px;
+  --decoration-2: 2px;
+  --decoration-4: 4px;
+  --decoration-8: 8px;
+  --decoration-auto: auto;
+  --decoration-from-font: from-font;
+  --underline-offset-0: 0px;
+  --underline-offset-1: 1px;
+  --underline-offset-2: 2px;
+  --underline-offset-4: 4px;
+  --underline-offset-8: 8px;
+  --underline-offset-auto: auto;
+  --line-clamp-1: 1;
+  --line-clamp-2: 2;
+  --line-clamp-3: 3;
+  --line-clamp-4: 4;
+  --line-clamp-5: 5;
+  --line-clamp-6: 6;
+  --tab-2: 2;
+  --tab-4: 4;
+  --tab-8: 8;
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+  --z-auto: auto;
+  --z-sticky: 20;
+  --z-dropdown: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-toast: 70;
+  --z-tooltip: 80;
+  --aspect-auto: auto;
+  --aspect-square: 1 / 1;
+  --aspect-video: 16 / 9;
+  --columns-3xs: 16rem;
+  --columns-2xs: 18rem;
+  --columns-xs: 20rem;
+  --columns-sm: 24rem;
+  --columns-md: 28rem;
+  --columns-lg: 32rem;
+  --columns-xl: 36rem;
+  --columns-2xl: 42rem;
+  --columns-3xl: 48rem;
+  --columns-4xl: 56rem;
+  --columns-5xl: 64rem;
+  --columns-6xl: 72rem;
+  --columns-7xl: 80rem;
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+  --container-prose: 65ch;
+  --sizing-1-2: 50%;
+  --sizing-1-3: 33.333333%;
+  --sizing-2-3: 66.666667%;
+  --sizing-1-4: 25%;
+  --sizing-2-4: 50%;
+  --sizing-3-4: 75%;
+  --sizing-1-5: 20%;
+  --sizing-2-5: 40%;
+  --sizing-3-5: 60%;
+  --sizing-4-5: 80%;
+  --sizing-1-6: 16.666667%;
+  --sizing-2-6: 33.333333%;
+  --sizing-3-6: 50%;
+  --sizing-4-6: 66.666667%;
+  --sizing-5-6: 83.333333%;
+  --sizing-1-12: 8.333333%;
+  --sizing-2-12: 16.666667%;
+  --sizing-3-12: 25%;
+  --sizing-4-12: 33.333333%;
+  --sizing-5-12: 41.666667%;
+  --sizing-6-12: 50%;
+  --sizing-7-12: 58.333333%;
+  --sizing-8-12: 66.666667%;
+  --sizing-9-12: 75%;
+  --sizing-10-12: 83.333333%;
+  --sizing-11-12: 91.666667%;
+  --sizing-auto: auto;
+  --sizing-px: 1px;
+  --sizing-full: 100%;
+  --sizing-screen-w: 100vw;
+  --sizing-screen-h: 100vh;
+  --sizing-dvw: 100dvw;
+  --sizing-dvh: 100dvh;
+  --sizing-lvw: 100lvw;
+  --sizing-lvh: 100lvh;
+  --sizing-svw: 100svw;
+  --sizing-svh: 100svh;
+  --sizing-min: min-content;
+  --sizing-max: max-content;
+  --sizing-fit: fit-content;
+  --sizing-none: none;
+  --sizing-lh: 1lh;
+  --control-height-sm: 1.5rem;
+  --control-height-md: 2rem;
+  --control-height-lg: 2.75rem;
+  --flex-auto: auto;
+  --flex-initial: 0 auto;
+  --flex-none: none;
+  --flex-1: 1;
+  --grid-auto-auto: auto;
+  --grid-auto-min: min-content;
+  --grid-auto-max: max-content;
+  --grid-auto-fr: minmax(0, 1fr);
+  --order-first: -9999;
+  --order-last: 9999;
+  --order-none: 0;
+  --blur-xs: 4px;
+  --blur-sm: 8px;
+  --blur-md: 12px;
+  --blur-lg: 16px;
+  --blur-xl: 24px;
+  --blur-2xl: 40px;
+  --blur-3xl: 64px;
+  --drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.05);
+  --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
+  --drop-shadow-md: 0 3px 3px rgb(0 0 0 / 0.12);
+  --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
+  --drop-shadow-xl: 0 9px 7px rgb(0 0 0 / 0.1);
+  --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15);
+  --drop-shadow-none: 0 0 #0000;
+  --brightness-0: 0%;
+  --brightness-50: 50%;
+  --brightness-75: 75%;
+  --brightness-90: 90%;
+  --brightness-95: 95%;
+  --brightness-100: 100%;
+  --brightness-105: 105%;
+  --brightness-110: 110%;
+  --brightness-125: 125%;
+  --brightness-150: 150%;
+  --brightness-200: 200%;
+  --contrast-0: 0%;
+  --contrast-50: 50%;
+  --contrast-75: 75%;
+  --contrast-100: 100%;
+  --contrast-125: 125%;
+  --contrast-150: 150%;
+  --contrast-200: 200%;
+  --saturate-0: 0%;
+  --saturate-50: 50%;
+  --saturate-100: 100%;
+  --saturate-150: 150%;
+  --saturate-200: 200%;
+  --hue-rotate-0: 0deg;
+  --hue-rotate-15: 15deg;
+  --hue-rotate-30: 30deg;
+  --hue-rotate-60: 60deg;
+  --hue-rotate-90: 90deg;
+  --hue-rotate-180: 180deg;
+  --perspective-dramatic: 100px;
+  --perspective-near: 300px;
+  --perspective-normal: 500px;
+  --perspective-midrange: 800px;
+  --perspective-distant: 1200px;
+  --rotate-0: 0deg;
+  --rotate-1: 1deg;
+  --rotate-2: 2deg;
+  --rotate-3: 3deg;
+  --rotate-6: 6deg;
+  --rotate-12: 12deg;
+  --rotate-45: 45deg;
+  --rotate-90: 90deg;
+  --rotate-180: 180deg;
+  --scale-0: 0%;
+  --scale-50: 50%;
+  --scale-75: 75%;
+  --scale-90: 90%;
+  --scale-95: 95%;
+  --scale-97: 97%;
+  --scale-100: 100%;
+  --scale-105: 105%;
+  --scale-110: 110%;
+  --scale-125: 125%;
+  --scale-150: 150%;
+  --scale-200: 200%;
+  --skew-0: 0deg;
+  --skew-1: 1deg;
+  --skew-2: 2deg;
+  --skew-3: 3deg;
+  --skew-6: 6deg;
+  --skew-12: 12deg;
+  --zoom-50: 50%;
+  --zoom-75: 75%;
+  --zoom-90: 90%;
+  --zoom-95: 95%;
+  --zoom-100: 100%;
+  --zoom-105: 105%;
+  --zoom-110: 110%;
+  --zoom-125: 125%;
+  --zoom-150: 150%;
+  --zoom-200: 200%;
+  --opacity-0: 0%;
+  --opacity-5: 5%;
+  --opacity-10: 10%;
+  --opacity-15: 15%;
+  --opacity-20: 20%;
+  --opacity-25: 25%;
+  --opacity-30: 30%;
+  --opacity-35: 35%;
+  --opacity-40: 40%;
+  --opacity-45: 45%;
+  --opacity-50: 50%;
+  --opacity-55: 55%;
+  --opacity-60: 60%;
+  --opacity-65: 65%;
+  --opacity-70: 70%;
+  --opacity-75: 75%;
+  --opacity-80: 80%;
+  --opacity-85: 85%;
+  --opacity-90: 90%;
+  --opacity-95: 95%;
+  --opacity-100: 100%;
+  --opacity-disabled: 50%;
+  --duration-0: 0ms;
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+  --duration-1200: 1200ms;
+  --delay-0: 0ms;
+  --delay-75: 75ms;
+  --delay-50: 50ms;
+  --delay-100: 100ms;
+  --delay-150: 150ms;
+  --delay-200: 200ms;
+  --delay-300: 300ms;
+  --delay-500: 500ms;
+  --delay-700: 700ms;
+  --delay-1000: 1000ms;
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-cubic: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --ease-spring-soft: linear(0, 0.007 2%, 0.027 4%, 0.065 6.5%, 0.125 9.5%, 0.245 14.5%, 0.47 23.5%, 0.582 28.5%, 0.679 33.5%, 0.753 38%, 0.821 43%, 0.878 48.5%, 0.924 54.5%, 0.959 61%, 0.985 69%, 1.001 79.5%, 1.006 97%, 1.006 99.5%, 1);
+  --ease-spring-snappy: linear(0, 0.008 1.5%, 0.031 3%, 0.067 4.5%, 0.129 6.5%, 0.224 9%, 0.418 13.5%, 0.61 18%, 0.726 21%, 0.811 23.5%, 0.884 26%, 0.945 28.5%, 0.994 31%, 1.038 34%, 1.068 37%, 1.088 40.5%, 1.095 44.5%, 1.087 49.5%, 1.016 68.5%, 0.998 77.5%, 0.991 89%, 0.994 99.5%, 1);
+  --ease-elastic: linear(0, 0.004 0.5%, 0.015 1%, 0.033 1.5%, 0.058 2%, 0.088 2.5%, 0.124 3%, 0.164 3.5%, 0.258 4.5%, 0.363 5.5%, 0.595 7.5%, 0.828 9.5%, 0.936 10.5%, 1.035 11.5%, 1.123 12.5%, 1.199 13.5%, 1.261 14.5%, 1.31 15.5%, 1.344 16.5%, 1.364 17.5%, 1.372 18.5%, 1.368 19.5%, 1.354 20.5%, 1.316 22%, 1.263 23.5%, 1.135 26.5%, 1.03 29%, 0.975 30.5%, 0.93 32%, 0.896 33.5%, 0.874 35%, 0.863 36.5%, 0.862 38%, 0.876 40%, 0.907 42.5%, 1.001 48.5%, 1.034 51.5%, 1.048 54%, 1.051 57%, 1.035 61%, 0.993 68.5%, 0.982 73%, 0.985 78.5%, 1.005 89.5%, 1.005 98%, 1.004 99.5%, 1);
+  --motion-press: var(--duration-100);
+  --motion-release: var(--duration-300);
+  --motion-hover: var(--duration-150);
+  --motion-enter-sm: var(--duration-150);
+  --motion-enter-md: var(--duration-200);
+  --motion-enter-lg: var(--duration-300);
+  --motion-exit-sm: var(--duration-100);
+  --motion-exit-md: var(--duration-150);
+  --motion-exit-lg: var(--duration-200);
+  --motion-change-sm: var(--duration-150);
+  --motion-change-md: var(--duration-200);
+  --motion-change-lg: var(--duration-300);
+  --motion-loop-spinner: var(--duration-1000);
+  --motion-loop-placeholder: var(--duration-1000);
+  --motion-loop-blink: var(--duration-1000);
+  --motion-loop-progress: var(--duration-1200);
+  --motion-ripple: var(--duration-500);
+  --motion-ripple-fade: var(--duration-300);
+  --motion-stagger: var(--delay-50);
+  --motion-stagger-limit: var(--delay-300);
+  --motion-sequence: var(--delay-50);
+  --ease-enter: var(--ease-out-quart);
+  --ease-exit: var(--ease-in);
+  --ease-move: var(--ease-in-out-cubic);
+  --ease-settle: var(--ease-out-expo);
+  --ease-pop: var(--ease-out-back);
+  --ease-spring: var(--ease-spring-snappy);
+  --ease-fling: var(--ease-out-cubic);
+  --ease-celebrate: var(--ease-elastic);
+  --transition: opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+  --transition-colors: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --dk-gradient-from, --dk-gradient-via, --dk-gradient-to;
+  --transition-opacity: opacity;
+  --transition-shadow: box-shadow;
+  --transition-transform: transform, translate, scale, rotate;
+  --transition-all: all;
+  --transition-none: none;
+  --animate-none: none;
+  --animate-spin: spin 1s linear infinite;
+  --animate-spin-reduced: spin 3s linear infinite;
+  --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce: bounce 1s infinite;
+  --animate-enter: enter var(--motion-enter-md) var(--ease-enter) backwards;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+  --text-8xl: 6rem;
+  --text-9xl: 8rem;
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-5xl--line-height: 1;
+  --text-6xl--line-height: 1;
+  --text-7xl--line-height: 1;
+  --text-8xl--line-height: 1;
+  --text-9xl--line-height: 1;
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  --text-type-xs: 400 0.75rem/1rem var(--font-sans); /* `type-xs`: the whole 12px style in one class (Inter 400, line height 1rem). Same size as `text-xs`. */
-  --text-type-sm: 400 0.875rem/1.25rem var(--font-sans); /* `type-sm`: the whole 14px style in one class (Inter 400, line height 1.25rem). Same size as `text-sm`. */
-  --text-type-base: 400 1rem/1.5rem var(--font-sans); /* `type-base`: the whole 16px style in one class (Inter 400, line height 1.5rem). Same size as `text-base`. */
-  --text-type-lg: 400 1.125rem/1.75rem var(--font-sans); /* `type-lg`: the whole 18px style in one class (Inter 400, line height 1.75rem). Same size as `text-lg`. */
-  --text-type-xl: 400 1.25rem/1.75rem var(--font-sans); /* `type-xl`: the whole 20px style in one class (Inter 400, line height 1.75rem). Same size as `text-xl`. */
-  --text-type-2xl: 400 1.5rem/2rem var(--font-sans); /* `type-2xl`: the whole 24px style in one class (Inter 400, line height 2rem). Same size as `text-2xl`. */
-  --text-type-3xl: 400 1.875rem/2.25rem var(--font-sans); /* `type-3xl`: the whole 30px style in one class (Inter 400, line height 2.25rem). Same size as `text-3xl`. */
-  --text-type-4xl: 400 2.25rem/2.5rem var(--font-sans); /* `type-4xl`: the whole 36px style in one class (Inter 400, line height 2.5rem). Same size as `text-4xl`. */
-  --text-type-5xl: 400 3rem/1 var(--font-sans); /* `type-5xl`: the whole 48px style in one class (Inter 400, line height 1). Same size as `text-5xl`. */
-  --text-type-6xl: 400 3.75rem/1 var(--font-sans); /* `type-6xl`: the whole 60px style in one class (Inter 400, line height 1). Same size as `text-6xl`. */
-  --text-type-7xl: 400 4.5rem/1 var(--font-sans); /* `type-7xl`: the whole 72px style in one class (Inter 400, line height 1). Same size as `text-7xl`. */
-  --text-type-8xl: 400 6rem/1 var(--font-sans); /* `type-8xl`: the whole 96px style in one class (Inter 400, line height 1). Same size as `text-8xl`. */
-  --text-type-9xl: 400 8rem/1 var(--font-sans); /* `type-9xl`: the whole 128px style in one class (Inter 400, line height 1). Same size as `text-9xl`. */
-  --text-type-display: 600 3rem/1.1 var(--font-sans); /* `type-display`: hero and marketing headlines (48px, 600, tracked tight, line height 1.1 so two lines don't touch). */
-  --text-type-heading-1: 600 1.875rem/2.25rem var(--font-sans); /* `type-heading-1`: a page title. What a level 1 `Heading` renders. */
-  --text-type-heading-2: 600 1.5rem/2rem var(--font-sans); /* `type-heading-2`: a section title. What a level 2 `Heading` renders. */
-  --text-type-heading-3: 600 1.25rem/1.75rem var(--font-sans); /* `type-heading-3`: a subsection title. What a level 3 `Heading` renders. */
-  --text-type-heading-4: 600 1.125rem/1.75rem var(--font-sans); /* `type-heading-4`: a group title, and Dialog and Drawer titles. What a level 4 `Heading` renders. */
-  --text-type-title: 600 1rem/1.5rem var(--font-sans); /* `type-title`: a card or list title, and Card and EmptyState titles. */
-  --text-type-body: 400 1rem/1.5rem var(--font-sans); /* `type-body`: running text. */
-  --text-type-body-sm: 400 0.875rem/1.25rem var(--font-sans); /* `type-body-sm`: UI text: controls, table cells, menus, descriptions. */
-  --text-type-label: 500 0.875rem/1.25rem var(--font-sans); /* `type-label`: a form label (Field), table headers, tabs. */
-  --text-type-caption: 400 0.75rem/1rem var(--font-sans); /* `type-caption`: hints, timestamps, footnotes. Pair with `text-muted`. */
-  --text-type-overline: 600 0.75rem/1rem var(--font-sans); /* `type-overline`: an eyebrow above a title. Uppercase and tracked widest. */
-  --text-type-code: 400 0.875rem/1.25rem var(--font-mono); /* `type-code`: inline code and code blocks, in `font-mono`. */
+  --text-type-xs: 400 0.75rem/1rem var(--font-sans);
+  --text-type-sm: 400 0.875rem/1.25rem var(--font-sans);
+  --text-type-base: 400 1rem/1.5rem var(--font-sans);
+  --text-type-lg: 400 1.125rem/1.75rem var(--font-sans);
+  --text-type-xl: 400 1.25rem/1.75rem var(--font-sans);
+  --text-type-2xl: 400 1.5rem/2rem var(--font-sans);
+  --text-type-3xl: 400 1.875rem/2.25rem var(--font-sans);
+  --text-type-4xl: 400 2.25rem/2.5rem var(--font-sans);
+  --text-type-5xl: 400 3rem/1 var(--font-sans);
+  --text-type-6xl: 400 3.75rem/1 var(--font-sans);
+  --text-type-7xl: 400 4.5rem/1 var(--font-sans);
+  --text-type-8xl: 400 6rem/1 var(--font-sans);
+  --text-type-9xl: 400 8rem/1 var(--font-sans);
+  --text-type-display: 600 3rem/1.1 var(--font-sans);
+  --text-type-heading-1: 600 1.875rem/2.25rem var(--font-sans);
+  --text-type-heading-2: 600 1.5rem/2rem var(--font-sans);
+  --text-type-heading-3: 600 1.25rem/1.75rem var(--font-sans);
+  --text-type-heading-4: 600 1.125rem/1.75rem var(--font-sans);
+  --text-type-title: 600 1rem/1.5rem var(--font-sans);
+  --text-type-body: 400 1rem/1.5rem var(--font-sans);
+  --text-type-body-sm: 400 0.875rem/1.25rem var(--font-sans);
+  --text-type-label: 500 0.875rem/1.25rem var(--font-sans);
+  --text-type-caption: 400 0.75rem/1rem var(--font-sans);
+  --text-type-overline: 600 0.75rem/1rem var(--font-sans);
+  --text-type-code: 400 0.875rem/1.25rem var(--font-mono);
 }
 [data-theme$="-light"] { color-scheme: light; }
 [data-theme$="-dark"] { color-scheme: dark; }

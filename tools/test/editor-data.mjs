@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HERE, PROJECT, tokensCss, report, done } from './lib.mjs';
 import { tokenList } from '../build/editor-data.mjs';
+import { tokenDescriptions } from '../tokens/build.mjs';
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -24,6 +25,9 @@ t('data-brand and data-mode offer what theme.js reads', attr('data-brand').join(
 const tokens = tokenList(fs.readFileSync(path.join(PROJECT, 'tokens.css'), 'utf8')).map((x) => x.name);
 const props = css?.properties?.map((p) => p.name) || [];
 t(`the CSS data offers every token (${tokens.length}), with what it is and its value`, tokens.length > 250 && tokens.join() === props.join() && css.properties.every((p) => /in blue-light/.test(p.description?.value || '')), `missing: ${tokens.filter((x) => !props.includes(x)).slice(0, 10).join(', ')}`);
+const described = tokenDescriptions(JSON.parse(fs.readFileSync(path.join(PROJECT, 'tokens.json'), 'utf8')));
+const lost = (css?.properties || []).filter((p) => described.has(p.name) && !(p.description?.value || '').startsWith(described.get(p.name).replace(/^Alias\. /, ''))).map((p) => p.name);
+t('each token carries its description from tokens.json (tokens.css has no comments)', described.size > 250 && !lost.length, lost.slice(0, 10).join(', '));
 const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT, 'package.json'), 'utf8'));
 t('package.json exports them as serupa-ds/vscode/*', pkg.exports['./vscode/*'] === './dist/vscode/*');
 done(report('Editor data', R));

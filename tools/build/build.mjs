@@ -20,6 +20,7 @@ import { build } from 'esbuild';
 import { buildUtilities } from '../utilities/build.mjs';
 import { buildRegistry, cascade } from './registry.mjs';
 import { editorData } from './editor-data.mjs';
+import { tokenDescriptions } from '../tokens/build.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const D = path.join(P, 'dist');
@@ -90,7 +91,7 @@ const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
-const editor = editorData(utilities, read('tokens.css'));
+const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });
 fs.writeFileSync(path.join(D, 'vscode', 'serupa.html-data.json'), JSON.stringify(editor.html) + '\n');
 fs.writeFileSync(path.join(D, 'vscode', 'serupa.css-data.json'), JSON.stringify(editor.css) + '\n');
