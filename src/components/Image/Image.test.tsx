@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
@@ -32,6 +32,14 @@ describe('Image', () => {
     await render(<Pic id="auto" frameClass="frame-extra" alt="A blue banner" className="extra" imgRef={r} />);
     const f = frame('auto'), i = f.querySelector('img')!;
     expect([r.current === i, /extra/.test(i.className), /frame-extra/.test(f.className), i.alt, i.loading, f.dataset.component]).toEqual([true, true, true, 'A blue banner', 'lazy', 'image']);
+  });
+
+  test('renders where there is no matchMedia (jsdom, where apps run unit tests) instead of throwing (L8E45)', async () => {
+    vi.stubGlobal('matchMedia', undefined);
+    try {
+      const screen = await render(<Image src="/a.png" alt="Bare" />);
+      expect(screen.container.querySelector('img')?.alt).toBe('Bare');
+    } finally { vi.unstubAllGlobals(); }
   });
 
   test('ratio: auto keeps the picture\'s shape (200×100), square 200×200, 4:3 200×150, video 200×113, 2 → 200×100; cover by default, contain when asked; rounded 8px unless rounded={false}', async () => {

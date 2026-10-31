@@ -95,12 +95,14 @@ function shownDark(i: HTMLImageElement | null, darkSrc: string | undefined): str
 type Connection = EventTarget & { saveData?: boolean };
 const REDUCED = "(prefers-reduced-data: reduce)";
 const connection = () => (navigator as Navigator & { connection?: Connection }).connection;
-const savingData = () => !!(connection() || {}).saveData || matchMedia(REDUCED).matches;
+// No matchMedia (jsdom, where apps run their unit tests) means no preference, not a crash on every Image (L8E45).
+const reducedData = () => (typeof matchMedia === "function" ? matchMedia(REDUCED) : null);
+const savingData = () => { const m = reducedData(); return !!(connection() || {}).saveData || !!(m && m.matches); };
 function onSaveData(f: () => void) {
-  const c = connection(), m = matchMedia(REDUCED);
+  const c = connection(), m = reducedData();
   if (c) c.addEventListener("change", f);
-  m.addEventListener("change", f);
-  return () => { if (c) c.removeEventListener("change", f); m.removeEventListener("change", f); };
+  if (m) m.addEventListener("change", f);
+  return () => { if (c) c.removeEventListener("change", f); if (m) m.removeEventListener("change", f); };
 }
 
 /* The viewer's picture: the frame's placeholder (and its sweep) while it loads, the frame's fallback if it fails. The
