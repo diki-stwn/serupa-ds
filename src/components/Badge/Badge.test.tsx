@@ -423,6 +423,8 @@ describe('Badge', () => {
     expect([xf.ldr, xf.ldd]).toEqual(['dk-badge-loader-in', '0.15s']);
     // They cross as one change, as on Button: the content ends blurred (blur-xs) and the ring sharpens from the same blur.
     const grow = sp.getAnimations().find((a) => (a as CSSAnimation).animationName === 'dk-badge-loader-in')!;
+    // Paused first, as on Button: WebKit lets a running animation move on from 0 before the style is read.
+    grow.pause();
     grow.currentTime = 0;
     const blurFrom = css(sp).filter;
     grow.finish();
