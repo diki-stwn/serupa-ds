@@ -130,6 +130,13 @@ describe('Contrast axis', () => {
     ['placeholder', 'var(--placeholder)', 'var(--field)', 7],
     ['border', 'var(--border)', 'var(--surface)', 3],
     ['field border', 'var(--field-border)', 'var(--field)', 4.5],
+    // Status text and icons (V6): on the page, on a raised card and on its own subtle fill (an Alert, a Badge).
+    ...['success', 'warning', 'danger', 'info'].flatMap((s): Array<[string, string, string, number]> => [
+      [`${s} text`, `var(--${s}-text)`, 'var(--surface)', 7],
+      [`${s} text on a raised surface`, `var(--${s}-text)`, 'var(--surface-raised)', 7],
+      [`${s} text on its subtle fill`, `var(--${s}-text)`, `var(--${s}-subtle)`, 7],
+    ]),
+    ...['success', 'warning', 'info'].map((s): [string, string, string, number] => [`${s} icon`, `var(--${s})`, 'var(--surface)', 4.5]),
   ];
 
   test('data-contrast="more": 7:1 text and stronger borders in all six themes', () => {
