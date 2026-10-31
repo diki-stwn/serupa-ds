@@ -11,10 +11,12 @@ import { ErrorSummary, type ErrorSummaryItem } from './ErrorSummary';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 // Whether the element's line is at the top of the window. Firefox scrolls an inline element's whole line into view, so
-// an inline label's own box sits the half-leading below the top there; Chromium puts the box itself at 0.
-const atTop = (e: HTMLElement) => {
+// an inline label's own box sits the half-leading below the top there, or lower when a taller field shares its line
+// (pass the field as mate: the line then starts at the higher of the two); Chromium puts the box itself at 0.
+const atTop = (e: HTMLElement, mate?: HTMLElement) => {
   const r = e.getBoundingClientRect(), lead = Math.max(0, (parseFloat(css(e).lineHeight) - r.height) / 2 || 0);
-  return Math.round(r.top) >= 0 && Math.round(r.top) <= Math.ceil(lead);
+  if (Math.round(r.top) >= 0 && Math.round(r.top) <= Math.ceil(lead)) return true;
+  return !!mate && Math.round(Math.min(r.top, mate.getBoundingClientRect().top)) === 0;
 };
 const ERRORS: ErrorSummaryItem[] = [
   { field: 'f-name', message: 'Enter your full name' },
@@ -83,7 +85,7 @@ describe('ErrorSummary', () => {
     const links = [...el('sum').querySelectorAll('a')];
     await userEvent.click(links[0]);
     expect(document.activeElement).toBe(el('f-name'));
-    await expect.poll(() => atTop(el('name-label'))).toBe(true);
+    await expect.poll(() => atTop(el('name-label'), el('f-name'))).toBe(true);
     window.scrollTo(0, 0);
     await userEvent.click(links[1]);
     expect(document.activeElement).toBe(el('f-plan-basic'));
