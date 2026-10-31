@@ -125,9 +125,10 @@ Alias tokens give a colour a **job** instead of a hue. Each one points to a pale
 | `info` | `sky-700` | `sky-400` | Informational icons and text. |
 | `info-subtle` | `sky-50` | `sky-950` | Info alert / badge background. |
 | `info-text` | `sky-700` | `sky-300` | Info text on `surface`, `surface-muted` and `info-subtle` (4.5:1+). Class `text-info-text`. |
-| `field` | `white` | `zinc-900` | Background of text inputs, selects and other form fields. |
-| `field-border` | `zinc-500` | `zinc-500` | Border of form fields: 3:1+ on `field` and `surface` (WCAG 1.4.11, a control's boundary). |
-| `field-border-hover` | `zinc-600` | `zinc-400` | Field border on hover. |
+| `field` | `white` | `zinc-800` | Background of text inputs, selects and other form fields. |
+| `field-readonly` | `zinc-50` | `zinc-900` | Background of read-only and disabled fields: a step flatter than `field`, so they read as not editable. |
+| `field-border` | `zinc-500` | `zinc-400` | Border of form fields: 3:1+ on `field` and `surface` (WCAG 1.4.11, a control's boundary). |
+| `field-border-hover` | `zinc-600` | `zinc-300` | Field border on hover. |
 | `placeholder` | `zinc-500` | `zinc-400` | Placeholder text (4.5:1+ on `field`). A hint, never a label. |
 | `overlay` | zinc-900 at 50% | zinc-950 at 70% | The dimmed backdrop behind dialogs and drawers. |
 
