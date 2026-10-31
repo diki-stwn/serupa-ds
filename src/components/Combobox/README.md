@@ -86,7 +86,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `defaultValue` | `V \| null` (`V[]` with `multiple`) | | Uncontrolled. |
 | `onValueChange` | `(value: V \| null) => void` (`(value: V[]) => void` with `multiple`) | | When an option is picked, or `null` when the field is emptied or cleared. With `multiple`, every picked value in the order picked. |
 | `onInputChange` | `(text: string) => void` | | The text as it's typed, for loading options. |
-| `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo") | `false` shows every option you pass. |
+| `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo", "こーひー" finds "コーヒー") | `false` shows every option you pass. |
 | `clearable` | `boolean` | `false` | A × that clears the selection (every tag, with `multiple`). |
 | `loading` | `boolean` | `false` | A loading row in the list. |
 | `emptyText` | `ReactNode` | `'No results'` | |

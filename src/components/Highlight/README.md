@@ -25,7 +25,7 @@ highlightRanges("Łódź, Poland", "lodz")                        // [[0, 4]]
 ## Usage
 
 - Pass the same query the list was filtered with, so what's marked is what matched.
-- Matching ignores case, accents and width, as Combobox does: "lodz" marks "Łódź", "sao" marks "São", and "strasse" marks "Straße". The marks cover the text as written.
+- Matching ignores case, accents, width and hiragana versus katakana, as Combobox does: "lodz" marks "Łódź", "sao" marks "São", and "strasse" marks "Straße". The marks cover the text as written.
 - `words` marks each word of the query wherever it is ("york new" marks "New" and "York"). Without it, the query is one phrase.
 - A query can also be a list of terms. Overlapping or touching matches become one mark.
 - `highlightRanges(text, query, words)` returns the same matches as `[start, end)` offsets, for drawing them yourself.
