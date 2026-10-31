@@ -149,6 +149,18 @@ describe('focus after dismissing (DQ1)', () => {
     await expect.poll(() => document.activeElement?.id).toBe('after');
   });
 
+  test('skips what isn\'t in the Tab order: tabs after it go to the selected one, not the first (L8E23)', async () => {
+    function Tabbed() {
+      const [shown, setShown] = React.useState(true);
+      return <>{shown ? <Alert title="Saved" onDismiss={() => setShown(false)} /> : null}
+        <div role="tablist" aria-label="Views"><button type="button" role="tab" id="t1" tabIndex={-1}>One</button><button type="button" role="tab" id="t2" aria-selected="true">Two</button></div></>;
+    }
+    await render(<Tabbed />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('t2');
+  });
+
   test('with nothing after it, focus goes to the element before it', async () => {
     function Last() {
       const [shown, setShown] = React.useState(true);
