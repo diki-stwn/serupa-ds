@@ -1,6 +1,6 @@
 # Avatar
 
-A small picture of a person (a circle) or of a team, project or organisation (a square). When there's no picture, or it fails to load, it shows the initials, or a person icon when there's no name either.
+A small picture of a person (a circle) or of a team, project or organisation (a square). When there's no picture, or it fails to load (also one rendered on the server that failed before the page hydrated), it shows the initials, or a person icon when there's no name either.
 
 ```jsx
 const { Avatar } = window.Serupa;

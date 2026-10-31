@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { Avatar, initials, type AvatarSize, type AvatarStatus } from './Avatar';
 import { idLabels } from '../../internal/labels';
@@ -168,6 +170,31 @@ describe('Avatar', () => {
     await expect.poll(kind).toBe('img');
     setSrc('/elsewhere.png');
     await expect.poll(kind).toBe('AT');
+  });
+
+  test('a server-rendered picture that failed before the page hydrated falls back to initials (L8E44)', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const ui = <Avatar id="hy" src={`/nowhere-${crypto.randomUUID()}.png`} name="Grace Hopper" imgProps={{ loading: 'eager' }} />;
+    host.innerHTML = renderToString(ui);
+    const img = host.querySelector('img')!;
+    await expect.poll(() => img.complete).toBe(true);   // failed while no React was listening
+    const root = hydrateRoot(host, ui);
+    await expect.poll(() => (el('hy').querySelector('img') ? 'img' : el('hy').textContent)).toBe('GH');
+    root.unmount();
+    host.remove();
+  });
+
+  test('a server-rendered picture that loaded before the page hydrated stays', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const ui = <Avatar id="hy2" src={IMG} name="Grace Hopper" imgProps={{ loading: 'eager' }} />;
+    host.innerHTML = renderToString(ui);
+    const img = host.querySelector('img')!;
+    await expect.poll(() => img.complete && img.naturalWidth > 0).toBe(true);
+    const root = hydrateRoot(host, ui);
+    await new Promise((r) => setTimeout(r, 200));
+    expect(el('hy2').querySelector('img')).toBe(img);
+    root.unmount();
+    host.remove();
   });
 
   test('forced colors: the frame gets a border', async () => {
