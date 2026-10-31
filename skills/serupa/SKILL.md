@@ -52,7 +52,7 @@ The components meet their part of WCAG 2.2 AA. The page meets the rest only if y
 - **Headings:** one `h1` per page and no skipped levels. Heading's `level` sets the element, and its look can differ.
 - **Names:**
   - Wrap every form control in `<Field label="…">`. A placeholder is not a label.
-  - Give every IconButton an `aria-label`.
+  - Give every IconButton a `label` (its accessible name and tooltip). It takes no `aria-label`.
   - Give every meaningful Image `alt` text, and a decorative one `alt=""`.
   - Write link text that says where the link goes.
 - **Errors:** say what's wrong and how to fix it, next to the field. On submit, move focus to the first error or to an ErrorSummary.
