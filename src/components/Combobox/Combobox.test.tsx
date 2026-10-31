@@ -34,6 +34,14 @@ function Countries(props: { cref?: React.Ref<HTMLInputElement> }) {
 const open = async () => { el('before').focus(); await userEvent.keyboard('{Tab}{ArrowDown}'); };
 
 describe('Combobox', () => {
+  test('required with multiple: the form submits once a tag is picked and not before; it stays aria-required (L8E18)', async () => {
+    const screen = await render(<form id="rq"><Combobox aria-label="Fruit" id="rm" multiple required name="fruit" options={['Apple', 'Banana']} defaultValue={['Apple']} /></form>);
+    const f = () => document.getElementById('rq') as HTMLFormElement, field = () => document.getElementById('rm') as HTMLInputElement;
+    expect([f().checkValidity(), field().getAttribute('aria-required')]).toEqual([true, 'true']);
+    await screen.rerender(<form id="rq"><Combobox aria-label="Fruit" id="rm" multiple required name="fruit" options={['Apple', 'Banana']} value={[]} /></form>);
+    expect([f().checkValidity(), field().getAttribute('aria-required')]).toEqual([false, 'true']);
+  });
+
   test('a role="combobox" field (aria-autocomplete list, collapsed) controlling a hidden role="listbox"; Input\'s 32px box; a chevron button out of the Tab order; ref and className', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Countries cref={ref} />);
