@@ -340,6 +340,26 @@ describe('Sidebar', () => {
     await userEvent.keyboard('{Escape}');
   });
 
+  test('collapsed rail menu: a nested group is a submenu, so its items can still be reached (L8E68)', async () => {
+    await render(<Sidebar id="srailn" collapsed>
+      <I icon="folder" label="Docs" id="grailn">
+        <I label="Guides" icon="book" id="grailg"><I href="#g1" label="Getting started" active id="ig1n" /></I>
+        <I href="#api" label="API" />
+      </I>
+    </Sidebar>);
+    await userEvent.click(el('grailn'));
+    const menus = () => [...document.querySelectorAll('[role="menu"]')].filter((x) => x.matches(':popover-open'));
+    await expect.poll(() => menus().length).toBe(1);
+    const guides = [...menus()[0].querySelectorAll('[role="menuitem"]')].find((i) => i.textContent === 'Guides') as HTMLElement;
+    expect([guides.getAttribute('aria-haspopup'), guides.getAttribute('aria-current')]).toEqual(['menu', 'page']);
+    guides.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => menus().length).toBe(2);
+    const sub = [...menus()[1].querySelectorAll('[role="menuitem"]')];
+    expect(sub.map((i) => [i.tagName, i.getAttribute('href'), i.getAttribute('aria-current'), i.textContent].join(':'))).toEqual(['A:#g1:page:Getting started']);
+    await userEvent.keyboard('{Escape}{Escape}');
+  });
+
   test('contrast: items, the current page and hovered items, and section titles keep 4.5:1 in all six themes', async () => {
     await render(<App />);
     const still = document.createElement('style'); still.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
