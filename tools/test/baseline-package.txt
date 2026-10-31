@@ -25,6 +25,8 @@ dist/lib/react.production.min.js
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
 dist/serupa.iife.js.map
+dist/stylelint.d.ts
+dist/stylelint.js
 dist/theme.js
 dist/utilities.css
 dist/vscode/serupa.css-data.json
