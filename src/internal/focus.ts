@@ -12,6 +12,12 @@ export function delegateFocus(el: HTMLElement | null, target: () => HTMLElement 
   if (el) el.focus = (options?: FocusOptions) => { const t = target(); if (t) t.focus(options); };
 }
 
+/** A blur from the window or browser tab losing focus (people went to copy something from another app): the field is
+ *  still document.activeElement and has focus again when they come back, so what they typed isn't finished (L8E26). */
+export function windowBlur(e: React.FocusEvent): boolean {
+  return e.currentTarget.ownerDocument.activeElement === e.currentTarget;
+}
+
 /** autoFocus for such a control: focuses target() once, after the first render. */
 export function useAutoFocus(on: boolean | undefined, target: () => HTMLElement | null | undefined): void {
   const first = React.useRef({ on, target });

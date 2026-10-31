@@ -18,6 +18,7 @@ import { reject } from "../../internal/rejectInput";
 import * as icons from "../../material/builtin";
 import { en as NumberInputWords } from "./labels";
 import { en as DatePickerWords } from "../DatePicker/labels";
+import { windowBlur } from "../../internal/focus";
 // This component's words and the ones it shares with DatePicker.
 const words = /* @__PURE__ */ Object.assign({}, NumberInputWords, DatePickerWords);
 
@@ -179,6 +180,7 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
   };
   const outside = (n: number) => (min !== undefined && n < min) || (max !== undefined && n > max);
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (windowBlur(e)) { if (rest.onBlur) rest.onBlur(e); return; }   // switched windows: still typing
     const n = parse(text), typed = typing.current;
     const v = n == null ? null : fit(n === undefined ? (value ?? 0) : n);
     const out = n === undefined ? value : v;

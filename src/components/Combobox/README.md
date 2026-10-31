@@ -44,7 +44,7 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 
 - Opening with a click, the chevron or an arrow shows every option; typing narrows them and highlights the first match.
 - A press anywhere on the box, on the left icon, the side padding or a tag, focuses the field with the caret at the end, as the text cursor over the box promises (the chevron and × keep their own presses).
-- Leaving the field closes the list and puts back the picked label. Leaving it empty clears the selection.
+- Leaving the field closes the list and puts back the picked label. Leaving it empty clears the selection. Switching to another window or browser tab isn't leaving the field: the text waits until people come back.
 - With `multiple`, each picked option is a tag before the text, in the order it was picked, with a remove button. Picking an option toggles it and keeps the list open on it, and the text empties so the next search starts from every option. Backspace in the empty field removes the last tag. Leaving the field empties the text and picks nothing. The box grows a row at a time as tags wrap.
 - Text that is exactly one option's label ("brazil" for Brazil: any case, with or without accents) picks that option when focus leaves the field (Tab or a click elsewhere), as Enter would.
 - The list opens under the field in the top layer, at least as wide as the field and up to 240px tall, and flips above when there's no room. With no room above or below either, it takes the roomier side and gets shorter, scrolling inside.

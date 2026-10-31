@@ -16,6 +16,7 @@ import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
 import { en as TimePickerWords } from "./labels";
 import { en as DatePickerWords } from "../DatePicker/labels";
+import { windowBlur } from "../../internal/focus";
 // This component's words and the ones it shares with DatePicker.
 const words = /* @__PURE__ */ Object.assign({}, TimePickerWords, DatePickerWords);
 
@@ -162,7 +163,7 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
         onChange={(e) => {
           setText(e.target.value);
           if (open) { typed.current = true; const n = parseTime(e.target.value, locale); if (n != null) setActive(nearest(n)); }   // the highlight follows what's typed
-        }} onBlur={(e) => { read(); if (onBlur) onBlur(e); }} onKeyDown={keys} />
+        }} onBlur={(e) => { if (!windowBlur(e)) read(); if (onBlur) onBlur(e); }} onKeyDown={keys} />
       <button type="button" tabIndex={-1} className="dk-time-picker__button" aria-label={label} aria-controls={id} aria-expanded={open} disabled={!!disabled || !!readOnly}
         onMouseDown={(e) => e.preventDefault()} onClick={() => { if (open) setOpen(false); else show(); if (field.current) field.current.focus(); }}>
         <Icon icon={icons.Schedule} />

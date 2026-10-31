@@ -32,6 +32,17 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('switching to another window or tab mid-typing keeps the typed text and says nothing (L8E26)', async () => {
+    const calls: string[] = [];
+    await render(<TimePicker id="twb" aria-label="Start" locale="de-DE" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);
+    await userEvent.click(el('twb'));
+    await userEvent.keyboard('14:');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    el('twb').dispatchEvent(new FocusEvent('focusout', { bubbles: true })); el('twb').dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([el('twb').value, calls]).toEqual(['14:', []]);
+  });
+
   test('a press on the box (start padding, past the clock button) focuses the field with the caret at the end; a disabled box stays put (GG2)', async () => {
     await render(<div style={{ width: '320px' }}>
       <TimePicker id="bx" size="lg" locale="en-GB" defaultValue="09:30" aria-label="Start" />
