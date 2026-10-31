@@ -41,7 +41,7 @@ const [open, setOpen] = React.useState(false);
 
 ## Behavior
 
-- Opening moves focus to the first thing in it that takes focus. To choose another, pass its ref as `initialFocus` (Cancel in a confirmation, so Enter doesn't delete), or put `data-autofocus` on it (React's `autoFocus` runs while the dialog is still hidden, so it can't). Closing moves focus back to where it was.
+- Opening moves focus to the first thing in it that takes focus. To choose another, pass its ref as `initialFocus` (Cancel in a confirmation, so Enter doesn't delete), or put `data-autofocus` on it (React's `autoFocus` runs while the dialog is still hidden, so it can't). Closing moves focus back to where it was. When closing takes that away (a confirmation that deletes the row it was opened from), pass `finalFocus`, such as the next row or the list's heading, so focus doesn't fall to the top of the page.
 - A body taller than the screen takes Tab focus (with a focus ring) when it scrolls, so the arrow keys and Page Down scroll it in every browser, even with nothing focusable inside. It's a region named by the title.
 - Tab and Shift+Tab stay inside. The page behind can't be clicked or reached, and doesn't scroll. It doesn't shift either: with classic scrollbars (Windows, Linux) the page keeps the scrollbar's space while it's hidden (`tools/test/scroll-lock.mjs`).
 - It enters as a sequence: the backdrop fades in, and 50ms later (`motion-sequence`) the panel fades and grows in over 200ms. It fades and shrinks out over 150ms with the backdrop, both in place at the centre; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Focus goes back to what opened it at once, not after the fade, and presses reach the page while it fades. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing dialog in the top layer yet, so there it closes at once.
@@ -84,6 +84,7 @@ const [open, setOpen] = React.useState(false);
 | `closeOnBackdrop` | boolean | `true` (`false` for alert) | Whether a click on the dimmed page closes it |
 | `fullScreen` | boolean \| `'mobile'` | `false` | Fills the screen: `true` always, or `'mobile'` under 640px wide. Square corners, no shadow, the body takes the free height, and the padding clears the notch and home bar |
 | `initialFocus` | `RefObject<HTMLElement>` | | The element that takes focus when it opens, instead of the first that can. A ref to something outside the dialog is ignored |
+| `finalFocus` | `RefObject<HTMLElement>` | | Where focus goes when it closes, instead of back to the opener. Used when it's on the page then; otherwise focus goes back to the opener |
 
 `children` is the body, which scrolls when it's taller than the screen. `className`, `style`, `ref` and everything else go to the `<dialog>`, which has `data-component="dialog"` and `data-size`.
 

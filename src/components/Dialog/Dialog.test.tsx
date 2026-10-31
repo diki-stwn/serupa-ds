@@ -38,6 +38,30 @@ function App(props: { asks: string[]; ctl: Partial<Ctl>; dref?: React.Ref<HTMLDi
 const openDlg = async () => { await userEvent.click(el('opener')); await expect.poll(() => isOpen('dlg')).toBe(true); await settled(); };
 
 describe('Dialog', () => {
+  test('finalFocus: deleting the row it was opened from, focus goes to finalFocus, not <body>; without it, the opener when it\'s still there (L8E19)', async () => {
+    function Rows({ final }: { final: boolean }) {
+      const [rows, setRows] = React.useState(['a', 'b']);
+      const [open, setOpen] = React.useState<string | null>(null);
+      const next = React.useRef<HTMLHeadingElement>(null);
+      return <>
+        <h2 id="rows-h" tabIndex={-1} ref={next}>Rows</h2>
+        {rows.map((r) => <button key={r} id={'del-' + r} onClick={() => setOpen(r)}>Delete {r}</button>)}
+        <Dialog id="fd" open={open != null} onOpenChange={(o) => { if (!o) setOpen(null); }} title="Delete?" finalFocus={final ? next : undefined}
+          footer={<><Button id="fd-keep" onClick={() => setOpen(null)}>Keep</Button><Button id="fd-yes" onClick={() => { setRows((x) => x.filter((y) => y !== open)); setOpen(null); }}>Delete</Button></>} />
+      </>;
+    }
+    const screen = await render(<Rows final />);
+    await userEvent.click(el('del-a'));
+    await expect.poll(() => isOpen('fd')).toBe(true);
+    await userEvent.click(el('fd-yes'));
+    await expect.poll(() => document.activeElement?.id).toBe('rows-h');
+    await screen.rerender(<Rows final={false} />);
+    await userEvent.click(el('del-b'));
+    await expect.poll(() => isOpen('fd')).toBe(true);
+    await userEvent.click(el('fd-keep'));
+    await expect.poll(() => document.activeElement?.id).toBe('del-b');
+  });
+
   beforeEach(async () => { await page.viewport(1000, 700); });
   afterAll(async () => { await page.viewport(900, 700); });
 
@@ -337,6 +361,19 @@ describe('Dialog', () => {
     await render(<React.StrictMode><Dialog id="sm" open title="Opened on mount" /></React.StrictMode>);
     await expect.poll(() => isOpen('sm')).toBe(true);
     expect(topModal()).toBe(dlg('sm'));
+  });
+
+  test('StrictMode: a Dialog mounted open when a button is pressed gives focus back to that button when it closes (L8E19)', async () => {
+    function App() {
+      const [show, setShow] = React.useState(false);
+      return <><button id="smo" onClick={() => setShow(true)}>Delete</button>{show ? <Dialog id="smb" open onOpenChange={() => setShow(false)} title="Delete it?" /> : null}</>;
+    }
+    await render(<React.StrictMode><App /></React.StrictMode>);
+    await userEvent.click(el('smo'));
+    await expect.poll(() => isOpen('smb')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => document.getElementById('smb')).toBeNull();
+    expect(document.activeElement!.id).toBe('smo');
   });
 });
 
