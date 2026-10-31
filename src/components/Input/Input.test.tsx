@@ -164,7 +164,7 @@ describe('Input', () => {
     await expect.poll(() => css(box('i')).boxShadow).toContain(danger);
   });
 
-  test('read-only: a surface-muted background, still focusable; disabled: native disabled, 50%, not-allowed', async () => {
+  test('read-only: a field-readonly background, still focusable; disabled: native disabled, 50%, not-allowed', async () => {
     await render(<>
       <Input id="plain" aria-label="Plain" />
       <Input id="ro" readOnly defaultValue="INV-1" aria-label="Read-only" />
@@ -180,7 +180,7 @@ describe('Input', () => {
     expect(css(field('dis')).cursor).toBe('not-allowed');
   });
 
-  test('in a <fieldset disabled>: the same look as disabled (surface-muted, 50%, not-allowed), with no hover border; fields built on Input follow (NumberInput\'s steppers aren\'t dimmed twice)', async () => {
+  test('in a <fieldset disabled>: the same look as disabled (field-readonly, 50%, not-allowed), with no hover border; fields built on Input follow (NumberInput\'s steppers aren\'t dimmed twice)', async () => {
     await render(<>
       <Input id="fdref" disabled aria-label="Disabled" />
       <fieldset disabled><legend>Billing</legend>
