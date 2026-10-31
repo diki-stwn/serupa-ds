@@ -182,6 +182,20 @@ describe('SegmentedControl', () => {
       .toEqual([44, 'lg', '16px', '16px', '38,38']);
   });
 
+  test('fullWidth with a label too long for its equal share: the segments share by content instead, still filling the width, so "Kisi" gives its spare room to the long ones; wide enough, equal again (GR50)', async () => {
+    const opts = [{ value: 'list', label: 'Daftar lengkap' }, { value: 'grid', label: 'Kisi' }, { value: 'map', label: 'Peta lokasi toko' }, { value: 'cal', label: 'Kalender' }];
+    let setW: (w: number) => void = () => {};
+    function Box() { const [w, set] = React.useState(320); setW = set; return <div style={{ width: w + 'px' }}><SegmentedControl id="fit" aria-label="View" fullWidth options={opts} defaultValue="list" /></div>; }
+    await render(<Box />);
+    const widths = () => items('fit').map((b) => Math.round(b.getBoundingClientRect().width));
+    const whole = (v: string) => { const l = seg('fit', v).firstElementChild as HTMLElement; return l.scrollWidth <= l.clientWidth; };
+    await expect.poll(() => whole('cal')).toBe(true);
+    const w = widths();
+    expect([whole('grid'), w[1] < w[0], Math.abs(w.reduce((a, b) => a + b, 0) - el('fit').clientWidth) <= 6]).toEqual([true, true, true]);
+    setW(900);
+    await expect.poll(() => new Set(widths()).size).toBe(1);
+  });
+
   test('fullWidth: fills its container with equal segments; disabled: every segment disabled and out of the Tab order, faded', async () => {
     await render(<Col>
       <div style={{ width: '300px' }}><SegmentedControl id="full" aria-label="Full" fullWidth options={PERIODS.slice(0, 3)} /></div>
