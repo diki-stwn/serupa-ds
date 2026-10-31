@@ -37,7 +37,10 @@ describe('Input', () => {
       <div data-k="plain-row" style={{ display: 'flex', gap: '8px' }}><Input aria-label="Kode" prefix="#" /><Button>Pakai</Button></div>
       <div data-k="row" style={{ display: 'flex', gap: '8px' }}><Input aria-label="Kode" prefix="#" className="flex-1" /><Button>Pakai</Button></div>
       <Button id="natural">Pakai</Button>
+      {/* The same affixed pair in a wider font (a fallback before Inter loads is one): the affixes give way, the box doesn't. */}
+      <div data-k="affixed-wide-font" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', '--font-sans': 'monospace' } as React.CSSProperties}>{fields[1][1]}{fields[1][1]}</div>
     </div>);
+    await document.fonts.ready;
     const wide = [...document.querySelectorAll<HTMLElement>('[data-k]')].filter((r) => r.scrollWidth > r.clientWidth || [...r.children].some((c) => Math.round(c.getBoundingClientRect().right - r.getBoundingClientRect().right) > 0)).map((r) => r.dataset.k);
     const row = document.querySelector<HTMLElement>('[data-k=row]')!, button = row.lastElementChild!.getBoundingClientRect();
     const label = [...row.querySelector('button')!.querySelectorAll<HTMLElement>('span')].find((s) => s.textContent === 'Pakai')!;   // its label
