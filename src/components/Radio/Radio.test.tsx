@@ -259,4 +259,15 @@ describe('Radio', () => {
       await press(dot('pq').closest('label')!, () => expect(css(dot('pq')).scale).toBe('none'));
     });
   });
+
+  test('L8E82: wrapping at the ends skips a radio hidden by CSS, rather than checking it out of sight while focus stays put', async () => {
+    const seen: string[] = [];
+    await render(<RadioGroup aria-label="Size" name="hid" defaultValue="b" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="hid-x" value="x" style={{ display: 'none' }}>X</Radio><Radio id="hid-a" value="a">A</Radio><Radio id="hid-b" value="b">B</Radio>
+    </RadioGroup>);
+    input('hid-b').focus();
+    const at = async (key: string) => { await userEvent.keyboard(`{${key}}`); return document.activeElement!.id + (input(document.activeElement!.id).checked ? '*' : ''); };
+    expect([await at('ArrowRight'), await at('ArrowLeft')]).toEqual(['hid-a*', 'hid-b*']);
+    expect(seen.join()).toBe('a,b');
+  });
 });

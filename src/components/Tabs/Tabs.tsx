@@ -229,7 +229,9 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     if (props.onKeyDown) props.onKeyDown(e);
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
-    const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'));
+    // A tab hidden by CSS or the hidden attribute can't take focus: the keys skip it rather than select it out of
+    // sight while focus stays put (L8E81).
+    const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])')).filter((t) => t.getClientRects().length > 0);
     const i = tabs.indexOf(activeIn(e.currentTarget) as HTMLButtonElement);
     if (i < 0 || !tabs.length) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
