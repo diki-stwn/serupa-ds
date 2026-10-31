@@ -341,6 +341,6 @@ describe('Accordion and form validation (L8E99)', () => {
     await userEvent.click(document.getElementById('l8e99-go')!);
     await expect.poll(() => document.activeElement?.id).toBe('l8e99-email');
     // Only the form's first invalid field's item opens.
-    expect([sent, ...[...document.querySelectorAll('.dk-accordion__item')].map((i) => i.getAttribute('data-state'))]).toEqual([0, 'open', 'closed']);
+    expect([sent, ...[...document.querySelectorAll('[aria-expanded]')].map((b) => b.getAttribute('aria-expanded'))]).toEqual([0, 'true', 'false']);
   });
 });
