@@ -16,6 +16,9 @@ interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
 }
 interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
     selected?: boolean;
+    href?: string;
+    target?: string;
+    rel?: string;
 }
 interface TableSelectCellProps extends Omit<CheckboxProps, "children" | "description" | "size"> {
     label: string;
@@ -30,6 +33,7 @@ interface TableHeaderCellProps extends Omit<React.ThHTMLAttributes<HTMLTableCell
 }
 interface TableCellProps extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, "align"> {
     align?: "center" | "end" | "start";
+    link?: boolean;
 }
 interface TableActionBarProps extends React.HTMLAttributes<HTMLDivElement> {
     count: number;
