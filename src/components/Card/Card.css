@@ -35,9 +35,8 @@
    words ("recur-ring" isn't split) where hyphenate-limit-chars is supported. The header only: the body is the
    card's own content, left as it is. */
 .dk-card__header {
-  hyphens: auto;
-  /* stylelint-disable-next-line serupa/no-raw-value -- letter counts, not a design value */
-  hyphenate-limit-chars: 10 4 4;
+  --dk-card-hyphen-limit: 10 4 4;   /* letter counts, not a design value */
+  hyphens: auto; hyphenate-limit-chars: var(--dk-card-hyphen-limit);
 }
 /* The heading keeps at least 128px; narrower than that beside the action, the action drops under it rather than the
    title breaking mid-word (GR7). */
