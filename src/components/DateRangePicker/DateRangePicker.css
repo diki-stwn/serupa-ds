@@ -5,7 +5,7 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-date-range-picker { --dk-drp-offset: var(--date-picker-offset, var(--spacing-1)); width: auto; max-width: var(--sizing-full); padding-inline-end: var(--spacing-1); }
-.dk-date-range-picker__field { flex: none; width: var(--date-range-picker-field-width, var(--spacing-24)); }
+.dk-date-range-picker__field { flex: 0 1 var(--date-range-picker-field-width, var(--spacing-24)); min-width: var(--spacing-0); width: var(--date-range-picker-field-width, var(--spacing-24)); }
 .dk-date-range-picker__dash { flex-shrink: 0; color: var(--date-range-picker-dash, var(--text-muted)); }
 .dk-date-range-picker__months { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--date-range-picker-months-gap, var(--spacing-6)); }
 .dk-date-range-picker__months > :first-child .dk-calendar__nav--next, .dk-date-range-picker__months > :last-child:not(:first-child) .dk-calendar__nav--prev { visibility: hidden; }
