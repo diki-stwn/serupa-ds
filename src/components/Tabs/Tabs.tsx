@@ -83,7 +83,11 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
   // so the tab list can still be reached from the keyboard.
   const [stop, setStop] = React.useState<string | null>(null);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop, before, keyed }), [base, value, select, props.activation, vertical, panels, register, stop, keyed]);
+  // The selected tab hidden by CSS or the hidden attribute (a responsive class, at load or after a resize) can't take
+  // focus, so its tabindex 0 left the list out of the Tab order: the first shown enabled tab takes the stop (GR67).
+  const [hiddenStop, setHiddenStop] = React.useState<string | null>(null);
+  const tabStop = stop != null ? stop : hiddenStop;
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop: tabStop, before, keyed }), [base, value, select, props.activation, vertical, panels, register, tabStop, keyed]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
@@ -115,6 +119,21 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     // selected, not to the page. A removed element can still read as the active one until the browser next looks.
     const active = activeIn(self.current);
     if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
+  });
+  // Layout, so after paint; again whenever a tab or the list changes size (a media query hiding a tab sets it to 0).
+  React.useEffect(() => {
+    const el = self.current;
+    if (!el) return;
+    const tabs = Array.from(el.querySelectorAll<HTMLElement>('[role="tab"]')).filter((t) => t.id.startsWith(base + "-tab-"));
+    const check = () => {
+      const sel = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+      const next = sel && !sel.getClientRects().length ? tabs.find((t) => !t.hasAttribute("disabled") && t.getClientRects().length > 0) : undefined;
+      setHiddenStop(next ? (next.dataset.value as string) : null);
+    };
+    check();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    if (ro) { ro.observe(el); for (const t of tabs) ro.observe(t); }
+    return () => { if (ro) ro.disconnect(); };
   });
   return (
     <TabsContext.Provider value={ctx}>
