@@ -804,7 +804,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | Role | Today | What moves |
 | --- | --- | --- |
 | `motion-press` | `duration-100` | A control answering while it's held down (Button scales down). |
-| `motion-release` | `duration-300` | A press let go coming back to size: Button with `ease-enter`, settling with no overshoot; Badge still springs back with `ease-spring`. |
+| `motion-release` | `duration-300` | A press let go coming back to size with `ease-enter`, settling with no overshoot (Button, Badge). |
 | `motion-hover` | `duration-150` | Hover and focus changes on a control that stays put: colors, borders, shadows. |
 | `motion-enter-sm` | `duration-150` | A small surface appearing: tooltips, popovers, menus, date pickers. |
 | `motion-enter-md` | `duration-200` | A medium surface appearing: dialogs, toasts. |
@@ -817,7 +817,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |
-| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | A press ripple spreading from the pointer, then fading (Badge; Button has none). |
+| `motion-ripple` / `motion-ripple-fade` | `duration-500` / `300` | Kept for your own press ripples; no component uses them since Button and Badge dropped theirs. |
 | `motion-stagger` | `delay-50` | The gap between items of a group arriving one after another: list rows, toasts, grid cards. |
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
 | `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |

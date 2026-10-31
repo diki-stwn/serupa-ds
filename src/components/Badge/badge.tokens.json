@@ -321,36 +321,6 @@
             "cssVar": "--badge-loading-duration"
           }
         }
-      },
-      "ripple-opacity": {
-        "$type": "number",
-        "$value": "{opacity.opacity-20}",
-        "$description": "Clickable badges: strength of the ripple from the press point, in the text color (20%). 0 turns the ripple off.",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--badge-ripple-opacity"
-          }
-        }
-      },
-      "ripple-duration": {
-        "$type": "duration",
-        "$value": "{transitions.motion-ripple}",
-        "$description": "Clickable badges: how long the ripple takes to spread across the badge (500ms, ease-in-out). It always spreads all the way before fading, so a quick click shows the whole wave.",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--badge-ripple-duration"
-          }
-        }
-      },
-      "ripple-fade-duration": {
-        "$type": "duration",
-        "$value": "{transitions.motion-ripple-fade}",
-        "$description": "Clickable badges: how long the ripple takes to fade after release (300ms).",
-        "$extensions": {
-          "com.serupa": {
-            "cssVar": "--badge-ripple-fade-duration"
-          }
-        }
       }
     }
   }
