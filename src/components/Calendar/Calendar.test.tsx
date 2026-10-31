@@ -240,8 +240,10 @@ describe('Calendar: long jumps and midnight (EM1)', () => {
     const name = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
     const lo = at(400), hi = at(-400);
     await render(<><Calendar data-testid="lo" locale="en-US" min={lo} /><Calendar data-testid="hi" locale="en-US" max={hi} /></>);
-    const stop = (id: string) => (q(`[data-testid=${id}] [role=grid] button[tabindex="0"]`) as HTMLElement).dataset.date;
-    expect([q('[data-testid=lo] .dk-calendar__title').textContent, stop('lo'), q('[data-testid=hi] .dk-calendar__title').textContent, stop('hi')])
+    const grid = (id: string) => q(`[data-testid=${id}] [role=grid]`);
+    const stop = (id: string) => grid(id).querySelector<HTMLElement>('button[tabindex="0"]')!.dataset.date;
+    const named = (id: string) => document.getElementById(grid(id).getAttribute('aria-labelledby')!)!.textContent;
+    expect([named('lo'), stop('lo'), named('hi'), stop('hi')])
       .toEqual([name(lo), iso(lo), name(hi), iso(hi)]);
   });
 });
