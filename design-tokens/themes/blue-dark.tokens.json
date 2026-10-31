@@ -122,7 +122,7 @@
     },
     "field": {
       "$type": "color",
-      "$value": "{color.zinc-900}",
+      "$value": "{color.zinc-800}",
       "$description": "Alias. Background of text inputs, selects and other form fields.",
       "$extensions": {
         "com.serupa": {
@@ -130,9 +130,19 @@
         }
       }
     },
+    "field-readonly": {
+      "$type": "color",
+      "$value": "{color.zinc-900}",
+      "$description": "Alias. Background of a read-only or disabled form field: a step flatter than `field` (zinc-50 in light, the page's zinc-900 in dark), so it reads as not editable while its `field-border` still outlines it.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--field-readonly"
+        }
+      }
+    },
     "field-border": {
       "$type": "color",
-      "$value": "{color.zinc-500}",
+      "$value": "{color.zinc-400}",
       "$description": "Alias. Border of form fields. 3:1+ against `field` and `surface` in every theme, as WCAG 1.4.11 requires for a control's boundary.",
       "$extensions": {
         "com.serupa": {
@@ -142,7 +152,7 @@
     },
     "field-border-hover": {
       "$type": "color",
-      "$value": "{color.zinc-400}",
+      "$value": "{color.zinc-300}",
       "$description": "Alias. Field border on hover.",
       "$extensions": {
         "com.serupa": {

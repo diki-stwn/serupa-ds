@@ -62,8 +62,10 @@ A button can be a Menu's trigger or sit in a Tooltip, as in a split button (`<Me
 
 Each is an optional override: set it on the page, a container or one group. The list lives in `src/components/ButtonGroup/button-group.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from button-group.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-group-gap` | `spacing-2` | Space between buttons when not attached (8px). |
 | `--button-group-overlap` | `border-width-1` | How much attached buttons overlap, so their borders make one line (1px, the button border). |
 | `--button-group-divider` | `opacity-40` | Strength of the edge between two attached primary buttons, in their text color (40%). Set `0%` for none. |
+<!-- token-table:end -->

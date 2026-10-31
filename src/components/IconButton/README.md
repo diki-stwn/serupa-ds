@@ -60,6 +60,8 @@ Every other Button prop works the same: `size` (24, 32 or 44px square), `destruc
 
 Each is an optional override: set it on the page, a container or one button. The list lives in `src/components/IconButton/icon-button.tokens.json` (also in `design-tokens/components/`). Every Button token applies too.
 
+<!-- token-table:start (made from icon-button.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--icon-button-radius-round` | `rounded-full` | The corners of a round icon button (shape="round"). |
+<!-- token-table:end -->

@@ -53,6 +53,7 @@ import { SaveStatus } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one SaveStatus. The list lives in `src/components/SaveStatus/save-status.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from save-status.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--save-status-text` | `text-muted` | The text and the ring (4.5:1 on the page). |
@@ -60,3 +61,4 @@ Each is an optional override: set it on the page, a container or one SaveStatus.
 | `--save-status-error` | `danger-text` | The error's icon, text and Try again (4.5:1 on the page). |
 | `--save-status-icon-size` | `spacing-4` | The icon's size (16px). |
 | `--save-status-gap` | `spacing-1.5` | Space between the icon, the text and Try again (6px). |
+<!-- token-table:end -->
