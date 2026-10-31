@@ -1003,7 +1003,7 @@
   --motion-change-sm: var(--duration-150);
   --motion-change-md: var(--duration-200);
   --motion-change-lg: var(--duration-300);
-  --motion-loop-spinner: var(--duration-1000);
+  --motion-loop-spinner: var(--duration-700);
   --motion-loop-placeholder: var(--duration-1000);
   --motion-loop-blink: var(--duration-1000);
   --motion-loop-progress: var(--duration-1200);

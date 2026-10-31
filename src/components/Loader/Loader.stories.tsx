@@ -42,9 +42,10 @@ export const PixelPatterns: Story = {
   render: () => <Row>{(['wave', 'random', 'sweep', 'fall', 'rise', 'snake', 'spiral', 'cross', 'checker'] as const).map((p) => <Loader key={p} variant="pixel" pattern={p} size="lg" delay={0} />)}</Row>,
 };
 
-// KW22: which spinner speed feels quickest? The ring at today's motion-loop-spinner (1s a turn) beside 800ms and
+// KW22: which spinner speed feels quickest? The ring at the old motion-loop-spinner (1s a turn) beside 800ms and
 // 700ms, set on a wrapper so only these three change. A faster turn can make a wait feel shorter; too fast reads as
-// alarm. Pick by watching them side by side; reduced motion keeps its slow breathe at any speed.
+// alarm. 700ms was picked (the token now, KW22): the quickest of the three that still reads as steady. Reduced motion
+// keeps its breathe at any speed.
 export const SpinnerSpeeds: Story = {
   name: 'Spinner speeds',
   render: () => <Row>

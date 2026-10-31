@@ -29,7 +29,7 @@
 .dk-loader__track { opacity: var(--loader-track-opacity, var(--opacity-20)); }
 .dk-loader__arc { stroke-linecap: round; }
 /* The ring: a quarter arc (pathLength="100", dasharray 25) on its track, the drawing turning at a steady
-   --motion-loop-spinner (1s a turn), the one spinner speed (EE1): Switch's pending ring and the circular Progress
+   --motion-loop-spinner (700ms a turn, KW22), the one spinner speed (EE1): Switch's pending ring and the circular Progress
    turn with it. Only the drawing turns, on the compositor: nothing repaints on each frame. */
 .dk-loader--ring .dk-loader__art > svg { animation: spin var(--motion-loop-spinner) var(--ease-linear) infinite; }
 /* Reduced motion (below): spinners don't turn; the still drawing breathes between full and half strength. */
@@ -203,7 +203,7 @@
 }
 .dk-loader__bone:dir(rtl)::after { --dk-loader-sweep: calc(var(--sizing-full) * -2 / 3); }
 @keyframes dk-loader-sweep { to { translate: var(--dk-loader-sweep) 0; } }
-/* Reduced motion: the ring and the spokes stand still and breathe (opacity, twice the spinner's period: 2s);
+/* Reduced motion: the ring and the spokes stand still and breathe (opacity, twice the spinner's period: 1.4s);
    the dots only fade, without growing; the pixel patterns slow to half speed; the label is plain text and the skeleton a still fill, without the shine. */
 @media (prefers-reduced-motion: reduce) {
   .dk-loader--ring .dk-loader__art > svg, .dk-loader--spokes .dk-loader__art > svg { animation: dk-loader-breathe calc(var(--motion-loop-spinner) + var(--motion-loop-spinner)) var(--ease-move) infinite; }

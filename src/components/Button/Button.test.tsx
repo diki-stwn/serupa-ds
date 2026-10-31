@@ -417,7 +417,7 @@ describe('Button', () => {
     const restore = reduceMotion();
     try {
       const s = getComputedStyle(q('#sub .dk-btn__spinner svg'));
-      expect([`${s.animationName} ${s.animationDuration}`, getComputedStyle(q('#sub [data-component=loader]').parentElement!).animationName]).toEqual(['dk-loader-breathe 2s', 'dk-loader-in']);
+      expect([`${s.animationName} ${s.animationDuration}`, getComputedStyle(q('#sub [data-component=loader]').parentElement!).animationName]).toEqual(['dk-loader-breathe 1.4s', 'dk-loader-in']);
     } finally { restore(); }
   });
 });

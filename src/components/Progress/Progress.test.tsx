@@ -159,7 +159,7 @@ describe('Progress: done', () => {
     expect([share('mv'), Math.round(Math.max(f.left, tr.left) - tr.left)]).toEqual([70, 120]); // the 30% not filled is on the left
   });
 
-  test('reduced motion: the indeterminate circle stands still and breathes (opacity, 2s), as Loader\'s ring does (EE1)', async () => {
+  test('reduced motion: the indeterminate circle stands still and breathes (opacity, 1.4s), as Loader\'s ring does (EE1)', async () => {
     await render(<Progress id="crm" variant="circle" aria-label="Loading" />);
     const ring = el('crm').querySelector('svg') as SVGElement;
     const rules = [...document.styleSheets].flatMap((sh) => { try { return [...sh.cssRules]; } catch { return []; } });
@@ -168,7 +168,7 @@ describe('Progress: done', () => {
     const was = rm.map((r) => r.media.mediaText);
     rm.forEach((r) => { r.media.mediaText = '(min-width: 0px)'; });
     try {
-      expect(withMotion(() => { const s = css(ring); return `${s.animationName} ${s.animationDuration}`; })).toBe('dk-progress-breathe 2s');
+      expect(withMotion(() => { const s = css(ring); return `${s.animationName} ${s.animationDuration}`; })).toBe('dk-progress-breathe 1.4s');
     } finally { rm.forEach((r, i) => { r.media.mediaText = was[i]; }); }
   });
 
