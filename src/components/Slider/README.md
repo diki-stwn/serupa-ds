@@ -91,6 +91,7 @@ Name a single slider with `aria-label` or `aria-labelledby`; on a range they nam
 
 Each is an optional override: set it on the page, a container or one slider. The list lives in `src/components/Slider/slider.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from slider.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--slider-track` | `field-border` | The track (3:1 on the surface, so the control can be seen). |
@@ -104,9 +105,10 @@ Each is an optional override: set it on the page, a container or one slider. The
 | `--slider-value-bg` | `surface-inverse` | showValue's chip over the thumb. |
 | `--slider-value-text` | `text-inverse` | showValue's text (4.5:1 on value-bg). |
 | `--slider-track-height-sm` | `spacing-1` | The track's thickness, size="sm" (4px). |
-| `--slider-track-height-md` | `spacing-1_5` | The track's thickness, size="md", the default (6px). |
+| `--slider-track-height-md` | `spacing-1.5` | The track's thickness, size="md", the default (6px). |
 | `--slider-thumb-size-sm` | `spacing-4` | The thumb, size="sm" (16px). |
 | `--slider-thumb-size-md` | `spacing-5` | The thumb, size="md" (20px). |
 | `--slider-thumb-border-width` | `border-width-2` | The thumb's ring (2px). |
 | `--slider-radius` | `rounded-full` | The track's ends and the thumb. |
 | `--slider-thumb-shadow` | `shadow-sm` | The thumb's shadow. |
+<!-- token-table:end -->

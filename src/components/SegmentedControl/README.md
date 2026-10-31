@@ -81,6 +81,9 @@ Name it with `aria-label` or `aria-labelledby`. `className`, `ref` and other pro
 
 Each is an optional override: set it on the page, a container or one control. The list lives in `src/components/SegmentedControl/segmented-control.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from segmented-control.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--segmented-control-bg` | `surface-muted` | The control's background. |
@@ -92,16 +95,47 @@ Each is an optional override: set it on the page, a container or one control. Th
 | `--segmented-control-text-hover` | `text` | A segment's label on hover. |
 | `--segmented-control-focus-ring` | `focus-ring` | A segment's keyboard focus ring. |
 | `--segmented-control-invalid` | `danger` | The outline when invalid (3:1 on the surface). |
+
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--segmented-control-indicator-shadow` | `shadow-sm` | The selected segment's shadow. |
+
+**Radius**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--segmented-control-radius` | `rounded-md` | The control's corners (6px). |
 | `--segmented-control-indicator-radius` | `rounded-sm` | The selected segment's corners (4px). |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--segmented-control-height-sm` | `control-height-sm` | size="sm" (24px). |
 | `--segmented-control-height-md` | `control-height-md` | size="md", the default (32px). |
 | `--segmented-control-height-lg` | `control-height-lg` | size="lg" (44px). |
-| `--segmented-control-padding` | `spacing-0_5` | Space between the outline and the segments (2px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--segmented-control-padding` | `spacing-0.5` | Space between the outline and the segments (2px). |
 | `--segmented-control-padding-x` | `spacing-3` | Space on each side of a segment's label (12px). |
 | `--segmented-control-padding-x-lg` | `spacing-4` | Space on each side of a segment's label, size="lg" (16px). |
-| `--segmented-control-gap` | `spacing-1_5` | Space between a segment's icon and label (6px). |
+| `--segmented-control-gap` | `spacing-1.5` | Space between a segment's icon and label (6px). |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--segmented-control-weight` | `font-medium` | The labels' weight (500). |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--segmented-control-duration` | `motion-change-md` | How long the selection takes to slide to a new segment. |
 | `--segmented-control-press-scale` | `scale-95` | Size of a segment's label while it's held down (95%). 1 turns it off. |
+<!-- token-table:end -->

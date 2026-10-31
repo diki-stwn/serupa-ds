@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "Field background.",
+        "$description": "Background",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-bg"
@@ -15,7 +15,7 @@
       "bg-readonly": {
         "$type": "color",
         "$value": "{color.field-readonly}",
-        "$description": "Background when read-only or disabled.",
+        "$description": "Background when read-only or disabled",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-bg-readonly"
@@ -25,7 +25,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The typed text.",
+        "$description": "The typed text",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-text"
@@ -35,7 +35,7 @@
       "border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "Border (3:1 on the field and the page in every theme).",
+        "$description": "Border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-border"
@@ -45,7 +45,7 @@
       "border-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "Border on hover.",
+        "$description": "Border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-border-hover"
@@ -55,7 +55,7 @@
       "placeholder": {
         "$type": "color",
         "$value": "{color.placeholder}",
-        "$description": "Placeholder text (4.5:1 on the field).",
+        "$description": "Placeholder text",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-placeholder"
@@ -65,7 +65,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "Border and ring while focused.",
+        "$description": "Border and ring while focused",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-focus-ring"
@@ -75,7 +75,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Border and focus ring when invalid.",
+        "$description": "Border and ring when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-invalid"
@@ -85,7 +85,7 @@
       "count": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The character count (showCount), 4.5:1 on the field; it turns text-colored at maxLength.",
+        "$description": "The character count",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-count"
@@ -95,7 +95,7 @@
       "count-full": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The character count once it reaches maxLength.",
+        "$description": "The character count once it reaches `maxLength`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-count-full"
@@ -169,7 +169,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "Border width (1px); the focus ring adds as much again.",
+        "$description": "Border width (1px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-border-width"
@@ -179,7 +179,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "Corner radius (6px), like Input and Button.",
+        "$description": "Corner radius (6px), like Input and Button",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--textarea-radius"

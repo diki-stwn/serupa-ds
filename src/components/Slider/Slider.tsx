@@ -59,7 +59,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   showValue?: boolean;
 }
 
-const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, marks: 1, showValue: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
+const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, marks: 1, showValue: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1, "aria-errormessage": 1 } as const;
 
 // The marks to draw: every step for true (every largeStep steps when that's over 100 ticks), or the listed values on the track.
 function markList(marks: SliderProps["marks"], min: number, max: number, step: number, large: number): SliderMark[] {
@@ -227,6 +227,8 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
           <span key={i} ref={(n) => { thumbs.current[i] = n; if (!isRange) nameRef(n); }} className="dk-slider__thumb" style={{ insetInlineStart: pct(v) + "%" }}
             role="slider" tabIndex={disabled ? -1 : 0} aria-valuenow={v} aria-valuemin={isRange && i === 1 ? vals[0] : min} aria-valuemax={isRange && i === 0 ? vals[1] : max}
             aria-valuetext={props.formatValue ? text(v) : undefined} aria-orientation="horizontal" aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} aria-invalid={invalid || undefined}
+            // The error goes where aria-invalid is: on the root <div> it pointed nowhere a screen reader looks (L8E87).
+            aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
             aria-label={isRange ? names[i] : props["aria-label"]} aria-labelledby={isRange ? undefined : labelledBy}
             aria-describedby={isRange ? undefined : props["aria-describedby"]}
             onKeyDown={onKeyDown(i)}>{props.showValue ? <span className="dk-slider__value" aria-hidden="true"><span>{text(v)}</span></span> : null}</span>

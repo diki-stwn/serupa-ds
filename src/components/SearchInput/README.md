@@ -69,6 +69,7 @@ Every Input prop works (`size`, `invalid`, `value`, `defaultValue`, `onChange`, 
 
 Each is an optional override: set it on the page, a container or one field. The box uses Input's tokens. The list lives in `src/components/SearchInput/search-input.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from search-input.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--search-input-icon-color` | `text-muted` | The search icon (3:1 on the field). |
@@ -78,3 +79,4 @@ Each is an optional override: set it on the page, a container or one field. The 
 | `--search-input-focus-ring` | `focus-ring` | The clear button's keyboard focus ring. |
 | `--search-input-clear-radius` | `rounded-sm` | The clear button's corners (4px). |
 | `--search-input-clear-padding` | `spacing-1` | Space around the clear button's icon (4px). |
+<!-- token-table:end -->

@@ -59,7 +59,9 @@ A fixed number of columns doesn't change with the screen: for that, use `'auto'`
 
 Each is an optional override: set it on the page, a container or one element. The list lives in `src/components/Grid/grid.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from grid.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--grid-gap` | `spacing-4` | The space between cells when gap isn't given (16px). |
 | `--grid-min-column` | `container-3xs` | The narrowest a column gets with columns="auto" when minColumnWidth isn't given (256px). |
+<!-- token-table:end -->
