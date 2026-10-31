@@ -44,7 +44,7 @@ import { FileUpload } from "serupa-ds";
 - The button is the keyboard and screen-reader way in; dragging is an extra. Messages about refused files are `role="alert"`, so they're announced. They come from labels (`fileWrongType`, `fileTooLarge`, `fileTooMany`, `fileOnlyOne`, `fileFolder`, `fileAlreadyAdded`), Indonesian in `idLabels`, and `onReject` gets the same text.
 - Adding and removing files are said politely, since the list changes away from focus: "report.pdf added.", "3 files added.", "report.pdf removed." (`filesAdded`, `fileRemoved`).
 - Submitted without a required file, FileUpload doesn't let the browser point its bubble at the hidden input: it shows "Choose a file." (`fileMissing`) in the same alert area, makes the button invalid and described by it, and focuses the button when it's the first invalid field. Choosing a file clears it.
-- In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. With the Field's `error` the button gets `aria-invalid`; with `required` it's described by "Required" first (`labels.required`), since a button can't carry `aria-required`.
+- In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. A button supports none of `aria-invalid`, `aria-errormessage` and `aria-required`, so the button is described by the Field's `error` (or your own `aria-errormessage`), and with `required` by "Required" first (`labels.required`). `aria-invalid` goes on the native input.
 - Text keeps 4.5:1 (also while dragging), and the icons and dashed outline 3:1, in all six themes (`FileUpload.test.tsx`).
 - In forced colors (Windows High Contrast), the drag-over area turns its border solid and `Highlight`, so the state still shows without the primary fill.
 - **Keyboard:** Tab reaches the choose button, where Enter or Space opens the file picker, then each chosen file's remove button. Dropping files needs a pointer, so the button is the keyboard's way in. Read-only, the choose button stays focusable but opens nothing.
@@ -61,7 +61,7 @@ import { FileUpload } from "serupa-ds";
 | `maxSize` | `number` | | The largest file, in bytes. |
 | `maxFiles` | `number` | | The most files, with `multiple`. |
 | `disabled` | `boolean` | `false` | |
-| `invalid` | `boolean` | `false` | A solid danger outline on the drop area and `aria-invalid` on the button. Set for you in a Field with an `error`. |
+| `invalid` | `boolean` | `false` | A solid danger outline on the drop area and `aria-invalid` on the native input. Set for you in a Field with an `error`, whose message describes the button. |
 | `required` | `boolean` | `false` | `required` on the native input (the form's check) and a hidden "Required" in the button's description. A required Field adds the description for you. |
 | `readOnly` | `boolean` | `false` | The files are listed and submitted but can't change: the button stays focusable with `aria-disabled` and opens no picker, drops are ignored, and there are no remove buttons. |
 | `name` | `string` | | Sends the files with a form. |
