@@ -21,6 +21,9 @@ const itemsOf = (root: HTMLElement, all?: boolean): HTMLElement[] => Array.from(
   const p = it.parentElement && it.parentElement.closest(POPUP);
   return !p || p === root || !root.contains(p);
 });
+// Laid out: a control hidden by CSS (display: none, often a responsive overflow) can't take focus, so the arrows
+// skip it and it never holds the Tab stop, which left the toolbar out of the Tab order (L8E77).
+const shown = (e: HTMLElement) => e.getClientRects().length > 0;
 // A text field uses the arrows, Home and End itself, so there they edit the text rather than leave the field.
 const typing = (e: HTMLElement) => e.isContentEditable || e instanceof HTMLTextAreaElement || e instanceof HTMLSelectElement
   || (e instanceof HTMLInputElement && !/^(button|checkbox|radio|submit|reset|image|color|file|range)$/.test(e.type));
@@ -40,8 +43,10 @@ export const Toolbar = /* @__PURE__ */ component<HTMLDivElement, ToolbarProps>("
   const sync = React.useCallback(function () {
     const r = root.current;
     if (!r) return;
-    const items = itemsOf(r);
-    if (!active.current || items.indexOf(active.current) < 0) active.current = items[0] || null;
+    const items = itemsOf(r), seen = items.filter(shown);
+    // While the whole toolbar is hidden nothing is laid out: keep to the order, so it has a Tab stop when it shows.
+    const pick = seen.length ? seen : items;
+    if (!active.current || pick.indexOf(active.current) < 0) active.current = pick[0] || null;
     for (const it of itemsOf(r, true)) it.tabIndex = it === active.current ? 0 : -1;
   }, []);
   useIsoLayoutEffect(sync);   // every render: new children may bring new controls, which need their tabIndex
@@ -64,7 +69,7 @@ export const Toolbar = /* @__PURE__ */ component<HTMLDivElement, ToolbarProps>("
     if (rest.onKeyDown) rest.onKeyDown(e);
     const r = root.current, t = e.target;
     if (e.defaultPrevented || !r || !(t instanceof HTMLElement) || e.altKey || e.ctrlKey || e.metaKey) return;
-    const items = itemsOf(r), i = items.indexOf(t);
+    const items = itemsOf(r).filter(shown), i = items.indexOf(t);
     if (i < 0 || typing(t)) return;
     const rtl = getComputedStyle(r).direction === "rtl";
     let n: number;

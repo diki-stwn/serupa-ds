@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {
   Button, Checkbox, Combobox, DatePicker, DateRangePicker, Dialog, IconButton, Image, Input, Link, NumberInput, RadioGroup, Radio,
-  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, useCollator, useLocale, useSerupa, version,
+  SegmentedControl, Select, SerupaProvider, Slider, SortableList, Stack, Tabs, toast, announce, configure, enLabels, idLabels, plural, useCollator, useLocale, useSerupa, version,
   type ButtonProps, type CarouselPerView, type ComboboxMultipleProps, type ComboboxSingleProps, type DateRange, type SliderMark, type TreeViewItem, type IconName, type SerupaLabels, type SliderValue, type ToastOptions,
 } from 'serupa-ds';
 import type { IconData } from 'serupa-ds/icons';
@@ -152,6 +152,7 @@ announce('Saved');
 announce('Upload failed', { assertive: true });
 // @ts-expect-error: assertive is a boolean
 announce('Saved', { assertive: 'yes' });
+export const files: string = plural('ru', 5, { one: '# файл', few: '# файла', many: '# файлов', other: '# файла' });
 export const order = (): number => useCollator({ locale: 'de-DE', sensitivity: 'base' }).compare('a', 'A');
 
 // The functions.
