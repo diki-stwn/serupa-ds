@@ -62,7 +62,7 @@ function LinkedRows(args: React.ComponentProps<typeof Table>) {
               <TableSelectCell label={'Select ' + p.name} />
               <TableCell>{p.name}</TableCell>
               <TableCell><Text as="span" tone="muted">{p.role || 'No role'}</Text></TableCell>
-              <TableCell align="end"><Button size="sm" variant="ghost">Edit</Button></TableCell>
+              <TableCell align="end"><Button size="sm" variant="ghost" aria-label={'Edit ' + p.name}>Edit</Button></TableCell>
             </TableRow>
           ))}
         </TableBody>

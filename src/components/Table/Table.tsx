@@ -166,7 +166,7 @@ export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, Tabl
 });
 
 type RowLink = { href: string; target?: string; rel?: string };
-const RowLinkContext = React.createContext<RowLink | null>(null);
+const RowLinkContext = /* @__PURE__ */ React.createContext<RowLink | null>(null);
 
 /* With href, the row is one link: an <a> in its link cell (the TableCell marked link, or else the first direct
    TableCell child), whose ::after covers the row (Table.css). A real link, so Ctrl/Cmd and middle click, "Copy link"
