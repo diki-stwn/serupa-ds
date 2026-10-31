@@ -14,6 +14,7 @@ import { settleTime, speed, track, type Samples } from "../../internal/fling";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
 import { en as ownWords } from "./labels";
+import { repeatQuiet } from "../../internal/timing";
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type ToasterPosition = 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
@@ -57,7 +58,6 @@ const HOTKEY = "F8";
 // module state: browser only, set by the mounted Toaster.
 let hint = "", hinted = false;
 // A repeat is said once the burst stops (a second without another), with the count in the Toaster's words.
-const REPEAT_QUIET = 1000;
 // module state: browser only, set by the mounted Toaster, with the timers below.
 let repeated: ((count: number) => string) | null = null;
 const repeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -90,7 +90,7 @@ function show(options: ToastOptions | string): string {
       repeatTimers.delete(rid);
       const now = items.find((x) => x.id === rid), say = now ? said(now) : "";
       if (now && say && repeated) announce(say + ". " + repeated(now.count) + ".", { assertive: now.tone === "danger" });
-    }, REPEAT_QUIET));
+    }, repeatQuiet));
     return rid;
   }
   const id = o.id || "dk-toast-" + ++next;

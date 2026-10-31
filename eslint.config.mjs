@@ -6,6 +6,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
 import noLiteralWords from './tools/lint/no-literal-words.mjs';
+import noLiteralDelay from './tools/lint/no-literal-delay.mjs';
 import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import { a11yComponents } from './tools/lint/a11y-components.mjs';
 
@@ -76,8 +77,9 @@ export default tseslint.config(
     // A component's words come from its labels.ts (English and Indonesian), never written into its JSX (T1).
     files: ['src/components/**/*.tsx'],
     ignores: ['src/components/**/*.{test,stories}.tsx'],
-    plugins: { serupa: { rules: { 'no-literal-words': noLiteralWords } } },
-    rules: { 'serupa/no-literal-words': 'error' },
+    plugins: { serupa: { rules: { 'no-literal-words': noLiteralWords, 'no-literal-delay': noLiteralDelay } } },
+    // A wait is named in src/internal/timing.ts (TF6), never a number in a setTimeout or setInterval.
+    rules: { 'serupa/no-literal-words': 'error', 'serupa/no-literal-delay': 'error' },
   },
   {
     // A test body is async whether it awaits or not, and expect(obj.method) reads a spy without calling it.

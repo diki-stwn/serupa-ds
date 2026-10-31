@@ -5,6 +5,7 @@ import { announce, ensureAnnouncer } from "../../internal/announce";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { useShowAfter } from "../../internal/showAfter";
+import { spinnerDelay } from "../../internal/timing";
 
 export type LoaderVariant = 'ring' | 'spokes' | 'dots' | 'pixel' | 'text' | 'skeleton';
 export type LoaderShape = 'text' | 'circle' | 'rect';
@@ -72,7 +73,7 @@ export const Loader = /* @__PURE__ */ component<HTMLSpanElement, LoaderProps>("L
   const pattern = oneOf(PATTERNS, props.pattern, "wave");   // pixel only
   const lines = Math.min(20, Math.max(1, Math.floor(Number(props.lines)) || 1));   // text shape: 1 to 20 lines
   const words = label || sds.labels.loading;   // the text variant always shows words; label="" only makes it decorative
-  const delay = props.delay == null ? 300 : Math.max(0, Number(props.delay) || 0);
+  const delay = props.delay == null ? spinnerDelay : Math.max(0, Number(props.delay) || 0);
   const [wait] = React.useState(delay);   // the delay it mounted with: a later change doesn't restart the wait
   const loading = props.loading !== false;
   const shown = useShowAfter(loading, wait);
