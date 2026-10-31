@@ -59,4 +59,12 @@
   .dk-splitter__handle::after { --dk-reach: min(var(--spacing-0), calc((100% - var(--spacing-6)) / 2)); content: ""; position: absolute; inset: var(--spacing-0) var(--dk-reach); }
   .dk-splitter--vertical > .dk-splitter__handle::after { inset: var(--dk-reach) var(--spacing-0); }
 }
+/* Print (GR59): the panes' whole content, not their scrolled windows. The Splitter drops the height it was given
+   (style or class, hence !important), the panes stop scrolling and grow to fit, and the separator isn't printed:
+   a 60-row Table in a 300px pane printed 4 rows. */
+@media print {
+  .dk-splitter { height: auto !important; max-height: none !important; }
+  .dk-splitter__pane { overflow: visible; }
+  .dk-splitter > .dk-splitter__handle { display: none; }
+}
 }

@@ -12,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(h('div', null,
   h('p', { id: 'urls', 'data-print-urls': '' }, h('a', { id: 'out', href: 'https://example.com/terms' }, 'Terms'), ' ', h('a', { id: 'in', href: '#top' }, 'Top')),
   h('a', { id: 'plain', href: 'https://example.com/' }, 'Home'),
   h(D.Fab, { id: 'fab', icon: 'add', label: 'New' }),
-  h(D.Toaster, null)));
+  h(D.Toaster, null),
+  h(D.Splitter, { id: 'spl', separatorLabel: 'Panes', style: { height: '300px' } },
+    h('div', null, 'Left'), h('div', { id: 'spl-b' }, Array.from({ length: 60 }, function (_, i) { return h('p', { key: i, style: { margin: 0, height: '20px' } }, 'Row ' + i); })))));
 setTimeout(function () { D.toast('Saved'); }, 0);
 </script>`;
 
@@ -25,7 +27,9 @@ await p.waitForSelector('.dk-toast');
 const read = () => p.evaluate(() => {
   const cs = (s, pseudo) => getComputedStyle(document.querySelector(s), pseudo);
   return { btn: cs('#btn').printColorAdjust, badge: cs('#badge').printColorAdjust, toaster: cs('.dk-toaster').display, fab: cs('#fab').display,
-    out: cs('#out', '::after').content, inner: cs('#in', '::after').content, plain: cs('#plain', '::after').content };
+    out: cs('#out', '::after').content, inner: cs('#in', '::after').content, plain: cs('#plain', '::after').content,
+    spl: Math.round(document.getElementById('spl').getBoundingClientRect().height), pane: document.getElementById('spl-b').closest('.dk-splitter__pane').getBoundingClientRect().height >= 1200,
+    sep: getComputedStyle(document.querySelector('#spl [role="separator"]')).display };
 });
 const screen = await read();
 await p.emulateMedia({ media: 'print' });
@@ -35,6 +39,7 @@ t('printed, a primary Button and a filled Badge keep their colors (print-color-a
 t('printed, the toast stack is left out', print.toaster === 'none', print.toaster);
 t('printed, a Fab (position: fixed, so it would repeat on every page) is left out; on screen it shows', print.fab === 'none' && screen.fab !== 'none', JSON.stringify([screen.fab, print.fab]));
 t('printed, data-print-urls adds an outside link\'s address after it; same-page links and links outside it get none', print.out === '" (" attr(href) ")"' || print.out === '" (https://example.com/terms)"', JSON.stringify([print.out, print.inner, print.plain]));
+t('a Splitter prints its panes\' whole content: on screen 300px with the pane scrolling, printed as tall as its 60 rows with no separator (GR59)', screen.spl === 300 && !screen.pane && print.spl >= 1200 && print.pane && print.sep === 'none', JSON.stringify([screen.spl, screen.pane, print.spl, print.pane, print.sep]));
 t('…and only there', print.inner === 'none' && print.plain === 'none', JSON.stringify([print.inner, print.plain]));
 await b.close();
 cleanup();
