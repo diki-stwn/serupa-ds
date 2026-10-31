@@ -185,7 +185,8 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const onKeyDown = function (e: React.KeyboardEvent<HTMLInputElement>) {
     props.onKeyDown?.(e);
     const el = e.currentTarget, s = el.selectionStart, end = el.selectionEnd;
-    if (e.defaultPrevented || s == null || s !== end || (e.key !== "Backspace" && e.key !== "Delete")) return;
+    // With Alt, Ctrl or ⌘ held, Backspace and Delete take a word or the line: the browser's, not one digit (L8E30).
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || s == null || s !== end || (e.key !== "Backspace" && e.key !== "Delete")) return;
     const back = e.key === "Backspace";
     let i = back ? s - 1 : s;
     if (i < 0 || i >= text.length || /\d/.test(text[i])) return;
