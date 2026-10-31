@@ -96,7 +96,7 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
   const base = domId("dk-nc", React.useId());
   // The Drawer's own props are named below, so its other attributes (id, aria-*) pass through in rest.
   const rest = omit(props, { title: 1, description: 1, footer: 1, children: 1, items: 1, onMarkRead: 1, onMarkAllRead: 1, onClear: 1, empty: 1, className: 1, open: 1, defaultOpen: 1, onOpenChange: 1,
-    side: 1, size: 1, modal: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, swipeToClose: 1 } as const);
+    side: 1, size: 1, modal: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1 } as const);
   const { items, onMarkRead, onMarkAllRead, onClear } = props;
   const footer = onMarkAllRead || onClear ? <>
     {onMarkAllRead ? <Button variant="ghost" size="sm" onClick={onMarkAllRead}>{labels.markAllRead}</Button> : null}
@@ -104,7 +104,7 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
   </> : null;
   return (
     <Drawer {...rest} ref={ref} className={cn("dk-notification-center", props.className)} open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}
-      side={props.side} size={props.size} modal={props.modal} closeButton={props.closeButton} closeLabel={props.closeLabel} closeOnBackdrop={props.closeOnBackdrop} swipeToClose={props.swipeToClose}
+      side={props.side} size={props.size} modal={props.modal} closeButton={props.closeButton} closeLabel={props.closeLabel} closeOnBackdrop={props.closeOnBackdrop} swipeToClose={props.swipeToClose} initialFocus={props.initialFocus} finalFocus={props.finalFocus}
       title={props.title != null ? props.title : labels.notificationCenter} footer={footer}>
       {items.length ? (
         <ul role="list" className="dk-notification-center__list">

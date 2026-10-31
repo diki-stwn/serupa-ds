@@ -41,11 +41,15 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   /** A touch drag toward its edge closes it (onOpenChange(false, { reason: 'swipe' })). Top and bottom drawers
       are dragged by the header or footer, so the body still scrolls. Default: true. */
   swipeToClose?: boolean;
+  /** The element that takes focus when it opens, instead of the first that can (the ×) or one marked data-autofocus: the field people came to fill. */
+  initialFocus?: React.RefObject<HTMLElement | null>;
+  /** Where focus goes when it closes, instead of back to what had it before (taken when that's gone): the next row after the one it deleted, say. */
+  finalFocus?: React.RefObject<HTMLElement | null>;
 }
 
 const FLICK = 0.2;   // px per ms over the last 100ms toward the edge: a let-go this fast closes it, however short (KW5a)
 const INWARD = 24;   // px at most a drag away from the edge moves the panel, against growing resistance
-const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1, className: 1, children: 1 } as const;
 
 /* Drawer: a modal panel that slides in from an edge of the screen, for navigation on small screens, filters,
    or details and edits without leaving the page. It's a native <dialog> (showModal) like Dialog: focus stays
@@ -66,6 +70,9 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const modal = props.modal !== false;
   const backdrop = modal && props.closeOnBackdrop !== false;
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
+  const initial = React.useRef(props.initialFocus); initial.current = props.initialFocus;
+  const final = React.useRef(props.finalFocus); final.current = props.finalFocus;
+  const isModal = React.useRef(modal); isModal.current = modal;
   const [inner, setInner] = React.useState(!!props.defaultOpen);
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
@@ -74,6 +81,14 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   // Open on arrival: there from the first frame, so it doesn't slide in; it closes, and opens again, with motion.
   const arrived = React.useRef(open); if (!open) arrived.current = false;
 
+  // Focus goes to finalFocus when it's still on the page, else back where it was. Unmounting keeps what's owed:
+  // StrictMode mounts it again, open.
+  const giveBack = (go: boolean, keep?: boolean) => {
+    if (!back.current) return;   // never opened, or already given back
+    const f = final.current && final.current.current, b = f && f.isConnected ? f : back.current;
+    if (!keep) back.current = null;
+    if (go && b && b.isConnected && typeof b.focus === "function") b.focus();
+  };
   // Bumped when the browser closed it while open was true: open again, unless the parent said false.
   const [reopened, reopen] = React.useState(0);
   useIsoLayoutEffect(() => {
@@ -89,8 +104,10 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
         modalOpened(d);
       }
       // A child's autoFocus ran while the dialog was still hidden, and showModal() then focused the first focusable
-      // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it.
-      const own = d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
+      // (the ×). React doesn't write the autofocus attribute, so data-autofocus (or autofocus in plain HTML) marks it;
+      // initialFocus, when it points inside, wins over both.
+      const want = initial.current && initial.current.current;
+      const own = want && d.contains(want) ? want : d.querySelector<HTMLElement>("[data-autofocus], [autofocus]");
       if (own && typeof own.focus === "function") own.focus();
     } else if (open) {
       // Already open: StrictMode ran the unmount cleanup (which took it off the modal stack) and mounts it again.
@@ -100,11 +117,12 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       const inside = modal || d.contains(document.activeElement);
       if (d.open) { if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); }
       modalClosed(d);
-      const b = back.current; back.current = null;
-      if (inside && b && b.isConnected && typeof b.focus === "function") b.focus();
+      giveBack(inside);
     }
   }, [open, reopened]);
-  React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); const b = back.current; if (b && b.isConnected) b.focus(); }; }, []);
+  // Closed while unmounting: give focus back too, unless it's non-modal and focus had moved on to the page (focus
+  // that was inside it has fallen to <body> by now, the drawer gone from the page).
+  React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); const a = document.activeElement; giveBack(isModal.current || !a || a === document.body || !!d && d.contains(a), true); }; }, []);
 
   // React passes a nested dialog's cancel and close up to this one, though the browser doesn't bubble them: only
   // this dialog's own count, or Escape in a Dialog or Drawer opened from inside it would close this one too.

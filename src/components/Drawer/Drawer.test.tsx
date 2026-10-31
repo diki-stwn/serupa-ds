@@ -267,6 +267,67 @@ describe('Drawer', () => {
     expect(document.activeElement!.id).toBe('dafq');
   });
 
+  test('initialFocus picks where focus lands when it opens; finalFocus where it goes when it closes, back to the opener when that\'s gone (L8E20)', async () => {
+    function App() {
+      const [open, setOpen] = React.useState(false), [gone, setGone] = React.useState(false);
+      const first = React.useRef<HTMLInputElement>(null), next = React.useRef<HTMLButtonElement>(null);
+      return <>
+        <button id="ifo" onClick={() => setOpen(true)}>Edit</button>
+        {gone ? null : <button id="ifn" ref={next}>Next row</button>}
+        <button id="ifg" onClick={() => setGone(true)}>Remove next</button>
+        <Drawer id="ifd" open={open} onOpenChange={setOpen} title="Edit" initialFocus={first} finalFocus={next}>
+          <Input aria-label="Notes" /><Input id="iff" ref={first} aria-label="Name" />
+        </Drawer>
+      </>;
+    }
+    await render(<App />);
+    await userEvent.click(el('ifo'));
+    await expect.poll(() => document.activeElement!.id).toBe('iff');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => (el('ifd') as HTMLDialogElement).open).toBe(false);
+    expect(document.activeElement!.id).toBe('ifn');
+    await userEvent.click(el('ifg'));
+    await userEvent.click(el('ifo'));
+    await expect.poll(() => document.activeElement!.id).toBe('iff');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => (el('ifd') as HTMLDialogElement).open).toBe(false);
+    expect(document.activeElement!.id).toBe('ifo');
+  });
+
+  test('modal={false} unmounting leaves focus where it is when people had moved on to the page, and gives it back from inside it (L8E20)', async () => {
+    function App({ show }: { show: boolean }) {
+      const [open, setOpen] = React.useState(false);
+      return <>
+        <button id="nuo" onClick={() => setOpen(true)}>Details</button><input id="nup" aria-label="Page field" />
+        {show ? <Drawer id="nud" modal={false} open={open} onOpenChange={setOpen} title="Details"><Input id="nui" aria-label="Note" /></Drawer> : null}
+      </>;
+    }
+    const screen = await render(<App show />);
+    await userEvent.click(el('nuo'));
+    await expect.poll(() => (el('nud') as HTMLDialogElement).open).toBe(true);
+    el('nui').focus();
+    await screen.rerender(<App show={false} />);
+    expect(document.activeElement!.id).toBe('nuo');
+    await screen.rerender(<App show />);   // still open: it mounts open
+    await expect.poll(() => (el('nud') as HTMLDialogElement).open).toBe(true);
+    await userEvent.click(el('nup'));
+    await screen.rerender(<App show={false} />);
+    expect(document.activeElement!.id).toBe('nup');
+  });
+
+  test('StrictMode: a Drawer mounted open when a button is pressed gives focus back to that button when it closes (L8E20)', async () => {
+    function App() {
+      const [show, setShow] = React.useState(false);
+      return <><button id="smo" onClick={() => setShow(true)}>Filters</button>{show ? <Drawer id="smd" open onOpenChange={() => setShow(false)} title="Filters" /> : null}</>;
+    }
+    await render(<React.StrictMode><App /></React.StrictMode>);
+    await userEvent.click(el('smo'));
+    await expect.poll(() => (el('smd') as HTMLDialogElement | null)?.open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => document.getElementById('smd')).toBeNull();
+    expect(document.activeElement!.id).toBe('smo');
+  });
+
   test('defaultOpen: open on arrival with no open prop; the ×, Escape and the browser close it by themselves and tell onOpenChange(false) with why', async () => {
     const asks: string[] = [];
     const one = (k: string) => <Drawer key={k} id="drw" defaultOpen onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)} title="Filters"><Input aria-label="Name" /></Drawer>;
