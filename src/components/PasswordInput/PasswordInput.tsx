@@ -84,11 +84,24 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
   }, [shown]);
   // Read at the button's mousedown when there is one: WebKit collapses the field's selection to its end on the way to the
   // click, so a selection read there is already gone (BW1). A press that never became a click leaves a stale one: kept
-  // only for a click within a second of it.
+  // only for a click within a second of it. The selection is also kept as it changes while the field has focus, and that
+  // is what's read: WebKit can collapse a selection set by script (setSelectionRange) before the mousedown, unless it was
+  // read when it changed.
   const pressed = React.useRef(0);
+  const seen = React.useRef<[number, number, "forward" | "backward" | "none"] | null>(null);
+  React.useEffect(() => {
+    const keep = () => {
+      const f = field.current;
+      if (f && document.activeElement === f && f.selectionStart !== null && f.selectionEnd !== null) seen.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none"];
+    };
+    document.addEventListener("selectionchange", keep, true);
+    return () => document.removeEventListener("selectionchange", keep, true);
+  }, []);
   const capture = () => {
     const f = field.current;
-    if (f && f.selectionStart !== null && f.selectionEnd !== null) caret.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none", f.scrollLeft, f.scrollWidth];
+    if (!f || f.selectionStart === null || f.selectionEnd === null) return;
+    const s = seen.current && document.activeElement === f ? seen.current : [f.selectionStart, f.selectionEnd, f.selectionDirection || "none"] as const;
+    caret.current = [s[0], s[1], s[2], f.scrollLeft, f.scrollWidth];
   };
   const toggle = () => {
     if (!caret.current || performance.now() - pressed.current > 1000) capture();
