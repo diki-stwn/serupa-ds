@@ -46,7 +46,9 @@ const LinkBase = /* @__PURE__ */ component<HTMLAnchorElement, LinkProps>("Link",
   const icon = <Icon icon={icons.OpenInNew} className="dk-link__icon" />;
   const text = typeof props.children === "string" ? props.children : null;
   const cut = text != null ? text.search(/\S+\s*$/) : -1;
-  const children = props.external ? <>
+  // Your target _self, _parent or _top keeps it in this tab: no new-tab icon or "(opens in a new tab)" then (L8E63).
+  const newTab = props.external && !/^_(self|parent|top)$/i.test(String(rest.target));
+  const children = newTab ? <>
     {cut > 0 ? text!.slice(0, cut) : cut < 0 ? props.children : null}
     {cut >= 0 ? <span className="dk-link__last">{text!.slice(cut)}{icon}</span> : icon}
     <NewTabNote />

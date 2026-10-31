@@ -95,6 +95,13 @@ describe('Link', () => {
     expect(e.textContent.replace('open_in_new', '')).toBe('Example (opens in a new tab)');
   });
 
+  test('external with your target="_self" (or _parent, _top) stays in the tab, so it doesn\'t say "opens in a new tab" or show the icon; rel still gets noopener noreferrer (L8E63)', async () => {
+    await render(<div><Link id="lself" href="https://example.com" external target="_self">Example</Link><Link id="lnamed" href="https://example.com" external target="help">Help</Link></div>);
+    const e = el('lself');
+    expect([e.target, e.rel, e.textContent, e.querySelector('svg, [data-icon]')]).toEqual(['_self', 'noopener noreferrer', 'Example', null]);
+    expect(el('lnamed').textContent!.replace('open_in_new', '')).toBe('Help (opens in a new tab)');
+  });
+
   test('external: the new-tab icon stays on the line of the last word at every width (GF1)', async () => {
     const widths: number[] = [];
     for (let w = 90; w <= 200; w += 5) widths.push(w);
