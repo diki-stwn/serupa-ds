@@ -208,6 +208,20 @@ describe('Dialog', () => {
     React.act(() => ctl.setOpen!(false));
   });
 
+  // GR52: at 320x256 (400% zoom) the header and footer filled the panel, the body was squeezed to 0px and the footer
+  // sat below the screen, clipped, with nothing to scroll; Tab focused Send off screen.
+  test('a short screen (320x256, 400% zoom): the panel scrolls as a whole, the body keeps its height, and Tab brings the footer into view (GR52)', async () => {
+    await page.viewport(320, 256);
+    await render(<Dialog id="dz" open onOpenChange={() => {}} title="Invite people to Atlas" description="They’ll get an email with a link. The link works for seven days."
+      footer={[<Button key={1} variant="secondary">Cancel</Button>, <Button key={2} id="send">Send</Button>]}><Input id="email" aria-label="Email" /></Dialog>);
+    await expect.poll(() => isOpen('dz')).toBe(true);
+    await settled();
+    const p = panel('dz'), r = p.getBoundingClientRect(), body = el('email').parentElement!.parentElement as HTMLElement;
+    expect([Math.round(r.bottom) <= 256 - 16, body.getBoundingClientRect().height >= el('email').getBoundingClientRect().height, getComputedStyle(p).overflowY]).toEqual([true, true, 'auto']);
+    el('send').focus();
+    await expect.poll(() => { const b = el('send').getBoundingClientRect(), q = p.getBoundingClientRect(); return b.top >= q.top - 0.5 && b.bottom <= q.bottom + 0.5 && b.bottom <= 256; }).toBe(true);
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     function Pick() {
       const [open, setOpen] = React.useState(false);
