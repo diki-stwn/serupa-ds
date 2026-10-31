@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, forcedColors, keepMotion, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, forcedColors, keepMotion, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { Button } from '../Button/Button';
 import { Navbar, NavbarLink } from './Navbar';
 
@@ -104,6 +104,35 @@ describe('Navbar', () => {
     expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth]) // lg: 1024px of content plus 32px padding each side
       .toEqual([0, '40', 'Docs', '1088px']);
   });
+
+  test('sticky: no shadow at the top of the page; scrolled under, the bar lifts with the shadow-scrolled token, tied to the scroll (149)', async () => withMotion(async () => {
+    await render(<div>
+      <Navbar id="nlift" sticky brand="Docs"><NavbarLink href="#a">A</NavbarLink></Navbar>
+      <div style={{ height: '2000px' }} />
+    </div>);
+    const n = el('nlift'), shadow = () => css(n).boxShadow;
+    // At the start of the range the shadow is there at zero strength: fully transparent, nothing drawn.
+    const shows = () => shadow() !== 'none' && !/^rgba\(0, 0, 0, 0\) 0px 0px 0px 0px(, rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)*$/.test(shadow());
+    window.scrollTo(0, 0);
+    await expect.poll(() => window.scrollY).toBe(0);
+    expect(shows()).toBe(false);
+    // Half a bar height down (64px bar), half the shadow: it follows the scroll.
+    window.scrollTo(0, 32);
+    await expect.poll(() => window.scrollY).toBe(32);
+    await expect.poll(shows).toBe(true);
+    const half = shadow();
+    // Past the first bar height, the whole token, not a share of it.
+    const probe = document.createElement('div'); probe.style.boxShadow = 'var(--shadow-md)'; document.body.append(probe);
+    const full = css(probe).boxShadow;
+    probe.remove();
+    expect(half).not.toBe(full);
+    window.scrollTo(0, 600);
+    await expect.poll(() => window.scrollY).toBe(600);
+    await expect.poll(shadow).toBe(full);
+    // A bar that isn't sticky never lifts.
+    n.classList.remove('dk-navbar--sticky');
+    expect(shows()).toBe(false);
+  }));
 
   test('sticky: Tab to a field above the screen scrolls it into view below the bar, not under it (WCAG 2.4.11); the page padding follows the bar and goes away with it', async () => {
     const r = await render(<div>

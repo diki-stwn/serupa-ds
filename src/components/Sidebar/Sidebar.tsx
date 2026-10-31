@@ -6,7 +6,7 @@ import { Icon, type IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { Tooltip } from "../Tooltip/Tooltip";
 import { config } from "../../internal/config";
-import { Menu, MenuItem } from "../Menu/Menu";
+import { Menu, MenuItem, MenuSub } from "../Menu/Menu";
 import { component } from "../../internal/component";
 import { flattenChildren } from "../../internal/children";
 import { useSettings } from "../../internal/provider";
@@ -151,6 +151,18 @@ const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(
 /** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
 const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.props.children).some(activeWithin);
 
+/* The rail's Menu for a group: each item keeps its link component (as), its other link attributes and the current
+   page, and a nested group is a submenu of its own items, so they can still be reached (L8E68). */
+function railItems(kids: ItemElement[]): React.ReactNode {
+  return kids.map((k, i) => {
+    const key = k.key != null ? k.key : i, inner = itemsOf(k.props.children);
+    const common = { icon: k.props.icon, "aria-current": activeWithin(k) ? ("page" as const) : undefined, className: cn("dk-sidebar__menu-item", k.props.className) };
+    if (inner.length) return <MenuSub key={key} {...common} label={k.props.label}>{railItems(inner)}</MenuSub>;
+    return <MenuItem key={key} {...omit(k.props, ITEM_OWN) as object} onClick={undefined} as={k.props.as} {...common}
+      onSelect={k.props.onClick as ((e: React.SyntheticEvent) => void) | undefined}>{k.props.label}</MenuItem>;
+  });
+}
+
 /* SidebarItem: a link (icon, label, badge), or with nested items a button with aria-expanded that shows and
    hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. The ref
    goes to the link or the group's button. */
@@ -197,10 +209,7 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLElement, SidebarItemPro
             ? <Tooltip content={props.label} placement="right" role="label"><button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button></Tooltip>
             : <button type="button" {...btnProps} ref={ref as React.Ref<HTMLButtonElement>} className={cls}>{inner(false)}</button>
         }>
-          {/* Each item keeps its link component (as), its other link attributes and the current page. */}
-          {kids.map((k, i) => <MenuItem key={k.key != null ? k.key : i} {...omit(k.props, ITEM_OWN) as object} onClick={undefined}
-            as={k.props.as} icon={k.props.icon} aria-current={activeWithin(k) ? "page" : undefined} className={cn("dk-sidebar__menu-item", k.props.className)}
-            onSelect={k.props.onClick as ((e: React.SyntheticEvent) => void) | undefined}>{k.props.label}</MenuItem>)}
+          {railItems(kids)}
         </Menu>
       </li>
     );
