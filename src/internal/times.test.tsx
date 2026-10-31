@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { formatTime, parseTime } from './times';
+import { formatTime, parseTime, toMinutes } from './times';
 import { WORLD_LOCALES } from '../../tools/test/vitest/locales';
 
 const LOCALES = ['ko', 'ar-EG', 'fa', 'en-US', 'ja', 'zh-CN', 'zh-TW', 'hi-IN', 'bn', 'th', 'id', 'de', 'es', 'vi', 'el'];
@@ -17,6 +17,10 @@ describe('typed times', () => {
     }
   });
 
+  test('L8E9: seconds, as a database or <input type="time"> writes them and as a timestamp is pasted, are read and dropped', () => {
+    expect([toMinutes('14:05:00'), toMinutes('09:30:45.250'), toMinutes('14:05'), toMinutes('14:05:60'), toMinutes('14:5:00')]).toEqual([845, 570, 845, null, null]);
+    expect([parseTime('14:05:30', 'en-US'), parseTime('2:05:30 PM', 'en-US'), parseTime('14.05.30', 'id'), parseTime('14:05:61', 'en-US')]).toEqual([845, 845, 845, null]);
+  });
   test(`every time reads back in ${WORLD_LOCALES.length} locales, in the default, 12-hour and 24-hour forms`, () => {
     const bad: string[] = [];
     for (const locale of WORLD_LOCALES) for (const n of TIMES) for (const h12 of [undefined, true, false]) {

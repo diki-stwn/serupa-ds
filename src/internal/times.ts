@@ -2,12 +2,13 @@ import { latinDigits } from "./digits";
 
 // Times of day as minutes since midnight, written "HH:mm" for forms and APIs.
 
-/** "14:05" → 845, or null. */
+/** "14:05" → 845, or null. Seconds, as <input type="time"> and a database's time column write them ("14:05:00",
+    "14:05:30.5"), are read and dropped (L8E9). */
 export function toMinutes(v: string | null | undefined): number | null {
-  const m = /^(\d{1,2}):(\d{2})$/.exec((v || "").trim());
+  const m = /^(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/.exec((v || "").trim());
   if (!m) return null;
   const h = Number(m[1]), min = Number(m[2]);
-  return h < 24 && min < 60 ? h * 60 + min : null;
+  return h < 24 && min < 60 && (m[3] == null || Number(m[3]) < 60) ? h * 60 + min : null;
 }
 /** 845 → "14:05". */
 export const toHHmm = (n: number) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
@@ -79,10 +80,11 @@ export function parseTime(text: string, locale?: string): number | null {
     if (w && !/^(am|pm|a\.m\.|p\.m\.)$/.test(w) && s.includes(w)) { ap = v; s = s.replace(w, ""); break; }
   }
   for (const w of other) s = s.split(w).join("");
-  const m = /^(a|am|a\.m\.|p|pm|p\.m\.)?(\d{1,2})(?:[:.h]?(\d{2}))?(a|am|a\.m\.|p|pm|p\.m\.)?$/.exec(s);
-  if (!m) return null;
-  const typed = m[1] || m[4];
-  if (typed) { if (ap || (m[1] && m[4])) return null; ap = typed[0]; }
+  // Seconds after the minutes ("14:05:30", pasted from a log or a timestamp) are read and dropped (L8E9).
+  const m = /^(a|am|a\.m\.|p|pm|p\.m\.)?(\d{1,2})(?:[:.h]?(\d{2})(?:[:.](\d{2}))?)?(a|am|a\.m\.|p|pm|p\.m\.)?$/.exec(s);
+  if (!m || (m[4] && Number(m[4]) > 59)) return null;
+  const typed = m[1] || m[5];
+  if (typed) { if (ap || (m[1] && m[5])) return null; ap = typed[0]; }
   let h = Number(m[2]);
   const min = m[3] ? Number(m[3]) : 0;
   if (min > 59) return null;
