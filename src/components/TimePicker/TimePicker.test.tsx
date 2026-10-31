@@ -57,6 +57,11 @@ describe('TimePicker', () => {
     expect([described(f('tus')), described(f('tid'))]).toEqual(['Office hours | Format: hh:mm AM/PM', 'Format: hh.mm']);
   });
 
+  test('L8E9: a value with seconds, as a database\'s time column gives it ("09:30:00"), shows and sends "09:30"', async () => {
+    await render(<form><TimePicker id="tsec" aria-label="Start" locale="en-US" name="start" defaultValue="09:30:00" min="08:00:00" /></form>);
+    expect([el('tsec').value, (document.querySelector('input[name=start]') as HTMLInputElement).value]).toEqual(['9:30 AM', '09:30']);
+  });
+
   test('typed text it puts back is reported: onInvalidInput with "unreadable" or "unavailable", and screen readers hear it wasn\'t accepted', async () => {
     const calls: string[] = [];
     await render(<><TimePicker id="tpi" locale="en-GB" defaultValue="09:00" min="08:00" max="18:00" onInvalidInput={(t, r) => calls.push(t + ':' + r)} /><button>After</button></>);   // Tab stays on the page: Firefox fires no blur when it leaves
