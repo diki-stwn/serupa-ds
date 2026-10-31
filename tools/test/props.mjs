@@ -71,7 +71,6 @@ const NAMING_GAPS = {
 };
 // Booleans that don't follow the naming yet, each with why. Like NAMING_GAPS, this list only shrinks.
 const BOOLEAN_GAPS = {
-  'IconButtonProps.noTitle': 'a negative: to be deprecated for a positive name (SG3), one component pull request',
   'TableProps.captionHidden': 'xHidden: to be deprecated for hideCaption (SG3), one component pull request',
 };
 const NEGATIVE = /^(no|not|dont|without|disable)[A-Z]|[a-z]Hidden$|^enabled$/;
@@ -109,8 +108,10 @@ for (const name of fs.readdirSync(DIR).sort()) {
     if (!/Props$/.test(e.name) || !(s.flags & (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias))) continue;
     const props = checker.getDeclaredTypeOfSymbol(s).getProperties();
     const mine = (p) => (p.declarations || []).some((d) => d.getSourceFile().fileName.startsWith(SRC));
+    // A @deprecated prop keeps its old name on purpose, to warn and point at the new one.
+    const kept = (p) => ts.getJSDocTags((p.declarations || [])[0]).some((tag) => tag.tagName.text === 'deprecated');
     const value = props.find((p) => p.name === 'value');
-    for (const p of props.filter((q) => mine(q) && isBoolean(q))) {
+    for (const p of props.filter((q) => mine(q) && !kept(q) && isBoolean(q))) {
       booleans++;
       const key = `${e.name}.${p.name}`, wrong = NEGATIVE.test(p.name);
       if (key in BOOLEAN_GAPS) { booleanGaps.add(key); R.push({ name: `${name}: ${key} is still a known gap (${BOOLEAN_GAPS[key]})`, ok: wrong, detail: wrong ? '' : 'it reads in the positive now: take it out of BOOLEAN_GAPS' }); }
