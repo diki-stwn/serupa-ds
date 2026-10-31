@@ -48,7 +48,7 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
 .dk-stepper__step--current .dk-stepper__indicator { outline: var(--outline-width-2) solid var(--stepper-active-bg, var(--primary)); outline-offset: var(--outline-offset-2); }
 .dk-stepper__step--error .dk-stepper__indicator { border-color: var(--stepper-error-bg, var(--danger)); background: var(--stepper-error-bg, var(--danger)); color: var(--stepper-error-text, var(--on-danger)); }
 .dk-stepper__step--warning .dk-stepper__indicator { border-color: var(--stepper-warning-border, var(--warning-text)); background: var(--stepper-warning-bg, var(--warning-subtle)); color: var(--stepper-warning-text, var(--warning-text)); }
-.dk-stepper__text { display: flex; flex-direction: column; min-width: var(--spacing-0); padding-top: var(--dk-step-text-pad); }
+.dk-stepper__text { display: flex; flex-direction: column; min-width: var(--spacing-0); padding-top: var(--dk-step-text-pad); overflow-wrap: anywhere; }
 .dk-stepper { --dk-step-text-pad: calc((var(--dk-step-size) - var(--text-sm--line-height)) / 2); }
 .dk-stepper--size-sm { --dk-step-text-pad: calc((var(--dk-step-size) - var(--text-xs--line-height)) / 2); }
 .dk-stepper__title { font-weight: var(--stepper-title-weight, var(--font-medium)); }
@@ -78,7 +78,8 @@ button.dk-stepper__head:active .dk-stepper__indicator { scale: var(--stepper-pre
 .dk-stepper--tight:not(.dk-stepper--measure) { --dk-step-size: var(--stepper-indicator-size-sm, var(--spacing-6)); }
 .dk-stepper--tight:not(.dk-stepper--measure) .dk-stepper__indicator { font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 .dk-stepper--tight:not(.dk-stepper--measure) .dk-stepper__indicator .dk-icon { font-size: var(--spacing-3\.5); }
-.dk-stepper__summary { margin: var(--spacing-2) var(--spacing-0) var(--spacing-0); color: var(--stepper-description-color, var(--text-muted)); }
+/* A long word wraps, here and in the titles, so a narrow stepper never makes the page scroll sideways (RF1). */
+.dk-stepper__summary { margin: var(--spacing-2) var(--spacing-0) var(--spacing-0); color: var(--stepper-description-color, var(--text-muted)); overflow-wrap: anywhere; }
 .dk-stepper__summary .dk-stepper__title { color: var(--stepper-title-color, var(--text)); }
 @media (forced-colors: active) {
   .dk-stepper__step--current .dk-stepper__indicator, .dk-stepper__step--complete .dk-stepper__indicator { background: Highlight; color: HighlightText; border-color: Highlight; forced-color-adjust: none; }

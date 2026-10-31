@@ -41,9 +41,9 @@ export const NonLinear: Story = {
   },
 };
 /** Too narrow for the titles side by side (a phone, or 400% zoom): the circles, and the current step under them. */
-export const Narrow: Story = { args: { current: 1 }, decorators: [(S) => <div style={{ width: '320px' }}><S /></div>] };
+export const Narrow: Story = { args: { current: 1 }, decorators: [(S) => <div style={{ maxWidth: '320px' }}><S /></div>] };
 
 export const LongLabels: Story = {
   args: { steps: [{ title: 'Account and sign-in details', description: 'Email address, password and two-step verification' }, { title: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', optional: true }, { title: 'Billing', description: 'Card or invoice' }, { title: 'Review everything and confirm' }] },
-  render: (args) => <div style={{ width: 320 }}><Stepper {...args} /></div>,
+  render: (args) => <div style={{ maxWidth: 320 }}><Stepper {...args} /></div>,
 };

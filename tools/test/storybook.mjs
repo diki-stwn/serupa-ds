@@ -135,7 +135,6 @@ const cutOff = () => {
 // wrap, or a story with a fixed width).
 // One that stops failing fails here too, so the list only shrinks.
 const REFLOW_KNOWN = new Set([
-  'components-navigation-stepper--narrow', 'components-navigation-stepper--long-labels',
 ]);
 // The stories whose text a box still cuts off at 200% (queue item TX1).
 const TEXT_200_KNOWN = new Set([

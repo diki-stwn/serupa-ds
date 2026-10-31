@@ -181,6 +181,12 @@ describe('Stepper', () => {
     await setup();
     expect(css(el('tok').querySelector('.dk-stepper__indicator')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
+  test('a long single word in a title wraps, in the line under the circles and in a vertical stepper, so 320px never scrolls sideways (RF1, WCAG 1.4.10)', async () => {
+    const long = [{ title: 'Account' }, { title: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', optional: true }, { title: 'Review' }];
+    await render(<div style={{ width: '320px' }}><Stepper id="lh" steps={long} current={1} /><Stepper id="lv" orientation="vertical" steps={long} current={1} /></div>);
+    expect([el('lh').className.includes('dk-stepper--compact'), el('lh').scrollWidth <= 320, el('lv').scrollWidth <= 320]).toEqual([true, true, true]);
+  });
+
   test('too narrow for the titles side by side (320px): circles only, "Step 3 of 4: Billing" under them, no sideways scroll; wide again: titles back', async () => {
     let setW: (w: number) => void = () => {};
     function Narrow() {
