@@ -15,6 +15,7 @@ const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope >
 const state = (id: string) => items(id).map((i) => (i.dataset.state === 'open' ? 1 : 0)).join('');
 const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('button[aria-expanded]') as HTMLButtonElement;
 const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[aria-labelledby]') as HTMLElement;
+const contentOf = (id: string, n = 1) => panel(id, n).querySelector('.dk-accordion__content') as HTMLElement;
 const focused = () => (document.activeElement!.matches('button[aria-expanded]') ? document.activeElement!.textContent : undefined);
 // The open and close animation finished (the panel and the chevron).
 
@@ -42,7 +43,7 @@ describe('Accordion', () => {
   test('uncontrolled with no defaultValue: everything closed; closed content is hidden="until-found" (no height, not rendered, out of the tab order) and a disabled item\'s is visibility hidden', async () => {
     await render(<Faq />);
     expect(state('adef')).toBe('0000');
-    const content = (n: number) => panel('adef', n).querySelector('.dk-accordion__content') as HTMLElement;
+    const content = (n: number) => contentOf('adef', n);
     expect([content(1).getAttribute('hidden'), css(content(1)).contentVisibility, panel('adef').getBoundingClientRect().height, document.getElementById('inner')!.checkVisibility()]).toEqual(['until-found', 'hidden', 0, false]);
     expect([content(3).hasAttribute('hidden'), css(panel('adef', 3)).visibility]).toEqual([false, 'hidden']);
     (document.getElementById('inner') as HTMLElement).focus();
@@ -51,7 +52,7 @@ describe('Accordion', () => {
 
   test('find-in-page: a match in a closed item (beforematch) opens it, and in type="single" closes the open one; closing hides it again once the animation ends; disabled items aren\'t searchable', () => withMotion(async () => {
     await render(<Faq />);
-    const content = (n: number) => panel('adef', n).querySelector('.dk-accordion__content') as HTMLElement;
+    const content = (n: number) => contentOf('adef', n);
     await userEvent.click(trigger('adef', 2));
     expect(state('adef')).toBe('0100');
     await settled(el('adef'), { subtree: true });
@@ -297,7 +298,7 @@ describe('Accordion', () => {
     const host = document.createElement('div');
     host.innerHTML = renderToString(tree);
     document.body.append(host);
-    const content = (n: number) => panel('ssr', n).querySelector('.dk-accordion__content')!;
+    const content = (n: number) => contentOf('ssr', n);
     try {
       expect([content(1).hasAttribute('hidden'), content(2).getAttribute('hidden')]).toEqual([false, '']);
       const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
