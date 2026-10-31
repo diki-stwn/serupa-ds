@@ -78,6 +78,10 @@
 .dk-toast--danger .dk-toast__icon { color: var(--toast-icon-danger, var(--danger)); }
 /* A long word in a narrow toast breaks where its language hyphenates it (191), with a hyphen, before
    overflow-wrap cuts it anywhere. It follows the nearest lang. */
+/* Only words of 10 letters or more hyphenate, 4 on each side, so ordinary words still wrap whole ("recur-ring"
+   isn't split) where hyphenate-limit-chars is supported (191). */
+/* stylelint-disable-next-line serupa/no-raw-value -- letter counts, not a design value */
+.dk-toast__content { hyphenate-limit-chars: 10 4 4; }
 .dk-toast__content { overflow-wrap: anywhere; hyphens: auto; display: flex; flex-direction: column; gap: var(--spacing-0\.5); flex: auto; min-width: var(--spacing-0); }
 .dk-toast__title { margin: var(--spacing-0); font-weight: var(--toast-title-weight, var(--font-semibold)); }
 /* "×12": the same message came 12 times. */
