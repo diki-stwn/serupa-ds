@@ -111,6 +111,19 @@ describe('ErrorBoundary', () => {
     await expect.poll(() => document.activeElement?.id).toBe('widget');
   });
 
+  test('focus after recovering goes to the first part in the Tab order and shown: past a hidden button and a tab that isn\'t the current one (L8E24)', async () => {
+    broken = true;
+    function Views(): React.ReactElement {
+      if (broken) throw new Error('boom');
+      return <div><button style={{ display: 'none' }}>Hidden</button><div role="tablist" aria-label="Views"><button role="tab" tabIndex={-1}>One</button><button role="tab" id="cur" aria-selected="true">Two</button></div></div>;
+    }
+    await render(<div><input id="before" /><ErrorBoundary><Views /></ErrorBoundary></div>);
+    (page.getByRole('button', { name: 'Try again' }).element() as HTMLElement).focus();
+    broken = false;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('cur');
+  });
+
   test('focus after recovering (FL1): content with nothing focusable takes focus itself for that one move (tabIndex -1, gone on blur); focus elsewhere on the page stays put', async () => {
     broken = true;
     function Text(): React.ReactElement { if (broken) throw new Error('boom'); return <p id="plain">Saved.</p>; }

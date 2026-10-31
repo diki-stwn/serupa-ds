@@ -45,6 +45,8 @@ type Spot = Array<{ node: Node; before: Node | null; after: Node | null }>;
 const spot = (el: Element): Spot => { const out: Spot = []; for (let n: Node | null = el; n && n !== document.body; n = n.parentNode) out.push({ node: n, before: n.previousSibling, after: n.nextSibling }); return out; };
 /** The first focusable element in what now stands where the fallback stood; else its first element, made focusable
  *  from script only (tabIndex -1) for this one move. */
+/** In the Tab order and shown: not a roving tab that isn't the current one (tabindex -1), or a hidden control (L8E24). */
+const reach = (el: HTMLElement) => el.tabIndex >= 0 && el.getClientRects().length > 0;
 function recovered(was: Spot): HTMLElement | null {
   const i = was.findIndex((x) => x.node.isConnected);
   if (i <= 0) return null;   // the focused element is still there (focus wasn't in the fallback), or nothing is
@@ -54,8 +56,8 @@ function recovered(was: Spot): HTMLElement | null {
   let first: HTMLElement | null = null;
   for (let n = from; n && n !== to; n = n.nextSibling) {
     if (!(n instanceof HTMLElement)) continue;
-    if (n.matches(FOCUSABLE)) return n;
-    const inner = n.querySelector<HTMLElement>(FOCUSABLE);
+    if (n.matches(FOCUSABLE) && reach(n)) return n;
+    const inner = Array.from(n.querySelectorAll<HTMLElement>(FOCUSABLE)).find(reach);
     if (inner) return inner;
     if (!first) first = n;
   }
