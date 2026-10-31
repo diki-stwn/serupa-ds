@@ -305,6 +305,22 @@ describe('ColorPicker', () => {
     expect([normalizeHex('#ABC'), normalizeHex('abcdef'), normalizeHex(' #1D4ED8 '), normalizeHex('#abcd'), normalizeHex('red'), contrastRatio('#000', '#fff'), contrastRatio('#777', '#777'), contrastRatio('x', '#fff')])
       .toEqual(['#aabbcc', '#abcdef', '#1d4ed8', null, null, 21, 1, null]);
   });
+  test('L8E11: an opaque color with its alpha ("#1D4ED8FF", "#14df") or as devtools copy it ("rgb(29, 78, 216)") reads; a see-through one doesn\'t', () => {
+    expect(['#1D4ED8FF', '14df', 'rgb(29, 78, 216)', 'rgb(29 78 216 / 100%)', 'rgba(29,78,216,1)'].map(normalizeHex)).toEqual(['#1d4ed8', '#1144dd', '#1d4ed8', '#1d4ed8', '#1d4ed8']);
+    expect(['#1d4ed880', '#14d8', 'rgba(29, 78, 216, 0.5)', 'rgb(300, 0, 0)', '#1d4ed8f'].map(normalizeHex)).toEqual([null, null, null, null, null]);
+  });
+  test('L8E11: rgb() pasted into the hex field, as devtools copy a color, picks it', async () => {
+    const calls: string[] = [];
+    await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
+    await userEvent.click(hex());
+    const dt = new DataTransfer(); dt.setData('text', 'rgb(124, 58, 237)');
+    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    await expect.poll(() => [calls.at(-1), hex().value]).toEqual(['#7c3aed', '7c3aed']);
+  });
+  test('L8E11: a value with its alpha, as a token file writes it, shows as picked', async () => {
+    await render(<ColorPicker aria-label="Brand" swatches={SW} defaultValue="#FDE047FF" />);
+    expect(swatch('Yellow').getAttribute('aria-checked')).toBe('true');
+  });
   test('a hex code typed in full width by a Japanese or Chinese IME reads as the same color (L8E2)', () => {
     expect([normalizeHex('＃１Ｄ４ＥＤ８'), normalizeHex('ａｂｃ'), normalizeHex('＃ＧＧＧ')]).toEqual(['#1d4ed8', '#aabbcc', null]);
   });

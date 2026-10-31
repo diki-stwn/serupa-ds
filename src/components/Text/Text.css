@@ -2,7 +2,8 @@
    Text: body text in the system's type. Size (xs to xl, with each step's line height), tone (default, muted,
    primary, danger: each 4.5:1 on surface) and weight are set only when given, so anything unset follows the
    parent. A long word or URL breaks rather than widen a flex or grid parent; truncate keeps it on one line with an
-   ellipsis. Margins are left to the layout (none by default).
+   ellipsis; measure caps a line at about 65 characters (container-prose). Margins are left to the layout (none by
+   default).
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-text { margin: var(--spacing-0); font-family: var(--font-sans); overflow-wrap: anywhere; }
@@ -19,6 +20,7 @@
 .dk-text--medium { font-weight: var(--font-medium); }
 .dk-text--semibold { font-weight: var(--font-semibold); }
 .dk-text--bold { font-weight: var(--font-bold); }
+.dk-text--measure { max-inline-size: var(--container-prose); }
 .dk-text--truncate { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 span.dk-text--truncate, strong.dk-text--truncate, em.dk-text--truncate, small.dk-text--truncate, label.dk-text--truncate { display: block; }
 }

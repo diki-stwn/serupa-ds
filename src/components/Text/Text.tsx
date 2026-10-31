@@ -17,6 +17,9 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   weight?: TextWeight;
   /** Keeps it on one line, cut with an ellipsis. Give it a width (it's a block). */
   truncate?: boolean;
+  /** Caps the line at about 65 characters (`container-prose`), the comfortable length for running text: an
+   *  article's paragraphs, a long description, help text on a wide page. Default: false. */
+  measure?: boolean;
   /** For a label: the id of the control it names. */
   htmlFor?: string;
 }
@@ -31,10 +34,10 @@ const pick = <T extends string>(list: readonly T[], v: unknown): T | null => (li
 
 /** Body text in the system's type: size, tone and weight, each inherited when unset. */
 export const Text = /* @__PURE__ */ component<HTMLElement, TextProps>("Text", function Text(props, ref) {
-  const { as, size, tone, weight, truncate, className, ...rest } = props;
+  const { as, size, tone, weight, truncate, measure, className, ...rest } = props;
   const s = pick(SIZES, size), t = pick(TONES, tone), w = pick(WEIGHTS, weight);
   return React.createElement(oneOf(TAGS, as, "p"), Object.assign(rest, {
     ref: ref, "data-component": "text",
-    className: cn("dk-text", s && "dk-text--" + s, t && "dk-text--" + t, w && "dk-text--" + w, truncate && "dk-text--truncate", className),
+    className: cn("dk-text", s && "dk-text--" + s, t && "dk-text--" + t, w && "dk-text--" + w, truncate && "dk-text--truncate", measure && "dk-text--measure", className),
   }));
 });
