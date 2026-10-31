@@ -51,6 +51,13 @@ describe('SaveStatus', () => {
     expect(document.querySelector('[data-dk-announcer]')!.getAttribute('aria-live')).toBe('polite');
   });
 
+  test('L8E39: a SaveStatus rendered only once a save fails says the error', async () => {
+    const screen = await render(<div />);
+    await expect.poll(announcerIdle).toBe(true);
+    await screen.rerender(<SaveStatus id="s" status="error" errorText="Couldn’t save: the server is down" />);
+    await expect.poll(() => announcerIdle() && said()).toBe('Couldn’t save: the server is down');
+  });
+
   test('Indonesian labels from the provider', async () => {
     await render(<SerupaProvider labels={idLabels}><SaveStatus id="s" status="error" onRetry={() => {}} /></SerupaProvider>);
     expect(el('s').textContent).toBe('Gagal menyimpan' + 'Coba lagi');
