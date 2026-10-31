@@ -195,6 +195,25 @@ describe('Drawer', () => {
     expect(why).toEqual(['swipe']);
   });
 
+  test('momentum (KW11): let go 8px short of a third while still moving that way at 0.15px/ms, it carries on about 15px and closes, as a scroll would; at 0.05px/ms (about 5px on) it springs back', async () => {
+    const why: string[] = [];
+    const one = (k: string) => <Drawer key={k} id="sm" defaultOpen onOpenChange={(_, d) => why.push(d.reason)} title="Filters"><p>Body</p></Drawer>;
+    const d = () => el('sm') as HTMLDialogElement;
+    const screen = await render(one('a'));
+    await expect.poll(() => d().open).toBe(true);
+    const third = panel('sm').offsetWidth / 3, end = Math.floor(third - 8);
+    // Steady and slow, 5px every 100ms (0.05px/ms): it would only go on about 5px, so it stays.
+    await trace(panel('sm'), Array.from({ length: 6 }, (_, i): [number, number] => [end - 25 + i * 5, 100]));
+    await new Promise((f) => setTimeout(f, 50));
+    expect([d().open, why]).toEqual([true, []]);
+    // Steady, 15px every 100ms (0.15px/ms, under a flick): it would go on about 15px, past a third, so it closes.
+    await screen.rerender(one('b'));
+    await expect.poll(() => d().open).toBe(true);
+    await trace(panel('sm'), Array.from({ length: 6 }, (_, i): [number, number] => [end - 75 + i * 15, 100]));
+    await expect.poll(() => d().open).toBe(false);
+    expect(why).toEqual(['swipe']);
+  });
+
   test('a gentle flick closes it (0.2px/ms over the last 100ms); a pull away from the edge gives a little against resistance, with no gap behind it, and goes back (KW5a)', async () => {
     const why: string[] = [];
     const one = (k: string) => <Drawer key={k} id="sk" defaultOpen onOpenChange={(_, d) => why.push(d.reason)} title="Filters"><p>Body</p></Drawer>;

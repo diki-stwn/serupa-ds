@@ -10,7 +10,7 @@ import { useScrolls } from "../../internal/useScrolls";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
-import { rubber, settleTime, speed, track, type Samples } from "../../internal/fling";
+import { project, rubber, settleTime, speed, track, type Samples } from "../../internal/fling";
 
 export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'title' | 'open'> {
   /** Whether it's open. Controlled: close it yourself in onOpenChange. */
@@ -178,7 +178,9 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     p.removeAttribute("data-dragging");
     if (!g.on) { p.style.translate = ""; delete p.dataset.inward; return; }
     const v = speed(g.s);   // px per ms, toward the edge
-    const out = e.type === "pointerup" && (v > FLICK || (g.d > size / 3 && v > -0.1));
+    // Where it would come to rest with the momentum it was let go with (KW11), as a scroll would: past a third, it
+    // closes, so a slow drag still moving that way goes on to close instead of springing back at its last pixel.
+    const out = e.type === "pointerup" && (v > FLICK || (g.d + project(v) > size / 3 && v > -0.1));
     const left = out ? size - g.at : Math.abs(g.at);
     const done = () => {
       delete p.dataset.settling;
