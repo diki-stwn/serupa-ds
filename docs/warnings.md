@@ -90,6 +90,10 @@ Splitter needs exactly two children, its two panes.
 
 Table was given `captionHidden`, the old name of `hideCaption`. It still hides the caption on screen and keeps it for screen readers, the same as before; 12.0.0 takes it away. Rename it to `hideCaption`.
 
+## table-row-click
+
+A TableRow got `onClick` without `href`. A click on a row reaches mouse users only: the keyboard and screen readers can't press a table row. To open something, give the row an `href` (the whole row becomes one link, from its first cell); for an action, put a button in a cell.
+
 ## tabs-removed
 
 The selected Tab was removed, so no tab is selected. When you remove the selected tab, set `value` to another one.
