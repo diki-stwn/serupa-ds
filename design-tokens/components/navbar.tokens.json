@@ -12,6 +12,16 @@
           }
         }
       },
+      "bg-scrolled": {
+        "$type": "color",
+        "$value": "{color.surface-raised}",
+        "$description": "A sticky bar's background once the page has scrolled under it, faded in with its shadow. In the dark themes it's the lighter raised surface, since a shadow barely shows on a near-black page; in the light ones it's the same white. Set it with --navbar-bg when you change that.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--navbar-bg-scrolled"
+          }
+        }
+      },
       "border": {
         "$type": "color",
         "$value": "{color.border}",

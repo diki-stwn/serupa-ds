@@ -62,7 +62,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |
-| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. Once the page scrolls under it, the bar lifts: a shadow fades in over the first bar height of scroll, tied to the scroll rather than a clock (where scroll-driven animations are supported; elsewhere the line alone). |
+| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. Once the page scrolls under it, the bar lifts: a shadow fades in over the first bar height of scroll, and in the dark themes the bar turns the lighter raised surface, where a shadow alone barely shows, tied to the scroll rather than a clock (where scroll-driven animations are supported; elsewhere the line alone). |
 | `size` | `'prose'` \| `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The content's maximum width, the same as Container, so it lines up with the page |
 | `aria-label` | string | `"Main"` | The links' nav name |
 | `menuLabel` | string | `"Menu"` | The small-screen menu button's name |
@@ -106,3 +106,4 @@ Each is an optional override: set it on the page, a container or one navbar. The
 | `--navbar-link-radius` | `rounded-md` | A link's corners (6px). |
 | `--navbar-z-index` | `z-40` | Above the page when sticky. |
 | `--navbar-shadow-scrolled` | `shadow-md` | A sticky bar's shadow once the page has scrolled under it. |
+| `--navbar-bg-scrolled` | `surface-raised` | A sticky bar's background once the page has scrolled under it (lighter in the dark themes; set it with `--navbar-bg`). |
