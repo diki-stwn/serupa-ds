@@ -60,4 +60,14 @@ describe('Prose', () => {
       expect(css(el('v')).color, th).not.toBe(css(el('a')).color);
     }
   });
+
+  test('a code block or table wider than the column takes focus so the keyboard can scroll it; one that fits, or has its own tabindex, is left alone', async () => {
+    const html = `<pre id="w"><code>${'x'.repeat(400)}</code></pre><pre id="n"><code>short</code></pre><table id="tw"><tr><td>${'y'.repeat(300)}</td></tr></table><pre id="own" tabindex="-1"><code>${'z'.repeat(400)}</code></pre>`;
+    await render(<div style={{ width: 300 }}><Prose id="pr" dangerouslySetInnerHTML={{ __html: html }} /></div>);
+    await expect.poll(() => el('w').getAttribute('tabindex')).toBe('0');
+    expect([el('tw').getAttribute('tabindex'), el('n').hasAttribute('tabindex'), el('own').getAttribute('tabindex')]).toEqual(['0', false, '-1']);
+    // New content that fits (an editor preview re-rendering): the tab stop goes away again.
+    (el('w').firstElementChild as HTMLElement).textContent = 'short';
+    await expect.poll(() => el('w').hasAttribute('tabindex')).toBe(false);
+  });
 });
