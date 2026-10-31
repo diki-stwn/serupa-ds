@@ -119,7 +119,7 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
     <span className={cn("dk-input dk-password-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
       style={props.style} data-component="password-input" data-size={size} onMouseDown={pressFocuses(field)}>
       {left != null && left !== false ? <span className="dk-input__icon dk-input__icon--left" aria-hidden>{left}</span> : null}
-      <input {...rest} ref={fieldRef} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" />
+      <input {...rest} ref={fieldRef} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" autoCorrect="off" />
       {caps ? <span className="dk-password-input__caps" id={capsId}>{sds.labels.capsLockOn}</span> : null}
       <button type="button" className="dk-password-input__toggle" aria-label={props.toggleLabel || sds.labels.showPassword} aria-pressed={shown}
         aria-controls={rest.id} disabled={rest.disabled} onClick={toggle} onMouseDown={(e) => { e.preventDefault(); capture(); pressed.current = performance.now(); }}>

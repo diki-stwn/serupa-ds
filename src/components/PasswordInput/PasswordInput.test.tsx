@@ -94,6 +94,16 @@ describe('PasswordInput', () => {
       .toEqual(['text', 'new-password', 'Show the new password', 44]);
   });
 
+  // QA3: shown, the field is type="text", so iOS would autocorrect a typed password word by word and offer it as a
+  // QuickType suggestion. Spellcheck, capitalising and autocorrect stay off, shown or hidden.
+  test('shown or hidden, the field has autocorrect, autocapitalize and spellcheck off (QA3)', async () => {
+    await render(<Wrap><PasswordInput id="pac" aria-label="Password" /></Wrap>);
+    const attrs = () => [field('pac').type, field('pac').getAttribute('autocorrect'), field('pac').getAttribute('autocapitalize'), field('pac').spellcheck];
+    expect(attrs()).toEqual(['password', 'off', 'off', false]);
+    await userEvent.click(toggle('pac'));
+    expect(attrs()).toEqual(['text', 'off', 'off', false]);
+  });
+
   test('controlled: onVisibleChange gets the new state, the parent sets it', async () => {
     const calls: boolean[] = [];
     function Controlled() {
