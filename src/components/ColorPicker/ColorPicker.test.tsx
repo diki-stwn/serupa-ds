@@ -231,6 +231,14 @@ describe('ColorPicker', () => {
     expect(new FormData(f).get('color')).toBe('#1d4ed8');
   });
 
+  test('form without name: outside its form, that form\'s reset still puts the first color back', async () => {
+    await render(<><form id="fn" /><ColorPicker aria-label="C" swatches={SW} defaultValue="#1d4ed8" form="fn" required /></>);
+    await userEvent.click(swatch('Black'));
+    (el('fn') as HTMLFormElement).reset();
+    await expect.poll(() => swatch('Blue').getAttribute('aria-checked')).toBe('true');
+    await expect.poll(() => hex().value).toBe('1d4ed8');
+  });
+
   test('contrastWith: the WCAG ratio, rounded down, in a polite live region; below minContrast it warns', async () => {
     const calls: string[] = [];
     await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
