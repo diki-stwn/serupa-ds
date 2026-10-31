@@ -63,17 +63,17 @@ describe('FileUpload', () => {
     await expect.poll(() => zone.hasAttribute('data-dragging')).toBe(true);
   });
 
-  test('submitted without a required file: no browser bubble on the hidden input; the choose button takes focus, is invalid and described by "Choose a file."; a file clears it', async () => {
+  test('submitted without a required file: no browser bubble on the hidden input; the choose button takes focus and is described by "Choose a file.", the input is invalid; a file clears it', async () => {
     let submitted = 0;
     await render(<form id="req" onSubmit={(e) => { e.preventDefault(); submitted++; }}><FileUpload id="rq" name="doc" required /><button id="go">Send</button></form>);
     const root = rootOf('rq');
     await userEvent.click(document.getElementById('go')!);
     await expect.poll(() => document.activeElement).toBe(choose(root));
-    expect([submitted, errs(root), choose(root).getAttribute('aria-invalid'), choose(root).getAttribute('aria-describedby')!.split(' ').map((i) => document.getElementById(i)!.textContent.replace(/^error/, '')).join(' | ')])
-      .toEqual([0, 'alert: Choose a file.', 'true', 'Required | Choose a file.']);
+    expect([submitted, errs(root), choose(root).hasAttribute('aria-invalid'), input(root).getAttribute('aria-invalid'), choose(root).getAttribute('aria-describedby')!.split(' ').map((i) => document.getElementById(i)!.textContent.replace(/^error/, '')).join(' | ')])
+      .toEqual([0, 'alert: Choose a file.', false, 'true', 'Required | Choose a file.']);
     await userEvent.upload(input(root), [file('a.pdf', 'application/pdf', 10)]);
     await expect.poll(() => errs(root)).toBe(null);
-    expect(choose(root).hasAttribute('aria-invalid')).toBe(false);
+    expect(input(root).hasAttribute('aria-invalid')).toBe(false);
   });
 
   test('refusal messages in the provider\'s words: Indonesian under id-ID, the types joined with "atau"', async () => {
@@ -186,7 +186,7 @@ describe('FileUpload', () => {
     await expect.poll(() => getComputedStyle(el.querySelector('.dk-file-upload__zone')!).opacity).toBe('0.5');
   });
 
-  test('in a Field with an error and required: the button is aria-invalid and described by "Required" first, the native input required, the area outlined in danger; nothing leaks onto the wrapper and React doesn\'t warn', async () => {
+  test('in a Field with an error and required: the button is described by "Required" first, then the error (a button supports neither aria-invalid nor aria-errormessage, TF1b), the input is aria-invalid, the native input required, the area outlined in danger; nothing leaks onto the wrapper and React doesn\'t warn', async () => {
     const seen: string[] = [], orig = console.error;
     console.error = (...a: unknown[]) => { seen.push(a.map(String).join(' ')); };
     try {
@@ -198,13 +198,21 @@ describe('FileUpload', () => {
     } finally { console.error = orig; }
     const root = document.querySelector<HTMLElement>('[data-testid=fi1]')!, b = choose(root);
     const text = (ids: string | null) => (ids || '').split(' ').map((i) => document.getElementById(i)?.textContent).join(' / ');
-    expect([b.getAttribute('aria-invalid'), b.hasAttribute('aria-required'), text(b.getAttribute('aria-describedby')), input(root).required])
-      .toEqual(['true', false, 'Required / Add the signed contract', true]);
+    expect([b.hasAttribute('aria-invalid'), b.hasAttribute('aria-errormessage'), b.hasAttribute('aria-required'), text(b.getAttribute('aria-describedby')), input(root).required, input(root).getAttribute('aria-invalid')])
+      .toEqual([false, false, false, 'Required / Add the signed contract', true, 'true']);
     expect(['invalid', 'required', 'readonly', 'aria-invalid', 'aria-required', 'aria-readonly'].filter((a) => root.hasAttribute(a))).toEqual([]);
     expect(seen.filter((m) => /invalid|required|readOnly/i.test(m))).toEqual([]);
     const zone = (id: string) => getComputedStyle(rootOf(id).querySelector('.dk-file-upload__zone')!);
-    expect([rootOf('fi2').className, zone('fi2').borderTopStyle, zone('fi2').borderTopColor === zone('fi3').borderTopColor, choose(rootOf('fi3')).hasAttribute('aria-invalid')])
+    expect([rootOf('fi2').className, zone('fi2').borderTopStyle, zone('fi2').borderTopColor === zone('fi3').borderTopColor, input(rootOf('fi3')).hasAttribute('aria-invalid')])
       .toEqual(['dk-file-upload dk-file-upload--invalid', 'solid', false, false]);
+  });
+
+  test('invalid with your own aria-errormessage: the message joins the button\'s description once, and the drop area is presentational with no state (TF1b)', async () => {
+    await render(<><p id="up-err">Upload a PDF</p><FileUpload id="fe" invalid aria-errormessage="up-err" /><FileUpload id="fe2" invalid aria-errormessage="up-err" aria-describedby="up-err" disabled /></>);
+    const b = choose(rootOf('fe')), b2 = choose(rootOf('fe2'));
+    expect([b.getAttribute('aria-describedby'), b2.getAttribute('aria-describedby'), b.hasAttribute('aria-errormessage'), input(rootOf('fe')).getAttribute('aria-invalid')]).toEqual(['up-err', 'up-err', false, 'true']);
+    const zone = rootOf('fe2').querySelector('.dk-file-upload__zone')!;
+    expect([zone.getAttribute('role'), zone.hasAttribute('aria-disabled')]).toEqual(['presentation', false]);
   });
 
   test('readOnly: the files are listed (and submitted) without remove buttons; the button stays focusable (aria-disabled) but opens no picker; dropped files are ignored', async () => {

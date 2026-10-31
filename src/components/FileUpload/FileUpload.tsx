@@ -35,7 +35,7 @@ export interface FileUploadProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   maxFiles?: number;
   /** Turns the drop area and its button off, as a disabled native control. */
   disabled?: boolean;
-  /** A danger outline on the drop area, and aria-invalid on the choose button. In a Field with an error, it's set for you. */
+  /** A danger outline on the drop area, and aria-invalid on the native input; the choose button is described by the error (a button supports neither aria-invalid nor aria-errormessage). In a Field with an error, it's set for you. */
   invalid?: boolean;
   /** Required for the form's check (on the native input) and aria-required on the choose button. In a required Field, aria-required is set for you. */
   required?: boolean;
@@ -240,21 +240,29 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
   // In a Field (whose <label for> reaches only the hidden input), the button is named "Due date, Choose a file" and
   // described by the Field's hint and error, then its own hint.
   const fieldLabel = useFieldLabel(inputId);
+  // A button supports neither aria-invalid nor aria-errormessage (TF1b), so the error is said through its
+  // description: Field's error is already in aria-describedby, and an aria-errormessage of your own joins it.
+  // aria-invalid goes on the native input, which forms and tests read.
+  const errorId = invalid ? props["aria-errormessage"] : undefined;
+  const given = props["aria-describedby"];
+  const described = cn(required && base + "-req", given, errorId && !(given || "").split(/\s+/).includes(errorId) && errorId, hasHint && base + "-hint", missing && base + "-missing") || undefined;
   return (
     <div {...rest} ref={(n) => { delegateFocus(n, choose); setRef(ref, n); }} className={cn("dk-file-upload", disabled && "dk-file-upload--disabled", readOnly && "dk-file-upload--readonly", (invalid || missing) && "dk-file-upload--invalid", props.className)} data-component="file-upload">
-      <div className={cn("dk-file-upload__zone", over && "dk-file-upload__zone--over")} data-dragging={over ? "" : undefined} aria-disabled={disabled || undefined} {...drag}
+      {/* A click on the area's padding opens the picker too, for the pointer only: the choose button is how the
+          keyboard and screen readers reach it, so the area is presentational and carries no state (TF1b). */}
+      <div className={cn("dk-file-upload__zone", over && "dk-file-upload__zone--over")} data-dragging={over ? "" : undefined} role="presentation" {...drag}
         onClick={(e) => { if (!still && e.target === e.currentTarget && input.current) input.current.click(); }}>
         <Icon icon={icons.UploadFile} className="dk-file-upload__icon" />
         <p className="dk-file-upload__title">{props.title ?? (multiple ? sds.labels.dragFiles : sds.labels.dragFile)}</p>
         <Button ref={chooser} variant="outline" size="sm" disabled={disabled} onClick={() => { if (!readOnly && input.current) input.current.click(); }}
-          aria-disabled={readOnly || undefined} aria-invalid={invalid || missing || undefined} aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
-          aria-labelledby={fieldLabel ? fieldLabel + " " + base + "-choose" : undefined} aria-describedby={cn(required && base + "-req", props["aria-describedby"], hasHint && base + "-hint", missing && base + "-missing") || undefined}>
+          aria-disabled={readOnly || undefined}
+          aria-labelledby={fieldLabel ? fieldLabel + " " + base + "-choose" : undefined} aria-describedby={described}>
           <span id={base + "-choose"}>{props.buttonLabel || (multiple ? sds.labels.chooseFiles : sds.labels.chooseFile)}</span>
         </Button>
         {required ? <span className="dk-file-upload__required" id={base + "-req"}>{sds.labels.required}</span> : null}
         {hasHint ? <p className="dk-file-upload__hint" id={base + "-hint"}>{props.hint}</p> : null}
         <input ref={input} id={inputId} type="file" className="dk-file-upload__input" tabIndex={-1} aria-hidden name={props.name} form={props.form} accept={props.accept} multiple={multiple} disabled={disabled} required={props.required}
-          onChange={(e) => { add(e.target.files); }} onInvalid={onInvalid}
+          aria-invalid={invalid || missing || undefined} onChange={(e) => { add(e.target.files); }} onInvalid={onInvalid}
           // A <label for> click opens the picker and focuses this hidden input (no ring, a screen reader on an
           // aria-hidden element): focus goes on to the button, so the picker returns there.
           onFocus={() => { const b = chooser.current; if (b && !b.disabled) b.focus(); }} />
