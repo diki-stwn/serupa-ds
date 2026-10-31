@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
@@ -288,5 +290,26 @@ describe('Accordion', () => {
     const t = document.querySelector('#mk button[aria-expanded]') as HTMLElement;
     t.focus();
     expect([modified(t, 'ArrowDown'), modified(t, 'End'), document.activeElement === t]).toEqual([[false, false, false], [false, false, false], true]);
+  });
+
+  test('server markup: closed content is hidden before the stylesheet or script arrives; once hydrated it is until-found, and opens and closes as usual (FEC8a)', async () => {
+    const tree = <Accordion id="ssr" defaultValue={['a']}><AccordionItem value="a" title="A">Open text</AccordionItem><AccordionItem value="b" title="B">Closed text</AccordionItem></Accordion>;
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(tree);
+    document.body.append(host);
+    const content = (n: number) => panel('ssr', n).querySelector('.dk-accordion__content')!;
+    try {
+      expect([content(1).hasAttribute('hidden'), content(2).getAttribute('hidden')]).toEqual([false, '']);
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const root = hydrateRoot(host, tree);
+      await expect.poll(() => content(2).getAttribute('hidden')).toBe('until-found');
+      expect([content(1).hasAttribute('hidden'), errors.mock.calls.length]).toEqual([false, 0]);
+      errors.mockRestore();
+      await userEvent.click(trigger('ssr', 2));
+      await expect.poll(() => content(2).hasAttribute('hidden')).toBe(false);
+      await userEvent.click(trigger('ssr', 2));
+      await expect.poll(() => content(2).getAttribute('hidden')).toBe('until-found');
+      root.unmount();
+    } finally { host.remove(); }
   });
 });
