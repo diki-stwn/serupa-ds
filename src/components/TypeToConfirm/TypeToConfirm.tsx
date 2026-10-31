@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
+import { useAutoFocus } from "../../internal/focus";
 import { useSettings } from "../../internal/provider";
 import { en as words } from "./labels";
 import { Field } from "../Field/Field";
@@ -33,11 +34,11 @@ export interface TypeToConfirmProps extends Omit<React.HTMLAttributes<HTMLDivEle
    the phrase is typed (it stays focusable, aria-disabled, and says why), so the action needs a deliberate step. Paste
    is allowed (WCAG 3.3.8): the step is reading what's at stake, not retyping it. The field turns off autocomplete,
    spellcheck, autocapitalize and autocorrect, which would change what's typed. Enter in the field confirms once it
-   matches. className and other props go to the wrapper <div>. */
+   matches. autoFocus goes to the field (L8E94); className and other props go to the wrapper <div>. */
 /** A field and a destructive button: the button works only once the phrase (a name) is typed, for actions that can't be undone. */
 export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToConfirmProps>("TypeToConfirm", function TypeToConfirm(props, ref) {
   const sds = useSettings(words);
-  const { phrase, confirmLabel, onConfirm, label, hint, caseSensitive, onMatch, disabled, className, ...rest } = props;
+  const { phrase, confirmLabel, onConfirm, label, hint, caseSensitive, onMatch, disabled, className, autoFocus, ...rest } = props;
   const [text, setText] = React.useState("");
   // Without case, the Turkish i's fold to one "i" both ways: "İSTANBUL" lowercases to "i" + a dot, and a Turkish
   // browser lowercases the "I" of "INVOICE" to "ı", which the "i" a person types wouldn't match (L8E41).
@@ -56,11 +57,13 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
     if (onMatch) onMatch(matched);
   }, [matched, onMatch]);
   const button = React.useRef<HTMLButtonElement | null>(null);
+  const field = React.useRef<HTMLInputElement | null>(null);
+  useAutoFocus(autoFocus, () => field.current);
   return (
     <div {...rest} ref={ref} className={cn("dk-type-to-confirm", className)} data-component="type-to-confirm">
       <Field label={label != null ? label : <>{sds.labels.typeToConfirm} <strong className="dk-type-to-confirm__phrase">{phrase}</strong></>} hint={hint} disabled={disabled}>
         {/* An input method's Enter (isComposing, or keyCode 229 after it in Safari) confirms the text, not the action (L8E34). */}
-        <Input value={text} onChange={(e) => setText(e.currentTarget.value)} disabled={disabled}
+        <Input value={text} onChange={(e) => setText(e.currentTarget.value)} disabled={disabled} ref={field}
           autoComplete="off" spellCheck={false} autoCapitalize="off" autoCorrect="off"
           onKeyDown={(e) => { if (e.key === "Enter" && matched && !isComposing(e) && button.current) { e.preventDefault(); button.current.click(); } }} />
       </Field>
