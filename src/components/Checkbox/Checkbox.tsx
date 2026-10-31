@@ -9,7 +9,7 @@ import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { warnOnce } from "../../internal/warn";
-import { delegateFocus } from "../../internal/focus";
+import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { en as words } from "./labels";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
@@ -76,7 +76,7 @@ const GroupContext = /* @__PURE__ */ React.createContext<GroupContextValue | nul
    fieldset and legend), aria-label or aria-labelledby. role="group" supports neither aria-invalid nor
    aria-required, so invalid goes on each box and required is each box's native required while none is checked
    (Field group says "Required" in the legend too). */
-const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
+const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1, autoFocus: 1 } as const;
 
 /** The value boxes among a group's children (inside plain elements too), with whether each is disabled. */
 function childBoxes(children: React.ReactNode, disabled: boolean, out = new Map<string, boolean>()): Map<string, boolean> {
@@ -126,6 +126,7 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
       emit(next, e);
     },
   };
+  useAutoFocus(props.autoFocus, () => root.current);   // through the delegation below; the <div> ignored it
   return (
     <div {...rest} ref={function (n) {
       // ref.current.focus() (a form library focusing the first invalid field) lands on the first box that can be

@@ -361,4 +361,8 @@ describe('CheckboxGroup', () => {
     g.current!.focus();
     expect((document.activeElement as HTMLInputElement).value).toBe('egg');
   });
+  test('L8E91 autoFocus on a CheckboxGroup focuses its first box, as it does on SegmentedControl and Slider', async () => {
+    await render(<><button>Before</button><CheckboxGroup aria-label="Toppings" autoFocus><Checkbox value="ham">Ham</Checkbox><Checkbox value="egg">Egg</Checkbox></CheckboxGroup></>);
+    await expect.poll(() => (document.activeElement as HTMLInputElement).value).toBe('ham');
+  });
 });
