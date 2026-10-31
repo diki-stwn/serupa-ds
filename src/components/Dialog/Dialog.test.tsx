@@ -362,6 +362,19 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('sm')).toBe(true);
     expect(topModal()).toBe(dlg('sm'));
   });
+
+  test('StrictMode: a Dialog mounted open when a button is pressed gives focus back to that button when it closes (L8E19)', async () => {
+    function App() {
+      const [show, setShow] = React.useState(false);
+      return <><button id="smo" onClick={() => setShow(true)}>Delete</button>{show ? <Dialog id="smb" open onOpenChange={() => setShow(false)} title="Delete it?" /> : null}</>;
+    }
+    await render(<React.StrictMode><App /></React.StrictMode>);
+    await userEvent.click(el('smo'));
+    await expect.poll(() => isOpen('smb')).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => document.getElementById('smb')).toBeNull();
+    expect(document.activeElement!.id).toBe('smo');
+  });
 });
 
 describe('Dialog: a body that scrolls', () => {

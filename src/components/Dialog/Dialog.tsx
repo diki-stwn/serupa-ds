@@ -65,10 +65,11 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   const final = React.useRef(props.finalFocus); final.current = props.finalFocus;
   // Back to finalFocus, else to the opener, if either is still on the page. A confirmation that deletes the row it
   // was opened from took its button away, and focus fell to <body>, the top of the page for a keyboard (L8E19).
-  const giveBack = () => {
+  // Unmounting keeps it: StrictMode mounts it again, open, and it's still owed when that one closes.
+  const giveBack = (keep?: boolean) => {
     if (!back.current) return;   // never opened, or already given back
     const f = final.current && final.current.current, b = f && f.isConnected ? f : back.current;
-    back.current = null;
+    if (!keep) back.current = null;
     if (b && b.isConnected && typeof b.focus === "function") b.focus();
   };
   const [inner, setInner] = React.useState(!!props.defaultOpen);
@@ -105,7 +106,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
     }
   }, [open, reopened]);
   // Closed while unmounting: give focus back too.
-  React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); giveBack(); }; }, []);
+  React.useEffect(() => { const d = el.current; return () => { if (d) modalClosed(d); giveBack(true); }; }, []);
 
   // Escape fires "cancel": ask instead of closing, so open stays the truth.
   // React passes a nested dialog's cancel and close up to this one, though the browser doesn't bubble them: only
