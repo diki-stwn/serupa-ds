@@ -8,6 +8,7 @@ import { useServerStyles } from "../../internal/serverStyles";
 import { useScrolls } from "../../internal/useScrolls";
 import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
+import { clickAfterDrag } from "../../internal/timing";
 
 export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
   /** The two panes, first and second. The handle between them resizes the first; the second takes the rest. */
@@ -167,7 +168,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
     e.stopPropagation();
     const swallow = (c: Event) => { c.preventDefault(); c.stopPropagation(); };
     window.addEventListener("click", swallow, { capture: true, once: true });
-    setTimeout(() => window.removeEventListener("click", swallow, { capture: true }), 500);
+    setTimeout(() => window.removeEventListener("click", swallow, { capture: true }), clickAfterDrag);
     setPlacing(false);
     change(at(e));
     if (handle.current) handle.current.focus();

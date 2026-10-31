@@ -79,7 +79,7 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   const rest = omit(props, OWN);
   const variant = oneOf(VARIANTS, props.variant, "subtle");
   const tone = oneOf(TONES, props.tone, "neutral");
-  // Once it shows, the ring stays at least MIN_SHOWN, so loading that ends a moment later doesn't flash it (EB1).
+  // Once it shows, the ring stays at least spinnerMinShown, so loading that ends a moment later doesn't flash it (EB1).
   const loading = useShowAfter(!!props.loading, 0);
   const loadingText = props.loadingText == null ? sds.labels.loading : props.loadingText;
   // Hooks first: a count of 0 renders nothing below, and hooks must run on every render.

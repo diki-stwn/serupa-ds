@@ -93,6 +93,19 @@ describe('EmptyState', () => {
     }
   });
 
+  test('announce with suggestions: the searches are said apart ("Did you mean: mars, maze."), not run together into one word (L8E62)', async () => {
+    await expect.poll(announcerIdle, { timeout: 3000 }).toBe(true);
+    const heard: string[] = [];
+    const watch = new MutationObserver(() => { const a = document.querySelector('[data-dk-announcer]'); if (a && a.textContent) heard.push(a.textContent); });
+    watch.observe(document.body, { childList: true, characterData: true, subtree: true });
+    try {
+      await render(<EmptyState announce title="No results for “marz”" suggestions={['mars', 'maze']} onSuggestion={() => {}} />);
+      await expect.poll(() => heard[heard.length - 1], { timeout: 3000 }).toBe('No results for “marz”. Did you mean: mars, maze.');
+    } finally {
+      watch.disconnect();
+    }
+  });
+
   test('suggestions: "Did you mean:" and a link button per search that calls onSuggestion, 24px tall; plain text without onSuggestion (64)', async () => {
     const picked: string[] = [];
     await render(<>

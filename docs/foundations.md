@@ -173,7 +173,7 @@ Fonts ship with the system in `fonts/` and are declared by `tokens.css`: Inter (
 
 **Sizes** — each size carries its own line height. Both are tokens in the `fontSize` group (`var(--text-sm)`, `var(--text-sm--line-height)`) that the `text-*` classes and the components read. A `text-*` class sets only size and line height.
 
-**Type styles** — `type-xs` … `type-9xl` (generated into `tokens.css` from the Type scale) set the whole style at once: family, size, line height, weight and letter spacing. Use one for a block of plain text; combine `text-*`, `font-*` and `tracking-*` when you need to vary one property. The two sets never conflict, whatever order the stylesheets load in.
+**Type styles** — `type-xs` … `type-9xl` (generated into `tokens.css` from the Type scale) set the whole style at once: family, size, line height, weight and letter spacing. From `type-2xl` up they carry `tracking-tight`, and from `type-6xl` up `tracking-tighter`, so a large style reads as set as tightly as a Heading of that size. Use one for a block of plain text; combine `text-*`, `font-*` and `tracking-*` when you need to vary one property. The two sets never conflict, whatever order the stylesheets load in.
 
 | Class | Size | Line height |
 | --- | --- | --- |
@@ -822,7 +822,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-stagger-limit` | `delay-300` | The longest any staggered item waits, so a long list still arrives within a moment. |
 | `motion-sequence` | `delay-50` | The offset between the steps of one entrance: a dialog's or drawer's backdrop starts, then its panel. Exits don't sequence. |
 | `ease-enter` | `ease-out-quart` | Something appearing: quick off the mark, then a long smooth landing. |
-| `ease-exit` | `ease-in` | Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once. A stronger ease-in starts too slowly and makes closing feel sluggish. |
+| `ease-exit` | `ease-out-quart` | Something leaving: at full speed from the first frame, then easing off as it fades. An ease-in starts slowly, and the first frames after a close are the ones people watch, so closing felt sluggish. |
 | `ease-move` | `ease-in-out-cubic` | Something that stays on screen and changes: a thumb sliding, a panel resizing, a color changing. |
 | `ease-settle` | `ease-out-expo` | Something arriving at a new value or let go by the hand: a fill, a slide, a drawer dropped. Most of the travel at once, then a long glide to rest. |
 | `ease-pop` | `ease-out-back` | Something small popping into place: a check mark, a count, a dot. Overshoots by about 4%, then settles. |
@@ -831,6 +831,25 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `ease-celebrate` | `ease-elastic` | A small, rare moment worth celebrating: a success check landing, a count bumping, an item snapping into its slot after a drag. Wobbles, then settles. |
 
 `tools/test/motion-tokens.mjs` fails component CSS that writes its own duration, delay or easing (a `250ms`, a `cubic-bezier()`) instead of a token, and component CSS that takes the scale itself (`var(--duration-150)`, `var(--ease-in-out)`) instead of a role; `duration-0` and `ease-linear` are allowed, and what hasn't moved to a role yet is listed in the check. It also checks that each role names a step of the scale and that every exit is shorter than its enter.
+
+**Waits.** Some waits live in JavaScript, because CSS can't express them: how long before a spinner shows, or how long a tooltip waits for the pointer to rest. They are named once in `src/internal/timing.ts`, so two that must agree can't drift apart. For example, Button's busy wait is Loader's default delay. The `serupa/no-literal-delay` lint rule fails a number written into a `setTimeout` or `setInterval` in a component.
+
+| Wait | Value | What it's for |
+|---|---|---|
+| `spinnerDelay` | 300ms | Before a loading indicator appears, so a quick wait doesn't flash one: Loader's default `delay`, Button's `loading`. |
+| `spinnerMinShown` | 500ms | Once a loading indicator shows, it stays at least this long. |
+| `feedbackHold` | 2000ms | How long a "done" state holds: Button's `successText`, CopyButton's "Copied". |
+| `hoverIntent` | 400ms | The pointer rests this long before a tooltip shows (Tooltip's default `delay`). |
+| `hoverLeave` | 100ms | A tooltip waits this long after the pointer leaves, so moving onto it keeps it open. |
+| `hoverWarm` | 300ms | After a tooltip closes, the next one opens at once for this long. |
+| `submenuIntent` | 150ms | The pointer rests this long on a menu item before its submenu opens or closes. |
+| `typingPause` | 250ms | Typing pauses this long before Combobox's `loadOptions` runs (its default `debounce`). |
+| `announcePause` | 700ms | Combobox waits this long after the options change before saying how many there are. |
+| `quickArrival` | 250ms | A picture that arrives this soon after mount appears without Image's fade. |
+| `holdDelay`, `holdRepeat` | 400ms, 50ms | A held NumberInput step button waits, then repeats. |
+| `clickAfterDrag` | 500ms | After a Splitter drag, the click the browser sends is ignored for this long. |
+| `repeatQuiet` | 1000ms | The same toast again within this long is a repeat, not a new toast. |
+| `relativeTick` | 15s | How often RelativeTime refreshes. |
 
 **Timing**
 
@@ -841,6 +860,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 
 **Easing.** Most of what makes motion feel smooth is its curve. Enter with `ease-enter`, leave with `ease-exit`, change in place with `ease-move`, and arrive at a new value with `ease-settle`. Pop small things into place with `ease-pop`, and let a press go with `ease-spring`. Spinners and progress bars turn at constant speed (`ease-linear`). Steps (`steps()`, `step-end`) are for ticking spinners.
 
+- **Exits ease out too.** A closed surface should be mostly gone in the first frames, because that is when the eye is on it. An ease-in spends those frames barely moving and saves its speed for the end, when nobody is watching any more. So `ease-exit` is the same strong ease-out as `ease-enter`, over the shorter exit duration. Keep the `ease-in-*` curves for something that leaves and keeps going off the screen, like a toast swiped away.
 - **Strength.** The curves come in three strengths: `cubic` is gentle, `quart` firm and `expo` hard. A stronger curve does more of its travel at the start of an ease-out (or the end of an ease-in), so the same duration feels quicker and smoother. Entering surfaces use `quart`, values arriving use `expo`.
 - **Overshoot.** `ease-out-back` passes the end by about 4% and comes back; keep it for small things (a check, a dot, a count), never a dialog or a page.
 - **Elastic.** `ease-elastic` wobbles: it overshoots by about 37%, swings back and settles over a few bounces. It's delightful once and tiring the tenth time, so it has its own role, `ease-celebrate`, and rules. Use it for a small thing at a rare, good moment: a success check landing, a count bumping, an item dropped into its slot, a first-run hint arriving. Give it `motion-change-lg` or longer so the wobble reads. Never use it for surfaces (menus, popovers, dialogs, drawers), for page or layout moves, for hover or press, or for anything people do over and over. Animate `scale` or `translate`, not size. Under reduced motion it's off, like every overshoot.
@@ -859,7 +879,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 **Scales.** These are what the roles point at, and what utility classes use.
 
 - **Duration:** `duration-0`, `75`, `100`, `150`, `200`, `300`, `500`, `700`, `1000`, `1200` (ms).
-- **Easing:** `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (`cubic-bezier(0, 0, 0.2, 1)`), and `ease-in-out` (`cubic-bezier(0.4, 0, 0.2, 1)`, the default for the `transition` classes); `ease-out-cubic`, `-quart`, `-expo`, `ease-in-cubic`, `-quart`, `-expo` and `ease-in-out-cubic`, `-quart`, `-expo`; `ease-out-back`; and the springs `ease-spring-soft`, `ease-spring-snappy` and `ease-elastic`.
+- **Easing:** `ease-linear`, `ease-in` (`cubic-bezier(0.4, 0, 1, 1)`), `ease-out` (the same curve as `ease-out-quart`), and `ease-in-out` (the same curve as `ease-in-out-cubic`, the default for the `transition` classes); `ease-out-cubic`, `-quart`, `-expo`, `ease-in-cubic`, `-quart`, `-expo` and `ease-in-out-cubic`, `-quart`, `-expo`; `ease-out-back`; and the springs `ease-spring-soft`, `ease-spring-snappy` and `ease-elastic`.
 - **Delay:** `delay-0` to `delay-1000`, in the same steps as duration, plus `delay-50` for a stagger step.
 
 **Transition properties** — `transition` (the default set: colors, outline and gradient stops, opacity, shadow, transform and translate/scale/rotate, filters, and discrete properties like `display`), `transition-colors`, `transition-opacity`, `transition-shadow`, `transition-transform`, `transition-all`, `transition-none`. Each animates at `duration-150` with `ease-in-out` unless a `duration-*` or `ease-*` class says otherwise, whatever the class order; `duration-initial` and `ease-initial` go back to those defaults. Name the properties you animate; avoid `transition-all` in components because it also animates layout.

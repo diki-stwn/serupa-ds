@@ -13,6 +13,7 @@ import { asIcon } from "../Icon/asIcon";
 import { Loader } from "../Loader/Loader";
 import { component } from "../../internal/component";
 import { BUTTON_VARIANTS, buttonClass } from "./buttonClass";
+import { feedbackHold, spinnerDelay } from "../../internal/timing";
 
 export { buttonClass };
 
@@ -81,8 +82,6 @@ export interface ButtonAsLinkProps extends ButtonOwnProps, Omit<React.AnchorHTML
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
 const OWN = { variant: 1, size: 1, destructive: 1, className: 1, children: 1, leftIcon: 1, rightIcon: 1, icon: 1, loading: 1, loadingText: 1, disabledReason: 1, successText: 1, wrap: 1 } as const;
-const SUCCESS_MS = 2000;
-const BUSY_MS = 300;
 const isThenable = (v: unknown): v is PromiseLike<unknown> => v != null && typeof (v as PromiseLike<unknown>).then === "function";
 
 
@@ -107,10 +106,10 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
     warnOnce("button-icon-label", "Button: an icon-only button needs an aria-label.");
   }
   // An onClick that returns a promise: no second click until it settles (no double submits), loading once it has run
-  // for BUSY_MS (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading") and then for at least
-  // MIN_SHOWN, so one that ends just after BUSY_MS doesn't flash the spinner (EB1); then successText if it resolved.
+  // for spinnerDelay (a quick one, such as CopyButton's copy, doesn't flash or announce "Loading") and then for at least
+  // spinnerMinShown, so one that ends just after spinnerDelay doesn't flash the spinner (EB1); then successText if it resolved.
   const [working, setWorking] = React.useState(false);
-  const busy = useShowAfter(working, BUSY_MS);
+  const busy = useShowAfter(working, spinnerDelay);
   const [success, setSuccess] = React.useState(false);
   const pending = React.useRef(false);
   const won = React.useRef("");   // successText, once resolved: shown when the spinner has gone
@@ -118,7 +117,7 @@ export const ButtonBase = /* @__PURE__ */ component<HTMLElement, ButtonProps>("B
   React.useEffect(function () { alive.current = true; return () => { alive.current = false; }; }, []);
   React.useEffect(function () {
     if (!success) return;
-    const t = setTimeout(() => setSuccess(false), SUCCESS_MS);
+    const t = setTimeout(() => setSuccess(false), feedbackHold);
     return () => clearTimeout(t);
   }, [success]);
   React.useEffect(function () {

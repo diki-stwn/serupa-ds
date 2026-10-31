@@ -976,8 +976,8 @@
   --delay-1000: 1000ms;
   --ease-linear: linear;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: var(--ease-out-quart);
+  --ease-in-out: var(--ease-in-out-cubic);
   --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -1013,7 +1013,7 @@
   --motion-stagger-limit: var(--delay-300);
   --motion-sequence: var(--delay-50);
   --ease-enter: var(--ease-out-quart);
-  --ease-exit: var(--ease-in);
+  --ease-exit: var(--ease-out-quart);
   --ease-move: var(--ease-in-out-cubic);
   --ease-settle: var(--ease-out-expo);
   --ease-pop: var(--ease-out-back);
@@ -1163,56 +1163,56 @@
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
 }
 .type-3xl {
   font-family: var(--font-sans);
   font-size: 1.875rem;
   line-height: 2.25rem;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
 }
 .type-4xl {
   font-family: var(--font-sans);
   font-size: 2.25rem;
   line-height: 2.5rem;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
 }
 .type-5xl {
   font-family: var(--font-sans);
   font-size: 3rem;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
 }
 .type-6xl {
   font-family: var(--font-sans);
   font-size: 3.75rem;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.05em;
 }
 .type-7xl {
   font-family: var(--font-sans);
   font-size: 4.5rem;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.05em;
 }
 .type-8xl {
   font-family: var(--font-sans);
   font-size: 6rem;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.05em;
 }
 .type-9xl {
   font-family: var(--font-sans);
   font-size: 8rem;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: -0.05em;
 }
 .type-display {
   font-family: var(--font-sans);

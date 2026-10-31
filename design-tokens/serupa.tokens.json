@@ -8323,13 +8323,8 @@
     },
     "ease-out": {
       "$type": "cubicBezier",
-      "$value": [
-        0,
-        0,
-        0.2,
-        1
-      ],
-      "$description": "Ends slow: elements entering (menus, dialogs, toasts).",
+      "$value": "{transitions.ease-out-quart}",
+      "$description": "Ends slow: elements entering (menus, dialogs, toasts). The same curve as ease-out-quart: most of the travel at once, then a long landing.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-out"
@@ -8338,13 +8333,8 @@
     },
     "ease-in-out": {
       "$type": "cubicBezier",
-      "$value": [
-        0.4,
-        0,
-        0.2,
-        1
-      ],
-      "$description": "Default: state changes that stay on screen (hover, toggles).",
+      "$value": "{transitions.ease-in-out-cubic}",
+      "$description": "Default: state changes that stay on screen (hover, toggles). The same curve as ease-in-out-cubic: a clear start and a clear finish.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-in-out"
@@ -8723,8 +8713,8 @@
     },
     "ease-exit": {
       "$type": "cubicBezier",
-      "$value": "{transitions.ease-in}",
-      "$description": "Something leaving: moving from the first frame and picking up speed, so a closed surface gets out of the way at once.",
+      "$value": "{transitions.ease-out-quart}",
+      "$description": "Something leaving: at full speed from the first frame, then easing off as it fades, so a closed surface is out of the way at once. An ease-in starts slowly, and the first frames after a close are the ones people watch.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--ease-exit"

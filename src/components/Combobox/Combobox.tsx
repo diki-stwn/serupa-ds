@@ -21,6 +21,7 @@ import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Badge } from "../Badge/Badge";
 import { en as words } from "./labels";
 import { windowBlur } from "../../internal/focus";
+import { announcePause, typingPause } from "../../internal/timing";
 
 /** V is the options' values, inferred from options or given, such as Combobox<"red" | "green">. */
 export type ComboboxOption<V extends string = string> = V | { value: V; label: string; description?: React.ReactNode; disabled?: boolean };
@@ -163,7 +164,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     if (wait > 0) l.timer = window.setTimeout(go, wait); else go();
   };
   React.useEffect(() => () => { const l = loader.current; window.clearTimeout(l.timer); if (l.ctl) l.ctl.abort(); }, []);
-  const pause = typeof props.debounce === "number" && props.debounce >= 0 ? props.debounce : 250;
+  const pause = typeof props.debounce === "number" && props.debounce >= 0 ? props.debounce : typingPause;
   const loading = !!props.loading || busy;
   const controlled = props.value !== undefined;
   const one = (v: string | string[] | null | undefined) => (multi || typeof v !== "string" ? null : v);
@@ -328,7 +329,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const said = failed ? sds.labels.loadFailed : shown.length === 0 ? empty : count ? sds.labels.resultsCount(count) : "";
   React.useEffect(() => {
     if (!open || !typed || loading || !said) return;
-    const t = setTimeout(() => announce(said), 700);
+    const t = setTimeout(() => announce(said), announcePause);
     return () => clearTimeout(t);
   }, [open, typed, loading, said, text]);
 

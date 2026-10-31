@@ -243,6 +243,21 @@ describe('Pagination', () => {
     expect([l2.scrollWidth <= l2.clientWidth + 1, el('w2').scrollWidth <= 300]).toEqual([true, true]);
   });
 
+  // O7 part 2: the page-size select.
+  test('pageSizeOptions: a select labelled "Items per page" after the summary; a new size keeps the first item in view (page 5 at 10 is page 2 at 25) and calls onPageSizeChange (O7)', async () => {
+    const calls: Array<[number, number]> = [];
+    function App() {
+      const [per, setPer] = React.useState(10);
+      return <Pagination id="ps" count={Math.ceil(245 / per)} defaultPage={5} total={245} pageSize={per} pageSizeOptions={[10, 25, 50]} onPageSizeChange={(n, p) => { calls.push([n, p]); setPer(n); }} />;
+    }
+    await render(<App />, { wrapper: EnUS });
+    const sel = el('ps').querySelector('select')!;
+    expect([sel.labels?.[0]?.textContent, sel.value, [...sel.options].map((o) => o.textContent), el('ps').querySelector('p')?.textContent]).toEqual(['Items per page', '10', ['10', '25', '50'], '41–50 of 245']);
+    await userEvent.selectOptions(sel, '25');
+    await expect.poll(() => el('ps').querySelector('p')?.textContent).toBe('26–50 of 245');
+    expect([calls, el('ps').querySelector('[aria-current="page"]')?.textContent, sel.value]).toEqual([[[25, 2]], '2', '25']);
+  });
+
   // GR56: with justify-content: flex-end the pages that didn't fit spilled past the start edge, unmeasured and never
   // cut: at 288px Previous sat at x -99, page 1 and the ellipsis off screen, and Tab focused Previous there.
   test('total and pageSize, too narrow for every page (288px, LTR and RTL): the pages are cut to fit, none past either edge (GR56)', async () => {

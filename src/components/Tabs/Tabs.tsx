@@ -66,9 +66,13 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // running turns back from where it has got to (EH1).
   const before = React.useRef<(() => void) | null>(null);
   // Picked from the keyboard (an arrow, Home, End), the line or fill is there at once rather than sliding (KW1).
+  // Worked out whenever the value changes, not only when a tab picks it, so a controlled value set by a click
+  // elsewhere (a Next button) slides even after an arrow picked the tab before (GR61).
   const [keyed, setKeyed] = React.useState(false);
+  const [shown, setShown] = React.useState(value);
+  if (shown !== value) { setShown(value); setKeyed(lastInputKeyboard()); }
   useIsoLayoutEffect(listenForInput, []);
-  const select = React.useCallback((v: string) => { if (before.current) before.current(); setKeyed(lastInputKeyboard()); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
+  const select = React.useCallback((v: string) => { if (before.current) before.current(); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
   const variant = oneOf(["line", "pill"] as const, props.variant, "line");
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   // Which values have a TabPanel, so a tab only points (aria-controls) at a panel that exists: a tab row can

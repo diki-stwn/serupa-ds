@@ -139,7 +139,7 @@ describe('Loader', () => {
     const rs = [...el('px').querySelectorAll('rect.dk-loader__px')], s = rs.map((r) => getComputedStyle(r));
     expect(rs.map((r) => r.getAttribute('class')!.match(/d(\d)/)![1]).join('')).toBe('012123234');
     expect(s.map((x) => x.animationDelay).join()).toBe('0s,0.075s,0.15s,0.075s,0.15s,0.225s,0.15s,0.225s,0.3s');
-    expect(`${s[0].animationName} ${s[0].animationDuration} ${s[0].animationTimingFunction} ${s[0].animationIterationCount}`).toBe('dk-loader-pixel 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    expect(`${s[0].animationName} ${s[0].animationDuration} ${s[0].animationTimingFunction} ${s[0].animationIterationCount}`).toBe('dk-loader-pixel 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
   });
 
   test('pixel, right to left: the grid is mirrored, so the wave starts from the top right, the inline start (GI2); the drawing is never narrowed by base.css', async () => {
@@ -188,7 +188,7 @@ describe('Loader', () => {
     expect(new Set(durs).size).toBe(9);
     expect([Math.min(...durs), Math.max(...durs)]).toEqual([1.5, 2.2]);
     expect(new Set(rs.map((s) => s.animationDelay)).size).toBeGreaterThanOrEqual(8);
-    expect(rs[0].animationTimingFunction).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
+    expect(rs[0].animationTimingFunction).toBe('cubic-bezier(0.65, 0, 0.35, 1)');
   });
 
   test('pixel pattern: "wave" by default and for unknown values; other variants ignore it', async () => {
@@ -219,7 +219,7 @@ describe('Loader', () => {
     expect([...new Set(rs.map((s) => s.animationName))].join()).toBe('dk-loader-pixel');
     expect(rs.map((s) => Math.round(parseFloat(s.animationDelay) / 0.075)).join('')).toBe(steps);
     expect([...new Set(rs.map((s) => s.animationDuration))].join()).toBe(dur);
-    expect(rs[0].animationTimingFunction).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
+    expect(rs[0].animationTimingFunction).toBe('cubic-bezier(0.65, 0, 0.35, 1)');
   });
 
   test('pixel step patterns: a square rises gradually (still part-way at 15% of its cycle), holds, then fades back gradually', async () => {
@@ -407,10 +407,10 @@ describe('Loader', () => {
     expect([l.textContent, g.dataset.words, copy.content, copy.webkitTextFillColor, s.overflow]).toEqual(['Loading projects', 'Loading projects', '"Loading projects"', 'rgb(15, 23, 42)', 'hidden']);
     expect(w.maskImage || w.webkitMaskImage).toMatch(/linear-gradient/);
     expect(Math.round(g.getBoundingClientRect().width * 2)).toBe(Math.round(l.getBoundingClientRect().width));
-    for (const a of [w, copy]) expect(`${a.animationName} ${a.animationDuration} ${a.animationTimingFunction} ${a.animationIterationCount}`).toBe('dk-loader-glint 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    for (const a of [w, copy]) expect(`${a.animationName} ${a.animationDuration} ${a.animationTimingFunction} ${a.animationIterationCount}`).toBe('dk-loader-glint 2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
   });
 
-  test('shine: the window starts off the left of the words and ends off the right (seamless loop), past halfway at half time (ease-in-out), while the copy moves back by as much so it stays on the words', async () => {
+  test('shine: the window starts off the left of the words and ends off the right (seamless loop), halfway at half time (ease-in-out is symmetric), while the copy moves back by as much so it stays on the words', async () => {
     await render(<Loader id="lab" variant="text" label="Loading projects" delay={0} />);
     const l = q('#lab .dk-loader__label'), g = l.firstElementChild!, lw = l.getBoundingClientRect().width;
     const runs = g.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-glint');
@@ -418,7 +418,7 @@ describe('Loader', () => {
     const left = (ms: number) => { runs.forEach((a) => { a.pause(); a.currentTime = ms; }); return (g.getBoundingClientRect().left - l.getBoundingClientRect().left) / lw; };
     const [start, mid, end] = [left(0), left(1000), left(1999)];
     expect(start).toBeCloseTo(-0.5, 1);
-    expect(mid).toBeGreaterThan(0.25);
+    expect(mid).toBeCloseTo(0.25, 2);
     expect(end).toBeGreaterThan(0.99);
     // The copy's translate is the window's, undone: in the copy's own width (twice the window's), half as many percent, the other way.
     const pct = (el: Element, pseudo?: string) => parseFloat(getComputedStyle(el, pseudo).translate);
@@ -548,7 +548,7 @@ describe('Loader', () => {
     expect(stops[0]).toMatch(/15 23 42|0\.0588/);
     expect(stops[0]).toMatch(/\/ 0\.1\)|, 0\.1\)/);
     expect(stops[6]).toMatch(/\/ 0\.05\)|, 0\.05\)/);
-    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite');
+    expect(`${s.animationName} ${s.animationDuration} ${s.animationTimingFunction} ${s.animationIterationCount}`).toBe('dk-loader-sweep 2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
     // Three bones wide, it starts with its last third on the bone and ends with its first: the band passes through.
     const w = b.getBoundingClientRect().width;
     expect([Math.round(parseFloat(s.width) / w), css(b).overflow]).toEqual([3, 'hidden']);

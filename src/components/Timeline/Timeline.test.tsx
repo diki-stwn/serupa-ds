@@ -39,6 +39,15 @@ describe('Timeline', () => {
     expect([el('bare').querySelector('time'), q(el('bare'), '.dk-timeline__content')]).toEqual([null, null]);
   });
 
+  test('a time without dateTime is a <span>, not a <time> with text no machine can read; a <RelativeTime> passed as time isn\'t nested in another <time> (L8E59)', async () => {
+    await render(<Order />);
+    const t = q(el('b'), '.dk-timeline__time');
+    expect([t.tagName, t.textContent, el('b').querySelector('time')]).toEqual(['SPAN', '13 Mar', null]);
+    expect(q(el('a'), '.dk-timeline__time').tagName).toBe('TIME');
+    await render(<Timeline><TimelineItem id="rt" title="Shipped" time={<time dateTime="2026-03-12">2 hours ago</time>} /></Timeline>);
+    expect(el('rt').querySelectorAll('time').length).toBe(1);
+  });
+
   test('the line joins each marker to the next, and the last has none; the title\'s first line sits level with the marker', async () => {
     await render(<Order />);
     const line = (id: string) => getComputedStyle(q(el(id), '.dk-timeline__rail'), '::after');
