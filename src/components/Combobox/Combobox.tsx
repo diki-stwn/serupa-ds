@@ -317,13 +317,17 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     if (input.current) input.current.focus();
   };
 
-  // While typing, how many options match is said once the typing stops (a role=status row already says "No results").
+  // While typing, how many options match is said once the typing stops, and so are "No results" and "Couldn't load"
+  // (GR53): a role=status row inserted with its text already in it isn't read by VoiceOver or JAWS, so those rows
+  // are plain text and the shared announcer says them, as it says the counts.
   const count = more ? shown.filter((o) => !o.disabled).length : usable.length;
+  const empty = typeof props.emptyText === "string" ? props.emptyText : sds.labels.noResults;
+  const said = failed ? sds.labels.loadFailed : shown.length === 0 ? empty : count ? sds.labels.resultsCount(count) : "";
   React.useEffect(() => {
-    if (!open || !typed || loading || !count) return;
-    const t = setTimeout(() => announce(sds.labels.resultsCount(count)), 700);
+    if (!open || !typed || loading || !said) return;
+    const t = setTimeout(() => announce(said), 700);
     return () => clearTimeout(t);
-  }, [open, typed, loading, count, text, sds.labels]);
+  }, [open, typed, loading, said, text]);
 
   // Place the list under the field, in the top layer, as wide as the field at least.
   // Closing: the options stay (inert) while the list fades out, as Menu's and DatePicker's do (GK1).
@@ -383,8 +387,8 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
           {shownList ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
         </div>
         {shownList && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
-        {!loading && failed ? <div className="dk-combobox__message" role="status">{sds.labels.loadFailed}</div> : null}
-        {!loading && !failed && shown.length === 0 ? <div className="dk-combobox__message" role="status">{props.emptyText ?? sds.labels.noResults}</div> : null}
+        {!loading && failed ? <div className="dk-combobox__message">{sds.labels.loadFailed}</div> : null}
+        {!loading && !failed && shown.length === 0 ? <div className="dk-combobox__message">{props.emptyText ?? sds.labels.noResults}</div> : null}
       </div>
       {props.name && multi ? values.map((v) => <input key={v} type="hidden" name={props.name} form={rest.form} value={v} disabled={rest.disabled} />) : null}
       {props.name && !multi ? <input type="hidden" name={props.name} form={rest.form} value={value ?? ""} disabled={rest.disabled} /> : null}
