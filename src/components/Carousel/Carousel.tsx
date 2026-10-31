@@ -131,12 +131,9 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   // every render: an ancestor's dir or direction can change without a render of ours; reading it is a style lookup, not a layout.
   useIsoLayoutEffect(() => { const d = rtl() ? "rtl" : "ltr"; if (d !== dir) setDir(d); });
 
-  // Your onKeyDown runs first, on the root as the key goes down (the capture phase), so preventDefault() in it keeps
-  // the component's own handling of that key from running (L8E32).
-  const onKeyDownCapture = (e: React.KeyboardEvent<HTMLElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onDotsKey = (e: React.KeyboardEvent) => {
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const back = rtl() ? "ArrowRight" : "ArrowLeft", fwd = rtl() ? "ArrowLeft" : "ArrowRight";
     let to = -1;
     if (e.key === back) to = loop ? page - 1 : Math.max(0, page - 1);
@@ -219,7 +216,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 
   return (
-    <section {...rest} onKeyDown={undefined} onKeyDownCapture={onKeyDownCapture} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
+    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
       aria-roledescription={sds.labels.carouselRole} aria-label={props.label ?? rest["aria-label"]} data-component="carousel" data-index={index} data-dir={dir}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}
