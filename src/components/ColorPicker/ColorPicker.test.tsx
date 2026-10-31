@@ -31,6 +31,11 @@ describe('ColorPicker', () => {
     expect([hex().id === label.htmlFor, hex().getAttribute('aria-describedby'), hex().getAttribute('aria-label')]).toEqual([false, null, 'Hex code']);
   });
 
+  test('QA2: the hex field isn\'t autocorrected or capitalised by a phone keyboard ("fade00" stays), nor spellchecked', async () => {
+    await render(<ColorPicker swatches={SW} />);
+    expect(['spellcheck', 'autocorrect', 'autocapitalize'].map((n) => hex().getAttribute(n))).toEqual(['false', 'off', 'off']);
+  });
+
   test('required: a form with no color picked isn\'t valid; submitting marks the swatches invalid and focuses them; picking one clears it', async () => {
     let sent = 0;
     await render(<form id="cpf" onSubmit={(e) => { e.preventDefault(); sent++; }}><ColorPicker aria-label="Accent" swatches={SW} name="accent" required /><button id="cps">Save</button></form>);
@@ -314,7 +319,10 @@ describe('ColorPicker', () => {
     await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     await userEvent.click(hex());
     const dt = new DataTransfer(); dt.setData('text', 'rgb(124, 58, 237)');
-    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    // Firefox empties the clipboardData passed to a ClipboardEvent made in script (as in EY1 above), so the paste carries it as its own.
+    const ev = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'clipboardData', { value: dt });
+    hex().dispatchEvent(ev);
     await expect.poll(() => [calls.at(-1), hex().value]).toEqual(['#7c3aed', '7c3aed']);
   });
   test('L8E11: a value with its alpha, as a token file writes it, shows as picked', async () => {

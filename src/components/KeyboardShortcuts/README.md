@@ -40,7 +40,7 @@ function Inbox() {
 - It doesn't run while someone types in a text field (an input, a textarea, a select or an editable area), unless it has `mod`, ctrl or cmd, or `inInputs`. So <kbd>C</kbd> and <kbd>/</kbd> still type.
 - It doesn't run while a modal (a Dialog, a Drawer or this help) is open, since the page behind it is inert. It also doesn't run while an input method is composing, or when another handler already handled the key.
 - When two set up the same keys, the newest wins. A panel that opens can take a key from the page, and the page gets it back when the panel closes.
-- Symbols such as <kbd>?</kbd> match whatever the keyboard layout needs to type them, so Shift isn't checked. Letters and digits also match by their position, so <kbd>alt</kbd>+<kbd>K</kbd> works on a Mac, where Option changes the character.
+- Symbols such as <kbd>?</kbd> match whatever the keyboard layout needs to type them, so Shift isn't checked. Letters and digits also match by their position, so <kbd>alt</kbd>+<kbd>K</kbd> works on a Mac, where Option changes the character. A letter matches by position only when the key types no Latin letter (Option on a Mac, a Cyrillic or Greek layout), so on AZERTY or Dvorak it goes by the letter typed.
 - The dialog lists each group in the order its first shortcut was set up, with "Show keyboard shortcuts" under General. With one group, it has no heading. The same keys and description are listed once, however many components set them up.
 
 ## Accessibility

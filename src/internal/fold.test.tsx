@@ -23,6 +23,10 @@ describe('fold', () => {
     expect(differ.filter(([typed, label]) => fold(label).includes(fold(typed)))).toEqual([]);
   });
 
+  test('hiragana and katakana are one: "こーひー" finds "コーヒー" and "ｺｰﾋｰ"; a voicing mark still makes another word (L8E17)', () => {
+    expect([fold('コーヒー') === fold('こーひー'), fold('ｺｰﾋｰ') === fold('こーひー'), fold('トウキョウ駅').includes(fold('とうきょう')), fold('ガス') === fold('がす'), fold('カス') === fold('がす')]).toEqual([true, true, true, true, false]);
+  });
+
   test('Greek final sigma ς is σ: a search in capitals finds the word, and either sigma finds the other (L8E14)', () => {
     expect([fold('ΑΣ') === fold('ας'), fold('Αστυ').includes(fold('ΑΣ')), fold('ΟΔΟΣ') === fold('οδοσ'), fold('Οδός') === 'οδοσ']).toEqual([true, true, true, true]);
   });

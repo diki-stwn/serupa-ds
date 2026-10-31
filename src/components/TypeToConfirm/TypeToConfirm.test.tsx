@@ -64,6 +64,16 @@ describe('TypeToConfirm', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
+  test('a full-width phrase (an IME in full-width mode) and a no-break or doubled space match; other text still doesn\'t (L8E15)', async () => {
+    await render(<Confirm phrase="my-repo 2" />);
+    await userEvent.fill(parts('t').input, '\uff4d\uff59\uff0d\uff52\uff45\uff50\uff4f\u3000\uff12');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await userEvent.fill(parts('t').input, 'my-repo\u00a0 2');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe(null);
+    await userEvent.fill(parts('t').input, 'my-repo2');
+    await expect.poll(() => parts('t').button.getAttribute('aria-disabled')).toBe('true');
+  });
+
   test('an accent typed or pasted as a separate mark (e + ´) matches the same letter written as one (é), with or without caseSensitive (GR40)', async () => {
     const screen = await render(<Confirm phrase="Café Ngọc" />);
     await userEvent.fill(parts('t').input, 'Cafe\u0301 Ngo\u0323c');
