@@ -69,7 +69,8 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   // form: a rating outside the form it names is reset with that form too, as Slider and SegmentedControl are.
   useFormReset(root, () => { if (!controlled) setOwn(fit(defaultValue)); }, form);
   // A disabled <fieldset> around it turns the radios off natively; the stars then act and look disabled too (L8E71).
-  const off = !!disabled || useFieldsetDisabled(root);
+  const inDisabledFieldset = useFieldsetDisabled(root);
+  const off = !!disabled || inDisabledFieldset;
 
   const set = (n: number | null) => {
     if (n === value) return;
