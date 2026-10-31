@@ -430,4 +430,13 @@ describe('Slider at 320px (GM2)', () => {
       .toEqual(['Volume', '0 is muted / Too loud', 'true', 'true']);
     expect([two.getAttribute('role'), text(two.getAttribute('aria-labelledby')), text(two.getAttribute('aria-describedby'))]).toEqual(['group', 'Price', 'In dollars']);
   });
+  test('L8E87 in a Field with an error: aria-errormessage is on each thumb (where aria-invalid is), not on the root <div>', async () => {
+    await render(<>
+      <Field label="Volume" error="Too loud"><Slider data-testid="se1" defaultValue={90} /></Field>
+      <Field label="Price" error="Too wide"><Slider data-testid="se2" defaultValue={[10, 90]} /></Field>
+    </>);
+    const root = (t: string) => document.querySelector<HTMLElement>(`[data-testid=${t}]`)!;
+    const said = (t: string) => [...root(t).querySelectorAll('[role=slider]')].map((th) => document.getElementById(th.getAttribute('aria-errormessage') || '')?.textContent ?? null);
+    expect([said('se1'), said('se2'), root('se1').getAttribute('aria-errormessage'), root('se2').getAttribute('aria-errormessage')]).toEqual([['Too loud'], ['Too wide', 'Too wide'], null, null]);
+  });
 });
