@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "Field background.",
+        "$description": "Background",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-bg"
@@ -14,8 +14,8 @@
       },
       "bg-readonly": {
         "$type": "color",
-        "$value": "{color.surface-muted}",
-        "$description": "Background when read-only or disabled.",
+        "$value": "{color.field-readonly}",
+        "$description": "Background when read-only or disabled",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-bg-readonly"
@@ -25,7 +25,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The typed text.",
+        "$description": "The typed text",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-text"
@@ -35,7 +35,7 @@
       "border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "Border (3:1 on the field and the page in every theme).",
+        "$description": "Border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-border"
@@ -45,7 +45,7 @@
       "border-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "Border on hover.",
+        "$description": "Border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-border-hover"
@@ -55,7 +55,7 @@
       "placeholder": {
         "$type": "color",
         "$value": "{color.placeholder}",
-        "$description": "Placeholder text (4.5:1 on the field).",
+        "$description": "Placeholder text",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-placeholder"
@@ -65,7 +65,7 @@
       "icon-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The left and right icons.",
+        "$description": "Left and right icons",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-icon-color"
@@ -75,7 +75,7 @@
       "affix": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The prefix and suffix text, 4.5:1 on the field.",
+        "$description": "The `prefix` and `suffix` text",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-affix"
@@ -85,7 +85,7 @@
       "count": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The character count (showCount), 4.5:1 on the field; it turns text-colored at maxLength.",
+        "$description": "The character count",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-count"
@@ -95,7 +95,7 @@
       "count-full": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The character count once it reaches maxLength.",
+        "$description": "The count once `maxLength` is reached",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-count-full"
@@ -105,7 +105,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "Border and ring while focused.",
+        "$description": "Border and ring while focused",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-focus-ring"
@@ -115,7 +115,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Border and focus ring when invalid.",
+        "$description": "Border and ring when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-invalid"
@@ -219,7 +219,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between an icon and the text (8px).",
+        "$description": "Gap between an icon and the text (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-gap"
@@ -231,7 +231,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "Border width (1px); the focus ring adds as much again.",
+        "$description": "Border width (1px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-border-width"
@@ -241,7 +241,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "Corner radius (6px), like Button and Badge.",
+        "$description": "Corner radius (6px), like Button and Badge",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--input-radius"

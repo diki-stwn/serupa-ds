@@ -83,6 +83,9 @@ Following a link closes the small-screen menu. `className`, `ref` and everything
 
 Each is an optional override: set it on the page, a container or one navbar. The list lives in `src/components/Navbar/navbar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from navbar.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--navbar-bg` | `surface` | The bar's background. |
@@ -92,17 +95,53 @@ Each is an optional override: set it on the page, a container or one navbar. The
 | `--navbar-link-text-hover` | `text` | A link on hover. |
 | `--navbar-link-text-active` | `text` | The current page's link. |
 | `--navbar-link-bg-hover` | `secondary` | A link's background on hover. |
-| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
 | `--navbar-link-bg-active` | `secondary` | The current page's link background. |
 | `--navbar-focus-ring` | `focus-ring` | The keyboard focus ring. |
+| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-link-size` | `text-sm` | Link text (14px). |
 | `--navbar-link-weight` | `font-medium` | Link weight (500). |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-height` | `spacing-16` | The bar's height (64px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-gap` | `spacing-6` | Space between the brand, the links and the actions (24px). |
 | `--navbar-link-gap` | `spacing-1` | Space between links (4px). |
 | `--navbar-link-padding-x` | `spacing-3` | A link's side padding (12px). |
 | `--navbar-link-padding-y` | `spacing-2` | A link's top and bottom padding (8px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-border-width` | `border-width-1` | The line under the bar (1px). |
+
+**Radius**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-link-radius` | `rounded-md` | A link's corners (6px). |
+
+**Layout**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-z-index` | `z-40` | Above the page when sticky. |
+
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-shadow-scrolled` | `shadow-md` | A sticky bar's shadow once the page has scrolled under it. |
+<!-- token-table:end -->

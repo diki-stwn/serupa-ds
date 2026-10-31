@@ -163,6 +163,16 @@ describe('SortableList', () => {
     expect([names(), moves.length]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], 1]);
   });
 
+  test('a slow press on another row\'s handle still drops there: focus moving to it on the press doesn\'t cancel first', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<List moves={moves} />);
+    await userEvent.click(handle('Apollo'));
+    await said('Picked up Apollo, position 1 of 4.');
+    await userEvent.click(handle('Mercury'), { delay: 150 });
+    await said('Dropped Apollo at position 3 of 4.');
+    expect([names(), moves]).toEqual([['Gemini', 'Mercury', 'Apollo', 'Artemis'], [{ from: 0, to: 2 }]]);
+  });
+
   test('a drag back to where it started reports nothing, and the press that ends a drag doesn\'t pick the row up', async () => {
     const moves: Array<{ from: number; to: number }> = [];
     await render(<List moves={moves} />);

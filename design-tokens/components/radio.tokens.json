@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "The circle's background while unchecked.",
+        "$description": "The circle while unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-bg"
@@ -15,7 +15,7 @@
       "bg-disabled": {
         "$type": "color",
         "$value": "{color.surface-muted}",
-        "$description": "The circle's background when disabled and unchecked.",
+        "$description": "The circle when disabled and unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-bg-disabled"
@@ -25,7 +25,7 @@
       "bg-checked": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Fill and border when checked (3:1 on the page in every theme).",
+        "$description": "Fill and border when checked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-bg-checked"
@@ -35,7 +35,7 @@
       "bg-checked-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "Fill and border when checked, on hover.",
+        "$description": "The same, on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-bg-checked-hover"
@@ -45,7 +45,7 @@
       "border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "The circle's border while unchecked (3:1 on the field and the page).",
+        "$description": "Border while unchecked",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-border"
@@ -55,7 +55,7 @@
       "border-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "The border on hover.",
+        "$description": "Border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-border-hover"
@@ -65,7 +65,7 @@
       "dot-color": {
         "$type": "color",
         "$value": "{color.on-primary}",
-        "$description": "The dot in a checked radio.",
+        "$description": "The dot",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-dot-color"
@@ -75,7 +75,7 @@
       "label-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The label.",
+        "$description": "The label",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-label-color"
@@ -85,7 +85,7 @@
       "description-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The description (4.5:1 on the page).",
+        "$description": "The description",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-description-color"
@@ -95,7 +95,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The focus ring.",
+        "$description": "The focus ring",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-focus-ring"
@@ -105,7 +105,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Border and focus ring when invalid.",
+        "$description": "Border and focus ring when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-invalid"
@@ -179,7 +179,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between the circle and the label (8px).",
+        "$description": "Circle to label (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-gap"
@@ -189,7 +189,7 @@
       "group-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between radios in a vertical group, and between rows of a horizontal one (8px).",
+        "$description": "Between radios in a stack, and between rows (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-group-gap"
@@ -199,7 +199,7 @@
       "group-gap-horizontal": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "Gap between radios in a horizontal group (16px).",
+        "$description": "Between radios in a row (16px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-group-gap-horizontal"
@@ -211,7 +211,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "The circle's border width (1px).",
+        "$description": "Border width (1px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-border-width"
@@ -223,7 +223,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-90}",
-        "$description": "Size of the circle while the radio is held down (90%). 1 turns press feedback off.",
+        "$description": "Size of the circle while it's held down (90%). 1 turns it off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--radio-press-scale"

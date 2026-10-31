@@ -79,17 +79,18 @@ Every other prop, `className` and `ref` go to the `<ul>`, which has `data-compon
 
 Each is an optional override: set it on the page, a container or one list. The list lives in `src/components/SortableList/sortable-list.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from sortable-list.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--sortable-list-text` | `text` | The rows' text. |
 | `--sortable-list-item-bg` | `surface` | A row's background. |
 | `--sortable-list-item-border` | `border` | A row's border. |
 | `--sortable-list-item-border-active` | `primary` | The border of the row being moved. |
-| `--sortable-list-item-shadow-active` | `shadow-md` | The raised look of the row being moved. |
 | `--sortable-list-handle` | `text-muted` | The handle (3:1 on the row). |
 | `--sortable-list-handle-active` | `text` | The handle on hover and while its row moves. |
 | `--sortable-list-handle-bg-hover` | `secondary` | The handle's background on hover. |
 | `--sortable-list-focus-ring` | `focus-ring` | The handle's keyboard focus ring. |
+| `--sortable-list-item-shadow-active` | `shadow-md` | The raised look of the row being moved. |
 | `--sortable-list-item-radius` | `rounded-md` | A row's corners (6px). |
 | `--sortable-list-gap` | `spacing-2` | Space between rows (8px). |
 | `--sortable-list-item-gap` | `spacing-2` | Space between the handle and the content (8px). |
@@ -97,3 +98,4 @@ Each is an optional override: set it on the page, a container or one list. The l
 | `--sortable-list-item-padding-x` | `spacing-3` | Space at a row's end, and its start without a handle (12px). |
 | `--sortable-list-item-padding-start` | `spacing-1` | Space before the handle (4px). |
 | `--sortable-list-handle-size` | `spacing-6` | The handle's smallest size, its target (24px). |
+<!-- token-table:end -->
