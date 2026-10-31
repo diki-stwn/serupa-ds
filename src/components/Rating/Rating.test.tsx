@@ -87,7 +87,7 @@ describe('Rating', () => {
 
   test('L8E71 disabled: hovering a star lights nothing, as nothing can be picked', async () => {
     await render(<Rating id="dh" aria-label="Off" disabled defaultValue={1} />);
-    await userEvent.hover(el('dh').children[3] as HTMLElement);
+    await userEvent.hover(el('dh').children[3]);
     expect(filled('dh')).toEqual([24, 0, 0, 0, 0]);
   });
 
