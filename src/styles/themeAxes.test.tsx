@@ -137,6 +137,13 @@ describe('Contrast axis', () => {
       [`${s} text on its subtle fill`, `var(--${s}-text)`, `var(--${s}-subtle)`, 7],
     ]),
     ...['success', 'warning', 'info'].map((s): [string, string, string, number] => [`${s} icon`, `var(--${s})`, 'var(--surface)', 4.5]),
+    // The brand (V6 phase 2): each brand's own stronger shade, for links, the secondary button and the focus ring.
+    ['brand text', 'var(--primary)', 'var(--surface)', 7],
+    ['brand text on its tint', 'var(--primary)', 'var(--primary-subtle)', 7],
+    ['brand text on hover', 'var(--primary-hover)', 'var(--primary-subtle)', 7],
+    ['primary button text', 'var(--on-primary)', 'var(--primary)', 7],
+    ['primary button text on hover', 'var(--on-primary)', 'var(--primary-hover)', 7],
+    ['focus ring', 'var(--focus-ring)', 'var(--surface)', 4.5],
   ];
 
   test('data-contrast="more": 7:1 text and stronger borders in all six themes', () => {
@@ -183,6 +190,34 @@ describe('Contrast axis', () => {
       expect(contrast('var(--text-muted)', 'var(--surface)'), mode).toBeGreaterThan(Math.max(before, 7));
       root.removeAttribute('data-contrast');
     }
+  });
+
+  test('the brand keeps its hue: each brand gets its own stronger shade, from the axes and in a nested section', () => {
+    const hue = (host: HTMLElement) => { const p = document.createElement('span'); host.appendChild(p); p.style.color = 'var(--primary)'; const c = getComputedStyle(p).color; p.remove(); return c; };
+    const swatch = (name: string) => { const p = document.createElement('span'); document.body.appendChild(p); p.style.color = `var(--${name})`; const c = getComputedStyle(p).color; p.remove(); return c; };
+    for (const [brand, mode, shade] of [['violet', 'light', 'violet-800'], ['emerald', 'dark', 'emerald-300'], ['blue', 'dark', 'blue-300']]) {
+      axes(brand, mode);
+      root.setAttribute('data-contrast', 'more');
+      expect(hue(document.body), `${brand}-${mode}`).toBe(swatch(shade));
+      root.removeAttribute('data-contrast');
+    }
+    // A violet page asking for more contrast, with an emerald dark section and a flat blue-light one inside it.
+    axes('violet', 'light');
+    root.setAttribute('data-contrast', 'more');
+    const emerald = document.createElement('section');
+    emerald.setAttribute('data-brand', 'emerald');
+    emerald.setAttribute('data-mode', 'dark');
+    const blue = document.createElement('section');
+    blue.setAttribute('data-theme', 'blue-light');
+    document.body.append(emerald, blue);
+    expect(hue(emerald)).toBe(swatch('emerald-300'));
+    expect(hue(blue)).toBe(swatch('blue-800'));
+    // …and without it, the normal shades.
+    root.removeAttribute('data-contrast');
+    expect(hue(emerald)).toBe(swatch('emerald-400'));
+    expect(hue(blue)).toBe(swatch('blue-600'));
+    emerald.remove();
+    blue.remove();
   });
 
   test('tokens.css follows prefers-contrast: more unless the page says data-contrast="normal"', async () => {

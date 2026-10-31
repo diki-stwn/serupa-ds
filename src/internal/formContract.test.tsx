@@ -3,9 +3,10 @@
 //  - submits with a form elsewhere on the page through form="…",
 //  - goes back to its default on form.reset() after a change,
 //  - in a <fieldset disabled>, submits nothing and is skipped by Tab,
-// and behaves as a field in a form does (219):
-//  - ref.focus() puts focus inside it, as on an <input>,
-//  - inside a Field with a hint and an error, it is described by both and marked invalid.
+//  - takes focus inside it from autoFocus and from ref.current.focus() (a form library focusing the first invalid
+//    field), as a native field does: a group's <div> took neither, and Rating, RadioGroup and CheckboxGroup dropped
+//    them (L8E89-L8E93).
+//  - inside a Field with a hint and an error, is described by both and marked invalid (219).
 // The single-feature tests (useFormReset, formAttribute) cover a few controls each; this runs the same four checks
 // over the whole list, so a new control is added to CONTROLS and can't quietly skip one.
 import * as React from 'react';
@@ -141,25 +142,6 @@ describe.each(TABLE)('$name keeps the form contract', (c) => {
     await expect.poll(() => sent(f)).toEqual(c.initial);
   });
 
-  test('ref.focus() puts focus inside it', async () => {
-    // The control's own element in c.el(): the first component element, past fragments and table markup.
-    const ref = React.createRef<HTMLElement>();
-    let found = false;
-    const withRef = (node: React.ReactNode): React.ReactNode => {
-      if (found || !React.isValidElement<{ children?: React.ReactNode }>(node)) return node;
-      if (typeof node.type !== 'string' && node.type !== React.Fragment) {
-        found = true;
-        return React.cloneElement(node as React.ReactElement<{ ref?: React.Ref<HTMLElement> }>, { ref });
-      }
-      return React.cloneElement(node, {}, ...React.Children.toArray(node.props.children).map(withRef));
-    };
-    await render(<><button type="button" id="elsewhere">Elsewhere</button><div id="box">{withRef(c.el())}</div></>);
-    document.getElementById('elsewhere')!.focus();
-    expect(ref.current, 'the ref reaches an element').not.toBeNull();
-    React.act(() => ref.current!.focus());
-    expect(document.getElementById('box')!.contains(document.activeElement)).toBe(true);
-  });
-
   if (!c.noField) test('inside a Field, is described by its hint and error and marked invalid', async () => {
     await render(<Field label="Thing" hint="Some hint" error="Wrong">{c.el()}</Field>);
     const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(/\s+/).map((id) => document.getElementById(id)?.textContent ?? '');
@@ -174,5 +156,21 @@ describe.each(TABLE)('$name keeps the form contract', (c) => {
     document.getElementById('before')!.focus();
     await userEvent.tab();
     expect(document.activeElement?.id).toBe('after');
+  });
+});
+
+// The element itself, when it is one component (not a fragment or a <table> around it), to give it a ref or autoFocus.
+const own = (c: Control) => { const el = c.el(); return el.type === React.Fragment || el.type === 'table' ? null : el; };
+describe.each(TABLE.filter((c) => own(c)))('$name takes focus as a field does (L8E95)', (c) => {
+  test('autoFocus focuses it', async () => {
+    await render(<><button type="button">Before</button><div id="af">{React.cloneElement(own(c)!, { autoFocus: true } as object)}</div></>);
+    await expect.poll(() => document.getElementById('af')!.contains(document.activeElement)).toBe(true);
+  });
+
+  test('ref.current.focus() focuses it', async () => {
+    const ref = React.createRef<HTMLElement>();
+    await render(<div id="rf">{React.cloneElement(own(c)!, { ref } as object)}</div>);
+    React.act(() => ref.current!.focus());
+    expect(document.getElementById('rf')!.contains(document.activeElement)).toBe(true);
   });
 });
