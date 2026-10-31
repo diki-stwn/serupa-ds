@@ -8,6 +8,8 @@
 // And the callbacks follow the API conventions in CONTRIBUTING.md: a component's own on…Change callback is named
 // for the prop it reports (onOpenChange for open, onPressedChange for pressed, onValueChange for value), and only a
 // wrapper of a native element, which takes value and onChange from React's own types, has a plain onChange.
+// And booleans are named in the positive (CONTRIBUTING.md): for what they turn on or show, never noX, xHidden, enabled
+// or disableX; hideX turns a part off.
 //   node tools/test/props.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -67,6 +69,19 @@ const NAMING_GAPS = {
   'ComboboxSingleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
   'ComboboxMultipleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
 };
+// Booleans that don't follow the naming yet, each with why. Like NAMING_GAPS, this list only shrinks.
+const BOOLEAN_GAPS = {
+  'IconButtonProps.noTitle': 'a negative: to be deprecated for a positive name (SG3), one component pull request',
+  'TableProps.captionHidden': 'xHidden: to be deprecated for hideCaption (SG3), one component pull request',
+};
+const NEGATIVE = /^(no|not|dont|without|disable)[A-Z]|[a-z]Hidden$|^enabled$/;
+const isBoolean = (p) => {
+  const d = (p.declarations || [])[0];
+  const t = d && checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(p, d));
+  return !!t && (!!(t.flags & ts.TypeFlags.Boolean) || (t.isUnion() && t.types.every((u) => !!(u.flags & ts.TypeFlags.BooleanLiteral))));
+};
+const booleanGaps = new Set();
+let booleans = 0;
 const gaps = new Set();
 let callbacks = 0;
 const lower = (x) => x[0].toLowerCase() + x.slice(1);
@@ -95,6 +110,12 @@ for (const name of fs.readdirSync(DIR).sort()) {
     const props = checker.getDeclaredTypeOfSymbol(s).getProperties();
     const mine = (p) => (p.declarations || []).some((d) => d.getSourceFile().fileName.startsWith(SRC));
     const value = props.find((p) => p.name === 'value');
+    for (const p of props.filter((q) => mine(q) && isBoolean(q))) {
+      booleans++;
+      const key = `${e.name}.${p.name}`, wrong = NEGATIVE.test(p.name);
+      if (key in BOOLEAN_GAPS) { booleanGaps.add(key); R.push({ name: `${name}: ${key} is still a known gap (${BOOLEAN_GAPS[key]})`, ok: wrong, detail: wrong ? '' : 'it reads in the positive now: take it out of BOOLEAN_GAPS' }); }
+      else if (wrong) R.push({ name: `${name}: ${key} is named in the positive`, ok: false, detail: `name it for what it turns on or shows (CONTRIBUTING.md, API conventions): hideX to turn a part off, a part shown by default turned off with ={false}; never noX, xHidden, enabled or disableX` });
+    }
     for (const p of props.filter((q) => mine(q) && /^on\w*Change$/.test(q.name))) {
       callbacks++;
       const x = p.name.slice(2, -6), key = `${e.name}.${p.name}`;
@@ -114,6 +135,7 @@ for (const name of fs.readdirSync(DIR).sort()) {
   R.push({ name: `${name}: the guide's Props section names every prop, and its table names only real ones`, ok: !missing.length && !unknown.length,
     detail: [missing.length && `not in the guide: ${missing.join(', ')}`, unknown.length && `in the table but not a prop: ${unknown.join(', ')}`].filter(Boolean).join('; ') });
 }
+for (const key of Object.keys(BOOLEAN_GAPS).filter((k) => !booleanGaps.has(k))) R.push({ name: `${key} in BOOLEAN_GAPS is still a boolean`, ok: false, detail: 'no such prop now: take it out of BOOLEAN_GAPS' });
 for (const key of Object.keys(NAMING_GAPS).filter((k) => !gaps.has(k))) R.push({ name: `${key} in NAMING_GAPS is still a callback`, ok: false, detail: 'no such prop now: take it out of NAMING_GAPS' });
-R.unshift({ name: `React's DOM attribute list was read (${DOM.size} names), omit() calls were found (${calls}), the guides read (${guides}) and the on…Change callbacks (${callbacks})`, ok: DOM.size > 500 && calls > 40 && guides > 60 && callbacks > 20, detail: `${guides} guides` });
+R.unshift({ name: `React's DOM attribute list was read (${DOM.size} names), omit() calls were found (${calls}), the guides read (${guides}), the on…Change callbacks (${callbacks}) and the booleans (${booleans})`, ok: DOM.size > 500 && calls > 40 && guides > 60 && callbacks > 20 && booleans > 100, detail: `${guides} guides` });
 done(report('Props', R));
