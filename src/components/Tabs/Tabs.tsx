@@ -5,6 +5,7 @@ import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { warnOnce } from "../../internal/warn";
+import { revealInvalid } from "../../internal/untilFound";
 import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
 import { activeIn } from "../../internal/root";
 
@@ -305,7 +306,8 @@ export const TabPanel = /* @__PURE__ */ component<HTMLDivElement, TabPanelProps>
     if (!el) return;
     const onMatch = () => { if (pick.current) pick.current(); };
     el.addEventListener("beforematch", onMatch);
-    return () => el.removeEventListener("beforematch", onMatch);
+    el.addEventListener("invalid", revealInvalid, true);   // a required field in it, on submit, selects its tab (L8E100)
+    return () => { el.removeEventListener("beforematch", onMatch); el.removeEventListener("invalid", revealInvalid, true); };
   }, []);
   return (
     <div tabIndex={selected ? 0 : -1} {...rest} ref={(n) => { own.current = n; setRef(ref, n); }} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}
