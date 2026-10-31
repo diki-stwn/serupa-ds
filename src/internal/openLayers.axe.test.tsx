@@ -40,6 +40,15 @@ async function violations(): Promise<string[]> {
 const shown = (sel: string) => expect.poll(() => { const el = document.querySelector(sel); return !!el && (el as HTMLElement).checkVisibility(); }).toBe(true);
 
 describe('open layers pass axe (WCAG 2.2 AA) in all six themes', () => {
+  // Label in name (WCAG 2.5.3, level A): a control's accessible name holds the words it shows. axe used to tag this
+  // rule experimental, which these tags left out; since 4.x it is plain wcag21a. This keeps it in, here and in
+  // tools/test/storybook.mjs (the same tags), if axe ever moves it back out.
+  test('the rules include label in name (2.5.3), and it catches a mismatch', async () => {
+    expect(axe.getRules(TAGS).map((r) => r.ruleId)).toContain('label-content-name-mismatch');
+    await render(<button type="button" aria-label="Close dialog">Delete everything</button>);
+    expect((await violations()).filter((v) => v.includes('label-content-name-mismatch')).length).toBe(THEMES.length);
+  });
+
   test('Dialog, open: title, description, body and footer buttons', async () => {
     await render(<Dialog open onOpenChange={() => {}} title="Invite people" description="They'll get an email." footer={<><Button variant="secondary">Cancel</Button><Button>Send</Button></>}>
       <Field label="Email"><input type="email" /></Field>
