@@ -1,18 +1,6 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
-
-// module state: whether the last input was a key rather than a pointer, which every layer reads as it opens or
-// closes. Only a browser sets it, from listeners on its own document added when the first layer mounts, so a server
-// render always reads false and no request sees another's keys.
-let keyed = false, listening = false;
-const listen = () => {
-  if (listening || typeof document === "undefined") return;
-  listening = true;
-  document.addEventListener("keydown", () => { keyed = true; }, true);
-  document.addEventListener("pointerdown", () => { keyed = false; }, true);
-  // A click with no presses (detail 0) came from a key or a screen reader, as Enter on a button does.
-  document.addEventListener("click", (e) => { keyed = e.detail === 0; }, true);
-};
+import { lastInputKeyboard, listenForInput } from "./lastInput";
 
 /** For a layer that fades out (DZ1): `leaving` stays true after `open` turns false until the layer's transitions
  *  end, or turns false at once where none run (no overlay support), so its content can stay while it fades rather
@@ -24,9 +12,9 @@ const listen = () => {
  *  `arrived` where the layer opens from a key, and drop the exit transition under [hidden][data-instant]. */
 export function useExit(open: boolean, layer: React.RefObject<HTMLElement | null>): { leaving: boolean; arrived: boolean; instant: boolean } {
   const [leaving, setLeaving] = React.useState(false), [was, setWas] = React.useState(open), [byKey, setByKey] = React.useState(false);
-  if (was !== open) { setWas(open); setByKey(keyed); setLeaving(!open && !keyed); }
+  if (was !== open) { const k = lastInputKeyboard(); setWas(open); setByKey(k); setLeaving(!open && !k); }
   const arrived = React.useRef(open); if (!open) arrived.current = false;
-  useIsoLayoutEffect(listen, []);
+  useIsoLayoutEffect(listenForInput, []);
   useIsoLayoutEffect(() => {
     const p = layer.current;
     if (!leaving || !p) return;

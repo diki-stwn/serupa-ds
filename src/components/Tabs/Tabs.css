@@ -89,6 +89,8 @@
   transition: translate var(--motion-change-md) var(--ease-move), scale var(--motion-change-md) var(--ease-move);
 }
 .dk-tabs--pill .dk-tabs__tab[aria-selected="true"]::before { transition: clip-path var(--motion-change-md) var(--ease-move); }
+/* Picked from the keyboard (data-instant, KW1): there at once, no slide. */
+.dk-tabs .dk-tabs__tab[data-instant][aria-selected="true"]::after, .dk-tabs .dk-tabs__tab[data-instant][aria-selected="true"]::before { transition: none; }
 @media (prefers-reduced-motion: no-preference) {
   @starting-style {
     .dk-tabs--line .dk-tabs__tab[aria-selected="true"]::after { translate: var(--dk-tabs-from-shift, none); scale: var(--dk-tabs-from-scale, none); }

@@ -5,6 +5,7 @@ import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
+import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
 import { useFieldLabel } from "../../internal/fieldLabel";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
@@ -118,7 +119,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
   // A new choice slides the indicator from the last one (CSS above it, EG1, GL1): for the slide it spans both segments,
   // cut to the last one's shape at once (data-flip, no transition), then to the new one's, which the CSS animates.
   // When the cut has arrived (or straight away, when nothing animates) it sits on the new segment alone again. A new
-  // choice mid-slide starts from where the last one was going.
+  // choice mid-slide starts from where the last one was going. Chosen from the keyboard (an arrow), it is there at once (KW1).
   const indicator = React.useRef<HTMLSpanElement | null>(null);
   const last = React.useRef<{ x: number; w: number; v: string | undefined } | null>(null);
   const sliding = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -128,7 +129,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     last.current = box ? { ...box, v: value } : null;
     clearTimeout(sliding.current);
     if (el && box && el.hasAttribute("data-slide")) settle(el, box);
-    if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w)) return;
+    if (!el || !box || !was || was.v === value || !box.w || (was.x === box.x && was.w === box.w) || lastInputKeyboard()) return;
     const l = Math.min(was.x, box.x), r = Math.max(was.x + was.w, box.x + box.w);
     const cut = (at: { x: number; w: number }) => { el.style.setProperty("--dk-seg-l", at.x - l + "px"); el.style.setProperty("--dk-seg-r", r - at.x - at.w + "px"); };
     el.setAttribute("data-flip", "");
@@ -143,6 +144,7 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     if (ms > 0) sliding.current = setTimeout(() => settle(el, box), ms); else settle(el, box);
   }, [box]);
   React.useEffect(() => () => clearTimeout(sliding.current), []);
+  useIsoLayoutEffect(listenForInput, []);
   React.useEffect(() => {
     const r = root.current;
     if (!r || typeof ResizeObserver === "undefined") return;
