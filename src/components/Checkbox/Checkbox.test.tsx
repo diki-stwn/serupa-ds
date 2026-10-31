@@ -355,4 +355,10 @@ describe('CheckboxGroup', () => {
     await render(tree);
     expect([input('ssr-m').indeterminate, input('ssr-m').hasAttribute('data-indeterminate'), input('ssr-all').indeterminate]).toEqual([true, false, true]);
   });
+  test('L8E91 ref.current.focus() on a CheckboxGroup (a form library focusing the first invalid field) focuses its first box that isn\'t disabled', async () => {
+    const g = React.createRef<HTMLDivElement>();
+    await render(<CheckboxGroup ref={g} aria-label="Toppings"><Checkbox value="ham" disabled>Ham</Checkbox><Checkbox value="egg">Egg</Checkbox></CheckboxGroup>);
+    g.current!.focus();
+    expect((document.activeElement as HTMLInputElement).value).toBe('egg');
+  });
 });

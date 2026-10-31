@@ -9,6 +9,7 @@ import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { warnOnce } from "../../internal/warn";
+import { delegateFocus } from "../../internal/focus";
 import { en as words } from "./labels";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
@@ -126,7 +127,11 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
     },
   };
   return (
-    <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="group" aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) {
+      // ref.current.focus() (a form library focusing the first invalid field) lands on the first box that can be
+      // checked; the <div> took no focus (L8E91).
+      root.current = n; delegateFocus(n, () => n && n.querySelector<HTMLElement>("input:enabled")); setRef(ref, n);
+    }} role="group" aria-disabled={props.disabled || undefined}
       className={cn("dk-checkbox-group", "dk-checkbox-group--" + orientation, invalid && "dk-checkbox-group--invalid", props.className)} data-component="checkbox-group" data-orientation={orientation}>
       <GroupContext.Provider value={ctx}>{props.children}</GroupContext.Provider>
     </div>
