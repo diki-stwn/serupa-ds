@@ -287,7 +287,7 @@ describe('TimePicker: autocomplete', () => {
   test('entry: the list fades in and grows from its top edge with a transition, not keyframes (EF1)', async () => {
     await withMotion(async () => {
       await render(<Meeting />);
-      await openTp();
+      await userEvent.click(button('tp'));   // a key opens it at once (KW1)
       const list = document.getElementById(el('tp').getAttribute('aria-controls')!) as HTMLElement;
       const moves = list.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty).sort();
       expect([moves, list.getAnimations().some((a) => a instanceof CSSAnimation), list.dataset.side, css(list).transformOrigin.split(' ')[1]]).toEqual([['opacity', 'scale'], false, 'bottom', '0px']);
@@ -295,15 +295,15 @@ describe('TimePicker: autocomplete', () => {
       expect([css(list).opacity, css(list).scale]).toEqual(['1', 'none']);
     });
   });
-  test('exit: Escape fades and shrinks the list out over 100ms, kept (inert, times in place) until the fade ends, as DatePicker\'s does (GK1)', async () => {
+  test('exit: a press fades and shrinks the list out over 100ms, kept (inert, times in place) until the fade ends, as DatePicker\'s does (GK1); Escape takes it away at once (KW1)', async () => {
     await withMotion(async () => {
       const ms = (x: Animation) => Number(x.effect!.getComputedTiming().duration);
       const runs = (e: Element) => e.getAnimations().filter((x) => x instanceof CSSTransition && /^(opacity|scale)$/.test(x.transitionProperty)).map((x) => [(x as CSSTransition).transitionProperty, ms(x)]).sort();
       await render(<Meeting />);
-      await openTp();
+      await userEvent.click(button('tp'));
       const list = listOf('tp'), n = list.querySelectorAll('[role=option]').length;
       await settled(list);
-      await userEvent.keyboard('{Escape}');
+      await userEvent.click(button('tp'));
       expect([list.hidden, el('tp').getAttribute('aria-expanded'), n > 0]).toEqual([true, 'false', true]);
       // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
       if (CSS.supports('overlay', 'auto')) {
@@ -312,6 +312,10 @@ describe('TimePicker: autocomplete', () => {
       }
       await expect.poll(() => list.querySelectorAll('[role=option]').length).toBe(0);
       expect(css(list).display).toBe('none');
+      await openTp();
+      expect([list.hidden, list.getAnimations().length, 'instant' in list.dataset]).toEqual([false, 0, true]);
+      await userEvent.keyboard('{Escape}');
+      expect([list.hidden, css(list).display, list.getAnimations().length, list.querySelectorAll('[role=option]').length]).toEqual([true, 'none', 0, 0]);
     });
   });
 });

@@ -34,12 +34,14 @@
   .dk-time-picker__list[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
 }
 .dk-time-picker__list[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+/* Closed from the keyboard (data-instant, KW1): gone at once, no fade. */
+.dk-time-picker__list[hidden][data-instant] { transition: none; }
 .dk-time-picker__list[data-side="bottom"] { transform-origin: top; }
 .dk-time-picker__list[data-side="top"] { transform-origin: bottom; }
-@starting-style { .dk-time-picker__list:not([hidden]) { opacity: var(--opacity-0); } }
+@starting-style { .dk-time-picker__list:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: no-preference) {
   .dk-time-picker__list[hidden] { scale: var(--scale-95); }
-  @starting-style { .dk-time-picker__list:not([hidden]) { scale: var(--scale-95); } }
+  @starting-style { .dk-time-picker__list:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
 }
 .dk-time-picker__option {
   display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); box-sizing: border-box;
