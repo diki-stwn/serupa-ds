@@ -53,7 +53,9 @@ export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("
   if (pending) rest["aria-busy"] = true;
   if (readOnly || pending) {
     if (readOnly) rest["aria-readonly"] = true;
-    delete rest.onChange;
+    // React calls a checkbox's onChange from its click, so yours is left out; a no-op one in its place keeps React from
+    // warning about a checked field without onChange while a controlled switch is pending (L8E74).
+    rest.onChange = () => {};
     const onClick = rest.onClick;
     rest.onClick = (e) => { if (onClick) onClick(e); e.preventDefault(); };
   }
