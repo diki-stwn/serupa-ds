@@ -23,6 +23,10 @@ describe('fold', () => {
     expect(differ.filter(([typed, label]) => fold(label).includes(fold(typed)))).toEqual([]);
   });
 
+  test('Greek final sigma ς is σ: a search in capitals finds the word, and either sigma finds the other (L8E14)', () => {
+    expect([fold('ΑΣ') === fold('ας'), fold('Αστυ').includes(fold('ΑΣ')), fold('ΟΔΟΣ') === fold('οδοσ'), fold('Οδός') === 'οδοσ']).toEqual([true, true, true, true]);
+  });
+
   test('Cyrillic й, ў and ї are letters, not и, у and і with an accent; ё still finds е, and Latin ă and ĭ fold as before (GR41)', () => {
     const differ = [['мои', 'мой'], ['Сергеи', 'Сергей'], ['у', 'ў'], ['Киів', 'Київ'], ['йод', 'иод']];
     expect(differ.filter(([typed, label]) => fold(label).includes(fold(typed)))).toEqual([]);
