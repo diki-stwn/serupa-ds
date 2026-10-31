@@ -11,8 +11,9 @@ import { NumberInput } from '../components/NumberInput/NumberInput';
 
 // A server in en-US and a browser in id-ID: the server HTML is made with the real Intl, then Intl's default locale
 // becomes id-ID for the hydration and stays id-ID until done(), the way a visitor's browser would differ from the
-// server. A component reads the browser's locale again on every render, so a render after the switch (WebKit can
-// render once more after the first frames) has to see the same browser.
+// server. The browser says so with a languagechange event, as a real one does when its language changes: Serupa
+// keeps the browser's locale until then (GR58). A render after the switch (WebKit can render once more after the
+// first frames) has to see the same browser.
 async function hydrateIn(browser: string, ui: React.ReactElement) {
   const host = document.createElement('div');
   host.innerHTML = renderToString(ui);
@@ -29,10 +30,12 @@ async function hydrateIn(browser: string, ui: React.ReactElement) {
   const done = () => {
     root?.unmount(); host.remove();
     Intl.DateTimeFormat = Real; Intl.NumberFormat = RealN;
+    window.dispatchEvent(new Event('languagechange'));
     console.error = logError;
   };
   try {
     Intl.DateTimeFormat = Fake; Intl.NumberFormat = FakeN;
+    window.dispatchEvent(new Event('languagechange'));
     flushSync(() => { root = hydrateRoot(host, ui, { onRecoverableError: (e) => errors.push(String(e)) }); });
     await new Promise((r) => setTimeout(r, 50));
   } catch (e) { done(); throw e; }
