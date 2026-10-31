@@ -50,8 +50,8 @@
 @keyframes dk-pin-caret { to { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: reduce) { .dk-pin-input__box--caret::after { animation: none; } }
 .dk-pin-input--invalid { --dk-pin-bd: var(--pin-input-invalid, var(--danger)); --dk-pin-ring: var(--pin-input-invalid, var(--danger)); }
-.dk-pin-input--readonly .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--surface-muted)); }
+.dk-pin-input--readonly .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--field-readonly)); }
 .dk-pin-input--disabled { opacity: var(--opacity-disabled); }
-.dk-pin-input--disabled .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--surface-muted)); }
+.dk-pin-input--disabled .dk-pin-input__box { background: var(--pin-input-bg-readonly, var(--field-readonly)); }
 .dk-pin-input--disabled .dk-pin-input__field { cursor: not-allowed; }
 }
