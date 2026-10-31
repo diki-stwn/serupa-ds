@@ -36,8 +36,6 @@ jobs:
         run: npm run build
       - name: Component suites in ${{ matrix.browser }}
         shell: bash
-        env:
-          SERUPA_ONLY: Image
         run: |
           set -o pipefail
           node tools/test/run.mjs --browser ${{ matrix.browser }} --group components 2>&1 | tee test-output.txt
@@ -46,6 +44,7 @@ jobs:
         shell: bash
         run: |
           { echo '## Failing in ${{ matrix.browser }}'; echo '```'; grep -E -A1 '^FAIL' test-output.txt | grep -v '^--$' | head -150; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          sed 's/\x1b\[[0-9;]*m//g' test-output.txt | grep -E -A45 '^ FAIL ' | head -1500
       - name: Upload the output
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
