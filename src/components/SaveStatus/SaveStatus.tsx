@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, oneOf } from "../../internal/cn";
+import { cn, oneOf, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { announce } from "../../internal/announce";
@@ -55,6 +55,27 @@ export const SaveStatus = /* @__PURE__ */ component<HTMLDivElement, SaveStatusPr
   const [changed, setChanged] = React.useState(false);   // the first status just shows; later ones come in
   if (shown !== status) { setShown(status); setGone(shown === "idle" ? null : shown); setChanged(true); }
   const leaving = React.useRef<HTMLSpanElement | null>(null);
+  // Try again pressed from the keyboard: its face goes inert as the status moves on, which drops focus to the page.
+  // Focus stays in the status instead (focusable only until it leaves), so Tab goes on from here (L8E55).
+  const root = React.useRef<HTMLDivElement | null>(null);
+  const focusedIn = React.useRef(false);
+  React.useLayoutEffect(() => {
+    const r = root.current, a = document.activeElement;
+    const lost = !a || a === document.body || !a.isConnected || (r && r.contains(a) && a.closest("[inert]"));
+    if (!r || !focusedIn.current || !lost) return;
+    r.tabIndex = -1;
+    r.focus();
+  }, [status]);
+  const onFocus = (e: React.FocusEvent<HTMLDivElement>) => { if (rest.onFocus) rest.onFocus(e); focusedIn.current = true; };
+  const onBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (rest.onBlur) rest.onBlur(e);
+    const to = e.relatedTarget as Node | null;
+    // An inert face blurs with nowhere to go: that's the case above, not leaving.
+    if (to ? !e.currentTarget.contains(to) : !(e.target as Element).closest("[inert]")) {
+      focusedIn.current = false;
+      if (e.target === e.currentTarget) e.currentTarget.removeAttribute("tabindex");
+    }
+  };
   React.useLayoutEffect(() => {
     if (!gone) return;
     const s = leaving.current && getComputedStyle(leaving.current);
@@ -76,7 +97,7 @@ export const SaveStatus = /* @__PURE__ */ component<HTMLDivElement, SaveStatusPr
     </span>
   );
   return (
-    <div {...rest} ref={ref} className={cn("dk-save-status", "dk-save-status--" + status, className)} data-component="save-status" data-state={status}>
+    <div {...rest} ref={(n) => { root.current = n; setRef(ref, n); }} onFocus={onFocus} onBlur={onBlur} className={cn("dk-save-status", "dk-save-status--" + status, className)} data-component="save-status" data-state={status}>
       {[gone && gone !== status ? face(gone, true) : null, face(status, false)]}
     </div>
   );
