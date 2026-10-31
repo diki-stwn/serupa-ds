@@ -63,9 +63,9 @@ Your `onKeyDown` runs before the control's own keys, so `e.preventDefault()` in 
 | --- | --- | --- | --- |
 | `id` | string | none | Goes to the root `<div role="radiogroup">`. A `<label htmlFor>` can't name it; inside a Field, the Field's label names it through this id. |
 | `options` | `{ value, label?, icon?, 'aria-label'?, disabled? }[]` | | The segments, in order. An icon-only segment needs `aria-label`. |
-| `value` | `string` | | Controlled. |
-| `defaultValue` | `string` | the first enabled option | Uncontrolled. |
-| `onValueChange` | `(value: string) => void` | | When a different segment is chosen. |
+| `value` | `V` | | Controlled. `V` is the segments' values, a `string` by default: it's inferred from `options`, or given as `SegmentedControl<'list' \| 'board'>`, so `onValueChange` gets that union; given, a value outside it is a type error. |
+| `defaultValue` | `V` | the first enabled option | Uncontrolled. |
+| `onValueChange` | `(value: V) => void` | | When a different segment is chosen. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 24, 32 or 44px tall, like the control heights, so it lines up with an Input, Select or Button of the same size. |
 | `fullWidth` | `boolean` | `false` | Fills its container with equal segments. |
 | `disabled` | `boolean` | `false` | |
