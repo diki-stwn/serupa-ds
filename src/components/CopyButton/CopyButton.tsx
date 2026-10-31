@@ -8,6 +8,7 @@ import { useSettings } from "../../internal/provider";
 import { announce } from "../../internal/announce";
 import * as icons from "../../material/builtin";
 import { en as words } from "./labels";
+import { feedbackHold } from "../../internal/timing";
 
 export interface CopyButtonProps extends Omit<ButtonAsButtonProps, 'value' | 'onCopy' | 'icon' | 'leftIcon' | 'rightIcon' | 'loading' | 'loadingText'> {
   /** What to copy: the text, or a function that returns it (or a promise of it) when the button is pressed. */
@@ -84,7 +85,7 @@ export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButto
       setCopied(true);
       announce(done);
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => setCopied(false), timeout ?? 2000);
+      timer.current = setTimeout(() => setCopied(false), timeout ?? feedbackHold);
       if (onCopy) onCopy(text);
     } catch (err) {
       // The last copy's "Copied" may still show: take it away, so the button doesn't say this one worked (L8E60).
