@@ -813,7 +813,7 @@ Transition and animation scales are tokens in one `transitions` group (`var(--du
 | `motion-change-sm` | `duration-150` | A small part changing in place: a chevron turning, a slider thumb growing, a row gliding to its place. |
 | `motion-change-md` | `duration-200` | A panel opening or collapsing in place, an indicator sliding: Accordion, Sidebar, SegmentedControl, Tabs. |
 | `motion-change-lg` | `duration-300` | Something travelling far: a progress or meter fill moving to its value, a carousel slide. |
-| `motion-loop-spinner` | `duration-1000` | One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this. |
+| `motion-loop-spinner` | `duration-700` | One turn of a spinner, the one spinner speed: Loader's ring (and so Button, Badge and SearchInput), Switch and the circular Progress while they load. Under reduced motion they stand still and breathe over twice this. |
 | `motion-loop-placeholder` | `duration-1000` | One pass of a loading placeholder's pulse (Image while it loads). |
 | `motion-loop-blink` | `duration-1000` | One blink of a text caret (PinInput). |
 | `motion-loop-progress` | `duration-1200` | One pass of an indeterminate progress bar. |

@@ -98,10 +98,10 @@ describe('Loader', () => {
     expect([arc.getAttribute('pathLength'), arc.getAttribute('stroke-dasharray')]).toEqual(['100', '25 150']);
   });
 
-  test('ring: the quarter arc stays as it is while the drawing turns steadily at motion-loop-spinner (1s a turn, the shared spin keyframes); nothing repaints on each frame (EE1)', async () => {
+  test('ring: the quarter arc stays as it is while the drawing turns steadily at motion-loop-spinner (0.7s a turn, KW22; the shared spin keyframes); nothing repaints on each frame (EE1)', async () => {
     await render(<Loader id="ring" delay={0} />);
     const svg = css(q('#ring svg')), arc = css(q('#ring .dk-loader__arc'));
-    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction} ${svg.animationIterationCount}`).toBe('spin 1s linear infinite');
+    expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction} ${svg.animationIterationCount}`).toBe('spin 0.7s linear infinite');
     expect([arc.animationName, q('#ring').getAnimations({ subtree: true }).filter((x) => (x as CSSAnimation).animationName !== 'dk-loader-in').map((x) => (x as CSSAnimation).animationName)]).toEqual(['none', ['spin']]);
   });
 
@@ -604,7 +604,7 @@ describe('Loader', () => {
     await expect.poll(() => document.getElementById('quick')).toBeNull();
   });
 
-  test('reduced motion: the label is plain text; the ring (a quarter arc) and the spokes stand still and breathe (opacity, 2s); the dots only fade (EE1)', async () => {
+  test('reduced motion: the label is plain text; the ring (a quarter arc) and the spokes stand still and breathe (opacity, 1.4s); the dots only fade (EE1)', async () => {
     await render(<>
       <span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>
       <Loader id="ring" delay={0} />
@@ -617,11 +617,11 @@ describe('Loader', () => {
       expect([l.webkitTextFillColor, css(q('#lab .dk-loader__glint')).display]).toEqual([l.color, 'none']);
       const arc = css(q('#ring .dk-loader__arc'));
       const ring = css(q('#ring svg'));
-      expect([`${ring.animationName} ${ring.animationDuration}`, arc.animationName]).toEqual(['dk-loader-breathe 2s', 'none']);
+      expect([`${ring.animationName} ${ring.animationDuration}`, arc.animationName]).toEqual(['dk-loader-breathe 1.4s', 'none']);
       expect(arc.strokeDasharray).toMatch(/^25(px)?,? 150/);
       expect(css(q('#dots .dk-loader__dot')).animationName).toBe('dk-loader-dot-fade');
       const spk = css(q('#spk svg'));
-      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-breathe 2s');
+      expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-breathe 1.4s');
     } finally { restore(); }
   });
 
