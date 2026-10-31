@@ -322,7 +322,9 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
   const choose = (e: React.SyntheticEvent) => {
     if (props.disabled) { e.preventDefault(); return; }
     if (props.onSelect) props.onSelect(e);
-    if (!e.defaultPrevented && ctx) ctx.close("select", true);
+    // onSelect may move focus itself (to the next row, after deleting this one): then it stays there (L8E21).
+    const a = document.activeElement;
+    if (!e.defaultPrevented && ctx) ctx.close("select", !a || a === document.body || !!a.closest('[role="menu"]'));
   };
   const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close("select", false); return; } choose(e); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
