@@ -1,10 +1,18 @@
 // Colors as hex strings: reading them, and WCAG 2 contrast between two (the same formula tools/test uses).
 
 /** "#1d4ed8" from "#1D4ED8", "1d4ed8", "#14d" or "14d", also typed in full width ("＃１Ｄ４ＥＤ８", from a Japanese or
-    Chinese IME); null when it isn't a 3- or 6-digit hex color. */
+    Chinese IME); null when it isn't a 3- or 6-digit hex color. An opaque color written with its alpha, as design
+    tools and token files export it ("#1d4ed8ff", "#14df") or as a browser's devtools copy it ("rgb(29, 78, 216)",
+    "rgb(29 78 216 / 100%)"), reads too; a see-through one is null, as the picker has no alpha (L8E11). */
 export function normalizeHex(text: string): string | null {
-  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(text.normalize("NFKC").trim());
-  if (!m) return null;
+  const t = text.normalize("NFKC").trim();
+  const rgb = /^rgba?\(\s*(\d{1,3})\s*[,\s]\s*(\d{1,3})\s*[,\s]\s*(\d{1,3})\s*(?:[,/]\s*(1|1\.0+|100%)\s*)?\)$/i.exec(t);
+  if (rgb) {
+    const c = rgb.slice(1, 4).map(Number);
+    return c.every((v) => v < 256) ? "#" + c.map((v) => v.toString(16).padStart(2, "0")).join("") : null;
+  }
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})(f|ff)?$/i.exec(t);
+  if (!m || (m[2] && m[2].length !== (m[1].length === 3 ? 1 : 2))) return null;
   const h = m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1];
   return "#" + h.toLowerCase();
 }
