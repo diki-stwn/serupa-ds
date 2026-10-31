@@ -67,6 +67,12 @@ describe('Switch', () => {
     s.remove();
   });
 
+  test('carries the native switch attribute (Safari 18 gives a haptic tick on iOS), which a prop can\'t remove, and keeps its drawn look', async () => {
+    const { container } = await render(<Switch {...({ switch: undefined } as object)}>Wi-Fi</Switch>);
+    const input = container.querySelector('input')!;
+    expect(input.getAttribute('switch')).toBe('');
+    expect(getComputedStyle(input).appearance).toBe('none');
+  });
   test('sizes: sm 28 by 16 with a 12px thumb and text-xs, lg 44 by 24 with a 20px thumb and text-base, each centered on the first line; an unknown size falls back to md', async () => {
     await setup();
     const sm = box('sm'), lg = box('lg');
