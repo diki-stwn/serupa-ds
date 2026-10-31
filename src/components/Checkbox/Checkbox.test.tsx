@@ -304,6 +304,19 @@ describe('CheckboxGroup', () => {
     expect(box('c').checked).toBe(false);
   });
 
+  test('a reset of a form the group sits outside of, named by the boxes\' form attribute, brings back defaultValue and select-all follows (L8E54)', async () => {
+    await render(<><form id="fro" /><CheckboxGroup id="grp" aria-label="Tags" name="tags" defaultValue={['a']}>
+      <Checkbox selectAll>All</Checkbox><Checkbox value="a" form="fro">A</Checkbox><Checkbox value="b" form="fro">B</Checkbox>
+    </CheckboxGroup></>);
+    const form = document.getElementById('fro') as HTMLFormElement;
+    await userEvent.click(box('b'));
+    expect([new FormData(form).getAll('tags'), all().checked]).toEqual([['a', 'b'], true]);
+    form.reset();
+    await expect.poll(() => new FormData(form).getAll('tags')).toEqual(['a']);
+    // Select-all shows the reset choice (some, not all), as it does for a group inside its form.
+    await expect.poll(() => [all().checked, all().indeterminate]).toEqual([false, true]);
+  });
+
   test('disabled: every box and select-all are disabled, and the group says aria-disabled', async () => {
     await render(<CheckboxGroup id="grp" aria-label="Off" disabled defaultValue={['x']}><Checkbox selectAll>All</Checkbox><Checkbox value="x">X</Checkbox><Checkbox value="y">Y</Checkbox></CheckboxGroup>);
     expect([document.getElementById('grp')!.getAttribute('aria-disabled'), all().disabled, box('x').disabled, box('y').disabled]).toEqual(['true', true, true, true]);

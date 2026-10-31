@@ -107,7 +107,7 @@ Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disa
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `value` | `(string \| number)[]` | | The checked boxes' values (controlled). Use with `onValueChange` |
-| `defaultValue` | `(string \| number)[]` | `[]` | The values checked at first (uncontrolled). A form reset brings them back |
+| `defaultValue` | `(string \| number)[]` | `[]` | The values checked at first (uncontrolled). A form reset brings them back, also from outside the group: boxes with a `form` attribute reset with that form. |
 | `onValueChange` | `(value, event) => void` | | Called with the new list, in the boxes' order. Numbers stay numbers |
 | `name` | `string` | generated | Every box's name, so each checked one is submitted with its value |
 | `orientation` | `'vertical'` \| `'horizontal'` | `'vertical'` | Stacked, or a wrapping row |
