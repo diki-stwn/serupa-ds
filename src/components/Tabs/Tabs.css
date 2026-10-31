@@ -31,14 +31,18 @@
   /* stylelint-disable serupa/no-raw-value -- the curve's points are its geometry, not design values */
   --dk-tabs-fade-16: color-mix(in srgb, black 16%, transparent);
   --dk-tabs-fade-84: color-mix(in srgb, black 84%, transparent);
+  --dk-tabs-fade-a1: calc(var(--dk-tabs-fade-a) * 0.25);
+  --dk-tabs-fade-a3: calc(var(--dk-tabs-fade-a) * 0.75);
+  --dk-tabs-fade-b1: calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.25);
+  --dk-tabs-fade-b3: calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.75);
   mask-image: linear-gradient(var(--dk-tabs-fade-to),
     transparent,
-    var(--dk-tabs-fade-16) calc(var(--dk-tabs-fade-a) * 0.25),
-    var(--dk-tabs-fade-84) calc(var(--dk-tabs-fade-a) * 0.75),
+    var(--dk-tabs-fade-16) var(--dk-tabs-fade-a1),
+    var(--dk-tabs-fade-84) var(--dk-tabs-fade-a3),
     black var(--dk-tabs-fade-a),
     black var(--dk-tabs-fade-end),
-    var(--dk-tabs-fade-84) calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.25),
-    var(--dk-tabs-fade-16) calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.75),
+    var(--dk-tabs-fade-84) var(--dk-tabs-fade-b1),
+    var(--dk-tabs-fade-16) var(--dk-tabs-fade-b3),
     transparent);
   /* stylelint-enable serupa/no-raw-value */
 }
