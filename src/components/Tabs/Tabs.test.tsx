@@ -160,6 +160,22 @@ describe('Tabs', () => {
       expect(el('ctl').querySelector('[role="tab"][aria-selected="true"]')).toBe(null);
       expect(warned.join()).toMatch(/Tabs: the selected tab "b" was removed/);
     } finally { console.warn = warn; }
+    // Closing the focused tab from within (its own × or a Delete key the app handles): focus goes to the tab now
+    // selected, not to the page. Focus elsewhere stays put.
+    let close: (x: string) => void = () => {};
+    function Own() {
+      const [open, setOpen] = React.useState(['p', 'q', 'r']);
+      close = (x) => setOpen((o) => o.filter((y) => y !== x));
+      return <><Tabs id="own" defaultValue="q"><TabList aria-label="Docs">{open.map((x) => <Tab key={x} value={x}>{x.toUpperCase()}</Tab>)}</TabList></Tabs><button id="own-out">Out</button></>;
+    }
+    await render(<Own />);
+    selected('own').focus();
+    close('q');
+    await expect.poll(() => [selected('own').dataset.value, document.activeElement === selected('own')]).toEqual(['r', true]);
+    el('own-out').focus();
+    close('r');
+    await expect.poll(() => selected('own').dataset.value).toBe('p');
+    expect(document.activeElement).toBe(el('own-out'));
     await render(<Tabs id="nomatch" defaultValue="zzz"><TabList aria-label="X"><Tab value="p">P</Tab><Tab value="q">Q</Tab></TabList></Tabs>);
     expect(el('nomatch').querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.dataset.value).toBe('p');
   });
