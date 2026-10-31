@@ -102,7 +102,7 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
       <input key={v} type="radio" className="dk-rating__choice"
         name={name || auto} form={form} value={v} checked={picked === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
         onChange={() => set(v)} onClick={() => { if (clearable && picked === v) set(null); }}
-        onPointerEnter={(e) => { if (e.pointerType !== "touch") setHover(v); }} />
+        onPointerEnter={(e) => { if (!disabled && e.pointerType !== "touch") setHover(v); }} />
     ));
   };
   return (

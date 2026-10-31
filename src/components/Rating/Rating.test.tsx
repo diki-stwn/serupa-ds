@@ -85,6 +85,12 @@ describe('Rating', () => {
     await expect.poll(() => filled('v')).toEqual([24, 0, 0, 0, 0]);
   });
 
+  test('L8E71 disabled: hovering a star lights nothing, as nothing can be picked', async () => {
+    await render(<Rating id="dh" aria-label="Off" disabled defaultValue={1} />);
+    await userEvent.hover(el('dh').children[3] as HTMLElement);
+    expect(filled('dh')).toEqual([24, 0, 0, 0, 0]);
+  });
+
   test('readOnly: one role="img" named "4.3 out of 5" (after its own aria-label), any fraction drawn, no radios', async () => {
     await render(<div><Rating id="ro" readOnly value={4.3} /><Rating id="ra" readOnly aria-label="Average" value={3.5} /></div>);
     expect([page.getByRole('img', { name: '4.3 out of 5' }).element() === el('ro'), radios('ro').length, filled('ro')]).toEqual([true, 0, [24, 24, 24, 24, 7]]);
