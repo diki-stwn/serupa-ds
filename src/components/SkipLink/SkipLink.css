@@ -16,7 +16,7 @@
   border: var(--skip-link-border-width, var(--border-width-1)) solid var(--skip-link-border, var(--border-raised));
   border-radius: var(--skip-link-radius, var(--rounded-md)); box-shadow: var(--skip-link-shadow, var(--shadow-lg));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--font-medium);
-  max-inline-size: calc(100% - var(--skip-link-offset, var(--spacing-3)) - var(--skip-link-offset, var(--spacing-3))); overflow-wrap: anywhere;
+  max-inline-size: calc(var(--sizing-full) - var(--skip-link-offset, var(--spacing-3)) - var(--skip-link-offset, var(--spacing-3))); overflow-wrap: anywhere;
   text-decoration: underline; text-underline-offset: var(--spacing-0\.5);
   outline: var(--focus-ring-width) solid var(--skip-link-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset);
 }
