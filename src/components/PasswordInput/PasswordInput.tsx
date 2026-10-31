@@ -82,9 +82,16 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
     const frame = requestAnimationFrame(put);
     return () => { cancelAnimationFrame(frame); };
   }, [shown]);
-  const toggle = () => {
+  // Read at the button's mousedown when there is one: WebKit collapses the field's selection to its end on the way to the
+  // click, so a selection read there is already gone (BW1). A press that never became a click leaves a stale one: kept
+  // only for a click within a second of it.
+  const pressed = React.useRef(0);
+  const capture = () => {
     const f = field.current;
     if (f && f.selectionStart !== null && f.selectionEnd !== null) caret.current = [f.selectionStart, f.selectionEnd, f.selectionDirection || "none", f.scrollLeft, f.scrollWidth];
+  };
+  const toggle = () => {
+    if (!caret.current || performance.now() - pressed.current > 1000) capture();
     if (!controlled) setOwn(!shown);
     if (props.onVisibleChange) props.onVisibleChange(!shown);
   };
@@ -95,7 +102,7 @@ export const PasswordInput = /* @__PURE__ */ component<HTMLInputElement, Passwor
       <input {...rest} ref={fieldRef} type={shown ? "text" : "password"} className="dk-input__field" spellCheck={false} autoCapitalize="off" />
       {caps ? <span className="dk-password-input__caps" id={capsId}>{sds.labels.capsLockOn}</span> : null}
       <button type="button" className="dk-password-input__toggle" aria-label={props.toggleLabel || sds.labels.showPassword} aria-pressed={shown}
-        aria-controls={rest.id} disabled={rest.disabled} onClick={toggle} onMouseDown={(e) => e.preventDefault()}>
+        aria-controls={rest.id} disabled={rest.disabled} onClick={toggle} onMouseDown={(e) => { e.preventDefault(); capture(); pressed.current = performance.now(); }}>
         <Icon icon={shown ? icons.VisibilityOff : icons.Visibility} />
       </button>
     </span>
