@@ -282,4 +282,8 @@ describe('Radio', () => {
     b.current!.focus();
     expect([first, now(), b.current!.getAttribute('aria-required')]).toEqual(['pro', 'm', 'true']);
   });
+  test('L8E93 autoFocus on a RadioGroup focuses the checked radio, else the first, as it does on SegmentedControl and Slider', async () => {
+    await render(<><button>Before</button><RadioGroup aria-label="Size" defaultValue="m" autoFocus><Radio value="s">S</Radio><Radio value="m">M</Radio></RadioGroup></>);
+    await expect.poll(() => (document.activeElement as HTMLInputElement).value).toBe('m');
+  });
 });
