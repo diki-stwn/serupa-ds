@@ -38,6 +38,10 @@
 
 /* Form controls use the page's type instead of the browser's. */
 :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; }
+/* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed, as Input.css says: a
+   bare field gets 16px there (a class that sets its size still wins). maximum-scale=1 would stop the zoom but also
+   pinch zoom (WCAG 1.4.4). */
+@supports (-webkit-touch-callout: none) { :where(input, select, textarea) { font-size: var(--text-base); } }
 
 /* Media fits its container and keeps its proportions. */
 :where(img, svg, video, canvas, picture) { display: block; max-width: var(--sizing-full); }
@@ -48,8 +52,18 @@
 :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
 :where(p) { text-wrap: pretty; }
 
-:where(a) { color: var(--primary); text-underline-offset: var(--underline-offset-2); }
-@media (hover: hover) { :where(a:hover) { color: var(--primary-hover); } }
+/* A bare link (from Markdown, a CMS or plain HTML) looks and behaves like <Link>: its color, underline, offset and
+   hover thickening, read from the same --link-* tokens, so --link-text set on a section reaches both. A long URL
+   wraps instead of widening the page (WCAG 1.4.10). An <a> with no href (an anchor target, a router link before it
+   hydrates) can't be focused or followed, so it reads as text. */
+:where(a[href]) {
+  color: var(--link-text, var(--primary));
+  text-decoration-line: underline; text-decoration-thickness: var(--link-thickness, var(--decoration-1)); text-underline-offset: var(--link-offset, var(--underline-offset-2));
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  overflow-wrap: anywhere;
+}
+@media (hover: hover) { :where(a[href]:hover) { color: var(--link-text-hover, var(--primary-hover)); text-decoration-thickness: var(--link-thickness-hover, var(--decoration-2)); } }
+:where(a:not([href])) { color: inherit; text-decoration: none; }
 
 :where(hr) { border: var(--border-width-0); border-top: var(--border-width-1) solid var(--border); margin: var(--spacing-0); }
 
