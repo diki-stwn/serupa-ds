@@ -13,7 +13,7 @@ import { useLocale, useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
 import * as icons from "../../material/builtin";
 import { isComposing } from "../../internal/ime";
-import { delegateFocus, useAutoFocus } from "../../internal/focus";
+import { delegateFocus, useAutoFocus, windowBlur } from "../../internal/focus";
 import { en as DateRangePickerWords } from "./labels";
 import { en as DatePickerWords } from "../DatePicker/labels";
 // This component's words and the ones it shares with DatePicker.
@@ -175,7 +175,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
       ref={which === "start" ? startField : undefined} id={which === "start" ? id : undefined}
       aria-label={which === "start" ? startLabel || sds.labels.startDate : endLabel || sds.labels.endDate} aria-describedby={cn(describedBy, popId + "-format")} aria-errormessage={invalid ? errorMessage : undefined} aria-required={required} aria-invalid={invalid || undefined}
       value={text[which]} placeholder={datePattern(locale)} disabled={disabled} readOnly={readOnly} required={requiredProp} form={form}
-      onChange={(e) => setText({ ...text, [which]: e.target.value })} onBlur={() => read(which)}
+      onChange={(e) => setText({ ...text, [which]: e.target.value })} onBlur={(e) => { if (!windowBlur(e)) read(which); }}
       onKeyDown={(e) => {
         if (isComposing(e)) return;
         if (e.key === "Enter") read(which);
