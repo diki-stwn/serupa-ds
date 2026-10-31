@@ -328,3 +328,19 @@ describe('Accordion', () => {
     expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One']);
   });
 });
+
+describe('Accordion and form validation (L8E99)', () => {
+  test('L8E99 a required field in a closed item: submitting the form opens the item and focuses the field, so the browser can say what is missing; the submit was stopped with nothing shown', async () => {
+    let sent = 0;
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent++; }}>
+      <Accordion><AccordionItem value="contact" title="Contact"><label htmlFor="l8e99-email">Email</label><input id="l8e99-email" required /></AccordionItem>
+        <AccordionItem value="more" title="More"><label htmlFor="l8e99-city">City</label><input id="l8e99-city" required /></AccordionItem></Accordion>
+      <button id="l8e99-go">Send</button>
+    </form>);
+    await expect.poll(() => document.getElementById('l8e99-email')!.closest('[hidden]')?.getAttribute('hidden')).toBe('until-found');
+    await userEvent.click(document.getElementById('l8e99-go')!);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e99-email');
+    // Only the form's first invalid field's item opens.
+    expect([sent, ...[...document.querySelectorAll('.dk-accordion__item')].map((i) => i.getAttribute('data-state'))]).toEqual([0, 'open', 'closed']);
+  });
+});
