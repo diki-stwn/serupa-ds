@@ -57,6 +57,12 @@ describe('TimePicker', () => {
     expect([described(f('tus')), described(f('tid'))]).toEqual(['Office hours | Format: hh:mm AM/PM', 'Format: hh.mm']);
   });
 
+  test('QA1: a phone keyboard doesn\'t autocorrect or capitalise a typed time, and spellcheck doesn\'t underline "9:30pm"; a prop of your own still wins', async () => {
+    await render(<><TimePicker id="kb" aria-label="Start" /><TimePicker id="kb2" aria-label="End" autoCapitalize="characters" /></>);
+    const a = (id: string) => ['spellcheck', 'autocorrect', 'autocapitalize'].map((n) => el(id).getAttribute(n));
+    expect([a('kb'), a('kb2')[2]]).toEqual([['false', 'off', 'off'], 'characters']);
+  });
+
   test('L8E9: a value with seconds, as a database\'s time column gives it ("09:30:00"), shows and sends "09:30"', async () => {
     await render(<form><TimePicker id="tsec" aria-label="Start" locale="en-US" name="start" defaultValue="09:30:00" min="08:00:00" /></form>);
     expect([el('tsec').value, (document.querySelector('input[name=start]') as HTMLInputElement).value]).toEqual(['9:30 AM', '09:30']);
