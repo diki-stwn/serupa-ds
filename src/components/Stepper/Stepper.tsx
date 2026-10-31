@@ -90,10 +90,17 @@ export const Stepper = /* @__PURE__ */ component<HTMLElement, StepperProps>("Ste
       setCompact(narrow); setTight(small);
     };
     fit();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
+    // Again when web fonts load: titles drawn first in a fallback font change width when the real one arrives
+    // (font-display: swap), and the nav's own width doesn't, so the ResizeObserver doesn't fire (GR65).
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
+    let live = true;
+    if (fonts) {
+      if (fonts.status !== "loaded") fonts.ready.then(() => { if (live) fit(); }, () => {});
+      fonts.addEventListener("loadingdone", fit);
+    }
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(fit);
+    if (ro) ro.observe(el);
+    return () => { live = false; if (fonts) fonts.removeEventListener("loadingdone", fit); if (ro) ro.disconnect(); };
   }, [vertical, shape, size]);
   // Going to a step makes its button the current step's plain head, so React replaces the element that has focus
   // and focus would drop to the page: put it on the new current head instead (GN1).

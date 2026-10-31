@@ -270,3 +270,16 @@ describe('Stepper before the script runs (GR62)', () => {
     await page.viewport(900, 700);
   });
 });
+
+describe('Stepper when web fonts load (GR65)', () => {
+  test('titles that grow when the real font arrives fit again: the row goes compact though its own width never changed', async () => {
+    const steps: StepperStep[] = [{ title: 'Account' }, { title: 'Profile' }, { title: 'Review' }, { title: 'Done' }];
+    await render(<div style={{ width: '560px' }} id="gr65"><Stepper steps={steps} current={1} /></div>);
+    const nav = document.querySelector<HTMLElement>('#gr65 [data-component="stepper"]')!;
+    expect(nav.classList.contains('dk-stepper--compact')).toBe(false);
+    // Stand in for the swap: the titles get wider (a wider face), the nav stays 560px, then the fonts report loaded.
+    nav.style.letterSpacing = '0.6em';
+    document.fonts.dispatchEvent(new Event('loadingdone'));
+    await expect.poll(() => nav.classList.contains('dk-stepper--compact')).toBe(true);
+  });
+});
