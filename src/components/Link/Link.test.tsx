@@ -99,7 +99,7 @@ describe('Link', () => {
     await render(<div><Link id="lself" href="https://example.com" external target="_self">Example</Link><Link id="lnamed" href="https://example.com" external target="help">Help</Link></div>);
     const e = el('lself');
     expect([e.target, e.rel, e.textContent, e.querySelector('svg, [data-icon]')]).toEqual(['_self', 'noopener noreferrer', 'Example', null]);
-    expect(el('lnamed').textContent!.replace('open_in_new', '')).toBe('Help (opens in a new tab)');
+    expect(el('lnamed').textContent.replace('open_in_new', '')).toBe('Help (opens in a new tab)');
   });
 
   test('external: the new-tab icon stays on the line of the last word at every width (GF1)', async () => {
