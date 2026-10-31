@@ -314,7 +314,10 @@ describe('ColorPicker', () => {
     await render(<SerupaProvider locale="en-US"><Controlled calls={calls} /></SerupaProvider>);
     await userEvent.click(hex());
     const dt = new DataTransfer(); dt.setData('text', 'rgb(124, 58, 237)');
-    hex().dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    // Firefox empties the clipboardData passed to a ClipboardEvent made in script (as in EY1 above), so the paste carries it as its own.
+    const ev = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'clipboardData', { value: dt });
+    hex().dispatchEvent(ev);
     await expect.poll(() => [calls.at(-1), hex().value]).toEqual(['#7c3aed', '7c3aed']);
   });
   test('L8E11: a value with its alpha, as a token file writes it, shows as picked', async () => {
