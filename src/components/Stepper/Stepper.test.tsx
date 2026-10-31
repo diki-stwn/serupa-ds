@@ -2,7 +2,7 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, forcedColors, press, withMotion } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { Stepper, type StepperStep } from './Stepper';
@@ -252,8 +252,9 @@ describe('Stepper before the script runs (GR62)', () => {
   const steps: StepperStep[] = [{ title: 'Account' }, { title: 'Profile', description: 'Your name and photo' }, { title: 'Review everything and confirm' }, { title: 'Done' }];
   // Lines in an element: its height over the line height.
   const lines = (e: HTMLElement) => Math.round(e.getBoundingClientRect().height / parseFloat(css(e).lineHeight));
-  const words = (e: HTMLElement) => e.textContent!.trim().split(/\s+/).length;
-  test('server HTML at 320px: no title breaks inside a word (one letter a line), and the row doesn\'t run off the page; once mounted it goes compact', async () => {
+  const words = (e: HTMLElement) => e.textContent.trim().split(/\s+/).length;
+  test('server HTML on a 320px phone: no title breaks inside a word (one letter a line), and the row doesn\'t run off the page; once mounted it goes compact', async () => {
+    await page.viewport(320, 640);
     const ui = <SerupaProvider locale="en-US"><Stepper steps={steps} current={1} /></SerupaProvider>;
     const host = document.createElement('div');
     host.style.width = '320px';
@@ -266,5 +267,6 @@ describe('Stepper before the script runs (GR62)', () => {
     await render(<div style={{ width: '320px' }} id="gr62">{ui}</div>);
     const nav = document.querySelector<HTMLElement>('#gr62 [data-component="stepper"]')!;
     expect([nav.hasAttribute('data-fit'), nav.classList.contains('dk-stepper--compact')]).toEqual([true, true]);
+    await page.viewport(900, 700);
   });
 });
