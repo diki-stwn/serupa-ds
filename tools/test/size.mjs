@@ -37,7 +37,7 @@ import { purge, unusedComponentClasses, usedClasses } from '../../bin/serupa-pur
 // when each was last set (index.js 62.2, serupa.iife.js 610.1 on 24 Oct 2026; components.css 27.3 once it shipped
 // without the source comments).
 const TOTALS = {
-  'All components (index.js)': [69.9, 59.3, 'share'],   // +0.2 KiB on 31 Oct 2026: NumberInput writing the locale's digits (GR48) took the total over with main at its budget; +0.5 KiB on 31 Oct 2026: headroom for shared code (#997, #1000, #1001 and #1002 landed together and took main 57 B over); +0.5 KiB on 26 Oct 2026: headroom for shared code (main sat 0.2 KiB under, and #735, #777 and #781 each went 0.0 to 0.1 over it); +0.2 KiB on 26 Oct 2026: Firefox strict-CSP server styles applied from React's props (internal/serverStyles.ts, FW1); +1.0 KiB on 25 Oct 2026: headroom for shared code (the trigger contract, internal/trigger.ts, G9, needs 0.2 with the total at its budget); +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
+  'All components (index.js)': [70.7, 59.3, 'share'],   // +1.0 KiB on 31 Oct 2026: headroom for shared code (after #1047 main sat within bytes of the line and #1048 went 3 B over; three lanes land shared code at once, and 0.5 left none for the day); +0.5 KiB on 31 Oct 2026: headroom for shared code (#997, #1000, #1001 and #1002 landed together and took main 57 B over); +0.5 KiB on 26 Oct 2026: headroom for shared code (main sat 0.2 KiB under, and #735, #777 and #781 each went 0.0 to 0.1 over it); +0.2 KiB on 26 Oct 2026: Firefox strict-CSP server styles applied from React's props (internal/serverStyles.ts, FW1); +1.0 KiB on 25 Oct 2026: headroom for shared code (the trigger contract, internal/trigger.ts, G9, needs 0.2 with the total at its budget); +0.3 KiB on 25 Oct 2026: SerupaProvider keeping inline labels and icons stable (internal/provider.tsx, U2) needs 0.12 over the 48 B left; +0.2 KiB on 25 Oct 2026: the open-change reasons (internal/openChange.ts, #531) took the shared code 0.1 over once that day's merges landed together; +1.6 KiB on 25 Oct 2026: label text (every folder's labels.ts, FileUpload's refusal messages too) counts as shared code; +0.9 the same day: the accessible-name warnings (internal/nameCheck.ts)
   'components.css': [28.5, 53.6, 'css'],
   'serupa.iife.js': [630, 59.3, 'share'],
 };
@@ -47,8 +47,9 @@ const LABELS = [2.6, 1.9];
 // 2.4 on 26 Oct 2026). It's data, not code, and grows a row at a time, so it has its own line: a country added is
 // a choice made here, not a few bytes lost in PhoneInput's own budget.
 const PHONE_DATA = 2.8;
-// Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.3, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
+// Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set), and to 2.4 on
+// 31 Oct 2026 with the choice read again on a return from the back/forward cache (FEC6: 2.37).
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.8 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2)
 // KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
 // whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
 const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };

@@ -80,7 +80,8 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (props.onKeyDown) props.onKeyDown(e);
     const t = e.target as HTMLElement;
-    if (e.defaultPrevented || !t.classList.contains("dk-accordion__trigger") || t.closest(".dk-accordion") !== e.currentTarget) return;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !t.classList.contains("dk-accordion__trigger") || t.closest(".dk-accordion") !== e.currentTarget) return;
     const all = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".dk-accordion__trigger")).filter((b) => b.closest(".dk-accordion") === e.currentTarget && !b.disabled);
     const i = all.indexOf(t as HTMLButtonElement);
     const to = e.key === "ArrowDown" ? all[(i + 1) % all.length] : e.key === "ArrowUp" ? all[(i - 1 + all.length) % all.length] : e.key === "Home" ? all[0] : e.key === "End" ? all[all.length - 1] : null;

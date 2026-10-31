@@ -193,6 +193,8 @@ export const NumberInput = /* @__PURE__ */ component<HTMLInputElement, NumberInp
     if (rest.onKeyDown) rest.onKeyDown(e);
     if (e.defaultPrevented || isComposing(e)) return;
     const k = e.key, big = e.shiftKey ? large : 1;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
+    if ((e.altKey || e.ctrlKey || e.metaKey) && k !== "Enter") return;
     if (k === "ArrowUp") nudge(big);
     else if (k === "ArrowDown") nudge(-big);
     else if (k === "PageUp") nudge(large);

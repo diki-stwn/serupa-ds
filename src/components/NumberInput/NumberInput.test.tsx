@@ -6,6 +6,7 @@ import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { announcerIdle } from '../../internal/announce';
 import { SerupaProvider } from '../../internal/provider';
 import { NumberInput } from './NumberInput';
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 // The button at a point just outside each edge of b (hit testing rounds to whole pixels, so 0.75px before the start
 // and 0.25px after the end both land 1px out): the 24px box behind it (WCAG 2.5.8) takes presses there.
@@ -466,5 +467,12 @@ describe('NumberInput', () => {
     expect([ds, dt, db, ie, it, ib]).toEqual([true, true, true, true, true, true]);
     const gap = (dec.getBoundingClientRect().right + inc.getBoundingClientRect().left) / 2, mid = dec.getBoundingClientRect().top + 11;
     expect([dec, inc]).toContain(document.elementFromPoint(gap, mid)?.closest('button'));
+  });
+
+  test('with Alt, Ctrl or ⌘ the arrows, Page keys, Home and End are left to the browser and the value stays (L8E29)', async () => {
+    await render(<NumberInput id="mk" aria-label="N" defaultValue={5} min={0} max={9} />);
+    const t = document.getElementById('mk') as HTMLInputElement;
+    t.focus();
+    expect([modified(t, 'ArrowUp'), modified(t, 'PageDown'), modified(t, 'Home'), t.value]).toEqual([[false, false, false], [false, false, false], [false, false, false], '5']);
   });
 });
