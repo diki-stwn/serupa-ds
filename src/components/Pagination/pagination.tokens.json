@@ -71,6 +71,16 @@
             "cssVar": "--pagination-focus-ring"
           }
         }
+      },
+      "summary": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The summary with total and pageSize, \"21–30 of 245\" (4.5:1 on surface).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pagination-summary"
+          }
+        }
       }
     },
     "typography": {
@@ -145,6 +155,16 @@
         "$extensions": {
           "com.serupa": {
             "cssVar": "--pagination-padding-x-sm"
+          }
+        }
+      },
+      "summary-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space between the summary and the pages (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--pagination-summary-gap"
           }
         }
       }

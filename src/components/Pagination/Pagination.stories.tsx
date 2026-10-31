@@ -28,3 +28,8 @@ export const Overflow: Story = {
   args: { count: 120, defaultPage: 60 },
   render: (args) => <div style={{ width: 240 }}><Pagination {...args} /></div>,
 };
+
+export const Summary: Story = {
+  args: { count: 25, defaultPage: 3, total: 245, pageSize: 10 },
+  render: (args) => <div style={{ maxWidth: 560 }}><Pagination {...args} /></div>,
+};
