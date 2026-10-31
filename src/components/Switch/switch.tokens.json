@@ -5,7 +5,7 @@
       "track": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "The track while off (3:1 on the page in every theme).",
+        "$description": "The track while off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-track"
@@ -15,7 +15,7 @@
       "track-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "The track while off, on hover.",
+        "$description": "The track while off, on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-track-hover"
@@ -25,7 +25,7 @@
       "track-checked": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "The track while on.",
+        "$description": "The track while on",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-track-checked"
@@ -35,7 +35,7 @@
       "track-checked-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "The track while on, on hover.",
+        "$description": "The track while on, on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-track-checked-hover"
@@ -45,7 +45,7 @@
       "thumb": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "The thumb while off (3:1 on the track).",
+        "$description": "The thumb while off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-thumb"
@@ -55,7 +55,7 @@
       "thumb-checked": {
         "$type": "color",
         "$value": "{color.on-primary}",
-        "$description": "The thumb while on.",
+        "$description": "The thumb while on",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-thumb-checked"
@@ -65,7 +65,7 @@
       "label-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The label.",
+        "$description": "The label",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-label-color"
@@ -75,7 +75,7 @@
       "description-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The description (4.5:1 on the page).",
+        "$description": "The description",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-description-color"
@@ -85,7 +85,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The focus ring.",
+        "$description": "The focus ring",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-focus-ring"
@@ -95,7 +95,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "The track's 2px edge and the focus ring when invalid.",
+        "$description": "The track's edge and the focus ring, when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-invalid"
@@ -105,7 +105,7 @@
       "pending": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "pending's ring on the thumb (3:1 on the thumb, on or off).",
+        "$description": "pending's ring on the thumb (3:1 on the thumb, on or off)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-pending"
@@ -209,7 +209,7 @@
       "padding": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0_5}",
-        "$description": "Space between the thumb and the track's ends (2px).",
+        "$description": "Thumb to the track's ends (2px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-padding"
@@ -219,7 +219,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between the track and the label (8px).",
+        "$description": "Track to label (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-gap"
@@ -231,7 +231,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-90}",
-        "$description": "Size of the thumb while the switch is held down (90%). 1 turns press feedback off.",
+        "$description": "Size of the thumb while it's held down (90%). 1 turns it off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--switch-press-scale"

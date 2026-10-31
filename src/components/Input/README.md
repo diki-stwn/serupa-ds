@@ -95,6 +95,9 @@ Everything else (`type`, `value`, `defaultValue`, `onChange`, `placeholder`, `di
 
 Each is an optional override: set it on the page, a container or one input. The list lives in `src/components/Input/input.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from input.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--input-bg` | `field` | Background |
@@ -109,9 +112,31 @@ Each is an optional override: set it on the page, a container or one input. The 
 | `--input-count-full` | `text` | The count once `maxLength` is reached |
 | `--input-focus-ring` | `focus-ring` | Border and ring while focused |
 | `--input-invalid` | `danger` | Border and ring when invalid |
-| `--input-height-sm` / `-md` / `-lg` | `control-height-sm` / `-md` / `-lg` | Heights (24, 32, 44px) |
-| `--input-icon-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Icon sizes (14, 16, 20px) |
-| `--input-padding-x-sm` / `-md` / `-lg` | `spacing-2` / `spacing-3` / `spacing-4` | Side padding (8, 12, 16px) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--input-height-sm` | `control-height-sm` | Height, sm (24px), like Button sm. |
+| `--input-height-md` | `control-height-md` | Height, md (32px, default). |
+| `--input-height-lg` | `control-height-lg` | Height, lg (44px). |
+| `--input-icon-size-sm` | `spacing-3.5` | Icon size, sm (14px). |
+| `--input-icon-size-md` | `spacing-4` | Icon size, md (16px). |
+| `--input-icon-size-lg` | `spacing-5` | Icon size, lg (20px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--input-padding-x-sm` | `spacing-2` | Side padding, sm (8px). |
+| `--input-padding-x-md` | `spacing-3` | Side padding, md (12px). |
+| `--input-padding-x-lg` | `spacing-4` | Side padding, lg (16px). |
 | `--input-gap` | `spacing-2` | Gap between an icon and the text (8px) |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--input-border-width` | `border-width-1` | Border width (1px) |
 | `--input-radius` | `rounded-md` | Corner radius (6px), like Button and Badge |
+<!-- token-table:end -->

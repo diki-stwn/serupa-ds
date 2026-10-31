@@ -84,6 +84,7 @@ Every other prop, `className` and `ref` go to the outer `<div>`, which has `data
 
 Each is an optional override: set it on the page, a container or one picker. The hex field uses Input's tokens. The list lives in `src/components/ColorPicker/color-picker.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from color-picker.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--color-picker-text` | `text` | The picker's text. |
@@ -99,3 +100,4 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--color-picker-swatch-size-sm` | `spacing-6` | A swatch at `size="sm"` (24px). |
 | `--color-picker-swatch-size-md` | `spacing-8` | A swatch at `size="md"` (32px). |
 | `--color-picker-hex-width` | `spacing-28` | The hex field's width (112px). |
+<!-- token-table:end -->

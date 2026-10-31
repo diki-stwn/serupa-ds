@@ -122,6 +122,7 @@ It returns the toast's id. Keep the usual duration or longer, so people have tim
 
 Each is an optional override: set it on the page or the Toaster. The list lives in `src/components/Toast/toast.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from toast.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--toast-bg` | `surface-overlay` | A toast's background. |
@@ -132,6 +133,7 @@ Each is an optional override: set it on the page or the Toaster. The list lives 
 | `--toast-icon-success` | `success` | The icon of a success toast. |
 | `--toast-icon-warning` | `warning` | The icon of a warning toast. |
 | `--toast-icon-danger` | `danger` | The icon of a danger toast. |
+| `--toast-focus-ring` | `focus-ring` | The ring around a toast that F8 moved focus to. |
 | `--toast-shadow` | `shadow-lg` | A toast's shadow. |
 | `--toast-radius` | `rounded-lg` | A toast's corners (8px). |
 | `--toast-border-width` | `border-width-1` | A toast's border. |
@@ -142,4 +144,4 @@ Each is an optional override: set it on the page or the Toaster. The list lives 
 | `--toast-offset` | `spacing-4` | The distance from the edges of the screen (16px). |
 | `--toast-title-weight` | `font-semibold` | The title's weight (600). |
 | `--toast-z-index` | `z-toast` | The stacking level: above the page and the FAB. |
-| `--toast-focus-ring` | `focus-ring` | The ring around a toast that F8 moved focus to. |
+<!-- token-table:end -->

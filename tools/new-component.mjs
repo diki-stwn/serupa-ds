@@ -207,12 +207,14 @@ import { ${name} } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one ${name}. The list lives in \`src/components/${name}/${kebab}.tokens.json\` (also in \`design-tokens/components/\`).
 
+<!-- token-table:start (made from ${kebab}.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | \`--${kebab}-bg\` | \`surface\` | The background. |
 | \`--${kebab}-text\` | \`text\` | The text (4.5:1 on bg). |
 | \`--${kebab}-radius\` | \`rounded-md\` | The corners (6px). |
 | \`--${kebab}-padding\` | \`spacing-4\` | Space inside, on every side (16px). |
+<!-- token-table:end -->
 `,
   'preview.html': `<!doctype html>
 <html>
