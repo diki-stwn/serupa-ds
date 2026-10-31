@@ -48,12 +48,13 @@
   background: var(--prose-code-bg, var(--surface-muted));
 }
 .dk-prose :where(pre) {
+  overscroll-behavior-x: contain;
   overflow-x: auto; padding: var(--prose-pre-padding, var(--spacing-4)); border-radius: var(--prose-pre-radius, var(--rounded-md));
   background: var(--prose-code-bg, var(--surface-muted)); line-height: var(--text-sm--line-height); white-space: pre; overflow-wrap: normal;
 }
 /* A wide table scrolls in its own box (display: block keeps its rows and cells for screen readers in current
    browsers); its cells wrap long words. */
-.dk-prose :where(table) { display: block; max-inline-size: var(--sizing-full); overflow-x: auto; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-prose :where(table) { display: block; max-inline-size: var(--sizing-full); overflow-x: auto; overscroll-behavior-x: contain; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-prose :where(th, td) { padding: var(--spacing-2) var(--spacing-3); border-bottom: var(--border-width-1) solid var(--prose-table-border, var(--border)); text-align: start; vertical-align: top; }
 .dk-prose :where(th) { font-weight: var(--font-semibold); }
 /* A bare image never overflows the column. One that fails to load shows its alt text, muted and italic. */
