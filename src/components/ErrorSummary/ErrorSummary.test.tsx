@@ -186,10 +186,10 @@ describe('ErrorSummary links to a field that is hidden until found (L8E98)', () 
       <Tabs defaultValue="one"><TabList aria-label="Steps"><Tab value="one">One</Tab><Tab value="two">Two</Tab></TabList>
         <TabPanel value="one">First</TabPanel><TabPanel value="two"><label htmlFor="l8e98-city">City</label><input id="l8e98-city" /></TabPanel></Tabs>
     </>);
-    const links = document.querySelectorAll<HTMLAnchorElement>('.dk-error-summary__link');
+    const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="#l8e98"]');
     await userEvent.click(links[0]);
     await expect.poll(() => document.activeElement?.id).toBe('l8e98-email');
-    expect(document.querySelector('.dk-accordion__item')!.getAttribute('data-state')).toBe('open');
+    expect(document.querySelector('[aria-expanded]')!.getAttribute('aria-expanded')).toBe('true');
     await userEvent.click(links[1]);
     await expect.poll(() => document.activeElement?.id).toBe('l8e98-city');
     expect(document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')).toBe('true');
