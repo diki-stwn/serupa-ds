@@ -207,3 +207,23 @@ describe('focus after dismissing (DQ1)', () => {
     expect(document.activeElement).toBe(x[x.length - 1]);
   });
 });
+
+describe('Alert inside a shadow root (GR60)', () => {
+  test('dismissing with the focused × moves focus to the next control in the shadow root, not to the page', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    function Own() {
+      const [shown, setShown] = React.useState(true);
+      return <>{shown ? <Alert onDismiss={() => setShown(false)}>Saved</Alert> : null}<button>After</button></>;
+    }
+    try {
+      await render(<Own />, { container: inner });
+      const root = host.shadowRoot!;
+      (root.querySelector('.dk-alert button') as HTMLElement).focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => root.activeElement && root.activeElement.textContent).toBe('After');
+    } finally { host.remove(); }
+  });
+});
