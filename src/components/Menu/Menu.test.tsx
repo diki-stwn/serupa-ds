@@ -9,6 +9,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { ContextMenu, keyShortcuts, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from './Menu';
 import { page } from 'vitest/browser';
 
+const modded = (t: Element, key: string) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
 const openMenu = () => [...document.querySelectorAll<HTMLElement>('[role="menu"]')].find((m) => !m.hidden);
@@ -45,6 +46,17 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('with Alt, Ctrl or ⌘ the arrows, Home and End are left to the browser, on the trigger and in the open menu (L8E36)', async () => {
+    await render(<Menu trigger={<Button id="mmk">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Paste</MenuItem><MenuItem>Delete</MenuItem></Menu>);
+    const t = el('mmk');
+    t.focus();
+    const trigger = [modded(t, 'ArrowDown'), modded(t, 'ArrowUp'), t.getAttribute('aria-expanded')];
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => (document.activeElement as HTMLElement).textContent).toBe('Copy');
+    const first = document.activeElement as HTMLElement;
+    expect([trigger, modded(first, 'ArrowDown'), modded(first, 'End'), document.activeElement === first]).toEqual([[[false, false, false], [false, false, false], 'false'], [false, false, false], [false, false, false], true]);
+  });
+
   test('the panel takes the other HTML attributes and a ref: id, data-testid, aria-describedby, and an onKeyDown that runs first (GJ2)', async () => {
     const ref = React.createRef<HTMLDivElement>();
     const keys: string[] = [];
