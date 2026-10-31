@@ -282,7 +282,7 @@ describe('DatePicker: autocomplete', () => {
 });
 
 describe('DatePicker: motion (DZ1)', () => {
-  test('the calendar opens with a transition and fades and shrinks out faster, kept (inert) until the fade ends; focus is back on the field at once', async () => {
+  test('the calendar opens with a transition and fades and shrinks out faster, kept (inert) until the fade ends; from the keyboard there and gone at once, focus back on the field (KW1)', async () => {
     await withMotion(async () => {
       const ms = (a: Animation) => Number(a.effect!.getComputedTiming().duration);
       const runs = (e: Element) => e.getAnimations().filter((a) => a instanceof CSSTransition && /^(opacity|scale)$/.test(a.transitionProperty)).map((a) => [(a as CSSTransition).transitionProperty, ms(a)]).sort();
@@ -291,8 +291,8 @@ describe('DatePicker: motion (DZ1)', () => {
       const p = popup('mo');
       expect([runs(p), p.getAnimations().some((a) => a instanceof CSSAnimation)]).toEqual([[['opacity', 150], ['scale', 150]], false]);
       await settled(p);
-      await userEvent.keyboard('{Escape}');
-      expect([p.hidden, document.activeElement]).toEqual([true, el('mo')]);
+      await userEvent.click(button('mo'));
+      expect([p.hidden, document.activeElement]).toEqual([true, button('mo')]);
       // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
       if (CSS.supports('overlay', 'auto')) {
         expect([getComputedStyle(p).display, p.inert, !!p.querySelector('[data-date]'), runs(p)]).toEqual(['block', true, true, [['opacity', 100], ['scale', 100]]]);
@@ -300,6 +300,12 @@ describe('DatePicker: motion (DZ1)', () => {
       }
       await expect.poll(() => p.querySelector('[data-date]')).toBe(null);
       expect(getComputedStyle(p).display).toBe('none');
+      // From the keyboard (KW1): Alt+ArrowDown opens it at once, Escape takes it away at once.
+      el('mo').focus();
+      await userEvent.keyboard('{Alt>}{ArrowDown}{/Alt}');
+      expect([p.hidden, p.getAnimations().length, getComputedStyle(p).opacity]).toEqual([false, 0, '1']);
+      await userEvent.keyboard('{Escape}');
+      expect([p.hidden, getComputedStyle(p).display, p.getAnimations().length, document.activeElement]).toEqual([true, 'none', 0, el('mo')]);
     });
   });
 });

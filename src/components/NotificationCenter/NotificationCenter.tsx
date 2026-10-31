@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { cn, domId, omit, oneOf } from "../../internal/cn";
+import { cn, domId, omit, oneOf, useIsoLayoutEffect } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { Drawer, type DrawerProps } from "../Drawer/Drawer";
@@ -102,12 +102,29 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
     {onMarkAllRead ? <Button variant="ghost" size="sm" onClick={onMarkAllRead}>{labels.markAllRead}</Button> : null}
     {onClear ? <Button variant="ghost" size="sm" onClick={onClear}>{labels.clearNotifications}</Button> : null}
   </> : null;
+  // The row focus is in, if any. When the app takes that row away (an inbox that hides read ones, so "Mark as read"
+  // removes the row it just focused), focus goes to the row now in its place, else the last, else the empty line,
+  // instead of dropping to the page.
+  const list = React.useRef<HTMLUListElement | null>(null);
+  const none = React.useRef<HTMLParagraphElement | null>(null);
+  const at = React.useRef(-1);
+  const rowOf = (t: EventTarget | null) => { const l = list.current, li = t instanceof Element ? t.closest("li") : null; return l && li && li.parentElement === l ? Array.prototype.indexOf.call(l.children, li) : -1; };
+  useIsoLayoutEffect(() => {
+    if (at.current < 0) return;
+    const active = document.activeElement, l = list.current;
+    if (active && active !== document.body && active.isConnected) { at.current = rowOf(active); return; }
+    const rows = l ? l.children : null;
+    const to = (rows && rows.length ? rows[Math.min(at.current, rows.length - 1)] : none.current) as HTMLElement | null;
+    at.current = -1;
+    if (to) to.focus();
+  }, [items]);
   return (
     <Drawer {...rest} ref={ref} className={cn("dk-notification-center", props.className)} open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}
       side={props.side} size={props.size} modal={props.modal} closeButton={props.closeButton} closeLabel={props.closeLabel} closeOnBackdrop={props.closeOnBackdrop} swipeToClose={props.swipeToClose} initialFocus={props.initialFocus} finalFocus={props.finalFocus}
       title={props.title != null ? props.title : labels.notificationCenter} footer={footer}>
       {items.length ? (
-        <ul role="list" className="dk-notification-center__list">
+        <ul role="list" className="dk-notification-center__list" ref={list}
+          onFocus={(e) => { at.current = rowOf(e.target); }} onBlur={(e) => { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) at.current = -1; }}>
           {items.map((n, i) => {
             const tone = oneOf(TONES, n.tone, "neutral"), icon = ICONS[tone], titleId = base + "-" + i;
             return (
@@ -130,7 +147,7 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
             );
           })}
         </ul>
-      ) : <p className="dk-notification-center__empty">{props.empty != null ? props.empty : labels.noNotifications}</p>}
+      ) : <p className="dk-notification-center__empty" ref={none} tabIndex={-1}>{props.empty != null ? props.empty : labels.noNotifications}</p>}
     </Drawer>
   );
 });

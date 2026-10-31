@@ -201,7 +201,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
       </button>
       {startName ? <input type="hidden" name={startName} form={form} value={value.start ? isoDate(value.start) : ""} disabled={disabled} /> : null}
       {endName ? <input type="hidden" name={endName} form={form} value={value.end ? isoDate(value.end) : ""} disabled={disabled} /> : null}
-      <div ref={panel} id={popId} role="dialog" aria-label={buttonLabel || sds.labels.chooseDates} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-date-picker__popup dk-date-range-picker__popup"
+      <div ref={panel} id={popId} role="dialog" aria-label={buttonLabel || sds.labels.chooseDates} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} data-instant={exit.instant ? "" : undefined} className="dk-date-picker__popup dk-date-range-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}
         onMouseLeave={() => setHover(null)}>
         {open || exit.leaving ? <>

@@ -110,7 +110,21 @@ export function useSerupa(): SerupaSettings {
    server HTML and the first client render use SERVER_LOCALE, and React switches to the browser's right after
    hydration (useSyncExternalStore's server snapshot). A client-only render uses the browser's from the start. */
 const SERVER_LOCALE = "en-US";
-const browserLocale = () => new Intl.DateTimeFormat().resolvedOptions().locale;
+// module state: the browser's locale, read once and kept until the browser says it changed (languagechange). It is
+// the visitor's own browser setting, never a request's: the server doesn't read it (its snapshot is SERVER_LOCALE).
+// Building a DateTimeFormat to ask costs about 0.6ms on a slow phone, and useSyncExternalStore asks at least twice a
+// render, so 21 components each paid that on every render: 2.4s to tick one row of a 1,000-row Table (GR58).
+// The one listener that forgets it is added on the first read, before any component subscribes, so it runs first and
+// a component told of the change reads the new locale.
+let seenLocale: string | undefined;
+let forgetting = false;
+const browserLocale = () => {
+  if (seenLocale === undefined) {
+    seenLocale = new Intl.DateTimeFormat().resolvedOptions().locale;
+    if (!forgetting) { forgetting = true; window.addEventListener("languagechange", () => { seenLocale = undefined; }); }
+  }
+  return seenLocale;
+};
 const onLanguageChange = (cb: () => void) => { window.addEventListener("languagechange", cb); return () => window.removeEventListener("languagechange", cb); };
 /** A locale given to a component or provider, made safe for Intl: canonical, else undefined with a warning in development. */
 function usable(locale: string | undefined): string | undefined {

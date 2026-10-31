@@ -8,7 +8,7 @@
 .dk-notification-center__list { margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
 .dk-notification-center__item { display: flex; align-items: flex-start; gap: var(--spacing-3); padding-block: var(--notification-center-row-padding, var(--spacing-3)); }
 .dk-notification-center__item + .dk-notification-center__item { border-top: var(--border-width-1) solid var(--notification-center-divider, var(--border)); }
-.dk-notification-center__item:focus-visible { outline: var(--focus-ring-width) solid var(--notification-center-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
+.dk-notification-center__item:focus-visible, .dk-notification-center__empty:focus-visible { outline: var(--focus-ring-width) solid var(--notification-center-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 .dk-notification-center__icon { display: flex; font-size: var(--spacing-5); }
 .dk-notification-center__item--info .dk-notification-center__icon { color: var(--notification-center-icon-info, var(--info)); }
 .dk-notification-center__item--success .dk-notification-center__icon { color: var(--notification-center-icon-success, var(--success)); }

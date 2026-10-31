@@ -130,7 +130,7 @@ export const DatePicker = /* @__PURE__ */ component<HTMLInputElement, DatePicker
       {/* The format to type, read after the field's name: a placeholder is gone once something is typed, and not every screen reader reads it. */}
       <span id={id + "-format"} hidden>{sds.labels.formatHint(datePattern(locale))}</span>
       {name ? <input type="hidden" name={name} form={rest.form} value={value ? isoDate(value) : ""} disabled={disabled} /> : null}
-      <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} className="dk-date-picker__popup"
+      <div ref={panel} id={id} role="dialog" aria-label={buttonLabel || sds.labels.chooseDate} {...{ popover: "manual" }} hidden={!open || undefined} inert={!open || undefined} data-instant={exit.instant ? "" : undefined} className="dk-date-picker__popup"
         onKeyDown={(e) => { if (e.key === "Escape" && !isComposing(e)) { e.preventDefault(); e.stopPropagation(); close(true); } }}>
         {open || exit.leaving ? <Calendar value={value} defaultMonth={(typed && allowed(typed) ? typed : null) || value || undefined} min={min} max={max} isDateDisabled={isDateDisabled} locale={locale} weekStartsOn={weekStartsOn} autoFocus
           onValueChange={(d) => { commit(d); close(true); }} /> : null}

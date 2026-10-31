@@ -80,6 +80,16 @@ describe('useShortcut', () => {
     expect([log, (el('text') as HTMLTextAreaElement).value]).toEqual([['search', 'slash'], '']);
   });
 
+  test('typing in a text field inside a web component\'s shadow root doesn\'t run a plain-key shortcut (L8E43)', async () => {
+    const log: string[] = [];
+    await render(<><div id="host" /><Shortcut keys={['G']} log={log} name="g" /></>);
+    const field = document.createElement('input');
+    el('host').attachShadow({ mode: 'open' }).append(field);
+    field.focus();
+    await userEvent.keyboard('g');
+    expect([log, field.value]).toEqual([[], 'g']);
+  });
+
   test('keys that aren\'t one key with its modifiers (["G", "I"], ["mod"]) aren\'t set up: a lone I doesn\'t run it, it isn\'t listed, and it warns once (GQ3)', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {

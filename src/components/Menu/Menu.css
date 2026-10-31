@@ -44,6 +44,8 @@
   .dk-menu[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
 }
 .dk-menu[hidden] { opacity: var(--opacity-0); pointer-events: none; }
+/* Closed from the keyboard (data-instant, KW1): gone at once, no fade. */
+.dk-menu[hidden][data-instant] { transition: none; }
 @starting-style { .dk-menu:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: no-preference) {
   .dk-menu[hidden] { scale: var(--scale-95); }

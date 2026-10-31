@@ -19,6 +19,11 @@
 - progressbar "Loading…"
 - progressbar "Loading profile"
 
+# SpinnerSpeeds
+- progressbar "Loading, one turn every 1000ms"
+- progressbar "Loading, one turn every 800ms"
+- progressbar "Loading, one turn every 700ms"
+
 # Text
 - progressbar "Generating summary"
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
@@ -32,6 +32,14 @@ describe('Image', () => {
     await render(<Pic id="auto" frameClass="frame-extra" alt="A blue banner" className="extra" imgRef={r} />);
     const f = frame('auto'), i = f.querySelector('img')!;
     expect([r.current === i, /extra/.test(i.className), /frame-extra/.test(f.className), i.alt, i.loading, f.dataset.component]).toEqual([true, true, true, 'A blue banner', 'lazy', 'image']);
+  });
+
+  test('renders where there is no matchMedia (jsdom, where apps run unit tests) instead of throwing (L8E45)', async () => {
+    vi.stubGlobal('matchMedia', undefined);
+    try {
+      const screen = await render(<Image src="/a.png" alt="Bare" />);
+      expect(screen.container.querySelector('img')?.alt).toBe('Bare');
+    } finally { vi.unstubAllGlobals(); }
   });
 
   test('ratio: auto keeps the picture\'s shape (200×100), square 200×200, 4:3 200×150, video 200×113, 2 → 200×100; cover by default, contain when asked; rounded 8px unless rounded={false}', async () => {
@@ -198,6 +206,21 @@ describe('Image', () => {
     await finished();
     await userEvent.click(dialog().querySelector('button[aria-label="Close"]')!);
     await expect.poll(() => dialog().open).toBe(false);
+  });
+
+  test('onRemove in a gallery: once the picture is gone, focus goes to the next one\'s ×, else the one before, not to the page', async () => {
+    function Gallery() {
+      const [left, setLeft] = React.useState(['a', 'b', 'c']);
+      return <Row>{left.map((k) => <Pic key={k} id={'g' + k} src={PIC} alt={'Photo ' + k} ratio="square" style={{ width: '120px' }} onRemove={() => setLeft((l) => l.filter((x) => x !== k))} />)}</Row>;
+    }
+    await render(<Gallery />);
+    const x = (k: string) => document.querySelector<HTMLButtonElement>(`button[aria-label="Remove image: Photo ${k}"]`)!;
+    x('a').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement).toBe(x('b'));
+    x('c').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement).toBe(x('b'));
   });
 
   test('onRemove: the remove button calls it without opening the viewer, 8px from the top end corner', async () => {

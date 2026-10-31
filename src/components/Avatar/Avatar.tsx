@@ -60,10 +60,17 @@ export const Avatar = /* @__PURE__ */ component<HTMLSpanElement, AvatarProps>("A
   const said = status ? props.statusLabel || sds.labels.avatarStatus(status) : "";
   const full = label && said ? label + ", " + said : label;
   const showImg = !!props.src && !failed;
+  // A server-rendered picture can fail before the page hydrates, and React never hears that error: the broken picture
+  // stayed in place of the initials. A picture that has finished but won't decode has failed (L8E44).
+  const pic = React.useRef<HTMLImageElement | null>(null);
+  React.useEffect(() => {
+    const i = pic.current, src = props.src;
+    if (i && src && i.complete) i.decode().catch(() => { if (pic.current === i && i.complete && !i.naturalWidth) setFailedSrc(src); });
+  }, [props.src]);
   const text = initials(props.name);
   const body = showImg
     // Lazy and async by default, so a long list of people doesn't fetch every picture at once.
-    ? <img loading="lazy" decoding="async" {...props.imgProps} className={cn("dk-avatar__img", props.imgProps && props.imgProps.className)} src={props.src} alt=""
+    ? <img loading="lazy" decoding="async" {...props.imgProps} className={cn("dk-avatar__img", props.imgProps && props.imgProps.className)} src={props.src} alt="" ref={pic}
         onError={(e) => { if (props.imgProps && props.imgProps.onError) props.imgProps.onError(e); setFailedSrc(props.src as string); }} />
     : text ? <span className="dk-avatar__initials" aria-hidden="true">{text}</span>
     : <Icon className="dk-avatar__icon" icon={icons.Person} />;

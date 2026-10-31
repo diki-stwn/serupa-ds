@@ -35,10 +35,12 @@
   .dk-date-picker__popup[hidden] { transition: opacity var(--motion-exit-sm) var(--ease-exit), scale var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete, overlay var(--motion-exit-sm) allow-discrete; }
 }
 .dk-date-picker__popup[hidden] { opacity: var(--opacity-0); pointer-events: none; }
-@starting-style { .dk-date-picker__popup:not([hidden]) { opacity: var(--opacity-0); } }
+/* Closed from the keyboard (data-instant, KW1): gone at once, no fade. */
+.dk-date-picker__popup[hidden][data-instant] { transition: none; }
+@starting-style { .dk-date-picker__popup:not([hidden]):not([data-instant]) { opacity: var(--opacity-0); } }
 @media (prefers-reduced-motion: no-preference) {
   .dk-date-picker__popup[hidden] { scale: var(--scale-95); }
-  @starting-style { .dk-date-picker__popup:not([hidden]) { scale: var(--scale-95); } }
+  @starting-style { .dk-date-picker__popup:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
 }
 @media (forced-colors: active) { .dk-date-picker__popup { border-color: CanvasText; } }
 }
