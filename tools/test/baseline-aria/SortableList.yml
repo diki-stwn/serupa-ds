@@ -5,6 +5,21 @@
   - listitem: Record the demo Alan
   - listitem: Update the changelog Katherine
 
+# Horizontal
+- list "Board columns":
+  - listitem:
+    - button "Reorder To do"
+    - text: To do
+  - listitem:
+    - button "Reorder Doing"
+    - text: Doing
+  - listitem:
+    - button "Reorder Review"
+    - text: Review
+  - listitem:
+    - button "Reorder Done"
+    - text: Done
+
 # LongText
 - list "Launch tasks":
   - listitem:
