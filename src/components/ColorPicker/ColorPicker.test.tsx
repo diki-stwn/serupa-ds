@@ -31,6 +31,11 @@ describe('ColorPicker', () => {
     expect([hex().id === label.htmlFor, hex().getAttribute('aria-describedby'), hex().getAttribute('aria-label')]).toEqual([false, null, 'Hex code']);
   });
 
+  test('QA2: the hex field isn\'t autocorrected or capitalised by a phone keyboard ("fade00" stays), nor spellchecked', async () => {
+    await render(<ColorPicker swatches={SW} />);
+    expect(['spellcheck', 'autocorrect', 'autocapitalize'].map((n) => hex().getAttribute(n))).toEqual(['false', 'off', 'off']);
+  });
+
   test('required: a form with no color picked isn\'t valid; submitting marks the swatches invalid and focuses them; picking one clears it', async () => {
     let sent = 0;
     await render(<form id="cpf" onSubmit={(e) => { e.preventDefault(); sent++; }}><ColorPicker aria-label="Accent" swatches={SW} name="accent" required /><button id="cps">Save</button></form>);
