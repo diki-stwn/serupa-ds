@@ -1,7 +1,7 @@
 <!-- Disabled -->
 <div style="max-width:var(--container-sm)">
-<div class="dk-file-upload dk-file-upload--disabled" data-component="file-upload">
-<div class="dk-file-upload__zone" aria-disabled="true">
+<div aria-disabled="true" class="dk-file-upload dk-file-upload--disabled" data-component="file-upload">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -23,7 +23,7 @@
 <!-- Invalid -->
 <div style="max-width:var(--container-sm)">
 <div class="dk-file-upload dk-file-upload--invalid" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -31,14 +31,14 @@
 </svg>
 </span>
 <p class="dk-file-upload__title">Drag files here</p>
-<button aria-invalid="true" aria-describedby="dk-fu_R_0_-req dk-fu_R_0_-hint" data-component="button" data-variant="outline" data-size="sm" type="button" class="dk-btn dk-btn--outline dk-btn--size-sm">
+<button aria-describedby="dk-fu_R_0_-req dk-fu_R_0_-hint" data-component="button" data-variant="outline" data-size="sm" type="button" class="dk-btn dk-btn--outline dk-btn--size-sm">
 <span class="dk-btn__label">
 <span id="dk-fu_R_0_-choose">Choose files</span>
 </span>
 </button>
 <span class="dk-file-upload__required" id="dk-fu_R_0_-req">Required</span>
 <p class="dk-file-upload__hint" id="dk-fu_R_0_-hint">Add at least one image or PDF</p>
-<input id="dk-fu_R_0_-input" type="file" class="dk-file-upload__input" tabindex="-1" aria-hidden="true" accept="image/*,.pdf" multiple="" required=""/>
+<input id="dk-fu_R_0_-input" type="file" class="dk-file-upload__input" tabindex="-1" aria-hidden="true" accept="image/*,.pdf" multiple="" required="" aria-invalid="true"/>
 </div>
 </div>
 </div>
@@ -47,7 +47,7 @@
 <div style="max-width:var(--container-sm)">
 <div style="width:220px">
 <div class="dk-file-upload" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -70,7 +70,7 @@
 <!-- Playground -->
 <div style="max-width:var(--container-sm)">
 <div class="dk-file-upload" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -92,7 +92,7 @@
 <!-- ReadOnly -->
 <div style="max-width:var(--container-sm)">
 <div class="dk-file-upload dk-file-upload--readonly" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -149,7 +149,7 @@
 <!-- SingleFile -->
 <div style="max-width:var(--container-sm)">
 <div class="dk-file-upload" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
@@ -171,7 +171,7 @@
 <!-- WithFiles -->
 <div style="max-width:var(--container-sm)">
 <div class="dk-file-upload" data-component="file-upload">
-<div class="dk-file-upload__zone">
+<div class="dk-file-upload__zone" role="presentation">
 <span aria-hidden="true" data-icon="upload_file" class="dk-icon dk-file-upload__icon">
 <svg width="1em" height="1em" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
 <path d="m440-367v127q0 17 11.5 28.5 11.5 11.5 28.5 11.5 17 0 28.5-11.5 11.5-11.5 11.5-28.5v-127l36 36q6 6 13.5 9 7.5 3 15 2.5 7.5-.5 14.5-3.5 7-3 13-9 11-12 11.5-28 .5-16-11.5-28l-104-104q-6-6-13-8.5-7-2.5-15-2.5-8 0-15 2.5-7 2.5-13 8.5l-104 104q-12 12-11.5 28 .5 16 12.5 28 12 11 28 11.5 16 .5 28-11.5zm-200 287q-33 0-56.5-23.5-23.5-23.5-23.5-56.5v-640q0-33 23.5-56.5 23.5-23.5 56.5-23.5h287q16 0 30.5 6 14.5 6 25.5 17l194 194q11 11 17 25.5 6 14.5 6 30.5v447q0 33-23.5 56.5-23.5 23.5-56.5 23.5zm280-560q0 17 11.5 28.5 11.5 11.5 28.5 11.5h160l-200-200z">
