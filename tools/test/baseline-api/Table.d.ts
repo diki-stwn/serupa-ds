@@ -10,6 +10,7 @@ interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
     striped?: boolean;
     stickyHeader?: boolean;
     caption?: React.ReactNode;
+    hideCaption?: boolean;
     captionHidden?: boolean;
     containerProps?: React.HTMLAttributes<HTMLDivElement>;
 }

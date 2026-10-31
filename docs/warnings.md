@@ -86,6 +86,10 @@ useShortcut was given keys that aren't one key with its modifiers, such as `["G"
 
 Splitter needs exactly two children, its two panes.
 
+## table-caption-hidden
+
+Table was given `captionHidden`, the old name of `hideCaption`. It still hides the caption on screen and keeps it for screen readers, the same as before; a later major version takes it away. Rename it to `hideCaption`.
+
 ## tabs-removed
 
 The selected Tab was removed, so no tab is selected. When you remove the selected tab, set `value` to another one.
