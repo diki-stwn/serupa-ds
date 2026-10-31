@@ -293,4 +293,29 @@ describe('TreeView target size (GQ6)', () => {
     await userEvent.click(toggle, { position: { x: 21.5, y: 21.5 } });
     expect(item('a').getAttribute('aria-expanded')).toBe('false');
   });
+  test('the focused item leaving the page (deleted from items, or its parent closed by a controlled expanded) hands focus to the item in its place or to its parent, not to the page', async () => {
+    let drop: (id: string) => void = () => {}, close: (id: string) => void = () => {};
+    function Live() {
+      const [list, setList] = React.useState(TREE);
+      const [open, setOpen] = React.useState(['a', 'd']);
+      drop = (id) => setList((l) => l.filter((x) => x.id !== id));
+      close = (id) => setOpen((o) => o.filter((x) => x !== id));
+      return <Tree items={list} expanded={open} onExpandedChange={setOpen} />;
+    }
+    await render(<Live />);
+    item('c').focus();
+    await expect.poll(() => item('c').tabIndex).toBe(0);   // the tree has seen it
+    drop('c');   // an app's own Delete key, or a server update
+    await expect.poll(() => [shown(), focused()]).toEqual(['a,a1,a2,b,d,d1', 'd']);
+    item('d1').focus();
+    await expect.poll(() => item('d1').tabIndex).toBe(0);
+    close('d');   // an app's own "Collapse all"
+    await expect.poll(() => [shown(), focused()]).toEqual(['a,a1,a2,b,d', 'd']);
+    drop('d');   // the last one: the one before
+    await expect.poll(() => focused()).toBe('b');
+    el('after').focus();
+    drop('b');   // focus is elsewhere: it stays there
+    await expect.poll(() => shown()).toBe('a,a1,a2');
+    expect(document.activeElement).toBe(el('after'));
+  });
 });
