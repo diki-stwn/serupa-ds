@@ -971,6 +971,9 @@ How the words in a product built with the system should read: labels, hints, err
 - Say "you" to the person and talk about what they can do, not about the system.
 - No "please", no "sorry" for routine things, no exclamation marks, no jokes in errors.
 - Never blame the person. "That date is before the start date", not "You entered an invalid date".
+- Point to things by their name, never by shape, color, position or sound alone: "Select Save", not "Select the button below"; "Check the start date", not "Fix the red field". Someone using a screen reader, a zoomed screen or a different layout can't see "below" or "red" (WCAG 1.3.3).
+- Leave out words that tell the reader something should be quick for them: "simply", "just", "obviously", "of course", "easy". When it isn't quick for them, the word makes them feel slow; when it is, the word adds nothing. "Add an email address", not "Just add an email address".
+- Use plain, neutral terms: "allow list" and "block list", not "whitelist" and "blacklist"; "main" and "replica" (or "primary" and "secondary"), not "master" and "slave".
 
 **Capitalization and punctuation**
 
