@@ -181,7 +181,7 @@ describe('Progress: done', () => {
     expect([names('cl'), names('cla')]).toEqual([['progressbar', 'Upload', null], ['progressbar', 'Sending', null]]);
     // A label that isn't text names it from a hidden copy inside the ring.
     await render(<Progress id="cle" variant="circle" value={20} label={<b>Backup</b>} />);
-    expect([names('cle')[2], (el('cle').querySelector('[hidden]') as HTMLElement | null)?.id === el('cle').getAttribute('aria-labelledby')]).toEqual(['Backup', true]);
+    expect([names('cle')[2], el('cle').querySelector<HTMLElement>('[hidden]')?.id === el('cle').getAttribute('aria-labelledby')]).toEqual(['Backup', true]);
   });
 
   test('forced colors: the ring\'s track is GrayText, apart from the Highlight arc and from CanvasText (GK3)', async () => {

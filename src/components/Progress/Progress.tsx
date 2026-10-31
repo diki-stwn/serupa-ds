@@ -83,8 +83,9 @@ export const Progress = /* @__PURE__ */ component<HTMLDivElement, ProgressProps>
   // A ring has no room to show its label, so the label names it: as its aria-label when it's text, else through a
   // hidden copy (L8E70). aria-label or aria-labelledby, when given, win.
   const nameless = hasLabel && !rest["aria-label"] && !rest["aria-labelledby"];
-  const ringText = nameless && variant === "circle" && (typeof props.label === "string" || typeof props.label === "number");
-  if (ringText) aria["aria-label"] = String(props.label);
+  const said = typeof props.label === "string" || typeof props.label === "number" ? String(props.label) : null;
+  const ringText = nameless && variant === "circle" && said != null;
+  if (ringText) aria["aria-label"] = said;
   else if (nameless) aria["aria-labelledby"] = base + "-label";
   const cls = cn("dk-progress", "dk-progress--" + variant, "dk-progress--size-" + size, tone !== "primary" && "dk-progress--" + tone, !known && "dk-progress--indeterminate", props.className);
   const data = { "data-component": "progress", "data-variant": variant, "data-size": size, "data-tone": tone, "data-state": known ? (value >= max ? "complete" : "loading") : "indeterminate" };
