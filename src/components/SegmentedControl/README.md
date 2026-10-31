@@ -44,7 +44,7 @@ import { SegmentedControl } from "serupa-ds";
 - The outline keeps 3:1 on the page, and labels 4.5:1, in all six themes (`SegmentedControl.test.tsx`). The selected segment changes three ways (a raised surface, an outline and a darker label), so it doesn't rely on one color. In forced colors (Windows high contrast) the selection is Highlight and its label HighlightText, exactly as set, so the browser's text backplate can't hide the label, and hovering the selected segment keeps it HighlightText.
 - `invalid` sets `aria-invalid` on the group and turns its outline danger (3:1 on the page in all six themes); `required` sets `aria-required`. Put the reason in text next to it: inside a [Field](../Field/README.md), its `error` and `required` do all of this.
 - `readOnly` sets `aria-readonly`. Segments stay focusable and the arrow keys move focus between them, so people can hear every option, but neither a click nor a key changes the selection. With `name`, the value is still sent with the form, which `disabled` doesn't do.
-- The selection slides over 200ms, and jumps with `prefers-reduced-motion`.
+- The selection slides over 200ms, and jumps with `prefers-reduced-motion` or when an arrow key picks the segment.
 
 ### Keyboard
 

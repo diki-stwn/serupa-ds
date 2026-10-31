@@ -321,8 +321,9 @@ describe('SegmentedControl', () => {
       const [a, b] = items('sl');
       const ind = el('sl').firstElementChild as HTMLElement;
       // A click from the page itself, so the transitions are read a frame after the choice. A driver click (userEvent)
-      // comes back after a round trip, which in WebKit can outlast the 200ms slide, leaving nothing to read.
-      b.click();
+      // comes back after a round trip, which in WebKit can outlast the 200ms slide, leaving nothing to read. One press
+      // (detail 1), as a mouse's: a click with none is a key's, which puts it there at once (KW1).
+      b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       await new Promise(requestAnimationFrame);
       const moves = document.getAnimations().filter((x): x is CSSTransition => x instanceof CSSTransition && (x.effect as KeyframeEffect).target === ind);
       expect(moves.map((x) => [(x.effect as KeyframeEffect).pseudoElement, x.transitionProperty]).sort()).toEqual([['::after', 'clip-path'], ['::before', 'clip-path']]);
@@ -341,6 +342,16 @@ describe('SegmentedControl', () => {
       await Promise.all(moves.map((x) => x.finished.catch(() => {})));
       await expect.poll(() => ind.hasAttribute('data-slide')).toBe(false);
       expect(off('sl')).toEqual([0, 0]);
+    });
+  });
+  test('from the keyboard (KW1): an arrow moves the indicator at once, with no slide', async () => {
+    await withMotion(async () => {
+      await render(<SegmentedControl id="sk" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
+      const ind = el('sk').firstElementChild as HTMLElement;
+      items('sk')[0].focus();
+      await userEvent.keyboard('{ArrowRight}');
+      const moves = document.getAnimations().filter((x) => (x.effect as KeyframeEffect).target === ind);
+      expect([checked('sk'), moves.length, ind.hasAttribute('data-slide'), off('sk')]).toEqual(['b', 0, false, [0, 0]]);
     });
   });
   test('before the script runs, the selected segment carries the indicator\'s surface itself (FC1)', () => {

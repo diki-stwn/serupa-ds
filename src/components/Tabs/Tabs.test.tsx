@@ -359,6 +359,25 @@ describe('Tabs on the server', () => {
   });
 });
 
+describe('Tabs indicator from the keyboard (KW1)', () => {
+  test('an arrow moves the line and the pill fill at once, with no slide; a click after slides again', async () => {
+    await withMotion(async () => {
+      await setup();
+      for (const id of ['un', 'dv']) {
+        const tabs = [...el(id).querySelectorAll<HTMLElement>('[role="tab"]')];
+        const on = () => tabs.find((t) => t.getAttribute('aria-selected') === 'true')!;
+        const runs = (t: HTMLElement) => t.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition && /^(translate|scale|clip-path)$/.test(a.transitionProperty)).length;
+        const was = on();
+        was.focus();
+        await userEvent.keyboard('{ArrowLeft}');
+        expect([id, on() !== was, runs(on())]).toEqual([id, true, 0]);
+        await userEvent.click(was);
+        expect([id, on() === was, runs(was) > 0]).toEqual([id, true, true]);
+      }
+    });
+  });
+});
+
 describe('Tabs indicator turned back mid-slide (GQ8)', () => {
   // The selected tab's transitions on one pseudo-element, held halfway.
   const slides = (t: HTMLElement, pseudo: string) => t.getAnimations({ subtree: true }).filter((a): a is CSSTransition => a instanceof CSSTransition && (a.effect as KeyframeEffect).pseudoElement === pseudo);
