@@ -54,7 +54,9 @@ export const TimelineItem = /* @__PURE__ */ component<HTMLLIElement, TimelineIte
       </span>
       <div className="dk-timeline__body">
         {title != null ? <div className="dk-timeline__title">{title}</div> : null}
-        {time != null ? <time className="dk-timeline__time" dateTime={dateTime}>{time}</time> : null}
+        {/* A <time> only with dateTime: "13 Mar" or "2 hours ago" alone isn't a date a machine can read, and a
+            <RelativeTime> passed as time is a <time> already (L8E59). */}
+        {time != null ? dateTime ? <time className="dk-timeline__time" dateTime={dateTime}>{time}</time> : <span className="dk-timeline__time">{time}</span> : null}
         {children != null ? <div className="dk-timeline__content">{children}</div> : null}
       </div>
     </li>

@@ -29,7 +29,7 @@ import { Timeline, TimelineItem } from "serupa-ds";
 
 - Keep one order, oldest first or newest first, and say which if it isn't obvious.
 - Put the status in the title ("Delivery delayed"), not only in the marker's color.
-- Give `dateTime` a machine-readable value whenever `time` is relative or shortened ("2 hours ago"), so the moment stays exact.
+- Give `dateTime` a machine-readable value whenever `time` is relative or shortened ("2 hours ago"), so the moment stays exact. Without `dateTime` the time is a plain `<span>`: a `<time>` needs a value machines can read.
 - Use icons for a few kinds of event that people learn to scan for; dots are enough otherwise.
 - `align="alternate"` suits a wide page with short entries. Below 768px it falls back to one side.
 
