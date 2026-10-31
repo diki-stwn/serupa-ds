@@ -29,8 +29,11 @@
   color: inherit; font: inherit; letter-spacing: inherit;
 }
 .dk-input__field::placeholder { color: var(--input-placeholder, var(--placeholder)); opacity: var(--opacity-100); }
-/* prefix and suffix: text in the box, muted, kept whole; a press on it focuses the field (Input's handler). */
-.dk-input__affix { flex-shrink: 0; color: var(--input-affix, var(--text-muted)); white-space: nowrap; -webkit-user-select: none; user-select: none; cursor: text; }
+/* prefix and suffix: text in the box, muted; a press on it focuses the field (Input's handler). Whole while there's
+   room; in a box too narrow for them and the count, they give way with an ellipsis rather than push the count out of
+   the box (GR23: in a 156px grid column, or with a wider font before Inter loads). The field shrinks first: it grows
+   from 0. */
+.dk-input__affix { flex-shrink: 1; min-width: var(--spacing-0); overflow: hidden; text-overflow: ellipsis; color: var(--input-affix, var(--text-muted)); white-space: nowrap; -webkit-user-select: none; user-select: none; cursor: text; }
 .dk-input__icon { display: inline-flex; flex-shrink: 0; color: var(--input-icon-color, var(--text-muted)); pointer-events: none; }
 .dk-input__icon .dk-icon { font-size: var(--dk-input-icon); }
 /* The count sits at the end of the field, in text-xs with tabular digits, like Textarea's; text-colored at maxLength. */
