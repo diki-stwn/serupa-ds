@@ -25,7 +25,7 @@ export const Viewable: Story = { args: { viewable: true } };
 export const Removable: Story = {
   render: function Render(args) {
     const [shown, setShown] = React.useState(true);
-    return shown ? <Image {...args} viewable onRemove={() => setShown(false)} /> : <button type="button" onClick={() => setShown(true)}>Put it back</button>;
+    return shown ? <Image {...args} alt={args.alt} viewable onRemove={() => setShown(false)} /> : <button type="button" onClick={() => setShown(true)}>Put it back</button>;
   },
 };
 export const Fallback: Story = { args: { src: 'data:image/png;base64,broken', ratio: 'square', frameProps: { style: { width: 160 } } } };
