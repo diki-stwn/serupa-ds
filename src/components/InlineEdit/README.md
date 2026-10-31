@@ -40,7 +40,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 - Leaving with a text that `validate` refuses keeps the field open with its message, and the message is said, so people know why it didn't close. Focus isn't pulled back: it stays where they went, and the field is still there to come back to (or Escape there to put the text back).
 - While a Promise from `validate` is pending, the field is `aria-busy` and stays open. Only the latest check counts: typing or Escape drops the one running, and a rejected Promise keeps the field open without a message (resolve to a message instead).
 - Escape inside a [Dialog](../Dialog/README.md) or [Drawer](../Drawer/README.md) only cancels the edit; the dialog stays open.
-- With `editing` and `onEditingChange` you open and close it yourself, for example from a Rename item in a [Menu](../Menu/README.md).
+- With `editing` and `onEditingChange` you open and close it yourself, for example from a Rename item in a [Menu](../Menu/README.md). Each time it opens, the field starts from the current text.
 - `disabled` and `readOnly` show the text without a button; `disabled` also mutes it (`--inline-edit-text-disabled`, still 4.5:1). Inside a `<fieldset disabled>` the button is disabled: the text is muted the same way, with no hover, pointer or pencil.
 - While someone types with an input method (Japanese, Chinese, Korean), Enter and Escape confirm or cancel the composition, not the edit.
 
