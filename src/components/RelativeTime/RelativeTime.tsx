@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, omit } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { isoDate, toDay } from "../../internal/dates";
 import { canonicalLocale } from "../../internal/locale";
 import { useLocale, useOwnLang } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
@@ -58,12 +59,8 @@ const UNITS: Array<[Intl.RelativeTimeFormatUnit, number, number]> = [
 /* A day on its own ("2026-10-24", as a date column or <input type="date"> gives it) is that local day. Date reads it
    as UTC midnight, the day before west of Greenwich, so "yesterday" came out as "2 days ago" there, and a day from
    this morning as "14 hours ago" (L8E13). */
-function dayOf(date: Date | number | string): Date | null {
-  const m = typeof date === "string" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim()) : null;
-  if (!m) return null;
-  const d = new Date(2000, +m[2] - 1, +m[3]); d.setFullYear(+m[1]);
-  return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : new Date(NaN);
-}
+const dayOf = (date: Date | number | string): Date | null =>
+  typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date.trim()) ? toDay(date) || new Date(NaN) : null;
 
 /** The words for a moment relative to now, as RelativeTime writes them: "3 minutes ago", "in 2 days", "now". A day
     on its own ("2026-10-24") is counted in calendar days or more: "today", "yesterday", "in 3 days". */
@@ -106,7 +103,7 @@ export const RelativeTime = /* @__PURE__ */ component<HTMLTimeElement, RelativeT
   }, [valid, props.date]);
   const text = valid ? relativeTime(day ? props.date : d, current, locale, { format: props.format, numeric: props.numeric }) : "";
   // A day has no time of day to show, and its datetime is the day itself.
-  const title = !valid || props.titleFormat === false ? undefined : new Intl.DateTimeFormat(locale, props.titleFormat || (day ? { dateStyle: "long" } : { dateStyle: "long", timeStyle: "short" })).format(d);
-  return <time lang={lang} {...rest} ref={ref} dateTime={valid ? (day ? String(props.date).trim() : d.toISOString()) : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}
+  const title = !valid || props.titleFormat === false ? undefined : new Intl.DateTimeFormat(locale, props.titleFormat || { dateStyle: "long", timeStyle: day ? undefined : "short" }).format(d);
+  return <time lang={lang} {...rest} ref={ref} dateTime={valid ? (day ? isoDate(d) : d.toISOString()) : undefined} title={rest.title ?? title} className={cn("dk-relative-time", props.className)}
     data-component="relative-time" suppressHydrationWarning>{text}</time>;
 });
