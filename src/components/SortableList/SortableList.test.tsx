@@ -171,6 +171,57 @@ describe('SortableList', () => {
     expect([names(), moves, handle('Gemini').getAttribute('aria-pressed')]).toEqual([['Apollo', 'Gemini', 'Mercury', 'Artemis'], [], 'false']);
   });
 
+  test('horizontal: the items run in a row; a sideways drag moves one along it and drops it there', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<SortableList id="sl" aria-label="Missions" orientation="horizontal" items={ITEMS} getKey={(i) => i.id} getLabel={(i) => i.name}
+      renderItem={(i) => i.name} onReorder={(_n, m) => { moves.push(m); }} />);
+    const rows = [...document.querySelectorAll('#sl > li')] as HTMLElement[], [a, b] = rows.map((r) => r.getBoundingClientRect());
+    expect([document.getElementById('sl')!.dataset.orientation, a.top === b.top, b.left > a.right]).toEqual(['horizontal', true, true]);
+    const h = handle('Apollo'), r = h.getBoundingClientRect(), third = rows[2].getBoundingClientRect();
+    const at = (type: string, x: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 9, button: 0, isPrimary: true, clientX: x, clientY: r.top + 4 }));
+    at('pointerdown', r.left + 4, h);
+    at('pointermove', r.left + 20);
+    at('pointermove', third.right - 4);
+    await expect.poll(() => names()).toEqual(['Gemini', 'Mercury', 'Apollo', 'Artemis']);
+    expect(rows[0].style.transform).toMatch(/^translateX\(/);
+    at('pointerup', third.right - 4);
+    await expect.poll(() => moves).toEqual([{ from: 0, to: 2 }]);
+  });
+
+  test('horizontal, right to left: ArrowLeft moves an item later and ArrowRight earlier; a drag to the left moves it later', async () => {
+    const moves: Array<{ from: number; to: number }> = [];
+    await render(<div dir="rtl"><SortableList id="sl" aria-label="Missions" orientation="horizontal" items={ITEMS} getKey={(i) => i.id} getLabel={(i) => i.name}
+      renderItem={(i) => i.name} onReorder={(_n, m) => { moves.push(m); }} /></div>);
+    handle('Gemini').focus();
+    await userEvent.keyboard(' {ArrowLeft}');
+    await said('Gemini, position 3 of 4.');
+    await userEvent.keyboard('{ArrowRight}{ArrowRight} ');
+    expect(moves).toEqual([{ from: 1, to: 0 }]);
+    const rows = [...document.querySelectorAll('#sl > li')] as HTMLElement[];
+    const h = handle('Apollo'), r = h.getBoundingClientRect(), third = rows[2].getBoundingClientRect();
+    expect(third.right < r.left).toBe(true);
+    const at = (type: string, x: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 10, button: 0, isPrimary: true, clientX: x, clientY: r.top + 4 }));
+    at('pointerdown', r.right - 4, h);
+    at('pointermove', r.right - 20);
+    at('pointermove', third.left + 4);
+    at('pointerup', third.left + 4);
+    await expect.poll(() => moves).toEqual([{ from: 1, to: 0 }, { from: 0, to: 2 }]);
+  });
+
+  test('horizontal: a row wider than its space scrolls inside itself, not the page (WCAG 1.4.10); held near its right edge, it scrolls that way', async () => {
+    const many = Array.from({ length: 20 }, (_, i) => ({ id: 'm' + i, name: 'Mission ' + i }));
+    await render(<div style={{ width: '320px' }}><SortableList id="sl" aria-label="Missions" orientation="horizontal" items={many} getKey={(i) => i.id} getLabel={(i) => i.name}
+      onReorder={() => undefined} renderItem={(i) => <span>{i.name}</span>} /></div>);
+    const ul = document.getElementById('sl')!, h = handle('Mission 0'), r = h.getBoundingClientRect(), b = ul.getBoundingClientRect();
+    expect([Math.round(b.width), ul.scrollWidth > ul.clientWidth]).toEqual([320, true]);
+    const at = (type: string, x: number, target: EventTarget = window) => target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 11, button: 0, isPrimary: true, clientX: x, clientY: r.top + 4 }));
+    at('pointerdown', r.left + 4, h);
+    at('pointermove', r.left + 20);
+    at('pointermove', b.right - 4);
+    await expect.poll(() => ul.scrollLeft, { timeout: 3000 }).toBeGreaterThan(150);
+    at('pointerup', b.right - 4);
+  });
+
   test('disabled: no handles and no instructions; the rows stay', async () => {
     await render(<List disabled />);
     expect([document.querySelectorAll('#sl button').length, names().length, document.getElementById('sl')!.classList.contains('dk-sortable-list--disabled')]).toEqual([0, 4, true]);
