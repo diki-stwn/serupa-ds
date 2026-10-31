@@ -1,0 +1,64 @@
+/* ---------------------------------------------------------------
+   Prose: Markdown and CMS content, readable without a class on every element. base.css takes the browser's
+   margins off p, headings, figure, blockquote and dl, so here one rule spaces each block from the one before it
+   (--prose-flow, more before a heading, nothing before the first), instead of a margin on every element. Lists get
+   their markers back, with logical indents; quotes, code, tables, rules and images are styled; a wide table or code
+   block scrolls in its own box, not the page. Links are base.css's bare links (Link's look), and a visited one takes
+   --prose-link-visited, so readers see what they've read. Every value reads one of its own tokens.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-prose {
+  max-inline-size: var(--container-prose);   /* about 65 characters a line, as Text measure */
+  color: var(--prose-text, var(--text));
+  font-family: var(--font-sans); font-size: var(--text-base); line-height: var(--text-base--line-height);
+  overflow-wrap: break-word;
+}
+/* Flow: each block after another, in the column or inside a list item, quote, cell or details. */
+.dk-prose > * + *, .dk-prose :where(li, blockquote, dd, details, figure, td, th) > * + * { margin-block-start: var(--prose-flow, var(--spacing-4)); }
+.dk-prose > * + :where(h1, h2, h3, h4, h5, h6) { margin-block-start: var(--prose-flow-heading, var(--spacing-8)); }
+.dk-prose > :where(h1, h2, h3, h4, h5, h6) + * { margin-block-start: var(--prose-flow-after-heading, var(--spacing-3)); }
+.dk-prose :where(li + li) { margin-block-start: var(--prose-flow-list, var(--spacing-2)); }
+
+.dk-prose :where(h1, h2, h3, h4, h5, h6) { color: var(--prose-heading, var(--text)); font-weight: var(--font-semibold); }
+.dk-prose :where(h1) { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); letter-spacing: var(--tracking-tight); }
+.dk-prose :where(h2) { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); letter-spacing: var(--tracking-tight); }
+.dk-prose :where(h3) { font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.dk-prose :where(h4) { font-size: var(--text-lg); line-height: var(--text-lg--line-height); }
+.dk-prose :where(h5, h6) { font-size: var(--text-base); line-height: var(--text-base--line-height); }
+
+.dk-prose :where(ul, ol) { padding-inline-start: var(--prose-list-indent, var(--spacing-6)); }
+.dk-prose :where(ul) { list-style: disc; }
+.dk-prose :where(ul ul) { list-style: circle; }
+.dk-prose :where(ul ul ul) { list-style: square; }
+.dk-prose :where(ol) { list-style: decimal; }
+.dk-prose :where(li)::marker { color: var(--prose-marker, var(--text-muted)); }
+.dk-prose :where(dt) { font-weight: var(--font-semibold); }
+.dk-prose :where(dd) { padding-inline-start: var(--prose-list-indent, var(--spacing-6)); }
+
+.dk-prose :where(a[href]:visited) { color: var(--prose-link-visited, var(--link-visited)); }
+.dk-prose :where(blockquote) {
+  padding-inline-start: var(--prose-quote-indent, var(--spacing-4));
+  border-inline-start: var(--prose-quote-border-width, var(--border-width-4)) solid var(--prose-quote-border, var(--border-strong));
+  color: var(--prose-quote-text, var(--text-muted));
+}
+.dk-prose :where(hr) { margin-block: var(--prose-flow-heading, var(--spacing-8)); }
+.dk-prose :where(code, kbd, samp) { font-family: var(--font-mono); font-size: var(--text-sm); }
+.dk-prose :where(:not(pre) > code) {
+  padding: var(--spacing-0\.5) var(--spacing-1); border-radius: var(--prose-code-radius, var(--rounded-sm));
+  background: var(--prose-code-bg, var(--surface-muted));
+}
+.dk-prose :where(pre) {
+  overflow-x: auto; padding: var(--prose-pre-padding, var(--spacing-4)); border-radius: var(--prose-pre-radius, var(--rounded-md));
+  background: var(--prose-code-bg, var(--surface-muted)); line-height: var(--text-sm--line-height); white-space: pre; overflow-wrap: normal;
+}
+/* A wide table scrolls in its own box (display: block keeps its rows and cells for screen readers in current
+   browsers); its cells wrap long words. */
+.dk-prose :where(table) { display: block; max-inline-size: var(--sizing-full); overflow-x: auto; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.dk-prose :where(th, td) { padding: var(--spacing-2) var(--spacing-3); border-bottom: var(--border-width-1) solid var(--prose-table-border, var(--border)); text-align: start; vertical-align: top; }
+.dk-prose :where(th) { font-weight: var(--font-semibold); }
+/* A bare image never overflows the column. One that fails to load shows its alt text, muted and italic. */
+.dk-prose :where(img, video) { max-inline-size: var(--sizing-full); block-size: auto; }
+.dk-prose :where(img) { color: var(--text-muted); font-style: italic; }
+.dk-prose :where(figcaption) { margin-block-start: var(--spacing-2); color: var(--text-muted); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+@media (forced-colors: active) { .dk-prose :where(blockquote) { border-inline-start-color: CanvasText; } }
+}

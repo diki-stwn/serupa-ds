@@ -181,7 +181,7 @@ const PAIRS = [['text', 'surface', 4.5], ['text', 'surface-muted', 4.5], ['text-
   ['info-text', 'surface', 4.5], ['info-text', 'surface-muted', 4.5], ['info-text', 'info-subtle', 4.5],
   ['primary', 'surface', 3], ['focus-ring', 'surface', 3], ['text', 'secondary', 4.5], ['text', 'secondary-hover', 4.5], ['text', 'pressed', 4.5],
   ['text', 'field', 4.5], ['placeholder', 'field', 4.5], ['field-border', 'field', 3], ['field-border', 'surface', 3],
-  ['info', 'surface', 4.5], ['text', 'primary-subtle', 4.5],
+  ['info', 'surface', 4.5], ['text', 'primary-subtle', 4.5], ['link-visited', 'surface', 4.5], ['link-visited', 'surface-muted', 4.5],
   ['primary', 'surface', 4.5], ['primary-hover', 'primary-subtle', 4.5], ['danger', 'surface', 3]];   // secondary button: brand text and border on surface, hover tint; destructive secondary border
 const known = (n) => ALIAS.has(n) || PAL.has(n);
 const low = [];
