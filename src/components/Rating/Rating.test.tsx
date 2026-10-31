@@ -184,7 +184,7 @@ describe('Rating', () => {
     await render(<><Field label="How was your stay?" required><Rating /></Field><Rating aria-label="Food" aria-required /></>);
     expect([page.getByRole('radiogroup', { name: 'How was your stay?' }).element().getAttribute('aria-required'), page.getByRole('radiogroup', { name: 'Food' }).element().getAttribute('aria-required')]).toEqual(['true', 'true']);
   });
-  test('L8E88 a click on a Field\'s label, or ref.current.focus() (a form library focusing the first invalid field), focuses the picked star, else the first', async () => {
+  test('L8E89 a click on a Field\'s label, or ref.current.focus() (a form library focusing the first invalid field), focuses the picked star, else the first', async () => {
     const r = React.createRef<HTMLDivElement>();
     await render(<><Field label="How was your stay?"><Rating defaultValue={3} /></Field><Rating ref={r} aria-label="Food" /></>);
     const stay = page.getByRole('radiogroup', { name: 'How was your stay?' }).element();
