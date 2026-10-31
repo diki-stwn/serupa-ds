@@ -5,9 +5,13 @@
 @layer dk.components {
 .dk-pagination { font-family: var(--font-sans); font-size: var(--pagination-font-size, var(--text-sm)); line-height: var(--text-sm--line-height); --dk-pagination-size: var(--pagination-size, var(--control-height-md)); min-width: var(--spacing-0); }
 .dk-pagination--sm { --dk-pagination-size: var(--pagination-size-sm, var(--control-height-sm)); font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
-.dk-pagination__list { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--pagination-gap, var(--spacing-1)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+/* Before the script measures (server HTML, or no JavaScript) the row wraps rather than run off a narrow page; once
+   it can be cut to fit (data-fit), it stays on one line (GR62). */
+.dk-pagination__list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--pagination-gap, var(--spacing-1)); margin: var(--spacing-0); padding: var(--spacing-0); list-style: none; }
+.dk-pagination__list[data-fit] { flex-wrap: nowrap; }
+/* A number never breaks across lines ("10" as 1 over 0), whatever overflow-wrap the page sets (GR62). */
 .dk-pagination__item {
-  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
   min-width: var(--dk-pagination-size); height: var(--dk-pagination-size); padding: var(--spacing-0) var(--pagination-padding-x, var(--spacing-2));
   border: var(--spacing-0); border-radius: var(--pagination-radius, var(--rounded-md)); background: transparent;
   color: var(--pagination-text, var(--text)); font: inherit; font-variant-numeric: tabular-nums; text-decoration: none; cursor: pointer; touch-action: manipulation;

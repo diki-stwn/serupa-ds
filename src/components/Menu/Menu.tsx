@@ -335,7 +335,14 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
     if (own.onKeyDown) own.onKeyDown(e);
     if (e.defaultPrevented) return;
     if (e.key === " " && ctx && typing(ctx.typed.current)) return;   // part of a typed word: the menu's typeahead takes it
-    if (e.key === "Enter" || e.key === " ") { if (linked && e.key === "Enter" && !props.disabled) return; choose(e); e.preventDefault(); }
+    if (e.key === "Enter" || e.key === " ") {
+      if (linked && !props.disabled) {
+        // Enter follows a link by itself; Space doesn't, so it clicks the link as Enter would (L8E66).
+        if (e.key === " ") { e.preventDefault(); e.currentTarget.click(); }
+        return;
+      }
+      choose(e); e.preventDefault();
+    }
   };
   const isLink = linked && !props.disabled;
   if (!isLink) delete rest.href;
