@@ -17,6 +17,8 @@
   color: var(--phone-input-dial, var(--text)); font-variant-numeric: tabular-nums; cursor: pointer; touch-action: manipulation;
   transition: background-color var(--motion-hover) var(--ease-move);
 }
+/* The calling code reads left to right in any page: "+62", not "62+" in a right-to-left one (GR49). */
+.dk-phone-input__dial { direction: ltr; unicode-bidi: isolate; }
 .dk-phone-input__chevron { font-size: var(--dk-input-icon); color: var(--phone-input-chevron, var(--text-muted)); }
 .dk-phone-input__select {
   position: absolute; inset: var(--spacing-0); width: var(--sizing-full); height: var(--sizing-full);
