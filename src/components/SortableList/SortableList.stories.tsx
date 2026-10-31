@@ -36,3 +36,12 @@ export const LongText: Story = {
     </div>
   ),
 };
+
+const COLUMNS = [{ id: 'todo', title: 'To do' }, { id: 'doing', title: 'Doing' }, { id: 'review', title: 'Review' }, { id: 'done', title: 'Done' }];
+/** orientation="horizontal": the items run in a row, such as a board's columns or a set of tabs. */
+export const Horizontal: Story = {
+  render: function Render() {
+    const [items, setItems] = React.useState(COLUMNS);
+    return <SortableList aria-label="Board columns" orientation="horizontal" items={items} getKey={(c) => c.id} getLabel={(c) => c.title} onReorder={setItems} renderItem={(c) => c.title} />;
+  },
+};
