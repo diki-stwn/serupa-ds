@@ -150,7 +150,8 @@ export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPicker
   const picked = swatches.findIndex((s) => s.value === value);
   const tabStop = picked >= 0 ? picked : 0;
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.defaultPrevented || !swatches.length) return;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (e.defaultPrevented || !swatches.length || e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     const i = swatches.findIndex((s) => s.value === e.currentTarget.dataset.value);
     let n: number;

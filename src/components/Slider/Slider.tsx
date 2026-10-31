@@ -150,7 +150,8 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   // from running.
   const onKeyDownCapture = (e: React.KeyboardEvent<HTMLDivElement>) => { if (rest.onKeyDownCapture) rest.onKeyDownCapture(e); if (rest.onKeyDown) rest.onKeyDown(e); };
   const onKeyDown = (i: number) => (e: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (still || e.defaultPrevented) return;
+    // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
+    if (still || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     const by = (e.shiftKey ? large : 1) * step, v = latest.current[i];
     let n: number;

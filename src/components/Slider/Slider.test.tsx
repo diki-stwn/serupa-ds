@@ -43,7 +43,17 @@ function App(props: { sref?: React.Ref<HTMLDivElement> }) {
 }
 const setup = async (sref?: React.Ref<HTMLDivElement>) => { calls = []; commits = []; await render(<App sref={sref} />); };
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('Slider', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<Slider id="mk" aria-label="Volume" defaultValue={50} />);
+    const t = thumb('mk');
+    t.focus();
+    const before = t.getAttribute('aria-valuenow');
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-valuenow') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('showValue without formatValue writes the number in the locale\'s digits and marks: "٤٠" in ar-EG, "1.500" in id-ID, "40" in en-US (GR24)', async () => {
     await render(<div style={{ width: '420px' }}>
       <SerupaProvider locale="ar-EG"><Slider id="v-ar" aria-label="Heat" showValue defaultValue={40} /></SerupaProvider>

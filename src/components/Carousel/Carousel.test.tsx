@@ -94,7 +94,17 @@ async function swipe(id: string, dx: number, from?: HTMLElement) {
   await userEvent.dragAndDrop(from || v, v, { sourcePosition: s ? { x: s.width / 2, y: s.height / 2 } : { x, y }, targetPosition: { x: x + dx, y }, force: true });
 }
 
+const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
+
 describe('Carousel', () => {
+  test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
+    await render(<Carousel id="mk" label="Photos"><div>A</div><div>B</div><div>C</div></Carousel>);
+    const t = document.querySelector('#mk button[aria-current="true"]') as HTMLElement;
+    t.focus();
+    const before = t.getAttribute('aria-current');
+    expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-current') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
+  });
+
   test('the slide and dot names and the role descriptions come from labels, so SerupaProvider translates them: "korsel", "2 dari 3" in Indonesian', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><Carousel id="cid" label="Foto">{slides(3, 'i')}</Carousel></SerupaProvider>);
     const c = el('cid');
