@@ -68,12 +68,14 @@ function go(ev: React.MouseEvent<HTMLAnchorElement>, field: string) {
   const doc = ev.currentTarget.ownerDocument, to = doc.getElementById(field);
   if (!to || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
   ev.preventDefault();
-  const input = to as HTMLInputElement, set = to.closest("fieldset");
+  // The control that takes focus decides: a link to a RadioGroup's root lands on a radio, and shows its legend too (L8E56).
+  const target = inner(to), input = target as HTMLInputElement, set = target.closest("fieldset");
   const legend = set && (input.type === "radio" || input.type === "checkbox") ? set.querySelector("legend") : null;
-  const shown = legend || (input.labels && input.labels[0]) || to;
+  // A group outside a fieldset shows itself, not the one radio's label.
+  const shown = legend || (target === to && input.labels && input.labels[0]) || to;
   // jsdom (where apps run unit tests) has no scrollIntoView: the link still moves focus there (L8E46).
   if (typeof shown.scrollIntoView === "function") shown.scrollIntoView({ block: "start" });
-  inner(to).focus({ preventScroll: true });
+  target.focus({ preventScroll: true });
 }
 
 // A field id on a group that can't take focus itself (RadioGroup's or Rating's root): its checked radio, else the
