@@ -71,6 +71,11 @@ t('components are made with component() or named() (internal/component.ts), so u
 // means it isn't finished.
 const unfinished = comps.flatMap((c) => fs.readdirSync(path.join(COMP, c)).filter((f) => fs.readFileSync(path.join(COMP, c, f), 'utf8').includes('TODO(new-component)')).map((f) => `${c}/${f}`));
 t('no TODO(new-component) is left from the component generator', !unfinished.length, unfinished.join(', '));
+// A Directions story (npm run new-component -- <Name> --directions, in src/directions/) is for picking by looking,
+// never for main.
+const DIRS = path.join(PROJECT, 'src', 'directions');
+const directions = fs.existsSync(DIRS) ? fs.readdirSync(DIRS).filter((f) => f.endsWith('.stories.tsx')) : [];
+t('no Directions story is left: pick a take, write why in the pull request, then delete it', !directions.length, directions.map((f) => 'src/directions/' + f).join(', '));
 
 // README.md's components index (tools/build/registry.mjs, rewritten on each release): every guide opens with a sentence
 // it can show, and nothing it links to is gone, so a component renamed or removed since the release can't leave a

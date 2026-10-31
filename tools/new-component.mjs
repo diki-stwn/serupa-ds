@@ -5,6 +5,10 @@
 //   node tools/new-component.mjs Rating --group Forms
 // Every place that still needs your words says TODO(new-component); tools/test/contract.mjs fails while one is left,
 // so a half-made component can't merge. Then follow the steps it prints.
+//   node tools/new-component.mjs Rating --directions
+// Before that, --directions writes only src/directions/<Name>.stories.tsx: two or three genuinely different takes behind
+// one Storybook switch (Directions/<Name>), so the pick is made by looking. contract.mjs fails while one is left,
+// so it never merges: pick, delete it, then make the component.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -16,11 +20,47 @@ const root = path.resolve(arg('--root') || P);   // another checkout to write in
 const group = arg('--group') || 'Content';
 if (!name || !/^[A-Z][A-Za-z0-9]*$/.test(name)) { console.error('usage: npm run new-component -- <Name> [--group <Storybook group>]   (Name in PascalCase, e.g. Rating)'); process.exit(2); }
 const dir = path.join(root, 'src', 'components', name);
-if (fs.existsSync(dir)) { console.error(`src/components/${name}/ already exists`); process.exit(1); }
-
 const kebab = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 const camel = name[0].toLowerCase() + name.slice(1);
 const TODO = 'TODO(new-component)';
+
+if (args.includes('--directions')) {
+  // Not in src/components/: it isn't a component yet, and the build, the registry and the story-wide tests read every folder there.
+  const file = path.join(root, 'src', 'directions', `${name}.stories.tsx`);
+  if (fs.existsSync(file)) { console.error(`src/directions/${name}.stories.tsx already exists`); process.exit(1); }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `import * as React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
+// Directions for ${name}, before it's built (CONTRIBUTING.md, "A new component"). Two or three takes that differ in
+// kind, not in polish: a different layout, density or motion, each drawn just far enough to judge. Flip between them
+// with the Direction control, pick one, write down why in the pull request, then delete this file
+// (tools/test/contract.mjs fails while it's here). Rough is fine: plain elements and tokens, no API yet.
+type Direction = 'A' | 'B' | 'C';
+const meta = {
+  title: 'Directions/${name}',
+  tags: ['!autodocs'],
+  argTypes: { direction: { control: 'inline-radio', options: ['A', 'B', 'C'] } },
+  args: { direction: 'A' as Direction },
+} satisfies Meta<{ direction: Direction }>;
+export default meta;
+
+// ${TODO}: take A, in one line: what it is and what it's best at.
+const A = () => <div className="p-4 rounded-md bg-surface-muted">A</div>;
+// ${TODO}: take B, different in kind from A.
+const B = () => <div className="p-2 rounded-sm bg-surface-muted">B</div>;
+// ${TODO}: take C, or delete it and its option when two are enough.
+const C = () => <div className="p-6 rounded-lg bg-surface-muted">C</div>;
+
+export const Pick: StoryObj<{ direction: Direction }> = { render: ({ direction }) => ({ A: <A />, B: <B />, C: <C /> })[direction] };
+`);
+  console.log(`Made src/directions/${name}.stories.tsx. Run npm run storybook and open Directions/${name}.
+Draw each take, flip between them with the Direction control and pick one. Write the pick and why in the pull request,
+delete the file (contract.mjs fails while it's there), then npm run new-component -- ${name} --group <group>.`);
+  process.exit(0);
+}
+if (fs.existsSync(dir)) { console.error(`src/components/${name}/ already exists`); process.exit(1); }
+
 const token = (type, value, description, cssVar) => ({ $type: type, $value: value, $description: description, $extensions: { 'com.serupa': { cssVar } } });
 
 const files = {
