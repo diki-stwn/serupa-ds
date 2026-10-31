@@ -113,6 +113,18 @@ describe('PhoneInput', () => {
     expect([held('Backspace', 10), held('Delete', 9), i.value]).toEqual([[false, false, false], [false, false, false], '(201) 555-0123']);
   });
 
+  test('readOnly: Backspace or Delete next to a separator changes nothing and reports nothing (L8E69)', async () => {
+    const seen: string[] = [];
+    await render(<Wrap><PhoneInput id="pro" aria-label="Phone" readOnly defaultCountry="US" defaultValue="+12015550123" onValueChange={(v) => seen.push(v)} /></Wrap>);
+    const i = field('pro');
+    i.focus();
+    i.setSelectionRange(10, 10);   // after "555-"
+    await userEvent.keyboard('{Backspace}');
+    i.setSelectionRange(9, 9);     // before the "-"
+    await userEvent.keyboard('{Delete}');
+    expect([i.value, seen]).toEqual(['(201) 555-0123', []]);
+  });
+
   test('Backspace after a separator removes the digit before it; typing in the middle keeps the caret after the new digit', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
     const i = field('p');

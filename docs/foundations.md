@@ -1078,7 +1078,7 @@ The system can't know your content, your page structure or your flows. For a pag
 
 - **Page.** Set `<html lang>`, a unique `<title>` per page, and landmarks: one `main` (Container `as="main"`), a `nav` per navigation (Navbar and Sidebar render one), a header and a footer. Add a "Skip to content" link.
 - **Headings.** One `h1` per page and no skipped levels. Heading's `level` sets the element; its look can differ.
-- **Names.** Give every field a visible label (Field), every IconButton an `aria-label`, every meaningful Image `alt` text (and `alt=""` for decoration), and every link text that says where it goes.
+- **Names.** Give every field a visible label (Field), every IconButton a `label`, every meaningful Image `alt` text (and `alt=""` for decoration), and every link text that says where it goes.
 - **Errors.** Write errors that say what's wrong and how to fix it, next to the field; on submit, move focus to the first error or a summary. Don't ask people to re-enter what they already gave in the same flow (3.3.7), and don't make sign-in depend on a memory or puzzle test (3.3.8).
 - **Color.** Don't use color alone to carry meaning in your own content: charts, status dots and links in text need a second cue.
 - **Focus in single-page apps.** After a route change, move focus to the new page's heading or `main`, and announce it. After deleting an item, move focus to the next item or the list.
