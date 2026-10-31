@@ -2,14 +2,11 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Combobox, type ComboboxSingleProps } from './Combobox';
 import { Field } from '../Field/Field';
+import { usePeople, useContent } from '../../../.storybook/content';
 
 const COUNTRIES = ['Argentina', 'Australia', 'Brazil', 'Canada', 'Côte d’Ivoire', 'Denmark', 'Egypt', 'France', 'Germany', 'India', 'Japan', 'Kenya', 'Mexico', 'Norway', 'Peru'];
-const PEOPLE = [
-  { value: 'ada', label: 'Ada Lovelace', description: 'ada@example.com' },
-  { value: 'grace', label: 'Grace Hopper', description: 'grace@example.com' },
-  { value: 'linus', label: 'Linus Torvalds', description: 'linus@example.com', disabled: true },
-  { value: 'margaret', label: 'Margaret Hamilton', description: 'margaret@example.com' },
-];
+// The people come from the Content menu in the toolbar (demo, worst case, empty, one). The third one can't be picked.
+const usePeopleOptions = () => usePeople().map((p, i) => ({ value: p.name, label: p.name, description: p.email, disabled: i === 2 || undefined }));
 const meta = {
   title: 'Components/Forms/Combobox',
   component: Combobox as React.ComponentType<ComboboxSingleProps>,   // one pick; several are in Multiple
@@ -20,13 +17,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+type Option = ReturnType<typeof usePeopleOptions>[number];
+function Reviewers({ people }: { people: Option[] }) {
+  const [team, setTeam] = React.useState<string[]>(() => people.slice(0, 2).map((p) => p.value));
+  return <Field label="Reviewers" hint="Pick everyone who should review this.">
+    <Combobox multiple clearable value={team} onValueChange={setTeam} options={people} placeholder="Add a reviewer" name="reviewers" emptyText={people.length ? undefined : 'No team members yet'} />
+  </Field>;
+}
+function Owner({ people }: { people: Option[] }) {
+  const [owner, setOwner] = React.useState<string | null>(people[1]?.value ?? people[0]?.value ?? null);
+  return <Field label="Owner"><Combobox options={people} value={owner} onValueChange={setOwner} clearable leftIcon="person" emptyText={people.length ? undefined : 'No team members yet'} /></Field>;
+}
+
 export const Playground: Story = {};
 export const Multiple: Story = {
   render: function Render() {
-    const [team, setTeam] = React.useState<string[]>(['ada', 'grace']);
-    return <Field label="Reviewers" hint="Pick everyone who should review this.">
-      <Combobox multiple clearable value={team} onValueChange={setTeam} options={PEOPLE} placeholder="Add a reviewer" name="reviewers" />
-    </Field>;
+    const people = usePeopleOptions();
+    // Keyed by the Content menu's choice, so a switch starts again from that content's first two people.
+    return <Reviewers key={useContent()} people={people} />;
   },
 };
 // A pretend server: answers after 400ms with the countries that contain the text.
@@ -40,8 +48,8 @@ export const LoadOptions: Story = {
 };
 export const WithDescriptions: Story = {
   render: function Render() {
-    const [owner, setOwner] = React.useState<string | null>('grace');
-    return <Field label="Owner"><Combobox options={PEOPLE} value={owner} onValueChange={setOwner} clearable leftIcon="person" /></Field>;
+    const people = usePeopleOptions();
+    return <Owner key={useContent()} people={people} />;
   },
 };
 export const FromAServer: Story = {
