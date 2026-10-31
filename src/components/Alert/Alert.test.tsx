@@ -170,6 +170,18 @@ describe('focus after dismissing (DQ1)', () => {
     await expect.poll(() => document.activeElement?.id).toBe('t2');
   });
 
+  test('L8E75 skips a control that can\'t take focus, in a disabled <fieldset>: focus goes to the next one that can', async () => {
+    function Fenced() {
+      const [shown, setShown] = React.useState(true);
+      return <>{shown ? <Alert title="Saved" onDismiss={() => setShown(false)} /> : null}
+        <fieldset disabled><legend>Locked</legend><button type="button" id="off">Off</button></fieldset><button type="button" id="on">On</button></>;
+    }
+    await render(<Fenced />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('on');
+  });
+
   test('with nothing after it, focus goes to the element before it', async () => {
     function Last() {
       const [shown, setShown] = React.useState(true);

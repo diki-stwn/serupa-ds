@@ -45,8 +45,8 @@ function dismissAndRefocus(e: React.MouseEvent<HTMLElement>, onDismiss: () => vo
   onDismiss();
   if (near.length) setTimeout(function () {
     if (me.isConnected || (doc.activeElement && doc.activeElement !== doc.body)) return;
-    const to = next.concat(prev).find((el) => el.isConnected && el.getClientRects().length > 0);
-    if (to) to.focus();
+    // The first that takes focus: a control in a disabled <fieldset> matches but doesn't (L8E75), as in Popover (L8E22).
+    next.concat(prev).some((el) => el.isConnected && el.getClientRects().length > 0 && (el.focus(), doc.activeElement === el));
   }, 0);
 }
 
