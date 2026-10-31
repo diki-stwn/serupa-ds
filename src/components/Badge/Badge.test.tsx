@@ -18,6 +18,10 @@ const VARIANTS: BadgeVariant[] = ['subtle', 'solid', 'outline'];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 const tv = (t: string, v: string) => q(`[data-t="${t}"][data-v="${v}"]`);
+/** Jumps the element's finite transitions and animations to their end, so a test reads where they land. In CI, WebKit
+ *  sometimes holds a transition at its start, or mid-way, for over a second (runs 119-123: a press scale still at 1, a
+ *  blur at 3.9px, an opacity at 0.09), so waiting for the end with a poll fails at random. */
+const ended = (e: Element) => { for (const a of e.getAnimations()) if (a.effect?.getComputedTiming().iterations !== Infinity) a.finish(); };
 
 // Badge warns once per page, so every warning is collected from the start of the file.
 const warns: string[] = [];
@@ -429,8 +433,11 @@ describe('Badge', () => {
     const blurFrom = css(sp).filter;
     grow.finish();
     expect([blurFrom, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'none']);
-    // The label's blur is a transition, which WebKit can start after the wait above has already seen nothing running.
-    await expect.poll(() => css(ld.querySelector('.dk-badge__label')).filter).toBe('blur(4px)');
+    // The label's blur is a transition, which WebKit can start after the wait above has already seen nothing running,
+    // or hold part-way: read where it ends.
+    const label = ld.querySelector('.dk-badge__label')!;
+    ended(label);
+    expect(css(label).filter).toBe('blur(4px)');
     const art = sp.querySelector('.dk-loader__art')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
     expect(!!sp.querySelector('.dk-loader--ring')).toBe(true);
     expect(Math.round(art.width)).toBe(12);
@@ -448,7 +455,8 @@ describe('Badge', () => {
     await expect.poll(() => ld.getAttribute('aria-busy')).toBe(null);
     expect(!!ld.querySelector('.dk-badge__loader')).toBe(false);
     expect([ld.offsetWidth, ld.offsetHeight]).toEqual(busy);
-    await expect.poll(() => css(ld.querySelector('.dk-badge__label')).opacity).toBe('1');
+    ended(ld.querySelector('.dk-badge__label')!);
+    expect(css(ld.querySelector('.dk-badge__label')).opacity).toBe('1');
   });
 
   test('loading on a plain badge: aria-busy, stays a span, no aria-disabled; a remove button is disabled while it loads', async () => {
@@ -484,7 +492,8 @@ describe('Badge', () => {
     e.focus();
     await userEvent.keyboard('{Enter>}');
     expect(e.hasAttribute('data-pressed')).toBe(true);
-    await expect.poll(() => css(e).scale).toBe('0.97');
+    ended(e);
+    expect(css(e).scale).toBe('0.97');
     await userEvent.keyboard('{/Enter}');
     expect(e.hasAttribute('data-pressed')).toBe(false);
   });
@@ -494,7 +503,7 @@ describe('Badge', () => {
     const press = (id: string) => hold(el(id), async () => {
       if (id === 'mioff' || id === 'def') await expect.poll(() => el(id).matches(':active')).toBe(true);
       await new Promise(requestAnimationFrame);
-      await settled();
+      ended(el(id));
       return { scale: css(el(id)).scale };
     }, { ms: 250, at: { x: 6, y: 6 } });
     const unscaled = (s: string) => s === 'none' || s === '1';
