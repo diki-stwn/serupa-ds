@@ -9,6 +9,8 @@ import { Radio, RadioGroup } from '../Radio/Radio';
 import { Rating } from '../Rating/Rating';
 import { Field } from '../Field/Field';
 import { Input } from '../Input/Input';
+import { Accordion, AccordionItem } from '../Accordion/Accordion';
+import { Tabs, TabList, Tab, TabPanel } from '../Tabs/Tabs';
 import { ErrorSummary, type ErrorSummaryItem } from './ErrorSummary';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -173,5 +175,23 @@ describe('ErrorSummary links to a group root (GR15)', () => {
     expect((document.activeElement as HTMLInputElement).value).toBe('free');
     await expect.poll(() => atTop(el('l56-legend'))).toBe(true);
     window.scrollTo(0, 0);
+  });
+});
+
+describe('ErrorSummary links to a field that is hidden until found (L8E98)', () => {
+  test('a link to a field in a closed AccordionItem, or on another tab, opens the item (selects the tab) and focuses the field; it did nothing', async () => {
+    await render(<>
+      <ErrorSummary autoFocus={false} errors={[{ field: 'l8e98-email', message: 'Enter your email' }, { field: 'l8e98-city', message: 'Enter your city' }]} />
+      <Accordion><AccordionItem value="contact" title="Contact"><label htmlFor="l8e98-email">Email</label><input id="l8e98-email" /></AccordionItem></Accordion>
+      <Tabs defaultValue="one"><TabList aria-label="Steps"><Tab value="one">One</Tab><Tab value="two">Two</Tab></TabList>
+        <TabPanel value="one">First</TabPanel><TabPanel value="two"><label htmlFor="l8e98-city">City</label><input id="l8e98-city" /></TabPanel></Tabs>
+    </>);
+    const links = document.querySelectorAll<HTMLAnchorElement>('.dk-error-summary__link');
+    await userEvent.click(links[0]);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e98-email');
+    expect(document.querySelector('.dk-accordion__item')!.getAttribute('data-state')).toBe('open');
+    await userEvent.click(links[1]);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e98-city');
+    expect(document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')).toBe('true');
   });
 });
