@@ -6,6 +6,7 @@
 //  - takes focus inside it from autoFocus and from ref.current.focus() (a form library focusing the first invalid
 //    field), as a native field does: a group's <div> took neither, and Rating, RadioGroup and CheckboxGroup dropped
 //    them (L8E89-L8E93).
+//  - inside a Field with a hint and an error, is described by both and marked invalid (219).
 // The single-feature tests (useFormReset, formAttribute) cover a few controls each; this runs the same four checks
 // over the whole list, so a new control is added to CONTROLS and can't quietly skip one.
 import * as React from 'react';
@@ -16,6 +17,7 @@ import type * as lib from '../index';
 import { Checkbox, CheckboxGroup } from '../components/Checkbox/Checkbox';
 import { ColorPicker } from '../components/ColorPicker/ColorPicker';
 import { Combobox } from '../components/Combobox/Combobox';
+import { Field } from '../components/Field/Field';
 import { DatePicker } from '../components/DatePicker/DatePicker';
 import { DateRangePicker } from '../components/DateRangePicker/DateRangePicker';
 import { FileUpload } from '../components/FileUpload/FileUpload';
@@ -41,6 +43,8 @@ interface Control {
   el: (form?: string) => React.ReactElement;
   /** What it submits at first. */
   initial: Sent;
+  /** Why it isn't checked inside a Field, when it isn't. */
+  noField?: string;
   /** Changes it as people do, inside `root`; and what it submits then. Left out for a control that is only
    *  controlled (FileUpload), whose reset is the app's, as with a controlled native field. */
   change?: (root: HTMLElement) => Promise<void>;
@@ -87,6 +91,7 @@ const CONTROLS: { [K in Named]: Control | string } = {
   RadioGroup: { el: (form) => <RadioGroup aria-label="Plan" name="plan" defaultValue="free"><Radio value="free" form={form}>Free</Radio><Radio value="pro" form={form}>Pro</Radio></RadioGroup>, initial: { plan: 'free' },
     change: async (r) => { await userEvent.click($(r, 'input[value="pro"]')); }, changed: { plan: 'pro' } },
   Radio: { el: (form) => <><Radio name="size" value="s" form={form} defaultChecked>S</Radio><Radio name="size" value="m" form={form}>M</Radio></>, initial: { size: 's' },
+    noField: 'radios in a Field go in a RadioGroup, which takes the hint and the error (RadioGroup is checked)',
     change: async (r) => { await userEvent.click($(r, 'input[value="m"]')); }, changed: { size: 'm' } },
   TableSelectCell: { el: (form) => <table><tbody><tr><TableSelectCell label="Select Alpha" name="rows" value="alpha" form={form} defaultChecked /><td>Alpha</td></tr></tbody></table>, initial: { rows: 'alpha' },
     change: async (r) => { await userEvent.click($(r, 'input')); }, changed: {} },
@@ -135,6 +140,14 @@ describe.each(TABLE)('$name keeps the form contract', (c) => {
     await expect.poll(() => sent(f)).toEqual(c.changed);
     React.act(() => f.reset());
     await expect.poll(() => sent(f)).toEqual(c.initial);
+  });
+
+  if (!c.noField) test('inside a Field, is described by its hint and error and marked invalid', async () => {
+    await render(<Field label="Thing" hint="Some hint" error="Wrong">{c.el()}</Field>);
+    const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(/\s+/).map((id) => document.getElementById(id)?.textContent ?? '');
+    const parts = [...document.querySelectorAll('[aria-describedby]')].map(described);
+    expect(parts.some((d) => d.includes('Some hint') && d.includes('Wrong')), 'hint and error in one aria-describedby').toBe(true);
+    expect(document.querySelector('[aria-invalid="true"]'), 'aria-invalid="true"').not.toBeNull();
   });
 
   test('in a disabled fieldset, submits nothing and is skipped by Tab', async () => {
