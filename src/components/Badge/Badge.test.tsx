@@ -585,6 +585,17 @@ describe('focus after removing a tag (179)', () => {
     expect(focused()).toBe('BODY');   // nothing left to go to: the app moves focus (to the input that adds tags)
   });
 
+  test('skips a × in a hidden badge (a filtered list) for the next one that can take focus (L8E33)', async () => {
+    function Filtered() {
+      const [tags, setTags] = React.useState(['Design', 'Code', 'Docs', 'Ops']);
+      return <ul>{tags.map((t) => <li key={t} hidden={t === 'Docs'}><Badge onRemove={() => setTags((l) => l.filter((x) => x !== t))}>{t}</Badge></li>)}</ul>;
+    }
+    await render(<Filtered />);
+    (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(focused).toBe('Remove Ops');
+  });
+
   test('leaves focus alone when the handler moves it, or keeps the badge', async () => {
     await render(<><Tags onGone={() => (document.getElementById('add') as HTMLElement).focus()} /><Badge id="kept" onRemove={() => {}}>Kept</Badge></>);
     (document.querySelector('[aria-label="Remove Code"]') as HTMLElement).focus();

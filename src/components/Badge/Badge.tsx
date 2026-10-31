@@ -82,7 +82,8 @@ function removeAndRefocus(e: React.MouseEvent<HTMLButtonElement>, onRemove: (e: 
   setTimeout(function () {
     const active = me.ownerDocument.activeElement;
     if (me.isConnected || (active && active !== me.ownerDocument.body)) return;
-    const next = all.slice(at + 1).concat(all.slice(0, at).reverse()).find((b) => b.isConnected && !b.disabled);
+    // Only a × that can take focus: one in a hidden badge (a filtered list) would drop focus to the page (L8E33).
+    const next = all.slice(at + 1).concat(all.slice(0, at).reverse()).find((b) => b.isConnected && !b.disabled && b.getClientRects().length > 0);
     if (next) next.focus();
   }, 0);
 }

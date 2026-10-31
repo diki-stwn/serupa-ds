@@ -19,6 +19,21 @@ const Two = (p: Partial<React.ComponentProps<typeof Splitter>>) => <Splitter id=
 const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 describe('Splitter', () => {
+  test('your onKeyDown on the Splitter runs as keys bubble up, after the controls inside: one that stops propagation (to keep keys from page shortcuts) leaves them working (GR57)', async () => {
+    const seen: string[] = [];
+    await render(<Splitter id="gr" style={{ width: '408px', height: '200px' }} onKeyDown={(e) => { seen.push('splitter:' + e.defaultPrevented); e.stopPropagation(); }}>
+      <div><input id="gri" aria-label="Note" onKeyDown={(e) => { seen.push('input:' + e.key); }} /></div>
+      <div>B</div>
+    </Splitter>);
+    (document.getElementById('gri') as HTMLInputElement).focus();
+    await userEvent.keyboard('a');
+    const sep = document.querySelector('#gr [role=separator]') as HTMLElement;
+    sep.focus();
+    const before = sep.getAttribute('aria-valuenow');
+    await userEvent.keyboard('{ArrowRight}');
+    expect([seen, (document.getElementById('gri') as HTMLInputElement).value, sep.getAttribute('aria-valuenow') !== before]).toEqual([['input:a', 'splitter:false', 'splitter:true'], 'a', true]);
+  });
+
   test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
     await render(<Two />);
     const t = document.querySelector('[role=separator]') as HTMLElement;

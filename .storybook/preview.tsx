@@ -8,6 +8,7 @@ import './docs.css';
 import tokens from '../tokens.json';
 import * as ALL_ICONS from '../src/material/icons';
 import { registerIcons } from '../src/icons';
+import { CONTENT, ContentContext, type Content } from './content';
 
 // Every icon name draws at once in Storybook (apps load the full set the first time they need it).
 registerIcons(ALL_ICONS);
@@ -32,6 +33,38 @@ const axes = (g: Record<string, unknown>) => {
   const html = document.documentElement;
   if (g.contrast === 'more') html.setAttribute('data-contrast', 'more'); else html.removeAttribute('data-contrast');
   if (g.density === 'compact' || g.density === 'comfortable') html.setAttribute('data-density', g.density); else html.removeAttribute('data-density');
+  slow(Number(g.motion) || 1);
+};
+// Slow motion (KW21): ×4 or ×10 multiplies every --duration-* and --delay-* token, so a transition can be watched frame
+// by frame. Components time their motion from these tokens, in CSS and in JavaScript (Accordion reads its own
+// transition back), so all of it slows together. The values are read from tokens.css once and set inline on <html>.
+let base: Array<[string, number]> | null = null;
+const slow = (times: number) => {
+  const html = document.documentElement;
+  if (!base) {
+    const found = new Map<string, number>();
+    for (const sheet of Array.from(document.styleSheets)) {
+      let rules: CSSRuleList;
+      try { rules = sheet.cssRules; } catch { continue; }   // another origin's stylesheet can't be read
+      const walk = (list: CSSRuleList) => {
+        for (const r of Array.from(list)) {
+          if ('cssRules' in r && (r as CSSGroupingRule).cssRules) walk((r as CSSGroupingRule).cssRules);
+          if (!(r instanceof CSSStyleRule) || r.selectorText !== ':root') continue;
+          for (const name of Array.from(r.style)) {
+            // "200ms", or ".2s" once the build has minified it
+            const t = /^--(duration|delay)-/.test(name) && /^(\d*\.?\d+)(ms|s)$/.exec(r.style.getPropertyValue(name).trim());
+            if (t && !found.has(name)) found.set(name, parseFloat(t[1]) * (t[2] === 's' ? 1000 : 1));
+          }
+        }
+      };
+      walk(rules);
+    }
+    if (!found.size) return;   // the stylesheets haven't loaded yet: the next globals change tries again
+    base = [...found];
+  }
+  for (const [name, ms] of base) {
+    if (times === 1) html.style.removeProperty(name); else html.style.setProperty(name, `${ms * times}ms`);
+  }
 };
 const channel = addons.getChannel();
 channel.on('setGlobals', (e: { globals?: Record<string, unknown> }) => apply(e.globals));   // already merged, with a story's own globals on top
@@ -40,13 +73,14 @@ channel.on('globalsUpdated', (e: { globals?: Record<string, unknown> }) => apply
 const WithTheme: Decorator = (Story, context) => {
   const theme = `${context.globals.brand || DEFAULT_BRAND}-${context.globals.mode || 'light'}`;
   const dir = context.globals.dir === 'rtl' ? 'rtl' : 'ltr';
-  const { contrast, density } = context.globals;
+  const { contrast, density, motion } = context.globals;
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('dir', dir);
-    axes({ contrast, density });
-  }, [theme, dir, contrast, density]);
-  return <Story />;
+    axes({ contrast, density, motion });
+  }, [theme, dir, contrast, density, motion]);
+  const content = CONTENT.some((c) => c.value === context.globals.content) ? context.globals.content as Content : 'demo';
+  return <ContentContext.Provider value={content}><Story /></ContentContext.Provider>;
 };
 
 const preview: Preview = {
@@ -77,8 +111,19 @@ const preview: Preview = {
       toolbar: { title: 'Density', icon: 'component', dynamicTitle: true, items: [
         { value: 'compact', title: 'Compact' }, { value: 'default', title: 'Default density' }, { value: 'comfortable', title: 'Comfortable' }] },
     },
+    // Slow motion: every duration and delay token ×4 or ×10, to judge an animation frame by frame.
+    motion: {
+      description: 'Motion speed',
+      toolbar: { title: 'Motion', icon: 'time', dynamicTitle: true, items: [
+        { value: '1', title: 'Motion ×1' }, { value: '4', title: 'Slow motion ×4' }, { value: '10', title: 'Slow motion ×10' }] },
+    },
+    // The sample data a story shows (.storybook/content.ts): demo, the worst case, none or one.
+    content: {
+      description: 'Sample content',
+      toolbar: { title: 'Content', icon: 'document', dynamicTitle: true, items: CONTENT.map((c) => ({ ...c })) },
+    },
   },
-  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr', contrast: 'default', density: 'default' },
+  initialGlobals: { brand: DEFAULT_BRAND, mode: 'light', dir: 'ltr', contrast: 'default', density: 'default', motion: '1', content: 'demo' },
   decorators: [WithTheme],
   parameters: {
     layout: 'padded',

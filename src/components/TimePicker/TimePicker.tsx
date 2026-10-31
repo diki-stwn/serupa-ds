@@ -134,6 +134,9 @@ export const TimePicker = /* @__PURE__ */ component<HTMLInputElement, TimePicker
   const keys = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (onKeyDown) onKeyDown(e);
     if (e.defaultPrevented || isComposing(e)) return;
+    // With Ctrl or ⌘ the arrows and Page keys are the system's or the browser's (⌘+↓ ends the line, Ctrl+PageDown
+    // switches tabs): leave them. Alt+↓ stays the popup's, as the combobox pattern asks (L8E35).
+    if ((e.ctrlKey || e.metaKey) && /^(Arrow|Page)/.test(e.key)) return;
     const last = times.length - 1, page = 4;
     const move = (i: number) => { e.preventDefault(); typed.current = false; setActive(i); };
     if (!open) {

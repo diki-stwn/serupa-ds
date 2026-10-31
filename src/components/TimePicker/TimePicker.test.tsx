@@ -6,6 +6,7 @@ import { THEMES, contrast, css, withMotion, settled } from '../../../tools/test/
 import { Field } from '../Field/Field';
 const described = (e: Element) => (e.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map((i) => document.getElementById(i)!.textContent).join(' | ');
 import { TimePicker } from './TimePicker';
+const modded = (t: Element, key: string) => ['ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
@@ -32,6 +33,17 @@ function Ctl(props: { changes: string[]; setRef?: { set?: (v: string | null) => 
 const openTp = async () => { el('tp').focus(); await userEvent.keyboard('{ArrowDown}'); };
 
 describe('TimePicker', () => {
+  test('with Ctrl or ⌘ the arrows and Page keys are left to the system and the browser: closed, nothing opens; open, nothing moves (L8E35)', async () => {
+    await render(<TimePicker id="tmk" aria-label="Time" />);
+    const t = document.getElementById('tmk') as HTMLInputElement;
+    t.focus();
+    const closed = [modded(t, 'ArrowDown'), modded(t, 'ArrowUp'), t.getAttribute('aria-expanded')];
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => t.getAttribute('aria-expanded')).toBe('true');
+    const at = t.getAttribute('aria-activedescendant');
+    expect([closed, modded(t, 'PageDown'), modded(t, 'ArrowDown'), t.getAttribute('aria-activedescendant') === at]).toEqual([[[false, false], [false, false], 'false'], [false, false], [false, false], true]);
+  });
+
   test('switching to another window or tab mid-typing keeps the typed text and says nothing (L8E26)', async () => {
     const calls: string[] = [];
     await render(<TimePicker id="twb" aria-label="Start" locale="de-DE" onInvalidInput={(t, r) => calls.push(t + ':' + r)} />);

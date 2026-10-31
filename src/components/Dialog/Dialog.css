@@ -95,5 +95,13 @@
   }
   .dk-dialog--full-mobile .dk-dialog__body { flex: auto; }
 }
+/* A short screen (GR52: 400% zoom makes 1024px tall 256px): the header and footer alone can fill the panel, which
+   squeezed the body to nothing and pushed the footer past the screen, where nothing scrolled to it. Below 480px tall
+   the panel scrolls as a whole instead, with the body at its own height, so every control can be scrolled to and
+   focusing one brings it into view. */
+@media (max-height: 479.98px) {
+  .dk-dialog__panel { overflow-y: auto; overscroll-behavior: contain; }
+  .dk-dialog__body { flex: none; overflow: visible; }
+}
 @media (forced-colors: active) { .dk-dialog__panel { border: var(--border-width-1) solid CanvasText; } }
 }

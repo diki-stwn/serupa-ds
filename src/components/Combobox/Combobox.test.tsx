@@ -7,6 +7,7 @@ import { Combobox, type ComboboxOption } from './Combobox';
 import { Field } from '../Field/Field';
 import { DEFAULT_LABELS, idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
+const modded = (t: Element, key: string) => ['ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 const COUNTRIES: ComboboxOption[] = ['Argentina', 'Brazil', 'Canada', { value: 'ci', label: 'Côte d’Ivoire', description: 'Africa' }, { value: 'dk', label: 'Denmark', disabled: true }, 'Egypt', 'France'];
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
@@ -36,6 +37,17 @@ function Countries(props: { cref?: React.Ref<HTMLInputElement> }) {
 const open = async () => { el('before').focus(); await userEvent.keyboard('{Tab}{ArrowDown}'); };
 
 describe('Combobox', () => {
+  test('with Ctrl or ⌘ the arrows and Page keys are left to the system and the browser: closed, nothing opens; open, nothing moves (L8E35)', async () => {
+    await render(<Combobox id="cmk" aria-label="Country" options={COUNTRIES} />);
+    const t = document.getElementById('cmk') as HTMLInputElement;
+    t.focus();
+    const closed = [modded(t, 'ArrowDown'), modded(t, 'ArrowUp'), t.getAttribute('aria-expanded')];
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => t.getAttribute('aria-expanded')).toBe('true');
+    const at = t.getAttribute('aria-activedescendant');
+    expect([closed, modded(t, 'PageDown'), modded(t, 'ArrowDown'), t.getAttribute('aria-activedescendant') === at]).toEqual([[[false, false], [false, false], 'false'], [false, false], [false, false], true]);
+  });
+
   test('switching to another window or tab mid-typing keeps the typed text and the value; leaving the field then puts the text back (L8E26)', async () => {
     const calls: unknown[] = [];
     await render(<><Combobox id="cwb" aria-label="Country" options={COUNTRIES} defaultValue="Brazil" onValueChange={(v) => calls.push(v)} /><button id="cwbn">Next</button></>);
