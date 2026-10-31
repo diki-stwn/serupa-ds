@@ -41,6 +41,7 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 ## Accessibility
 
 - The country menu is a native `<select>` named "Country", under the visible calling code. Phones open their own picker, and screen readers announce it as a menu with its value. Each option says the country's name in the locale's words and its calling code ("Indonesia (+62)").
+- In a right-to-left page the calling code still reads left to right, "+20" and "مصر (+20)", in the prefix and in each option.
 - The menu draws its own focus ring inside the box, so it's clear whether the menu or the number has focus.
 - The number is `type="tel"` with `inputmode="tel"` and `autocomplete="tel-national"`, so phones show the dial pad and browsers can fill it in.
 - Backspace next to a space or dash removes the digit before it, so deleting never gets stuck on the grouping.

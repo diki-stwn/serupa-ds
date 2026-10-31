@@ -203,7 +203,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   };
 
   // The 244 options as elements made once per list, so typing (a render per key) doesn't rebuild and compare them all.
-  const options = React.useMemo(() => list.map(({ c, name }) => <option key={(hydrated ? "" : "server-") + c.code} value={c.code} suppressHydrationWarning>{name + " (+" + c.dial + ")"}</option>), [list, hydrated]);
+  // The calling code sits in a left-to-right isolate (U+2066 … U+2069; an option can't be styled), so a right-to-left
+  // page writes "مصر (+20)", not "(20+)" (GR49).
+  const options = React.useMemo(() => list.map(({ c, name }) => <option key={(hydrated ? "" : "server-") + c.code} value={c.code} suppressHydrationWarning>{name + " (\u2066+" + c.dial + "\u2069)"}</option>), [list, hydrated]);
   return (
     <span className={cn("dk-input dk-phone-input", "dk-input--size-" + size, invalid && "dk-input--invalid", rest.disabled && "dk-input--disabled", rest.readOnly && "dk-input--readonly", props.className)}
       style={props.style} data-component="phone-input" data-size={size} onMouseDown={pressFocuses(input)}>
