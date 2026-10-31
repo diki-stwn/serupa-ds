@@ -81,6 +81,24 @@ The stylesheet is `components.css` (about 290 KB), not `bundle.css`, because a p
 - **Console warnings are for development.** A component warns once in the console about a mistake it can see, such as an icon-only button with no label or a Tabs value that matches no tab. Your bundler's production build (`NODE_ENV=production`, the default for `vite build` and `next build`) drops the warnings and their text. On a plain page, `serupa.iife.js` keeps them.
 - **Accessibility comes with the components,** but labels are yours: give every field a `Field` label, every icon-only button an `aria-label`, and check each component's Accessibility notes.
 
+## Lint your JSX for accessibility
+
+eslint-plugin-jsx-a11y checks a plain `<img>` for its `alt`, but it skips a component it doesn't know, so `<Image src="team.png" />` with no `alt` passes. `serupa-ds/eslint` tells it what each Serupa component renders (Image is an `img`, Link an `a`, IconButton a `button`), so the same rules check them. Add it after the plugin's config in `eslint.config.js`:
+
+```js
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import serupa, { labelAttributes } from 'serupa-ds/eslint';
+
+export default [
+  jsxA11y.flatConfigs.recommended,
+  serupa,
+  // Optional: IconButton and TableSelectCell take their name as label.
+  { rules: { 'jsx-a11y/control-has-associated-label': ['error', { labelAttributes }] } },
+];
+```
+
+It sets the settings for eslint-plugin-jsx-a11y and for its maintained fork, eslint-plugin-jsx-a11y-x, so it works with either. Oxlint reads the same `jsx-a11y` settings from `.oxlintrc.json`. Print them once with `node -e "import('serupa-ds/eslint').then((m) => console.log(JSON.stringify({ settings: m.default.settings }, null, 2)))"` and paste them in, then print them again after you update the package.
+
 ## Working on the system
 
 ```sh

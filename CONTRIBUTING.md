@@ -25,7 +25,32 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
    - **Documented on hover:** every prop has its own doc comment, `@internal` ones stay out of the public types, and the component exports its `…Props` type (`node tools/test/public-docs.mjs`, after a build).
    - **Examples compile:** every `tsx` and `jsx` block in its README type-checks against the built types, imports and all (`node tools/test/doc-snippets.mjs`, after a build). A sketch can leave out its imports, `…` stands for content, and names it never declares (`open`, `setOpen`) count as `any`.
 4. `npm run tokens`, `npm run build`, then `node tools/test/api.mjs --update` and `node tools/test/size.mjs --update <Name>` for its baselines.
-5. `npx changeset` (minor, "Added: <Name> …"), open the pull request, and add the `update-visual-baselines` label so CI draws its screenshots. Review them.
+5. **Run the two reviews below,** the motion review and the worst-case review, and put what they found in the pull request.
+6. `npx changeset` (minor, "Added: <Name> …"), open the pull request, and add the `update-visual-baselines` label so CI draws its screenshots. Review them.
+
+## Two reviews by eye
+
+The checks catch a raw duration, an animation that won't reverse or a page that scrolls sideways at 320px. They can't tell whether a motion is worth having or whether a long name reads well. Run these two before opening a pull request that adds or changes what moves or what a component shows, and every new component runs both.
+
+### Motion review
+
+1. **How often is it seen?** Something used many times a day (a menu, a toggle, a tab, typing) moves little and fast, or not at all. A rare moment (a first success, a finished upload) can take longer. Nothing animates on every keystroke.
+2. **Name its purpose in one line:** where a surface came from, that a value changed, that a press landed. If the only answer is "it looks nice", leave it out.
+3. **Timing comes from a role,** never a number: `motion-press`, `motion-hover`, `motion-enter-*`, `motion-exit-*`, `motion-change-*` or `motion-loop-*`, with `ease-enter`, `ease-exit`, `ease-move` or `ease-settle`. Pick the size by how far it travels. Exits are shorter than entries (`motion-exit-md` is 150ms to `motion-enter-md`'s 200ms), so a closed surface gets out of the way. `node tools/test/motion-tokens.mjs` fails a raw `250ms` or `cubic-bezier()`.
+4. **It reverses from where it is.** A surface closed half way through opening turns back from there, so it enters with a transition, not keyframes. `src/internal/motion.test.tsx` checks this, and that nothing animates layout or runs on mount.
+5. **It grows from its origin.** A popup scales from the edge facing its trigger (`data-side`), not from its centre.
+6. **Under reduced motion it only fades:** nothing moves, scales or loops (the motion test checks the stories). Look at it once with the system setting on.
+7. **Hover waits for a pointer.** Hover styles sit in `@media (hover: hover)`, so a tap on a phone doesn't leave a tint behind (`node tools/test/touch-hover.mjs`).
+8. **Watch it slowly.** In Storybook, set the Motion menu to ×10 and watch it frame by frame. Check a swipe or a drag on a real phone too.
+9. **Write it down** in the pull request as a table with Before, After and Why for each motion it adds or changes.
+
+### Worst-case review
+
+1. **Our content, not the tidy demo.** In Storybook, switch the Content menu to Worst case, Empty and One item. Stories with people read them from `.storybook/content.ts` (`usePeople()` or `useNames()`), and a new one with people does too. The worst case has long Indonesian names, a single name, a one-letter name, an emoji first, stacked diacritics, Arabic, Chinese, a long address and missing fields.
+2. **At 320px wide and with text at 200%.** `node tools/test/storybook.mjs` checks every story for sideways scrolling and cut-off text (WCAG 1.4.10 and 1.4.4). Look at the story at both sizes too.
+3. **Right to left, and dark.** Switch the toolbar to `rtl` and to dark. Chevrons, bars and paddings turn with the text, and nothing loses contrast.
+4. **Choose for each text that can grow:** wrap it (the default, for names, messages and labels), truncate it with the full text still reachable (one-line cells and tabs), or clamp it to a few lines with a way to read the rest. Say which in the pull request. A word with no place to break still wraps inside its box (`src/internal/longWords.test.tsx` and `overflowWrap.test.tsx`).
+5. **Empty and one.** An empty state says what is missing and what to do next. One item looks finished, with no "1 items" and no gap left for a second.
 
 ## API conventions
 

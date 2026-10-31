@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn, setRef } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
+import { summaryTookFocus } from "../../internal/summaryFocus";
 import { en as words } from "./labels";
 
 /** One error in the summary: the field it's about and what's wrong. */
@@ -41,7 +42,7 @@ export const ErrorSummary = /* @__PURE__ */ component<HTMLDivElement, ErrorSumma
   // Focus when the summary appears and whenever its errors change (another failed submit); not on every render.
   const key = list.map((e) => e.field).join("\n");
   React.useEffect(() => {
-    if (key && autoFocus !== false && box.current) box.current.focus();
+    if (key && autoFocus !== false && box.current) { box.current.focus(); summaryTookFocus(box.current); }
   }, [key, autoFocus]);
   if (!list.length) return null;
   const level = [2, 3, 4, 5, 6].indexOf(headingLevel as number) < 0 ? 2 : (headingLevel as number);
@@ -70,7 +71,8 @@ function go(ev: React.MouseEvent<HTMLAnchorElement>, field: string) {
   const input = to as HTMLInputElement, set = to.closest("fieldset");
   const legend = set && (input.type === "radio" || input.type === "checkbox") ? set.querySelector("legend") : null;
   const shown = legend || (input.labels && input.labels[0]) || to;
-  shown.scrollIntoView({ block: "start" });
+  // jsdom (where apps run unit tests) has no scrollIntoView: the link still moves focus there (L8E46).
+  if (typeof shown.scrollIntoView === "function") shown.scrollIntoView({ block: "start" });
   inner(to).focus({ preventScroll: true });
 }
 

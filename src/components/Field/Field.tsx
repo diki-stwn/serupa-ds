@@ -8,6 +8,7 @@ import * as icons from "../../material/builtin";
 import { FieldLabel } from "../../internal/fieldLabel";
 import { useSettings } from "../../internal/provider";
 import { announce, ensureAnnouncer } from "../../internal/announce";
+import { summarySaysIt } from "../../internal/summaryFocus";
 import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
 
@@ -66,7 +67,8 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   // every render: the error is the caller's children, so its text can change in any render; reading it is cheap.
   React.useEffect(function () {
     const text = errorRef.current ? errorRef.current.textContent || "" : "";
-    if (said.current !== null && text && text !== said.current) announce(text);
+    // An ErrorSummary that took focus in this commit reads every error itself (GR54).
+    if (said.current !== null && text && text !== said.current && !summarySaysIt(errorRef.current)) announce(text);
     said.current = text;
   });
   // The label points at the control by id: say so when nothing on the page has it.

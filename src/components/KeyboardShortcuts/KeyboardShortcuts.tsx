@@ -94,7 +94,9 @@ function onKey(e: KeyboardEvent): void {
   for (let i = entries.length - 1; i >= 0; i--) {
     const x = entries[i];
     if (!matches(x, e, x.apple)) continue;
-    if (typing(e.target) && !x.inInputs && !x.mod && !x.ctrl && !x.meta) continue;
+    // The field itself, not its web component's host: a keydown from a shadow root's <input> reaches the document
+    // retargeted to the host element, and a lone "g" typed there ran the page's "g" (L8E43).
+    if (typing(e.composedPath()[0] || e.target) && !x.inInputs && !x.mod && !x.ctrl && !x.meta) continue;
     e.preventDefault();
     x.run.current(e);
     return;

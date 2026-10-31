@@ -31,7 +31,7 @@
 .dk-alert__icon { display: flex; flex-shrink: 0; color: var(--dk-alert-icon); }
 .dk-alert__icon .dk-icon { font-size: var(--spacing-5); }
 /* A word longer than the line (a German compound, a URL) wraps inside the alert instead of widening the page. */
-.dk-alert__content { overflow-wrap: anywhere; display: flex; flex-direction: column; gap: var(--alert-content-gap, var(--spacing-1)); flex: auto; min-width: var(--spacing-0); }
+.dk-alert__content { overflow-wrap: anywhere; hyphens: auto; display: flex; flex-direction: column; gap: var(--alert-content-gap, var(--spacing-1)); flex: auto; min-width: var(--spacing-0); }
 .dk-alert__title { margin: var(--spacing-0); color: var(--alert-title-color, var(--text)); font-weight: var(--alert-title-weight, var(--font-semibold)); }
 .dk-alert__message > :first-child { margin-top: var(--spacing-0); }
 .dk-alert__message > :last-child { margin-bottom: var(--spacing-0); }
