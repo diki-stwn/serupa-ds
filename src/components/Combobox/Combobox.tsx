@@ -347,7 +347,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       <input {...rest} ref={(n) => { input.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         type="text" role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="list" aria-haspopup="listbox"
         aria-activedescendant={open && activeShown ? base + "-opt-" + active : undefined}
-        autoComplete={rest.autoComplete || "off"} autoCorrect="off" spellCheck={false} className="dk-input__field" value={text}
+        autoComplete={rest.autoComplete || "off"} autoCorrect="off" autoCapitalize={rest.autoCapitalize ?? "off"} spellCheck={false} className="dk-input__field" value={text}
         // With multiple, the text is empty once tags are picked, so a native required blocked the form with tags in
         // it: the browser's check needs a tag or text, and screen readers still hear "required" (L8E18).
         required={multi && values.length ? false : rest.required} aria-required={rest["aria-required"] ?? (rest.required || undefined)}

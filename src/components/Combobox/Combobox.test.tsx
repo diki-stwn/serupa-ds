@@ -54,6 +54,12 @@ describe('Combobox', () => {
     expect([box.dataset.component, box.offsetHeight, toggle.getAttribute('aria-label'), toggle.tabIndex]).toEqual(['combobox', 32, 'Show options', -1]);
   });
 
+  // QA4: on a phone the first letter typed was capitalized, so a creatable value or a free-text query kept the capital.
+  test('the field has autocapitalize, autocorrect and spellcheck off; autoCapitalize is yours to set (QA4)', async () => {
+    await render(<><Combobox id="cap" aria-label="Country" options={COUNTRIES} /><Combobox id="cap2" aria-label="Name" options={COUNTRIES} autoCapitalize="words" /></>);
+    expect([el('cap').getAttribute('autocapitalize'), el('cap').getAttribute('autocorrect'), el('cap').spellcheck, el('cap2').getAttribute('autocapitalize')]).toEqual(['off', 'off', false, 'words']);
+  });
+
   test('a press on the box (left icon, side padding, past the chevron) focuses the field with the caret at the end; a disabled box stays put (GG2)', async () => {
     await render(<div style={{ width: '320px' }}>
       <Combobox id="bx" size="lg" leftIcon="search" options={COUNTRIES} defaultValue="Canada" aria-label="Country" />
