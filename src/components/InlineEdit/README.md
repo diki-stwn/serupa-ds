@@ -36,7 +36,7 @@ const [slug, setSlug] = React.useState("apollo-plan");
 ## Behavior
 
 - Opening selects the text, so typing replaces it.
-- Enter saves and Escape cancels; both put focus back on the button. Leaving the field (Tab or a click elsewhere) saves too and leaves focus where it went.
+- Enter saves and Escape cancels; both put focus back on the button. Leaving the field (Tab or a click elsewhere) saves too and leaves focus where it went. Switching to another window or browser tab isn't leaving it: the field stays open for when people come back.
 - Leaving with a text that `validate` refuses keeps the field open with its message, and the message is said, so people know why it didn't close. Focus isn't pulled back: it stays where they went, and the field is still there to come back to (or Escape there to put the text back).
 - While a Promise from `validate` is pending, the field is `aria-busy` and stays open. Only the latest check counts: typing or Escape drops the one running, and a rejected Promise keeps the field open without a message (resolve to a message instead).
 - Escape inside a [Dialog](../Dialog/README.md) or [Drawer](../Drawer/README.md) only cancels the edit; the dialog stays open.

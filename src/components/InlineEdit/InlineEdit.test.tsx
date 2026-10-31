@@ -20,6 +20,22 @@ function Controlled({ calls }: { calls: string[] }) {
 }
 
 describe('InlineEdit', () => {
+  test('switching to another window or tab mid-edit keeps the field open and saves nothing; leaving it then saves (L8E25)', async () => {
+    const saved: string[] = [];
+    await render(<><InlineEdit id="wb" label="Name" defaultValue="Atlas" onValueChange={(v) => saved.push(v)} /><button id="wbn">Next</button></>);
+    await userEvent.click(view('wb'));
+    await expect.poll(() => document.activeElement).toBe(input('wb'));
+    await userEvent.keyboard('Atlas 2');
+    // The window losing focus: the field gets blur (focusout) and stays document.activeElement.
+    input('wb')!.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    input('wb')!.dispatchEvent(new FocusEvent('blur'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect([!!input('wb'), saved]).toEqual([true, []]);
+    await userEvent.click(document.getElementById('wbn')!);
+    await expect.poll(() => input('wb')).toBeNull();
+    expect(saved).toEqual(['Atlas 2']);
+  });
+
   test('the text in a button named "label: text, Edit"; a click opens an Input named by label with the text selected; ref and props reach the outer div', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Box><InlineEdit id="a" ref={ref} className="extra" data-x="y" label="Project name" defaultValue="Apollo" /></Box>);
