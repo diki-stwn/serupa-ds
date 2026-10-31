@@ -43,6 +43,10 @@ describe('Highlight', () => {
     expect(el('none').textContent).toBe('Nothing');
   });
 
+  test('Greek capitals and a decomposed Cyrillic й are marked as the query reads them (L8E14)', () => {
+    expect([highlightRanges('ΟΔΟΣ ΑΘΗΝΑΣ', 'οδος'), highlightRanges('ΑΣΤΥ', 'ΑΣ'), highlightRanges('мои мо\u0438\u0306', 'мой')]).toEqual([[[0, 4]], [[0, 2]], [[4, 8]]]);
+  });
+
   test('highlightRanges: [start, end) offsets into the text, sorted and merged', () => {
     expect([highlightRanges('Łódź, Poland', 'lodz'), highlightRanges('Straße', 'ss'), highlightRanges('aaaa', ['aa', 'a']), highlightRanges('', 'x'), highlightRanges('x', '')])
       .toEqual([[[0, 4]], [[4, 5]], [[0, 4]], [], []]);
