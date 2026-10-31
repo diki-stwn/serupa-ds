@@ -30,6 +30,15 @@
 
 /* Long words wrap inside the card rather than overflow it. */
 .dk-card__header, .dk-card__body, .dk-card__footer { overflow-wrap: anywhere; }
+/* A long word in the title or description breaks where its language hyphenates it, before it's cut anywhere (191):
+   only words of 10 letters or more, with 4 on each side, so a narrow card's title still wraps between ordinary
+   words ("recur-ring" isn't split) where hyphenate-limit-chars is supported. The header only: the body is the
+   card's own content, left as it is. */
+.dk-card__header {
+  hyphens: auto;
+  /* stylelint-disable-next-line serupa/no-raw-value -- letter counts, not a design value */
+  hyphenate-limit-chars: 10 4 4;
+}
 /* The heading keeps at least 128px; narrower than that beside the action, the action drops under it rather than the
    title breaking mid-word (GR7). */
 .dk-card__header { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--spacing-3); }
