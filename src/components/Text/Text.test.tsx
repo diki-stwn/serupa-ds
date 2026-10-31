@@ -50,6 +50,15 @@ describe('Text', () => {
     expect([s.display, s.whiteSpace, s.textOverflow, e.scrollWidth > e.clientWidth, e.clientWidth]).toEqual(['block', 'nowrap', 'ellipsis', true, 80]);
   });
 
+  test('measure caps the line at 65ch of its own text, and only when asked (KW14)', async () => {
+    const long = 'Running text on a wide page reads best when each line stops near sixty-five characters. '.repeat(4);
+    await render(<div style={{ width: '1600px' }}><Text id="tm" size="base" measure>{long}</Text><Text id="tl" size="lg" measure>{long}</Text><Text id="tw">{long}</Text></div>);
+    const ch = (id: string) => { const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:65ch'; el(id).appendChild(probe); const w = probe.getBoundingClientRect().width; probe.remove(); return Math.round(w); };
+    const width = (id: string) => Math.round(el(id).getBoundingClientRect().width);
+    expect([width('tm'), width('tl'), width('tw')]).toEqual([ch('tm'), ch('tl'), 1600]);
+    expect(ch('tl')).toBeGreaterThan(ch('tm'));
+  });
+
   test('the --text-color-muted token overrides one element', async () => {
     await render(<Text id="ttok" tone="muted" style={{ '--text-color-muted': 'rgb(1, 2, 3)' } as React.CSSProperties}>Tokens</Text>);
     expect(css(el('ttok')).color).toBe('rgb(1, 2, 3)');
