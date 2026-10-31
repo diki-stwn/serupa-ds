@@ -6,7 +6,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { PROJECT, writePage, browser, cleanup, report, done } from './lib.mjs';
+import { chromium } from 'playwright';
+import { ENGINE, PROJECT, writePage, browser, cleanup, report, done } from './lib.mjs';
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -251,9 +252,40 @@ for (const scheme of ['light', 'dark']) {
     return { mode: document.compatMode, charset: document.characterSet, title: document.title, button: btn?.textContent, font: btn && getComputedStyle(btn).fontFamily.split(',')[0], themeColor: !!document.querySelector('meta[name="theme-color"]')?.getAttribute('content') };
   });
   await p.close();
-  server.close();
   t('Getting started\'s plain page: standards mode, UTF-8, a title, its Button in Inter inside main, a theme-color', html && r.mode === 'CSS1Compat' && r.charset === 'UTF-8' && r.title && r.button === 'Hello' && r.font === 'Inter' && r.themeColor, html ? JSON.stringify(r) : 'no ```html block under "Or on a plain page"');
   t('Getting started\'s plain page: the font is fetched once, and nothing is logged', fonts.length === 1 && !logged.length, JSON.stringify({ fonts, logged }));
+
+  // 7. The same page and the Back button (FEC6): it leaves and comes back through the back/forward cache (nothing in
+  // theme.js, serupa.iife.js or the components keeps it out: no unload listener), and a theme picked in another tab
+  // while it was away is applied on return even when the storage event never reaches it, as a cached page may miss
+  // it (here theme.js never hears one). Chromium only, and its full build: the headless shell has no
+  // back/forward cache, and Playwright turns it off unless asked.
+  if (ENGINE === 'chromium') {
+    const base = `http://127.0.0.1:${port}`;
+    const full = await chromium.launch({ channel: 'chromium', ignoreDefaultArgs: ['--disable-back-forward-cache'] });
+    const ctx = await full.newContext();
+    const q = await ctx.newPage();
+    // This page hears no storage events at all, as a cached page may not (Chromium does deliver them on return).
+    await q.addInitScript(() => {
+      const add = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function (type, ...rest) { if (this === window && type === 'storage') return; return add.call(this, type, ...rest); };
+    });
+    await q.goto(`${base}/`);
+    await q.waitForFunction(() => !!document.querySelector('#root button'), null, { timeout: 10000 }).catch(() => undefined);
+    const before = await q.evaluate(() => { window.__stayed = true; return document.documentElement.getAttribute('data-theme'); });
+    await q.goto(`${base}/?away`);
+    const other = await ctx.newPage();
+    await other.goto(`${base}/?away`);
+    await other.evaluate(() => localStorage.setItem('serupa-theme', JSON.stringify({ brand: 'violet', mode: 'dark' })));
+    await other.close();
+    await q.goBack({ waitUntil: 'commit' });
+    await q.waitForFunction(() => document.readyState === 'complete', null, { timeout: 10000 }).catch(() => undefined);
+    const back = await q.evaluate(() => ({ cached: window.__stayed === true, reasons: /** @type {any} */ (performance.getEntriesByType('navigation')[0]).notRestoredReasons, theme: document.documentElement.getAttribute('data-theme') }));
+    await full.close();
+    t('Getting started\'s plain page: Back brings it from the back/forward cache (nothing blocks it)', back.cached && !back.reasons, JSON.stringify(back.reasons));
+    t('theme.js: back from the cache, a theme picked in another tab meanwhile is applied though its storage event never arrived', before !== 'violet-dark' && back.theme === 'violet-dark', `${before} → ${back.theme}`);
+  }
+  server.close();
 }
 
 await b.close();
