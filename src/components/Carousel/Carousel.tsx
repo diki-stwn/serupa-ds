@@ -44,6 +44,14 @@ export interface CarouselPerView { base?: number; sm?: number; md?: number; lg?:
 
 const WIDTHS = [["sm", 640], ["md", 768], ["lg", 1024]] as const;
 const whole = (n: unknown) => Math.max(1, Math.floor(Number(n)) || 1);
+type Bp = "base" | "sm" | "md" | "lg";
+function perAt(per: CarouselProps["perView"], count: number): Record<Bp, number> | null {
+  if (per == null || typeof per !== "object") return null;
+  const cap = Math.max(1, count), out = { base: Math.min(whole(per.base), cap) } as Record<Bp, number>;
+  let n = out.base;
+  for (const [k] of WIDTHS) { if (per[k] != null) n = Math.min(whole(per[k]), cap); out[k] = n; }
+  return out;
+}
 /** The slides per view at the screen width now, following the matchMedia queries as the width changes. */
 function usePerView(per: CarouselProps["perView"]): number {
   const map = per != null && typeof per === "object" ? per : null;
@@ -85,6 +93,10 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const slides = flattenChildren(props.children);
   const count = slides.length;
   const per = Math.min(usePerView(props.perView), Math.max(1, count));
+  // With a breakpoint map, the slides per view at each width, carried up from the one below and capped at the slide
+  // count. CSS picks from these with media queries (Carousel.css), so the server HTML is already laid out for the
+  // width and nothing moves when matchMedia catches up after mount.
+  const perMap = perAt(props.perView, count);
   const last = Math.max(0, count - per);   // the last index: the first slide of the last full view
   const clamp = (i: number) => Math.min(Math.max(0, Math.floor(i) || 0), last);
   const [own, setOwn] = React.useState(() => props.defaultIndex || 0);
@@ -211,13 +223,18 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
   const onPointerLeave = (e: React.PointerEvent) => { if (offset === 0) onPointerCancel(e); };
 
   const style = { ...props.style, "--dk-carousel-index": wrap ? wrap.virt : index, "--dk-carousel-count": count,
-    ...(settle != null ? { "--dk-carousel-settle": settle + "ms", "--dk-carousel-ease": "var(--ease-fling)" } : null), "--dk-carousel-per": per, "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
+    ...(settle != null ? { "--dk-carousel-settle": settle + "ms", "--dk-carousel-ease": "var(--ease-fling)" } : null),
+    ...(perMap ? { "--dk-carousel-per-base": perMap.base, "--dk-carousel-per-sm": perMap.sm, "--dk-carousel-per-md": perMap.md, "--dk-carousel-per-lg": perMap.lg } as Record<string, number> : { "--dk-carousel-per": per }),
+    "--dk-carousel-drag": offset + "px" } as React.CSSProperties;
+  const multi = perMap ? Math.max(perMap.base, perMap.sm, perMap.md, perMap.lg) > 1 : per > 1;
+  // The widths where a dot is past the last page, so CSS hides it there until the dots are counted again after mount.
+  const pastAt = (k: number) => perMap ? (["sm", "md", "lg"] as const).filter((b) => k >= Math.ceil(count / perMap[b])).join(" ") || undefined : undefined;
   const shown = (i: number) => i >= index && i < index + per;
   const prevOff = !loop && index === 0, nextOff = !loop && index >= last;
 
   return (
-    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", per > 1 && "dk-carousel--multi", props.className)} style={style}
-      aria-roledescription={sds.labels.carouselRole} aria-label={props.label ?? rest["aria-label"]} data-component="carousel" data-index={index} data-dir={dir}>
+    <section {...rest} ref={(n) => { restyle(n); nameRef(n); }} className={cn("dk-carousel", multi && "dk-carousel--multi", props.className)} style={style}
+      aria-roledescription={sds.labels.carouselRole} aria-label={props.label ?? rest["aria-label"]} data-component="carousel" data-index={index} data-dir={dir} data-per-map={perMap ? "" : undefined}>
       <div className="dk-carousel__viewport" ref={viewport} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd} onPointerCancel={onPointerCancel} onPointerLeave={onPointerLeave}
         onDragStart={(e) => e.preventDefault()}   // a picture's own drag would end the swipe
@@ -245,7 +262,7 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
         <div className="dk-carousel__dots" ref={dotsRef} onKeyDown={onDotsKey}>
           {Array.from({ length: pages }, (_, k) => (
             <button key={k} type="button" className="dk-carousel__dot" aria-label={dotName(k)} aria-current={k === page ? "true" : undefined}
-              tabIndex={k === page ? 0 : -1} onClick={() => go(pageStart(k))} />
+              tabIndex={k === page ? 0 : -1} data-past={pastAt(k)} onClick={() => go(pageStart(k))} />
           ))}
         </div>
       ) : null}

@@ -4,6 +4,7 @@ import { cn, domId, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { useFormReset } from "../../internal/useFormReset";
+import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { useServerStyles } from "../../internal/serverStyles";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { FieldContext, useFieldControl } from "../../internal/field";
@@ -67,6 +68,9 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   const auto = domId("dk-rating", React.useId());
   // form: a rating outside the form it names is reset with that form too, as Slider and SegmentedControl are.
   useFormReset(root, () => { if (!controlled) setOwn(fit(defaultValue)); }, form);
+  // A disabled <fieldset> around it turns the radios off natively; the stars then act and look disabled too (L8E71).
+  const inDisabledFieldset = useFieldsetDisabled(root);
+  const off = !!disabled || inDisabledFieldset;
 
   const set = (n: number | null) => {
     if (n === value) return;
@@ -89,7 +93,7 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
   );
   const styled = useServerStyles<HTMLDivElement>();   // each star's share, from server HTML under a strict CSP (GR10)
   const ref2 = (n: HTMLDivElement | null) => { root.current = n; nameRef(n); styled(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; };
-  const classes = cn("dk-rating", "dk-rating--size-" + size, readOnly && "dk-rating--readonly", disabled && "dk-rating--disabled", className);
+  const classes = cn("dk-rating", "dk-rating--size-" + size, readOnly && "dk-rating--readonly", off && "dk-rating--disabled", className);
 
   if (readOnly) {
     const said = value == null ? 0 : Math.round(value * 10) / 10;
@@ -102,17 +106,17 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
       <input key={v} type="radio" className="dk-rating__choice"
         name={name || auto} form={form} value={v} checked={picked === v} disabled={disabled} required={required} aria-label={sds.labels.ratingStars(v)}
         onChange={() => set(v)} onClick={() => { if (clearable && picked === v) set(null); }}
-        onPointerEnter={(e) => { if (e.pointerType !== "touch") setHover(v); }} />
+        onPointerEnter={(e) => { if (!off && e.pointerType !== "touch") setHover(v); }} />
     ));
   };
   return (
     <div {...rest} ref={ref2} role="radiogroup" aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)}
-      aria-invalid={invalid || undefined} aria-disabled={disabled || undefined} aria-required={required || undefined} className={classes}
+      aria-invalid={invalid || undefined} aria-disabled={off || undefined} aria-required={required || undefined} className={classes}
       data-component="rating" data-size={size}
       onPointerLeave={(e) => { if (onPointerLeave) onPointerLeave(e); setHover(null); }}
       onKeyDown={(e) => {
         if (onKeyDown) onKeyDown(e);
-        if (!e.defaultPrevented && clearable && !disabled && (e.key === "Backspace" || e.key === "Delete"
+        if (!e.defaultPrevented && clearable && !off && (e.key === "Backspace" || e.key === "Delete"
           // a browser clicks a radio on Space only when it isn't checked yet, so Space on the picked star clears it here
           || (e.key === " " && (e.target as HTMLInputElement).checked))) { e.preventDefault(); set(null); }
       }}>

@@ -162,8 +162,9 @@ export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, Segmen
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
     if (!usable.length || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
-    // Read-only, the arrows move focus from the focused segment and leave the selection where it is.
-    const from = readOnly ? e.currentTarget.dataset.value : value;
+    // Read-only, the arrows move focus from the focused segment and leave the selection where it is. With nothing
+    // checked that can be chosen (no value, or a disabled one), they go from the focused segment too (L8E72).
+    const from = readOnly || !usable.some((o) => o.value === value) ? e.currentTarget.dataset.value : value;
     const i = usable.findIndex((o) => o.value === from);
     let n: number;
     switch (e.key) {

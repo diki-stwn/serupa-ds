@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, settle, settled, withMotion } from '../../../tools/test/vitest/helpers';
@@ -275,5 +275,24 @@ describe('Tooltip warm-up (EC1)', () => {
       expect([css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual(['none', 0, 0]);
       await away();
     });
+  });
+});
+
+describe('Tooltip content is plain text (PT5)', () => {
+  test('a link or button in content warns once (tooltip-interactive); plain text and a Kbd-style element don\'t', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const calls = () => warn.mock.calls.filter(([m]) => /Tooltip: its content holds a link, button or field/.test(String(m)));
+    await render(<>
+      <Tooltip content="Download"><button type="button">A</button></Tooltip>
+      <Tooltip content={<>Save <kbd>Ctrl S</kbd></>}><button type="button">B</button></Tooltip>
+    </>);
+    expect(calls()).toHaveLength(0);
+    await render(<>
+      <Tooltip content={<>See <a href="#help">help</a></>}><button type="button">C</button></Tooltip>
+      <Tooltip content={<button type="button">Undo</button>}><button type="button">D</button></Tooltip>
+    </>);
+    expect(calls()).toHaveLength(1);
+    expect(String(calls()[0][0])).toMatch(/use a Popover/);
+    warn.mockRestore();
   });
 });

@@ -12,6 +12,18 @@ const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-new-'));
 const make = (...a) => spawnSync(process.execPath, [path.join(PROJECT, 'tools', 'new-component.mjs'), ...a, '--root', root], { encoding: 'utf8' });
 
+// --directions first (KW17): one story file, Directions/<Name>, with a switch between its takes, that the contract
+// refuses to merge.
+const picked = make('TimeChip', '--directions');
+const pick = path.join(root, 'src', 'directions', 'TimeChip.stories.tsx');
+t('--directions writes only the Directions story, outside src/components/', picked.status === 0 && fs.existsSync(pick) && !fs.existsSync(path.join(root, 'src', 'components', 'TimeChip')), picked.stderr);
+if (fs.existsSync(pick)) {
+  const story = fs.readFileSync(pick, 'utf8');
+  t('under Directions/, with one switch between the takes', story.includes("title: 'Directions/TimeChip'") && story.includes("control: 'inline-radio'") && /export const Pick/.test(story));
+  t('and marked unfinished, so it never merges', story.includes('TODO(new-component)'));
+  t('a second --directions for the same name stops', make('TimeChip', '--directions').status === 1);
+}
+
 const made = make('DateBadge', '--group', 'Forms');
 const dir = path.join(root, 'src', 'components', 'DateBadge');
 const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');

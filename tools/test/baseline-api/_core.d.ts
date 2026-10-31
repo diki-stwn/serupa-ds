@@ -1,4 +1,4 @@
-// exports: announce, announcePage, type AnnouncePageOptions, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions, withViewTransition
+// exports: announce, announcePage, type AnnouncePageOptions, configure, type CustomIconName, customIcons, enLabels, getIcon, IconData, idLabels, MaterialIconName, type OpenChangeDetails, type OpenChangeReason, type Placement, plural, type PluralForms, registerIcons, type SerupaConfig, type SerupaLabels, SerupaProvider, type SerupaProviderProps, type SerupaSettings, type SerupaTheme, type Space, type ThemeBrand, type ThemeInfo, type ThemeMode, useCollator, useLocale, useSerupa, version, withoutTransitions, withViewTransition
 import * as React from "react";
 import { IconData, MaterialIconName } from "./icons.js";
 type ThemeBrand = "blue" | "emerald" | "violet";
@@ -76,6 +76,15 @@ declare function announcePage(options?: AnnouncePageOptions): void;
 declare function useCollator(options?: Intl.CollatorOptions & {
     locale?: string;
 }): Intl.Collator;
+interface PluralForms {
+    zero?: string;
+    one?: string;
+    two?: string;
+    few?: string;
+    many?: string;
+    other: string;
+}
+declare function plural(locale: string, count: number, forms: PluralForms): string;
 declare function withoutTransitions(change: () => void, element?: HTMLElement): void;
 declare function withViewTransition(update: () => void, options?: {
     types?: string[];
@@ -97,6 +106,7 @@ declare global {
             enLabels: typeof DEFAULT_LABELS;
             getIcon: typeof getIcon;
             idLabels: typeof idLabels;
+            plural: typeof plural;
             registerIcons: typeof registerIcons;
             SerupaProvider: typeof SerupaProvider;
             useCollator: typeof useCollator;
