@@ -253,8 +253,8 @@ function tokenIndex(): Found[] {
   }
   return (INDEX = out);
 }
-// The text to paste into CSS: a dot in a token name is escaped there (--spacing-1\.5).
-const asVar = (css: string) => `var(${css.replace(/\./g, '\\.')})`;
+// The text to paste into CSS: a dot (or a backslash) in a token name is escaped there (--spacing-1\.5), every one.
+const asVar = (css: string) => `var(${css.replace(/[\\.]/g, '\\$&')})`;
 const isColor = (v: string) => /^(#|rgb|hsl|oklch|oklab|color\(|transparent$)/.test(v);
 
 /** Every token, shared and component: search by name, value, use or component, see its value in each theme and
