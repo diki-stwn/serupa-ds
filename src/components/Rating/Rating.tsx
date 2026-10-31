@@ -109,9 +109,10 @@ export const Rating = /* @__PURE__ */ component<HTMLDivElement, RatingProps>("Ra
         onPointerEnter={(e) => { if (!off && e.pointerType !== "touch") setHover(v); }} />
     ));
   };
+  // A Field's required arrives as aria-required (L8E88): it was dropped, since the group's own attribute came after rest.
   return (
     <div {...rest} ref={ref2} role="radiogroup" aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)}
-      aria-invalid={invalid || undefined} aria-disabled={off || undefined} aria-required={required || undefined} className={classes}
+      aria-invalid={invalid || undefined} aria-disabled={off || undefined} aria-required={required || rest["aria-required"] === true || rest["aria-required"] === "true" || undefined} className={classes}
       data-component="rating" data-size={size}
       onPointerLeave={(e) => { if (onPointerLeave) onPointerLeave(e); setHover(null); }}
       onKeyDown={(e) => {
