@@ -37,6 +37,7 @@ const files: TreeViewItem[] = [
 - `value` and `defaultValue` hold the picked ids, and `expanded` and `defaultExpanded` the open ones. Both are arrays, controlled or not.
 - Give an item `textValue` when its label isn't plain text, so typing still finds it.
 - A disabled item can still be focused and read, so people know it's there, but it can't be picked, opened or closed.
+- When the focused item leaves the page from outside (you take it out of `items`, or close its parent through `expanded`), focus goes to its nearest parent in view, else the item now in its place, not to the page.
 - Your `onKeyDown` runs before the tree's own keys, so `e.preventDefault()` in it keeps the tree from acting on that key.
 
 ## Accessibility
