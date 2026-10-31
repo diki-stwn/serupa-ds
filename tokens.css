@@ -15,6 +15,7 @@
   --surface-raised: var(--white);
   --surface-overlay: var(--white);
   --field: var(--white);
+  --field-readonly: var(--zinc-50);
   --field-border: var(--zinc-500);
   --field-border-hover: var(--zinc-600);
   --placeholder: var(--zinc-500);
@@ -320,9 +321,10 @@
   --surface-muted: var(--zinc-800);
   --surface-raised: var(--zinc-800);
   --surface-overlay: var(--zinc-800);
-  --field: var(--zinc-900);
-  --field-border: var(--zinc-500);
-  --field-border-hover: var(--zinc-400);
+  --field: var(--zinc-800);
+  --field-readonly: var(--zinc-900);
+  --field-border: var(--zinc-400);
+  --field-border-hover: var(--zinc-300);
   --placeholder: var(--zinc-400);
   --overlay: #09090bb3;
   --surface-inverse: var(--zinc-50);
@@ -365,6 +367,7 @@
   --surface-raised: var(--white);
   --surface-overlay: var(--white);
   --field: var(--white);
+  --field-readonly: var(--zinc-50);
   --field-border: var(--zinc-500);
   --field-border-hover: var(--zinc-600);
   --placeholder: var(--zinc-500);
@@ -408,9 +411,10 @@
   --surface-muted: var(--zinc-800);
   --surface-raised: var(--zinc-800);
   --surface-overlay: var(--zinc-800);
-  --field: var(--zinc-900);
-  --field-border: var(--zinc-500);
-  --field-border-hover: var(--zinc-400);
+  --field: var(--zinc-800);
+  --field-readonly: var(--zinc-900);
+  --field-border: var(--zinc-400);
+  --field-border-hover: var(--zinc-300);
   --placeholder: var(--zinc-400);
   --overlay: #09090bb3;
   --surface-inverse: var(--zinc-50);
@@ -453,6 +457,7 @@
   --surface-raised: var(--white);
   --surface-overlay: var(--white);
   --field: var(--white);
+  --field-readonly: var(--zinc-50);
   --field-border: var(--zinc-500);
   --field-border-hover: var(--zinc-600);
   --placeholder: var(--zinc-500);
@@ -496,9 +501,10 @@
   --surface-muted: var(--zinc-800);
   --surface-raised: var(--zinc-800);
   --surface-overlay: var(--zinc-800);
-  --field: var(--zinc-900);
-  --field-border: var(--zinc-500);
-  --field-border-hover: var(--zinc-400);
+  --field: var(--zinc-800);
+  --field-readonly: var(--zinc-900);
+  --field-border: var(--zinc-400);
+  --field-border-hover: var(--zinc-300);
   --placeholder: var(--zinc-400);
   --overlay: #09090bb3;
   --surface-inverse: var(--zinc-50);
@@ -541,8 +547,10 @@
   --surface-muted: light-dark(var(--zinc-50), var(--zinc-800));
   --surface-raised: light-dark(var(--white), var(--zinc-800));
   --surface-overlay: light-dark(var(--white), var(--zinc-800));
-  --field: light-dark(var(--white), var(--zinc-900));
-  --field-border-hover: light-dark(var(--zinc-600), var(--zinc-400));
+  --field: light-dark(var(--white), var(--zinc-800));
+  --field-readonly: light-dark(var(--zinc-50), var(--zinc-900));
+  --field-border: light-dark(var(--zinc-500), var(--zinc-400));
+  --field-border-hover: light-dark(var(--zinc-600), var(--zinc-300));
   --placeholder: light-dark(var(--zinc-500), var(--zinc-400));
   --overlay: light-dark(#18181b80, #09090bb3);
   --surface-inverse: light-dark(var(--zinc-900), var(--zinc-50));
