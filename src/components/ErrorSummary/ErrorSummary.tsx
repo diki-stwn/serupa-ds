@@ -71,7 +71,8 @@ function go(ev: React.MouseEvent<HTMLAnchorElement>, field: string) {
   const input = to as HTMLInputElement, set = to.closest("fieldset");
   const legend = set && (input.type === "radio" || input.type === "checkbox") ? set.querySelector("legend") : null;
   const shown = legend || (input.labels && input.labels[0]) || to;
-  shown.scrollIntoView({ block: "start" });
+  // jsdom (where apps run unit tests) has no scrollIntoView: the link still moves focus there (L8E46).
+  if (typeof shown.scrollIntoView === "function") shown.scrollIntoView({ block: "start" });
   inner(to).focus({ preventScroll: true });
 }
 

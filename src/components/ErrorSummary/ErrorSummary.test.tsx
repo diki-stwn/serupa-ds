@@ -82,6 +82,16 @@ describe('ErrorSummary', () => {
     expect(document.activeElement).toBe(el('f-name'));
   });
 
+  test('a link still moves focus where there is no scrollIntoView (jsdom, where apps run unit tests) (L8E46)', async () => {
+    await render(<Form autoFocus={false} />);
+    const own = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView')!;
+    Object.defineProperty(Element.prototype, 'scrollIntoView', { value: undefined, configurable: true, writable: true });
+    try {
+      el('sum').querySelector('a')!.click();
+      expect(document.activeElement).toBe(el('f-name'));
+    } finally { Object.defineProperty(Element.prototype, 'scrollIntoView', own); }
+  });
+
   test("a link focuses its field and scrolls its label (a radio's legend) to the top; a field that isn't there is a plain link", async () => {
     await render(<Form autoFocus={false} errors={[...ERRORS, { field: 'nowhere', message: 'Missing' }]} />);
     const links = [...el('sum').querySelectorAll('a')];
