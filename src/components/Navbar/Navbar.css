@@ -33,14 +33,15 @@
     /* More links than fit below the bar scroll inside the panel, not behind a sticky bar out of reach. */
     max-height: calc(var(--sizing-dvh) - var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16)))); overflow-y: auto; overscroll-behavior: contain; }
   .dk-navbar[data-state="open"] .dk-navbar__nav { display: block; }
-  /* Motion (GH2): the panel fades in (with @starting-style) and, kept shown by display's allow-discrete, fades out,
-     as Popover and Menu do; with motion allowed it also unrolls from the bar (a clip-path, as Accordion). Navbar keeps
-     it after the menu button until the fade has ended. */
-  .dk-navbar__nav { opacity: var(--opacity-0); transition: opacity var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete; }
+  /* Motion (GH2): the panel fades in (with @starting-style) and fades out, as Popover and Menu do; with motion
+     allowed it also unrolls from the bar (a clip-path, as Accordion). Navbar keeps it shown, after the menu button,
+     with --leaving until the fade has ended: not with display's allow-discrete, which Firefox doesn't transition. */
+  .dk-navbar__nav--leaving { display: block; }
+  .dk-navbar__nav { opacity: var(--opacity-0); transition: opacity var(--motion-exit-sm) var(--ease-exit); }
   .dk-navbar[data-state="open"] .dk-navbar__nav { opacity: var(--opacity-100); transition: opacity var(--motion-enter-sm) var(--ease-enter); }
   @starting-style { .dk-navbar[data-state="open"] .dk-navbar__nav { opacity: var(--opacity-0); } }
   @media (prefers-reduced-motion: no-preference) {
-    .dk-navbar__nav { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full) var(--spacing-0)); transition: opacity var(--motion-exit-sm) var(--ease-exit), clip-path var(--motion-exit-sm) var(--ease-exit), display var(--motion-exit-sm) allow-discrete; }
+    .dk-navbar__nav { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full) var(--spacing-0)); transition: opacity var(--motion-exit-sm) var(--ease-exit), clip-path var(--motion-exit-sm) var(--ease-exit); }
     .dk-navbar[data-state="open"] .dk-navbar__nav { clip-path: inset(var(--spacing-0)); transition: opacity var(--motion-enter-sm) var(--ease-enter), clip-path var(--motion-enter-sm) var(--ease-enter); }
     @starting-style { .dk-navbar[data-state="open"] .dk-navbar__nav { clip-path: inset(var(--spacing-0) var(--spacing-0) var(--sizing-full) var(--spacing-0)); } }
   }

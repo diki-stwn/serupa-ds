@@ -107,19 +107,21 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     if (props.onBlur) props.onBlur(e);
     if (open && e.relatedTarget instanceof Node && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
   }
-  // The fade out ends on transitionend; with nothing to fade (a wide screen) or no event, the panel goes back anyway.
-  React.useEffect(() => {
+  // The fade out ends on transitionend; with nothing to fade (a wide screen, reduced motion) it goes back before paint,
+  // and with no event, once the fade's time is up.
+  useIsoLayoutEffect(() => {
     if (!leaving) return;
     const n = panel.current, s = n ? getComputedStyle(n) : null;
     const ms = s && s.display !== "none" ? Math.max(...s.transitionDuration.split(",").map((d) => parseFloat(d) * (d.trim().endsWith("ms") ? 1 : 1000))) : 0;
-    const t = window.setTimeout(() => setLeaving(false), ms > 0 ? ms + 50 : 0);
+    if (!(ms > 0)) { setLeaving(false); return; }
+    const t = window.setTimeout(() => setLeaving(false), ms + 50);
     return () => window.clearTimeout(t);
   }, [leaving]);
   // While the small-screen menu is open, the links come after the menu button in the DOM, as they do on screen
   // (the panel opens under the bar), so Tab goes from the button into them. Closed, and on wide screens, they sit
   // between the brand and the actions.
   const nav = hasLinks ? (
-    <nav ref={panel} id={id} aria-label={props["aria-label"] || sds.labels.mainNavigation} className="dk-navbar__nav" inert={leaving || undefined}
+    <nav ref={panel} id={id} aria-label={props["aria-label"] || sds.labels.mainNavigation} className={cn("dk-navbar__nav", leaving && "dk-navbar__nav--leaving")} inert={leaving || undefined}
       onTransitionEnd={(e) => { if (e.target === e.currentTarget && e.propertyName === "opacity" && !open) setLeaving(false); }}>
       <ul className="dk-navbar__links">{links.map((c, i) => <li key={React.isValidElement(c) && c.key != null ? c.key : i}>{c}</li>)}</ul>
     </nav>
