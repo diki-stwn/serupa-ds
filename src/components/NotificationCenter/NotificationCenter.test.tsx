@@ -53,6 +53,24 @@ describe('NotificationCenter', () => {
     expect(log).toEqual(['read a', 'all', 'clear']);
   });
 
+  test('an inbox that hides read ones: "Mark as read" takes its row away, and focus goes to the row in its place, then the last, then the empty line, not to the page', async () => {
+    const three: NotificationItem[] = [{ id: 'a', title: 'One' }, { id: 'b', title: 'Two' }, { id: 'c', title: 'Three' }];
+    function Unread() {
+      const [items, setItems] = React.useState(three);
+      return <NotificationCenter defaultOpen items={items} onMarkRead={(id) => setItems((l) => l.filter((n) => n.id !== id))} />;
+    }
+    await render(<Unread />);
+    await expect.poll(() => drawer() !== null).toBe(true);
+    const mark = async (row: Element) => { row.querySelector('button')!.focus(); await userEvent.keyboard('{Enter}'); };
+    const focusIs = () => [rows().map((li) => li.querySelector('p span[id]')!.textContent), document.activeElement!.tagName, (document.activeElement!.querySelector('p span[id]') || document.activeElement!).textContent];
+    await mark(rows()[0]);
+    await expect.poll(focusIs).toEqual([['Two', 'Three'], 'LI', 'Two']);
+    await mark(rows()[1]);   // the last: the one before
+    await expect.poll(focusIs).toEqual([['Two'], 'LI', 'Two']);
+    await mark(rows()[0]);   // none left: the empty line
+    await expect.poll(focusIs).toEqual([[], 'P', 'No notifications yet']);
+  });
+
   test('each "Mark as read" is described by its own row\'s title, so two read differently, and keeps its tooltip (TF4)', async () => {
     const two: NotificationItem[] = [{ id: 'p', title: 'Payment failed' }, { id: 'q', title: 'Invoice paid', description: 'INV-204' }];
     await render(<NotificationCenter defaultOpen items={two} onMarkRead={() => {}} />);
