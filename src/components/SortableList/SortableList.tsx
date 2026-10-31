@@ -25,6 +25,10 @@ export interface SortableListProps<T> extends Omit<React.HTMLAttributes<HTMLULis
   disabled?: boolean;
   /** The word before an item's name on its handle. Default: "Reorder" (from SerupaProvider labels). */
   reorderLabel?: string;
+  /** Which way the items run: "vertical" (default), a column, or "horizontal", a row (tabs, chips, a board's columns)
+   *  that drags and auto-scrolls sideways. In a row, Left and Right follow the reading direction, so in right-to-left
+   *  ArrowLeft moves an item later. */
+  orientation?: "vertical" | "horizontal";
 }
 
 type Drag = { key: string | number; from: number; to: number; pointer: boolean };
@@ -35,7 +39,7 @@ type Drag = { key: string | number; from: number; to: number; pointer: boolean }
    reported on drop (onReorder), so a cancelled one changes nothing. A <ul> of <li>; className and props go to the <ul>. */
 /** A list people reorder by dragging a handle or with the keyboard, with every move announced. */
 export const SortableList = /* @__PURE__ */ component<HTMLUListElement, SortableListProps<unknown>>("SortableList", function SortableList(props, ref) {
-  const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, className: 1, autoFocus: 1 } as const);
+  const rest = omit(props, { items: 1, getKey: 1, getLabel: 1, renderItem: 1, onReorder: 1, disabled: 1, reorderLabel: 1, orientation: 1, className: 1, autoFocus: 1 } as const);
   const sds = useSettings(words);
   const { getKey, getLabel } = props;
   const items: readonly unknown[] = props.items || [];   // missing items (a plain-JS caller): an empty list, not a TypeError
@@ -45,7 +49,12 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const hintId = domId("dk-sl", React.useId()) + "-hint";
   const list = React.useRef<HTMLUListElement | null>(null);
   const handles = React.useRef(new Map<string | number, HTMLButtonElement>());
-  const pointer = React.useRef<{ id: number; key: string | number; startY: number; y: number; grab: number; moved: boolean } | null>(null);
+  // start and at are the pointer along the list's axis: clientY in a column, clientX in a row.
+  const pointer = React.useRef<{ id: number; key: string | number; start: number; at: number; grab: number; moved: boolean } | null>(null);
+  const row = props.orientation === "horizontal";
+  // Where a box starts and how long it is along the axis.
+  const lead = (b: DOMRect) => row ? b.left : b.top, span = (b: DOMRect) => row ? b.width : b.height;
+  const rtl = () => row && !!list.current && getComputedStyle(list.current).direction === "rtl";
   useAutoFocus(props.autoFocus, () => list.current && list.current.querySelector<HTMLButtonElement>(".dk-sortable-list__handle"));
   const total = items.length;
   const from = drag ? items.findIndex((it) => getKey(it) === drag.key) : -1;
@@ -78,8 +87,9 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     if (!drag || drag.pointer || isComposing(e)) return;
     const k = e.key;
     let to = drag.to;
-    if (k === "ArrowUp" || k === "ArrowLeft") to = Math.max(0, to - 1);
-    else if (k === "ArrowDown" || k === "ArrowRight") to = Math.min(total - 1, to + 1);
+    const back = rtl() ? "ArrowRight" : "ArrowLeft", on = rtl() ? "ArrowLeft" : "ArrowRight";
+    if (k === "ArrowUp" || k === back) to = Math.max(0, to - 1);
+    else if (k === "ArrowDown" || k === on) to = Math.min(total - 1, to + 1);
     else if (k === "Home") to = 0;
     else if (k === "End") to = total - 1;
     else if (k === "Escape") { e.preventDefault(); e.stopPropagation(); finish(drag, false); return; }
@@ -113,31 +123,36 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const onPointerDown = (key: string | number) => (e: React.PointerEvent<HTMLButtonElement>) => {
     dragged.current = false;
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
-    const row = e.currentTarget.closest("li") as HTMLElement;
-    pointer.current = { id: e.pointerId, key, startY: e.clientY, y: e.clientY, grab: e.clientY - row.getBoundingClientRect().top, moved: false };
+    const li = e.currentTarget.closest("li") as HTMLElement, c = row ? e.clientX : e.clientY;
+    pointer.current = { id: e.pointerId, key, start: c, at: c, grab: c - lead(li.getBoundingClientRect()), moved: false };
+    // In a right-to-left row the first item is on the right, so "before" is further right.
+    const flip = rtl();
     const placeAt = (p: NonNullable<typeof pointer.current>): Drag | undefined => {
       const { items: all, getKey: keyOf } = latest.current;
       const at = all.findIndex((it) => keyOf(it) === p.key);
       if (at < 0) return undefined;
-      // The new place: how many of the other rows have their middle above the dragged row's middle.
+      // The new place: how many of the other rows have their middle before the dragged row's middle.
       const rows = list.current ? [...list.current.children] as HTMLElement[] : [];
       const self = rows.find((r) => r.dataset.key === String(p.key));
-      const middle = p.y - p.grab + (self ? self.getBoundingClientRect().height / 2 : 0);
+      const middle = p.at - p.grab + (self ? span(self.getBoundingClientRect()) / 2 : 0);
       let to = 0;
-      for (const r of rows) if (r !== self && r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 < middle) to++;
+      for (const r of rows) {
+        const b = r.getBoundingClientRect(), mid = lead(b) + span(b) / 2;
+        if (r !== self && (flip ? mid > middle : mid < middle)) to++;
+      }
       // A new object every move, so the row is placed under the pointer again.
       const next = { key: p.key, from: at, to, pointer: true };
       setDrag(next);
       return next;
     };
-    // Near the top or bottom edge of what scrolls (the list's scrolling container, or the page), it scrolls that way,
+    // Near the top or bottom edge (in a row, the left or right edge) of what scrolls (the list's scrolling container, or the page), it scrolls that way,
     // faster the closer the pointer is, so a long list can be reordered past the screen. touch-action: none on the
     // handle means the browser won't scroll for a touch drag on its own.
     let frame = 0;
     const scroller = (): HTMLElement => {
       for (let n = list.current ? list.current.parentElement : null; n && n !== document.body; n = n.parentElement) {
-        const o = getComputedStyle(n).overflowY;
-        if ((o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight) return n;
+        const o = row ? getComputedStyle(n).overflowX : getComputedStyle(n).overflowY;
+        if ((o === "auto" || o === "scroll") && (row ? n.scrollWidth > n.clientWidth : n.scrollHeight > n.clientHeight)) return n;
       }
       return (document.scrollingElement || document.documentElement) as HTMLElement;
     };
@@ -146,20 +161,21 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       const p = pointer.current;
       if (!p || !p.moved) return;
       const box = scroller(), page = box === document.scrollingElement || box === document.documentElement;
-      const top = page ? 0 : box.getBoundingClientRect().top, bottom = page ? window.innerHeight : box.getBoundingClientRect().bottom;
+      const b = box.getBoundingClientRect();
+      const top = page ? 0 : lead(b), bottom = page ? (row ? window.innerWidth : window.innerHeight) : lead(b) + span(b);
       const edge = Math.min(48, (bottom - top) / 4);
-      const by = p.y < top + edge ? -Math.ceil((top + edge - p.y) / edge * 16) : p.y > bottom - edge ? Math.ceil((p.y - bottom + edge) / edge * 16) : 0;
+      const by = p.at < top + edge ? -Math.ceil((top + edge - p.at) / edge * 16) : p.at > bottom - edge ? Math.ceil((p.at - bottom + edge) / edge * 16) : 0;
       if (!by) return;
-      const before = box.scrollTop;
-      box.scrollTop = before + by;
-      if (box.scrollTop !== before) placeAt(p);
+      const before = row ? box.scrollLeft : box.scrollTop;
+      if (row) box.scrollLeft = before + by; else box.scrollTop = before + by;
+      if ((row ? box.scrollLeft : box.scrollTop) !== before) placeAt(p);
       frame = requestAnimationFrame(tick);
     };
     const moveTo = (ev: PointerEvent) => {
       const p = pointer.current;
       if (!p || p.id !== ev.pointerId) return;
-      p.y = ev.clientY;
-      if (!p.moved && Math.abs(p.y - p.startY) < 4) return;
+      p.at = row ? ev.clientX : ev.clientY;
+      if (!p.moved && Math.abs(p.at - p.start) < 4) return;
       p.moved = true;
       dragged.current = true;
       ev.preventDefault();
@@ -174,7 +190,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
       // Placed where it's let go, not where the last render put it: a release right after a move comes before that
       // move's render.
       let d = current.current;
-      if (p.moved) { p.y = ev.clientY; d = placeAt(p) || d; }
+      if (p.moved) { p.at = row ? ev.clientX : ev.clientY; d = placeAt(p) || d; }
       if (p.moved && d && d.pointer) latest.current.finish(d, !cancel);
     };
     const up = end(false), cancel = end(true);
@@ -197,17 +213,18 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     const held = pointer.current && drag && drag.pointer ? String(drag.key) : null;
     const next = new Map<string, number>(), moved: [HTMLElement, number][] = [];
     for (const r of rows) {
-      const key = r.dataset.key || "", top = r.offsetTop, was = tops.current.get(key);
+      const key = r.dataset.key || "", top = row ? r.offsetLeft : r.offsetTop, was = tops.current.get(key);
       next.set(key, top);
       if (was === undefined || was === top || key === held) continue;
       const cs = getComputedStyle(r);
-      const shift = (cs.transform === "none" ? 0 : new DOMMatrix(cs.transform).m42) + (parseFloat(cs.translate.split(" ")[1]) || 0);
+      const t = cs.transform === "none" ? null : new DOMMatrix(cs.transform);
+      const shift = (t ? (row ? t.m41 : t.m42) : 0) + (parseFloat(cs.translate.split(" ")[row ? 0 : 1]) || 0);
       const dy = Math.round(was + shift - top);
       if (dy) moved.push([r, dy]);
     }
     tops.current = next;
     if (!moved.length || !list.current) return;
-    for (const [r, dy] of moved) { r.dataset.flip = ""; r.style.translate = "0 " + dy + "px"; }
+    for (const [r, dy] of moved) { r.dataset.flip = ""; r.style.translate = row ? dy + "px 0" : "0 " + dy + "px"; }
     void list.current.offsetWidth;   // one reflow: they start from where they were
     for (const [r] of moved) { delete r.dataset.flip; r.style.translate = ""; }
   });
@@ -219,7 +236,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     for (const r of rows) {
       if (p && drag && drag.pointer && r.dataset.key === String(drag.key)) {
         r.style.transform = "";
-        r.style.transform = "translateY(" + Math.round(p.y - p.grab - r.getBoundingClientRect().top) + "px)";
+        r.style.transform = (row ? "translateX(" : "translateY(") + Math.round(p.at - p.grab - lead(r.getBoundingClientRect())) + "px)";
       } else if (r.style.transform) r.style.transform = "";
     }
   });
@@ -227,7 +244,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   const name = props.reorderLabel || sds.labels.reorder;
   return (<>
     <ul role="list" {...rest} ref={(n) => { list.current = n; if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
-      className={cn("dk-sortable-list", drag && "dk-sortable-list--sorting", props.disabled && "dk-sortable-list--disabled", props.className)} data-component="sortable-list">
+      className={cn("dk-sortable-list", drag && "dk-sortable-list--sorting", props.disabled && "dk-sortable-list--disabled", props.className)} data-component="sortable-list" data-orientation={row ? "horizontal" : undefined}>
       {shown.map((it, index) => {
         const key = getKey(it), dragging = !!drag && drag.key === key;
         return (
