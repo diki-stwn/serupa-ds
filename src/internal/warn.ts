@@ -15,7 +15,7 @@ export function warnOnce(code: string, msg: string, key = code): void {
 }
 
 /** Forgets which warnings were given. The test setup calls it between tests, so a test that expects a warning
- *  doesn't depend on whether a test before it (in random order) already gave the same one. */
+ *  doesn't depend on whether a test before it (in random order) already gave the same one. @testseam */
 export function resetWarnings(): void {
   for (const k of Object.keys(warned)) delete warned[k];
 }
