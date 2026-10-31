@@ -14,11 +14,6 @@
       "count": 1
     }
   },
-  "src/components/Checkbox/Checkbox.tsx": {
-    "jsx-a11y-x/role-supports-aria-props": {
-      "count": 2
-    }
-  },
   "src/components/Combobox/Combobox.tsx": {
     "jsx-a11y-x/click-events-have-key-events": {
       "count": 1

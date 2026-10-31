@@ -240,7 +240,9 @@ describe('CheckboxGroup', () => {
     }
     await render(<App />);
     const g = document.getElementById('grp')!;
-    expect([g.getAttribute('role'), g.getAttribute('aria-invalid'), g.dataset.component]).toEqual(['group', 'true', 'checkbox-group']);
+    // role="group" supports neither aria-invalid nor aria-required, so invalid is on each box (TF1a).
+    expect([g.getAttribute('role'), g.getAttribute('aria-invalid'), g.dataset.component]).toEqual(['group', null, 'checkbox-group']);
+    expect([...g.querySelectorAll('input')].map((i) => i.getAttribute('aria-invalid'))).toEqual(['true', 'true', 'true']);
     const names = [...g.querySelectorAll('input')].map((i) => i.name);
     expect(new Set(names).size).toBe(1);
     expect(names[0]).not.toBe('');
@@ -273,7 +275,7 @@ describe('CheckboxGroup', () => {
       <Checkbox value="mail">Email</Checkbox><Checkbox value="sms">SMS</Checkbox>
     </CheckboxGroup></form>);
     const form = document.getElementById('rq') as HTMLFormElement;
-    expect([document.getElementById('grp')!.getAttribute('aria-required'), box('mail').required, box('sms').required, form.checkValidity()]).toEqual(['true', true, true, false]);
+    expect([document.getElementById('grp')!.getAttribute('aria-required'), box('mail').required, box('sms').required, form.checkValidity()]).toEqual([null, true, true, false]);
     await userEvent.click(box('sms'));
     expect([box('mail').required, box('sms').required, form.checkValidity()]).toEqual([false, false, true]);
   });

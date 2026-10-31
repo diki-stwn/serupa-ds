@@ -72,7 +72,9 @@ const GroupContext = /* @__PURE__ */ React.createContext<GroupContextValue | nul
 /* CheckboxGroup: any number of choices from a set of Checkboxes. It names them (name, or a generated one), holds the
    checked values (value with onValueChange, or defaultValue), and passes size, invalid, disabled and required down.
    A Checkbox with selectAll checks or clears the rest. Renders <div role="group">: label it with Field group (a
-   fieldset and legend), aria-label or aria-labelledby. */
+   fieldset and legend), aria-label or aria-labelledby. role="group" supports neither aria-invalid nor
+   aria-required, so invalid goes on each box and required is each box's native required while none is checked
+   (Field group says "Required" in the legend too). */
 const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
 
 /** The value boxes among a group's children (inside plain elements too), with whether each is disabled. */
@@ -93,6 +95,7 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
   const [own, setOwn] = React.useState<readonly (string | number)[]>(props.defaultValue || []);
   const raw = (controlled ? props.value : own) || [];
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
+  delete rest["aria-invalid"];   // it goes on the boxes
   const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
   const root = React.useRef<HTMLDivElement | null>(null);
   const [, rerender] = React.useState(0);
@@ -123,7 +126,7 @@ export const CheckboxGroup = /* @__PURE__ */ component<HTMLDivElement, CheckboxG
     },
   };
   return (
-    <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="group" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) { root.current = n; setRef(ref, n); }} role="group" aria-disabled={props.disabled || undefined}
       className={cn("dk-checkbox-group", "dk-checkbox-group--" + orientation, invalid && "dk-checkbox-group--invalid", props.className)} data-component="checkbox-group" data-orientation={orientation}>
       <GroupContext.Provider value={ctx}>{props.children}</GroupContext.Provider>
     </div>
@@ -148,7 +151,8 @@ export const Checkbox = /* @__PURE__ */ component<HTMLInputElement, CheckboxProp
   const rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, oneOf(SIZES, group && group.size, "md"));
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
-  if (invalid) rest["aria-invalid"] = true;   // a group's invalid is on the group
+  // A group's invalid goes on each box: role="group" can't carry aria-invalid (TF1a).
+  if (invalid || (group && group.invalid)) rest["aria-invalid"] = true;
   let mixed = !!props.indeterminate;
   let need = false;
   const key = props.value == null ? "" : String(props.value);
