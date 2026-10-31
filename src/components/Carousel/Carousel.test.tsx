@@ -99,7 +99,7 @@ const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'meta
 describe('Carousel', () => {
   test('with Alt, Ctrl or ⌘ the arrow keys are left to the browser (Alt+← goes back a page) (L8E28)', async () => {
     await render(<Carousel id="mk" label="Photos"><div>A</div><div>B</div><div>C</div></Carousel>);
-    const t = document.querySelector('#mk .dk-carousel__dot') as HTMLElement;
+    const t = document.querySelector('#mk button[aria-current="true"]') as HTMLElement;
     t.focus();
     const before = t.getAttribute('aria-current');
     expect([modified(t), modified(t, 'ArrowLeft'), document.activeElement === t, t.getAttribute('aria-current') === before]).toEqual([[false, false, false], [false, false, false], true, true]);
