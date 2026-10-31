@@ -16,10 +16,10 @@ const para = (id: string, text: string) => [...el(id).querySelectorAll('p')].fin
 const wait = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 // A list that loads `step` more per press, up to `all`, each load taking `ms`.
-function Paged({ id = 'lm', step = 10, all = 30, ms = 50, infinite = false, onLoad = () => {} }: { id?: string; step?: number; all?: number; ms?: number; infinite?: boolean; onLoad?: () => void }) {
+function Paged({ id = 'lm', step = 10, all = 30, ms = 50, infinite = false, onLoad = () => {}, endText }: { id?: string; step?: number; all?: number; ms?: number; infinite?: boolean; onLoad?: () => void; endText?: React.ReactNode }) {
   const [n, setN] = React.useState(step);
   const load = () => { onLoad(); return new Promise<void>((done) => setTimeout(() => { setN((x) => Math.min(x + step, all)); done(); }, ms)); };
-  return <div><ul>{Array.from({ length: n }, (_, i) => <li key={i}>Item {i + 1}</li>)}</ul><LoadMore id={id} onLoadMore={load} count={n} total={all} hasMore={n < all} infinite={infinite} /></div>;
+  return <div><ul>{Array.from({ length: n }, (_, i) => <li key={i}>Item {i + 1}</li>)}</ul><LoadMore id={id} onLoadMore={load} count={n} total={all} hasMore={n < all} infinite={infinite} endText={endText} /></div>;
 }
 
 describe('LoadMore', () => {
@@ -49,6 +49,16 @@ describe('LoadMore', () => {
     // Focus moves in an effect after the commit that shows the end text, so WebKit can show the text a beat first.
     await expect.poll(() => document.activeElement === end, { timeout: 3000 }).toBe(true);
     expect([end.textContent, loads]).toEqual(['You’ve reached the end', 2]);
+  });
+
+  test('L8E38: with endText={null}, the last page focuses the summary, so focus isn\'t lost to the page', async () => {
+    await render(<SerupaProvider locale="en-US"><Paged id="nt" step={10} all={20} endText={null} /></SerupaProvider>);
+    button('nt').focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => el('nt').querySelector('button') === null, { timeout: 3000 }).toBe(true);
+    const sum = para('nt', 'Showing 20 of 20')!;
+    await expect.poll(() => document.activeElement === sum, { timeout: 3000 }).toBe(true);
+    expect(sum.tabIndex).toBe(-1);
   });
 
   test('without count, "More loaded" once the load settles; endText null shows nothing at the end; label replaces the words', async () => {
