@@ -64,6 +64,15 @@ describe('Toast', () => {
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
+  // 191: a long word breaks where its language hyphenates it, before overflow-wrap cuts it anywhere.
+  test('the title and description hyphenate in the language around them, and a long word still never overflows (191)', async () => {
+    await render(<div lang="de"><App /></div>);
+    React.act(() => { toast({ title: 'Donaudampfschifffahrtsgesellschaftskapitän', description: 'Rechtsschutzversicherungsgesellschaften', duration: 0 }); });
+    await landed();
+    const x = toasts()[0], title = el(x.getAttribute('aria-labelledby')!), desc = el(x.getAttribute('aria-describedby')!);
+    expect([css(title).hyphens, css(desc).hyphens, title.closest('[lang]')!.getAttribute('lang'), title.scrollWidth <= title.clientWidth, x.scrollWidth <= x.clientWidth]).toEqual(['auto', 'auto', 'de', true, true]);
+  });
+
   test('swipe to dismiss: a touch drag sideways past a third, or a flick (even a gentle one), carries on at the finger\'s speed on ease-fling and closes it; a short slow drag, a vertical one or a mouse drag leave it', async () => {
     await withMotion(async () => {
       await render(<App />);
