@@ -15,7 +15,6 @@ const file = path.join(PROJECT, 'dist', 'purge.js');
 if (!fs.existsSync(file)) fail('no dist/purge.js: run npm run build first');
 const { serupaPurge, serupaPurgePostcss } = await import(pathToFileURL(file).href);
 const BUNDLE = path.join(PROJECT, 'dist', 'bundle.css');
-const EXTRA = path.join(PROJECT, 'dist', 'utilities-extra.css');
 const bundle = fs.readFileSync(BUNDLE, 'utf8');
 const runtime = JSON.parse(fs.readFileSync(path.join(PROJECT, 'dist', 'components.json'), 'utf8')).runtimeUtilities;
 
@@ -27,7 +26,8 @@ const has = (css, cls) => { const s = selector(cls); let i = css.indexOf(s); whi
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-purge-plugin-'));
 try {
   fs.mkdirSync(path.join(dir, 'src'));
-  fs.writeFileSync(path.join(dir, 'src', 'main.js'), `import ${JSON.stringify(BUNDLE)};\nimport ${JSON.stringify(EXTRA)};\nimport "./app.css";\ndocument.body.className = "flex md:grid-cols-3 bg-linear-to-r from-primary"; // renders <Button>\n`);
+  // The package's files by name (the build below maps serupa-ds to dist/), as a project imports them.
+  fs.writeFileSync(path.join(dir, 'src', 'main.js'), 'import "serupa-ds/bundle.css";\nimport "serupa-ds/utilities-extra.css";\nimport "./app.css";\ndocument.body.className = "flex md:grid-cols-3 bg-linear-to-r from-primary"; // renders <Button>\n');
   fs.writeFileSync(path.join(dir, 'src', 'app.css'), '.my-card { color: red }\n.grid-cols-7 { color: blue }\n');
   fs.writeFileSync(path.join(dir, 'index.html'), '<!doctype html><title>t</title><script type="module" src="/src/main.js"></script>');
   fs.writeFileSync(path.join(dir, 'safe.txt'), 'gap-7\n');
@@ -38,7 +38,7 @@ try {
 
   // Vite: a production build of the page.
   const { build } = await import('vite');
-  const out = await build({ root: dir, logLevel: 'silent', configFile: false, plugins: [serupaPurge({ keep: ['@safe.txt'] })], build: { outDir: path.join(dir, 'out'), write: false } });
+  const out = await build({ root: dir, logLevel: 'silent', configFile: false, resolve: { alias: { 'serupa-ds': path.join(PROJECT, 'dist') } }, plugins: [serupaPurge({ keep: ['@safe.txt'] })], build: { outDir: path.join(dir, 'out'), write: false } });
   const css = [out].flat().flatMap((o) => o.output).filter((a) => a.fileName.endsWith('.css')).map((a) => a.source).join('\n');
   t('Vite: the build keeps the utility classes the sources use', has(css, 'flex') && has(css, 'md:grid-cols-3'), css.length);
   t('Vite: it drops one they don\'t use, and --keep\'s safelist file works', !has(css, 'grid-cols-5') && has(css, 'gap-7'), css.length);
