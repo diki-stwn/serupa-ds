@@ -6,6 +6,8 @@
 //   components.css   @import of each <Name>.css, in the order of src/styles/cascade.txt, then the rest A to Z
 //   status.ts        each component that isn't stable (alpha, beta or deprecated, from the doc comment on its
 //                    export), for the docs pages
+//   tested.ts        each component's test names, grouped as its <Name>.test.tsx groups them, for the "What the
+//                    tests check" part of its docs page (docs/blocks.tsx)
 //   labels.ts        each component's own words (src/components/<Name>/labels.ts: <Name>Labels, en, id), merged into one English and
 //                    one Indonesian set (src/internal/labels.ts adds the shared ones)
 // The build, Storybook, Vitest, typecheck and lint run it first: node tools/build/registry.mjs.
@@ -62,6 +64,24 @@ const write = (file, text) => {
   fs.writeFileSync(file, text);
 };
 
+// A string literal in a test file: '…', "…" or `…` (a template's ${…} kept as written).
+const STR = "'((?:\\\\.|[^'\\\\])*)'|\"((?:\\\\.|[^\"\\\\])*)\"|`((?:\\\\.|[^`\\\\])*)`";
+/** The names of a component's tests, under the describe() they're in, skipped and todo tests left out. */
+export function testNames(n, root = ROOT) {
+  const file = path.join(root, 'src', 'components', n, `${n}.test.tsx`);
+  if (!fs.existsSync(file)) return [];
+  const src = fs.readFileSync(file, 'utf8');
+  const groups = [];
+  const re = new RegExp(String.raw`(?<![\w.])(describe|test|it)(\.only|\.skip|\.todo|\.each\([^)]*\)|\.concurrent)?\(\s*(?:${STR})`, 'g');
+  for (const m of src.matchAll(re)) {
+    if (m[2] === '.skip' || m[2] === '.todo') continue;
+    const name = (m[3] ?? m[4] ?? m[5]).replace(/\\(.)/g, '$1');
+    if (m[1] === 'describe') groups.push({ group: name, tests: [] });
+    else (groups.at(-1) || groups[groups.push({ group: n, tests: [] }) - 1]).tests.push(name);
+  }
+  return groups.filter((g) => g.tests.length);
+}
+
 export function buildRegistry(root = ROOT) {
   const out = path.join(root, 'src', 'generated');
   const all = components(root);
@@ -85,6 +105,10 @@ export function buildRegistry(root = ROOT) {
     // Indonesian words to every project that never imports idLabels.
     + `export const componentEn: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.en`).join(', ')});\n`
     + `export const componentId: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.id`).join(', ')});\n`);
+  // For the docs pages too: what each component's tests check, by their names (131).
+  write(path.join(root, 'docs', 'generated', 'tested.ts'), BANNER
+    + '/** Each component\'s tests by name, in groups as its <Name>.test.tsx has them (describe blocks). */\n'
+    + `export const componentTests: Record<string, { group: string; tests: string[] }[]> = ${JSON.stringify(Object.fromEntries(all.map((n) => [n, testNames(n, root)])), null, 1)};\n`);
   // For the docs pages (docs/blocks.tsx), not the package: each component that isn't stable, and its status.
   const unstable = all.map((n) => [n, status(n, root)]).filter(([, st]) => st !== 'stable');
   // In docs/generated/, not src/: nothing in the package reads it.

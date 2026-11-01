@@ -40,3 +40,7 @@ html, body { background-color: var(--surface); }
    a page is 1000px wide, about 120 characters of body text. Tables, code, story frames and the docs' own blocks
    keep the page's width. */
 .sbdocs-content :is(p, ul, ol, blockquote):not(.docs-story *, .sb-unstyled *, td *, th *, li *) { max-inline-size: var(--container-prose); }
+
+/* What the tests check (docs/blocks.tsx TestedBehavior): the list of test names, closed until asked for. */
+.sbdocs-content .sb-tested summary { cursor: pointer; font-weight: 600; }
+.sbdocs-content .sb-tested li { margin-block: 4px; }
