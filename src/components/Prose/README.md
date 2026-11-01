@@ -47,6 +47,7 @@ import { Prose } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one Prose. The list lives in `src/components/Prose/prose.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from prose.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--prose-text` | `text` | The body text (4.5:1 on the page). |
@@ -56,8 +57,8 @@ Each is an optional override: set it on the page, a container or one Prose. The 
 | `--prose-quote-text` | `text-muted` | A blockquote's text. |
 | `--prose-quote-border` | `border-strong` | The bar at a blockquote's start. |
 | `--prose-code-bg` | `surface-muted` | Behind inline code and code blocks. |
-| `--prose-caption` | `text-muted` | Figure captions, and the alt text of an image that failed to load. |
 | `--prose-table-border` | `border` | The line under each table row. |
+| `--prose-caption` | `text-muted` | Figure captions, and the alt text of an image that failed to load. |
 | `--prose-quote-border-width` | `border-width-4` | The width of a blockquote's bar (4px). |
 | `--prose-code-radius` | `rounded-sm` | Inline code's corners. |
 | `--prose-pre-radius` | `rounded-md` | A code block's corners (6px). |
@@ -68,3 +69,4 @@ Each is an optional override: set it on the page, a container or one Prose. The 
 | `--prose-list-indent` | `spacing-6` | The indent of lists and definitions (24px). |
 | `--prose-quote-indent` | `spacing-4` | Space between a blockquote's bar and its text (16px). |
 | `--prose-pre-padding` | `spacing-4` | Space inside a code block (16px). |
+<!-- token-table:end -->
