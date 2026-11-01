@@ -109,9 +109,13 @@ const badRef = [], unused = [], wrong = [];
 for (const [n, [, tok]] of COMP) {
   const d = compDefault(tok);
   if (d == null) { badRef.push(`${n} → ${JSON.stringify(tok.$value)}`); continue; }
-  const uses = [...css.matchAll(new RegExp(String.raw`var\(--${esc(n)}(?:,\s*((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*))?\)`, 'g'))].map((m) => m[1]);
+  // Read with no default only as the origin of a relative color (oklch(from var(--x) …)): there, unset is the point.
+  const uses = [...css.matchAll(new RegExp(String.raw`var\(--${esc(n)}(?:,\s*((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*))?\)`, 'g'))].filter((m) => !(m[1] == null && /\bfrom\s+$/.test(css.slice(Math.max(0, m.index - 8), m.index)))).map((m) => m[1]);
   if (!uses.length && !tok.$deprecated) unused.push(n);   // a deprecated token may have no effect until it's removed
-  for (const fb of uses) if (fb == null || norm(fb) !== norm(d)) wrong.push(`${n}: CSS default ${String(fb).trim().slice(0, 50)} ≠ ${d}`);
+  // An internal --dk- variable may stand in front of the default (var(--dk-x, default)): one the component works out
+  // from another token, such as a hover color from a background that was set (Button, 176).
+  const unwrap = (v) => /^var\(--dk-[\w-]+,\s*([\s\S]*)\)$/.exec(v.trim())?.[1] ?? v;
+  for (const fb of uses) if (fb == null || norm(unwrap(fb)) !== norm(d)) wrong.push(`${n}: CSS default ${String(fb).trim().slice(0, 50)} ≠ ${d}`);
 }
 if (COMP.size) {
   check(`component tokens: all ${COMP.size} refer to shared tokens`, !badRef.length, badRef.slice(0, 8).join('; '));

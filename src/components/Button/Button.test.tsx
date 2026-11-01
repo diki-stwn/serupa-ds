@@ -412,6 +412,25 @@ describe('Button', () => {
     expect(g('nested-d').borderTopColor).toBe(probe('violet-dark', 'borderTopColor', 'var(--danger-border)'));
   });
 
+  test('a primary button given its own background and no hover color gets one from it (176): darker in a light theme, lighter in a dark one; a hover color given, or no background given, keeps its own', async () => {
+    await render(<div>
+      <Button id="own" style={vars({ '--button-primary-bg': 'var(--emerald-600)' })}>Own</Button>
+      <div data-theme="blue-dark"><Button id="own-d" style={vars({ '--button-primary-bg': 'var(--emerald-600)' })}>Own dark</Button></div>
+      <Button id="both" style={vars({ '--button-primary-bg': 'var(--emerald-600)', '--button-primary-bg-hover': 'var(--emerald-800)' })}>Both</Button>
+      <Button id="plainh">Plain</Button>
+    </div>);
+    // Lightness in OKLCH, which the browser works the hover color out in.
+    const lch = (c: string) => /oklch\(([\d.]+) ([\d.]+) ([\d.]+)/.exec(color(`oklch(from ${c} l c h)`))!.slice(1).map(Number);
+    const hovered = async (id: string) => { await userEvent.hover(el(id)); await eased(el(id)); await expect.poll(() => el(id).getAnimations().length).toBe(0); return getComputedStyle(el(id)).backgroundColor; };
+    const [l, , h] = lch('var(--emerald-600)');
+    const [ll, , lh] = lch(await hovered('own')), [dl, , dh] = lch(await hovered('own-d'));
+    // Its own hue still (not the theme's blue), one step darker or lighter.
+    expect([ll < l - 0.05, dl > l + 0.08, Math.abs(lh - h) < 2, Math.abs(dh - h) < 2]).toEqual([true, true, true, true]);
+    expect(await hovered('both')).toBe(color('var(--emerald-800)'));
+    expect(await hovered('plainh')).toBe(color('var(--primary-hover)'));
+    await userEvent.unhover(el('plainh'));
+  });
+
   test('reduced motion: the spinner stands still and breathes, and it only fades in, without growing (EE1)', async () => {
     await render(<Button id="sub" loading>Save</Button>);
     const restore = reduceMotion();
