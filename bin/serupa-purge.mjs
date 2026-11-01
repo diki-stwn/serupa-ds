@@ -87,7 +87,7 @@ export function purge(css, used, drop = new Set()) {
     for (const { kind, pre, body } of blocks(s)) {
       if (kind === 'stmt') { out.push(pre); continue; }
       if (kind === 'at') {
-        if (/^@(media|supports|layer|container)\b/.test(pre)) {
+        if (/^@(media|supports|layer|container|starting-style)\b/.test(pre)) {   // rules inside: trimmed like the rest
           const inner = walk(body);
           if (inner.trim()) out.push(`${pre} { ${inner} }`);
         } else out.push(`${pre} {${body}}`);   // @keyframes, @property, @font-face…

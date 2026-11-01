@@ -23,6 +23,8 @@ dist/index.d.ts
 dist/index.js
 dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
+dist/purge.d.ts
+dist/purge.js
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
 dist/serupa.iife.js.map
