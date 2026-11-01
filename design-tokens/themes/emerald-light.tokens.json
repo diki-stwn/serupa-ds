@@ -3,7 +3,7 @@
     "primary": {
       "$type": "color",
       "$value": "{color.emerald-700}",
-      "$description": "Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text.",
+      "$description": "Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text. More contrast: brand 800 / brand 300, 7:1+ on `surface` and `primary-subtle`.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--primary"
@@ -13,7 +13,7 @@
     "primary-hover": {
       "$type": "color",
       "$value": "{color.emerald-800}",
-      "$description": "Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark).",
+      "$description": "Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark). More contrast: brand 900 / brand 200.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--primary-hover"
@@ -127,6 +127,16 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--field"
+        }
+      }
+    },
+    "field-readonly": {
+      "$type": "color",
+      "$value": "{color.zinc-50}",
+      "$description": "Alias. Background of a read-only or disabled form field: a step flatter than `field` (zinc-50 in light, the page's zinc-900 in dark), so it reads as not editable while its `field-border` still outlines it.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--field-readonly"
         }
       }
     },
@@ -262,7 +272,7 @@
     "focus-ring": {
       "$type": "color",
       "$value": "{color.emerald-600}",
-      "$description": "Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme).",
+      "$description": "Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme). More contrast: brand 700 / brand 300.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--focus-ring"

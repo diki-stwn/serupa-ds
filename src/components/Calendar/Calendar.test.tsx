@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { color, css, forcedColors, iconPoints, press } from '../../../tools/test/vitest/helpers';
 import { Calendar, type CalendarProps } from './Calendar';
 
@@ -265,5 +265,30 @@ describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
       if (l !== 'en-US') expect(heads.every((th) => (th.querySelector('[aria-hidden]')!.textContent.length) < th.getAttribute('abbr')!.length)).toBe(true);
       if (l === 'en-US') expect(heads.some((th) => th.textContent.startsWith(sat))).toBe(true);
     }
+  });
+  test('a 320px screen with text at 125%: the seven days fit inside it, each still at least 24px (GR71)', async () => {
+    document.documentElement.style.fontSize = '125%';
+    await page.viewport(320, 700);
+    try {
+      await render(<div style={{ padding: '0 24px' }}><Calendar data-testid="cal" defaultMonth={new Date(2025, 2, 1)} /></div>);
+      const days = [...document.querySelectorAll<HTMLElement>('[data-testid=cal] [data-date]')];
+      // The week, edge to edge, leaves a 3rem gutter (60px here) for the page's and a popover's padding.
+      const week = Math.max(...days.map((d) => d.getBoundingClientRect().right)) - Math.min(...days.map((d) => d.getBoundingClientRect().left));
+      expect([week <= 320 - 60 + 1, Math.min(...days.map((d) => d.getBoundingClientRect().width)) >= 24]).toEqual([true, true]);
+    } finally { document.documentElement.style.fontSize = ''; await page.viewport(900, 700); }
+  });
+});
+
+describe('Calendar follows a value set from outside (L8E103)', () => {
+  test('a controlled value moved to another month shows that month and takes the Tab stop; in the same month it takes the Tab stop; a controlled month stays put', async () => {
+    const months: string[] = [];
+    const stop = () => cal<HTMLElement>('button[tabindex="0"]').dataset.date;
+    const r = await render(<Cal value={new Date(2025, 2, 10)} months={months} />);
+    await r.rerender(<Cal value={new Date(2025, 4, 6)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-06']);
+    await r.rerender(<Cal value={new Date(2025, 4, 20)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-20']);
+    await r.rerender(<Cal value={new Date(2025, 3, 2)} month={new Date(2025, 4, 1)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-20']);
   });
 });

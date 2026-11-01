@@ -75,7 +75,7 @@
       "warning-bg": {
         "$type": "color",
         "$value": "{color.warning-subtle}",
-        "$description": "A step with status \"warning\": its circle.",
+        "$description": "A step with a warning.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--stepper-warning-bg"
@@ -85,7 +85,7 @@
       "warning-border": {
         "$type": "color",
         "$value": "{color.warning-text}",
-        "$description": "Its ring (3:1 on the surface).",
+        "$description": "Its ring.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--stepper-warning-border"
@@ -235,7 +235,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-95}",
-        "$description": "Size of a step's indicator while its head is held down (95%). 1 turns press feedback off.",
+        "$description": "Size of a step's indicator while its head is held down (95%). 1 turns it off.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--stepper-press-scale"

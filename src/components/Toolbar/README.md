@@ -76,6 +76,7 @@ Your `onKeyDown` runs before the toolbar's own keys, so `e.preventDefault()` in 
 
 Each is an optional override: set it on the page, a container or one Toolbar. The list lives in `src/components/Toolbar/toolbar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from toolbar.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--toolbar-bg` | `surface` | The background, behind the controls. |
@@ -83,3 +84,4 @@ Each is an optional override: set it on the page, a container or one Toolbar. Th
 | `--toolbar-radius` | `rounded-md` | The corners (6px). |
 | `--toolbar-padding` | `spacing-1` | Space inside, on every side (4px). |
 | `--toolbar-gap` | `spacing-1` | Space between the controls (4px). |
+<!-- token-table:end -->

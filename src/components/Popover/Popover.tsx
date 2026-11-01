@@ -58,7 +58,13 @@ export const Popover = /* @__PURE__ */ component<HTMLDivElement, PopoverProps>("
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const ask = React.useRef(props.onOpenChange); ask.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { if (!controlled) setInner(v); if (ask.current) ask.current(v, { reason }); }, [controlled]);
+  // A close() kept by the content and called once it has closed already (after Escape, say) asks nothing.
+  const shown = React.useRef(open); shown.current = open;
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => {
+    if (v === shown.current) return;
+    if (!controlled) { shown.current = v; setInner(v); }
+    if (ask.current) ask.current(v, { reason });
+  }, [controlled]);
   const close = React.useCallback((reason: OpenChangeReason, focusTrigger: boolean) => { set(false, reason); if (focusTrigger && triggerRef.current) triggerRef.current.focus(); }, [set]);
   const focusFirst = props.initialFocus !== "panel";
 

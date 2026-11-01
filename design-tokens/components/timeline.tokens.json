@@ -15,7 +15,7 @@
       "title-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "An event's title (4.5:1 on the page).",
+        "$description": "An event's title.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--timeline-title-color"

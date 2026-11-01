@@ -219,17 +219,28 @@ Each is an optional override: set it on the page, a container or one loader. Uns
 .gallery { --loader-skeleton-rect-height: var(--spacing-48); }
 ```
 
+<!-- token-table:start (made from loader.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--loader-primary` | `primary` | Color with `tone="primary"` |
 | `--loader-muted` | `text-muted` | Color with `tone="muted"` |
 | `--loader-inverse` | `white` | Color with `tone="inverse"` (every variant) |
-| `--loader-spokes-width` | `stroke-width-4` | Spoke thickness (drawn at 5/8 scale: 2.5 of the 24 units, about 10% of the size) |
-| `--loader-spokes-duration` | `duration-1000` | One full turn of the spokes, a spoke at a time (a tick every 125ms) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--loader-size-sm` | `spacing-4` | Size sm (16px) |
 | `--loader-size-md` | `spacing-6` | Size md (24px) |
 | `--loader-size-lg` | `spacing-10` | Size lg (40px) |
 | `--loader-skeleton-rect-height` | `spacing-24` | Height of the skeleton rect when no class sets one (96px) |
+
+**Shape**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--loader-stroke-width` | `stroke-width-2` | Ring thickness in its 24-unit drawing (about 8% of its size) |
 | `--loader-track-opacity` | `opacity-20` | Strength of the ring's track |
 | `--loader-dots-dim` | `opacity-25` | How faint a dot gets between pulses |
@@ -239,13 +250,21 @@ Each is an optional override: set it on the page, a container or one loader. Uns
 | `--loader-skeleton-radius` | `rounded-md` | Corners of the skeleton rect (6px) |
 | `--loader-skeleton-text-radius` | `rounded-sm` | Corners of the skeleton's text lines (4px) |
 | `--loader-pixel-dim` | `opacity-15` | How faint a pixel square is between waves |
+| `--loader-pixel-glow` | `spacing-0` | Glow around the lit pixel squares (blur radius); 0 is off. The `glow` prop sets it to `--loader-pixel-glow-size` |
 | `--loader-pixel-divider` | `opacity-10` | Strength of the dividers, in the loader's color; the same next to lit and dim squares |
 | `--loader-pixel-divider-width` | `stroke-width-1` | Width of the dividers, in half-units of the 24-unit drawing (1: 0.5px at 24px) |
-| `--loader-pixel-glow` | `spacing-0` | Glow around the lit pixel squares (blur radius); 0 is off. The `glow` prop sets it to `--loader-pixel-glow-size` |
 | `--loader-pixel-glow-size` | `spacing-0.5` | Blur radius of the glow the `glow` prop turns on (2px) |
+| `--loader-spokes-width` | `stroke-width-4` | Spoke thickness (drawn at 5/8 scale: 2.5 of the 24 units, about 10% of the size) |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--loader-dots-duration` | `duration-1000` | One pulse of the dots |
 | `--loader-dots-stagger` | `delay-150` | Delay from one dot to the next |
-| `--loader-pixel-duration` | `duration-1200` | One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s) |
 | `--loader-pixel-stagger` | `delay-75` | Delay from one step of a pixel pattern to the next |
+| `--loader-pixel-duration` | `duration-1200` | One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s) |
+| `--loader-spokes-duration` | `duration-1000` | One full turn of the spokes, a spoke at a time (a tick every 125ms) |
+<!-- token-table:end -->
 
 The ring is a quarter arc that turns once every `motion-loop-spinner` (700ms) with `ease-linear`, the one spinner speed of the library: Switch's pending ring and the indeterminate circular Progress turn with it. Only the drawing turns, so nothing is repainted on each frame. The text shine and the skeleton shimmer take 2s (`duration-1000` twice) with `ease-in-out`, and both move on `translate`, which the compositor runs without repainting: the skeleton slides a layer three bones wide through each bone, and the text slides a window holding a full-color copy of the words across them. Under reduced motion the ring stands still and breathes over twice that (2s, `ease-in-out`). It fades in over `duration-150` with `ease-out`.

@@ -68,6 +68,7 @@ Every other prop, `className` and `ref` go to the outer `<div>`. It has `data-co
 
 Each is an optional override: set it on the page, a container or one progress indicator. The list lives in `src/components/Progress/progress.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from progress.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--progress-track` | `secondary` | The empty part of the bar or ring. |
@@ -85,6 +86,7 @@ Each is an optional override: set it on the page, a container or one progress in
 | `--progress-circle-lg` | `spacing-16` | The ring, size="lg" (64px). |
 | `--progress-radius` | `rounded-full` | The bar's ends. |
 | `--progress-stroke-width` | `stroke-width-3` | The ring's thickness, in 24ths of its size (3: 3px at 24px). |
-| `--progress-gap` | `spacing-1_5` | Space between the label row and the bar (6px). |
+| `--progress-gap` | `spacing-1.5` | Space between the label row and the bar (6px). |
 | `--progress-label-weight` | `font-medium` | The label's weight (500). |
 | `--progress-duration` | `motion-change-lg` | How long the fill takes to move to a new value. |
+<!-- token-table:end -->

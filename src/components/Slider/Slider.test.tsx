@@ -128,6 +128,15 @@ describe('Slider', () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);
   });
 
+  test('L8E109: a press on the thumb let go where it was, or a drag back to the start, calls no onValueCommit', async () => {
+    await setup();
+    await press('one', 0.5);                                  // on the thumb at 50
+    await drag(el('one'), at('one', 0.5), at('one', 0.5));    // a drag that ends where it began
+    expect([now('one'), commits]).toEqual([50, []]);
+    await press('one', 0.7);
+    expect(commits).toEqual(['70']);
+  });
+
   test('pointer: dragging past the end clamps (100), changing as it goes, with one commit at the end', async () => {
     await setup();
     const t = track('one'), r = rect(el('one'));
@@ -429,5 +438,14 @@ describe('Slider at 320px (GM2)', () => {
     expect([text(one.getAttribute('aria-labelledby')), text(one.getAttribute('aria-describedby')), one.getAttribute('aria-invalid'), one.getAttribute('aria-disabled')])
       .toEqual(['Volume', '0 is muted / Too loud', 'true', 'true']);
     expect([two.getAttribute('role'), text(two.getAttribute('aria-labelledby')), text(two.getAttribute('aria-describedby'))]).toEqual(['group', 'Price', 'In dollars']);
+  });
+  test('L8E87 in a Field with an error: aria-errormessage is on each thumb (where aria-invalid is), not on the root <div>', async () => {
+    await render(<>
+      <Field label="Volume" error="Too loud"><Slider data-testid="se1" defaultValue={90} /></Field>
+      <Field label="Price" error="Too wide"><Slider data-testid="se2" defaultValue={[10, 90]} /></Field>
+    </>);
+    const root = (t: string) => document.querySelector<HTMLElement>(`[data-testid=${t}]`)!;
+    const said = (t: string) => [...root(t).querySelectorAll('[role=slider]')].map((th) => document.getElementById(th.getAttribute('aria-errormessage') || '')?.textContent ?? null);
+    expect([said('se1'), said('se2'), root('se1').getAttribute('aria-errormessage'), root('se2').getAttribute('aria-errormessage')]).toEqual([['Too loud'], ['Too wide', 'Too wide'], null, null]);
   });
 });

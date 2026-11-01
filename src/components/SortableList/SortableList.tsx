@@ -77,7 +77,10 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   // move (WCAG 2.5.7: a single pointer can reorder without dragging). With one picked up, a click on another row's
   // handle drops it in that row's place.
   const dragged = React.useRef(false);
+  // A press on another row's handle while one is picked up: its click drops there, so the blur it causes doesn't cancel.
+  const dropping = React.useRef(false);
   const onClick = (key: string | number, index: number) => () => {
+    dropping.current = false;
     if (props.disabled) return;
     if (dragged.current) { dragged.current = false; return; }   // the click that ends a drag
     if (drag && !drag.pointer) finish(key === drag.key ? drag : { ...drag, to: index }, true);
@@ -104,7 +107,7 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   // Focus leaving a picked-up item (a click elsewhere) puts it back. Checked a frame later: a move refocuses it first.
   const onBlur = () => requestAnimationFrame(() => {
     const d = current.current;
-    if (d && !d.pointer && handles.current.get(d.key) !== document.activeElement) finish(d, false);
+    if (d && !d.pointer && !dropping.current && handles.current.get(d.key) !== document.activeElement) finish(d, false);
   });
   // Moving a row in the DOM can take focus off its handle: give it back.
   // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
@@ -122,6 +125,11 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
   React.useEffect(() => () => { if (stop.current) stop.current(); }, []);
   const onPointerDown = (key: string | number) => (e: React.PointerEvent<HTMLButtonElement>) => {
     dragged.current = false;
+    if (drag && !drag.pointer && e.button === 0 && !props.disabled) {
+      dropping.current = true;
+      // Released off the handle, there's no click: then the blur counts after all.
+      window.addEventListener("pointerup", () => setTimeout(() => { if (dropping.current) { dropping.current = false; onBlur(); } }), { once: true });
+    }
     if (props.disabled || e.button !== 0 || (drag && !drag.pointer)) return;
     const li = e.currentTarget.closest("li") as HTMLElement, c = row ? e.clientX : e.clientY;
     pointer.current = { id: e.pointerId, key, start: c, at: c, grab: c - lead(li.getBoundingClientRect()), moved: false };

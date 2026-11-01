@@ -219,3 +219,19 @@ describe('Breadcrumb', () => {
     } finally { console.error = log; }
   });
 });
+
+describe('Breadcrumb on another page (L8E102)', () => {
+  test('a trail expanded with "…" starts collapsed again once the trail changes (the layout, and Breadcrumb, stay mounted); it stayed expanded for every page after', async () => {
+    const T = ({ at }: { at: string }) => <Breadcrumb id="l8e102" maxItems={3} expandLabel="Show all">
+      <BreadcrumbItem href="#home">Home</BreadcrumbItem><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem href="#b">B</BreadcrumbItem>
+      <BreadcrumbItem href={'#c' + at}>C{at}</BreadcrumbItem><BreadcrumbItem href={'#d' + at}>D{at}</BreadcrumbItem>
+    </Breadcrumb>;
+    const r = await render(<T at="1" />);
+    await userEvent.click(el('l8e102').querySelector('button[aria-label="Show all"]')!);
+    expect(trail('l8e102')).toBe('Home > A > B > C1 > D1');
+    await r.rerender(<T at="2" />);
+    expect(trail('l8e102')).toBe('Home > … > C2 > D2');
+    await r.rerender(<T at="2" />);
+    expect(trail('l8e102')).toBe('Home > … > C2 > D2');
+  });
+});
