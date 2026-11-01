@@ -12,6 +12,7 @@
 //   :root                                 every other token, the font families, and the type-* shorthands
 //   contrast and density axes             data-contrast="more" (and prefers-contrast: more) and data-density="compact"
 //   shadow axis (73)                      data-shadow="brand": the box shadows in a deep shade of the brand color
+//   type scale axis (22)                  data-type-scale="fluid": sizes from 1.5rem up grow with the viewport
 //   :lang() per script (143)              taller lines for Arabic, Devanagari, Thai and CJK; CJK's font by language
 //   .type-*                               one class per complete text style
 //   @font-face                            the fonts in fonts/
@@ -67,9 +68,11 @@ export function buildTokensCss(t) {
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
   css += tintedShadows(all, line);
+  css += fluidType(all, styles, line);
   css += scripts(t, all);
   for (const s of styles) {
-    css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
+    const f = fluid(s.fontSize) && scaleOf(all, s.fontSize);
+    css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${f ? `var(--text-${f})` : s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
     if (s.fontStyle && s.fontStyle !== 'normal') css += `  font-style: ${s.fontStyle};\n`;
     if (s.textTransform) css += `  text-transform: ${s.textTransform};\n`;
     if (s.opticalSize != null) css += `  font-variation-settings: "opsz" ${s.opticalSize};\n`;
@@ -179,6 +182,30 @@ function tintedShadows(all, line) {
   const at = (x) => (typeof x.value === 'object' ? Object.values(x.value)[0] : x.value);
   let css = `[data-shadow="brand"] {\n${box.map((x) => line(x.name, at(x).replace(/rgb\(0 0 0 \/ ([\d.]+)\)/g, TINT))).join('')}}\n`;
   css += `[data-shadow="neutral"] {\n${box.map((x) => line(x.name, at(x))).join('')}}\n`;
+  return css;
+}
+
+// Fluid type (22): data-type-scale="fluid" makes every size from 1.5rem (text-2xl) up a clamp() that is 70% of the
+// size on a 320px viewport and grows to the full size at 1280px. The body sizes stay put. The smallest size is never
+// under 1.25rem, and the largest is at most 1.43 times the smallest, well inside the 2.5 that WCAG 1.4.4 allows for
+// text to still double with browser zoom (the rem part grows with zoom). The --text-* sizes, the --text-type-*
+// shorthands and the .type-* classes all follow; data-type-scale="fixed" puts the fixed sizes back in a section.
+const rem = (v) => (/^[\d.]+rem$/.test(v) ? parseFloat(v) : null);
+const fluid = (v) => rem(v) != null && rem(v) >= 1.5;
+const r4 = (n) => +n.toFixed(4);
+export function fluidSize(v) {
+  const max = rem(v), min = Math.max(1.25, max * 0.7), slope = (max - min) / 60;   // 20rem to 80rem of viewport
+  return `clamp(${r4(min)}rem, ${r4(min - slope * 20)}rem + ${r4(slope * 100)}vw, ${v})`;
+}
+const sizesOf = (all) => all.filter((x) => /^text-[a-z0-9]+$/.test(x.name) && typeof x.value === 'string' && fluid(x.value));
+const scaleOf = (all, v) => sizesOf(all).find((x) => x.value === v)?.name.slice(5);
+function fluidType(all, styles, line) {
+  const sizes = sizesOf(all), big = styles.filter((s) => scaleOf(all, s.fontSize));
+  const short = (s) => line(`text-${s.name}`, `${s.fontWeight} var(--text-${scaleOf(all, s.fontSize)})/${s.lineHeight} var(--font-${s.family})`);
+  let css = `[data-type-scale="fluid"] {\n${sizes.map((x) => line(x.name, fluidSize(x.value))).join('')}`;
+  css += big.map(short).join('') + '}\n';
+  css += `[data-type-scale="fixed"] {\n${sizes.map((x) => line(x.name, x.value)).join('')}`;
+  css += big.map(short).join('') + '}\n';
   return css;
 }
 
