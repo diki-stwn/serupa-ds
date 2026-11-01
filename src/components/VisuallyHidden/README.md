@@ -16,12 +16,13 @@ const { VisuallyHidden } = window.Serupa;
 
 - Words that make something clear to screen reader users when sight already makes it clear: "3 unread messages" shown as "3".
 - A heading for a section that's obvious by sight, so screen reader users can jump to it.
-- A "Skip to content" link that shows when someone presses Tab, with `focusable`.
+- Your own focusable content that shows when someone presses Tab, with `focusable`. For the page's "Skip to content" link, use [SkipLink](../SkipLink/README.md): it has the words in both languages and moves focus to the main content.
 
 ## When not to use
 
 - Naming an icon-only button: use [IconButton](../IconButton/README.md) instead; its `label` is required.
 - Saying a link opens a new tab: use `external` on [Link](../Link/README.md), which adds "(opens in a new tab)" for you.
+- A "Skip to content" link: use [SkipLink](../SkipLink/README.md), which also moves focus to the main content.
 - Hiding something from everyone, screen readers included: use the `hidden` attribute or `display: none` instead.
 
 ## Usage

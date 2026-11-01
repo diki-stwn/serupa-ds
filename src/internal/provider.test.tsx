@@ -26,7 +26,7 @@ describe('SerupaProvider labels', () => {
     </SerupaProvider>);
     expect(name('.dk-alert__dismiss')).toBe('Abaikan');
     expect(name('.dk-pagination')).toBe('Halaman');
-    const arrows = [...document.querySelectorAll('.dk-pagination__arrow')].map((a) => a.getAttribute('aria-label'));
+    const arrows = [...document.querySelectorAll('nav button:not([aria-label^="Halaman "])')].map((a) => a.getAttribute('aria-label'));
     expect(arrows).toEqual(['Sebelumnya', 'Berikutnya']);
     expect(document.querySelector('[aria-current="page"]')?.getAttribute('aria-label')).toBe('Halaman 2');
     expect(name('.dk-loader')).toBe('Memuat');
