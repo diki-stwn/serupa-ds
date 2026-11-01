@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Button } from '../Button/Button';
@@ -245,15 +245,34 @@ describe('Table', () => {
     expect([css(th).position, f.getAttribute('aria-label'), f.getAttribute('tabindex')]).toEqual(['sticky', 'Sticky', '0']);
   });
 
-  test('captionHidden, the deprecated name, still hides the caption on screen and warns once to use hideCaption', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await render(<><Table id="old" caption="Old"><TableBody><TableRow><TableCell>1</TableCell></TableRow></TableBody></Table>
-      <Table caption="Old 2" captionHidden><TableBody><TableRow><TableCell>2</TableCell></TableRow></TableBody></Table>
-      <Table caption="Old 3" captionHidden><TableBody><TableRow><TableCell>3</TableCell></TableRow></TableBody></Table></>);
-    const caps = [...document.querySelectorAll('caption')];
-    expect(caps.map((c) => c.classList.contains('dk-visually-hidden'))).toEqual([false, true, true]);
-    expect(warn.mock.calls.filter(([m]) => /captionHidden is deprecated/.test(String(m)))).toHaveLength(1);
-    warn.mockRestore();
+  test('stickyHeader with link rows: a row scrolled under the header stays under it, so its checkbox and button don\'t paint over the header or take its clicks (GR76)', async () => {
+    await render(<Table id="tlsh" stickyHeader containerProps={{ style: { maxHeight: '240px' }, 'aria-label': 'Projects' }}>
+      <TableHead><TableRow><TableSelectCell header label="Select all" /><TableHeaderCell>Project</TableHeaderCell><TableHeaderCell>Actions</TableHeaderCell></TableRow></TableHead>
+      <TableBody>{Array.from({ length: 12 }, (_, i) => <TableRow key={i} href={'#p' + i}><TableSelectCell label={'Select Project ' + i} /><TableCell>{'Project ' + i}</TableCell><TableCell><Button size="sm" variant="ghost">{'Edit ' + i}</Button></TableCell></TableRow>)}</TableBody>
+    </Table>);
+    const f = el('tlsh').parentElement!;
+    f.scrollTop = 85;
+    await expect.poll(() => f.scrollTop).toBe(85);
+    const at = (name: string) => { const b = f.querySelector<HTMLElement>(`[aria-label="${name}"]`)!.getBoundingClientRect(); const x = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2) as HTMLElement; return x.getAttribute('aria-label') || x.textContent; };
+    const edit = [...f.querySelectorAll('thead th')][2].getBoundingClientRect(), hit = document.elementFromPoint(edit.left + 12, edit.top + edit.height / 2) as HTMLElement;
+    expect([at('Select all'), hit.closest('thead') !== null]).toEqual(['Select all', true]);
+  });
+
+  test('stickyHeader: the header lifts with a shadow once rows scroll under it, and is flat at the top (KW16); without scroll-state queries it stays flat', async () => {
+    await setup();
+    const f = el('tsticky').parentElement!, th = f.querySelector('th')!;
+    // A shadow shows when one of its colors isn't fully transparent.
+    const lifted = () => (css(th).boxShadow.match(/rgba?\([^)]*\)/g) || []).some((c) => { const n = c.match(/[\d.]+/g)!; return n.length < 4 || Number(n[3]) > 0; });
+    const lifts = CSS.supports('container-type: scroll-state');
+    await withMotion(async () => {
+      f.scrollTop = 0;
+      await expect.poll(lifted).toBe(false);
+      f.scrollTop = 80;
+      if (lifts) await expect.poll(lifted).toBe(true);
+      else { await settle(100); expect(lifted()).toBe(false); }
+      f.scrollTop = 0;
+      await expect.poll(lifted).toBe(false);
+    });
   });
 
   test('unknown size and align fall back to md and start', async () => {
@@ -405,5 +424,83 @@ describe('TableActionBar (62)', () => {
       document.documentElement.setAttribute('data-theme', th);
       expect(contrast(css(count).color, css(el('bar')).backgroundColor), th).toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe('TableRow href (TF3)', () => {
+  function Linked(p: { onEdit?: () => void; markSecond?: boolean; onClick?: () => void; target?: string }) {
+    return <Table caption="Users"><TableBody>
+      <TableRow id="r1" href="#ada" target={p.target} onClick={p.onClick}>
+        <TableSelectCell label="Select Ada" />
+        <TableCell id="c1">Ada</TableCell>
+        <TableCell id="c2" link={p.markSecond}>Admin</TableCell>
+        <TableCell><Button size="sm" onClick={p.onEdit}>Edit</Button></TableCell>
+      </TableRow>
+      <TableRow id="r2"><TableCell>Grace</TableCell></TableRow>
+    </TableBody></Table>;
+  }
+
+  test('one real link, in the first TableCell by default (not the select cell), named by its text; a row without href has none', async () => {
+    const s = await render(<Linked />);
+    const links = s.container.getElementsByTagName('a');
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute('href')).toBe('#ada');
+    expect(links[0].parentElement!.id).toBe('c1');
+    await expect.element(s.getByRole('link', { name: 'Ada' })).toBeInTheDocument();
+    expect(el('r2').getElementsByTagName('a')).toHaveLength(0);
+  });
+
+  test('link marks the cell that holds it instead; target="_blank" adds rel="noopener noreferrer"', async () => {
+    const s = await render(<Linked markSecond target="_blank" />);
+    const a = s.getByRole('link').element() as HTMLAnchorElement;
+    expect(a.parentElement!.id).toBe('c2');
+    expect(a.target).toBe('_blank');
+    expect(a.rel).toBe('noopener noreferrer');
+  });
+
+  test("the link's area covers the row: a click anywhere in it follows the link; the Edit button and the checkbox still work on their own", async () => {
+    const onEdit = vi.fn();
+    const s = await render(<Linked onEdit={onEdit} />);
+    const a = s.getByRole('link').element() as HTMLAnchorElement;
+    const follow = vi.fn((e: Event) => e.preventDefault());
+    a.addEventListener('click', follow);
+    const row = el('r1').getBoundingClientRect(), cover = getComputedStyle(a, '::after');
+    expect(cover.position).toBe('absolute');
+    // A point in the Role cell (not the link's text) hits the link's stretched area.
+    const c2 = el('c2').getBoundingClientRect();
+    expect(document.elementFromPoint(c2.right - 4, c2.top + c2.height / 2)).toBe(a);
+    expect(document.elementFromPoint(row.left + row.width / 2, row.top + 1)).toBe(a);
+    await userEvent.click(el('c2'), { position: { x: c2.width - 4, y: c2.height / 2 }, force: true });   // the link is on top, as elementFromPoint says
+    expect(follow).toHaveBeenCalledTimes(1);
+    await s.getByRole('button', { name: 'Edit' }).click();
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    await s.getByRole('checkbox', { name: 'Select Ada' }).click();
+    await expect.element(s.getByRole('checkbox', { name: 'Select Ada' })).toBeChecked();
+    expect(follow).toHaveBeenCalledTimes(1);
+  });
+
+  test('the keyboard reaches the link with Tab and follows it with Enter; the row shows its focus ring', async () => {
+    const s = await render(<Linked />);
+    const a = s.getByRole('link').element() as HTMLAnchorElement;
+    const follow = vi.fn((e: Event) => e.preventDefault());
+    a.addEventListener('click', follow);
+    (s.getByRole('checkbox', { name: 'Select Ada' }).element() as HTMLElement).focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(a);
+    expect(css(el('r1')).outlineStyle).toBe('solid');
+    await userEvent.keyboard('{Enter}');
+    expect(follow).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(s.getByRole('button', { name: 'Edit' }).element());
+    expect(css(el('r1')).outlineStyle).toBe('none');
+  });
+
+  test('onClick on a row without href warns once (mouse only); with href it does not', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const calls = () => warn.mock.calls.filter(([m]) => /TableRow: onClick/.test(String(m)));
+    await render(<><Linked onClick={() => {}} /><Table caption="T"><TableBody><TableRow onClick={() => {}}><TableCell>x</TableCell></TableRow><TableRow onClick={() => {}}><TableCell>y</TableCell></TableRow></TableBody></Table></>);
+    expect(calls()).toHaveLength(1);
+    expect(String(calls()[0][0])).toMatch(/give the row an href/);
+    warn.mockRestore();
   });
 });

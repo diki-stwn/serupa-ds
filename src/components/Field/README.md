@@ -75,17 +75,19 @@ Field takes one control as its child (any number with `group`). The control keep
 
 Each is an optional override: set it on the page, a container or one field. The list lives in `src/components/Field/field.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from field.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--field-text` | `text` | Text with no token of its own (the label, hint and error have theirs) |
 | `--field-label-color` | `text` | Label |
-| `--field-label-weight` | `font-medium` | Label weight (500) |
 | `--field-hint-color` | `text-muted` | Hint and "(optional)" |
 | `--field-error-color` | `danger-text` | Error message and its icon |
 | `--field-required-color` | `danger-text` | The `*` |
+| `--field-label-weight` | `font-medium` | Label weight (500) |
 | `--field-gap` | `spacing-1.5` | Space between label, hint, control and error (6px) |
+| `--field-error-gap` | `spacing-1` | Error icon to text (4px) |
 | `--field-column-gap` | `spacing-4` | `layout="horizontal"`: label column to control (16px) |
+| `--field-error-icon-size` | `spacing-4` | Error icon (16px) |
 | `--field-label-width` | `spacing-48` | `layout="horizontal"`: the label column (192px) |
 | `--field-control-min-width` | `container-3xs` | `layout="horizontal"`: the narrowest control column before it wraps under the label (256px) |
-| `--field-error-gap` | `spacing-1` | Error icon to text (4px) |
-| `--field-error-icon-size` | `spacing-4` | Error icon (16px) |
+<!-- token-table:end -->

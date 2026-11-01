@@ -65,12 +65,19 @@
 
 /* Variants */
 .dk-btn--primary { background: var(--button-primary-bg, var(--primary)); color: var(--button-primary-text, var(--on-primary)); }
-@media (hover: hover) { .dk-btn--primary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-primary-bg-hover, var(--primary-hover)); } }
+/* A primary button given its own background (--button-primary-bg) and no hover color gets one worked out from it
+   (176): darker in light themes, lighter in dark, the way the brand steps go, so its text keeps its contrast. With
+   no --button-primary-bg, --dk-btn-hover reads an unset variable, so it falls back to primary-hover. */
+.dk-btn--primary {
+  /* stylelint-disable-next-line serupa/no-raw-value -- the lightness step of one brand shade (600 to 700, 400 to 300) in OKLCH */
+  --dk-btn-hover: light-dark(oklch(from var(--button-primary-bg) calc(l - 0.06) c h), oklch(from var(--button-primary-bg) calc(l + 0.1) c h));
+}
+@media (hover: hover) { .dk-btn--primary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-primary-bg-hover, var(--dk-btn-hover, var(--primary-hover))); } }
 
-.dk-btn--outline { background: var(--button-outline-bg, var(--surface)); color: var(--button-outline-text, var(--text)); border-color: var(--button-outline-border, var(--border)); }
+.dk-btn--outline { background: var(--button-outline-bg, var(--surface-raised)); color: var(--button-outline-text, var(--text)); border-color: var(--button-outline-border, var(--border)); }
 @media (hover: hover) { .dk-btn--outline:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-outline-bg-hover, var(--secondary)); } }
 
-.dk-btn--secondary { background: var(--button-secondary-bg, var(--surface)); color: var(--button-secondary-text, var(--primary)); border-color: var(--button-secondary-border, var(--primary)); }   /* an outline in the brand color */
+.dk-btn--secondary { background: var(--button-secondary-bg, var(--surface-raised)); color: var(--button-secondary-text, var(--primary)); border-color: var(--button-secondary-border, var(--primary)); }   /* an outline in the brand color */
 @media (hover: hover) { .dk-btn--secondary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-secondary-bg-hover, var(--primary-subtle)); color: var(--button-secondary-text-hover, var(--primary-hover)); border-color: var(--button-secondary-border-hover, var(--primary-hover)); } }
 
 .dk-btn--ghost { background: var(--button-ghost-bg, transparent); color: var(--button-ghost-text, var(--text)); }
@@ -87,9 +94,9 @@
 .dk-btn--destructive { --dk-btn-ring: var(--button-destructive-focus-ring, var(--danger)); }
 .dk-btn--primary.dk-btn--destructive { background: var(--button-destructive-primary-bg, var(--danger)); color: var(--button-destructive-primary-text, var(--on-danger)); }
 @media (hover: hover) { .dk-btn--primary.dk-btn--destructive:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-destructive-primary-bg-hover, var(--danger-hover)); } }
-.dk-btn--secondary.dk-btn--destructive { background: var(--button-destructive-secondary-bg, var(--surface)); color: var(--button-destructive-secondary-text, var(--danger-text)); border-color: var(--button-destructive-secondary-border, var(--danger)); }
+.dk-btn--secondary.dk-btn--destructive { background: var(--button-destructive-secondary-bg, var(--surface-raised)); color: var(--button-destructive-secondary-text, var(--danger-text)); border-color: var(--button-destructive-secondary-border, var(--danger)); }
 @media (hover: hover) { .dk-btn--secondary.dk-btn--destructive:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-destructive-secondary-bg-hover, var(--danger-subtle)); } }
-.dk-btn--outline.dk-btn--destructive { background: var(--button-destructive-outline-bg, var(--surface)); color: var(--button-destructive-outline-text, var(--danger-text)); border-color: var(--button-destructive-outline-border, var(--danger-border)); }
+.dk-btn--outline.dk-btn--destructive { background: var(--button-destructive-outline-bg, var(--surface-raised)); color: var(--button-destructive-outline-text, var(--danger-text)); border-color: var(--button-destructive-outline-border, var(--danger-border)); }
 @media (hover: hover) { .dk-btn--outline.dk-btn--destructive:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-destructive-outline-bg-hover, var(--danger-subtle)); } }
 .dk-btn--ghost.dk-btn--destructive { color: var(--button-destructive-ghost-text, var(--danger-text)); }
 @media (hover: hover) { .dk-btn--ghost.dk-btn--destructive:hover:not(:disabled, [aria-disabled="true"]) { background: var(--button-destructive-ghost-bg-hover, var(--danger-subtle)); } }

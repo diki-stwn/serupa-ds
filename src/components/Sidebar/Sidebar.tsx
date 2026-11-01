@@ -174,6 +174,10 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLElement, SidebarItemPro
   const group = kids.length > 0;
   const childActive = kids.some(activeWithin);
   const [own, setOwn] = React.useState(props.defaultOpen != null ? !!props.defaultOpen : childActive);
+  // The page moving to one of its items (a link elsewhere, the browser's Back) opens it too, as arriving there does,
+  // so the current page isn't hidden in a closed group (L8E108). defaultOpen set, or open, leaves that to you.
+  const [wasActive, setWasActive] = React.useState(childActive);
+  if (wasActive !== childActive) { setWasActive(childActive); if (childActive && !own && props.defaultOpen == null && props.open === undefined) setOwn(true); }
   const open = props.open !== undefined ? !!props.open : own;
   const toggle = () => {
     if (props.open === undefined) setOwn(!open);

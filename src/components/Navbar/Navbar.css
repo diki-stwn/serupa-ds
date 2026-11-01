@@ -60,6 +60,8 @@
      that doesn't fit ends in an ellipsis. Its link keeps its own box, so its focus ring isn't clipped. */
   .dk-navbar__brand { flex-shrink: initial; min-width: var(--spacing-0); }
   .dk-navbar__brand > * { min-width: var(--spacing-0); max-width: var(--sizing-full); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* A brand given as plain text has no element to put the ellipsis on, so the brand itself takes it (GR79). */
+  .dk-navbar__brand:not(:has(> *)) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__toggle, .dk-navbar__toggle:first-child { margin-inline-start: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .dk-navbar__link { transition: none; } }

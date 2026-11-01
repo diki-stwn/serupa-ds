@@ -47,7 +47,7 @@
 .dk-select:has(.dk-select__field:user-invalid) { --dk-select-bd: var(--select-invalid, var(--danger)); --dk-select-ring: var(--select-invalid, var(--danger)); }
 @media (hover: hover) { .dk-select:has(.dk-select__field:user-invalid):hover:not(:focus-within) { --dk-select-bd: var(--select-invalid, var(--danger)); } }
 /* Disabled by the prop, or by a <fieldset disabled> around it (the native select follows that on its own). */
-.dk-select--disabled, .dk-select:where(:has(.dk-select__field:disabled)) { background: var(--select-bg-disabled, var(--surface-muted)); opacity: var(--opacity-disabled); }
+.dk-select--disabled, .dk-select:where(:has(.dk-select__field:disabled)) { background: var(--select-bg-disabled, var(--field-readonly)); opacity: var(--opacity-disabled); }
 .dk-select--disabled .dk-select__field, .dk-select__field:where(:disabled) { cursor: not-allowed; }
 @media (forced-colors: active) { .dk-select__icon { color: CanvasText; } }
 /* iOS Safari zooms the page into a focused field whose text is under 16px, and stays zoomed. There the field's

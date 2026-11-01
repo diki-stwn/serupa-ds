@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.surface}",
-        "$description": "The card's background (outline and elevated cards).",
+        "$description": "The background of an outline card",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-bg"
@@ -15,7 +15,7 @@
       "bg-filled": {
         "$type": "color",
         "$value": "{color.surface-muted}",
-        "$description": "The background of a filled card.",
+        "$description": "The background of a filled card",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-bg-filled"
@@ -25,7 +25,7 @@
       "bg-elevated": {
         "$type": "color",
         "$value": "{color.surface-raised}",
-        "$description": "The background of an elevated card: one step up from the page in dark.",
+        "$description": "The background of an elevated card (one step up from the page in dark).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-bg-elevated"
@@ -35,7 +35,7 @@
       "border-elevated": {
         "$type": "color",
         "$value": "{color.border-raised}",
-        "$description": "An elevated card's edge: invisible in light, a 1px lighter edge in dark, where the shadow doesn't show.",
+        "$description": "An elevated card's edge: invisible in light, a 1px lighter edge in dark",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-border-elevated"
@@ -45,7 +45,7 @@
       "border-color": {
         "$type": "color",
         "$value": "{color.border}",
-        "$description": "The border of an outline card.",
+        "$description": "The border of an outline card",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-border"
@@ -55,7 +55,7 @@
       "title-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The title.",
+        "$description": "The title",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-title-color"
@@ -65,7 +65,7 @@
       "description-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The description under the title (4.5:1 on surface).",
+        "$description": "The description",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-description-color"
@@ -75,7 +75,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The card's text: the body and the footer (the title and description have their own tokens).",
+        "$description": "Text in the body and footer",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-text"
@@ -85,7 +85,7 @@
       "hover-border-color": {
         "$type": "color",
         "$value": "{color.border-strong}",
-        "$description": "The border of an interactive card while hovered.",
+        "$description": "A linked card's border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-border-hover"
@@ -95,7 +95,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "A linked card's keyboard focus ring.",
+        "$description": "A linked card's keyboard focus ring",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-focus-ring"
@@ -107,7 +107,7 @@
       "shadow": {
         "$type": "shadow",
         "$value": "{shadow.shadow-xs}",
-        "$description": "An outline card's shadow.",
+        "$description": "An outline card's shadow",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-shadow"
@@ -117,7 +117,7 @@
       "shadow-elevated": {
         "$type": "shadow",
         "$value": "{shadow.shadow-md}",
-        "$description": "An elevated card's shadow.",
+        "$description": "An elevated card's shadow",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-shadow-elevated"
@@ -129,7 +129,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-xl}",
-        "$description": "The corner radius (12px).",
+        "$description": "The corners",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-radius"
@@ -139,7 +139,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "The border width of an outline card.",
+        "$description": "The border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-border-width"
@@ -151,7 +151,7 @@
       "padding-sm": {
         "$type": "dimension",
         "$value": "{spacing.spacing-3}",
-        "$description": "Padding with padding=\"sm\" (12px).",
+        "$description": "Padding, `sm`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-padding-sm"
@@ -161,7 +161,7 @@
       "padding-md": {
         "$type": "dimension",
         "$value": "{spacing.spacing-5}",
-        "$description": "Padding with padding=\"md\", the default (20px).",
+        "$description": "Padding, `md`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-padding-md"
@@ -171,7 +171,7 @@
       "padding-lg": {
         "$type": "dimension",
         "$value": "{spacing.spacing-6}",
-        "$description": "Padding with padding=\"lg\" (24px).",
+        "$description": "Padding, `lg`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-padding-lg"
@@ -181,7 +181,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "Space between the header, body and footer (16px).",
+        "$description": "The space between the parts",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-gap"
@@ -191,7 +191,7 @@
       "header-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Space between the title and the description (4px).",
+        "$description": "The space between the title and the description",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-header-gap"
@@ -203,7 +203,7 @@
       "title-weight": {
         "$type": "fontWeight",
         "$value": "{typography.font-semibold}",
-        "$description": "The title's weight (600).",
+        "$description": "The title's weight",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-title-weight"
@@ -215,7 +215,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-97}",
-        "$description": "Size of a card with href while it's held down (97%). 1 turns press feedback off.",
+        "$description": "Size of a card with `href` while it's held down (97%). 1 turns it off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--card-press-scale"

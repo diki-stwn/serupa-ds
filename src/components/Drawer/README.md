@@ -89,6 +89,7 @@ Every other prop, `className` and `ref` go to the native `<dialog>`.
 
 Each is an optional override: set it on the page, a container or one drawer. The list lives in `src/components/Drawer/drawer.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from drawer.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--drawer-bg` | `surface-overlay` | The panel's background. |
@@ -108,3 +109,4 @@ Each is an optional override: set it on the page, a container or one drawer. The
 | `--drawer-radius` | `rounded-xl` | The corners on the open side of a top or bottom drawer (12px). |
 | `--drawer-title-weight` | `font-semibold` | The title's weight (600). |
 | `--drawer-duration` | `motion-enter-lg` | Sliding in (300ms). Sliding out takes `motion-exit-lg` (200ms). |
+<!-- token-table:end -->

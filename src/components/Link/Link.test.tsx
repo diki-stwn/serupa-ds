@@ -109,11 +109,17 @@ describe('Link', () => {
     const apart = widths.filter((w) => {
       const i = document.querySelector('#lw' + w + ' .dk-link__icon')!, icon = i.getBoundingClientRect();
       // The last letter before the icon.
-      const r = document.createRange(), t = i.previousSibling!;
+      const r = document.createRange(), t = i.parentElement!.firstChild!;
       r.setStart(t, t.textContent!.length - 1); r.setEnd(t, t.textContent!.length);
       return Math.abs(r.getBoundingClientRect().top - icon.top) > icon.height / 2;
     });
     expect(apart).toEqual([]);
+  });
+
+  test('external: a last word longer than the line breaks inside it rather than running past a narrow box (GR71)', async () => {
+    await render(<p id="llong" style={{ width: '120px', margin: 0 }}>See <Link href="#g" external>Donaudampfschifffahrtsgesellschaft</Link></p>);
+    const p = el('llong'), a = p.querySelector('a')!;
+    expect([a.getBoundingClientRect().right <= p.getBoundingClientRect().right + 1, p.scrollWidth <= p.clientWidth + 1]).toEqual([true, true]);
   });
 
   test('as: renders your router link with className and the rest', async () => {

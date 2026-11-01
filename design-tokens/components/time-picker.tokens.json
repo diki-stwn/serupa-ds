@@ -75,7 +75,7 @@
       "option-indicator": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "The 2px bar at the highlighted time's start (3:1 on highlight).",
+        "$description": "The 2px bar at the highlighted time's start.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--time-picker-option-indicator"

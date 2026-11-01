@@ -59,13 +59,15 @@ type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: I
 const FORMATS = new Map<string, Formats>();
 // The weekday headers' format: "short", or "narrow" where short is no shorter than the full name (Arabic, Persian:
 // الأربعاء in a 32px column) or two words (Hebrew יום ד׳, Vietnamese Thứ 4), so the names don't run together (GR6).
+// or long (Thai อาทิตย์, about 40px at 125% text, widens the week past a 320px screen, GR71): five or more
+// characters a day on average, where Latin short names have three or four (Sun, dim.).
 // Not where narrow falls back to English letters (Urdu, Pashto), which would read as another language.
 function header(locale: string): Intl.DateTimeFormat {
   const fmt = (o: Intl.DateTimeFormatOptions, at = locale) => new Intl.DateTimeFormat(at, o);
   const short = fmt({ weekday: "short" }), long = fmt({ weekday: "long" }), narrow = fmt({ weekday: "narrow" });
   const week = Array.from({ length: 7 }, (_, i) => new Date(2025, 2, 2 + i));
   const names = (f: Intl.DateTimeFormat) => week.map((d) => f.format(d)).join("|");
-  const wide = week.some((d) => short.format(d) === long.format(d) || /\s/.test(short.format(d)));
+  const wide = week.some((d) => short.format(d) === long.format(d) || /\s/.test(short.format(d))) || names(short).length > 7 * 5 - 1;
   const english = names(narrow) === names(fmt({ weekday: "narrow" }, "en")) && names(short) !== names(fmt({ weekday: "short" }, "en"));
   return wide && !english ? narrow : short;
 }
@@ -119,6 +121,15 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || home));
   const month = controlledMonth && isValid(props.month) ? startOfMonth(props.month) : ownMonth;
   const [focus, setFocus] = React.useState<Date>(() => (value && sameMonth(value, month) ? value : sameMonth(home, month) ? home : month));
+  // A value set from outside (a typed date, a "Today" button) brings its month into view, unless the app controls
+  // month, and takes the Tab stop: the chosen day was off screen, or another day kept the Tab stop (L8E103).
+  const valueTime = value ? value.getTime() : null;
+  const [seen, setSeen] = React.useState(valueTime);
+  if (seen !== valueTime) {
+    setSeen(valueTime);
+    const away = !!value && !sameMonth(value, month);
+    if (value && !(away && controlledMonth)) { setFocus(value); if (away) setOwnMonth(startOfMonth(value)); }
+  }
   const grid = React.useRef<HTMLTableElement | null>(null);
   const wantFocus = React.useRef(!!props.autoFocus);
 

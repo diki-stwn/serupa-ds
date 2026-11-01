@@ -643,6 +643,16 @@ describe('Toast on a phone (GQ1)', () => {
     await screen.rerender(at('384px'));
     expect(probe().map(([, under]) => under)).toEqual([false, false]);
   });
+  test('at a phone width a long action label wraps onto more lines under the text, whole, not cut with an ellipsis (GR74)', async () => {
+    const label = 'Reconnect the Northwind integration now';
+    await render(<Toaster style={{ '--toast-width': '288px' } as React.CSSProperties} />);
+    React.act(() => { toast({ title: 'Integration disconnected', action: { label, onClick: () => {} } }); });
+    await expect.poll(() => toasts().length).toBe(1);
+    await landed();
+    const t = toasts()[0], b = undoButton(t), r = b.getBoundingClientRect(), q = t.getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 30, b.textContent]).toEqual([true, true, true, label]);
+  });
 });
 
 describe('Toaster on a short screen (GQ1b)', () => {

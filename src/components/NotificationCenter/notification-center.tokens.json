@@ -75,7 +75,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The ring around a notification focused after \"Mark as read\".",
+        "$description": "The ring around a notification (or the empty line) focused after \"Mark as read\".",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--notification-center-focus-ring"

@@ -3,8 +3,10 @@
 //   // stylelint.config.js
 //   export default { extends: ["serupa-ds/stylelint"] };
 // Three rules, each with the token family to use in its message:
-//   serupa/no-raw-color     a color written out (#hex, rgb(), hsl(), oklch(), a named color) instead of a color token
-//   serupa/no-raw-spacing   a length in margin, padding, gap or inset instead of a spacing token
+//   serupa/no-raw-color     a color written out (#hex, rgb(), hsl(), oklch(), a named color) instead of a color token.
+//                           A named color counts only in a property that takes a color, so grid-area: tan passes.
+//   serupa/no-raw-spacing   a fixed length in margin, padding, gap or inset instead of a spacing token. A percentage
+//                           or a viewport or container unit (inset: 50%, 1vw) passes: no token says that
 //   serupa/no-raw-radius    a length in border-radius instead of a rounded token
 // A value inside var() is never flagged, its fallback included, and calc() over tokens passes. Turn one off, or
 // write `/* stylelint-disable-next-line serupa/no-raw-color -- why */` above a line that needs a raw value.
@@ -28,6 +30,10 @@ const NAMED = new Set(("aliceblue antiquewhite aqua aquamarine azure beige bisqu
 const COLOR_FUNCTIONS = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)$/i;
 const LENGTH = /^-?(?:\d*\.)?\d+(?:px|r?em|r?lh|r?cap|r?ex|r?ch|r?ic|vw|vh|vi|vb|vmin|vmax|[sdl]v[whib]|svmin|svmax|dvmin|dvmax|lvmin|lvmax|cq[whib]|cqmin|cqmax|cm|mm|q|in|pt|pc|%)$/i;
 const SPACING = /^(?:margin|padding|scroll-margin|scroll-padding)(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?$|^(?:gap|row-gap|column-gap|grid-gap|grid-row-gap|grid-column-gap)$|^inset(?:-(?:block|inline)(?:-(?:start|end))?)?$/i;
+// The properties a named color can mean a color in; anywhere else (grid-area, animation-name, font-family) it is a name.
+const COLOR_PROPS = /^(?:-[a-z]+-)?(?:color|background(?:-color|-image)?|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?|border-color|border-image(?:-source)?|outline(?:-color)?|fill|stroke|(?:box|text)-shadow|caret-color|accent-color|text-stroke(?:-color)?|text-decoration(?:-color)?|text-emphasis(?:-color)?|column-rule(?:-color)?|scrollbar-color|filter|stop-color|flood-color|lighting-color)$/i;
+// A length that scales with its container or the viewport, which the spacing scale has no token for.
+const RELATIVE = /(?:%|v[whib]|vmin|vmax|[sdl]v[whib]|[sdl]vmin|[sdl]vmax|cq[whib]|cqmin|cqmax)$/i;
 const RADIUS = /^border(?:-(?:top|bottom|start|end)-(?:left|right|start|end))?-radius$/i;
 
 // The value's words and function names outside every var(), with the strings and url()s left out.
@@ -68,23 +74,26 @@ function rule(name, messages, check) {
 const color = rule("serupa/no-raw-color", {
   rejected: (v, p) => `${v} in ${p} is a color written out: use a color token, such as var(--text), var(--surface) or var(--primary), so it follows the theme and dark mode`,
 }, function* (decl) {
+  const named = COLOR_PROPS.test(decl.prop);
   for (const { word, fn } of outsideVar(decl.value)) {
-    if (fn ? COLOR_FUNCTIONS.test(word) : /^#[\da-f]{3,8}$/i.test(word) || NAMED.has(word.toLowerCase())) yield fn ? `${word}()` : word;
+    if (fn ? COLOR_FUNCTIONS.test(word) : /^#[\da-f]{3,8}$/i.test(word) || (named && NAMED.has(word.toLowerCase()))) yield fn ? `${word}()` : word;
   }
 });
 
-const lengths = (props) => function* (decl) {
+const lengths = (props, relativePasses) => function* (decl) {
   if (!props.test(decl.prop)) return;
-  for (const { word, fn } of outsideVar(decl.value)) if (!fn && LENGTH.test(word) && !/^-?0+(?:\.0+)?[a-z%]*$/i.test(word)) yield word;
+  for (const { word, fn } of outsideVar(decl.value)) {
+    if (!fn && LENGTH.test(word) && !/^-?0+(?:\.0+)?[a-z%]*$/i.test(word) && !(relativePasses && RELATIVE.test(word))) yield word;
+  }
 };
 
 const spacing = rule("serupa/no-raw-spacing", {
   rejected: (v, p) => `${v} in ${p} is off the spacing scale: use a spacing token, such as var(--spacing-4)`,
-}, lengths(SPACING));
+}, lengths(SPACING, true));
 
 const radius = rule("serupa/no-raw-radius", {
   rejected: (v, p) => `${v} in ${p} is a radius written out: use a rounded token, such as var(--rounded-md) or var(--rounded-full)`,
-}, lengths(RADIUS));
+}, lengths(RADIUS, false));
 
 /** @type {import("stylelint").Config} */
 const config = {
