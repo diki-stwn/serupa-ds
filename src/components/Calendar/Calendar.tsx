@@ -59,13 +59,15 @@ type Formats = { title: Intl.DateTimeFormat; short: Intl.DateTimeFormat; long: I
 const FORMATS = new Map<string, Formats>();
 // The weekday headers' format: "short", or "narrow" where short is no shorter than the full name (Arabic, Persian:
 // الأربعاء in a 32px column) or two words (Hebrew יום ד׳, Vietnamese Thứ 4), so the names don't run together (GR6).
+// or long (Thai อาทิตย์, about 40px at 125% text, widens the week past a 320px screen, GR71): five or more
+// characters a day on average, where Latin short names have three or four (Sun, dim.).
 // Not where narrow falls back to English letters (Urdu, Pashto), which would read as another language.
 function header(locale: string): Intl.DateTimeFormat {
   const fmt = (o: Intl.DateTimeFormatOptions, at = locale) => new Intl.DateTimeFormat(at, o);
   const short = fmt({ weekday: "short" }), long = fmt({ weekday: "long" }), narrow = fmt({ weekday: "narrow" });
   const week = Array.from({ length: 7 }, (_, i) => new Date(2025, 2, 2 + i));
   const names = (f: Intl.DateTimeFormat) => week.map((d) => f.format(d)).join("|");
-  const wide = week.some((d) => short.format(d) === long.format(d) || /\s/.test(short.format(d)));
+  const wide = week.some((d) => short.format(d) === long.format(d) || /\s/.test(short.format(d))) || names(short).length > 7 * 5 - 1;
   const english = names(narrow) === names(fmt({ weekday: "narrow" }, "en")) && names(short) !== names(fmt({ weekday: "short" }, "en"));
   return wide && !english ? narrow : short;
 }

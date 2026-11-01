@@ -11,6 +11,7 @@
 //                                         light or dark setting applies from the first paint, with no JavaScript
 //   :root                                 every other token, the font families, and the type-* shorthands
 //   contrast and density axes             data-contrast="more" (and prefers-contrast: more) and data-density="compact"
+//   :lang() per script (143)              taller lines for Arabic, Devanagari, Thai and CJK; CJK's font by language
 //   .type-*                               one class per complete text style
 //   @font-face                            the fonts in fonts/
 // Everything but the @font-face rules sits in the dk.tokens cascade layer, the first of the system's layers.
@@ -64,6 +65,7 @@ export function buildTokensCss(t) {
   for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`);
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
+  css += scripts(t, all);
   for (const s of styles) {
     css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
     if (s.fontStyle && s.fontStyle !== 'normal') css += `  font-style: ${s.fontStyle};\n`;
@@ -74,6 +76,33 @@ export function buildTokensCss(t) {
   css += '}\n';
   for (const f of t.type.fonts || [])
     css += `@font-face {\n  font-family: "${f.family}";\n  src: url("${f.file}") format("woff2");\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  font-display: swap;\n${f.unicodeRange ? `  unicode-range: ${f.unicodeRange};\n` : ''}}\n`;
+  // "Inter Fallback" (144, tools/fonts/fallback.mjs): a font already on the device, sized like Inter, drawn until Inter
+  // arrives, so the text doesn't move when it swaps in.
+  for (const f of t.type.fallbacks || [])
+    css += `@font-face {\n  font-family: "${f.family}";\n  src: ${f.local.map((n) => `local("${n}")`).join(', ')};\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  size-adjust: ${f.sizeAdjust};\n  ascent-override: ${f.ascentOverride};\n  descent-override: ${f.descentOverride};\n  line-gap-override: ${f.lineGapOverride};\n  unicode-range: ${f.unicodeRange};\n}\n`;
+  return css;
+}
+
+// Fonts and line heights by script (143, tokens.json's type.scripts). The sans stack names Noto Sans Arabic, Hebrew,
+// Devanagari and Thai after Inter: each draws only its own script, so the browser picks the right one per character,
+// whatever the lang. Han characters are drawn differently in Japanese, Korean and Chinese, so the CJK font follows lang.
+// Marks above and below the letters need more room than Latin: under those langs every text-*--line-height is at least
+// the script's ratio of the font size (in em, so it holds at the size the component draws). :where() keeps it at no
+// specificity, so a component's or a page's own line height still wins; and it matches every element in that lang, so
+// a lang="th" section inside an English page gets it too.
+function scripts(t, all) {
+  const list = t.type.scripts || [];
+  const heights = all.filter((x) => /^text-[a-z0-9]+--line-height$/.test(x.name));
+  const sel = (langs) => `:where(${langs.map((l) => `:lang(${l})`).join(', ')})`;
+  let css = '';
+  for (const ratio of [...new Set(list.map((s) => s.lineHeight).filter(Boolean))]) {
+    css += `${sel(list.filter((s) => s.lineHeight === ratio).flatMap((s) => s.lang))} {\n`;
+    for (const x of heights) css += `  --${x.name}: max(${/^[\d.]+$/.test(x.value) ? x.value + 'em' : x.value}, ${ratio}em);\n`;
+    css += '}\n';
+  }
+  const sans = t.type.families.sans;
+  for (const s of list.filter((s) => s.families))
+    css += `${sel(s.lang)} {\n  --font-sans: ${sans.replace('"Inter Fallback", ', `"Inter Fallback", ${s.families.map((f) => `"${f}"`).join(', ')}, `)};\n}\n`;
   return css;
 }
 
