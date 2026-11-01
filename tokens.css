@@ -45,6 +45,7 @@
   --info: var(--sky-700);
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
+  --link-visited: var(--violet-700);
   --white: #ffffff;
   --black: #000000;
   --slate-50: #f8fafc;
@@ -355,6 +356,7 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --link-visited: var(--violet-300);
   --dk-more-primary: var(--blue-300);
   --dk-more-primary-hover: var(--blue-200);
   --dk-more-focus-ring: var(--blue-300);
@@ -403,6 +405,7 @@
   --info: var(--sky-700);
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
+  --link-visited: var(--fuchsia-700);
   --dk-more-primary: var(--violet-800);
   --dk-more-primary-hover: var(--violet-900);
   --dk-more-focus-ring: var(--violet-700);
@@ -451,6 +454,7 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --link-visited: var(--fuchsia-300);
   --dk-more-primary: var(--violet-300);
   --dk-more-primary-hover: var(--violet-200);
   --dk-more-focus-ring: var(--violet-300);
@@ -499,6 +503,7 @@
   --info: var(--sky-700);
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
+  --link-visited: var(--violet-700);
   --dk-more-primary: var(--emerald-800);
   --dk-more-primary-hover: var(--emerald-900);
   --dk-more-focus-ring: var(--emerald-700);
@@ -547,6 +552,7 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --link-visited: var(--violet-300);
   --dk-more-primary: var(--emerald-300);
   --dk-more-primary-hover: var(--emerald-200);
   --dk-more-focus-ring: var(--emerald-300);
@@ -593,6 +599,7 @@
   --info: light-dark(var(--sky-700), var(--sky-400));
   --info-subtle: light-dark(var(--sky-50), var(--sky-950));
   --info-text: light-dark(var(--sky-700), var(--sky-300));
+  --link-visited: light-dark(var(--violet-700), var(--violet-300));
   --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
   --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
   --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
@@ -603,6 +610,7 @@
   --primary-subtle: light-dark(var(--blue-50), var(--blue-950));
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
+  --link-visited: light-dark(var(--violet-700), var(--violet-300));
   --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
   --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
   --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
@@ -613,6 +621,7 @@
   --primary-subtle: light-dark(var(--violet-50), var(--violet-950));
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
+  --link-visited: light-dark(var(--fuchsia-700), var(--fuchsia-300));
   --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
   --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
   --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
@@ -623,6 +632,7 @@
   --primary-subtle: light-dark(var(--emerald-50), var(--emerald-950));
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
+  --link-visited: light-dark(var(--violet-700), var(--violet-300));
   --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
   --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
   --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));
@@ -633,6 +643,7 @@
   --primary-subtle: light-dark(var(--blue-50), var(--blue-950));
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
+  --link-visited: light-dark(var(--violet-700), var(--violet-300));
   --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
   --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
   --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
@@ -643,6 +654,7 @@
   --primary-subtle: light-dark(var(--violet-50), var(--violet-950));
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
+  --link-visited: light-dark(var(--fuchsia-700), var(--fuchsia-300));
   --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
   --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
   --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
@@ -653,6 +665,7 @@
   --primary-subtle: light-dark(var(--emerald-50), var(--emerald-950));
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
+  --link-visited: light-dark(var(--violet-700), var(--violet-300));
   --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
   --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
   --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));

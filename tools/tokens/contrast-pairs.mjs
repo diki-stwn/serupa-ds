@@ -22,6 +22,8 @@ export const PAIRS = [
   ['on-primary', 'primary', 4.5, 'Primary button text'],
   ['on-primary', 'primary-hover', 4.5, 'Primary button text on hover'],
   ['primary', 'surface', 4.5, 'Brand text, links and icons, and the secondary button'],
+  ['link-visited', 'surface', 4.5, 'A visited link (Prose)'],
+  ['link-visited', 'surface-muted', 4.5, 'A visited link on a muted surface (Prose)'],
   ['primary-hover', 'primary-subtle', 4.5, 'Brand text on hover, on its tint'],
   ['on-danger', 'danger', 4.5, 'Danger button text'],
   ['on-danger', 'danger-hover', 4.5, 'Danger button text on hover'],
