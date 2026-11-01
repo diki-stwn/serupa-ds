@@ -4,8 +4,8 @@
    one of its own tokens (virtual-list.tokens.json), which fall back to the shared ones.
    --------------------------------------------------------------- */
 @layer dk.components {
-.dk-list.dk-virtual-list { position: relative; box-sizing: border-box; max-height: var(--virtual-list-height, var(--spacing-96)); overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; }
-.dk-list.dk-virtual-list::before { content: ""; display: block; height: var(--dk-vl-before, var(--spacing-0)); }
-.dk-list.dk-virtual-list::after { content: ""; display: block; height: var(--dk-vl-after, var(--spacing-0)); }
+.dk-virtual-list.dk-list { position: relative; box-sizing: border-box; max-height: var(--virtual-list-height, var(--spacing-96)); overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; }
+.dk-virtual-list.dk-list::before { content: ""; display: block; height: var(--dk-vl-before, var(--spacing-0)); }
+.dk-virtual-list.dk-list::after { content: ""; display: block; height: var(--dk-vl-after, var(--spacing-0)); }
 .dk-virtual-list:focus-visible { outline: var(--focus-ring-width) solid var(--virtual-list-focus-ring, var(--focus-ring)); outline-offset: var(--focus-ring-offset); }
 }
