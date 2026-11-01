@@ -88,7 +88,7 @@ describe('Link', () => {
 
   test('external: target _blank, rel keeps yours and adds noopener noreferrer, a 1em hidden new-tab icon and "(opens in a new tab)" for screen readers', async () => {
     await render(<div style={{ fontSize: '16px' }}><Link id="lext" href="https://example.com" external rel="me">Example</Link></div>);
-    const e = el('lext'), i = e.querySelector<HTMLElement>('[data-icon="open_in_new"]')!, v = e.querySelector('.dk-visually-hidden')!;
+    const e = el('lext'), i = e.querySelector<HTMLElement>('[data-icon="open_in_new"]')!, v = e.querySelector(':scope > :last-child')!;
     expect([e.target, e.rel, i.dataset.icon, i.getAttribute('aria-hidden'), v.textContent, css(i).fontSize]).toEqual(['_blank', 'me noopener noreferrer', 'open_in_new', 'true', ' (opens in a new tab)', '16px']);
     expect(v.getBoundingClientRect().width).toBeLessThanOrEqual(1);
     // The link's text: its words, the note, and the hidden icon's ligature name.

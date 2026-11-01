@@ -12,8 +12,8 @@ import { PHONE_COUNTRIES, formatNational, formatPhone, parsePhone, phoneCountry 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
 const menu = (id: string) => box(id).querySelector('select') as HTMLSelectElement;
-const part = (id: string) => box(id).querySelector('.dk-phone-input__country') as HTMLElement;
-const dial = (id: string) => (box(id).querySelector('.dk-phone-input__dial') as HTMLElement).textContent;
+const part = (id: string) => box(id).firstElementChild as HTMLElement;
+const dial = (id: string) => box(id).firstElementChild!.firstElementChild!.textContent;
 const settled = () => expect.poll(() => document.getAnimations().length).toBe(0);
 const pick = (sel: HTMLSelectElement, code: string) => userEvent.selectOptions(sel, code);
 

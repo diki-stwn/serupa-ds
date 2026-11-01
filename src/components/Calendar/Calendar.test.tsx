@@ -40,15 +40,15 @@ describe('Calendar', () => {
   test('a grid named by the "March 2025" title (aria-live), six weeks of 7 days from Sun Feb 23, weekday headers with full names, one Tab stop on the selected day; ref and className', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Cal cref={ref} />);
-    const el = q('[data-testid=cal]'), grid = el.querySelector('[role=grid]')!, t = el.querySelector('.dk-calendar__title')!;
+    const el = q('[data-testid=cal]'), grid = el.querySelector('[role=grid]')!, t = el.querySelector('h2')!;
     expect(ref.current).toBe(el);
     expect(el.className).toMatch(/extra/);
     expect([t.textContent, t.getAttribute('aria-live'), document.getElementById(grid.getAttribute('aria-labelledby')!)!.textContent]).toEqual(['March 2025', 'polite', 'March 2025']);
     expect([grid.querySelectorAll('tbody tr').length, grid.querySelectorAll('tbody button').length]).toEqual([6, 42]);
     // Short names are shown, full ones are what screen readers read (the short span is hidden from them).
     expect([...grid.querySelectorAll('th [aria-hidden]')].map((x) => x.textContent).join()).toBe('Sun,Mon,Tue,Wed,Thu,Fri,Sat');
-    expect([...grid.querySelectorAll('th .dk-visually-hidden')].map((x) => x.textContent).join()).toBe('Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
-    expect([grid.querySelector('th')!.getAttribute('abbr'), css(grid.querySelector('th .dk-visually-hidden')).position]).toEqual(['Sunday', 'absolute']);
+    expect([...grid.querySelectorAll('th > span:not([aria-hidden])')].map((x) => x.textContent).join()).toBe('Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
+    expect([grid.querySelector('th')!.getAttribute('abbr'), css(grid.querySelector('th > span:not([aria-hidden])')).position]).toEqual(['Sunday', 'absolute']);
     expect(grid.querySelector<HTMLElement>('tbody button')!.dataset.date).toBe('2025-02-23');
     expect([...grid.querySelectorAll<HTMLElement>('button[tabindex="0"]')].map((x) => x.dataset.date).join()).toBe('2025-03-10');
     expect(grid.querySelector('[data-date="2025-02-23"]')!.className).toMatch(/outside/);
