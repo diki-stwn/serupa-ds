@@ -31,6 +31,9 @@
 .dk-table__select { width: var(--spacing-px); padding-inline-end: var(--spacing-0); }
 .dk-table__select .dk-checkbox { vertical-align: middle; }
 .dk-table--sticky .dk-table__head .dk-table__cell { position: sticky; top: 0; z-index: var(--z-10); }
+/* The body is a layer of its own under the header, so the controls a link row lifts over its link (z 10, below)
+   stay under the header as rows scroll beneath it, and don't take its clicks (GR76). */
+.dk-table--sticky .dk-table__body { position: relative; z-index: var(--z-0); }
 /* Sticky, the header lifts once rows scroll under it (KW16): the frame is a scroll-state container, and the header
    cells take a shadow while it can scroll back up, so nothing shows at the top. A state, not an animation: nothing
    runs on its own and reduced motion has nothing to stop. Where scroll-state queries aren't supported, the header
