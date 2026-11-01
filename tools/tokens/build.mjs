@@ -11,6 +11,7 @@
 //                                         light or dark setting applies from the first paint, with no JavaScript
 //   :root                                 every other token, the font families, and the type-* shorthands
 //   contrast and density axes             data-contrast="more" (and prefers-contrast: more) and data-density="compact"
+//   shadow axis (73)                      data-shadow="brand": the box shadows in a deep shade of the brand color
 //   :lang() per script (143)              taller lines for Arabic, Devanagari, Thai and CJK; CJK's font by language
 //   .type-*                               one class per complete text style
 //   @font-face                            the fonts in fonts/
@@ -65,6 +66,7 @@ export function buildTokensCss(t) {
   for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`);
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
+  css += tintedShadows(all, line);
   css += scripts(t, all);
   for (const s of styles) {
     css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
@@ -164,6 +166,19 @@ function contrastAndDensity(all, line) {
   const compact = all.filter((x) => x.compact != null);
   css += `[data-density="compact"] {\n${compact.map((x) => line(x.name, x.compact)).join('')}}\n`;
   css += `[data-density="comfortable"] {\n${compact.map((x) => line(x.name, x.value)).join('')}}\n`;
+  return css;
+}
+
+// Shadows tinted with the brand (73): data-shadow="brand" swaps each box shadow's black for a deep shade of the
+// brand color (its red, green and blue at 30%), at the same opacity, so a raised card or a menu reads as part of
+// the brand rather than grey. data-shadow="neutral" puts the black back in a section. The shade is worked out where
+// the attribute is, from that element's --primary.
+const TINT = 'rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / $1)';
+function tintedShadows(all, line) {
+  const box = all.filter((x) => /^shadow-(2xs|xs|sm|md|lg|xl|2xl)$/.test(x.name));
+  const at = (x) => (typeof x.value === 'object' ? Object.values(x.value)[0] : x.value);
+  let css = `[data-shadow="brand"] {\n${box.map((x) => line(x.name, at(x).replace(/rgb\(0 0 0 \/ ([\d.]+)\)/g, TINT))).join('')}}\n`;
+  css += `[data-shadow="neutral"] {\n${box.map((x) => line(x.name, at(x))).join('')}}\n`;
   return css;
 }
 
