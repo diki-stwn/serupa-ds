@@ -6,6 +6,7 @@ import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
 import { Button } from "../Button/Button";
 import { component } from "../../internal/component";
+import { warnOnce } from "../../internal/warn";
 import { useLocale, useSettings } from "../../internal/provider";
 import { displayNumber } from "../../internal/numbers";
 import * as icons from "../../material/builtin";
