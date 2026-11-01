@@ -1,4 +1,4 @@
-// "Inter Fallback" (144, tools/fonts/fallback.py): until Inter arrives, text draws in Arial (or Liberation Sans,
+// "Inter Fallback" (144, tools/fonts/fallback.mjs): until Inter arrives, text draws in Arial (or Liberation Sans,
 // which has Arial's metrics) sized like Inter, so it doesn't move when Inter swaps in. Checks, for each face in
 // tokens.json's type.fallbacks (upright and italic, 400 and 700):
 //   - tokens.css writes it, and --font-sans lists it right after Inter;
@@ -36,7 +36,9 @@ const rows = fallbacks.map((f) => `<div data-k="${f.style} ${f.weight}" style="f
 fs.writeFileSync(path.join(dir, 'page.html'), `<!doctype html><meta charset="utf-8"><style>${[...new Set(inter)].join('')}${fall.join('')}@font-face{font-family:A;src:local("Arial"),local("Liberation Sans")}@font-face{font-family:A;src:local("Arial Italic"),local("Liberation Sans Italic");font-style:italic}@font-face{font-family:A;src:local("Arial Bold"),local("Liberation Sans Bold");font-weight:700}@font-face{font-family:A;src:local("Arial Bold Italic"),local("Liberation Sans Bold Italic");font-weight:700;font-style:italic}
 body{margin:8px;font-size:16px;line-height:1.5} p{width:max-content} p.col{width:320px} .i{font-family:I} .f{font-family:F} .s{font-family:A}</style>${rows}`);
 
-const b = await browser();
+// Without hinting, as font-subsets.mjs: CI's Chromium hints by default, which rounds each glyph's advance to a whole
+// pixel at 16px and moves a line's width by up to 4%, more than the 2% this checks. Hinting is the device's, not the face's.
+const b = await browser(['--font-render-hinting=none']);
 const p = await b.newPage();
 await p.goto('file://' + path.join(dir, 'page.html'));
 const got = await p.evaluate(async () => {

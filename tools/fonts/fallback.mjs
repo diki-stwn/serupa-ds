@@ -43,7 +43,8 @@ fs.writeFileSync(path.join(dir, 'm.html'), `<!doctype html><meta charset="utf-8"
 @font-face{font-family:I;src:url("${url('fonts/InterVariable-Italic.woff2')}");font-weight:100 900;font-style:italic}
 ${FACES.map(([style, weight, names]) => `@font-face{font-family:A;src:${names.map((n) => `local("${n}")`).join(',')};font-weight:${weight};font-style:${style}}`).join('\n')}
 </style><p>x</p>`);
-const b = await chromium.launch();
+// Without hinting, which rounds each advance to a whole pixel at 16px (CI's Chromium hints by default).
+const b = await chromium.launch({ args: ['--font-render-hinting=none'] });
 const p = await b.newPage();
 await p.goto('file://' + path.join(dir, 'm.html'));
 const got = await p.evaluate(async ({ text, faces }) => {
