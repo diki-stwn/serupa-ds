@@ -7,6 +7,7 @@ import { flattenChildren } from "../../internal/children";
 import * as icons from "../../material/builtin";
 import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
+import { revealInvalid } from "../../internal/untilFound";
 import { buttonClass } from "../Button/buttonClass";
 import { en as words } from "./labels";
 
@@ -193,7 +194,8 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
     if (!el) return;
     const onMatch = () => { if (toggle.current) toggle.current(); };
     el.addEventListener("beforematch", onMatch);
-    return () => el.removeEventListener("beforematch", onMatch);
+    el.addEventListener("invalid", revealInvalid, true);   // a required field in it, on submit, opens it (L8E99)
+    return () => { el.removeEventListener("beforematch", onMatch); el.removeEventListener("invalid", revealInvalid, true); };
   }, []);
   return (
     <div {...rest} ref={ref} data-state={open ? "open" : "closed"} className={cn("dk-accordion__item", open && "dk-accordion__item--open", props.disabled && "dk-accordion__item--disabled", props.className)}>

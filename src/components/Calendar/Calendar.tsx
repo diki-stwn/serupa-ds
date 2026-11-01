@@ -119,6 +119,15 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
   const [ownMonth, setOwnMonth] = React.useState(() => startOfMonth(props.defaultMonth || value || home));
   const month = controlledMonth && isValid(props.month) ? startOfMonth(props.month) : ownMonth;
   const [focus, setFocus] = React.useState<Date>(() => (value && sameMonth(value, month) ? value : sameMonth(home, month) ? home : month));
+  // A value set from outside (a typed date, a "Today" button) brings its month into view, unless the app controls
+  // month, and takes the Tab stop: the chosen day was off screen, or another day kept the Tab stop (L8E103).
+  const valueTime = value ? value.getTime() : null;
+  const [seen, setSeen] = React.useState(valueTime);
+  if (seen !== valueTime) {
+    setSeen(valueTime);
+    const away = !!value && !sameMonth(value, month);
+    if (value && !(away && controlledMonth)) { setFocus(value); if (away) setOwnMonth(startOfMonth(value)); }
+  }
   const grid = React.useRef<HTMLTableElement | null>(null);
   const wantFocus = React.useRef(!!props.autoFocus);
 
