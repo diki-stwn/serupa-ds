@@ -20,8 +20,9 @@ const runtime = JSON.parse(fs.readFileSync(path.join(PROJECT, 'dist', 'component
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
-// A rule for the class, as the minified or the purged CSS writes its selector.
-const has = (css, cls) => new RegExp(`\\.${cls.replace(/:/g, '\\\\:')}(?![\\w-])`).test(css);
+// A rule for the class, as the minified or the purged CSS writes its selector (a colon escaped: .md\:flex).
+const selector = (cls) => '.' + cls.replace(/[\\:]/g, '\\$&');
+const has = (css, cls) => { const s = selector(cls); let i = css.indexOf(s); while (i >= 0 && /[\w-]/.test(css[i + s.length] || '')) i = css.indexOf(s, i + 1); return i >= 0; };
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-purge-plugin-'));
 try {
   fs.mkdirSync(path.join(dir, 'src'));
