@@ -23,19 +23,17 @@
   "src/components/Kbd/Kbd.test.tsx": 1,
   "src/components/List/List.test.tsx": 7,
   "src/components/Loader/Loader.test.tsx": 22,
-  "src/components/Menu/Menu.test.tsx": 5,
   "src/components/Navbar/Navbar.test.tsx": 1,
-  "src/components/NumberInput/NumberInput.test.tsx": 5,
+  "src/components/NumberInput/NumberInput.test.tsx": 1,
   "src/components/PasswordInput/PasswordInput.test.tsx": 1,
   "src/components/PinInput/PinInput.test.tsx": 6,
   "src/components/Progress/Progress.test.tsx": 9,
   "src/components/Radio/Radio.test.tsx": 6,
-  "src/components/SearchInput/SearchInput.test.tsx": 5,
   "src/components/SegmentedControl/SegmentedControl.test.tsx": 1,
   "src/components/Sidebar/Sidebar.test.tsx": 13,
   "src/components/Slider/Slider.test.tsx": 10,
   "src/components/Stepper/Stepper.test.tsx": 24,
   "src/components/Switch/Switch.test.tsx": 14,
   "src/components/TimePicker/TimePicker.test.tsx": 6,
-  "src/components/Toast/Toast.test.tsx": 5
+  "src/components/Toast/Toast.test.tsx": 2
 }
