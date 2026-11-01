@@ -6,7 +6,9 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-calendar {
-  --dk-cal-day: var(--calendar-day-size, var(--control-height-md));
+  /* Seven days fit a narrow screen with large text (320px at 125%, GR71): a day shrinks to a seventh of the screen
+     less a gutter for the page and a popover's padding, never past the day size. */
+  --dk-cal-day: min(var(--calendar-day-size, var(--control-height-md)), calc((100vw - var(--spacing-12)) / 7));   /* stylelint-disable-line serupa/no-raw-value -- the screen's width and a week's seven days: no token measures either */
   display: inline-flex; flex-direction: column; gap: var(--calendar-gap, var(--spacing-2));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--calendar-day-color, var(--text));
 }
