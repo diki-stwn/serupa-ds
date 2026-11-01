@@ -245,6 +245,19 @@ describe('Table', () => {
     expect([css(th).position, f.getAttribute('aria-label'), f.getAttribute('tabindex')]).toEqual(['sticky', 'Sticky', '0']);
   });
 
+  test('stickyHeader with link rows: a row scrolled under the header stays under it, so its checkbox and button don\'t paint over the header or take its clicks (GR76)', async () => {
+    await render(<Table id="tlsh" stickyHeader containerProps={{ style: { maxHeight: '240px' }, 'aria-label': 'Projects' }}>
+      <TableHead><TableRow><TableSelectCell header label="Select all" /><TableHeaderCell>Project</TableHeaderCell><TableHeaderCell>Actions</TableHeaderCell></TableRow></TableHead>
+      <TableBody>{Array.from({ length: 12 }, (_, i) => <TableRow key={i} href={'#p' + i}><TableSelectCell label={'Select Project ' + i} /><TableCell>{'Project ' + i}</TableCell><TableCell><Button size="sm" variant="ghost">{'Edit ' + i}</Button></TableCell></TableRow>)}</TableBody>
+    </Table>);
+    const f = el('tlsh').parentElement!;
+    f.scrollTop = 85;
+    await expect.poll(() => f.scrollTop).toBe(85);
+    const at = (name: string) => { const b = f.querySelector<HTMLElement>(`[aria-label="${name}"]`)!.getBoundingClientRect(); const x = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2) as HTMLElement; return x.getAttribute('aria-label') || x.textContent; };
+    const edit = [...f.querySelectorAll('thead th')][2].getBoundingClientRect(), hit = document.elementFromPoint(edit.left + 12, edit.top + edit.height / 2) as HTMLElement;
+    expect([at('Select all'), hit.closest('thead') !== null]).toEqual(['Select all', true]);
+  });
+
   test('stickyHeader: the header lifts with a shadow once rows scroll under it, and is flat at the top (KW16); without scroll-state queries it stays flat', async () => {
     await setup();
     const f = el('tsticky').parentElement!, th = f.querySelector('th')!;
