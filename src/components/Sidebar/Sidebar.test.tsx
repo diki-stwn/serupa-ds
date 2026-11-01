@@ -127,6 +127,29 @@ describe('Sidebar', () => {
     expect([el('gteam').getAttribute('aria-expanded'), el('gteam').classList.contains('dk-sidebar__item--active')]).toEqual(['false', true]);
   });
 
+  test('L8E108: the page moving to an item in a closed group opens the group, unless defaultOpen or open is set', async () => {
+    let go: (p: string) => void = () => {};
+    function Nav() {
+      const [page, set] = React.useState('home'); go = set;
+      return <Sidebar aria-label="Main">
+        <I href="#home" label="Home" active={page === 'home'} />
+        <I label="Team" id="l8e108a"><I href="#members" label="Members" active={page === 'members'} /></I>
+        <I label="Billing" id="l8e108b" defaultOpen={false}><I href="#plans" label="Plans" active={page === 'plans'} /></I>
+      </Sidebar>;
+    }
+    await render(<Nav />);
+    const shown = () => ['l8e108a', 'l8e108b'].map((id) => el(id).getAttribute('aria-expanded'));
+    expect(shown()).toEqual(['false', 'false']);
+    React.act(() => go('members'));
+    expect(shown()).toEqual(['true', 'false']);
+    await userEvent.click(el('l8e108a'));   // closed by hand while its page is current: it stays closed
+    expect(shown()).toEqual(['false', 'false']);
+    React.act(() => go('plans'));            // defaultOpen={false}: left closed
+    expect(shown()).toEqual(['false', 'false']);
+    React.act(() => go('members'));          // back to Team's page: open again
+    expect(shown()).toEqual(['true', 'false']);
+  });
+
   test('as: renders a router link', async () => {
     await render(<App />);
     expect([el('irep').hasAttribute('data-router'), el('irep').getAttribute('href')]).toEqual([true, '#router/reports']);

@@ -188,6 +188,31 @@ for (const scheme of ['light', 'dark']) {
   await p.close();
 }
 
+// 3c. debug.js's contrast guard (203): the pairs foundation.mjs checks per theme, checked as drawn on the page, so an
+// app's token override that breaks one shows: in the console when it turns on, and in the panel on the component.
+{
+  const body = '<div id="root"></div><section id="s" style="--on-primary: #8aa4ff"></section><script>ReactDOM.createRoot(document.getElementById("s")).render(React.createElement(Serupa.Button, { id: "b" }, "Save"));</script>';
+  const url = writePage('debug-contrast.html', body, { react: true, extraHead: '<script src="../dist/debug.js"></script>' });
+  const p = await b.newPage();
+  const warned = [];
+  p.on('console', (m) => { if (m.type() === 'warning' && /Serupa debug/.test(m.text())) warned.push(m.text()); });
+  await p.goto(url);
+  await p.waitForSelector('#b');
+  const page = await p.evaluate(() => Serupa.debug.contrast());
+  t('debug.js: contrast() checks every pair on the page, and Serupa\'s own tokens pass them all', page.length >= 40 && page.every((c) => c.ok), JSON.stringify(page.filter((c) => !c.ok)));
+  const body1 = page.find((c) => c.foreground === '--text' && c.background === '--surface');
+  t('debug.js: a ratio is the one WCAG gives (text on surface, over 4.5:1)', body1 && body1.ratio > 4.5 && body1.ratio <= 21 && body1.needs === 4.5, JSON.stringify(body1));
+  const scoped = await p.evaluate(() => Serupa.debug.contrast(document.getElementById('b')).filter((c) => !c.ok).map((c) => `${c.foreground} on ${c.background}`));
+  t('debug.js: a token set on a section counts on the components in it (light on-primary fails on primary)', scoped.includes('--on-primary on --primary'), scoped.join(', '));
+  await p.evaluate(() => { document.documentElement.style.setProperty('--text-muted', 'rgb(0 0 0 / 0.2)'); Serupa.debug.on(); });
+  t('debug.js: turning it on warns in the console about each pair that fails on the page, a translucent color as it looks', warned.length === 1 && /--text-muted on --surface/.test(warned[0]) && !/--on-primary/.test(warned[0]), warned.join(' | '));
+  await p.hover('#b');
+  const panel = await p.evaluate(() => document.getElementById('serupa-debug-panel')?.textContent || '');
+  t('debug.js: the panel lists the pairs that fail on the component it points at, and not again the ones the console named', /low contrast/.test(panel) && /--on-primary on --primary/.test(panel) && !/--text-muted/.test(panel), panel);
+  await p.evaluate(() => Serupa.debug.off());
+  await p.close();
+}
+
 // 4. serupa-purge keeps exactly what a page needs
 {
   const dir = path.join(PROJECT, '.test-tmp');
