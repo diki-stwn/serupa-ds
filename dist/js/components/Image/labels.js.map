@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Image/labels.ts"],
+  "sourcesContent": ["// Image's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface ImageLabels {\n  /** Image view and remove buttons, and the viewer's name when the image has no alt text. */\n  viewImage: string;\n  removeImage: string;\n}\nexport const en: ImageLabels = {\n  viewImage: \"View image\",\n  removeImage: \"Remove image\",\n};\nexport const id: ImageLabels = {\n  viewImage: \"Lihat gambar\",\n  removeImage: \"Hapus gambar\",\n};\n"],
+  "mappings": ";AAOO,IAAM,KAAkB;AAAA,EAC7B,WAAW;AAAA,EACX,aAAa;AACf;AACO,IAAM,KAAkB;AAAA,EAC7B,WAAW;AAAA,EACX,aAAa;AACf;",
+  "names": []
+}

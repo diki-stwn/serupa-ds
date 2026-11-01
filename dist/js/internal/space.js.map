@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/space.ts"],
+  "sourcesContent": ["// Spacing steps a layout prop can take (gap={4} \u2192 var(--spacing-4)), the same scale as the gap-* utilities.\nexport const SPACE = [\"0\", \"0.5\", \"1\", \"1.5\", \"2\", \"2.5\", \"3\", \"3.5\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"14\", \"16\", \"20\", \"24\"] as const;\nexport type Space = 0 | 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 14 | 16 | 20 | 24;\n\n/** var(--spacing-<step>) for a step on the scale, or undefined (then the component's default applies). */\nexport function space(step: unknown): string | undefined {\n  const s = typeof step === \"number\" || typeof step === \"string\" ? String(step) : \"\";\n  return (SPACE as readonly string[]).indexOf(s) < 0 ? undefined : \"var(--spacing-\" + s.replace(/[\\\\.]/g, \"\\\\$&\") + \")\";\n}\n"],
+  "mappings": ";AACO,IAAM,QAAQ,CAAC,KAAK,OAAO,KAAK,OAAO,KAAK,OAAO,KAAK,OAAO,KAAK,KAAK,KAAK,KAAK,KAAK,KAAK,MAAM,MAAM,MAAM,MAAM,MAAM,MAAM,IAAI;AAIrI,SAAS,MAAM,MAAmC;AACvD,QAAM,IAAI,OAAO,SAAS,YAAY,OAAO,SAAS,WAAW,OAAO,IAAI,IAAI;AAChF,SAAQ,MAA4B,QAAQ,CAAC,IAAI,IAAI,SAAY,mBAAmB,EAAE,QAAQ,UAAU,MAAM,IAAI;AACpH;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Avatar/labels.ts"],
+  "sourcesContent": ["// Avatar's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface AvatarLabels {\n  /** Avatar: the status read after the name (\"Ana Lim, online\"). */\n  avatarStatus: (status: \"online\" | \"busy\" | \"away\" | \"offline\") => string;\n}\nexport const en: AvatarLabels = {\n  avatarStatus: (status) => status,\n};\nconst ID_STATUS = { online: \"daring\", busy: \"sibuk\", away: \"tidak di tempat\", offline: \"luring\" };\nexport const id: AvatarLabels = {\n  avatarStatus: (status) => ID_STATUS[status],\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAmB;AAAA,EAC9B,cAAc,CAAC,WAAW;AAC5B;AACA,IAAM,YAAY,EAAE,QAAQ,UAAU,MAAM,SAAS,MAAM,mBAAmB,SAAS,SAAS;AACzF,IAAM,KAAmB;AAAA,EAC9B,cAAc,CAAC,WAAW,UAAU,MAAM;AAC5C;",
+  "names": []
+}

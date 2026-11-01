@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Button/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Button } from \"./Button\";\nexport { buttonClass } from \"./buttonClass\";\nexport type { ButtonAsButtonProps, ButtonAsLinkProps, ButtonProps, ButtonSize, ButtonVariant } from \"./Button\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;AACvB,SAAS,mBAAmB;",
+  "names": []
+}
