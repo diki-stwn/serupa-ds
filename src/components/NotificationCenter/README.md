@@ -81,7 +81,7 @@ function Layout() {
 | `onMarkAllRead` | `() => void` | | Shows "Mark all as read" in the footer. |
 | `onClear` | `() => void` | | Shows "Clear all" in the footer. |
 | `empty` | ReactNode | `"No notifications yet"` | What shows with none. |
-| `description`, `footer` | never | | Not taken: the list is the content, and the footer holds its buttons. |
+| `description`, `footer`, `unsaved` | never | | Not taken: the list is the content, the footer holds its buttons, and there is nothing to edit. |
 | `open` | boolean | | Controlled: whether it's open. |
 | `defaultOpen` | boolean | `false` | Uncontrolled: open at first. |
 | `onOpenChange` | `(open, details) => void` | | Called when people ask to close it. |

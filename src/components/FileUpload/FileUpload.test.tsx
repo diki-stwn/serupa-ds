@@ -13,12 +13,16 @@ const q = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySe
 const many = '[data-testid=many]';
 const rootOf = (id: string) => document.getElementById(id)!.closest('[data-component=file-upload]') as HTMLElement;
 // The chosen files are the items of the named list; rejections are the alert.
+// The drop zone is the presentational box: its icon, the title (its first p), the choose button and the hint (the p
+// with an id). A chosen file is an item: its icon, then a span with the name (which carries the full name as its
+// title) and the size.
+const ZONE = '[role=presentation]', TITLE = `${ZONE} > p:first-of-type`, HINT = `${ZONE} > p[id]`, NAME = 'span[title]', SIZE = `${NAME} + span`;
 const items = (root: Element) => [...root.querySelectorAll<HTMLElement>('ul[aria-label] > li')];
-const list = (root: Element) => items(root).map((li) => li.querySelector('.dk-file-upload__name')!.getAttribute('title') + ' ' + li.querySelector('.dk-file-upload__size')!.textContent + ' ' + li.querySelector<HTMLElement>('.dk-file-upload__file-icon')!.dataset.icon);
-const errs = (root: Element) => { const e = root.querySelector('[role=alert]'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll('.dk-file-upload__error')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
-const names = (root: Element) => [...root.querySelectorAll('.dk-file-upload__name')].map((x) => x.getAttribute('title')).join();
+const list = (root: Element) => items(root).map((li) => li.querySelector(NAME)!.getAttribute('title') + ' ' + li.querySelector(SIZE)!.textContent + ' ' + li.querySelector<HTMLElement>(':scope > [data-icon]')!.dataset.icon);
+const errs = (root: Element) => { const e = root.querySelector('[role=alert]'); return e ? e.getAttribute('role') + ': ' + [...e.querySelectorAll(':scope > p')].map((x) => x.textContent.replace(/^error/, '')).join(' / ') : null; };
+const names = (root: Element) => [...root.querySelectorAll(NAME)].map((x) => x.getAttribute('title')).join();
 const input = (root: Element) => root.querySelector('input[type=file]') as HTMLInputElement;
-const choose = (root: Element) => root.querySelector('.dk-btn') as HTMLButtonElement;
+const choose = (root: Element) => root.querySelector(`${ZONE} > button`) as HTMLButtonElement;
 // The button opens the picker by clicking the native input; count those clicks and stop the picker from opening.
 const watchPicker = (root: Element) => { const w = { opened: 0 }; input(root).addEventListener('click', (e) => { w.opened++; e.preventDefault(); }); return w; };
 
@@ -40,7 +44,7 @@ describe('FileUpload', () => {
     const el = q(many), btn = choose(el), inp = input(el);
     expect(ref.current).toBe(el);
     expect(el.className).toMatch(/extra/);
-    expect([el.dataset.component, el.querySelector('.dk-file-upload__title')!.textContent, btn.textContent, document.getElementById(btn.getAttribute('aria-describedby')!)!.textContent]).toEqual(['file-upload', 'Drag files here', 'Choose files', 'Images or PDF, up to 1 MB']);
+    expect([el.dataset.component, el.querySelector(TITLE)!.textContent, btn.textContent, document.getElementById(btn.getAttribute('aria-describedby')!)!.textContent]).toEqual(['file-upload', 'Drag files here', 'Choose files', 'Images or PDF, up to 1 MB']);
     expect([inp.accept, inp.multiple, inp.name, inp.id, inp.getAttribute('aria-hidden'), inp.tabIndex]).toEqual(['image/*,.pdf', true, 'docs', 'many', 'true', -1]);
   });
 
@@ -52,7 +56,7 @@ describe('FileUpload', () => {
 
   test('a drag that carries no files (text, a link) doesn\'t light the area up or allow a drop; a file drag does', async () => {
     await render(<Many />);
-    const zone = q(many).querySelector('.dk-file-upload__zone') as HTMLElement;
+    const zone = q(many).querySelector(ZONE) as HTMLElement;
     const text = new DataTransfer(); text.setData('text/plain', 'hello');
     const enterText = new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: text });
     zone.dispatchEvent(enterText);
@@ -158,7 +162,7 @@ describe('FileUpload', () => {
 
   test('dragging files over the area highlights it; dropping adds them and ends the highlight', async () => {
     await render(<Many />);
-    const zone = q(`${many} .dk-file-upload__zone`), dt = new DataTransfer();
+    const zone = q(`${many} > ${ZONE}`), dt = new DataTransfer();
     dt.items.add(new File([new Uint8Array(300)], 'drop.gif', { type: 'image/gif' }));
     zone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
     await expect.poll(() => zone.className).toMatch(/zone--over/);
@@ -169,7 +173,7 @@ describe('FileUpload', () => {
 
   test('forced colors: the drag-over area keeps a Highlight border, unlike the resting one', async () => {
     await render(<Many />);
-    const zone = q(`${many} .dk-file-upload__zone`), dt = new DataTransfer();
+    const zone = q(`${many} > ${ZONE}`), dt = new DataTransfer();
     dt.items.add(new File(['x'], 'a.txt', { type: 'text/plain' }));   // only a drag of files highlights the area
     const r = await forcedColors(async (active) => {
       if (!active) return null;
@@ -185,7 +189,7 @@ describe('FileUpload', () => {
     const changes: string[] = [], setRef: { set?: (f: File[]) => void } = {};
     await render(<Controlled changes={changes} setRef={setRef} />);
     const el = rootOf('ctl');
-    expect([el.querySelector('.dk-file-upload__title')!.textContent, choose(el).textContent, input(el).multiple]).toEqual(['Drag a file here', 'Choose a file', false]);
+    expect([el.querySelector(TITLE)!.textContent, choose(el).textContent, input(el).multiple]).toEqual(['Drag a file here', 'Choose a file', false]);
     await userEvent.upload(input(el), file('one.png', 'image/png', 10));
     await userEvent.upload(input(el), file('two.png', 'image/png', 10));
     expect([changes.join(';'), list(el).length]).toEqual(['one.png;two.png', 1]);
@@ -226,7 +230,7 @@ describe('FileUpload', () => {
     await render(<FileUpload id="dis" disabled />);
     const el = rootOf('dis');
     expect([choose(el).disabled, input(el).disabled]).toEqual([true, true]);
-    await expect.poll(() => getComputedStyle(el.querySelector('.dk-file-upload__zone')!).opacity).toBe('0.5');
+    await expect.poll(() => getComputedStyle(el.querySelector(ZONE)!).opacity).toBe('0.5');
   });
 
   test('in a Field with an error and required: the button is described by "Required" first, then the error (a button supports neither aria-invalid nor aria-errormessage, TF1b), the input is aria-invalid, the native input required, the area outlined in danger; nothing leaks onto the wrapper and React doesn\'t warn', async () => {
@@ -245,7 +249,7 @@ describe('FileUpload', () => {
       .toEqual([false, false, false, 'Required / Add the signed contract', true, 'true']);
     expect(['invalid', 'required', 'readonly', 'aria-invalid', 'aria-required', 'aria-readonly'].filter((a) => root.hasAttribute(a))).toEqual([]);
     expect(seen.filter((m) => /invalid|required|readOnly/i.test(m))).toEqual([]);
-    const zone = (id: string) => getComputedStyle(rootOf(id).querySelector('.dk-file-upload__zone')!);
+    const zone = (id: string) => getComputedStyle(rootOf(id).querySelector(ZONE)!);
     expect([rootOf('fi2').className, zone('fi2').borderTopStyle, zone('fi2').borderTopColor === zone('fi3').borderTopColor, input(rootOf('fi3')).hasAttribute('aria-invalid')])
       .toEqual(['dk-file-upload dk-file-upload--invalid', 'solid', false, false]);
   });
@@ -268,9 +272,9 @@ describe('FileUpload', () => {
     b.focus();
     expect(document.activeElement).toBe(b);
     await userEvent.keyboard('{Enter}');
-    await userEvent.click(el.querySelector('.dk-file-upload__zone')!, { position: { x: 4, y: 4 } });
+    await userEvent.click(el.querySelector(ZONE)!, { position: { x: 4, y: 4 } });
     const dt = new DataTransfer(); dt.items.add(file('b.pdf', 'application/pdf', 10));
-    el.querySelector('.dk-file-upload__zone')!.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    el.querySelector(ZONE)!.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
     expect([w.opened, changes, names(el), new FormData(document.getElementById('rof') as HTMLFormElement).getAll('doc').length]).toEqual([0, [], 'a.pdf', 1]);
   });
 
@@ -288,12 +292,12 @@ describe('FileUpload', () => {
     const low: string[] = []; let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const zone = el.querySelector('.dk-file-upload__zone')!, zs = getComputedStyle(zone), pg = getComputedStyle(document.body).backgroundColor, ib = getComputedStyle(el.querySelector('.dk-file-upload__item')!).backgroundColor;
+      const zone = el.querySelector(ZONE)!, zs = getComputedStyle(zone), pg = getComputedStyle(document.body).backgroundColor, ib = getComputedStyle(el.querySelector('ul[aria-label] > li')!).backgroundColor;
       const c = (sel: string) => getComputedStyle(el.querySelector(sel)!).color;
-      const pairs: Array<[string, string, string, number]> = [['title', c('.dk-file-upload__title'), zs.backgroundColor, 4.5], ['hint', c('.dk-file-upload__hint'), zs.backgroundColor, 4.5], ['icon', c('.dk-file-upload__icon'), zs.backgroundColor, 3], ['zone outline', zs.borderTopColor, pg, 3], ['error', c('.dk-file-upload__error'), pg, 4.5], ['file name', c('.dk-file-upload__name'), ib, 4.5], ['size', c('.dk-file-upload__size'), ib, 4.5]];
+      const pairs: Array<[string, string, string, number]> = [['title', c(TITLE), zs.backgroundColor, 4.5], ['hint', c(HINT), zs.backgroundColor, 4.5], ['icon', c(`${ZONE} > [data-icon]`), zs.backgroundColor, 3], ['zone outline', zs.borderTopColor, pg, 3], ['error', c('[role=alert] > p'), pg, 4.5], ['file name', c(NAME), ib, 4.5], ['size', c(SIZE), ib, 4.5]];
       zone.classList.add('dk-file-upload__zone--over');
       const zo = getComputedStyle(zone).backgroundColor;
-      pairs.push(['hint while dragging', c('.dk-file-upload__hint'), zo, 4.5], ['title while dragging', c('.dk-file-upload__title'), zo, 4.5]);
+      pairs.push(['hint while dragging', c(HINT), zo, 4.5], ['title while dragging', c(TITLE), zo, 4.5]);
       zone.classList.remove('dk-file-upload__zone--over');
       el.classList.add('dk-file-upload--invalid');
       pairs.push(['invalid outline', getComputedStyle(zone).borderTopColor, pg, 3]);
@@ -307,7 +311,7 @@ describe('FileUpload', () => {
 
   test('--file-upload-zone-bg overrides one upload', async () => {
     await render(<FileUpload id="tok" style={{ '--file-upload-zone-bg': 'rgb(1, 2, 3)' } as React.CSSProperties} />);
-    await expect.poll(() => getComputedStyle(rootOf('tok').querySelector('.dk-file-upload__zone')!).backgroundColor).toBe('rgb(1, 2, 3)');
+    await expect.poll(() => getComputedStyle(rootOf('tok').querySelector(ZONE)!).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 
   test('keyboard: Tab reaches the choose button first (the hidden input and the drop area are skipped); Enter and Space open the file picker; Tab then reaches each file\'s remove button, named after the file; Enter removes the file and focus moves to the one before it, and to the choose button once none are left (FQ1)', async () => {
@@ -359,7 +363,7 @@ describe('FileUpload', () => {
     await render(<><label htmlFor="ful">Attachment</label><FileUpload id="ful" /></>);
     const inp = document.getElementById('ful') as HTMLInputElement;
     inp.focus();
-    await expect.poll(() => document.activeElement && document.activeElement.closest('.dk-btn')).toBeTruthy();
+    await expect.poll(() => document.activeElement && document.activeElement.closest('[data-component=file-upload] [role=presentation] > button')).toBeTruthy();
     expect(document.activeElement).not.toBe(inp);
   });
   test('L8E6: the form\'s reset empties the list with the input, and a controlled list keeps its files on the input', async () => {
@@ -424,7 +428,7 @@ describe('FileUpload: drops, folders and what is said (FQ1)', () => {
   test('a dropped folder is refused with reason "folder" and a message, while the files dropped with it are added', async () => {
     const rejects: string[] = [];
     await render(<Many rejects={rejects} />);
-    const zone = q(`${many} .dk-file-upload__zone`), folder = new File([], 'Invoices'), pic = file('a.png', 'image/png', 10);
+    const zone = q(`${many} > ${ZONE}`), folder = new File([], 'Invoices'), pic = file('a.png', 'image/png', 10);
     // A real folder can't be put in a synthetic DataTransfer; this one says what the browser says for a dropped folder.
     const dt = { types: ['Files'], files: [folder, pic], dropEffect: 'none', items: [{ kind: 'file', webkitGetAsEntry: () => ({ isDirectory: true }) }, { kind: 'file', webkitGetAsEntry: () => ({ isDirectory: false }) }] };
     const e = new DragEvent('drop', { bubbles: true, cancelable: true });

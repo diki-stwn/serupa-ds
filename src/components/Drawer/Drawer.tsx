@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn, domId, oneOf, omit, setRef, useIsoLayoutEffect } from "../../internal/cn";
 import { IconButton } from "../IconButton/IconButton";
+import { Discard } from "../Dialog/Dialog";
 import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import { modalClosed, modalOpened, modalOpening, wasDismissal } from "../../internal/layers";
@@ -45,17 +46,20 @@ export interface DrawerProps extends Omit<React.DialogHTMLAttributes<HTMLDialogE
   initialFocus?: React.RefObject<HTMLElement | null>;
   /** Where focus goes when it closes, instead of back to what had it before (taken when that's gone): the next row after the one it deleted, say. */
   finalFocus?: React.RefObject<HTMLElement | null>;
+  /** There are changes that would be lost: Escape, the ×, the backdrop, a swipe or the browser closing it first ask "Discard changes?" (an alert dialog, Keep editing focused), and onOpenChange(false) comes only after Discard. Leaving the page asks too (beforeunload). Your own Cancel button closes it directly, so ask there yourself if it should. Default: false. */
+  unsaved?: boolean;
 }
 
 const FLICK = 0.2;   // px per ms over the last 100ms toward the edge: a let-go this fast closes it, however short (KW5a)
 const INWARD = 24;   // px at most a drag away from the edge moves the panel, against growing resistance
-const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1, className: 1, children: 1 } as const;
+const OWN = { open: 1, defaultOpen: 1, onOpenChange: 1, side: 1, size: 1, title: 1, description: 1, footer: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, modal: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1, unsaved: 1, className: 1, children: 1 } as const;
 
 /* Drawer: a modal panel that slides in from an edge of the screen, for navigation on small screens, filters,
    or details and edits without leaving the page. It's a native <dialog> (showModal) like Dialog: focus stays
    inside, the page behind is inert and doesn't scroll, Escape, the × and the backdrop ask to close
    (onOpenChange(false)), and focus goes back where it was. modal={false} shows it with show() instead: a side
-   panel with no backdrop, beside a page that stays usable. */
+   panel with no backdrop, beside a page that stays usable. unsaved puts Dialog's "Discard changes?" question between
+   a request to close and onOpenChange(false). */
 /** A modal panel that slides in from an edge: navigation, filters, details. */
 export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>("Drawer", function Drawer(props, ref) {
   const nameRef = useNameCheck("Drawer", NAME_HOW.title);   // warns when it has no accessible name
@@ -77,6 +81,18 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
   const controlled = props.open !== undefined;
   const open = controlled ? !!props.open : inner;
   const close = React.useCallback((reason: OpenChangeReason) => { if (!controlled) setInner(false); if (ask.current) ask.current(false, { reason }); }, [controlled]);
+  // unsaved: a request to close asks "Discard changes?" first (Dialog's question), and remembers why it came.
+  const unsaved = React.useRef(props.unsaved); unsaved.current = props.unsaved;
+  const [asking, setAsking] = React.useState<OpenChangeReason | null>(null);
+  // The app closing it while the question shows takes the question away too, so it can't come back stale (GR96).
+  if (!open && asking) setAsking(null);
+  const request = (reason: OpenChangeReason) => { if (unsaved.current) setAsking(reason); else close(reason); };
+  React.useEffect(() => {
+    if (!open || !props.unsaved) return;
+    const stay = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", stay);
+    return () => window.removeEventListener("beforeunload", stay);
+  }, [open, props.unsaved]);
   const has = (n: React.ReactNode) => n != null && n !== false && n !== "";
   // Open on arrival: there from the first frame, so it doesn't slide in; it closes, and opens again, with motion.
   const arrived = React.useRef(open); if (!open) arrived.current = false;
@@ -131,9 +147,9 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     if (rest.onKeyDown) rest.onKeyDown(e);
     if (modal || e.defaultPrevented || e.key !== "Escape" || isComposing(e)) return;
     if (e.target instanceof Element && e.target.closest("dialog") !== e.currentTarget) return;   // a dialog opened from inside it
-    e.preventDefault(); close("escape");
+    e.preventDefault(); request("escape");
   };
-  const onCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => { if (rest.onCancel) rest.onCancel(e); if (e.target !== e.currentTarget) return; e.preventDefault(); close("escape"); };
+  const onCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => { if (rest.onCancel) rest.onCancel(e); if (e.target !== e.currentTarget) return; e.preventDefault(); request("escape"); };
   // The browser can close it on its own (dialog.close(), a form with method="dialog", an Escape it doesn't let us
   // cancel, such as Chromium's second Escape with no click in between): if open is still true, ask to close. A
   // parent that keeps open true gets it shown again, so open stays the truth.
@@ -143,6 +159,14 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     if (e.target !== e.currentTarget) return;
     if (!e.currentTarget.open) modalClosed(e.currentTarget);
     if (!openNow.current || e.currentTarget.open) return;
+    // unsaved: show it again now, so the question opens on top of it, and ask.
+    if (unsaved.current) {
+      const d = e.currentTarget;
+      if (!modal) { if (typeof d.show === "function") d.show(); }
+      else { modalOpening(); if (typeof d.showModal === "function") d.showModal(); modalOpened(d); }
+      setAsking("api");
+      return;
+    }
     close("api");
     reopen((n) => n + 1);
   };
@@ -204,6 +228,8 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       delete p.dataset.settling;
       delete p.dataset.inward;
       if (!out) { p.style.translate = ""; return; }
+      // unsaved: it comes back, and asks.
+      if (unsaved.current) { p.style.translate = ""; request("swipe"); return; }
       close("swipe");
       // Back in place once it's closed (two frames: the close renders first), so it opens from the edge next time.
       requestAnimationFrame(() => requestAnimationFrame(() => { if (!drag.current) p.style.translate = ""; }));
@@ -218,7 +244,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
     settling.current = stop;
     p.style.translate = out ? shift(size) : "";
   };
-  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) close("outside"); downOnBackdrop.current = false; };
+  const onClick = (e: React.MouseEvent<HTMLDialogElement>) => { if (rest.onClick) rest.onClick(e); if (backdrop && downOnBackdrop.current && e.target === e.currentTarget && !wasDismissal(e.nativeEvent)) request("outside"); downOnBackdrop.current = false; };
   // A body taller than the panel takes Tab focus, so it can be scrolled from the keyboard when nothing in it is
   // focusable (only Chromium scrolls it with focus on the ×). It's a region named like the drawer, as Table's frame is.
   const [body, setBody] = React.useState<HTMLDivElement | null>(null);
@@ -240,12 +266,13 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
               {has(props.title) ? <h2 className="dk-drawer__title" id={base + "-title"}>{props.title}</h2> : null}
               {has(props.description) ? <p className="dk-drawer__description" id={base + "-desc"}>{props.description}</p> : null}
             </div>
-            {showClose ? <IconButton className="dk-drawer__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" hideTitle onClick={() => close("close")} /> : null}
+            {showClose ? <IconButton className="dk-drawer__close" icon={icons.Close} label={props.closeLabel || sds.labels.close} size="sm" hideTitle onClick={() => request("close")} /> : null}
           </div>
         ) : null}
         {has(props.children) ? <div {...region} ref={setBody} className="dk-drawer__body">{props.children}</div> : null}
         {has(props.footer) ? <div className="dk-drawer__footer">{props.footer}</div> : null}
       </div>
+      {props.unsaved || asking ? <Discard open={!!asking && open} onKeep={() => setAsking(null)} onDiscard={() => { const why = asking || "close"; setAsking(null); close(why); }} /> : null}
     </dialog>
   );
 });
