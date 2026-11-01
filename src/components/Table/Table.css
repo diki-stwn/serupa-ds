@@ -64,7 +64,7 @@
 .dk-table__row--link { position: relative; cursor: pointer; touch-action: manipulation; }
 .dk-table__row-link { color: inherit; text-decoration: none; outline: none; }
 .dk-table__row-link::after { content: ""; position: absolute; inset: var(--spacing-0); z-index: var(--z-0); }
-.dk-table__row--link :is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-table__row-link) { position: relative; z-index: var(--z-10); }
+.dk-table__row--link :is(a[href], button, input, select, textarea, label, summary, [tabindex]):not(.dk-table__row-link) { position: relative; z-index: calc(var(--z-0) + 1); }   /* stylelint-disable-line serupa/no-raw-value -- one above the row's link (z 0) and below a sticky header (z 10) that rows scroll under (GR76); no z token sits between them */
 @media (hover: hover) { .dk-table__row--link:hover .dk-table__row-link { text-decoration: underline; } }
 .dk-table__row--link:has(.dk-table__row-link:focus-visible) { outline: var(--focus-ring-width) solid var(--table-focus-ring, var(--focus-ring)); outline-offset: calc(var(--spacing-0) - var(--focus-ring-width)); }
 @media (forced-colors: active) { .dk-table__row--selected > :first-child, .dk-table__body .dk-table__row:has(> .dk-table__select :checked) > :first-child { border-inline-start: var(--table-indicator-width, var(--border-width-2)) solid Highlight; } }
