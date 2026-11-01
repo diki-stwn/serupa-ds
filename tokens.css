@@ -1225,6 +1225,48 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
+[data-type-scale="fluid"] {
+  --text-2xl: clamp(1.25rem, 1.1667rem + 0.4167vw, 1.5rem);
+  --text-3xl: clamp(1.3125rem, 1.125rem + 0.9375vw, 1.875rem);
+  --text-4xl: clamp(1.575rem, 1.35rem + 1.125vw, 2.25rem);
+  --text-5xl: clamp(2.1rem, 1.8rem + 1.5vw, 3rem);
+  --text-6xl: clamp(2.625rem, 2.25rem + 1.875vw, 3.75rem);
+  --text-7xl: clamp(3.15rem, 2.7rem + 2.25vw, 4.5rem);
+  --text-8xl: clamp(4.2rem, 3.6rem + 3vw, 6rem);
+  --text-9xl: clamp(5.6rem, 4.8rem + 4vw, 8rem);
+  --text-type-2xl: 400 var(--text-2xl)/2rem var(--font-sans);
+  --text-type-3xl: 400 var(--text-3xl)/2.25rem var(--font-sans);
+  --text-type-4xl: 400 var(--text-4xl)/2.5rem var(--font-sans);
+  --text-type-5xl: 400 var(--text-5xl)/1 var(--font-sans);
+  --text-type-6xl: 400 var(--text-6xl)/1 var(--font-sans);
+  --text-type-7xl: 400 var(--text-7xl)/1 var(--font-sans);
+  --text-type-8xl: 400 var(--text-8xl)/1 var(--font-sans);
+  --text-type-9xl: 400 var(--text-9xl)/1 var(--font-sans);
+  --text-type-display: 600 var(--text-5xl)/1.1 var(--font-sans);
+  --text-type-heading-1: 600 var(--text-3xl)/2.25rem var(--font-sans);
+  --text-type-heading-2: 600 var(--text-2xl)/2rem var(--font-sans);
+}
+[data-type-scale="fixed"] {
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+  --text-8xl: 6rem;
+  --text-9xl: 8rem;
+  --text-type-2xl: 400 var(--text-2xl)/2rem var(--font-sans);
+  --text-type-3xl: 400 var(--text-3xl)/2.25rem var(--font-sans);
+  --text-type-4xl: 400 var(--text-4xl)/2.5rem var(--font-sans);
+  --text-type-5xl: 400 var(--text-5xl)/1 var(--font-sans);
+  --text-type-6xl: 400 var(--text-6xl)/1 var(--font-sans);
+  --text-type-7xl: 400 var(--text-7xl)/1 var(--font-sans);
+  --text-type-8xl: 400 var(--text-8xl)/1 var(--font-sans);
+  --text-type-9xl: 400 var(--text-9xl)/1 var(--font-sans);
+  --text-type-display: 600 var(--text-5xl)/1.1 var(--font-sans);
+  --text-type-heading-1: 600 var(--text-3xl)/2.25rem var(--font-sans);
+  --text-type-heading-2: 600 var(--text-2xl)/2rem var(--font-sans);
+}
 :where(:lang(ar), :lang(fa), :lang(ur), :lang(ps), :lang(ckb), :lang(sd), :lang(ug)) {
   --text-xs--line-height: max(1rem, 1.6em);
   --text-sm--line-height: max(1.25rem, 1.6em);
@@ -1304,77 +1346,77 @@
 }
 .type-2xl {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   line-height: 2rem;
   font-weight: 400;
   letter-spacing: -0.025em;
 }
 .type-3xl {
   font-family: var(--font-sans);
-  font-size: 1.875rem;
+  font-size: var(--text-3xl);
   line-height: 2.25rem;
   font-weight: 400;
   letter-spacing: -0.025em;
 }
 .type-4xl {
   font-family: var(--font-sans);
-  font-size: 2.25rem;
+  font-size: var(--text-4xl);
   line-height: 2.5rem;
   font-weight: 400;
   letter-spacing: -0.025em;
 }
 .type-5xl {
   font-family: var(--font-sans);
-  font-size: 3rem;
+  font-size: var(--text-5xl);
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.025em;
 }
 .type-6xl {
   font-family: var(--font-sans);
-  font-size: 3.75rem;
+  font-size: var(--text-6xl);
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.05em;
 }
 .type-7xl {
   font-family: var(--font-sans);
-  font-size: 4.5rem;
+  font-size: var(--text-7xl);
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.05em;
 }
 .type-8xl {
   font-family: var(--font-sans);
-  font-size: 6rem;
+  font-size: var(--text-8xl);
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.05em;
 }
 .type-9xl {
   font-family: var(--font-sans);
-  font-size: 8rem;
+  font-size: var(--text-9xl);
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.05em;
 }
 .type-display {
   font-family: var(--font-sans);
-  font-size: 3rem;
+  font-size: var(--text-5xl);
   line-height: 1.1;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 .type-heading-1 {
   font-family: var(--font-sans);
-  font-size: 1.875rem;
+  font-size: var(--text-3xl);
   line-height: 2.25rem;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 .type-heading-2 {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   line-height: 2rem;
   font-weight: 600;
   letter-spacing: -0.025em;
