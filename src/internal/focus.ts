@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
+import { activeIn } from "./root";
 
 /* A control drawn inside a wrapper (Slider's thumbs, SegmentedControl's segments) keeps its ref on the wrapper, so
    ref.current.focus() would land nowhere: a form library that focuses the first invalid field after a failed submit
@@ -15,7 +16,7 @@ export function delegateFocus(el: HTMLElement | null, target: () => HTMLElement 
 /** A blur from the window or browser tab losing focus (people went to copy something from another app): the field is
  *  still document.activeElement and has focus again when they come back, so what they typed isn't finished (L8E26). */
 export function windowBlur(e: React.FocusEvent): boolean {
-  return e.currentTarget.ownerDocument.activeElement === e.currentTarget;
+  return activeIn(e.currentTarget) === e.currentTarget;
 }
 
 /** autoFocus for such a control: focuses target() once, after the first render. */
@@ -36,10 +37,11 @@ export function useFocusHandover(): (from: HTMLElement, to: () => HTMLElement | 
     const p = pending.current;
     pending.current = null;
     if (!p) return;
-    const a = document.activeElement;
+    // In p.from's document or shadow root (GR60); a removed control reads the page's.
+    const a = activeIn(p.from);
     const lost = a === p.from ? !p.from.isConnected || p.from.matches(':disabled, [aria-disabled="true"]') : !a || a === document.body;
     const t = lost ? p.to() : null;
     if (t && t !== p.from) t.focus();
   });
-  return React.useCallback((from: HTMLElement, to: () => HTMLElement | null | undefined) => { if (document.activeElement === from) pending.current = { from, to }; }, []);
+  return React.useCallback((from: HTMLElement, to: () => HTMLElement | null | undefined) => { if (activeIn(from) === from) pending.current = { from, to }; }, []);
 }

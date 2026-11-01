@@ -46,6 +46,14 @@ describe('TreeView', () => {
     expect([item('a').getAttribute('aria-expanded'), a2.parentElement!.getAttribute('role'), item('b').getAttribute('aria-disabled')]).toEqual(['true', 'group', 'true']);
   });
 
+  test('an item with children says data-state open or closed; a leaf says nothing (G11, ADR 0012)', async () => {
+    await render(<Tree defaultExpanded={['a']} />);
+    expect(['a', 'a1', 'a2', 'd'].map((i) => item(i).dataset.state ?? '-')).toEqual(['open', '-', 'closed', 'closed']);
+    item('d').focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => item('d').dataset.state).toBe('open');
+  });
+
   test('one Tab stop: the first item, or the first picked one; Tab leaves; coming back lands on the item used last', async () => {
     await render(<Tree defaultValue={['c']} />);
     expect(items().map((i) => i.tabIndex)).toEqual([-1, -1, 0, -1]);

@@ -238,7 +238,7 @@ describe('Density axis', () => {
     </div>);
     const h = (id: string) => document.getElementById(id)!.getBoundingClientRect().height;
     expect([h('b-sm'), h('b-md'), h('b-lg'), h('b-back')]).toEqual([24, 28, 36, 32]);
-    expect(document.getElementById('i-md')!.closest('.dk-input')!.getBoundingClientRect().height).toBe(28);
+    expect(document.getElementById('i-md')!.closest('[data-component="input"]')!.getBoundingClientRect().height).toBe(28);
   });
   test('data-shadow="brand" (73): the box shadows take a deep shade of the brand color at the same opacity; a section with its own brand and data-shadow takes its own; neutral puts the black back', async () => {
     root.setAttribute('data-shadow', 'brand');

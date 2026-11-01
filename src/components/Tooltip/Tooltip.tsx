@@ -71,8 +71,19 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
     if (!controlled) { shown.current = v; setInner(v); }
     if (onOpenChange.current) onOpenChange.current(v, { reason });
   }, [controlled]);
-  const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, "hover"), ms); };
-  React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  // Escape while a hover is waiting out the delay cancels the show (GR89): it was dismissed before it appeared.
+  // Nothing is on screen yet, so that Escape goes on to whatever else handles it.
+  const armed = React.useRef<((e: KeyboardEvent) => void) | null>(null);
+  const unarm = () => { if (armed.current) document.removeEventListener("keydown", armed.current, true); armed.current = null; };
+  const later = (v: boolean, ms: number) => {
+    window.clearTimeout(timer.current); unarm();
+    timer.current = window.setTimeout(() => { unarm(); set(v, "hover"); }, ms);
+    if (!v || shown.current) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape" && !isComposing(e)) { window.clearTimeout(timer.current); unarm(); } };
+    armed.current = esc;
+    document.addEventListener("keydown", esc, true);
+  };
+  React.useEffect(() => () => { window.clearTimeout(timer.current); unarm(); }, []);
   // The open tooltip is the warm one: opening another closes it, and closing it keeps others warm for hoverWarm.
   const self = React.useRef({});
   // Opened warm: no fade, so moving along a toolbar swaps one tooltip for the next without a flicker. One open on

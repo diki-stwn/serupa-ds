@@ -235,7 +235,9 @@ export const Calendar = /* @__PURE__ */ component<HTMLDivElement, CalendarProps>
 });
 
 /* The month and year menus (monthYearPicker): native selects, so they work the same with keys, touch and screen
-   readers. Months and years outside min..max aren't offered; a year whose month is out of range clamps to the nearest one. */
+   readers. Months and years outside min..max aren't offered; a year whose month is out of range clamps to the nearest one.
+   They choose what the grid shows, not a value to send, so form="" keeps them out of any form around the calendar:
+   a form reset would put them back on their first options (January, the first year) while the grid stayed put (GR87). */
 function MonthYear(p: { month: Date; min: Date | null; max: Date | null; today: Date; names: Intl.DateTimeFormat; lang: string | undefined; monthLabel: string; yearLabel: string; onPick: (m: Date) => void }) {
   const y = p.month.getFullYear();
   const from = p.min ? p.min.getFullYear() : Math.min(y, p.today.getFullYear() - 100);
@@ -251,10 +253,10 @@ function MonthYear(p: { month: Date; min: Date | null; max: Date | null; today: 
   for (let i = from; i <= to; i++) years.push(i);
   return (
     <span className="dk-calendar__menus">
-      <select className="dk-calendar__menu" aria-label={p.monthLabel} lang={p.lang} value={p.month.getMonth()} onChange={(e) => go(y, +e.currentTarget.value)}>
+      <select className="dk-calendar__menu" form="" aria-label={p.monthLabel} lang={p.lang} value={p.month.getMonth()} onChange={(e) => go(y, +e.currentTarget.value)}>
         {Array.from({ length: 12 }, (_, m) => <option key={m} value={m} disabled={out(y, m)}>{p.names.format(new Date(2000, m, 1))}</option>)}
       </select>
-      <select className="dk-calendar__menu" aria-label={p.yearLabel} value={y} onChange={(e) => go(+e.currentTarget.value, p.month.getMonth())}>
+      <select className="dk-calendar__menu" form="" aria-label={p.yearLabel} value={y} onChange={(e) => go(+e.currentTarget.value, p.month.getMonth())}>
         {years.map((yy) => <option key={yy} value={yy}>{yy}</option>)}
       </select>
     </span>

@@ -38,7 +38,7 @@ describe('EmptyState', () => {
     await render(<Projects />);
     const t = part('edef', 'title')!, d = part('edef', 'description')!;
     expect([t.tagName, css(t).fontSize, css(t).fontWeight, d.tagName, css(d).fontSize, css(part('edef', 'text')).maxWidth]).toEqual(['H3', '16px', '600', 'P', '14px', '384px']);
-    expect(el('edef').querySelectorAll('.dk-empty-state__actions button').length).toBe(2);
+    expect(part('edef', 'actions')!.querySelectorAll('button').length).toBe(2);
     const top = ['icon', 'title', 'description', 'actions'].map((n) => rect(part('edef', n)!).top);
     expect(top[0] < top[1] && top[1] < top[2] && top[2] < top[3]).toBe(true);
     expect(near(top[1] - (top[0] + 48), 16)).toBe(true);

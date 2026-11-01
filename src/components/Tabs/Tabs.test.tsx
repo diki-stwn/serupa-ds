@@ -10,10 +10,10 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 // "*" marks the selected tab, "0" the one in the Tab order; "+" a shown panel, "-" a hidden one, with its text.
 const state = (id: string) => {
   const r = el(id);
-  return [...r.querySelectorAll<HTMLElement>('[role="tab"]')].map((x) => (x.getAttribute('aria-selected') === 'true' ? '*' : '') + x.querySelector('.dk-tabs__label')!.textContent + (x.tabIndex === 0 ? '0' : '')).join(' ')
+  return [...r.querySelectorAll<HTMLElement>('[role="tab"]')].map((x) => (x.getAttribute('aria-selected') === 'true' ? '*' : '') + x.querySelector(':scope > span:not([aria-hidden])')!.textContent + (x.tabIndex === 0 ? '0' : '')).join(' ')
     + ' | ' + [...r.querySelectorAll<HTMLElement>('[role="tabpanel"]')].map((x) => (x.hidden ? '-' : '+') + (x.textContent || (x.querySelector('input') ? 'input' : ''))).join(' ');
 };
-const focused = () => { const a = document.activeElement!, l = a.querySelector('.dk-tabs__label'); return l ? l.textContent : a.textContent; };
+const focused = () => { const a = document.activeElement!, l = a.querySelector(':scope > span:not([aria-hidden])'); return l ? l.textContent : a.textContent; };
 const selected = (id: string) => el(id).querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')!;
 
 function Set3(p: { icon?: boolean; dis?: boolean }) {
@@ -57,7 +57,7 @@ describe('Tabs', () => {
     await setup(ref);
     const r = el('un'), l = r.querySelector('[role="tablist"]')!, tab = r.querySelector<HTMLButtonElement>('[role="tab"]')!, pn = document.getElementById(tab.getAttribute('aria-controls')!)!;
     expect([l.getAttribute('aria-label'), tab.type, pn.getAttribute('role'), pn.getAttribute('aria-labelledby') === tab.id, pn.tabIndex]).toEqual(['Sections', 'button', 'tabpanel', true, 0]);
-    expect([ref.current === r, r.dataset.component, tab.querySelector('.dk-tabs__icon')!.getAttribute('aria-hidden')]).toEqual([true, 'tabs', 'true']);
+    expect([ref.current === r, r.dataset.component, tab.querySelector(':scope > [aria-hidden]')!.getAttribute('aria-hidden')]).toEqual([true, 'tabs', 'true']);
     expect(r.className).toMatch(/extra/);
     expect(new Set([...document.querySelectorAll('[role="tab"]')].map((x) => x.id)).size).toBe(18);
   });

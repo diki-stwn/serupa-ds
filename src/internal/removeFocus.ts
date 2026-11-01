@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { activeIn } from "./root";
 
 /* Removing an item by its own × drops focus on <body> when the × had it. Once the item is gone, focus moves to the
    next × among its siblings (the items in the same list, each maybe in its own <li>), else the one before it. A
@@ -11,7 +12,8 @@ export function removeAndRefocus<E extends React.MouseEvent<HTMLButtonElement>>(
   const at = all.indexOf(me);
   onRemove(e);
   setTimeout(function () {
-    const active = me.ownerDocument.activeElement;
+    // The root the list is in (a shadow root's focus isn't the page's, GR60): me may be gone, so ask the scope.
+    const active = activeIn(scope || me);
     if (me.isConnected || (active && active !== me.ownerDocument.body)) return;
     // Only a × that can take focus: one in a hidden item (a filtered list) would drop focus to the page (L8E33).
     const next = all.slice(at + 1).concat(all.slice(0, at).reverse()).find((b) => b.isConnected && !b.disabled && b.getClientRects().length > 0);
