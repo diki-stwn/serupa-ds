@@ -1207,6 +1207,24 @@
   --control-height-md: 2rem;
   --control-height-lg: 2.75rem;
 }
+[data-shadow="brand"] {
+  --shadow-2xs: 0 1px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.05);
+  --shadow-xs: 0 1px 2px 0 rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1), 0 1px 2px -1px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1), 0 2px 4px -2px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1), 0 4px 6px -4px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1), 0 8px 10px -6px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / 0.25);
+}
+[data-shadow="neutral"] {
+  --shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
 :where(:lang(ar), :lang(fa), :lang(ur), :lang(ps), :lang(ckb), :lang(sd), :lang(ug)) {
   --text-xs--line-height: max(1rem, 1.6em);
   --text-sm--line-height: max(1.25rem, 1.6em);

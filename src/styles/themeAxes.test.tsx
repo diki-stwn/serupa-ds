@@ -38,7 +38,7 @@ const axes = (brand?: string, mode?: string) => {
   if (mode) root.setAttribute('data-mode', mode); else root.removeAttribute('data-mode');
 };
 
-afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
+afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density', 'data-shadow']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
 
 describe('Theme axes', () => {
   test('data-brand + data-mode give exactly the colors of each data-theme', () => {
@@ -240,6 +240,27 @@ describe('Density axis', () => {
     expect([h('b-sm'), h('b-md'), h('b-lg'), h('b-back')]).toEqual([24, 28, 36, 32]);
     expect(document.getElementById('i-md')!.closest('.dk-input')!.getBoundingClientRect().height).toBe(28);
   });
+  test('data-shadow="brand" (73): the box shadows take a deep shade of the brand color at the same opacity; a section with its own brand and data-shadow takes its own; neutral puts the black back', async () => {
+    root.setAttribute('data-shadow', 'brand');
+    const card = (id: string) => <div id={id} style={{ boxShadow: 'var(--shadow-md)' }}>Card</div>;
+    await render(<div>
+      {card('sh-page')}
+      <section data-brand="emerald" data-shadow="brand">{card('sh-em')}</section>
+      <section data-shadow="neutral">{card('sh-plain')}</section>
+    </div>);
+    // The first shadow's color as [r, g, b, alpha], 0 to 1.
+    const rgba = (id: string) => {
+      const s = getComputedStyle(document.getElementById(id)!).boxShadow;
+      const srgb = /color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+) \/ ([\d.]+)\)/.exec(s), plain = /rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/.exec(s);
+      if (srgb) return srgb.slice(1).map(Number);
+      return plain!.slice(1).map((v, i) => (i < 3 ? Number(v) / 255 : Number(v)));
+    };
+    const [pr, pg, pb, pa] = rgba('sh-page'), [er, eg, eb] = rgba('sh-em');
+    expect([pb > pr && pb > pg, eg > er && eg > eb, pa, rgba('sh-plain')]).toEqual([true, true, 0.1, [0, 0, 0, 0.1]]);
+    // A deep shade: dark enough to read as shadow.
+    expect(Math.max(pr, pg, pb, er, eg, eb)).toBeLessThan(0.35);
+  });
+
   test('a nested data-mode section has its own text color and surface, not the page\'s; a class background still wins', async () => {
     axes('blue', 'light');
     await render(<div><p id="np-out">Outside</p><section id="np" data-mode="dark"><p id="np-in">Inside</p></section>
