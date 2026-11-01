@@ -31,6 +31,26 @@
             "cssVar": "--command-palette-option-bg-active"
           }
         }
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The placeholder, icons and the empty message (4.5:1 on the dialog).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-muted"
+          }
+        }
+      },
+      "indicator-active": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The bar at the start of the active row.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-indicator-active"
+          }
+        }
       }
     },
     "spacing": {
