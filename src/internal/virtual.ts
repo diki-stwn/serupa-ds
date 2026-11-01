@@ -9,7 +9,12 @@ import { useIsoLayoutEffect } from "./cn";
    only for rows not yet seen, and then only until some are: after that, unseen rows count as the average of the seen.
    A row measured above the view keeps the view where it is: the scroll moves by the difference. Before the first
    measure (and on the server) it draws the first `initial` rows. Attach `ref` to the scrolling element; its drawn rows
-   are its children with data-index. */
+   are its children with data-index.
+   Browsers stop an element's height at about 17.9 million px (Firefox; 33.5 million in Chromium and WebKit), so past
+   CAP the scroll range is scaled down: the scroll position is a fraction of the whole, the rows for that fraction
+   are drawn, and the space before them puts them under the view. A scroll then moves through the rows faster than
+   the pointer (total / CAP times), as in react-window's and TanStack Virtual's large lists, but every row is reached
+   (GR92). Measuring doesn't move the scroll position then: the fraction stays put. */
 export interface VirtualOptions {
   /** How many rows there are. */
   count: number;
@@ -37,6 +42,9 @@ export interface VirtualRange {
   /** Brings a row into view (block "nearest"). */
   scrollToIndex: (index: number) => void;
 }
+
+// The tallest scroll range drawn as is, under every browser's limit; past it, the range is scaled down to it.
+const CAP = 15_000_000;
 
 // The last index whose start is at or above y.
 function find(o: Float64Array, y: number): number {
@@ -72,11 +80,17 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
     return o;
   }, [count, estimate, store]);
 
+  // Past CAP, the scroll position (view.top, out of CAP less the view) is the same fraction of the rows (top, out of
+  // the total less the view), and the rows are drawn shifted by the difference.
+  const total = offsets[count], scaled = total > CAP;
+  const room = view ? Math.max(0, CAP - view.height) : 0, span = view ? Math.max(0, total - view.height) : 0;
+  const top = !view ? 0 : scaled ? (room ? Math.min(1, view.top / room) * span : 0) : view.top;
+  const shift = scaled && view ? view.top - top : 0;
   let start: number, end: number;
   if (!view || !count) { start = 0; end = Math.min(count, initial); }
   else {
-    start = Math.max(0, find(offsets, view.top) - overscan);
-    end = Math.min(count, find(offsets, view.top + view.height) + 1 + overscan);
+    start = Math.max(0, find(offsets, top) - overscan);
+    end = Math.min(count, find(offsets, top + view.height) + 1 + overscan);
   }
 
   // Follow the scroll and the scroller's size (a ResizeObserver also reports once as soon as it starts).
@@ -103,9 +117,12 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
     if (!el) return;
     const a = anchor.current;
     const row = a && a.i < count ? el.querySelector<HTMLElement>(`:scope > [data-index="${a.i}"]`) : null;
-    if (a && row && row.style.position !== "absolute" && el.scrollTop > 0) {
+    // Not when scaled (the fraction is the position), and never past either end: a scroll the browser clamps fires no
+    // scroll event to settle on, and correcting it again each render looped until React gave up (GR91).
+    if (a && row && row.style.position !== "absolute" && el.scrollTop > 0 && !scaled) {
       const d = row.getBoundingClientRect().top - el.getBoundingClientRect().top - a.at;
-      if (Math.abs(d) >= 1) el.scrollTop += d;
+      const to = el.scrollTop + d, max = el.scrollHeight - el.clientHeight;
+      if (Math.abs(d) >= 1 && to >= 0 && to <= max) el.scrollTop = to;
     }
     let changed = false;
     for (const r of el.querySelectorAll<HTMLElement>(":scope > [data-index]")) {
@@ -122,12 +139,18 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
   const scrollToIndex = (index: number) => {
     const el = node.current;
     if (!el || index < 0 || index >= count) return;
-    const a = offsets[index], b = offsets[index + 1];
-    if (a < el.scrollTop) el.scrollTop = a;
-    else if (b > el.scrollTop + el.clientHeight) el.scrollTop = b - el.clientHeight;
+    const a = offsets[index], b = offsets[index + 1], h = el.clientHeight;
+    // Where the rows' top is now (the fraction when scaled), and from there the nearest top that shows the row.
+    const now = scaled ? (CAP - h > 0 ? (el.scrollTop / (CAP - h)) * Math.max(0, total - h) : 0) : el.scrollTop;
+    const want = a < now ? a : b > now + h ? b - h : now;
+    if (want === now) return;
+    el.scrollTop = scaled ? (total - h > 0 ? (want / (total - h)) * (CAP - h) : 0) : want;
   };
 
-  return { ref, start, end, before: offsets[start], after: offsets[count] - offsets[end], offsetOf: (i: number) => offsets[Math.max(0, Math.min(count, i))], scrollToIndex };
+  const drawn = offsets[end] - offsets[start];
+  const before = scaled ? Math.max(0, offsets[start] + shift) : offsets[start];
+  const after = scaled ? Math.max(0, CAP - before - drawn) : total - offsets[end];
+  return { ref, start, end, before, after, offsetOf: (i: number) => offsets[Math.max(0, Math.min(count, i))] + shift, scrollToIndex };
 }
 
 // The first drawn row (in the flow) whose bottom is below the top of the view, and where it starts in the view.
