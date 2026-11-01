@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, color, contrast, css, press } from '../../../tools/test/vitest/helpers';
+import { THEMES, color, contrast, css, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
 import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Button } from '../Button/Button';
@@ -243,6 +243,23 @@ describe('Table', () => {
     await expect.poll(() => f.scrollTop).toBe(80);
     expect(Math.round(th.getBoundingClientRect().top - f.getBoundingClientRect().top)).toBeLessThanOrEqual(1);
     expect([css(th).position, f.getAttribute('aria-label'), f.getAttribute('tabindex')]).toEqual(['sticky', 'Sticky', '0']);
+  });
+
+  test('stickyHeader: the header lifts with a shadow once rows scroll under it, and is flat at the top (KW16); without scroll-state queries it stays flat', async () => {
+    await setup();
+    const f = el('tsticky').parentElement!, th = f.querySelector('th')!;
+    // A shadow shows when one of its colors isn't fully transparent.
+    const lifted = () => (css(th).boxShadow.match(/rgba?\([^)]*\)/g) || []).some((c) => { const n = c.match(/[\d.]+/g)!; return n.length < 4 || Number(n[3]) > 0; });
+    const lifts = CSS.supports('container-type: scroll-state');
+    await withMotion(async () => {
+      f.scrollTop = 0;
+      await expect.poll(lifted).toBe(false);
+      f.scrollTop = 80;
+      if (lifts) await expect.poll(lifted).toBe(true);
+      else { await settle(100); expect(lifted()).toBe(false); }
+      f.scrollTop = 0;
+      await expect.poll(lifted).toBe(false);
+    });
   });
 
   test('unknown size and align fall back to md and start', async () => {
