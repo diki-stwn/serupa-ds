@@ -606,6 +606,17 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     expect(new Set(ids).size).toBe(4);   // each its own toast, not a count on one
   });
 
+  test('FEC5: toast.undo commits when the page is left, and a page brought back from the back/forward cache drops the toast, whose Undo can no longer undo', async () => {
+    await render(<Toaster />);
+    const log: string[] = [];
+    React.act(() => { toast.undo({ title: 'Deleted', commit: () => log.push('commit'), onUndo: () => log.push('undo') }); });
+    expect(toasts().length).toBe(1);
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    React.act(() => { window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); });
+    await expect.poll(() => toasts().length, { timeout: 3000 }).toBe(0);
+    expect(log).toEqual(['commit']);
+  });
+
   test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
     const { SerupaProvider } = await import('../../internal/provider');
     await render(<SerupaProvider labels={idLabels}><Toaster /></SerupaProvider>);

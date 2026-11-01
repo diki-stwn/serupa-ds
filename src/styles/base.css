@@ -50,6 +50,7 @@
 /* Headings and paragraphs: no browser margins; space them with the spacing utilities. */
 :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd) { margin: var(--spacing-0); }
 :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+:where(h1, h2, h3, h4, h5, h6):where(:lang(ja)) { word-break: auto-phrase; }   /* Japanese headings break between phrases */
 :where(p) { text-wrap: pretty; }
 
 /* A bare link (from Markdown, a CMS or plain HTML) looks and behaves like <Link>: its color, underline, offset and

@@ -156,16 +156,20 @@ let undoWord = "";
 function undo(options: ToastUndoOptions): string {
   const { commit, onUndo, undoLabel, ...rest } = options;
   let settled = false;
-  const once = (f?: () => void) => () => {
+  // Leaving commits, since the page may never come back. If it does come back from the back/forward cache, the
+  // toast is still there but its Undo can no longer undo anything, so it goes (FEC5).
+  const returned = (e: PageTransitionEvent) => { window.removeEventListener("pageshow", returned); if (e.persisted) dismiss(id); };
+  const once = (f?: () => void, leaving?: boolean) => () => {
     if (settled) return;
     settled = true;
-    window.removeEventListener("pagehide", keep);
+    window.removeEventListener("pagehide", left);
+    if (leaving) window.addEventListener("pageshow", returned);
     if (f) f();
   };
-  const keep = once(commit), back = once(onUndo);
+  const keep = once(commit), back = once(onUndo), left = once(commit, true);
   const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord || ownWords.undo, onClick: back }, autoDismiss: true }));
   onClose.set(id, keep);
-  window.addEventListener("pagehide", keep);
+  window.addEventListener("pagehide", left);
   return id;
 }
 /** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it, toast.promise(p, { loading, success, error }) follows a promise, and toast.undo({ title, commit, onUndo }) does an action for good only if Undo isn't chosen. */
