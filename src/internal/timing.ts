@@ -16,6 +16,12 @@ export const hoverIntent = 400;
 export const hoverLeave = 100;
 /** After a tooltip closes, the next one opens at once for this long, so scanning a toolbar doesn't wait hoverIntent per button. */
 export const hoverWarm = 300;
+/** The pointer rests this long on a link, or keyboard focus stays on it, before its HoverCard opens: longer than a
+    tooltip's, since a card covers more of the page and a pointer passing over a list of links shouldn't open one each. */
+export const cardIntent = 500;
+/** After the pointer or focus leaves a HoverCard and its link, it waits this long before closing, so a pointer crossing
+    the gap to the card, or wobbling off its edge, keeps it. */
+export const cardLeave = 300;
 /** The pointer rests this long on a menu item before its submenu opens, or off it before the submenu closes. */
 export const submenuIntent = 150;
 /** Typing must pause this long before Combobox's loadOptions runs. */

@@ -70,6 +70,16 @@ describe('Dialog', () => {
     expect([isOpen('dlg'), getComputedStyle(el('dlg')).display]).toEqual([false, 'none']);
   });
 
+  test('data-state says open or closed, as the other overlays do (G11, ADR 0012)', async () => {
+    const ctl: Partial<Ctl> = {};
+    await render(<App asks={[]} ctl={ctl} />);
+    expect(el('dlg').dataset.state).toBe('closed');
+    await openDlg();
+    expect(el('dlg').dataset.state).toBe('open');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => el('dlg').dataset.state).toBe('closed');
+  });
+
   test('open: a modal <dialog> (top layer), named by the title and described by the description, focus inside; ref and className reach it; md: 512px wide, centered on the screen; the page behind doesn\'t scroll and can\'t be clicked', async () => {
     const ref = React.createRef<HTMLDialogElement>();
     await render(<App asks={[]} ctl={{}} dref={ref} />);

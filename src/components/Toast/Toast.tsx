@@ -17,6 +17,7 @@ import type { IconData } from "../../material/types";
 import { en as ownWords } from "./labels";
 import { repeatQuiet } from "../../internal/timing";
 import { deepActive } from "../../internal/root";
+import { pageShared } from "../../internal/pageShared";
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type ToasterPosition = 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
@@ -44,33 +45,35 @@ export interface ToastOptions {
 
 interface Item extends ToastOptions { id: string; tone: ToastTone; count: number }
 type Listener = (items: Item[]) => void;
+// The toast queue, kept once per page (pageShared): toast() from a second copy of the package on the page (two
+// versions, or two apps built apart) shows in the same Toaster, and the newest Toaster of either copy shows them all.
+// Beside it, what the mounted Toaster sets (hint: the F8 hint, said once; repeated: how a repeat count is said;
+// undoWord: the Undo button's word, "" before one mounts), the timers of repeats, NotificationCenter's
+// useToastHistory hooks (watchers, told of each toast as it's shown, replaced or repeated) and what an undo toast does
+// when it closes without Undo (onClose: toast.undo's commit, by id).
 // module state: the browser's toast queue. toast() is for event handlers, and a Toaster starts empty on a server (its
 // list fills from the queue after mounting), so a toast() called during a server render never reaches another request's HTML.
-let items: Item[] = [];
-const listeners = new Set<Listener>();
-let next = 0;
+const page = /* @__PURE__ */ pageShared("toast@1", () => ({
+  items: [] as Item[], listeners: new Set<Listener>(), next: 0,
+  hint: "", hinted: false, repeated: null as ((count: number) => string) | null, undoWord: "",
+  repeatTimers: new Map<string, ReturnType<typeof setTimeout>>(),
+  watchers: new Set<(t: ShownToast) => void>(),
+  onClose: new Map<string, () => void>(),
+}));
 // Only the newest mounted Toaster shows the toasts, so two (one in a layout and one on a page, say) don't show each
 // toast twice; when it unmounts, the one before it takes them over.
-const emit = () => { let left = listeners.size; listeners.forEach((l) => l(--left ? [] : items)); };
+const emit = () => { let left = page.listeners.size; page.listeners.forEach((l) => l(--left ? [] : page.items)); };
 const text = (n: React.ReactNode) => (typeof n === "string" || typeof n === "number" ? String(n) : "");
 const TONES: readonly ToastTone[] = ["neutral", "info", "success", "warning", "danger"];
 // The key that moves focus to the newest toast and back (as in Radix), and the hint the first toast with an action
 // adds to what's announced, in the Toaster's words.
 const HOTKEY = "F8";
-// module state: browser only, set by the mounted Toaster.
-let hint = "", hinted = false;
 // A repeat is said once the burst stops (a second without another), with the count in the Toaster's words.
-// module state: browser only, set by the mounted Toaster, with the timers below.
-let repeated: ((count: number) => string) | null = null;
-const repeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
-// module state: browser only: NotificationCenter's useToastHistory hooks, told of each toast as it's shown, replaced
-// or repeated.
-const watchers = /* @__PURE__ */ new Set<(t: ShownToast) => void>();
 // A toast as useToastHistory records it.
 interface ShownToast { id: string; title: React.ReactNode; description?: React.ReactNode; tone: ToastTone; count: number }
 /** For useToastHistory: calls fn with each toast as it's shown, replaced or repeated, and returns the way to stop. */
-export function watchToasts(fn: (t: ShownToast) => void): () => void { watchers.add(fn); return () => { watchers.delete(fn); }; }
-const tell = (t: Item) => watchers.forEach((w) => w({ id: t.id, title: t.title, description: t.description, tone: t.tone, count: t.count }));
+export function watchToasts(fn: (t: ShownToast) => void): () => void { page.watchers.add(fn); return () => { page.watchers.delete(fn); }; }
+const tell = (t: Item) => page.watchers.forEach((w) => w({ id: t.id, title: t.title, description: t.description, tone: t.tone, count: t.count }));
 const said = (o: ToastOptions) => (o.announcement != null ? o.announcement : [text(o.title), text(o.description)].filter(Boolean).join(". "));
 
 /** Shows a toast in the page's <Toaster> and returns its id. */
@@ -80,40 +83,38 @@ function show(options: ToastOptions | string): string {
   // The same message again (same words and tone, no id, no action), such as "Network error" in a burst: one toast
   // with a count ("×12") whose time starts over. It's said when it first shows, and once more with the count when
   // the burst stops, so screen reader users hear that it happened again without hearing it twelve times.
-  const same = o.id || o.action ? -1 : items.findIndex((x) => !x.action && x.tone === tone && text(x.title) !== "" && text(x.title) === text(o.title) && text(x.description) === text(o.description));
+  const same = o.id || o.action ? -1 : page.items.findIndex((x) => !x.action && x.tone === tone && text(x.title) !== "" && text(x.title) === text(o.title) && text(x.description) === text(o.description));
   if (same >= 0) {
-    items = items.map((x, i) => (i === same ? Object.assign({}, x, { count: x.count + 1 }) : x));
+    page.items = page.items.map((x, i) => (i === same ? Object.assign({}, x, { count: x.count + 1 }) : x));
     emit();
-    tell(items[same]);
-    const rid = items[same].id;
-    const wait = repeatTimers.get(rid);
+    tell(page.items[same]);
+    const rid = page.items[same].id;
+    const wait = page.repeatTimers.get(rid);
     if (wait) clearTimeout(wait);
-    repeatTimers.set(rid, setTimeout(() => {
-      repeatTimers.delete(rid);
-      const now = items.find((x) => x.id === rid), say = now ? said(now) : "";
-      if (now && say && repeated) announce(say + ". " + repeated(now.count) + ".", { assertive: now.tone === "danger" });
+    page.repeatTimers.set(rid, setTimeout(() => {
+      page.repeatTimers.delete(rid);
+      const now = page.items.find((x) => x.id === rid), say = now ? said(now) : "";
+      if (now && say && page.repeated) announce(say + ". " + page.repeated(now.count) + ".", { assertive: now.tone === "danger" });
     }, repeatQuiet));
     return rid;
   }
-  const id = o.id || "dk-toast-" + ++next;
+  const id = o.id || "dk-toast-" + ++page.next;
   const item: Item = Object.assign({}, o, { id: id, tone: tone, count: 1 });
-  const at = items.findIndex((x) => x.id === id);
-  items = at >= 0 ? items.map((x, i) => (i === at ? item : x)) : items.concat(item);
+  const at = page.items.findIndex((x) => x.id === id);
+  page.items = at >= 0 ? page.items.map((x, i) => (i === at ? item : x)) : page.items.concat(item);
   emit();
   tell(item);
   let say = said(o);
-  if (say && o.action && hint && !hinted) { say += ". " + hint; hinted = true; }
+  if (say && o.action && page.hint && !page.hinted) { say += ". " + page.hint; page.hinted = true; }
   if (say) announce(say, { assertive: item.tone === "danger" });   // an error interrupts; the rest wait their turn
   return id;
 }
-// module state: browser only: what an undo toast does when it closes without Undo (toast.undo's commit), by id.
-const onClose = /* @__PURE__ */ new Map<string, () => void>();
 /** Closes one toast, or every toast with no id. */
 function dismiss(id?: string): void {
-  const gone = id == null ? items : items.filter((x) => x.id === id);
-  items = id == null ? [] : items.filter((x) => x.id !== id);
+  const gone = id == null ? page.items : page.items.filter((x) => x.id === id);
+  page.items = id == null ? [] : page.items.filter((x) => x.id !== id);
   emit();
-  for (const x of gone) { const then = onClose.get(x.id); if (then) { onClose.delete(x.id); then(); } }
+  for (const x of gone) { const then = page.onClose.get(x.id); if (then) { page.onClose.delete(x.id); then(); } }
 }
 type Message<A> = ToastOptions | string | ((arg: A) => ToastOptions | string);
 export interface ToastPromiseMessages<T> {
@@ -131,7 +132,7 @@ const asOptions = (m: ToastOptions | string): ToastOptions => (typeof m === "str
 function promise<T>(work: Promise<T> | (() => Promise<T>), messages: ToastPromiseMessages<T>): Promise<T> {
   const p = typeof work === "function" ? work() : work;
   // Its own id, so a second promise with the same words gets its own toast rather than a count on this one.
-  const id = "dk-toast-" + ++next;
+  const id = "dk-toast-" + ++page.next;
   show(Object.assign({ autoDismiss: false }, asOptions(messages.loading), { id: id }));
   const settle = <A,>(m: Message<A>, arg: A, tone: ToastTone) => {
     const o = asOptions(typeof m === "function" ? m(arg) : m);
@@ -149,8 +150,6 @@ export interface ToastUndoOptions extends Omit<ToastOptions, "action" | "autoDis
   /** The button's text. Default: "Undo" (labels.undo). */
   undoLabel?: string;
 }
-// module state: browser only, set by the mounted Toaster: the Undo button's word in its labels ("" before one mounts).
-let undoWord = "";
 /* toast.undo: the undo pattern. The action looks done at once (the item is gone from the list), and a toast says so
    with an Undo button; the action is done for good (commit) only when the toast closes without Undo, or when the
    page is left (pagehide), so nothing is lost and nothing needs a "Are you sure?" first. Undo runs onUndo instead.
@@ -169,8 +168,8 @@ function undo(options: ToastUndoOptions): string {
     if (f) f();
   };
   const keep = once(commit), back = once(onUndo), left = once(commit, true);
-  const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord || ownWords.undo, onClick: back }, autoDismiss: true }));
-  onClose.set(id, keep);
+  const id = show(Object.assign({}, rest, { action: { label: undoLabel || page.undoWord || ownWords.undo, onClick: back }, autoDismiss: true }));
+  page.onClose.set(id, keep);
   window.addEventListener("pagehide", left);
   return id;
 }
@@ -216,23 +215,23 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
   // Toasts already there as the Toaster arrives (in its first effects) are shown from the first frame, not slid in.
   const early = React.useRef(new Set<string>()), arriving = React.useRef(true);
   React.useEffect(() => {
-    ensureAnnouncer(); hinted = false;
-    if (process.env.NODE_ENV !== "production" && listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
+    ensureAnnouncer(); page.hinted = false;
+    if (process.env.NODE_ENV !== "production" && page.listeners.size) warnOnce("toaster-twice", "Toaster: another Toaster is already mounted, so only this newer one shows toasts. Render one Toaster, once, near the root.");
     const take: Listener = (l) => { snap(); if (arriving.current) l.forEach((x) => early.current.add(x.id)); setList(l); };
     arriving.current = true;
-    listeners.add(take); emit();
+    page.listeners.add(take); emit();
     void Promise.resolve().then(() => { arriving.current = false; });
-    return () => { listeners.delete(take); emit(); };
+    return () => { page.listeners.delete(take); emit(); };
   }, []);
   const pos = oneOf(POSITIONS, position, "bottom-end");
   // The F8 hint is set once the Toaster is in the page, not while rendering, and goes with it: with no Toaster, F8
   // does nothing, so a toast doesn't mention it.
   const shortcut = sds.labels.toastShortcut(HOTKEY);
-  React.useEffect(() => { hint = shortcut; return () => { hint = ""; }; }, [shortcut]);
+  React.useEffect(() => { page.hint = shortcut; return () => { page.hint = ""; }; }, [shortcut]);
   const times = sds.labels.toastRepeated;
-  React.useEffect(() => { repeated = times; return () => { repeated = null; }; }, [times]);
+  React.useEffect(() => { page.repeated = times; return () => { page.repeated = null; }; }, [times]);
   const undoText = sds.labels.undo;
-  React.useEffect(() => { undoWord = undoText; return () => { undoWord = ""; }; }, [undoText]);
+  React.useEffect(() => { page.undoWord = undoText; return () => { page.undoWord = ""; }; }, [undoText]);
   const back = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
     const away = () => { const b = back.current; back.current = null; if (b && b.isConnected) b.focus(); };
