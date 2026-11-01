@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
+import { idLabels } from '../../internal/labels';
 import { CommandPalette, type Command } from './CommandPalette';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -142,6 +143,30 @@ describe('CommandPalette', () => {
       await expect.poll(() => said.at(-1)).toBe('1 command');   // the disabled one isn't counted
       await userEvent.type(field(), 'zzz');
       await expect.poll(() => said.at(-1)).toBe('No matching commands');
+    } finally { seen.disconnect(); }
+  });
+
+  test('the pointer over a row makes it the active one; over a disabled row it stays where it was', async () => {
+    await render(<CommandPalette defaultOpen commands={COMMANDS} />);
+    expect(activeLabel()).toBe('Home');
+    const row = (label: string) => options().find((o) => o.textContent === label)!;
+    await userEvent.hover(row('Switch theme'));
+    await expect.poll(() => activeLabel()).toBe('Switch theme');
+    await userEvent.hover(row('Archive project'));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(activeLabel()).toBe('Switch theme');
+    expect(document.activeElement).toBe(field());
+  });
+
+  test('in Indonesian: its name, the field and the count it says come from the id labels', async () => {
+    const said: string[] = [];
+    const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
+    seen.observe(document.body, { subtree: true, childList: true, characterData: true });
+    try {
+      await render(<SerupaProvider locale="id-ID" labels={idLabels}><CommandPalette id="cp" defaultOpen commands={COMMANDS} /></SerupaProvider>);
+      expect([el('cp').getAttribute('aria-label'), field().getAttribute('aria-label')]).toEqual(['Palet perintah', 'Cari perintah dan halaman']);
+      await userEvent.type(field(), 'pro');
+      await expect.poll(() => said.at(-1)).toBe('1 perintah');
     } finally { seen.disconnect(); }
   });
 
