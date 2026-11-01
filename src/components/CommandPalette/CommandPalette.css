@@ -17,7 +17,7 @@
 .dk-command-palette__option {
   --dk-bar: var(--border-width-2);
   display: flex; align-items: center; gap: var(--spacing-2); min-height: var(--command-palette-option-height, var(--control-height-lg)); padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--rounded-md); cursor: pointer; -webkit-user-select: none; user-select: none;
+  border-radius: var(--rounded-md); cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none;
 }
 .dk-command-palette__option:dir(rtl) { --dk-bar: calc(var(--border-width-2) * -1); }
 .dk-command-palette__option--active { background: var(--command-palette-option-bg-active, var(--highlight)); box-shadow: inset var(--dk-bar) 0 0 var(--command-palette-indicator-active, var(--primary)); }
