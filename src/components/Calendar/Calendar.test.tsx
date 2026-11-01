@@ -271,7 +271,7 @@ describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
     await page.viewport(320, 700);
     try {
       await render(<div style={{ padding: '0 24px' }}><Calendar data-testid="cal" defaultMonth={new Date(2025, 2, 1)} /></div>);
-      const days = [...document.querySelectorAll<HTMLElement>('[data-testid=cal] .dk-calendar__day')];
+      const days = [...document.querySelectorAll<HTMLElement>('[data-testid=cal] [data-date]')];
       // The week, edge to edge, leaves a 3rem gutter (60px here) for the page's and a popover's padding.
       const week = Math.max(...days.map((d) => d.getBoundingClientRect().right)) - Math.min(...days.map((d) => d.getBoundingClientRect().left));
       expect([week <= 320 - 60 + 1, Math.min(...days.map((d) => d.getBoundingClientRect().width)) >= 24]).toEqual([true, true]);
