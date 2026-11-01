@@ -14,7 +14,7 @@ const keys = (id: string) => caps(id).map((k) => k.textContent + (k.title ? `(${
 const spoken = (id: string) => {
   const c = el(id).cloneNode(true) as HTMLElement;
   c.querySelectorAll('[aria-hidden]').forEach((x) => x.remove());
-  return [...c.querySelectorAll('.dk-kbd__key')].map((k) => k.textContent).join(' + ');
+  return [...c.querySelectorAll('kbd')].map((k) => k.textContent).join(' + ');
 };
 
 // Kbd reads the platform after its first render; these stand in for a Windows PC or a Mac.
@@ -54,7 +54,7 @@ describe('Kbd', () => {
     windows();
     await render(<Keys />);
     expect(caps('combo').length).toBe(3);
-    expect([...el('combo').querySelectorAll('.dk-kbd__plus')].map((x) => x.textContent + x.getAttribute('aria-hidden'))).toEqual(['+true', '+true']);
+    expect([...el('combo').querySelectorAll(':scope > span')].map((x) => x.textContent + x.getAttribute('aria-hidden'))).toEqual(['+true', '+true']);
   });
 
   test('elsewhere than Apple: mod is Ctrl, shift is Shift, alt is Alt; arrows and Enter show as symbols with their names read out; sm is 20px', async () => {
@@ -128,7 +128,7 @@ describe('Kbd', () => {
   test('contrast: labels and the + keep 4.5:1 in all six themes; --kbd-bg overrides one key', async () => {
     windows();
     await render(<><Keys /><Kbd id="tok" style={{ '--kbd-bg': 'rgb(1, 2, 3)' } as React.CSSProperties}>T</Kbd></>);
-    const k = caps('combo')[0], plus = el('combo').querySelector('.dk-kbd__plus')!, low: string[] = [];
+    const k = caps('combo')[0], plus = el('combo').querySelector(':scope > span')!, low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       for (const [name, fg, bg] of [['label', css(k).color, css(k).backgroundColor], ['+', css(plus).color, 'var(--surface)']] as const) {
