@@ -128,7 +128,7 @@ describe('CommandPalette', () => {
     await render(<CommandPalette id="p" defaultOpen commands={COMMANDS} />);
     await forcedColors(async (active) => {
       if (!active) return;
-      const on = document.querySelector('.dk-command-palette__option--active')!, off = options().find((o) => o !== on)!;
+      const on = el(field().getAttribute('aria-activedescendant')!), off = options().find((o) => o !== on)!;
       expect([css(on).outlineStyle, css(off).outlineStyle]).toEqual(['solid', 'none']);
     });
   });
