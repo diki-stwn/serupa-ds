@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn } from "../../internal/cn";
+import { deepActive } from "../../internal/root";
 import { named } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import type { ErrorBoundaryLabels } from "./labels";
@@ -86,7 +87,7 @@ const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<B
     // The crash took focus with it (to <body>): put it on the fallback, so keyboard and screen reader users are
     // where the content was, and hear what happened.
     if (this.state.failed && !was.failed) {
-      const active = document.activeElement;
+      const active = deepActive();
       if ((!active || active === document.body) && this.box.current) this.box.current.focus();
     }
     // Cleared from inside the fallback (Try again, a custom fallback's reset(), or resetKeys while focus was in it):
@@ -94,12 +95,13 @@ const Boundary = /* @__PURE__ */ (() => class Boundary extends React.Component<B
     if (!this.state.failed && was.failed && this.was) {
       const at = this.was;
       this.was = null;
-      const active = document.activeElement;
+      const active = deepActive();
       if (!active || active === document.body) { const t = recovered(at); if (t) t.focus(); }
     }
   }
+  // Focus is read through shadow roots, so inside one it's the focused element, not the host (GR95).
   reset = () => {
-    const active = document.activeElement;
+    const active = deepActive();
     this.was = active && active !== document.body ? spot(active) : null;
     this.setState({ error: null, failed: false });
     if (this.props.onReset) this.props.onReset();

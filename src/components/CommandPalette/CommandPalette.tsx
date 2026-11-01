@@ -131,13 +131,23 @@ export const CommandPalette = /* @__PURE__ */ component<HTMLDialogElement, Comma
     return () => clearTimeout(t);
   }, [open, said, query]);
 
+  // The chosen command runs once the palette has closed and given focus back, so its onSelect can move focus on the
+  // page (behind the open modal the page is inert) and its href leaves from the page as it was (GR97). An app that
+  // keeps a controlled palette open gets it run at once.
+  const [chosen, setChosen] = React.useState<{ c: Command } | null>(null);
+  const done = React.useRef(props.onSelect); done.current = props.onSelect;
+  React.useEffect(() => {
+    if (!chosen) return;
+    setChosen(null);
+    const c = chosen.c;
+    if (c.onSelect) c.onSelect();
+    else if (c.href && typeof window !== "undefined") window.location.assign(c.href);
+    if (done.current) done.current(c);
+  }, [chosen]);
   const choose = (r: Row | null) => {
     if (!r || r.c.disabled) return;
     change(false, { reason: "select" });
-    const c = r.c;
-    if (c.onSelect) c.onSelect();
-    else if (c.href && typeof window !== "undefined") window.location.assign(c.href);
-    if (props.onSelect) props.onSelect(c);
+    setChosen({ c: r.c });
   };
   const move = (to: number) => { if (usable.length) setActive((to + usable.length) % usable.length); };
   const at = current ? usable.indexOf(current) : 0;

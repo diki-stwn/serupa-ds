@@ -16,6 +16,8 @@
 .dk-time-picker__list {
   box-sizing: border-box; position: fixed; inset: auto; z-index: var(--time-picker-z-index, var(--z-popover));
   min-width: var(--time-picker-list-min-width, var(--spacing-40)); max-height: var(--time-picker-list-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
+  /* Its rows lay out and paint inside it (it scrolls, so it clips already): a row changing never relays out the page (I3). */
+  contain: layout paint;
   margin: var(--spacing-0); padding: var(--time-picker-list-padding, var(--spacing-1)); list-style: none;
   border: var(--border-width-1) solid var(--time-picker-list-border, var(--border-overlay)); border-radius: var(--time-picker-list-radius, var(--rounded-lg));
   background: var(--time-picker-list-bg, var(--surface-overlay)); color: var(--time-picker-option-color, var(--text));
