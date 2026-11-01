@@ -190,7 +190,7 @@ describe('CopyButton', () => {
       document.documentElement.setAttribute('data-theme', th);
       for (const v of ['outline', 'ghost', 'secondary']) {
         const b = el('v-' + v), bg = css(b).backgroundColor === 'rgba(0, 0, 0, 0)' ? 'var(--surface)' : css(b).backgroundColor;
-        const r = contrast(css(b.querySelector('.dk-copy-btn__icon--done')).color, bg); n++;
+        const r = contrast(css(b.querySelector('[data-icon="check"]')).color, bg); n++;
         if (r < 3) low.push(`${th} ${v} ${r.toFixed(2)}`);
       }
     }

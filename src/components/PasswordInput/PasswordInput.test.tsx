@@ -48,7 +48,7 @@ describe('PasswordInput', () => {
     const i = field('pw'), b = box('pw');
     expect([i.type, i.getAttribute('autocomplete'), ref.current === i, i.spellcheck, i.placeholder, i.labels![0].textContent]).toEqual(['password', 'current-password', true, false, 'Your password', 'Password']);
     expect([b.className, b.dataset.component, b.style.marginTop, b.getBoundingClientRect().height]).toEqual(['dk-input dk-password-input dk-input--size-md extra', 'password-input', '2px', 32]);
-    expect((b.querySelector('.dk-input__icon--left .dk-icon') as HTMLElement).dataset.icon).toBe('lock');
+    expect((b.querySelector(':scope > span[aria-hidden]:first-child [data-icon]') as HTMLElement).dataset.icon).toBe('lock');
   });
 
   test('the show/hide button: type button, "Show password", aria-pressed="false", controls the field, an eye icon', async () => {
@@ -221,7 +221,7 @@ describe('PasswordInput', () => {
   });
   test('size sm: show/hide is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
     await render(<div style={{ width: '320px', padding: '8px' }}><PasswordInput id="hb" aria-label="Password" size="sm" /></div>);
-    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-password-input__toggle')!];
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('[data-component="password-input"]')!.querySelector<HTMLElement>('button[aria-pressed]')!];
     expect(buttons.length).toBeGreaterThan(0);
     for (const b of buttons) {
       expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);

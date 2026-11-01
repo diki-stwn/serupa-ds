@@ -11,6 +11,7 @@ import { announce, ensureAnnouncer } from "../../internal/announce";
 import { summarySaysIt } from "../../internal/summaryFocus";
 import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
+import { byId } from "../../internal/root";
 
 // module state: a fixed list, never changed.
 const LABELABLE = new Set(["select", "button", "meter", "output", "progress", "textarea"]);
@@ -62,6 +63,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   // An error that appears (or changes) after mount is said politely: it's only a description, which
   // screen readers read on focus, and focus is usually elsewhere (the submit button) when it shows.
   const errorRef = React.useRef<HTMLSpanElement>(null);
+  const labelRef = React.useRef<HTMLLabelElement>(null);
   const said = React.useRef<string | null>(null);
   React.useEffect(function () { ensureAnnouncer(); }, []);   // no cleanup: the region is shared
   // every render: the error is the caller's children, so its text can change in any render; reading it is cheap.
@@ -74,7 +76,8 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
   // The label points at the control by id: say so when nothing on the page has it.
   // every render: the control is the caller's children and can come or go in any render; it warns once.
   React.useEffect(function () {
-    if (process.env.NODE_ENV !== "production" && !group && props.label != null && !document.getElementById(controlId)) {
+    // Looked up in the label's own document or shadow root (GR60).
+    if (process.env.NODE_ENV !== "production" && !group && props.label != null && labelRef.current && !byId(labelRef.current, controlId)) {
       warnOnce("field-control", "Field: no element has the id \"" + controlId + "\", so the label names nothing. Put the control inside the Field, or pass its id.");
     }
   });
@@ -83,7 +86,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
      clicking an input's label does. */
   const focusControl = function (e: React.MouseEvent<HTMLLabelElement>) {
     if (e.currentTarget.control) return;
-    const el = document.getElementById(controlId);
+    const el = byId(e.currentTarget, controlId);
     if (el) el.focus();
   };
   const labelKids = [props.label,
@@ -94,7 +97,7 @@ export const Field = /* @__PURE__ */ named("Field", function Field(props: FieldP
     !props.required && props.optional ? <span className="dk-field__optional" key="opt">{typeof props.optional === "string" ? props.optional : sds.labels.fieldOptional}</span> : null];
   const label = props.label == null ? null : group
     ? React.createElement("legend", { className: "dk-field__label", key: "label" }, ...labelKids)
-    : React.createElement("label", { className: "dk-field__label", htmlFor: controlId, id: base + "-label", key: "label", onClick: focusControl }, ...labelKids);
+    : React.createElement("label", { className: "dk-field__label", htmlFor: controlId, id: base + "-label", key: "label", onClick: focusControl, ref: labelRef }, ...labelKids);
   const hint = props.hint ? <div className="dk-field__hint" id={hintId as string} key="hint">{props.hint}</div> : null;
   const error = hasError ? <div className="dk-field__error" key="error"><Icon icon={icons.Error} className="dk-field__error-icon" /><span id={errorId as string} ref={errorRef}>{props.error}</span></div> : null;
   const described = cn(hintId, errorId);

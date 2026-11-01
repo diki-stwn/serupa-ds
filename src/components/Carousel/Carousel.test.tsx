@@ -365,6 +365,22 @@ describe('Carousel', () => {
     expect([el('fixed').dataset.index, focused()]).toEqual(['0', '1 of 3']);
   });
 
+  test('inside a shadow root, reaching the last slide moves focus to Previous too, not to the body (GR90)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Carousel label="Shadow"><div>One</div><div>Two</div></Carousel>, { container: inner });
+      const root = host.shadowRoot!;
+      root.querySelector<HTMLElement>('[aria-label="Next slide"]')!.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => root.activeElement?.getAttribute('aria-label')).toBe('Previous slide');
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => root.activeElement?.getAttribute('aria-label')).toBe('Next slide');
+    } finally { host.remove(); }
+  });
+
   test('forced colors: dots in CanvasText, the current one in Highlight', async () => {
     await render(<App />);
     const restore = emulate(/forced-colors\s*:\s*active/, null);

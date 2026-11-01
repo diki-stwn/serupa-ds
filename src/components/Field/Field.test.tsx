@@ -259,3 +259,19 @@ describe('Field', () => {
   });
 });
 
+
+describe('Field inside a shadow root (GR60)', () => {
+  test('clicking the label of a Slider focuses its thumb, and nothing warns that the label names nothing or the Slider has no name', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Field label="Shadow volume"><Slider defaultValue={30} /></Field>, { container: inner });
+      const root = host.shadowRoot!;
+      await userEvent.click(root.querySelector<HTMLElement>('label')!);
+      expect([root.activeElement?.getAttribute('role'), warn.mock.calls.map((c) => String(c[0])).filter((m) => /names nothing|no accessible name/.test(m))]).toEqual(['slider', []]);
+    } finally { host.remove(); warn.mockRestore(); }
+  });
+});
