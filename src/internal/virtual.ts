@@ -6,8 +6,10 @@ import { useIsoLayoutEffect } from "./cn";
    scrolling element, how many rows there are and a guess at a row's height, it says which rows to draw (start to end,
    with a few overscan rows either side) and how much space stands in for the rows above and below them. Rows are
    measured once drawn (each drawn element with data-index), so rows of different heights are fine; the guess is used
-   only for rows not yet seen, and then only until some are: after that, unseen rows count as the average of the seen. A row measured above the view keeps the view where it is: the scroll moves by the
-   difference. Before the first measure (and on the server) it draws the first `initial` rows. */
+   only for rows not yet seen, and then only until some are: after that, unseen rows count as the average of the seen.
+   A row measured above the view keeps the view where it is: the scroll moves by the difference. Before the first
+   measure (and on the server) it draws the first `initial` rows. Attach `ref` to the scrolling element; its drawn rows
+   are its children with data-index. */
 export interface VirtualOptions {
   /** How many rows there are. */
   count: number;
@@ -20,6 +22,8 @@ export interface VirtualOptions {
 }
 
 export interface VirtualRange {
+  /** Put on the scrolling element. */
+  ref: (node: HTMLElement | null) => void;
   /** The first row to draw. */
   start: number;
   /** One past the last row to draw. */
@@ -41,13 +45,21 @@ function find(o: Float64Array, y: number): number {
   return Math.max(0, lo);
 }
 
-export function useVirtual(scroller: React.RefObject<HTMLElement | null>, options: VirtualOptions): VirtualRange {
+export function useVirtual(options: VirtualOptions): VirtualRange {
   const { count, estimate } = options;
   const overscan = options.overscan ?? 4, initial = options.initial ?? 20;
+  // The scrolling element: in a ref for the effects to read and scroll, and in state so they run again when it changes.
+  const node = React.useRef<HTMLElement | null>(null);
+  const [scroller, setScroller] = React.useState<HTMLElement | null>(null);
+  const ref = React.useCallback((n: HTMLElement | null) => { node.current = n; setScroller(n); }, []);
   // The measured heights by row. A new wrapper (same map) each time a row is measured, so what reads it runs again.
   const [store, remeasured] = React.useReducer((s: { sizes: Map<number, number> }) => ({ sizes: s.sizes }), null, () => ({ sizes: new Map<number, number>() }));
   const sizes = store.sizes;
   const [view, setView] = React.useState<{ top: number; height: number } | null>(null);
+  // The first drawn row at the top of the view, and how far below the view's top it starts. Taken on each scroll and
+  // after each measure; after the next render that row is put back where it was, so rows above the view that were
+  // measured (or a guess that changed) never move what's seen.
+  const anchor = React.useRef<{ i: number; at: number } | null>(null);
 
   // Rows not measured yet count as the average of those that are (the guess until one is), so the scroll range
   // settles near the real one after the first screen.
@@ -67,47 +79,26 @@ export function useVirtual(scroller: React.RefObject<HTMLElement | null>, option
     end = Math.min(count, find(offsets, view.top + view.height) + 1 + overscan);
   }
 
-  // The first drawn row at the top of the view, and how far below the view's top it starts. Taken on each scroll and
-  // after each measure; after the next render that row is put back where it was, so rows above the view that were
-  // measured (or a guess that changed) never move what's seen.
-  const anchor = React.useRef<{ i: number; at: number } | null>(null);
-  const snap = React.useCallback(() => {
-    const el = scroller.current;
-    if (!el) return;
-    const box = el.getBoundingClientRect().top;
-    anchor.current = null;
-    for (const row of el.querySelectorAll<HTMLElement>(":scope > [data-index]")) {
-      if (row.style.position === "absolute") continue;
-      const r = row.getBoundingClientRect();
-      if (r.bottom > box) { anchor.current = { i: Number(row.dataset.index), at: r.top - box }; return; }
-    }
-  }, [scroller]);
-
-  const read = React.useCallback(() => {
-    const el = scroller.current;
-    if (!el) return;
-    snap();
-    const top = el.scrollTop, height = el.clientHeight;
-    setView((v) => v && v.top === top && v.height === height ? v : { top, height });
-  }, [scroller, snap]);
-
-  // Follow the scroll and the scroller's size.
+  // Follow the scroll and the scroller's size (a ResizeObserver also reports once as soon as it starts).
   React.useEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    read();
-    el.addEventListener("scroll", read, { passive: true });
+    if (!scroller) return;
+    const read = () => {
+      anchor.current = anchorOf(scroller);
+      const top = scroller.scrollTop, height = scroller.clientHeight;
+      setView((v) => v && v.top === top && v.height === height ? v : { top, height });
+    };
+    scroller.addEventListener("scroll", read, { passive: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { read(); remeasured(); }) : null;
-    if (ro) ro.observe(el);
-    return () => { el.removeEventListener("scroll", read); if (ro) ro.disconnect(); };
-  }, [scroller, read]);
+    if (ro) ro.observe(scroller);
+    return () => { scroller.removeEventListener("scroll", read); if (ro) ro.disconnect(); };
+  }, [scroller]);
 
   // Forget sizes past the end when rows go away.
   React.useEffect(() => { for (const i of sizes.keys()) if (i >= count) sizes.delete(i); }, [count, sizes]);
 
   // Put the anchor row back where it was, then measure what was drawn.
   useIsoLayoutEffect(() => {
-    const el = scroller.current;
+    const el = node.current;
     if (!el) return;
     const a = anchor.current;
     const row = a && a.i < count ? el.querySelector<HTMLElement>(`:scope > [data-index="${a.i}"]`) : null;
@@ -123,17 +114,28 @@ export function useVirtual(scroller: React.RefObject<HTMLElement | null>, option
       sizes.set(i, h);
       changed = true;
     }
-    snap();
+    anchor.current = anchorOf(el);
     if (changed) remeasured();
   });
 
-  const scrollToIndex = React.useCallback((index: number) => {
-    const el = scroller.current;
+  const scrollToIndex = (index: number) => {
+    const el = node.current;
     if (!el || index < 0 || index >= count) return;
     const a = offsets[index], b = offsets[index + 1];
     if (a < el.scrollTop) el.scrollTop = a;
     else if (b > el.scrollTop + el.clientHeight) el.scrollTop = b - el.clientHeight;
-  }, [scroller, offsets, count]);
+  };
 
-  return { start, end, before: offsets[start], after: offsets[count] - offsets[end], offsetOf: (i: number) => offsets[Math.max(0, Math.min(count, i))], scrollToIndex };
+  return { ref, start, end, before: offsets[start], after: offsets[count] - offsets[end], offsetOf: (i: number) => offsets[Math.max(0, Math.min(count, i))], scrollToIndex };
+}
+
+// The first drawn row (in the flow) whose bottom is below the top of the view, and where it starts in the view.
+function anchorOf(el: HTMLElement): { i: number; at: number } | null {
+  const box = el.getBoundingClientRect().top;
+  for (const row of el.querySelectorAll<HTMLElement>(":scope > [data-index]")) {
+    if (row.style.position === "absolute") continue;
+    const r = row.getBoundingClientRect();
+    if (r.bottom > box) return { i: Number(row.dataset.index), at: r.top - box };
+  }
+  return null;
 }

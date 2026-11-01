@@ -33,9 +33,8 @@ export interface VirtualListProps extends Omit<React.HTMLAttributes<HTMLUListEle
 export const VirtualList = /* @__PURE__ */ component<HTMLUListElement, VirtualListProps>("VirtualList", function VirtualList(props, ref) {
   const rest = omit(props, { count: 1, renderItem: 1, itemKey: 1, estimatedItemHeight: 1, overscan: 1, variant: 1, divided: 1, as: 1, className: 1, style: 1, onFocus: 1, onBlur: 1 } as const);
   const count = Math.max(0, Math.floor(props.count) || 0);
-  const scroller = React.useRef<HTMLUListElement | null>(null);
   const estimate = props.estimatedItemHeight && props.estimatedItemHeight > 0 ? props.estimatedItemHeight : 56;
-  const r = useVirtual(scroller, { count, estimate, overscan: props.overscan != null && props.overscan >= 0 ? props.overscan : 4 });
+  const r = useVirtual({ count, estimate, overscan: props.overscan != null && props.overscan >= 0 ? props.overscan : 4 });
   // The row that has focus, kept drawn (in place, absolutely) while it's out of the window.
   const [focused, setFocused] = React.useState<number | null>(null);
   const variant = oneOf(["plain", "card"] as const, props.variant, "plain");
@@ -52,16 +51,18 @@ export const VirtualList = /* @__PURE__ */ component<HTMLUListElement, VirtualLi
   for (let i = r.start; i < r.end; i++) rows.push(row(i, false));
   if (keep != null && keep >= r.end) rows.push(row(keep, true));
 
-  const indexOf = (t: EventTarget | null) => {
-    const li = t instanceof Element ? t.closest("[data-index]") : null;
-    return li && li.parentElement === scroller.current ? Number((li as HTMLElement).dataset.index) : null;
+  const indexOf = (t: EventTarget | null, list: Element) => {
+    const li = t instanceof HTMLElement ? t.closest<HTMLElement>("[data-index]") : null;
+    return li && li.parentElement === list ? Number(li.dataset.index) : null;
   };
+  const attach = r.ref;
+  const setNode = React.useCallback((n: HTMLUListElement | null) => { attach(n); setRef(ref, n); }, [attach, ref]);
   return React.createElement(oneOf(["ul", "ol"] as const, props.as, "ul"), Object.assign(rest, {
-    ref: (node: HTMLUListElement | null) => { scroller.current = node; setRef(ref, node); },
+    ref: setNode,
     "data-component": "virtual-list", role: rest.role ?? "list", tabIndex: rest.tabIndex ?? 0,
     className: cn("dk-list", "dk-virtual-list", variant === "card" && "dk-list--card", props.divided !== false && "dk-list--divided", props.className),
     style: { ...props.style, "--dk-vl-before": r.before + "px", "--dk-vl-after": r.after + "px" } as React.CSSProperties,
-    onFocus: (e: React.FocusEvent<HTMLUListElement>) => { setFocused(indexOf(e.target)); if (props.onFocus) props.onFocus(e); },
-    onBlur: (e: React.FocusEvent<HTMLUListElement>) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(null); if (props.onBlur) props.onBlur(e); },
+    onFocus: (e: React.FocusEvent<HTMLUListElement>) => { setFocused(indexOf(e.target, e.currentTarget)); if (props.onFocus) props.onFocus(e); },
+    onBlur: (e: React.FocusEvent<HTMLUListElement>) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(null); if (props.onBlur) props.onBlur(e); },
   }), rows);
 });

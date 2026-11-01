@@ -113,7 +113,7 @@ describe('VirtualList', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bg = css(el('v')).backgroundColor;
       const r = rows('v')[0];
-      for (const sel of ['.dk-list__title', '.dk-list__description']) { const c = contrast(css(r.querySelector(sel)!).color, bg); if (c < 4.5) low.push(`${th} ${sel} ${c.toFixed(2)}`); }
+      for (const sel of ['.dk-list__title', '.dk-list__description']) { const c = contrast(css(r.querySelector(sel)).color, bg); if (c < 4.5) low.push(`${th} ${sel} ${c.toFixed(2)}`); }
       const ring = contrast(css(el('v')).outlineColor, css(document.body).backgroundColor);
       if (ring < 3) low.push(`${th} ring ${ring.toFixed(2)}`);
     }
