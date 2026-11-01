@@ -242,3 +242,21 @@ describe('Splitter collapse motion (GN3b)', () => {
     expect([x(), a.hidden]).toEqual([0, true]);
   });
 });
+
+describe('Splitter inside a shadow root (GR60)', () => {
+  test('a parent collapsing the first pane while focus is in it moves focus to the handle (GN3)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    let set: (n: number) => void = () => {};
+    function Parent() { const [n, s] = React.useState(40); set = s; return <Splitter collapsible size={n} onSizeChange={s} style={{ width: '400px', height: '80px' }}><div><button id="sr-in">In the pane</button></div><p>B</p></Splitter>; }
+    try {
+      await render(<Parent />, { container: inner });
+      const root = host.shadowRoot!;
+      root.getElementById('sr-in')!.focus();
+      React.act(() => set(0));
+      await expect.poll(() => root.activeElement?.getAttribute('role')).toBe('separator');
+    } finally { host.remove(); }
+  });
+});
