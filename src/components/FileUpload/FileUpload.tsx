@@ -178,7 +178,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
       // Said politely (FQ1): the picker hands focus back to the button, so the list grows out of sight.
       const added = next.filter((f) => !files.includes(f));
       if (added.length) announce(L.filesAdded(added.map((f) => f.name)));
-    }
+    } else setSyncs((n) => n + 1);   // the picker still put the refused files on the input: put the list back (GR75)
   };
   // Removed, focus moves to the next file's remove button (else the one before, else the choose button), so a
   // keyboard user clearing several files stays in the list (FQ1); the change is said politely.
@@ -214,6 +214,8 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
   // The form's reset empties the native input: an uncontrolled list empties with it (L8E6); a controlled one stays
   // the app's, so its files go back on the input below.
   const [resets, setResets] = React.useState(0);
+  // A pick of only refused files changes no list, but the native input holds them now: the effect below runs again.
+  const [syncs, setSyncs] = React.useState(0);
   useFormReset(input, () => { if (!controlled) setOwn([]); setRejected([]); setMissing(false); setResets((n) => n + 1); }, props.form);
 
   // Keep the native input's files in step with the list, so a form sends what's shown.
@@ -221,7 +223,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     const i = input.current;
     if (!i || typeof DataTransfer === "undefined") return;
     try { const dt = new DataTransfer(); files.forEach((f) => dt.items.add(f)); i.files = dt.files; } catch { /* older browsers: the input keeps what was picked */ }
-  }, [files, resets]);
+  }, [files, resets, syncs]);
 
   // Only a drag that carries files lights the area up and can be dropped (not text or a link dragged across it).
   const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types || []).includes("Files");

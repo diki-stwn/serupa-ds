@@ -11,7 +11,8 @@ const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
 const faces = JSON.parse(read('tokens.json')).type.fonts;
 t('every face in tokens.json is a file in fonts/ with a unicode-range', faces.length > 2 && faces.every((f) => f.unicodeRange && fs.existsSync(path.join(PROJECT, f.file))), faces.filter((f) => !f.unicodeRange || !fs.existsSync(path.join(PROJECT, f.file))).map((f) => f.file).join(', '));
-t('tokens.css has an @font-face with its unicode-range for each', (read('tokens.css').match(/unicode-range:/g) || []).length === faces.length, `${(read('tokens.css').match(/unicode-range:/g) || []).length} of ${faces.length}`);
+const fallbacks = JSON.parse(read('tokens.json')).type.fallbacks || [];
+t('tokens.css has an @font-face with its unicode-range for each (and for each Inter Fallback face)', (read('tokens.css').match(/unicode-range:/g) || []).length === faces.length + fallbacks.length, `${(read('tokens.css').match(/unicode-range:/g) || []).length} of ${faces.length + fallbacks.length}`);
 
 // Its own folder, not .test-tmp/: the other suites running beside it empty that one when they finish.
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-fonts-'));

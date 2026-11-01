@@ -236,8 +236,11 @@ Button's colors, spacing, sizes, borders and micro-interactions go through its o
 /* compact buttons in one toolbar */
 .toolbar { --button-height-md: var(--control-height-sm); --button-padding-x-md: var(--spacing-2); }
 
-/* a one-off brand color, only on this button */
-<Button style={{ '--button-primary-bg': 'var(--emerald-600)', '--button-primary-bg-hover': 'var(--emerald-700)' }}>Upgrade</Button>
+/* a one-off brand color, only on this button: its hover color is worked out from it */
+<Button style={{ '--button-primary-bg': 'var(--emerald-600)' }}>Upgrade</Button>
+
+/* or pick the hover color too */
+<Button style={{ '--button-primary-bg': 'var(--emerald-600)', '--button-primary-bg-hover': 'var(--emerald-800)' }}>Upgrade</Button>
 ```
 
 Override with tokens (`var(--rounded-full)`), not raw values, so the result still follows the system. If you change a color, check its contrast: the tests only check the defaults.
@@ -248,7 +251,7 @@ Override with tokens (`var(--rounded-full)`), not raw values, so the result stil
 | Token | Default | Use |
 | --- | --- | --- |
 | `--button-primary-bg` | `primary` | Primary background. |
-| `--button-primary-bg-hover` | `primary-hover` | Primary background on hover. |
+| `--button-primary-bg-hover` | `primary-hover` | Primary background on hover. Unset on a button given its own `--button-primary-bg`, it is worked out from that one: a step darker in light themes, lighter in dark. |
 | `--button-primary-text` | `on-primary` | Primary text and icons. |
 | `--button-secondary-bg` | `surface-raised` | Secondary background. |
 | `--button-secondary-bg-hover` | `primary-subtle` | Secondary background on hover. |

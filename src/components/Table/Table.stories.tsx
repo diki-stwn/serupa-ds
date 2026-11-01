@@ -4,6 +4,7 @@ import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, Tabl
 import { Text } from '../Text/Text';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
+import { VisuallyHidden } from '../VisuallyHidden/VisuallyHidden';
 import { FormattedNumber } from '../FormattedNumber/FormattedNumber';
 import { usePeople } from '../../../.storybook/content';
 
@@ -45,6 +46,30 @@ export const Playground: Story = {};
 export const Striped: Story = { args: { striped: true, size: 'sm' } };
 
 export const Selected: Story = { render: (args) => <Table {...args}><Rows selected={1} /></Table> };
+
+/** Each row links to the person's page through one real link in its name cell, stretched over the row: click anywhere
+ *  on a row, Ctrl/Cmd-click for a new tab, or Tab to the name. The checkboxes and Edit buttons sit above the link and work on their own. */
+function LinkedRows(args: React.ComponentProps<typeof Table>) {
+  const people = usePeople();
+  return (
+      <Table {...args}>
+        <TableHead>
+          <TableRow><TableHeaderCell><VisuallyHidden>Select</VisuallyHidden></TableHeaderCell><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Role</TableHeaderCell><TableHeaderCell><VisuallyHidden>Actions</VisuallyHidden></TableHeaderCell></TableRow>
+        </TableHead>
+        <TableBody>
+          {people.map((p) => (
+            <TableRow key={p.name} href={'#' + encodeURIComponent(p.name)}>
+              <TableSelectCell label={'Select ' + p.name} />
+              <TableCell>{p.name}</TableCell>
+              <TableCell><Text as="span" tone="muted">{p.role || 'No role'}</Text></TableCell>
+              <TableCell align="end"><Button size="sm" variant="ghost" aria-label={'Edit ' + p.name}>Edit</Button></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+  );
+}
+export const RowLinks: Story = { render: (args) => <LinkedRows {...args} /> };
 
 export const SelectableRows: Story = {
   render: function Render(args) {
