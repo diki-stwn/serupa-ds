@@ -110,10 +110,10 @@ describe('HoverCard', () => {
       const [side, align] = placement.split('-'), c = el('hp');
       await expect.poll(() => c.dataset.side, { message: placement }).toBe(side);
       const a = rect(el('tp')), b = rect(c);
-      expect(side === 'bottom' ? b.top >= a.bottom : side === 'top' ? b.bottom <= a.top : side === 'right' ? b.left >= a.right : b.right <= a.left, { message: placement }).toBe(true);
+      expect(side === 'bottom' ? b.top >= a.bottom : side === 'top' ? b.bottom <= a.top : side === 'right' ? b.left >= a.right : b.right <= a.left, placement).toBe(true);
       const across = side === 'top' || side === 'bottom';
-      if (align === 'start') expect(near(across ? b.left : b.top, across ? a.left : a.top), { message: placement }).toBe(true);
-      if (align === 'end') expect(near(across ? b.right : b.bottom, across ? a.right : a.bottom), { message: placement }).toBe(true);
+      if (align === 'start') expect(near(across ? b.left : b.top, across ? a.left : a.top), placement).toBe(true);
+      if (align === 'end') expect(near(across ? b.right : b.bottom, across ? a.right : a.bottom), placement).toBe(true);
     }
   });
 
