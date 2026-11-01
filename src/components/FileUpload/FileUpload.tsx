@@ -171,7 +171,9 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
     if (!multiple && ok.length > 1) for (const f of ok.slice(1)) bad.push({ file: f, reason: "count", message: L.fileOnlyOne(f.name) });
     setRejected(bad);
     if (bad.length && props.onReject) props.onReject(bad);
-    if (next !== files) {
+    // Only refused files (a duplicate, one too large) leave the list as it was: no onFilesChange with a copy of it,
+    // which an app that uploads on change took as new files (L8E110).
+    if (next.length !== files.length || next.some((f, i) => f !== files[i])) {
       set(next);
       // Said politely (FQ1): the picker hands focus back to the button, so the list grows out of sight.
       const added = next.filter((f) => !files.includes(f));
