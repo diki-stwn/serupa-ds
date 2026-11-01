@@ -50,3 +50,19 @@ export const LongText: Story = {
     </>;
   },
 };
+
+export const UnsavedChanges: Story = {
+  name: 'Unsaved changes',
+  args: { title: 'Edit project', description: undefined },
+  render: function Render(args: DrawerProps) {
+    const [open, setOpen] = React.useState(false), [saved, setSaved] = React.useState('Atlas'), [name, setName] = React.useState('Atlas');
+    const show = () => { setName(saved); setOpen(true); };
+    return <>
+      <Button onClick={show}>Edit {saved}</Button>
+      <Drawer {...args} open={open} onOpenChange={setOpen} unsaved={name !== saved}
+        footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={() => { setSaved(name); setOpen(false); }}>Save</Button></>}>
+        <Field label="Name"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
+      </Drawer>
+    </>;
+  },
+};
