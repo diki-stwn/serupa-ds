@@ -10,6 +10,12 @@ export function rootOf(node: Node | null | undefined): Document | ShadowRoot {
 /** What has focus in node's document or shadow root (inside a shadow root, the focused element itself, not its host). */
 export function activeIn(node: Node | null | undefined): Element | null { return rootOf(node).activeElement; }
 
+/** What has focus anywhere on the page, looking into open shadow roots (document.activeElement stops at the host). */
+export function deepActive(): Element | null {
+  let a: Element | null = typeof document === "undefined" ? null : document.activeElement;
+  while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement;
+  return a;
+}
 
 /** The element with this id in node's document or shadow root. */
 export function byId(node: Node | null | undefined, id: string): HTMLElement | null { return rootOf(node).getElementById(id); }
