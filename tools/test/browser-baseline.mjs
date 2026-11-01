@@ -52,6 +52,8 @@ const KNOWN = {
   'property forced-color-adjust': { why: 'Safari has no forced colors mode, so there is nothing to adjust' },
   'forced-color-adjust: none': { why: 'as forced-color-adjust' },
   'forced-color-adjust: auto': { why: 'as forced-color-adjust' },
+  'property overflow-anchor': { why: 'VirtualList turns the browser\'s scroll anchoring off to keep its own (Safari has none): there is nothing to turn off' },
+  'overflow-anchor: none': { why: 'as overflow-anchor' },
   'break-before: avoid': { why: 'print and column breaks: a hint browsers may ignore' },
   'break-before: avoid-page': { why: 'as break-before: avoid' },
   'break-before: column': { why: 'as break-before: avoid' },

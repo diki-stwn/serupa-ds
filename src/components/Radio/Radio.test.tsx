@@ -7,11 +7,11 @@ import { Field } from '../Field/Field';
 import { Radio, RadioGroup } from './Radio';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
-const wrap = (id: string) => input(id).closest('.dk-radio') as HTMLElement;
-const dot = (id: string) => wrap(id).querySelector('.dk-radio__dot') as HTMLElement;
+const wrap = (id: string) => input(id).closest('[data-component="radio"]') as HTMLElement;
+const dot = (id: string) => input(id).nextElementSibling as HTMLElement;
 // How far the circle's middle is from the middle of the label's first line, in px.
 const mid = (id: string) => {
-  const ir = input(id).getBoundingClientRect(), tr = wrap(id).querySelector('.dk-radio__label')!.getBoundingClientRect();
+  const ir = input(id).getBoundingClientRect(), tr = wrap(id).querySelector(':scope > span + span > span:first-child')!.getBoundingClientRect();
   return Math.abs(ir.top + ir.height / 2 - (tr.top + Math.min(tr.height, parseFloat(css(wrap(id)).lineHeight)) / 2));
 };
 
@@ -98,7 +98,7 @@ describe('Radio', () => {
   test('a click on a label calls onValueChange(value, event) and moves the check; arrow keys move the choice, natively', async () => {
     const changes: string[] = [];
     await render(<Grid><Letters changes={changes} /></Grid>);
-    await userEvent.click(wrap('a').querySelector('.dk-radio__label')!);
+    await userEvent.click(wrap('a').querySelector(':scope > span + span > span:first-child')!);
     await expect.poll(() => input('a').checked).toBe(true);
     expect([input('b').checked, changes.join()]).toEqual([false, 'a:change']);
     input('a').focus();
@@ -160,7 +160,7 @@ describe('Radio', () => {
   test('uncontrolled: defaultValue (numbers too) and clicks; the group\'s name and size (sm: a 14px circle, text-xs); horizontal: a row with 16px gaps', async () => {
     await render(<Grid><Numbers /></Grid>);
     await document.fonts.ready;
-    const g = document.getElementById('unc')!, tops = [...g.querySelectorAll('.dk-radio')].map((x) => x.getBoundingClientRect().top);
+    const g = document.getElementById('unc')!, tops = [...g.querySelectorAll('[data-component="radio"]')].map((x) => x.getBoundingClientRect().top);
     expect([input('n2').checked, input('n1').checked, input('n1').name, css(input('n1')).width, css(wrap('n1')).fontSize]).toEqual([true, false, 'num', '14px', '12px']);
     expect(mid('n1')).toBeLessThan(1);
     expect([css(g).flexDirection, css(g).columnGap, tops.every((y) => Math.abs(y - tops[0]) < 1)]).toEqual(['row', '16px', true]);
@@ -171,7 +171,7 @@ describe('Radio', () => {
 
   test('description: a muted line in aria-describedby, kept out of the name; the label names the radio, or aria-label without one', async () => {
     await render(<Grid><Letters changes={[]} /><Solo /></Grid>);
-    const d = wrap('b').querySelector('.dk-radio__description')!;
+    const d = wrap('b').querySelector(':scope > span + span > span:last-child')!;
     expect(input('b').getAttribute('aria-describedby')).toBe(d.id);
     expect(css(d).color).toBe(color('var(--text-muted)'));
     await expect.element(page.getByRole('radio', { name: 'Bravo', exact: true })).toBeInTheDocument();

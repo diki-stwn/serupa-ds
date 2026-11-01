@@ -233,7 +233,7 @@ describe('Button', () => {
     await render(<Tooltip content="Fill in your name first" delay={0}><Button id="drt" disabled disabledReason="Fill in your name first">Save</Button></Tooltip>);
     await userEvent.tab();
     expect(document.activeElement).toBe(el('drt'));
-    const tip = document.querySelector('.dk-tooltip') as HTMLElement;
+    const tip = document.querySelector('[role=tooltip]') as HTMLElement;
     await expect.poll(() => tip.dataset.state).toBe('open');
     expect([el('drt').getAttribute('aria-describedby'), el('drt').querySelector('[hidden]')]).toEqual([tip.id, null]);
   });
@@ -341,10 +341,10 @@ describe('Button', () => {
   test('loading: one spinner, centered, on every kind of button; it is the Loader (ring: a quarter arc, turning)', async () => {
     await withRouter(async () => {
       setLoading(true);
-      await expect.poll(() => document.querySelectorAll('.dk-btn__spinner').length).toBe(4);
+      await expect.poll(() => document.querySelectorAll(':is(button, a) [data-component="loader"]').length).toBe(4);
       for (const id of ['sub', 'left', 'icononly']) await eased(el(id));
       const geo = ['sub', 'left', 'icononly'].map((id) => {
-        const b = el(id).getBoundingClientRect(), s = el(id).querySelectorAll('.dk-btn__spinner'), r = s[0].getBoundingClientRect();
+        const b = el(id).getBoundingClientRect(), s = el(id).querySelectorAll('[data-component="loader"]'), r = s[0].getBoundingClientRect();
         return { n: s.length, dx: Math.abs(Math.round(r.left + r.width / 2 - (b.left + b.width / 2))) <= 1, dy: Math.abs(Math.round(r.top + r.height / 2 - (b.top + b.height / 2))) <= 1 };
       });
       expect(geo).toEqual([{ n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }]);
@@ -588,7 +588,7 @@ describe('Button micro-interactions', () => {
       await eased(el('next'));
       expect(home).toContain(translate('#next .dk-btn__icon--right'));
       setBusy(true);
-      await expect.poll(() => document.querySelector('#busy .dk-btn__loader')).toBeTruthy();
+      await expect.poll(() => document.querySelector('#busy > [aria-hidden] > [data-component="loader"]')).toBeTruthy();
       const ld = q('#busy .dk-btn__loader'), a = ld.getAnimations().find((x) => (x as CSSAnimation).animationName === 'dk-btn-loader-in');
       a?.pause();
       if (a) a.currentTime = 0;

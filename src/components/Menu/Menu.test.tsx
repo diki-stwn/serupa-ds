@@ -18,7 +18,7 @@ const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.An
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
 const openMenu = () => [...document.querySelectorAll<HTMLElement>('[role="menu"]')].find((m) => !m.hidden);
 // The focused item's label, or the focused element's id.
-const focus = () => { const a = document.activeElement as HTMLElement; return a.getAttribute('role') === 'menuitem' ? a.querySelector('.dk-menu__label')!.textContent : a.id; };
+const focus = () => { const a = document.activeElement as HTMLElement; return a.getAttribute('role') === 'menuitem' ? a.querySelector(':scope > span:not([aria-hidden])')!.textContent : a.id; };
 const rect = (e: Element) => e.getBoundingClientRect();
 // Distances in CSS px: the test page may be drawn scaled, which leaves layout px a fraction off.
 const near = (a: number, b: number) => Math.abs(a - b) <= 1;
@@ -351,7 +351,7 @@ describe('Menu', () => {
     await userEvent.click(el('nb'));
     await userEvent.keyboard('{ArrowDown}');
     const item = el('share');
-    expect([focus(), item.getAttribute('aria-haspopup'), item.getAttribute('aria-expanded'), !!item.querySelector('.dk-menu__chevron .dk-icon')]).toEqual(['Share', 'menu', 'false', true]);
+    expect([focus(), item.getAttribute('aria-haspopup'), item.getAttribute('aria-expanded'), !!item.querySelector(':scope > span[aria-hidden]:last-child [data-icon]')]).toEqual(['Share', 'menu', 'false', true]);
     await userEvent.keyboard('{ArrowRight}');
     const panel = sub('share')!;
     expect([focus(), item.getAttribute('aria-expanded'), panel.getAttribute('role'), panel.matches(':popover-open')]).toEqual(['Email', 'true', 'menu', true]);
@@ -422,7 +422,7 @@ describe('Menu', () => {
     await userEvent.keyboard('{ArrowLeft}');
     const item = el('share'), panel = sub('share')!;
     expect([focus(), rect(panel).right <= rect(item).left + 8]).toEqual(['Email', true]);
-    expect(iconPoints(item.querySelector('.dk-menu__chevron [data-icon]')!)).toBe('left');
+    expect(iconPoints(item.querySelector(':scope > span[aria-hidden]:last-child [data-icon]')!)).toBe('left');
     await userEvent.keyboard('{ArrowRight}');
     expect([focus(), sub('share')]).toEqual(['Share', null]);
   });
@@ -489,9 +489,9 @@ describe('Menu', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bg = bgOf(m), checks: Array<[string, string, string, number]> = [];
       second.focus();
-      checks.push(['label', c(first), bg, 4.5], ['shortcut', c(first.querySelector('kbd')!), bg, 4.5], ['group label', c(m.querySelector('.dk-menu__group-label')!), bg, 4.5], ['delete', c(del), bg, 4.5]);
+      checks.push(['label', c(first), bg, 4.5], ['shortcut', c(first.querySelector('kbd')!), bg, 4.5], ['group label', c(m.querySelector('[role=presentation]')!), bg, 4.5], ['delete', c(del), bg, 4.5]);
       first.focus();
-      checks.push(['highlighted label', c(first), bgOf(first), 4.5], ['highlighted shortcut', c(first.querySelector('kbd')!), bgOf(first), 4.5], ['highlighted icon', c(first.querySelector('.dk-menu__icon')!), bgOf(first), 3]);
+      checks.push(['highlighted label', c(first), bgOf(first), 4.5], ['highlighted shortcut', c(first.querySelector('kbd')!), bgOf(first), 4.5], ['highlighted icon', c(first.querySelector(':scope > span[aria-hidden]:first-child')!), bgOf(first), 3]);
       del.focus();
       checks.push(['highlighted delete', c(del), bgOf(del), 4.5]);
       for (const [k, fg, back, min] of checks) { const r = contrast(fg, back); if (r < min) low.push(`${th} ${k} ${r.toFixed(2)}`); }
