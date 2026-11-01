@@ -15,6 +15,7 @@ const file = path.join(PROJECT, 'dist', 'purge.js');
 if (!fs.existsSync(file)) fail('no dist/purge.js: run npm run build first');
 const { serupaPurge, serupaPurgePostcss } = await import(pathToFileURL(file).href);
 const BUNDLE = path.join(PROJECT, 'dist', 'bundle.css');
+const EXTRA = path.join(PROJECT, 'dist', 'utilities-extra.css');
 const bundle = fs.readFileSync(BUNDLE, 'utf8');
 const runtime = JSON.parse(fs.readFileSync(path.join(PROJECT, 'dist', 'components.json'), 'utf8')).runtimeUtilities;
 
@@ -26,7 +27,7 @@ const has = (css, cls) => { const s = selector(cls); let i = css.indexOf(s); whi
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-purge-plugin-'));
 try {
   fs.mkdirSync(path.join(dir, 'src'));
-  fs.writeFileSync(path.join(dir, 'src', 'main.js'), `import ${JSON.stringify(BUNDLE)};\nimport "./app.css";\ndocument.body.className = "flex md:grid-cols-3"; // renders <Button>\n`);
+  fs.writeFileSync(path.join(dir, 'src', 'main.js'), `import ${JSON.stringify(BUNDLE)};\nimport ${JSON.stringify(EXTRA)};\nimport "./app.css";\ndocument.body.className = "flex md:grid-cols-3 bg-linear-to-r from-primary"; // renders <Button>\n`);
   fs.writeFileSync(path.join(dir, 'src', 'app.css'), '.my-card { color: red }\n.grid-cols-7 { color: blue }\n');
   fs.writeFileSync(path.join(dir, 'index.html'), '<!doctype html><title>t</title><script type="module" src="/src/main.js"></script>');
   fs.writeFileSync(path.join(dir, 'safe.txt'), 'gap-7\n');
@@ -41,6 +42,7 @@ try {
   const css = [out].flat().flatMap((o) => o.output).filter((a) => a.fileName.endsWith('.css')).map((a) => a.source).join('\n');
   t('Vite: the build keeps the utility classes the sources use', has(css, 'flex') && has(css, 'md:grid-cols-3'), css.length);
   t('Vite: it drops one they don\'t use, and --keep\'s safelist file works', !has(css, 'grid-cols-5') && has(css, 'gap-7'), css.length);
+  t('Vite: utilities-extra.css is trimmed too (from-primary stays, from-danger goes)', has(css, 'from-primary') && has(css, 'bg-linear-to-r') && !has(css, 'from-danger'), css.length);
   t('Vite: the component styles stay', has(css, 'dk-btn') && has(css, 'dk-dialog'), css.length);
   t('Vite: the app\'s own CSS is left alone, a rule named like a utility too', has(css, 'my-card') && has(css, 'grid-cols-7'), css.length);
   t('Vite: the stylesheet is about the size the command makes, not 2 MB', css.length < 400_000, `${Math.round(css.length / 1024)} KB`);

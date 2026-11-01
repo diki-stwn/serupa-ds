@@ -6,7 +6,7 @@
 //   // postcss.config.js (Next.js, webpack, or CSS that @imports bundle.css)
 //   import { serupaPurgePostcss } from "serupa-ds/purge";
 //   export default { plugins: [serupaPurgePostcss()] };
-// It trims Serupa's own stylesheets only (bundle.css, utilities.css and components.css from this package), the
+// It trims Serupa's own stylesheets only (bundle.css, utilities.css, utilities-extra.css and components.css), the
 // same way the serupa-purge command does: see bin/serupa-purge.mjs for what is always kept. Your own CSS passes
 // through untouched. The Vite plugin works on production builds; the dev server serves every class, so a class you
 // add shows at once.
@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { purge, usedClasses, unusedComponentClasses } from "../bin/serupa-purge.mjs";
 
 const DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "dist");
-const OURS = ["bundle.css", "utilities.css", "components.css"].map((f) => path.join(DIST, f));
+const OURS = ["bundle.css", "utilities.css", "utilities-extra.css", "components.css"].map((f) => path.join(DIST, f));
 const real = (f) => { try { return fs.realpathSync(f); } catch { return path.resolve(f); } };
 const ours = new Set(OURS.map(real));
 
