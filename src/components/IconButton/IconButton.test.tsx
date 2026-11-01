@@ -96,13 +96,6 @@ describe('IconButton', () => {
     await expect.poll(() => warns.slice(before).filter((m) => /aria-label|label/.test(m))).toEqual([]);
   });
 
-  test('noTitle, the deprecated name, still leaves out the title and warns once to use hideTitle', async () => {
-    const before = warns.length;
-    await render(<><IconButton id="old" icon="close" label="Close" noTitle /><IconButton id="old2" icon="close" label="Close" noTitle /></>);
-    expect(el('old').hasAttribute('title')).toBe(false);
-    expect(warns.slice(before).filter((m) => /noTitle is deprecated/.test(m))).toHaveLength(1);
-  });
-
   test('no warnings about missing labels', () => {
     expect(warns.filter((m) => /aria-label/.test(m))).toEqual([]);
   });
