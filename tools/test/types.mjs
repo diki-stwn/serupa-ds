@@ -46,7 +46,8 @@ R.push({ name: 'every name a README or guide imports from serupa-ds is exported'
 // the types being the Material Symbol names in IconName, which cost about 10 ms and 2.5 MB and give autocomplete, so
 // they stay. The budgets are about 10% over; a TypeScript upgrade that moves the counts may raise them. SegmentedControl's
 // and Combobox's typed values (83) cost about 1,900 and 470 instantiations, which took them from 216,882 to about 219,300.
-const BUDGET = { Types: 101000, Instantiations: 220000 };
+// HoverCard, a new component (1 Nov 2026), took them to 220,153, so the instantiation budget went to 222,000.
+const BUDGET = { Types: 101000, Instantiations: 222000 };
 const diag = built && spawnSync(process.execPath, [tsc, '-p', path.join(HERE, 'types'), '--extendedDiagnostics'], { cwd: PROJECT, encoding: 'utf8' });
 for (const [what, budget] of Object.entries(BUDGET)) {
   const n = diag ? Number((diag.stdout.match(new RegExp(`^${what}:\\s+(\\d+)`, 'm')) || [])[1]) : NaN;
