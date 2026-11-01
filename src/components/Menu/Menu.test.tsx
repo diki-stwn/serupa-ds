@@ -12,6 +12,9 @@ import { useShortcut } from '../KeyboardShortcuts/KeyboardShortcuts';
 
 const modded = (t: Element, key: string) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 const el = (id: string) => document.getElementById(id) as HTMLElement;
+const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
+  return <a {...p} ref={ref} href={'#router' + to} data-router="" />;
+});
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
 const openMenu = () => [...document.querySelectorAll<HTMLElement>('[role="menu"]')].find((m) => !m.hidden);
 // The focused item's label, or the focused element's id.
@@ -47,6 +50,21 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('MenuItem: as is typed (G10), with the props of the element it names, an <a>\'s by default', async () => {
+    const r = React.createRef<HTMLElement>();
+    await render(<Menu defaultOpen trigger={<Button id="mt-t">More</Button>}>
+      <MenuItem id="mt-a" onSelect={() => {}}>Action</MenuItem>
+      <MenuItem id="mt-h" href="#h" target="_blank">Link</MenuItem>
+      <MenuItem id="mt-r" as={RouterLink} to="/settings" ref={r}>Settings</MenuItem>
+      {/* @ts-expect-error RouterLink needs to */}
+      <MenuItem id="mt-x" as={RouterLink}>No to</MenuItem>
+      {/* @ts-expect-error an <a> has no to */}
+      <MenuItem id="mt-y" to="/y">Stray to</MenuItem>
+    </Menu>);
+    expect([el('mt-a').tagName, el('mt-h').getAttribute('rel'), el('mt-r').getAttribute('href'), el('mt-r').getAttribute('role'), r.current === el('mt-r')])
+      .toEqual(['DIV', 'noopener noreferrer', '#router/settings', 'menuitem', true]);
+  });
+
   test('with Alt, Ctrl or ⌘ the arrows, Home and End are left to the browser, on the trigger and in the open menu (L8E36)', async () => {
     await render(<Menu trigger={<Button id="mmk">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Paste</MenuItem><MenuItem>Delete</MenuItem></Menu>);
     const t = el('mmk');
@@ -594,6 +612,33 @@ describe('Menu', () => {
     radios()[2].click();
     expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
   });
+
+  test('L8E112: choosing the MenuRadioItem that is chosen already closes the menu but calls no onValueChange', async () => {
+    const asks: string[] = [];
+    await render(<Menu trigger={<Button id="rs">Sort</Button>}>
+      <MenuRadioGroup label="Sort by" value="name" onValueChange={(v) => asks.push(v)}>
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="date">Date</MenuRadioItem>
+      </MenuRadioGroup>
+    </Menu>);
+    await userEvent.click(el('rs'));
+    await userEvent.keyboard('{Enter}');
+    expect([el('rs').getAttribute('aria-expanded'), asks]).toEqual(['false', []]);
+  });
+
+  test('L8E80: an item hidden by CSS or the hidden attribute is skipped by the arrows, Home, End and on open, so focus never sticks', async () => {
+    await render(<Menu trigger={<Button id="hb">More</Button>}>
+      <MenuItem hidden>Gone first</MenuItem>
+      <MenuItem>One</MenuItem>
+      <MenuItem style={{ display: 'none' }}>Gone</MenuItem>
+      <MenuItem>Two</MenuItem>
+      <MenuItem hidden>Gone last</MenuItem>
+    </Menu>);
+    await userEvent.click(el('hb'));
+    const seen = [focus()];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowUp}', '{End}', '{Home}', '{ArrowUp}']) { await userEvent.keyboard(k); seen.push(focus()); }
+    expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One', 'Two']);
+  });
 });
 
 describe('ContextMenu', () => {
@@ -791,6 +836,19 @@ describe('Menu: motion (DZ1)', () => {
       await userEvent.keyboard('{Escape}');
       expect([m.hidden, getComputedStyle(m).display, m.getAnimations().length, m.querySelectorAll('[role="menuitem"]').length]).toEqual([true, 'none', 0, 0]);
     });
+  });
+
+  test('L8E104: the <dialog> it sits in closing closes it, so it is not open again when the dialog reopens', async () => {
+    await render(<dialog id="l8e104d"><Menu trigger={<Button id="l8e104t">Actions</Button>}><MenuItem>Rename</MenuItem></Menu></dialog>);
+    const d = document.getElementById('l8e104d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.click(document.getElementById('l8e104t')!);
+    d.close();
+    // The close event comes in a task after close().
+    await new Promise((r) => setTimeout(r, 50));
+    d.showModal();
+    expect([document.getElementById('l8e104t')!.getAttribute('aria-expanded'), document.querySelectorAll('[role="menu"]:popover-open').length]).toEqual(['false', 0]);
+    d.close();
   });
 });
 

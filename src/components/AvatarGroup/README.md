@@ -75,6 +75,7 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one group. The list lives in `src/components/AvatarGroup/avatar-group.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from avatar-group.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--avatar-group-ring` | `surface` | The ring around each avatar, which keeps the overlapping edges clear. Set it to the background the group sits on. |
@@ -86,3 +87,4 @@ Each is an optional override: set it on the page, a container or one group. The 
 | `--avatar-group-overlap-sm` | `spacing-2` | How far each avatar overlaps the one before at size xs and sm (8px). |
 | `--avatar-group-overlap-md` | `spacing-3` | The overlap at size md, the default, and lg (12px). |
 | `--avatar-group-overlap-lg` | `spacing-4` | The overlap at size xl (16px). |
+<!-- token-table:end -->

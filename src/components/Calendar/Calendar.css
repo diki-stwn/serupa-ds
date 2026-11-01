@@ -6,9 +6,17 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-calendar {
-  --dk-cal-day: var(--calendar-day-size, var(--control-height-md));
+  /* Seven days fit a narrow screen with large text (320px at 125%, GR71): a day shrinks to a seventh of the screen
+     less a gutter for the page and a popover's padding, never past the day size. */
+  --dk-cal-day: min(var(--calendar-day-size, var(--control-height-md)), calc((100vw - var(--spacing-12)) / 7));   /* stylelint-disable-line serupa/no-raw-value -- the screen's width and a week's seven days: no token measures either */
   display: inline-flex; flex-direction: column; gap: var(--calendar-gap, var(--spacing-2));
   font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--calendar-day-color, var(--text));
+}
+/* A shrunk day snaps down to a whole pixel (178): a seventh of the screen is a fraction (37.14px at 320px), which
+   blurs the day circles' and the range band's edges and leaves the columns a hair apart. Asked first: where round()
+   is missing (Chrome 123 and 124) the variable would be invalid and the days would lose their size. */
+@supports (width: round(down, 1px, 1px)) {
+  .dk-calendar { --dk-cal-day: min(var(--calendar-day-size, var(--control-height-md)), round(down, calc((100vw - var(--spacing-12)) / 7), var(--border-width-1))); }   /* stylelint-disable-line serupa/no-raw-value -- the screen's width and a week's seven days: no token measures either */
 }
 .dk-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
 .dk-calendar__title { flex: auto; margin: var(--spacing-0); text-align: center; color: var(--calendar-title-color, var(--text)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: var(--calendar-title-weight, var(--font-semibold)); }

@@ -48,6 +48,7 @@ Every heading is `font-semibold` in `text`, with no margins (space it with the l
 
 Each is an optional override: set it on the page, a container or one heading. The list lives in `src/components/Heading/heading.tokens.json` (also in `design-tokens/components/`). A `--heading-size-*` override changes the size only: set the matching `--heading-line-height-*` with it (for an h1 at `text-4xl`, `--heading-line-height-1: var(--text-4xl--line-height)`), or a large size keeps the level's shorter line height and wrapped lines crowd.
 
+<!-- token-table:start (made from heading.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--heading-text` | `text` | The heading's color. |
@@ -64,3 +65,4 @@ Each is an optional override: set it on the page, a container or one heading. Th
 | `--heading-line-height-4` | `text-lg--line-height` | The line height of a level 4 heading (text-lg's). Set it with --heading-size-4. |
 | `--heading-line-height-5` | `text-base--line-height` | The line height of a level 5 heading (text-base's). Set it with --heading-size-5. |
 | `--heading-line-height-6` | `text-sm--line-height` | The line height of a level 6 heading (text-sm's). Set it with --heading-size-6. |
+<!-- token-table:end -->

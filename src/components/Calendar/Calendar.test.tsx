@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { color, css, forcedColors, iconPoints, press } from '../../../tools/test/vitest/helpers';
 import { Calendar, type CalendarProps } from './Calendar';
 
@@ -233,14 +233,27 @@ describe('Calendar: long jumps and midnight (EM1)', () => {
       vi.useRealTimers();
     }
   });
+
+  test('L8E78: with no value, a today outside min..max opens on the nearest month that can be picked, with the Tab stop on min or max', async () => {
+    const t = new Date(), at = (n: number) => new Date(t.getFullYear(), t.getMonth(), t.getDate() + n);
+    const iso = (d: Date) => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+    const name = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
+    const lo = at(400), hi = at(-400);
+    await render(<><Calendar data-testid="lo" locale="en-US" min={lo} /><Calendar data-testid="hi" locale="en-US" max={hi} /></>);
+    const grid = (id: string) => q(`[data-testid=${id}] [role=grid]`);
+    const stop = (id: string) => grid(id).querySelector<HTMLElement>('button[tabindex="0"]')!.dataset.date;
+    const named = (id: string) => document.getElementById(grid(id).getAttribute('aria-labelledby')!)!.textContent;
+    expect([named('lo'), stop('lo'), named('hi'), stop('hi')])
+      .toEqual([name(lo), iso(lo), name(hi), iso(hi)]);
+  });
 });
 
-describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
-  test('where the short name is the full name or two words, the header shows the narrow name, so each fits its 32px column and the grid stays 7 columns of 32px; screen readers still get the full name', async () => {
+describe('Calendar weekday headers in Arabic, Persian, Hebrew and Thai (GR6)', () => {
+  test('where the short name is the full name, two words or long (Thai), the header shows the narrow name, so each fits its 32px column and the grid stays 7 columns of 32px; screen readers still get the full name', async () => {
     const at = new Date(2025, 2, 10);
-    await render(<div>{['ar-EG', 'fa-IR', 'he-IL', 'en-US'].map((l) => <div key={l} dir={l === 'en-US' ? 'ltr' : 'rtl'}><Calendar data-locale={l} locale={l} defaultMonth={at} /></div>)}</div>);
+    await render(<div>{['ar-EG', 'fa-IR', 'he-IL', 'th-TH', 'en-US'].map((l) => <div key={l} dir={['en-US', 'th-TH'].includes(l) ? 'ltr' : 'rtl'}><Calendar data-locale={l} locale={l} defaultMonth={at} /></div>)}</div>);
     const sat = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(new Date(2025, 2, 8));
-    for (const l of ['ar-EG', 'fa-IR', 'he-IL', 'en-US']) {
+    for (const l of ['ar-EG', 'fa-IR', 'he-IL', 'th-TH', 'en-US']) {
       const grid = q(`[data-locale="${l}"] [role=grid]`), heads = [...grid.querySelectorAll('th')];
       expect(heads.map((th) => th.getBoundingClientRect().width)).toEqual(Array(7).fill(32));
       for (const th of heads) {
@@ -252,5 +265,32 @@ describe('Calendar weekday headers in Arabic, Persian and Hebrew (GR6)', () => {
       if (l !== 'en-US') expect(heads.every((th) => (th.querySelector('[aria-hidden]')!.textContent.length) < th.getAttribute('abbr')!.length)).toBe(true);
       if (l === 'en-US') expect(heads.some((th) => th.textContent.startsWith(sat))).toBe(true);
     }
+  });
+  test('a 320px screen with text at 125%: the seven days fit inside it, each still at least 24px (GR71)', async () => {
+    document.documentElement.style.fontSize = '125%';
+    await page.viewport(320, 700);
+    try {
+      await render(<div style={{ padding: '0 24px' }}><Calendar data-testid="cal" defaultMonth={new Date(2025, 2, 1)} /></div>);
+      const days = [...document.querySelectorAll<HTMLElement>('[data-testid=cal] [data-date]')];
+      // The week, edge to edge, leaves a 3rem gutter (60px here) for the page's and a popover's padding.
+      const week = Math.max(...days.map((d) => d.getBoundingClientRect().right)) - Math.min(...days.map((d) => d.getBoundingClientRect().left));
+      expect([week <= 320 - 60 + 1, Math.min(...days.map((d) => d.getBoundingClientRect().width)) >= 24]).toEqual([true, true]);
+      // Each day a whole pixel wide (178), not a seventh of the screen (37.14px), so the edges stay sharp.
+      expect([...new Set(days.map((d) => d.getBoundingClientRect().width))]).toEqual([37]);
+    } finally { document.documentElement.style.fontSize = ''; await page.viewport(900, 700); }
+  });
+});
+
+describe('Calendar follows a value set from outside (L8E103)', () => {
+  test('a controlled value moved to another month shows that month and takes the Tab stop; in the same month it takes the Tab stop; a controlled month stays put', async () => {
+    const months: string[] = [];
+    const stop = () => cal<HTMLElement>('button[tabindex="0"]').dataset.date;
+    const r = await render(<Cal value={new Date(2025, 2, 10)} months={months} />);
+    await r.rerender(<Cal value={new Date(2025, 4, 6)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-06']);
+    await r.rerender(<Cal value={new Date(2025, 4, 20)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-20']);
+    await r.rerender(<Cal value={new Date(2025, 3, 2)} month={new Date(2025, 4, 1)} months={months} />);
+    expect([title(), stop()]).toEqual(['May 2025', '2025-05-20']);
   });
 });

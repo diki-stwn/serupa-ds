@@ -105,7 +105,7 @@
       "focus-gap-color": {
         "$type": "color",
         "$value": "{color.surface}",
-        "$description": "The gap between the focus ring and the fill of the selected pill tab.",
+        "$description": "The gap between the focus ring and the selected pill's fill.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tabs-focus-gap-color"
@@ -191,7 +191,7 @@
       "panel-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "Space above a panel (16px).",
+        "$description": "Space above a panel, or beside it when vertical (16px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tabs-panel-gap"
@@ -201,7 +201,7 @@
       "fade-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-8}",
-        "$description": "How far the tab row fades out at an edge with more tabs past it (32px).",
+        "$description": "How far the row fades out at an edge with more tabs past it (32px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tabs-fade-size"

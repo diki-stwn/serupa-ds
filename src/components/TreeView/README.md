@@ -83,20 +83,22 @@ const files: TreeViewItem[] = [
 
 Each is an optional override: set it on the page, a container or one TreeView. The list lives in `src/components/TreeView/tree-view.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from tree-view.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--tree-view-bg` | `surface` | The background. |
 | `--tree-view-text` | `text` | The labels (4.5:1 on bg). |
 | `--tree-view-item-bg-hover` | `secondary` | A row's background on hover. |
-| `--tree-view-item-bg-pressed` | `pressed` | A row's fill while it's held down. |
 | `--tree-view-item-bg-selected` | `highlight` | The picked row's background. |
 | `--tree-view-item-indicator` | `primary` | The 2px bar at the picked row's start. |
 | `--tree-view-icon-color` | `text-muted` | The chevrons and item icons. |
 | `--tree-view-focus-ring` | `focus-ring` | The ring inside the focused row. |
+| `--tree-view-item-bg-pressed` | `pressed` | A row's fill while it's held down. |
 | `--tree-view-radius` | `rounded-md` | The tree's corners (6px). |
 | `--tree-view-item-radius` | `rounded-sm` | A row's corners (4px). |
-| `--tree-view-item-height` | `control-height-md` | A row's least height (32px). |
 | `--tree-view-padding` | `spacing-1` | Space inside the tree (4px). |
 | `--tree-view-indent` | `spacing-4` | How much further in each level starts (16px). |
 | `--tree-view-item-padding-x` | `spacing-1` | Space at a row's start and end (4px). |
 | `--tree-view-gap` | `spacing-1` | Space between the chevron, icon and label (4px). |
+| `--tree-view-item-height` | `control-height-md` | A row's least height (32px). |
+<!-- token-table:end -->

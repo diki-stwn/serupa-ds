@@ -70,18 +70,47 @@ import { Timeline, TimelineItem } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one Timeline. The list lives in `src/components/Timeline/timeline.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from timeline.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--timeline-text` | `text` | The content's text (4.5:1 on the page). |
 | `--timeline-title-color` | `text` | An event's title. |
 | `--timeline-time-color` | `text-muted` | An event's time (4.5:1 on the page). |
 | `--timeline-line` | `border` | The line joining the markers. |
+| `--timeline-dot-neutral` | `border-strong` | The dot of a neutral event. |
+| `--timeline-icon-neutral` | `text-muted` | The icon of a neutral event (3:1 on its circle). |
+| `--timeline-icon-bg-neutral` | `surface-muted` | The circle behind a neutral event's icon. |
+| `--timeline-dot-primary` | `primary` | The dot of a primary event. |
+| `--timeline-icon-primary` | `primary` | The icon of a primary event (3:1 on its circle). |
+| `--timeline-icon-bg-primary` | `primary-subtle` | The circle behind a primary event's icon. |
+| `--timeline-dot-success` | `success` | The dot of a success event. |
+| `--timeline-icon-success` | `success-text` | The icon of a success event (3:1 on its circle). |
+| `--timeline-icon-bg-success` | `success-subtle` | The circle behind a success event's icon. |
+| `--timeline-dot-warning` | `warning` | The dot of a warning event. |
+| `--timeline-icon-warning` | `warning-text` | The icon of a warning event (3:1 on its circle). |
+| `--timeline-icon-bg-warning` | `warning-subtle` | The circle behind a warning event's icon. |
+| `--timeline-dot-danger` | `danger` | The dot of a danger event. |
+| `--timeline-icon-danger` | `danger-text` | The icon of a danger event (3:1 on its circle). |
+| `--timeline-icon-bg-danger` | `danger-subtle` | The circle behind a danger event's icon. |
+| `--timeline-dot-info` | `info` | The dot of a info event. |
+| `--timeline-icon-info` | `info-text` | The icon of a info event (3:1 on its circle). |
+| `--timeline-icon-bg-info` | `info-subtle` | The circle behind a info event's icon. |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--timeline-line-width` | `border-width-2` | The line's width (2px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--timeline-marker-size` | `spacing-6` | The marker's box, and the title's line height (24px). |
-| `--timeline-dot-size` | `spacing-2_5` | The dot, when there's no icon (10px). |
+| `--timeline-dot-size` | `spacing-2.5` | The dot, when there's no icon (10px). |
 | `--timeline-icon-size` | `spacing-4` | An icon in the marker (16px). |
 | `--timeline-gap` | `spacing-3` | Between the marker and the body (12px). |
 | `--timeline-item-gap` | `spacing-6` | Between one event and the next (24px). |
-| `--timeline-dot-<status>` | `border-strong`, `primary`, `success`, `warning`, `danger`, `info` | The dot, per status. |
-| `--timeline-icon-<status>` | `text-muted`, `primary`, `success-text`, `warning-text`, `danger-text`, `info-text` | An icon, per status. |
-| `--timeline-icon-bg-<status>` | `surface-muted`, `primary-subtle`, then each status's `-subtle` | The circle behind an icon, per status. |
+<!-- token-table:end -->

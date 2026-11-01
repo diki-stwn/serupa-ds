@@ -45,7 +45,7 @@
       "item-indicator": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "From the keyboard: the 2px bar at the highlighted item's start (3:1 on highlight). A destructive item uses its danger color.",
+        "$description": "From the keyboard: the 2px bar at the highlighted item's start. A destructive item uses its danger color.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--menu-item-indicator"

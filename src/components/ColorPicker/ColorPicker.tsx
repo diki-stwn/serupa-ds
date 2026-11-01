@@ -8,6 +8,7 @@ import { delegateFocus, useAutoFocus, windowBlur } from "../../internal/focus";
 import { FieldContext } from "../../internal/field";
 import { isComposing } from "../../internal/ime";
 import { useFieldLabel } from "../../internal/fieldLabel";
+import { useFieldControl } from "../../internal/field";
 import { useFormReset } from "../../internal/useFormReset";
 import { useLocale, useSettings } from "../../internal/provider";
 import { Icon } from "../Icon/Icon";
@@ -65,6 +66,9 @@ const ink = (hex: string) => ((contrastRatio(hex, "#ffffff") || 0) >= (contrastR
 /** Swatches to pick a color from, a hex field for any other, and a contrast check against a background. */
 export const ColorPicker = /* @__PURE__ */ component<HTMLDivElement, ColorPickerProps>("ColorPicker", function ColorPicker(props, ref) {
   const nameRef = useNameCheck("ColorPicker", NAME_HOW.group);   // warns when it has no accessible name
+  // A surrounding Field's id, hint, error, required and disabled, at any depth: one in a row with a note after it
+  // (<div><ColorPicker /><span>Brand</span></div>) was left unnamed, undescribed and enabled (L8E86).
+  props = useFieldControl(props);
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSettings(words), locale = useLocale();

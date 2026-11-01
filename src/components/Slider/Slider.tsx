@@ -7,6 +7,7 @@ import { useFormReset } from "../../internal/useFormReset";
 import { useFieldsetDisabled } from "../../internal/useFieldsetDisabled";
 import { snap as snapToGrid } from "../../internal/step";
 import { useFieldLabel } from "../../internal/fieldLabel";
+import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { useLocale, useSettings } from "../../internal/provider";
 import { displayNumber } from "../../internal/numbers";
@@ -24,7 +25,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   defaultValue?: V;
   /** Called with the new value as it moves (dragging, keys). */
   onValueChange?: (value: V) => void;
-  /** Called once when a drag or key press ends: for saving or fetching. */
+  /** Called once when a drag or key press that changed the value ends: for saving or fetching. */
   onValueCommit?: (value: V) => void;
   /** Default: 0. */
   min?: number;
@@ -58,7 +59,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   showValue?: boolean;
 }
 
-const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, marks: 1, showValue: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1 } as const;
+const OWN = { value: 1, defaultValue: 1, onValueChange: 1, onValueCommit: 1, min: 1, max: 1, step: 1, largeStep: 1, size: 1, disabled: 1, formatValue: 1, thumbLabels: 1, name: 1, form: 1, invalid: 1, readOnly: 1, required: 1, marks: 1, showValue: 1, "aria-required": 1, "aria-invalid": 1, "aria-readonly": 1, autoFocus: 1, className: 1, "aria-label": 1, "aria-labelledby": 1, "aria-describedby": 1, "aria-errormessage": 1 } as const;
 
 // The marks to draw: every step for true (every largeStep steps when that's over 100 ticks), or the listed values on the track.
 function markList(marks: SliderProps["marks"], min: number, max: number, step: number, large: number): SliderMark[] {
@@ -73,10 +74,16 @@ function markList(marks: SliderProps["marks"], min: number, max: number, step: n
    is role="slider" with aria-valuenow, min, max and valuetext. Arrows change it by step (Right and Up raise it;
    Left and Right swap in right-to-left pages), PageUp, PageDown and Shift+arrows by largeStep steps, Home and End
    go to the ends. A press anywhere on the track moves the nearest thumb there; range thumbs can't cross.
-   onValueChange fires as it moves, onValueCommit once when a drag or key press ends. */
+   onValueChange fires as it moves, onValueCommit once when a drag or key press that changed it ends. */
 /** Picks a number, or a range with two thumbs, on a track. */
+// The text a slider nudges inward to keep inside its box (GM2).
+const FIT = ".dk-slider__mark-label > span, .dk-slider__value > span";
+
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
+  // A surrounding Field's id, hint, error, required and disabled, at any depth: a Slider in a row with its unit
+  // after it (<div><Slider /><span>dB</span></div>) was left unnamed, undescribed and enabled (L8E84).
+  props = useFieldControl(props);
   const restyle = useServerStyles(ref);
   const rest = omit(props, OWN);
   const sds = useSettings(words), locale = useLocale();
@@ -123,6 +130,9 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
     return vs;
   };
   const commit = () => { if (props.onValueCommit) props.onValueCommit(out(latest.current)); };
+  // The values a drag started from: a press on a thumb let go where it was, or a drag back to the start, changed
+  // nothing and calls no onValueCommit, as a key at the end doesn't (L8E109).
+  const from = React.useRef<number[]>([]);
   const fromPoint = (x: number) => {
     const r = root.current!.querySelector(".dk-slider__track")!.getBoundingClientRect();
     let share = r.width ? (x - r.left) / r.width : 0;
@@ -138,13 +148,13 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
     if (isRange) { const d0 = Math.abs(v - vs[0]), d1 = Math.abs(v - vs[1]); i = d1 < d0 || (d1 === d0 && v > vs[1]) ? 1 : 0; }
     // Read-only: a press focuses the nearest thumb, as it would a read-only input, and moves nothing.
     if (readOnly) { thumbs.current[i]?.focus({ preventScroll: true }); return; }
-    drag.current = i;
+    drag.current = i; from.current = vs.slice();
     e.currentTarget.setPointerCapture(e.pointerId);
     set(i, v);
     const t = thumbs.current[i]; if (t) t.focus({ preventScroll: true });
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => { if (rest.onPointerMove) rest.onPointerMove(e); if (drag.current != null) set(drag.current, fromPoint(e.clientX)); };
-  const end = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current == null) return; drag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); commit(); };
+  const end = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current == null) return; drag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); if (latest.current.some((v, k) => v !== from.current[k])) commit(); };
   // Your onKeyDown runs first, on the root as the key goes down to the focused part (the capture phase), so its
   // currentTarget is the root its type names, and preventDefault() in it keeps the control's own handling of that key
   // from running.
@@ -188,20 +198,28 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const fit = React.useCallback(() => {
     const el = root.current;
     if (!el) return;
-    const parts = Array.from(el.querySelectorAll<HTMLElement>(".dk-slider__mark-label > span, .dk-slider__value > span"));
+    const parts = Array.from(el.querySelectorAll<HTMLElement>(FIT));
     if (!parts.length) return;
     for (const p of parts) p.style.removeProperty("--dk-slider-nudge");
     const box = el.getBoundingClientRect();
     const by = parts.map((p) => { const r = p.getBoundingClientRect(); return r.width >= box.width ? 0 : Math.max(0, box.left - r.left) - Math.max(0, r.right - box.right); });
     parts.forEach((p, i) => { if (by[i]) p.style.setProperty("--dk-slider-nudge", by[i] + "px"); });
   }, []);
-  useIsoLayoutEffect(() => { fit(); });   // every render: the values, marks and their text may have moved them
-  React.useEffect(() => {
+  // Fitted again when the slider resizes, and when a label or the chip does on its own: a web font that loads after
+  // the first fit makes the text wider or narrower while the slider keeps its size, and the old nudge would be wrong.
+  // Each render picks up any new label (a new mark); one already watched isn't observed again, which would refit at once.
+  const ro = React.useRef<[ResizeObserver, WeakSet<Element>]>(undefined);
+  const watch = () => {
     const el = root.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
+    if (el && ro.current) for (const p of [el, ...el.querySelectorAll(FIT)]) if (!ro.current[1].has(p)) { ro.current[1].add(p); ro.current[0].observe(p); }
+  };
+  useIsoLayoutEffect(() => { fit(); watch(); });   // every render: the values, marks and their text may have moved them
+  React.useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const o = new ResizeObserver(fit);
+    ro.current = [o, new WeakSet()];
+    watch();
+    return () => o.disconnect();
   }, [fit]);
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); restyle(n); }}
@@ -223,6 +241,8 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
           <span key={i} ref={(n) => { thumbs.current[i] = n; if (!isRange) nameRef(n); }} className="dk-slider__thumb" style={{ insetInlineStart: pct(v) + "%" }}
             role="slider" tabIndex={disabled ? -1 : 0} aria-valuenow={v} aria-valuemin={isRange && i === 1 ? vals[0] : min} aria-valuemax={isRange && i === 0 ? vals[1] : max}
             aria-valuetext={props.formatValue ? text(v) : undefined} aria-orientation="horizontal" aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} aria-invalid={invalid || undefined}
+            // The error goes where aria-invalid is: on the root <div> it pointed nowhere a screen reader looks (L8E87).
+            aria-errormessage={invalid ? props["aria-errormessage"] : undefined}
             aria-label={isRange ? names[i] : props["aria-label"]} aria-labelledby={isRange ? undefined : labelledBy}
             aria-describedby={isRange ? undefined : props["aria-describedby"]}
             onKeyDown={onKeyDown(i)}>{props.showValue ? <span className="dk-slider__value" aria-hidden="true"><span>{text(v)}</span></span> : null}</span>

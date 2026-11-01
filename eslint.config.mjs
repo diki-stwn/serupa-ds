@@ -38,6 +38,15 @@ export default tseslint.config(
     rules: { 'react-hooks/rules-of-hooks': 'error', 'react-hooks/exhaustive-deps': 'error' },
   },
   {
+    // The React Compiler rules (D7) on the shipped code: refs read in render, hook arguments changed, impure calls
+    // and setState in an effect. The compiler only sees hooks and plain function components; ours go through
+    // component(), so today this covers the shared hooks in src/internal and the hooks inside component files.
+    // Tests and stories stay on the two classic rules.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}', 'src/**/*.stories.{ts,tsx}'],
+    rules: Object.fromEntries(Object.keys(reactHooks.configs['recommended-latest'].rules).filter((r) => !/rules-of-hooks|exhaustive-deps/.test(r)).map((r) => [r, 'error'])),
+  },
+  {
     // Type-aware rules for the TypeScript in src/ (typescript-eslint's recommendedTypeChecked, beyond what
     // recommended has): promises left floating, values typed any spreading, an object stringified as
     // "[object Object]", a method passed without its this, assertions that change nothing.

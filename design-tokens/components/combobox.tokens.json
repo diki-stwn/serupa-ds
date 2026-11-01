@@ -15,7 +15,7 @@
       "chevron-hover": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The chevron and clear buttons' icon on hover.",
+        "$description": "The chevron and × buttons' icon on hover.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--combobox-chevron-hover"
@@ -25,7 +25,7 @@
       "chevron-bg-hover": {
         "$type": "color",
         "$value": "{color.secondary}",
-        "$description": "The chevron and clear buttons' background on hover.",
+        "$description": "The chevron and × buttons' background on hover.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--combobox-chevron-bg-hover"
@@ -65,7 +65,7 @@
       "option-bg-active": {
         "$type": "color",
         "$value": "{color.highlight}",
-        "$description": "The highlighted option (hover or arrow keys); its muted second line turns to text on it.",
+        "$description": "The highlighted option (hover or arrow keys). Its second line turns to `text` on it.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--combobox-option-bg-active"
@@ -75,7 +75,7 @@
       "option-indicator": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "The 2px bar at the highlighted option's start (3:1 on highlight).",
+        "$description": "The 2px bar at the highlighted option's start.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--combobox-option-indicator"

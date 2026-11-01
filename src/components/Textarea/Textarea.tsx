@@ -51,7 +51,7 @@ function sizesInCss(): boolean {
 export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaProps>("Textarea", function Textarea(props, ref) {
   const nameRef = useNameCheck("Textarea", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const rest = omit(props, OWN);
+  let rest = omit(props, OWN);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -61,8 +61,8 @@ export const Textarea = /* @__PURE__ */ component<HTMLTextAreaElement, TextareaP
   const resize = auto || props.resize === "none" ? "none" : "vertical";
   const own = React.useRef<HTMLTextAreaElement | null>(null);
   // The count and maxLength in characters as people see them; near the limit the count is read out (useTextLimit).
-  const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
-  useValidityMessages(rest, own);   // the browser's message for a failed constraint, in the provider's words
+  const limited = useTextLimit(rest, own, { announce: !!props.showCount }), { length, max } = limited;
+  rest = useValidityMessages(limited.props, own);   // the browser's message for a failed constraint, in the provider's words
   const countId = domId("dk-ta", React.useId());
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Calendar's

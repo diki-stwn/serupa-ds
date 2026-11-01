@@ -172,6 +172,18 @@ describe('Progress: done', () => {
     } finally { rm.forEach((r, i) => { r.media.mediaText = was[i]; }); }
   });
 
+  test('circle with a label: the label names the ring (it has no room to show it), unless aria-label or aria-labelledby does (L8E70)', async () => {
+    await render(<>
+      <Progress id="cl" variant="circle" value={20} label="Upload" />
+      <Progress id="cla" variant="circle" value={20} label="Upload" aria-label="Sending" />
+    </>);
+    const names = (id: string) => { const n = el(id); const by = n.getAttribute('aria-labelledby'); return [n.getAttribute('role'), n.getAttribute('aria-label'), by ? by.split(' ').map((x) => document.getElementById(x)?.textContent).join(' ') : null]; };
+    expect([names('cl'), names('cla')]).toEqual([['progressbar', 'Upload', null], ['progressbar', 'Sending', null]]);
+    // A label that isn't text names it from a hidden copy inside the ring.
+    await render(<Progress id="cle" variant="circle" value={20} label={<b>Backup</b>} />);
+    expect([names('cle')[2], el('cle').querySelector<HTMLElement>('[hidden]')?.id === el('cle').getAttribute('aria-labelledby')]).toEqual(['Backup', true]);
+  });
+
   test('forced colors: the ring\'s track is GrayText, apart from the Highlight arc and from CanvasText (GK3)', async () => {
     await render(<><span id="gt" style={{ color: 'GrayText' }}>g</span><span id="ct" style={{ color: 'CanvasText' }}>c</span><span id="hl" style={{ color: 'Highlight' }}>h</span>
       <div id="rg"><Progress variant="circle" value={20} label="Upload" /></div></>);

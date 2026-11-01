@@ -80,10 +80,14 @@ export const Icon = /* @__PURE__ */ component<HTMLSpanElement, IconProps>("Icon"
       if (!live) return;
       if (found) again();
       else if (process.env.NODE_ENV !== "production") {
-        // Every icon is loaded by now, so a name in another spelling ("Home", the export's, or "arrow-forward") can be looked up.
+        // A name in another spelling ("Home", the export's, or "arrow-forward"): load the part of the table each
+        // snake_case spelling would be in, then look them up.
         const known = (n: string) => hasIcon(n) || !!own.get(n) || !!getIcon(n);
-        const meant = spellings(props.name as string).find(known);
-        warnOnce("icon-unknown", `Icon: "${props.name}" isn't a Material Symbol or one of your icons. ${meant ? `Did you mean "${meant}"? Names are snake_case.` : "Check the name on the Icons page (Foundations/Icons)."}`, "icon:" + props.name);
+        const names = spellings(props.name as string);
+        void Promise.all(names.map((n) => loadIcon(n).catch(() => undefined))).then(() => {
+          const meant = names.find(known);
+          warnOnce("icon-unknown", `Icon: "${props.name}" isn't a Material Symbol or one of your icons. ${meant ? `Did you mean "${meant}"? Names are snake_case.` : "Check the name on the Icons page (Foundations/Icons)."}`, "icon:" + props.name);
+        });
       }
     }, (err: unknown) => {
       if (!live) return;

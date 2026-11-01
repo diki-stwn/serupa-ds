@@ -69,6 +69,21 @@ const NAMING_GAPS = {
   'ComboboxSingleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
   'ComboboxMultipleProps.onInputChange': 'reports the typed text, which has no prop of its own: the input is never controlled',
 };
+// A callback's second argument, when it has one, is a details object ({ event?, reason?, iso? … }), never a bare event,
+// string or number, so a project can read one more field without a new signature (TF7). These came before the rule;
+// they move in the next major, one component per PR, with a warnOnce a minor before. This list only shrinks.
+const SHAPE_GAPS = {
+  'CalendarProps.onValueChange': 'the ISO date string',
+  'DatePickerProps.onValueChange': 'the ISO date string',
+  'CheckboxProps.onCheckedChange': 'the change event',
+  'CheckboxGroupProps.onValueChange': 'the change event',
+  'RadioGroupProps.onValueChange': 'the change event',
+  'SwitchProps.onCheckedChange': 'the change event',
+  'TableSelectCellProps.onCheckedChange': 'the change event',
+  'PaginationProps.onPageSizeChange': 'the page it moves to, as a number',
+};
+const shapes = new Set();
+let seconds = 0;
 // Booleans that don't follow the naming yet, each with why. Like NAMING_GAPS, this list only shrinks.
 const BOOLEAN_GAPS = {};
 const NEGATIVE = /^(no|not|dont|without|disable)[A-Z]|[a-z]Hidden$|^enabled$/;
@@ -122,6 +137,16 @@ for (const name of fs.readdirSync(DIR).sort()) {
       // React's types it is the native element's own.
       const why = x ? (props.some((q) => q.name === lower(x)) ? '' : `${p.name} reports no prop: there's no ${lower(x)}`)
         : (value && mine(value) ? 'onChange beside its own value: a composite reports its value with onValueChange' : '');
+      const fn = checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(p, (p.declarations || [])[0]));
+      const second = fn.getCallSignatures()[0]?.parameters[1];
+      if (second) {
+        seconds++;
+        const t = checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(second, second.valueDeclaration));
+        const plain = !(t.flags & ts.TypeFlags.Object) || !!t.getCallSignatures().length || ['nativeEvent', 'target', 'getTime'].some((k) => t.getProperty(k));
+        const what = `${checker.typeToString(t)} as its second argument`;
+        if (key in SHAPE_GAPS) { shapes.add(key); R.push({ name: `${name}: ${key} still passes ${what} (known gap: ${SHAPE_GAPS[key]})`, ok: plain, detail: plain ? '' : 'it passes a details object now: take it out of SHAPE_GAPS' }); }
+        else if (plain) R.push({ name: `${name}: ${key}'s second argument is a details object`, ok: false, detail: `it passes ${what}: make it an object ({ event, reason, … }), CONTRIBUTING.md, API conventions` });
+      }
       if (key in NAMING_GAPS) { gaps.add(key); R.push({ name: `${name}: ${key} is still a known gap (${NAMING_GAPS[key]})`, ok: !!why, detail: why ? '' : 'it follows the conventions now: take it out of NAMING_GAPS' }); }
       else if (why) R.push({ name: `${name}: ${key} follows the API conventions`, ok: false, detail: why });
     }
@@ -135,6 +160,7 @@ for (const name of fs.readdirSync(DIR).sort()) {
     detail: [missing.length && `not in the guide: ${missing.join(', ')}`, unknown.length && `in the table but not a prop: ${unknown.join(', ')}`].filter(Boolean).join('; ') });
 }
 for (const key of Object.keys(BOOLEAN_GAPS).filter((k) => !booleanGaps.has(k))) R.push({ name: `${key} in BOOLEAN_GAPS is still a boolean`, ok: false, detail: 'no such prop now: take it out of BOOLEAN_GAPS' });
+for (const key of Object.keys(SHAPE_GAPS).filter((k) => !shapes.has(k))) R.push({ name: `${key} in SHAPE_GAPS is still a callback with a second argument`, ok: false, detail: 'no such callback now: take it out of SHAPE_GAPS' });
 for (const key of Object.keys(NAMING_GAPS).filter((k) => !gaps.has(k))) R.push({ name: `${key} in NAMING_GAPS is still a callback`, ok: false, detail: 'no such prop now: take it out of NAMING_GAPS' });
-R.unshift({ name: `React's DOM attribute list was read (${DOM.size} names), omit() calls were found (${calls}), the guides read (${guides}), the on…Change callbacks (${callbacks}) and the booleans (${booleans})`, ok: DOM.size > 500 && calls > 40 && guides > 60 && callbacks > 20 && booleans > 100, detail: `${guides} guides` });
+R.unshift({ name: `React's DOM attribute list was read (${DOM.size} names), omit() calls were found (${calls}), the guides read (${guides}), the on…Change callbacks (${callbacks}, ${seconds} with a second argument) and the booleans (${booleans})`, ok: DOM.size > 500 && calls > 40 && guides > 60 && callbacks > 20 && seconds > 10 && booleans > 100, detail: `${guides} guides` });
 done(report('Props', R));

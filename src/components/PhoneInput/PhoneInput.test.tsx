@@ -266,6 +266,22 @@ describe('PhoneInput', () => {
     expect([field('p').value, calls.at(-1)]).toEqual(['(415) 555-0123', '+14155550123']);
   });
 
+  test('GR83: a calling code typed key by key ("+44 …" or "0044 …") stays in the field until it names a country, which it then picks, as a paste does', async () => {
+    const calls: string[] = [];
+    await render(<Wrap>
+      <form id="f83"><PhoneInput id="p" aria-label="Phone" name="tel" onValueChange={(v) => calls.push(v)} /></form>
+      <PhoneInput id="q" aria-label="Phone" defaultCountry="DE" onValueChange={(v) => calls.push(v)} />
+    </Wrap>);
+    await userEvent.type(field('p'), '+');
+    expect(field('p').value).toBe('+');
+    await userEvent.type(field('p'), '4');
+    expect([field('p').value, menu('p').value]).toEqual(['+4', 'US']);
+    await userEvent.type(field('p'), '4 20 7946 0958');
+    expect([menu('p').value, calls.at(-1), new FormData(document.getElementById('f83') as HTMLFormElement).get('tel')]).toEqual(['GB', '+442079460958', '+442079460958']);
+    await userEvent.type(field('q'), '0044 20 7946 0958');
+    expect([menu('q').value, calls.at(-1)]).toEqual(['GB', '+442079460958']);
+  });
+
   test('Germany groups by the area code: "030 123456" is "30 123456"', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="DE" /></Wrap>);
     await userEvent.type(field('p'), '030 123456');

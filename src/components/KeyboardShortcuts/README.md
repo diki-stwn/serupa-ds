@@ -86,6 +86,7 @@ function Inbox() {
 
 Each is an optional override: set it on the page, a container or one KeyboardShortcuts. The list lives in `src/components/KeyboardShortcuts/keyboard-shortcuts.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from keyboard-shortcuts.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--keyboard-shortcuts-heading` | `text-muted` | A group's heading (4.5:1 on the dialog). |
@@ -93,3 +94,4 @@ Each is an optional override: set it on the page, a container or one KeyboardSho
 | `--keyboard-shortcuts-row-padding` | `spacing-2` | Space above and below each row (8px). |
 | `--keyboard-shortcuts-group-gap` | `spacing-5` | Space between groups (20px). |
 | `--keyboard-shortcuts-heading-weight` | `font-semibold` | A group's heading. |
+<!-- token-table:end -->

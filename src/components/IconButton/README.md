@@ -51,7 +51,7 @@ const { IconButton } = window.Serupa;
 | `icon` | icon name \| element | required | A custom or Material Symbols name, or any element |
 | `label` | string | required | Its `aria-label`, and a `title` tooltip. An `aria-label` passed instead (from JavaScript, or props spread from a Button) is used as the label |
 | `shape` | `'square'` \| `'round'` | `'square'` | The Button's corners, or a circle |
-| `hideTitle` | boolean | `false` | Leaves out the `title`, when visible text already shows the label (a wrapping Tooltip leaves it out by itself). `noTitle`, its old name, still works and warns |
+| `hideTitle` | boolean | `false` | Leaves out the `title`, when visible text already shows the label (a wrapping Tooltip leaves it out by itself). |
 | `variant` | as Button | `'ghost'` | Ghost by default, the usual look for an icon on its own |
 
 Every other Button prop works the same: `size` (24, 32 or 44px square), `destructive`, `loading`, `disabled`, `href`, `onClick`, `ref`. A given `title` wins over the label.
@@ -60,6 +60,8 @@ Every other Button prop works the same: `size` (24, 32 or 44px square), `destruc
 
 Each is an optional override: set it on the page, a container or one button. The list lives in `src/components/IconButton/icon-button.tokens.json` (also in `design-tokens/components/`). Every Button token applies too.
 
+<!-- token-table:start (made from icon-button.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--icon-button-radius-round` | `rounded-full` | The corners of a round icon button (shape="round"). |
+<!-- token-table:end -->
