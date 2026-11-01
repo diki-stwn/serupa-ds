@@ -83,7 +83,6 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `label` | node | required | The item's text |
-| `href` | string | none | Where it goes |
 | `icon` | an icon name or element | none | A 20px icon; top-level items need one to show when collapsed |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
 | `badge` | node | none | At the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read the badge |
