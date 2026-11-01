@@ -1,0 +1,39 @@
+# CustomTarget
+- link "Skip to results":
+  - /url: "#results"
+- paragraph: Press Tab to show the skip link, then Enter to move focus to the main content.
+- navigation "Example":
+  - link "One":
+    - /url: "#one"
+  - link "Two":
+    - /url: "#two"
+  - link "Three":
+    - /url: "#three"
+- main: Main content. The next Tab goes on from here.
+
+# LongText
+- 'link "Langsung ke konten utama: Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung"':
+  - /url: "#main"
+- paragraph: Press Tab to show the skip link, then Enter to move focus to the main content.
+- navigation "Example":
+  - link "One":
+    - /url: "#one"
+  - link "Two":
+    - /url: "#two"
+  - link "Three":
+    - /url: "#three"
+- main: Main content. The next Tab goes on from here.
+
+# Playground
+- link "Skip to content":
+  - /url: "#main"
+- paragraph: Press Tab to show the skip link, then Enter to move focus to the main content.
+- navigation "Example":
+  - link "One":
+    - /url: "#one"
+  - link "Two":
+    - /url: "#two"
+  - link "Three":
+    - /url: "#three"
+- main: Main content. The next Tab goes on from here.
+

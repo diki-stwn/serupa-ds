@@ -78,6 +78,10 @@ A locale-dependent component (a date, a number) rendered on the server without a
 
 useShortcut was given keys that aren't one key with its modifiers, such as `["G", "I"]` (two keys can't be pressed together) or `["mod"]` alone, so the shortcut isn't set up and isn't listed in KeyboardShortcuts. Give one key, plus `mod`, `ctrl`, `cmd`, `alt` or `shift` if it needs them: `["mod", "K"]`, `["?"]`.
 
+## skip-link-target
+
+A SkipLink was followed, but there's no element on the page with its target's id ("main" unless you pass `target`), so it can't move focus to the main content. Give the main content that id (`<main id="main">`), or pass its id as `target`.
+
 ## splitter-two
 
 Splitter needs exactly two children, its two panes.
