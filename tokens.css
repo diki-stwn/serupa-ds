@@ -1120,7 +1120,7 @@
   --text-7xl--line-height: 1;
   --text-8xl--line-height: 1;
   --text-9xl--line-height: 1;
-  --font-sans: Inter, "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Inter, "Inter Fallback", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans Devanagari", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
   --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --text-type-xs: 400 0.75rem/1rem var(--font-sans);
@@ -1206,6 +1206,48 @@
   --control-height-sm: 1.5rem;
   --control-height-md: 2rem;
   --control-height-lg: 2.75rem;
+}
+:where(:lang(ar), :lang(fa), :lang(ur), :lang(ps), :lang(ckb), :lang(sd), :lang(ug)) {
+  --text-xs--line-height: max(1rem, 1.6em);
+  --text-sm--line-height: max(1.25rem, 1.6em);
+  --text-base--line-height: max(1.5rem, 1.6em);
+  --text-lg--line-height: max(1.75rem, 1.6em);
+  --text-xl--line-height: max(1.75rem, 1.6em);
+  --text-2xl--line-height: max(2rem, 1.6em);
+  --text-3xl--line-height: max(2.25rem, 1.6em);
+  --text-4xl--line-height: max(2.5rem, 1.6em);
+  --text-5xl--line-height: max(1em, 1.6em);
+  --text-6xl--line-height: max(1em, 1.6em);
+  --text-7xl--line-height: max(1em, 1.6em);
+  --text-8xl--line-height: max(1em, 1.6em);
+  --text-9xl--line-height: max(1em, 1.6em);
+}
+:where(:lang(hi), :lang(mr), :lang(ne), :lang(sa), :lang(mai), :lang(bho), :lang(th), :lang(ja), :lang(ko), :lang(zh), :lang(zh-Hans), :lang(zh-CN), :lang(zh-SG), :lang(zh-Hant), :lang(zh-TW), :lang(zh-HK), :lang(zh-MO)) {
+  --text-xs--line-height: max(1rem, 1.5em);
+  --text-sm--line-height: max(1.25rem, 1.5em);
+  --text-base--line-height: max(1.5rem, 1.5em);
+  --text-lg--line-height: max(1.75rem, 1.5em);
+  --text-xl--line-height: max(1.75rem, 1.5em);
+  --text-2xl--line-height: max(2rem, 1.5em);
+  --text-3xl--line-height: max(2.25rem, 1.5em);
+  --text-4xl--line-height: max(2.5rem, 1.5em);
+  --text-5xl--line-height: max(1em, 1.5em);
+  --text-6xl--line-height: max(1em, 1.5em);
+  --text-7xl--line-height: max(1em, 1.5em);
+  --text-8xl--line-height: max(1em, 1.5em);
+  --text-9xl--line-height: max(1em, 1.5em);
+}
+:where(:lang(ja)) {
+  --font-sans: Inter, "Inter Fallback", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans Devanagari", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+}
+:where(:lang(ko)) {
+  --font-sans: Inter, "Inter Fallback", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans Devanagari", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+}
+:where(:lang(zh), :lang(zh-Hans), :lang(zh-CN), :lang(zh-SG)) {
+  --font-sans: Inter, "Inter Fallback", "Noto Sans SC", "Noto Sans CJK SC", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans Devanagari", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+}
+:where(:lang(zh-Hant), :lang(zh-TW), :lang(zh-HK), :lang(zh-MO)) {
+  --font-sans: Inter, "Inter Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans Devanagari", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
 }
 .type-xs {
   font-family: var(--font-sans);

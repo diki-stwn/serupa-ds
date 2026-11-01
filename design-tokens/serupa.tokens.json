@@ -9091,7 +9091,7 @@
     "sans": {
       "$type": "fontFamily",
       "$value": [
-        "Inter, \"Inter Fallback",
+        "Inter, \"Inter Fallback\", \"Noto Sans Arabic\", \"Noto Sans Hebrew\", \"Noto Sans Devanagari\", \"Noto Sans Thai",
         "ui-sans-serif",
         "system-ui",
         "sans-serif"
