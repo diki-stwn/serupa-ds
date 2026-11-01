@@ -395,7 +395,7 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 | `*-safe` alignment (`items-end-safe`, `justify-center-safe`, …) | Safari before 17.6 (they align as without `-safe`) |
 | `field-sizing-*` | Firefox, and Safari before 26.2 (Textarea's `autoResize` measures in script there) |
 
-Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
+Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, phrase breaks in Japanese headings (`word-break: auto-phrase`), entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
 
 Three features set the oldest versions that get the whole system, so the baseline is Chrome and Edge 123, Safari 17.5 and Firefox 128. A check (`tools/test/browser-baseline.mjs`) holds every property, value and at-rule in `bundle.css` to it, with MDN's compatibility data, and lists what is newer on purpose:
 

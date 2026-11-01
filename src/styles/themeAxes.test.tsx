@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, test } from 'vitest';
 import tokens from '../../tokens.json';
 import { render } from 'vitest-browser-react';
-import { commands } from 'vitest/browser';
+import { commands, page } from 'vitest/browser';
 import { Button } from '../components/Button/Button';
 import { Input } from '../components/Input/Input';
 import { contrast, lowContrast, THEMES } from '../../tools/test/vitest/helpers';
@@ -38,7 +38,7 @@ const axes = (brand?: string, mode?: string) => {
   if (mode) root.setAttribute('data-mode', mode); else root.removeAttribute('data-mode');
 };
 
-afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density', 'data-shadow']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
+afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density', 'data-shadow', 'data-type-scale']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
 
 describe('Theme axes', () => {
   test('data-brand + data-mode give exactly the colors of each data-theme', () => {
@@ -259,6 +259,37 @@ describe('Density axis', () => {
     expect([pb > pr && pb > pg, eg > er && eg > eb, pa, rgba('sh-plain')]).toEqual([true, true, 0.1, [0, 0, 0, 0.1]]);
     // A deep shade: dark enough to read as shadow.
     expect(Math.max(pr, pg, pb, er, eg, eb)).toBeLessThan(0.35);
+  });
+
+  test('data-type-scale="fluid" (22): text-2xl and up shrink to 70% on a 320px viewport and reach full size at 1280px; body sizes and fixed sections stay put; browser zoom doubles them by 300% (GR82)', async () => {
+    root.setAttribute('data-type-scale', 'fluid');
+    await render(<div>
+      <h1 id="ft-h" className="type-heading-1">Title</h1>
+      <p id="ft-9" style={{ fontSize: 'var(--text-9xl)' }}>Big</p>
+      <p id="ft-b" className="type-body">Body</p>
+      <p id="ft-x" className="text-xl">Text</p>
+      <div data-type-scale="fixed"><h1 id="ft-f" className="type-heading-1">Title</h1></div>
+    </div>);
+    const px = (id: string) => parseFloat(getComputedStyle(document.getElementById(id)!).fontSize);
+    try {
+      await page.viewport(320, 700);
+      expect(['ft-h', 'ft-9', 'ft-b', 'ft-x', 'ft-f'].map(px)).toEqual([21, 89.6, 16, 20, 30]);
+      await page.viewport(1280, 700);
+      expect(['ft-h', 'ft-9', 'ft-b', 'ft-f'].map(px)).toEqual([30, 128, 16, 30]);
+      await page.viewport(800, 700);
+      const mid = px('ft-h');
+      expect(mid > 21 && mid < 30).toBe(true);
+      // WCAG 1.4.4 (GR82): browser zoom keeps 1rem at 16 CSS px and narrows the viewport, so Z% zoom in a W-wide
+      // window draws Z/100 × the size at W / (Z/100). At 200% a heading grows about 1.6 times; by 300% it is at least
+      // double in every window.
+      for (const w of [640, 1280, 1440, 1920]) {
+        await page.viewport(w, 700);
+        const full = ['ft-h', 'ft-9'].map(px);
+        await page.viewport(Math.round(w / 3), 700);
+        const zoomed = ['ft-h', 'ft-9'].map((id) => 3 * px(id));
+        zoomed.forEach((z, i) => expect(z / full[i], `${w}px window, 300% zoom`).toBeGreaterThanOrEqual(2));
+      }
+    } finally { await page.viewport(900, 700); }
   });
 
   test('a nested data-mode section has its own text color and surface, not the page\'s; a class background still wins', async () => {
