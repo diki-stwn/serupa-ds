@@ -44,7 +44,7 @@ run(['install', '--no-audit', '--no-fund', '--ignore-scripts', tarball, `react@$
 // Runs inside the project, so serupa-ds resolves from its node_modules as in any app.
 const SSR = path.join(HERE, 'ssr');
 const fixtures = fs.readdirSync(SSR).filter((f) => f.endsWith('.mjs')).sort().map((f) => pathToFileURL(path.join(SSR, f)).href);
-const FILES = ['serupa-ds/tokens.css', 'serupa-ds/base.css', 'serupa-ds/bundle.css', 'serupa-ds/components.css', 'serupa-ds/utilities.css', 'serupa-ds/theme.js', 'serupa-ds/serupa.iife.js', 'serupa-ds/package.json'];
+const FILES = ['serupa-ds/tokens.css', 'serupa-ds/base.css', 'serupa-ds/bundle.css', 'serupa-ds/components.css', 'serupa-ds/utilities.css', 'serupa-ds/utilities-extra.css', 'serupa-ds/theme.js', 'serupa-ds/serupa.iife.js', 'serupa-ds/package.json'];
 fs.writeFileSync(path.join(app, 'check.mjs'), `
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
