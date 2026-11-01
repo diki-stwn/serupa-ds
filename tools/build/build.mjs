@@ -24,6 +24,7 @@ import { buildRegistry, cascade } from './registry.mjs';
 import { editorData } from './editor-data.mjs';
 import { tokenDescriptions } from '../tokens/build.mjs';
 import { a11yComponents } from '../lint/a11y-components.mjs';
+import { PAIRS as CONTRAST_PAIRS } from '../tokens/contrast-pairs.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const D = path.join(P, 'dist');
@@ -94,7 +95,8 @@ const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
 // debug.js (204): the opt-in overlay that names each component on a page, its classes, state and overridden tokens.
-fs.writeFileSync(path.join(D, 'debug.js'), stamp(read('src/debug.js')));
+// Its contrast guard (203) checks the pairs tools/test/foundation.mjs checks, written in at build.
+fs.writeFileSync(path.join(D, 'debug.js'), stamp(read('src/debug.js')).replace('/*__PAIRS__*/[]', JSON.stringify(CONTRAST_PAIRS)));
 // eslint.js (TF2): jsx-a11y skips a component it doesn't know, so a project's <Image src> with no alt or an
 // <IconButton> with no name passes its lint. This teaches it what each component renders, from the same map our own
 // lint uses (tools/lint/a11y-components.mjs), under both plugins' settings keys: eslint-plugin-jsx-a11y reads
