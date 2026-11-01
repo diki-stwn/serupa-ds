@@ -32,7 +32,7 @@ describe('focus and ids inside a shadow root (GR60)', () => {
   test('Pagination: the next arrow that reaches the last page hands focus to the previous arrow (useFocusHandover)', async () => {
     const { root, done } = await inShadow(<Pagination count={3} defaultPage={2} />);
     try {
-      const arrows = [...root.querySelectorAll<HTMLButtonElement>('.dk-pagination__arrow')];
+      const arrows = ['Previous page', 'Next page'].map((n) => root.querySelector<HTMLButtonElement>(`button[aria-label="${n}"]`)!);
       arrows[1].focus();
       await userEvent.keyboard('{Enter}');
       await expect.poll(() => root.activeElement).toBe(arrows[0]);
@@ -46,7 +46,7 @@ describe('focus and ids inside a shadow root (GR60)', () => {
     }
     const { root, done } = await inShadow(<List />);
     try {
-      const removes = () => [...root.querySelectorAll<HTMLButtonElement>('.dk-badge__remove')];
+      const removes = () => [...root.querySelectorAll<HTMLButtonElement>('button[aria-label^="Remove"]')];
       removes()[1].focus();
       await userEvent.keyboard('{Enter}');
       await expect.poll(() => removes().length).toBe(2);
