@@ -25,7 +25,10 @@ const files = fs.readdirSync(path.join(PROJECT, 'licenses'));
 t('every license the Credits table names is in licenses/', named.length && named.every((f) => files.includes(f)), named.filter((f) => !files.includes(f)).join(', '));
 t('every file in licenses/ is a row in the Credits table', files.every((f) => named.includes(f)), files.filter((f) => !named.includes(f)).join(', '));
 const fonts = fs.readdirSync(path.join(PROJECT, 'fonts'));
-t('every font the package ships is in the Credits table', fonts.every((f) => credits.includes(`fonts/${f}`)), fonts.filter((f) => !credits.includes(`fonts/${f}`)).join(', '));
+// A name may have one * (`fonts/InterVariable-*.woff2`, the font split by script) for the files it stands for.
+const globs = [...credits.matchAll(/`fonts\/([^`*]*)\*([^`*]*)`/g)].map(([, a, b]) => (f) => f.startsWith(a) && f.endsWith(b) && f.length > a.length + b.length);
+const credited = (f) => credits.includes(`fonts/${f}`) || globs.some((g) => g(f));
+t('every font the package ships is in the Credits table', fonts.every(credited), fonts.filter((f) => !credited(f)).join(', '));
 
 // What the build bundles into dist/lib/: the same two entries as tools/build/build.mjs, read for their inputs.
 const bundled = new Set();
