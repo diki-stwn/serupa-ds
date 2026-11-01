@@ -142,7 +142,7 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
       role={alert ? "alertdialog" : undefined} aria-modal="true"
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-dialog", "dk-dialog--" + size, props.fullScreen === true && "dk-dialog--full", props.fullScreen === "mobile" && "dk-dialog--full-mobile", props.className)} data-component="dialog" data-size={size} data-instant={arrived.current ? "" : undefined}
+      className={cn("dk-dialog", "dk-dialog--" + size, props.fullScreen === true && "dk-dialog--full", props.fullScreen === "mobile" && "dk-dialog--full-mobile", props.className)} data-component="dialog" data-size={size} data-state={open ? "open" : "closed"} data-instant={arrived.current ? "" : undefined}
       onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-dialog__panel">
         {has(props.title) || has(props.description) || showClose ? (
