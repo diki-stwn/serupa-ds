@@ -402,7 +402,8 @@ export interface MenuRadioGroupProps extends Omit<MenuGroupProps, 'defaultValue'
 export const MenuRadioGroup = /* @__PURE__ */ component<HTMLDivElement, MenuRadioGroupProps>("MenuRadioGroup", function MenuRadioGroup(props, ref) {
   const rest = omit(props, { value: 1, onValueChange: 1 });
   const ask = React.useRef(props.onValueChange); ask.current = props.onValueChange;
-  const ctx = React.useMemo<RadioCtx>(() => ({ value: props.value, choose: (v) => { if (ask.current) ask.current(v); } }), [props.value]);
+  // Choosing the item that's chosen already changes nothing, so it isn't told.
+  const ctx = React.useMemo<RadioCtx>(() => ({ value: props.value, choose: (v) => { if (v !== props.value && ask.current) ask.current(v); } }), [props.value]);
   return <RadioContext.Provider value={ctx}><MenuGroup {...rest} ref={ref} /></RadioContext.Provider>;
 });
 

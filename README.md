@@ -120,7 +120,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
 | `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
-| `dist/debug.js` | A debug overlay for finding why a screen looks off. Load it, then add `?serupa-debug` to the page's address: every component gets a dashed outline, and pointing at one shows its name, variant and size, its state and the component tokens set on it. Escape turns it off. `Serupa.debug.inspect(element)` gives the same as an object. Leave it out of production. |
+| `dist/debug.js` | A debug overlay for finding why a screen looks off. Load it, then add `?serupa-debug` to the page's address: every component gets a dashed outline, and pointing at one shows its name, variant and size, its state and the component tokens set on it. It also checks the color pairs against WCAG contrast where they're drawn, so a color token you override can't quietly fail: the console lists the failures on the page, and the panel adds those on the component. Escape turns it off. `Serupa.debug.inspect(element)` and `Serupa.debug.contrast(element)` give the same as objects. Leave it out of production. |
 | `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
 | `dist/stylelint.js` (`serupa-ds/stylelint`) | A Stylelint config for your own CSS: it flags a color, a spacing length or a radius written out where a token belongs. See Getting started in Storybook. |
 | `dist/testing.js` (`serupa-ds/testing`) | `forEachTheme(page, fn)` for your own CI: it draws a Playwright page in each of the six themes, with transitions off and the color scheme to match, and calls `fn` so you can take a screenshot in each. |
@@ -422,6 +422,6 @@ The system is self-contained: every file it needs is in it, and nothing loads fr
 | Work | Used for | License |
 | --- | --- | --- |
 | Tailwind CSS (Tailwind Labs) | The naming and values of the utility classes, the palette and the scales, checked against its compiler (v4.3.3) | MIT — `licenses/TailwindCSS-MIT.txt` |
-| Inter (Rasmus Andersson) | `font-sans` — `fonts/InterVariable.woff2`, `fonts/InterVariable-Italic.woff2` | SIL Open Font License 1.1 — `licenses/Inter-OFL-1.1.txt` |
+| Inter (Rasmus Andersson) | `font-sans` — `fonts/InterVariable.woff2`, `fonts/InterVariable-Italic.woff2`, and the same split by script, `fonts/InterVariable-*.woff2` | SIL Open Font License 1.1 — `licenses/Inter-OFL-1.1.txt` |
 | Material Symbols (Google) | Icons, as SVG in the components and `serupa-ds/icons`: the Rounded, filled, weight-400 style | Apache 2.0 — `licenses/MaterialSymbols-Apache-2.0.txt` |
 | React 19.3.1 (Meta) | Running the components on plain pages — `dist/lib/`, built from the `react` and `react-dom` packages by the build | MIT — `licenses/React-MIT.txt` |
