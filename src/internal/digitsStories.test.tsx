@@ -30,6 +30,7 @@ const LATIN: Record<string, string> = {
   'Meter/CustomValue': "the story's formatValue writes the text", 'Meter/HighIsGood': "the story's formatValue", 'Meter/LowIsGood': "the story's formatValue",
   'Progress/Tones': "the story's formatValue", 'Slider/Marks': "the story's formatValue",
   'Table/StickyHeader': 'invoice numbers (INV-1001) are codes, not amounts',
+  VirtualList: "the story's generated people: their names, emails and years are numbered so 10,000 rows differ",
   'Checkbox/Group': "the story's hint, `${teams.length} picked`",
   // A label pack's text (the provider's labels, English and Indonesian) is the app's words: an app with an Arabic
   // pack writes its own digits there.

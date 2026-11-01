@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>VirtualList — preview</title>
+<style>
+  body { margin: 0; padding: 16px; background: var(--surface); color: var(--text); font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  var T = window.Serupa, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(T.VirtualList, { variant: 'card', 'aria-label': 'Members', count: 10000,
+    renderItem: function (i) { return h(T.ListItem, { leading: h(T.Avatar, { name: 'Person ' + (i + 1), size: 'sm' }), title: 'Person ' + (i + 1), description: 'person' + (i + 1) + '@example.com' }); } }));
+</script>
+</body>
+</html>
