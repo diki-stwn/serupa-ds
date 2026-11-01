@@ -525,7 +525,11 @@ describe('TableRow href (TF3)', () => {
 describe('Table: no negative zero (GR84)', () => {
   test('a cell holding -0 shows 0, and a real negative keeps its minus', async () => {
     await render(<Table id="tnz"><TableBody><TableRow><TableCell id="cz">{-0}</TableCell><TableCell id="cn">{-2}</TableCell></TableRow></TableBody></Table>);
-    expect(document.getElementById('cz')!.textContent).toBe('0');
-    expect(document.getElementById('cn')!.textContent).not.toBe('2');
+    // In the locale the tests run in: ar-EG writes 0 as ٠ and its minus with a direction mark.
+    const minus = /[-\u2212]/;
+    const zero = document.getElementById('cz')!.textContent!;
+    expect(zero).not.toMatch(minus);
+    expect(Number(zero.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[^\d]/g, ''))).toBe(0);
+    expect(document.getElementById('cn')!.textContent).toMatch(minus);
   });
 });
