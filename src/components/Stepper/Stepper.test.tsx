@@ -12,12 +12,18 @@ const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider lo
 
 const STEPS: StepperStep[] = [{ title: 'Account', description: 'Email and password' }, { title: 'Profile', optional: true }, { title: 'Billing' }, { title: 'Review' }];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
+// A step (li) holds its head (a div, or a button when it can be pressed) and, after it, the connector line (a
+// span). The head holds the indicator circle, then the text: the title, the description and "Optional".
+const HEAD = ':scope > :first-child', CONN = ':scope > span', IND = `${HEAD} > span:first-child`, TEXT = `${HEAD} > span:last-child`;
+// The same part in any step, from the nav.
+const inStep = (sel: string) => sel.replace(':scope', 'li');
+const TITLE = `${TEXT} > span:first-child`, DESC = `${TEXT} > span:nth-child(2)`, OPT = `${TEXT} > span:last-child`;
 const lis = (id: string) => [...el(id).querySelectorAll('li')];
 const rect = (e: Element) => e.getBoundingClientRect();
 const steps = (id: string) => lis(id).map((li) => ({
   state: li.dataset.state, cur: li.getAttribute('aria-current'),
-  ind: li.querySelector<HTMLElement>('.dk-stepper__indicator .dk-icon')?.dataset.icon || li.querySelector('.dk-stepper__indicator')!.textContent,
-  text: li.querySelector('.dk-stepper__title')!.textContent, btn: !!li.querySelector('button'),
+  ind: li.querySelector<HTMLElement>(`${IND} > [data-icon]`)?.dataset.icon || li.querySelector(IND)!.textContent,
+  text: li.querySelector(TITLE)!.textContent, btn: !!li.querySelector('button'),
 }));
 
 let clicks: number[] = [], setCur: (n: number) => void = () => {};
@@ -39,7 +45,7 @@ const setup = async (sref?: React.Ref<HTMLElement>) => { clicks = []; await rend
 describe('Stepper', () => {
   test('step numbers are written in the digits of the locale, as Calendar writes its days: ٣ ٤ in ar-EG', async () => {
     await render(<SerupaProvider locale="ar-EG"><Stepper id="sar" current={1} steps={[{ title: 'One' }, { title: 'Two' }, { title: 'Three' }, { title: 'Four' }]} /></SerupaProvider>);
-    const shown = [...document.querySelectorAll('#sar .dk-stepper__indicator')].map((e) => e.textContent);
+    const shown = [...el('sar').querySelectorAll(inStep(IND))].map((e) => e.textContent);
     expect(shown.slice(2)).toEqual(['٣', '٤']);
   });
 
@@ -49,7 +55,7 @@ describe('Stepper', () => {
     const n = el('st'), li = lis('st');
     expect([n.tagName, n.getAttribute('aria-label'), n.firstElementChild!.tagName, li.length, ref.current === n, n.dataset.component]).toEqual(['NAV', 'Progress', 'OL', 4, true, 'stepper']);
     expect(n.className).toMatch(/extra/);
-    expect([li[0].querySelector('.dk-stepper__description')!.textContent, li[1].querySelector('.dk-stepper__optional')!.textContent, n.querySelectorAll('.dk-stepper__connector').length]).toEqual(['Email and password', 'Optional', 3]);
+    expect([li[0].querySelector(DESC)!.textContent, li[1].querySelector(OPT)!.textContent, n.querySelectorAll(inStep(CONN)).length]).toEqual(['Email and password', 'Optional', 3]);
   });
 
   test('current=2: steps 1 and 2 complete with a check (read as "…, completed"), step 3 current with aria-current="step", step 4 upcoming with its number; with onStepClick only completed steps are buttons', async () => {
@@ -63,7 +69,7 @@ describe('Stepper', () => {
 
   test('forced colors: the current and completed circles are Highlight with HighlightText, kept as is (no backplate hides the number or check)', async () => {
     await render(<Stepper id="hc" steps={STEPS} current={1} />);
-    const ind = (i: number) => lis('hc')[i].querySelector('.dk-stepper__indicator')!;
+    const ind = (i: number) => lis('hc')[i].querySelector(IND)!;
     const r = await forcedColors((active) => active && [0, 1, 2].map((i) => css(ind(i)).forcedColorAdjust));
     if (r) expect(r).toEqual(['none', 'none', 'auto']);
   });
@@ -103,7 +109,7 @@ describe('Stepper', () => {
   test('horizontal: 32px circles; each 2px line sits level with the circles\' middle, 8px from the text and the next circle', async () => {
     await setup();
     const geo = lis('st').slice(0, 3).map((li) => {
-      const i = rect(li.querySelector('.dk-stepper__indicator')!), c = rect(li.querySelector('.dk-stepper__connector')!), nx = rect(li.nextElementSibling!.querySelector('.dk-stepper__indicator')!), head = rect(li.querySelector('.dk-stepper__head')!);
+      const i = rect(li.querySelector(IND)!), c = rect(li.querySelector(CONN)!), nx = rect(li.nextElementSibling!.querySelector(IND)!), head = rect(li.querySelector(HEAD)!);
       return [Math.round((c.top + c.bottom) / 2 - (i.top + i.bottom) / 2), c.height, Math.round(c.left - head.right), Math.round(nx.left - c.right), Math.round(i.width)];
     });
     expect(geo).toEqual([[0, 2, 8, 8, 32], [0, 2, 8, 8, 32], [0, 2, 8, 8, 32]]);
@@ -112,8 +118,8 @@ describe('Stepper', () => {
   test('lines after completed steps are primary, others field-border; only the current circle has a ring', async () => {
     await setup();
     const li = lis('st'), c = (l: Element, s: string) => css(l.querySelector(s));
-    expect(c(li[0], '.dk-stepper__connector').backgroundColor).not.toBe(c(li[2], '.dk-stepper__connector').backgroundColor);
-    expect([c(li[2], '.dk-stepper__indicator').outlineStyle, c(li[0], '.dk-stepper__indicator').outlineStyle]).toEqual(['solid', 'none']);
+    expect(c(li[0], CONN).backgroundColor).not.toBe(c(li[2], CONN).backgroundColor);
+    expect([c(li[2], IND).outlineStyle, c(li[0], IND).outlineStyle]).toEqual(['solid', 'none']);
   });
 
   test('status="error": danger circle with a mark, read as "…, needs attention" (labels); aria-label names the nav', async () => {
@@ -126,7 +132,7 @@ describe('Stepper', () => {
     await setup();
     const w = steps('warn');
     expect([w[1].state, w[1].ind, w[1].text, w[0].state]).toEqual(['warning', 'warning', 'Photos, needs attention', 'complete']);
-    expect(css(lis('warn')[1].querySelector('.dk-stepper__indicator')).backgroundColor).not.toBe(css(lis('err')[1].querySelector('.dk-stepper__indicator')).backgroundColor);
+    expect(css(lis('warn')[1].querySelector(IND)).backgroundColor).not.toBe(css(lis('err')[1].querySelector(IND)).backgroundColor);
   });
 
   test('clickable="all": every step but the current one is a button, upcoming ones too, and clicking one calls onStepClick', async () => {
@@ -140,7 +146,7 @@ describe('Stepper', () => {
   test('vertical: a 2px line runs down the middle of each circle, 8px from it and from the next', async () => {
     await setup();
     const v = lis('ver').slice(0, 3).map((li) => {
-      const i = rect(li.querySelector('.dk-stepper__indicator')!), c = rect(li.querySelector('.dk-stepper__connector')!), nx = rect(li.nextElementSibling!.querySelector('.dk-stepper__indicator')!);
+      const i = rect(li.querySelector(IND)!), c = rect(li.querySelector(CONN)!), nx = rect(li.nextElementSibling!.querySelector(IND)!);
       return [Math.round((c.left + c.right) / 2 - (i.left + i.right) / 2), c.width, Math.round(c.top - i.bottom), Math.round(nx.top - c.bottom)];
     });
     expect(v).toEqual([[0, 2, 8, 8], [0, 2, 8, 8], [0, 2, 8, 8]]);
@@ -148,7 +154,7 @@ describe('Stepper', () => {
 
   test('sm: 24px circles, text-xs; current=steps.length marks every step complete, with no current step', async () => {
     await setup();
-    expect([rect(el('sm').querySelector('.dk-stepper__indicator')!).width, lis('sm').every((li) => li.dataset.state === 'complete'), !!el('sm').querySelector('[aria-current]'), css(el('sm').querySelector('.dk-stepper__title')).fontSize]).toEqual([24, true, false, '12px']);
+    expect([rect(el('sm').querySelector(inStep(IND))!).width, lis('sm').every((li) => li.dataset.state === 'complete'), !!el('sm').querySelector('[aria-current]'), css(el('sm').querySelector(inStep(TITLE))).fontSize]).toEqual([24, true, false, '12px']);
   });
 
   test('right-to-left: steps run from the right', async () => {
@@ -164,15 +170,15 @@ describe('Stepper', () => {
       document.documentElement.setAttribute('data-theme', th);
       const page = css(document.body).backgroundColor, li = lis('st'), err = lis('err')[1], warn = lis('warn')[1], c = (l: Element, s: string) => css(l.querySelector(s));
       const pairs: Array<[string, string, string, number]> = [
-        ['upcoming number', c(li[3], '.dk-stepper__indicator').color, c(li[3], '.dk-stepper__indicator').backgroundColor, 4.5],
-        ['upcoming ring', c(li[3], '.dk-stepper__indicator').borderTopColor, page, 3],
-        ['current number', c(li[2], '.dk-stepper__indicator').color, c(li[2], '.dk-stepper__indicator').backgroundColor, 4.5],
-        ['complete circle', c(li[0], '.dk-stepper__indicator').backgroundColor, page, 3],
-        ['error mark', c(err, '.dk-stepper__indicator').color, c(err, '.dk-stepper__indicator').backgroundColor, 3],
-        ['warning mark', c(warn, '.dk-stepper__indicator').color, c(warn, '.dk-stepper__indicator').backgroundColor, 3],
-        ['warning ring', c(warn, '.dk-stepper__indicator').borderTopColor, page, 3],
-        ['title', c(li[0], '.dk-stepper__title').color, page, 4.5],
-        ['description', c(li[0], '.dk-stepper__description').color, page, 4.5]];
+        ['upcoming number', c(li[3], IND).color, c(li[3], IND).backgroundColor, 4.5],
+        ['upcoming ring', c(li[3], IND).borderTopColor, page, 3],
+        ['current number', c(li[2], IND).color, c(li[2], IND).backgroundColor, 4.5],
+        ['complete circle', c(li[0], IND).backgroundColor, page, 3],
+        ['error mark', c(err, IND).color, c(err, IND).backgroundColor, 3],
+        ['warning mark', c(warn, IND).color, c(warn, IND).backgroundColor, 3],
+        ['warning ring', c(warn, IND).borderTopColor, page, 3],
+        ['title', c(li[0], TITLE).color, page, 4.5],
+        ['description', c(li[0], DESC).color, page, 4.5]];
       for (const [k, fg, bg, min] of pairs) { const r = contrast(fg, bg); n++; if (r < min) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
     expect([low, n]).toEqual([[], 54]);
@@ -180,7 +186,7 @@ describe('Stepper', () => {
 
   test('--stepper-active-bg overrides one stepper', async () => {
     await setup();
-    expect(css(el('tok').querySelector('.dk-stepper__indicator')).backgroundColor).toBe('rgb(1, 2, 3)');
+    expect(css(el('tok').querySelector(inStep(IND))).backgroundColor).toBe('rgb(1, 2, 3)');
   });
   test('a long single word in a title wraps, in the line under the circles and in a vertical stepper, so 320px never scrolls sideways (RF1, WCAG 1.4.10)', async () => {
     const long = [{ title: 'Account' }, { title: 'Donaudampfschifffahrtsgesellschaftskapitänskajüte', optional: true }, { title: 'Review' }];
@@ -198,17 +204,17 @@ describe('Stepper', () => {
     const n = el('nar');
     expect(n.className).toMatch(/dk-stepper--compact/);
     expect(n.scrollWidth).toBeLessThanOrEqual(320);
-    const circles = [...n.querySelectorAll('.dk-stepper__indicator')].map(rect);
+    const circles = [...n.querySelectorAll(inStep(IND))].map(rect);
     for (let i = 1; i < circles.length; i++) expect(circles[i].left).toBeGreaterThanOrEqual(circles[i - 1].right);
-    const summary = n.querySelector('.dk-stepper__summary') as HTMLElement;
+    const summary = n.querySelector(':scope > p') as HTMLElement;
     expect([summary.textContent, summary.getAttribute('aria-hidden')]).toEqual(['Step 3 of 4: Billing', 'true']);
     // The titles stay in the list for screen readers: clipped to 1px, not removed.
-    const title = lis('nar')[0].querySelector('.dk-stepper__text') as HTMLElement;
+    const title = lis('nar')[0].querySelector(TEXT) as HTMLElement;
     expect([title.textContent, rect(title).width <= 1, css(title).display !== 'none']).toEqual(['Account, completedEmail and password', true, true]);
     expect(el('nv').className).not.toMatch(/compact/);
     setW(720);
     await expect.poll(() => n.className).not.toMatch(/compact/);
-    expect(n.querySelector('.dk-stepper__summary')).toBeNull();
+    expect(n.querySelector(':scope > p')).toBeNull();
     setW(320);
     await expect.poll(() => n.className).toMatch(/compact/);
   });

@@ -331,6 +331,11 @@ describe('SegmentedControl', () => {
   test('a new choice slides the indicator from the last one by clip-path (compositor), never scale or width, so its border and corners keep their shape between segments of different widths; it comes to rest on the segment (EG1, GL1)', async () => {
     await withMotion(async () => {
       await render(<SegmentedControl id="sl" aria-label="View" options={[{ value: 'a', label: 'List' }, { value: 'b', label: 'Board view' }]} defaultValue="a" />);
+      // The component measures the segments as they are when the choice is made, and this test measures them after.
+      // A web font that arrives in between widens the labels (by 1 to 5px), and the slide is measured again and
+      // settled early. So the fonts are in, and the control has measured them, before the click.
+      await expect.poll(async () => { await document.fonts.ready; return document.fonts.status; }).toBe('loaded');
+      await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame);
       const [a, b] = items('sl');
       const ind = el('sl').firstElementChild as HTMLElement;
       // A click from the page itself, so the transitions are read a frame after the choice. A driver click (userEvent)
