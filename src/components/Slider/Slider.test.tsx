@@ -427,6 +427,19 @@ describe('Slider at 320px (GM2)', () => {
     const half = [...el('gm2-l').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')][1].getBoundingClientRect(), t = el('gm2-l').querySelector('[role="slider"]')!.parentElement!.getBoundingClientRect();
     expect(Math.round(half.left + half.width / 2)).toBe(Math.round(t.left + t.width / 2));
   });
+  test('a label that changes width after the first fit (a web font arriving) is fitted again, with the slider the same size', async () => {
+    const marks = [{ value: 0, label: 'Nothing at all' }, { value: 100, label: 'Everything there is' }];
+    await render(<div style={{ width: '200px' }}><Slider id="gm2-f" aria-label="Volume" defaultValue={50} marks={marks} /></div>);
+    const inside = () => {
+      const box = el('gm2-f').getBoundingClientRect();
+      return [...el('gm2-f').querySelectorAll<HTMLElement>('.dk-slider__mark-label > span')].every((p) => { const r = p.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5; });
+    };
+    expect(inside()).toBe(true);
+    const size = el('gm2-f').getBoundingClientRect().width;
+    for (const p of el('gm2-f').querySelectorAll<HTMLElement>('.dk-slider__mark-label > span')) p.style.letterSpacing = '2px';
+    await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+    expect([el('gm2-f').getBoundingClientRect().width, inside()]).toEqual([size, true]);
+  });
   test('L8E84 in a Field, a level down (a row with a unit after it): the label, hint, error and disabled still reach it', async () => {
     await render(<>
       <Field label="Volume" hint="0 is muted" error="Too loud" disabled><div><Slider data-testid="sd1" defaultValue={90} /><span>dB</span></div></Field>
