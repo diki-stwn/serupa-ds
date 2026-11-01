@@ -8,7 +8,8 @@ import { useIsoLayoutEffect } from "./cn";
    (a div with hidden inputs), naming a form it sits outside of. */
 export function useFormReset(el: React.RefObject<HTMLElement | null>, reset: () => void, formId?: string): void {
   const run = React.useRef(reset);
-  useIsoLayoutEffect(() => { run.current = reset; });   // the latest, before any reset event can run
+  // every render: keeps the latest reset, before any reset event can run.
+  useIsoLayoutEffect(() => { run.current = reset; });
   React.useEffect(() => {
     const node = el.current;
     const named = formId ? document.getElementById(formId) : null;

@@ -35,7 +35,8 @@ export function useTextLimit<E extends Field, P extends Handlers<E>>(input: P, f
   const last = React.useRef(initial);
   const composing = React.useRef(false);
   const held = controlled ? String(rest.value) : null;
-  // The value the parent holds now, before any event of this render's field can run.
+  // Mid-composition a render leaves last alone, so a dependency list would miss the value held once it ends.
+  // every render: the value the parent holds now, before any event of this render's field can run.
   useIsoLayoutEffect(() => { if (held != null && !composing.current) last.current = held; });
   const defaultText = String(rest.defaultValue != null ? rest.defaultValue : "");
   useFormReset(field, function () {
