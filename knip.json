@@ -8,6 +8,7 @@
     "src/theme.js!",
     "src/debug.js!",
     "src/stylelint.js!",
+    "src/testing.js!",
     "bin/*.mjs!",
     "tools/**/*.mjs",
     "src/**/*.stories.tsx",
