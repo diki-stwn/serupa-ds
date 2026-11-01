@@ -34,15 +34,12 @@ const only = process.env.SERUPA_BUILD;
 
 export default defineConfig([
   // One build per entry, so each .d.ts holds its own types: built together, the types both use (IconData,
-  // MaterialIconName) would go to a third, hashed file.
-  ...(only === 'iife' ? [] : [{ index: 'src/index.ts' }, { icons: 'src/material/index.ts' }].map((entry) => ({
-    entry,
-    format: ['esm'],
-    // stripInternal: a prop tagged @internal (Calendar's hooks for DateRangePicker) stays out of the public types.
-    dts: { only: true, compilerOptions: { stripInternal: true } },
-    clean: false,
-    external: ['react', 'react-dom'],
-  }))),
+  // MaterialIconName) would go to a third, hashed file. Written out (not mapped) so knip reads both entries.
+  // stripInternal: a prop tagged @internal (Calendar's hooks for DateRangePicker) stays out of the public types.
+  ...(only === 'iife' ? [] : [
+    { entry: { index: 'src/index.ts' }, format: ['esm'], dts: { only: true, compilerOptions: { stripInternal: true } }, clean: false, external: ['react', 'react-dom'] },
+    { entry: { icons: 'src/material/index.ts' }, format: ['esm'], dts: { only: true, compilerOptions: { stripInternal: true } }, clean: false, external: ['react', 'react-dom'] },
+  ]),
   ...[['serupa.iife', 'src/browser.ts'], ['serupa-icons.iife', 'src/browser-icons.ts']].map(([name, file]) => ({
     entry: { [name]: file },
     format: ['iife'],
