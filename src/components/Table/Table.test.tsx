@@ -245,12 +245,12 @@ describe('Table', () => {
     expect([css(th).position, f.getAttribute('aria-label'), f.getAttribute('tabindex')]).toEqual(['sticky', 'Sticky', '0']);
   });
 
-  test('stickyHeader: the header lifts with a shadow once rows scroll under it, and is flat at the top (KW16); without scroll timelines it stays flat', async () => {
+  test('stickyHeader: the header lifts with a shadow once rows scroll under it, and is flat at the top (KW16); without scroll-state queries it stays flat', async () => {
     await setup();
     const f = el('tsticky').parentElement!, th = f.querySelector('th')!;
-    // A shadow shows when one of its colors isn't fully transparent (at the top the animation sits at 0%: transparent).
+    // A shadow shows when one of its colors isn't fully transparent.
     const lifted = () => (css(th).boxShadow.match(/rgba?\([^)]*\)/g) || []).some((c) => { const n = c.match(/[\d.]+/g)!; return n.length < 4 || Number(n[3]) > 0; });
-    const lifts = CSS.supports('animation-timeline: scroll()');
+    const lifts = CSS.supports('container-type: scroll-state');
     await withMotion(async () => {
       f.scrollTop = 0;
       await expect.poll(lifted).toBe(false);
