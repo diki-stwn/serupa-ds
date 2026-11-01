@@ -57,6 +57,7 @@
     },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
+    "./native/*": "./dist/native/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
   },

@@ -358,6 +358,19 @@ Names are never removed in a minor or patch release: they're marked deprecated i
 
 Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The files are generated from `tokens.json` (`npm run tokens`) and the tests fail if they fall out of step. `tools/tokens/style-dictionary.config.mjs` builds them back into CSS, one file per theme, with the system's own variable names; the tests check that every one of its 3,500 values equals the token.
 
+## Tokens for native apps
+
+`dist/native/` (`serupa-ds/native/…`) holds the colors, spacing, radii, border widths, sizes, font sizes, opacities and durations for an iOS or Android app that sits beside a web app on Serupa, made from the same tokens by `npm run build`. A rem is 16 points (dp).
+
+| File | Holds |
+| --- | --- |
+| `ios/SerupaTokens.swift` | SwiftUI: `SerupaTokens.spacing4` (points), `SerupaTokens.motionHover` (seconds), `SerupaPalette.blue600`, and `SerupaColors.blueLight.primary`: the alias colors, one set per theme |
+| `android/SerupaTokens.kt` | Jetpack Compose (package `com.serupa.tokens`): the same in `dp`, `sp` and milliseconds, and `SerupaColors.BlueLight.primary` |
+| `android/res/values/serupa_tokens.xml` | Android resources: the palette, `@dimen/serupa_spacing_4`, durations as integers and opacities as float dimens |
+| `android/res-<brand>/values/` and `values-night/` | One brand's alias colors (`@color/serupa_primary`), light and dark. Add the brand's folder as a resource directory and night mode picks the dark ones |
+
+Shadows, easings and the type styles aren't in them yet.
+
 ## Editor autocomplete
 
 The package carries [VS Code custom data](https://code.visualstudio.com/api/extension-guides/custom-data-extension) for the utility classes and the tokens. With it, VS Code offers every utility class in `class="…"` with what it sets, the themes in `data-theme`, and every token where a stylesheet sets one (`:root { --primary: … }`). Add this to the project's `.vscode/settings.json`:
