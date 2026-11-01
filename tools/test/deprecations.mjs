@@ -1,22 +1,33 @@
 // Deprecations name the major that removes them, and can't outlive it (SCB1). Badge's size said "Removed in 4.0.0"
 // and was still there at 10.1.0; RadioGroup's onChange "goes in the next major" and survived 10.0.0. So each
 // @deprecated JSDoc in src/, each deprecation warning (a warnOnce whose message says "deprecated") and each
-// $deprecated token says "removed in N.0.0", and this fails when one has no N, or when package.json's major has
-// reached N, so a major can't ship with an expired deprecation. A deprecated prop or warning also needs its
-// warnings.md section and a line in CHANGELOG.md or a pending changeset that names it.
+// $deprecated token says "removed in N.0.0", and this fails when one has no N, or when the major the next release
+// ships as has reached N, so a major can't ship with an expired deprecation. A deprecated prop or warning also needs
+// its warnings.md section and a line in CHANGELOG.md or a pending changeset that names it.
 //   node tools/test/deprecations.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { PROJECT, read, report, done } from './lib.mjs';
 
-const major = Number(JSON.parse(read('package.json')).version.split('.')[0]);
+// The major the next release ships as. A pending major changeset makes it package.json's major plus one, so a
+// deprecation due then fails on the pull request that could still remove it, not on the release pull request
+// (12.0.0 shipped with two that said "removed in 12.0.0").
+const current = Number(JSON.parse(read('package.json')).version.split('.')[0]);
+const changesets = fs.readdirSync(path.join(PROJECT, '.changeset')).filter((n) => n.endsWith('.md') && n !== 'README.md');
+// An empty changeset (--- then ---, for a change that releases nothing) bumps nothing.
+const bumps = changesets.map((n) => { const text = read(path.join('.changeset', n)); return [n, /^---\s*\n---/.test(text) ? 'none' : /^---\n[\s\S]*?["']serupa-ds["']\s*:\s*(\w+)\s*\n[\s\S]*?---/.exec(text)?.[1]]; });
+const pendingMajor = bumps.some(([, bump]) => bump === 'major');
+const major = pendingMajor ? current + 1 : current;
+const now = pendingMajor ? `the next release is ${major}.0.0, with a pending major changeset` : `the package is ${major}.x`;
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
+// The next major is read from the pending changesets, so each must name its serupa-ds bump where this finds it.
+for (const [n, bump] of bumps) t(`.changeset/${n} names a patch, minor or major bump for serupa-ds, or none`, ['patch', 'minor', 'major', 'none'].includes(bump), 'start it with ---, "serupa-ds": patch, minor or major, then ---');
 const removedIn = (s) => { const m = /removed in (\d+)\.0\.0/i.exec(s); return m ? Number(m[1]) : null; };
 const due = (where, what, text) => {
   const n = removedIn(text);
-  t(`${where}: ${what} says which major removes it, and that major is still ahead (now ${major}.x)`, n !== null && n > major,
-    n === null ? 'add "removed in N.0.0" to its text' : `removed in ${n}.0.0, but the package is ${major}.x: remove it now`);
+  t(`${where}: ${what} says which major removes it, and that major is still ahead (${now})`, n !== null && n > major,
+    n === null ? 'add "removed in N.0.0" to its text' : `removed in ${n}.0.0, but ${now}: remove it now`);
 };
 
 const walk = (dir, keep) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {

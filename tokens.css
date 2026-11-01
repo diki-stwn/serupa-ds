@@ -308,6 +308,9 @@
   --text-shadow-md: 0px 1px 1px rgb(0 0 0 / 0.1), 0px 1px 2px rgb(0 0 0 / 0.1), 0px 2px 4px rgb(0 0 0 / 0.1);
   --text-shadow-lg: 0px 1px 2px rgb(0 0 0 / 0.1), 0px 3px 2px rgb(0 0 0 / 0.1), 0px 4px 8px rgb(0 0 0 / 0.1);
   --text-shadow-none: none;
+  --dk-more-primary: var(--blue-800);
+  --dk-more-primary-hover: var(--blue-900);
+  --dk-more-focus-ring: var(--blue-700);
 }
 [data-theme="blue-dark"] {
   --primary: var(--blue-400);
@@ -354,6 +357,9 @@
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
   --link-visited: var(--violet-300);
+  --dk-more-primary: var(--blue-300);
+  --dk-more-primary-hover: var(--blue-200);
+  --dk-more-focus-ring: var(--blue-300);
 }
 [data-theme="violet-light"] {
   --primary: var(--violet-600);
@@ -400,6 +406,9 @@
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
   --link-visited: var(--fuchsia-700);
+  --dk-more-primary: var(--violet-800);
+  --dk-more-primary-hover: var(--violet-900);
+  --dk-more-focus-ring: var(--violet-700);
 }
 [data-theme="violet-dark"] {
   --primary: var(--violet-400);
@@ -446,6 +455,9 @@
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
   --link-visited: var(--fuchsia-300);
+  --dk-more-primary: var(--violet-300);
+  --dk-more-primary-hover: var(--violet-200);
+  --dk-more-focus-ring: var(--violet-300);
 }
 [data-theme="emerald-light"] {
   --primary: var(--emerald-700);
@@ -492,6 +504,9 @@
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
   --link-visited: var(--violet-700);
+  --dk-more-primary: var(--emerald-800);
+  --dk-more-primary-hover: var(--emerald-900);
+  --dk-more-focus-ring: var(--emerald-700);
 }
 [data-theme="emerald-dark"] {
   --primary: var(--emerald-400);
@@ -538,6 +553,9 @@
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
   --link-visited: var(--violet-300);
+  --dk-more-primary: var(--emerald-300);
+  --dk-more-primary-hover: var(--emerald-200);
+  --dk-more-focus-ring: var(--emerald-300);
 }
 :where(:root:is([data-brand], [data-mode]), [data-mode]):not([data-theme]) {
   color-scheme: light dark;
@@ -582,6 +600,9 @@
   --info-subtle: light-dark(var(--sky-50), var(--sky-950));
   --info-text: light-dark(var(--sky-700), var(--sky-300));
   --link-visited: light-dark(var(--violet-700), var(--violet-300));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :root[data-brand="blue"]:not([data-theme]), [data-brand="blue"]:not([data-theme]) {
   --primary: light-dark(var(--blue-600), var(--blue-400));
@@ -590,6 +611,9 @@
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
   --link-visited: light-dark(var(--violet-700), var(--violet-300));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :root[data-brand="violet"]:not([data-theme]), [data-brand="violet"]:not([data-theme]) {
   --primary: light-dark(var(--violet-600), var(--violet-400));
@@ -598,6 +622,9 @@
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
   --link-visited: light-dark(var(--fuchsia-700), var(--fuchsia-300));
+  --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
+  --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
+  --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
 }
 :root[data-brand="emerald"]:not([data-theme]), [data-brand="emerald"]:not([data-theme]) {
   --primary: light-dark(var(--emerald-700), var(--emerald-400));
@@ -606,6 +633,9 @@
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
   --link-visited: light-dark(var(--violet-700), var(--violet-300));
+  --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
+  --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
+  --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));
 }
 :is([data-theme^="blue-"], [data-brand="blue"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--blue-600), var(--blue-400));
@@ -614,6 +644,9 @@
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
   --link-visited: light-dark(var(--violet-700), var(--violet-300));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :is([data-theme^="violet-"], [data-brand="violet"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--violet-600), var(--violet-400));
@@ -622,6 +655,9 @@
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
   --link-visited: light-dark(var(--fuchsia-700), var(--fuchsia-300));
+  --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
+  --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
+  --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
 }
 :is([data-theme^="emerald-"], [data-brand="emerald"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--emerald-700), var(--emerald-400));
@@ -630,6 +666,9 @@
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
   --link-visited: light-dark(var(--violet-700), var(--violet-300));
+  --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
+  --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
+  --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));
 }
 :root[data-mode="auto"]:not([data-theme]), [data-mode="auto"]:not([data-theme]) { color-scheme: light dark; }
 :root[data-mode="light"]:not([data-theme]), [data-mode="light"]:not([data-theme]) { color-scheme: light; }
@@ -1129,6 +1168,11 @@
   --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
 }
+[data-contrast="more"]:not(#dk-more), [data-contrast="more"] :is([data-mode], [data-brand], [data-theme]):not(#dk-more) {
+  --primary: var(--dk-more-primary);
+  --primary-hover: var(--dk-more-primary-hover);
+  --focus-ring: var(--dk-more-focus-ring);
+}
 @media (prefers-contrast: more) {
 :root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {
   --field-border: light-dark(var(--zinc-700), var(--zinc-300));
@@ -1146,6 +1190,11 @@
   --info: light-dark(var(--sky-800), var(--sky-300));
   --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
+}
+:root:not([data-contrast="normal"]):not(#dk-more), :root:not([data-contrast="normal"]) :is([data-mode], [data-brand], [data-theme]):not([data-contrast="normal"], [data-contrast="normal"] *, #dk-more) {
+  --primary: var(--dk-more-primary);
+  --primary-hover: var(--dk-more-primary-hover);
+  --focus-ring: var(--dk-more-focus-ring);
 }
 }
 [data-density="compact"] {

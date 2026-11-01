@@ -24,14 +24,15 @@ Work on the repository with **Node 26**: `nvm use` (or `fnm use`) reads `.nvmrc`
    - **Waits** in JavaScript are named in `src/internal/timing.ts`, never a number in a `setTimeout` or `setInterval` (the `serupa/no-literal-delay` lint rule).
    - **Values** read tokens: its own component tokens, falling back to the shared ones (the foundation check).
    - **Tests:** one `test()` per behaviour, found the way people find things (`getByRole`), in random order.
+   - **A field in a form:** a component that takes a `name` must be in `src/internal/formContract.test.tsx` (the typecheck fails until it is), which holds it to what a native field does: it submits under its name, with `form="…"` too, resets, goes quiet in a disabled fieldset, takes focus from `ref.focus()`, and inside a Field is described by the hint and the error and marked invalid.
    - **Every option shows:** each value of a prop typed as a short union of strings (`variant`, `size`, `placement`) is rendered by a story or set by a test, unless it is the one the component falls back to (`node tools/test/prop-values.mjs`).
    - **Documented on hover:** every prop has its own doc comment, `@internal` ones stay out of the public types, and the component exports its `…Props` type (`node tools/test/public-docs.mjs`, after a build).
    - **Examples compile:** every `tsx` and `jsx` block in its README type-checks against the built types, imports and all (`node tools/test/doc-snippets.mjs`, after a build). A sketch can leave out its imports, `…` stands for content, and names it never declares (`open`, `setOpen`) count as `any`.
 4. `npm run tokens`, `npm run build`, then `node tools/test/api.mjs --update` and `node tools/test/size.mjs --update <Name>` for its baselines.
-5. **Run the two reviews below,** the motion review and the worst-case review, and put what they found in the pull request.
+5. **Run the reviews below,** the motion review and the worst-case review, and before its first release the bug bash. Put what they found in the pull request.
 6. `npx changeset` (minor, "Added: <Name> …"), open the pull request, and add the `update-visual-baselines` label so CI draws its screenshots. Review them.
 
-## Two reviews by eye
+## Reviews by eye
 
 The checks catch a raw duration, an animation that won't reverse or a page that scrolls sideways at 320px. They can't tell whether a motion is worth having or whether a long name reads well. Run these two before opening a pull request that adds or changes what moves or what a component shows, and every new component runs both.
 
@@ -55,6 +56,17 @@ The checks catch a raw duration, an animation that won't reverse or a page that 
 4. **Choose for each text that can grow:** wrap it (the default, for names, messages and labels), truncate it with the full text still reachable (one-line cells and tabs), or clamp it to a few lines with a way to read the rest. Say which in the pull request. A word with no place to break still wraps inside its box (`src/internal/longWords.test.tsx` and `overflowWrap.test.tsx`).
 5. **Empty and one.** An empty state says what is missing and what to do next. One item looks finished, with no "1 items" and no gap left for a second.
 
+### First-release bug bash
+
+Run once on a new component before the release that first ships it, with the pull request's Storybook build. Each line is a kind of bug that reached a release before (R29 to R35); write each result in the pull request, with what you fixed.
+
+1. **320px wide** and **text at 200%:** nothing scrolls sideways, nothing is cut off, every control can still be reached.
+2. **Forced colors** (Windows High Contrast, or Chromium's rendering emulation): every state still shows, selected, checked, current, disabled and focused, without relying on a background.
+3. **Right to left** (`dir="rtl"`) with **Arabic digits** (`locale="ar-EG"`): numbers, dates and counts read in the locale's digits, and arrows and keys follow the reading direction.
+4. **A long German word** (Donaudampfschifffahrtsgesellschaft) and **an emoji** in every text it shows: wrapped or truncated as the worst-case review chose, with no broken surrogate pairs.
+5. **A screen reader pass** (VoiceOver or NVDA): its name, role, state and every change it announces, once with the keyboard and once by touch.
+6. **Touch:** on a real phone, every target is at least 24px, a tap does what a click does, and a swipe or drag has a button alternative (`node tools/test/drag-alternatives.mjs`).
+
 ## API conventions
 
 Every component names the same things the same way, so learning one teaches the rest (the README's [shared conventions](README.md#components) are the short version for people using the package). A new prop follows these; a name that doesn't is deprecated in favour of one that does, never just renamed.
@@ -63,7 +75,7 @@ Every component names the same things the same way, so learning one teaches the 
 - **An overlay's open state** (Menu, Popover, Tooltip): `open`, `defaultOpen` and `onOpenChange(open)`.
 - **Any other state people can change:** `x`, `defaultX` and `onXChange(x)`, named for the state: `pressed` and `onPressedChange` on ToggleButton, `page` and `onPageChange` on Pagination, `editing` and `onEditingChange` on InlineEdit.
 - **A wrapper of one native element** (Input, Textarea, Select, Checkbox, Switch) keeps the element's own `value`, `checked` and `onChange(event)` from React's types, so it works with form libraries as the element does. Checkbox and Switch also take `onCheckedChange(checked, event)`, the on/off shape MenuCheckboxItem and ToggleButton use.
-- **A boolean** is named for what it turns on or shows, in the positive: an adjective or a verb phrase (`loading`, `clearable`, `showCount`, `closeOnBackdrop`). To hide a part, `hideX` (`hideOutside`), never `noX` or `xHidden`; and `disabled` everywhere, never `enabled`. A part shown by default may default to `true` and is turned off with `={false}` (`closeButton={false}`, `arrows={false}`). `node tools/test/props.mjs` holds every prop to it; a renamed one keeps its old name only as `@deprecated`, with a warning (`noTitle` is now `hideTitle`, `captionHidden` is now `hideCaption`).
+- **A boolean** is named for what it turns on or shows, in the positive: an adjective or a verb phrase (`loading`, `clearable`, `showCount`, `closeOnBackdrop`). To hide a part, `hideX` (`hideOutside`), never `noX` or `xHidden`; and `disabled` everywhere, never `enabled`. A part shown by default may default to `true` and is turned off with `={false}` (`closeButton={false}`, `arrows={false}`). `node tools/test/props.mjs` holds every prop to it; a renamed one keeps its old name only as `@deprecated`, with a warning (13.0.0 removed `noTitle` and `captionHidden`, a release after `hideTitle` and `hideCaption` replaced them).
 - **`size`** on controls is `'sm' | 'md' | 'lg'`, at the control heights 24, 32 and 44px. Components on another scale say so in the type: Heading and Text follow the type scale, Container the page widths, Avatar and Icon their own sizes.
 - **`tone`** is what a color means (`neutral`, `primary`, `info`, `success`, `warning`, `danger`), and **`variant`** is the visual style (for example `solid`, `subtle`, `outline`, `ghost`). Badge takes both: `tone="danger" variant="outline"`.
 - **A console warning** about a mistake goes through `warnOnce()` (`src/internal/warn.ts`), inside `if (process.env.NODE_ENV !== "production" && …)`, so a production build drops it and its text. Its first argument is a code (`"tabs-value"`) with a section in [docs/warnings.md](docs/warnings.md), which the warning links to. `node tools/test/dev-warnings.mjs` fails on a warning that isn't guarded or has no section.

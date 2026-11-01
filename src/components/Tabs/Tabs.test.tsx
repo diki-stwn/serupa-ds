@@ -482,3 +482,18 @@ describe('Tabs inside a shadow root (GR60)', () => {
     } finally { host.remove(); }
   });
 });
+
+describe('Tabs and form validation (L8E100)', () => {
+  test('L8E100 a required field on a tab that is not selected: submitting the form selects its tab and focuses the field; the submit was stopped with nothing shown', async () => {
+    let sent = 0;
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent++; }}>
+      <Tabs defaultValue="one"><TabList aria-label="Steps"><Tab value="one">One</Tab><Tab value="two">Two</Tab></TabList>
+        <TabPanel value="one">First</TabPanel><TabPanel value="two"><label htmlFor="l8e100-city">City</label><input id="l8e100-city" required /></TabPanel></Tabs>
+      <button id="l8e100-go">Send</button>
+    </form>);
+    await expect.poll(() => document.getElementById('l8e100-city')!.closest('[hidden]')?.getAttribute('hidden')).toBe('until-found');
+    await userEvent.click(document.getElementById('l8e100-go')!);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e100-city');
+    expect([sent, document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')]).toEqual([0, 'true']);
+  });
+});

@@ -247,6 +247,7 @@ console.log(`Made src/components/${name}/ (${Object.keys(files).length} files) a
   1. Fill in every ${TODO} (contract.mjs fails while one is left), and build the component.
   2. npm run tokens (its tokens file in design-tokens/), npm run build, then node tools/test/api.mjs --update and
      node tools/test/size.mjs --update ${name}.
-  3. The motion review and the worst-case review (CONTRIBUTING.md, "Two reviews by eye").
+  3. The motion review and the worst-case review, and before its first release the bug bash (CONTRIBUTING.md,
+     "Reviews by eye"). A component that takes a name goes in src/internal/formContract.test.tsx.
   4. npx changeset (minor: "Added: ${name} …").
   5. Open the pull request and add the "update-visual-baselines" label for its pictures.`);
