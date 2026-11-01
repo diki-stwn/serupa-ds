@@ -43,6 +43,14 @@ const { Badge } = window.Serupa;
 - A message that needs a sentence, or that people must act on: use [Alert](../Alert/README.md) instead.
 - Picking one option from a few: use [SegmentedControl](../SegmentedControl/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Extras` story.
+
+1. **Dot** (`.dk-badge__dot`): an optional mark of the tone before the label.
+2. **Label** (`.dk-badge__label`): the word or number the badge says.
+3. **Remove** (`.dk-badge__remove`): takes the badge away, when it can be removed (a filter, a tag).
+
 ## Usage
 
 - Keep labels to one or two words; a badge is not a sentence. A badge is at most as wide as its container, and a longer label ends in an ellipsis; then the full label shows as the badge's `title` on hover (as on Button), unless you pass your own `title` or `aria-label`. Keyboard and touch users can't see a title, so keep labels short enough to fit.

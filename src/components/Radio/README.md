@@ -31,6 +31,15 @@ const { Radio, RadioGroup, Field } = window.Serupa;
 - Any number of choices: use [checkboxes](../Checkbox/README.md).
 - On and off: use a [Checkbox](../Checkbox/README.md) or a [Switch](../Switch/README.md), not two radios.
 
+## Anatomy
+
+Drawn from the `Disabled` story.
+
+1. **Circle** (`.dk-radio__control`): the ring that shows chosen or not, over the native radio button.
+2. **Dot** (`.dk-radio__dot`): fills the ring when it's chosen.
+3. **Label** (`.dk-radio__text`): what choosing it means; clicking it chooses it too.
+4. **Description** (`.dk-radio__description`): optional detail under the label.
+
 ## Usage
 
 - Pick a default when one is safe, so the group never starts empty; leave it empty when the choice has to be deliberate.

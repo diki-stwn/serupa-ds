@@ -27,6 +27,14 @@ const [stars, setStars] = React.useState<number | null>(null);
 - A number on a wide scale, such as 0 to 100: use a [Slider](../Slider/README.md) or a [NumberInput](../NumberInput/README.md).
 - A yes or no ("Was this helpful?"): use two [Buttons](../Button/README.md) or [ToggleButtons](../ToggleButton/README.md).
 
+## Anatomy
+
+Drawn from the `Disabled` story.
+
+1. **Star** (`.dk-rating__star`): one point of the score.
+2. **Filled** (`.dk-rating__fill`): the part of each star the score covers, half stars too.
+3. **Empty** (`.dk-rating__empty`): the part it doesn't.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md) or `aria-label`, and say what's being rated.

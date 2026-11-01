@@ -27,6 +27,15 @@ import { Carousel, Image } from "serupa-ds";
 - Steps in a process: use [Stepper](../Stepper/README.md) or [Tabs](../Tabs/README.md), which show where people are and let them jump.
 - A single picture: use [Image](../Image/README.md), with `viewable` to open it full size.
 
+## Anatomy
+
+Drawn from the `Controlled` story.
+
+1. **Viewport** (`.dk-carousel__viewport`): the window the slides scroll through.
+2. **Slide** (`.dk-carousel__slide`): one item; the ones out of view are hidden from screen readers.
+3. **Previous and next** (`.dk-carousel__arrow`): move one slide (or one page of slides) at a time.
+4. **Dots** (`.dk-carousel__dots`): one per slide: where you are, and a way to jump to any slide.
+
 ## Usage
 
 - Keep it to a handful of slides (about 3 to 7). With more, people lose track and the dots get small to hit.

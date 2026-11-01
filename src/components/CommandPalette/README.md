@@ -31,6 +31,17 @@ const [open, setOpen] = React.useState(false);
 - As the only way to an action: not everyone knows about ⌘K, so keep every command in the menus and navigation too.
 - A handful of actions on one object: use a [Menu](../Menu/README.md).
 
+## Anatomy
+
+Drawn from the `Default` story.
+
+1. **Search field** (`.dk-command-palette__field`): what you type to filter commands and pages.
+2. **List** (`.dk-command-palette__list`): the matching commands, in groups.
+3. **Group heading** (`.dk-command-palette__heading`): names a group of commands.
+4. **Command** (`.dk-command-palette__option`): one command; Enter runs the active one.
+5. **Icon** (`.dk-command-palette__icon`): an optional picture of the command.
+6. **Shortcut** (`.dk-command-palette__keys`): the keys that run it from anywhere, when it has them.
+
 ## Usage
 
 - Write each `label` as the action or page in a few words, starting with the word people would type ("New project", not "Create a new project").

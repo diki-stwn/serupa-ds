@@ -31,6 +31,14 @@ const { Input } = window.Serupa;
 - A number people step up and down, such as a quantity: use [NumberInput](../NumberInput/README.md).
 - A password or a search: use [PasswordInput](../PasswordInput/README.md) or [SearchInput](../SearchInput/README.md).
 
+## Anatomy
+
+Drawn from the `Icons` story.
+
+1. **Field** (`.dk-input__field`): where the text is typed.
+2. **Leading icon** (`.dk-input__icon--left`): an optional picture of what goes in, such as a search glass.
+3. **Trailing icon** (`.dk-input__icon--right`): an optional picture or status at the end.
+
 ## Usage
 
 - Match the input's size to the buttons beside it: an `md` input with an `md` Button lines up exactly.

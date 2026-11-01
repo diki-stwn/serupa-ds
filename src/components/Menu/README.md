@@ -49,6 +49,18 @@ const { Menu, ContextMenu, MenuItem, MenuGroup, MenuSeparator, Button, IconButto
 - Content with fields or text: use [Popover](../Popover/README.md) instead.
 - A `ContextMenu` as the only way to an action: people rarely look for right-click menus, and many can't right-click. Put each of its actions on a button or a `Menu` too.
 
+## Anatomy
+
+Drawn from the `BottomEnd` story, opened.
+
+1. **Item** (`.dk-menu__item`): one action; Enter or a click runs it.
+2. **Icon** (`.dk-menu__icon`): an optional picture of the action.
+3. **Label** (`.dk-menu__label`): the action, in words.
+4. **Shortcut** (`.dk-menu__shortcut`): the keys that do the same, when there are some.
+5. **Group label** (`.dk-menu__group-label`): names a group of items.
+6. **Separator** (`.dk-menu__separator`): a line between groups.
+7. **Destructive item** (`.dk-menu__item--destructive`): an action that deletes or can't be undone, in the danger color and words that say so.
+
 ## Usage
 
 - The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").

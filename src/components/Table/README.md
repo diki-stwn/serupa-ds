@@ -40,6 +40,17 @@ const { Table, TableHead, TableBody, TableFoot, TableRow, TableHeaderCell, Table
 - Items with pictures or a lot of content each: use [Card](../Card/README.md)s in a [Grid](../Grid/README.md).
 - Laying out a page or a form in columns: use [Grid](../Grid/README.md) or [Stack](../Stack/README.md); a table is for data.
 
+## Anatomy
+
+Drawn from the `Sortable` story.
+
+1. **Caption** (`.dk-table__caption`): names the table for everyone, screen readers too.
+2. **Header row** (`.dk-table__head`): the column names.
+3. **Sortable header** (`.dk-table__header--sortable`): a column you can sort by; the arrow says which way.
+4. **Row** (`.dk-table__row`): one record.
+5. **Cell** (`.dk-table__cell`): one value; numbers line up at the end.
+6. **Footer** (`.dk-table__foot`): totals or a summary.
+
 ## Usage
 
 Table only lays out what you give it: sorting, filtering and selection state stay in your code. Sort text columns with `useCollator().compare`, so names sort the way people in the page's locale expect ("Item 2" before "Item 10", "Äpfel" beside "Apfel" in German).

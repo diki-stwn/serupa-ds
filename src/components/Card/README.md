@@ -39,6 +39,16 @@ const { Card, CardHeader, CardBody, CardFooter, Button, Badge } = window.Serupa;
 - Only separating two parts of a page: use space from [Stack](../Stack/README.md), or a [Divider](../Divider/README.md).
 - Content that sits over the page, such as a confirmation or a short form: use [Dialog](../Dialog/README.md) or [Popover](../Popover/README.md) instead.
 
+## Anatomy
+
+Drawn from the `FooterLayouts` story.
+
+1. **Header** (`.dk-card__header`): the title and description, with an optional action beside them.
+2. **Title** (`.dk-card__title`): what the card is about.
+3. **Description** (`.dk-card__description`): a line or two more about it.
+4. **Body** (`.dk-card__body`): the card's content.
+5. **Footer** (`.dk-card__footer`): actions or details at the end.
+
 ## Usage
 
 - Use `outline` for most cards, `elevated` for content over the page, and `filled` for a panel inside another surface.

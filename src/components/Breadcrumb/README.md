@@ -28,6 +28,16 @@ const { Breadcrumb, BreadcrumbItem } = window.Serupa;
 - Steps in a task done in order: use [Stepper](../Stepper/README.md) instead.
 - A page at the top level, or a flat site: leave it out; the page's [Heading](../Heading/README.md) already says where people are.
 
+## Anatomy
+
+Drawn from the `Collapsed` story.
+
+1. **List** (`.dk-breadcrumb__list`): the pages from the top level down to this one.
+2. **Link** (`.dk-breadcrumb__link`): a page above this one.
+3. **Separator** (`.dk-breadcrumb__separator`): the mark between pages; screen readers skip it.
+4. **More** (`.dk-breadcrumb__more`): opens the pages hidden when the trail is too long.
+5. **Current page** (`.dk-breadcrumb__item--current`): this page, last, not a link.
+
 ## Usage
 
 - Go from the top level down to the current page, and make the current page the last item.

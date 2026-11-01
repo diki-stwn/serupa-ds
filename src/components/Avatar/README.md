@@ -25,6 +25,14 @@ const { Avatar } = window.Serupa;
 - A symbol for an action or a status: use [Icon](../Icon/README.md) instead.
 - A count, a status word or a tag: use [Badge](../Badge/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Status` story.
+
+1. **Frame** (`.dk-avatar__frame`): the circle or square that clips the picture.
+2. **Picture** (`.dk-avatar__img`): the person's photo; initials or an icon take its place when there is none.
+3. **Status** (`.dk-avatar__status`): the presence dot: online, busy, away or offline, also given in words to screen readers.
+
 ## Usage
 
 - Pass `name` even when there's a `src`: it gives the accessible name, and the initials if the picture fails to load.

@@ -24,6 +24,15 @@ import { Progress } from "serupa-ds";
 - Steps people move through, each with its own title: use [Stepper](../Stepper/README.md) instead.
 - A value people set themselves: use [Slider](../Slider/README.md) instead.
 
+## Anatomy
+
+Drawn from the `AnnounceComplete` story.
+
+1. **Label** (`.dk-progress__label`): what is in progress.
+2. **Value** (`.dk-progress__value`): how far along, as a percentage.
+3. **Track** (`.dk-progress__track`): the whole task.
+4. **Fill** (`.dk-progress__fill`): the part done.
+
 ## Usage
 
 - Give every bar a `label` that says what's in progress ("Uploading report.pdf"), or an `aria-label` for the ring.

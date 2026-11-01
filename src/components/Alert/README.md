@@ -28,6 +28,15 @@ const { Alert, Button } = window.Serupa;
 - An error on one field: use the error in [Field](../Field/README.md) instead.
 - A short status label in a table or a card: use a [Badge](../Badge/README.md) instead.
 
+## Anatomy
+
+Drawn from the `LongText` story.
+
+1. **Icon** (`.dk-alert__icon`): shows the tone (info, success, warning, danger) beside the words, never instead of them.
+2. **Title** (`.dk-alert__title`): the short summary, read first.
+3. **Message** (`.dk-alert__message`): what happened and what to do next.
+4. **Dismiss** (`.dk-alert__dismiss`): closes the alert, when it can be closed.
+
 ## Usage
 
 - Pick the `tone` from what happened: `danger` for something that failed, `warning` for a risk, `success` for a done task, `info` or `neutral` for something to know.

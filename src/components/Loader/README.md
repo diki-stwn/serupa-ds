@@ -39,6 +39,14 @@ const { Loader } = window.Serupa;
 - Waits you can measure (uploads, imports): use [Progress](../Progress/README.md) instead; a progress bar tells people how long it will take.
 - A button whose action is running: use `<Button loading>` on the [Button](../Button/README.md) instead; it shows the ring in the center of the button, so buttons don't need a loader of their own.
 
+## Anatomy
+
+Drawn from the `Playground` story.
+
+1. **Loader** (`.dk-loader`): the whole indicator, named "Loading" (or your label) for screen readers.
+2. **Track** (`.dk-loader__track`): the spinner's faint full circle.
+3. **Arc** (`.dk-loader__arc`): the part that turns; it stops under reduced motion and pulses instead.
+
 ## Usage
 
 - Use a skeleton when you know the shape of what's loading, such as a list, a card or a profile; use the ring when you don't.

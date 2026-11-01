@@ -31,6 +31,15 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 - An answer that may not be in the list: use [Input](../Input/README.md), since only listed options can be picked.
 - Picking more than one option from a short list (under about 10): use [checkboxes](../Checkbox/README.md), which show every choice at once.
 
+## Anatomy
+
+Drawn from the `Multiple` story.
+
+1. **Chosen values** (`.dk-combobox__values`): the values chosen so far, each with a way to remove it.
+2. **Value** (`.dk-combobox__tag`): one chosen value.
+3. **Toggle** (`.dk-combobox__toggle`): opens and closes the list.
+4. **Clear** (`.dk-combobox__clear`): removes every chosen value.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md), a `<label htmlFor>` or `aria-label`; the placeholder isn't a label.

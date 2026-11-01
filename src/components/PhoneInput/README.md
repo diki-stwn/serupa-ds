@@ -25,6 +25,14 @@ formatPhone("+6281234567890");   // "+62 812-3456-7890"
 - A number you only show: write it with `formatPhone`, in a `<a href="tel:+6281234567890">`.
 - Extensions or short codes: use [Input](../Input/README.md) with `type="tel"`.
 
+## Anatomy
+
+Drawn from the `ByArea` story.
+
+1. **Country** (`.dk-phone-input__country`): chooses the country, which sets the dialing code and the format.
+2. **Dialing code** (`.dk-phone-input__dial`): the country's code, before the number.
+3. **Number** (`.dk-input__field`): where the rest of the number is typed.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md). Say in the hint what the number is for ("We'll text you a code").

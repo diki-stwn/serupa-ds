@@ -25,6 +25,13 @@ const { Divider, Stack } = window.Serupa;
 - Lines between the rows of a list: use [List](../List/README.md), which has them (`divided`).
 - Setting a group of content apart in a box: use [Card](../Card/README.md) instead.
 
+## Anatomy
+
+Drawn from the `LongLabel` story.
+
+1. **Line** (`.dk-divider`): separates two groups of content.
+2. **Label** (`.dk-divider__label`): optional words in the line that name the group after it.
+
 ## Usage
 
 - It has no margins: put it in a [Stack](../Stack/README.md) or give the space around it with the layout.

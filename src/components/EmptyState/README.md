@@ -36,6 +36,16 @@ const { EmptyState, Button } = window.Serupa;
 - Content that couldn't load because something failed: use an [Alert](../Alert/README.md) with a way to retry instead.
 - A place to drop or choose files: use [FileUpload](../FileUpload/README.md), which checks and lists the files, instead.
 
+## Anatomy
+
+Drawn from the `LongText` story.
+
+1. **Icon** (`.dk-empty-state__icon`): a picture of what would be here.
+2. **Title** (`.dk-empty-state__title`): says what's empty, or why.
+3. **Description** (`.dk-empty-state__description`): what to do about it.
+4. **Suggestions** (`.dk-empty-state__suggestions`): optional other things to try, such as a search that would find something.
+5. **Actions** (`.dk-empty-state__actions`): the next step, such as creating the first item.
+
 ## Usage
 
 - Say what's empty and why, then what to do: "No invoices yet. Invoices you send show up here." with a "New invoice" button.

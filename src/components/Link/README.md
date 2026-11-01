@@ -26,6 +26,13 @@ const { Link, Text } = window.Serupa;
 - A call to action that should stand out, such as "Get started": use a [Button](../Button/README.md) with `href`.
 - The trail of pages above the current one: use [Breadcrumb](../Breadcrumb/README.md).
 
+## Anatomy
+
+Drawn from the `External` story.
+
+1. **Link** (`.dk-link`): the words that go somewhere.
+2. **External icon** (`.dk-link__icon`): says it opens another site or a new tab, also in words for screen readers.
+
 ## Usage
 
 - Keep the default underline in body text; use `underline="hover"` only where the place already says it's a link. Don't combine it with `tone="neutral"`: that link looks like plain text until it's hovered, so Link warns in the console.

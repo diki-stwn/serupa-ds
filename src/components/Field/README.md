@@ -31,6 +31,16 @@ const { Field, Input, Textarea } = window.Serupa;
 - A single [Checkbox](../Checkbox/README.md) or [Switch](../Switch/README.md): it carries its own label (its children), so use it on its own.
 - A control with no visible label, such as a row checkbox in a table: give the control an `aria-label` instead.
 
+## Anatomy
+
+Drawn from the `Horizontal` story.
+
+1. **Label** (`.dk-field__label`): names the control; clicking it focuses the control.
+2. **Optional** (`.dk-field__optional`): says the field can be left empty, when most are required.
+3. **Control** (`.dk-field__control`): the input, select or other control it wraps.
+4. **Hint** (`.dk-field__hint`): help on what to enter, linked to the control for screen readers.
+5. **Error** (`.dk-field__error`): what's wrong and how to fix it, with an icon, linked to the control too.
+
 ## Usage
 
 - Keep labels short and specific ("Work email", not "Please enter your email address"). Put format help in the hint, never only in the placeholder.

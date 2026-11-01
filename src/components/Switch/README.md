@@ -26,6 +26,15 @@ const { Switch } = window.Serupa;
 - If the change waits for a Save button, use a [Checkbox](../Checkbox/README.md).
 - An on/off button in a toolbar, such as bold: use [ToggleButton](../ToggleButton/README.md).
 
+## Anatomy
+
+Drawn from the `LongLabel` story.
+
+1. **Track** (`.dk-switch__control`): the pill that shows on or off, over the native checkbox.
+2. **Thumb** (`.dk-switch__thumb`): slides to the on side when it's on.
+3. **Label** (`.dk-switch__text`): what it turns on; clicking it switches too.
+4. **Description** (`.dk-switch__description`): optional detail under the label.
+
 ## Usage
 
 - Label the setting, not the state: "Wi-Fi", not "Turn Wi-Fi on". The switch shows on or off.

@@ -18,6 +18,13 @@ import { LoadMore } from "serupa-ds";
 - A table or a list people come back to at a given place, compare across pages, or link to: use [Pagination](../Pagination/README.md), so each page has an address.
 - A list whose end matters, such as a footer below it: infinite scroll keeps pushing that end away. Use the button.
 
+## Anatomy
+
+Drawn from the `LongText` story.
+
+1. **Summary** (`.dk-load-more__summary`): how many are shown of how many there are.
+2. **Load more** (`.dk-load-more__button`): adds the next page of items below the ones shown.
+
 ## Usage
 
 - Pass `count` (how many are shown) and `total` when you know it, so people see "Showing 20 of 134" and hear "20 more loaded. Showing 40 of 134."

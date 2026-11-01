@@ -24,6 +24,13 @@ const [due, setDue] = React.useState<Date | null>(null);
 - Only a month or a year: use a [Select](../Select/README.md).
 - A calendar that's always on the page, such as a scheduling view: use [Calendar](../Calendar/README.md) on its own.
 
+## Anatomy
+
+Drawn from the `Disabled` story.
+
+1. **Field** (`.dk-input__field`): where the date is typed, in the format shown in the hint.
+2. **Calendar button** (`.dk-date-picker__button`): opens a calendar to choose the date instead.
+
 ## Usage
 
 - Always wrap it in [Field](../Field/README.md) with a label, and put the expected format in the `hint` ("mm/dd/yyyy") for people who type.

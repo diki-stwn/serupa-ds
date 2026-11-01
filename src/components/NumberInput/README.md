@@ -25,6 +25,14 @@ const [cents, setCents] = React.useState<number | null>(1999);
 - A value where its place in a range matters more than the exact number: use [Slider](../Slider/README.md).
 - Digits that aren't an amount, such as a phone number, a postcode or a card number: use [Input](../Input/README.md) with the right `type` or `inputMode`.
 
+## Anatomy
+
+Drawn from the `Controlled` story.
+
+1. **Field** (`.dk-input__field`): where the number is typed.
+2. **Steppers** (`.dk-number-input__steppers`): the buttons that lower and raise it by one step.
+3. **Step** (`.dk-number-input__step`): one of them; holding it repeats.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md) and put the unit in the label or hint ("Weight (kg)").

@@ -25,6 +25,14 @@ const [slug, setSlug] = React.useState("apollo-plan");
 - Long text over several lines: use a [Textarea](../Textarea/README.md) in a form.
 - Text most people only read: show it as text, and put editing behind an Edit button.
 
+## Anatomy
+
+Drawn from the `States` story.
+
+1. **Value** (`.dk-inline-edit__view`): the text as it reads; activating it starts editing.
+2. **Text** (`.dk-inline-edit__text`): the value, or the placeholder when it's empty.
+3. **Edit icon** (`.dk-inline-edit__icon`): says the text can be edited.
+
 ## Usage
 
 - Give every InlineEdit a `label` that says what the text is ("Project name"). It names the field, and the button is read as "Project name: Apollo, Edit".

@@ -17,6 +17,14 @@ import { TypeToConfirm } from "serupa-ds";
 - Everyday actions that can be undone: do them at once and offer Undo (a [Toast](../Toast/README.md) action).
 - Small destructive actions: a [Dialog](../Dialog/README.md) with a clear destructive button is enough. Asking to type for everything trains people to type without reading.
 
+## Anatomy
+
+Drawn from the `Default` story.
+
+1. **Phrase** (`.dk-type-to-confirm__phrase`): the words to type, shown so they can be copied.
+2. **Field** (`.dk-input__field`): where they're typed.
+3. **Confirm** (`.dk-type-to-confirm__button`): stays unavailable until the words match.
+
 ## Usage
 
 - Make the phrase the name of the thing (`acme/web`), not a word like "DELETE", so typing it is a check that it's the right one.

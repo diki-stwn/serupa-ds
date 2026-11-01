@@ -23,6 +23,13 @@ const [start, setStart] = React.useState<string | null>("09:00");
 - A date as well as a time: pair a [DatePicker](../DatePicker/README.md) with a TimePicker; TimePicker holds the time only.
 - A handful of fixed slots that people must choose from: use [Select](../Select/README.md) or a [Radio](../Radio/README.md) group instead. TimePicker accepts typed times between the slots.
 
+## Anatomy
+
+Drawn from the `Disabled` story.
+
+1. **Field** (`.dk-input__field`): where the time is typed.
+2. **Clock button** (`.dk-time-picker__button`): opens a list of times to choose from instead.
+
 ## Usage
 
 - Wrap it in [Field](../Field/README.md) with a label that says which time it is ("Start time", "Remind me at").

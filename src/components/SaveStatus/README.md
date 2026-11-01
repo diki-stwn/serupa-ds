@@ -17,6 +17,14 @@ import { SaveStatus } from "serupa-ds";
 - A form with a Save button: the button's own loading and `successText` ([Button](../Button/README.md)) say it.
 - A one-off action's result ("Copied", "Sent"): use a [Toast](../Toast/README.md).
 
+## Anatomy
+
+Drawn from the `Failed` story.
+
+1. **Icon** (`.dk-save-status__icon`): shows saving, saved or failed beside the words.
+2. **Status** (`.dk-save-status__text`): the state in words, announced as it changes.
+3. **Try again** (`.dk-save-status__retry`): after a failure, saves again.
+
 ## Usage
 
 - Set `status` from your save: `'saving'` when a save starts, `'saved'` with `savedAt` when it finishes, `'error'` when it fails. Use `'idle'` before anything has changed.

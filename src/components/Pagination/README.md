@@ -32,6 +32,17 @@ const [page, setPage] = React.useState(1);
 - Steps of a task done in order: use [Stepper](../Stepper/README.md) instead.
 - A few views of the same thing: use [Tabs](../Tabs/README.md) instead.
 
+## Anatomy
+
+Drawn from the `PageSize` story.
+
+1. **Summary** (`.dk-pagination__summary`): which items are shown of how many.
+2. **Previous and next** (`.dk-pagination__arrow`): go one page back or forward.
+3. **Page** (`.dk-pagination__item`): a page to go to.
+4. **Current page** (`.dk-pagination__item--current`): the page you're on.
+5. **Gap** (`.dk-pagination__ellipsis`): stands for the pages not shown.
+6. **Page size** (`.dk-pagination__page-size`): how many items a page holds.
+
 ## Usage
 
 - Put it under the list or table it pages through.

@@ -20,6 +20,15 @@ import { ErrorSummary } from "serupa-ds";
 - One field checked as the person types or leaves it: its own error under the field is enough ([Field](../Field/README.md) `error`).
 - A message about the page or a task, not about fields: use [Alert](../Alert/README.md).
 
+## Anatomy
+
+Drawn from the `WithDescription` story.
+
+1. **Title** (`.dk-error-summary__title`): how many problems there are; focus moves here when the form is sent.
+2. **Description** (`.dk-error-summary__description`): optional words on what to do.
+3. **List** (`.dk-error-summary__list`): one line per problem.
+4. **Link** (`.dk-error-summary__link`): takes you to the field to fix.
+
 ## Usage
 
 - Render it only after a submit fails, at the top of the form (or the page's main content), with the errors in the order of the fields.
