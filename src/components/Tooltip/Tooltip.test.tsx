@@ -52,6 +52,22 @@ describe('Tooltip', () => {
     expect(why).toEqual(['show hover', 'hide hover', 'show focus', 'hide blur', 'show focus', 'hide escape']);
   });
 
+  test('L8E106: onOpenChange is called only for a change: not for a press, a blur or a quick pass while hidden, nor while disabled', async () => {
+    const asks: string[] = [];
+    await render(<div style={{ padding: '80px' }}>
+      <Tooltip content="Quiet" onOpenChange={(v, d) => asks.push((v ? 'show ' : 'hide ') + d.reason)}><button id="l8e106a">Quiet</button></Tooltip>
+      <Tooltip content="Off" disabled delay={0} onOpenChange={(v, d) => asks.push('off ' + (v ? 'show ' : 'hide ') + d.reason)}><button id="l8e106b">Off</button></Tooltip>
+    </div>);
+    await userEvent.hover(el('l8e106a'));   // passes on before the delay: never shown
+    await away();
+    await settle(500);
+    await userEvent.click(el('l8e106a'));   // a press, then focus that isn't from the keyboard
+    el('l8e106b').focus();                  // a blur from the first; the second is disabled
+    await userEvent.hover(el('l8e106b'));
+    await settle(100);
+    expect([isOpen('l8e106a'), asks]).toEqual([false, []]);
+  });
+
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
     await render(<>
       <Tooltip content="Edit the file"><IconButton id="a" icon="edit" label="Edit" hideTitle aria-describedby="other" /></Tooltip>
