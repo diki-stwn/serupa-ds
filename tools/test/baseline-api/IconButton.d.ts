@@ -5,7 +5,6 @@ interface IconButtonOwnProps {
     label: string;
     shape?: "round" | "square";
     hideTitle?: boolean;
-    noTitle?: boolean;
 }
 type IconButtonProps = (Without<ButtonAsButtonProps> & IconButtonOwnProps) | (Without<ButtonAsLinkProps> & IconButtonOwnProps);
 type IconButtonElement = HTMLAnchorElement | HTMLButtonElement;
