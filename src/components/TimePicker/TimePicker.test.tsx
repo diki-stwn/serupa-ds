@@ -12,7 +12,7 @@ const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const announcerA = () => document.querySelector<HTMLElement>('[data-dk-announcer-assertive]');
 const listOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls')!) as HTMLUListElement;
 const button = (id: string) => document.querySelector(`#${id} ~ button`) as HTMLButtonElement;
-const time = (o: Element | undefined | null) => (o ? o.querySelector('.dk-time-picker__time')!.textContent : undefined);
+const time = (o: Element | undefined | null) => (o ? o.querySelector('span')!.textContent : undefined);
 const st = (id: string) => {
   const i = el(id), l = listOf(id), act = i.getAttribute('aria-activedescendant');
   return { v: i.value, open: !l.hidden, exp: i.getAttribute('aria-expanded'), active: act ? time(document.getElementById(act)) : null, n: l.children.length, first: time(l.children[0]), last: time(l.children[l.children.length - 1]),
@@ -139,7 +139,7 @@ describe('TimePicker', () => {
     expect([p.v, p.open, document.activeElement!.id]).toEqual(['4:00 AM', false, 'tp']);
     await userEvent.keyboard('{ArrowDown}');
     const r = st('tp');
-    expect([r.active, r.sel, r.hidden, document.querySelectorAll('#tp ~ ul .dk-time-picker__check').length]).toEqual(['4:00 AM', '04:00', true, 1]);
+    expect([r.active, r.sel, r.hidden, document.querySelectorAll('#tp ~ ul [role=option] > [data-icon="check"]').length]).toEqual(['4:00 AM', '04:00', true, 1]);
     await userEvent.keyboard('{Escape}');
     expect(st('tp').open).toBe(false);
   });
