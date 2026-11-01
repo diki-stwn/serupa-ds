@@ -46,6 +46,7 @@ import { VirtualList, ListItem } from "serupa-ds";
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the `<ul>`. |
 | `count` | `number` | | How many rows there are. |
 | `renderItem` | `(index: number) => ReactElement` | | Draws row `index`: a ListItem, or an element that passes its props and style to an `<li>`. |
 | `itemKey` | `(index: number) => Key` | the index | A stable key for each row (its id). |

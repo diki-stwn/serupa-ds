@@ -8,7 +8,10 @@ import { VirtualList } from './VirtualList';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const rows = (id: string) => [...el(id).children] as HTMLElement[];
-const titles = (id: string) => rows(id).map((r) => r.querySelector('.dk-list__title')!.textContent);
+// The innermost element in a row whose text is (or, for a title, starts with) the given text.
+const leaf = (r: Element, test: (t: string) => boolean) => [...r.querySelectorAll('*')].find((x) => x.childElementCount === 0 && test(x.textContent || ''))!;
+const title = (r: Element) => leaf(r, (t) => t.startsWith('Row ')).textContent;
+const titles = (id: string) => rows(id).map(title);
 const item = (i: number) => <ListItem title={'Row ' + (i + 1)} />;
 // Scrolls and waits for the rows to follow.
 const scrollTo = async (id: string, top: number) => { el(id).scrollTop = top; el(id).dispatchEvent(new Event('scroll')); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); };
@@ -60,9 +63,9 @@ describe('VirtualList', () => {
     await scrollTo('v', 20000);
     await scrollTo('v', el('v').scrollTop);
     const seen = rows('v').find((r) => r.getBoundingClientRect().top >= el('v').getBoundingClientRect().top)!;
-    const name = seen.querySelector('.dk-list__title')!.textContent, at = seen.getBoundingClientRect().top;
+    const name = title(seen), at = seen.getBoundingClientRect().top;
     await scrollTo('v', el('v').scrollTop);
-    const again = rows('v').find((r) => r.querySelector('.dk-list__title')!.textContent === name)!;
+    const again = rows('v').find((r) => title(r) === name)!;
     expect(Math.abs(again.getBoundingClientRect().top - at)).toBeLessThan(2);
     await scrollTo('v', el('v').scrollHeight);
     await scrollTo('v', el('v').scrollHeight);
@@ -113,7 +116,7 @@ describe('VirtualList', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bg = css(el('v')).backgroundColor;
       const r = rows('v')[0];
-      for (const sel of ['.dk-list__title', '.dk-list__description']) { const c = contrast(css(r.querySelector(sel)).color, bg); if (c < 4.5) low.push(`${th} ${sel} ${c.toFixed(2)}`); }
+      for (const text of ['Row 0', 'Muted']) { const c = contrast(css(leaf(r, (t) => t === text)).color, bg); if (c < 4.5) low.push(`${th} ${text} ${c.toFixed(2)}`); }
       const ring = contrast(css(el('v')).outlineColor, css(document.body).backgroundColor);
       if (ring < 3) low.push(`${th} ring ${ring.toFixed(2)}`);
     }

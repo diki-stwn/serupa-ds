@@ -97,6 +97,7 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
   React.useEffect(() => { for (const i of sizes.keys()) if (i >= count) sizes.delete(i); }, [count, sizes]);
 
   // Put the anchor row back where it was, then measure what was drawn.
+  // every render: any render can draw other rows or change their heights, and only the drawn rows say how tall they are.
   useIsoLayoutEffect(() => {
     const el = node.current;
     if (!el) return;
