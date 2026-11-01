@@ -49,7 +49,7 @@ describe('SearchInput', () => {
   test('Input\'s box (32px) around a type="search" field with a search icon at the start and no clear button yet; ref to the input, className to the box', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Wrap><Main calls={[]} sref={ref} /></Wrap>);
-    const i = field('q'), b = box('q'), ic = b.querySelector('.dk-search-input__icon')!;
+    const i = field('q'), b = box('q'), ic = b.querySelector(':scope > span:first-child')!;
     expect([i.type, i.getAttribute('enterkeyhint'), ref.current === i, b.className, b.dataset.component, b.getBoundingClientRect().height, i.labels![0].textContent])
       .toEqual(['search', 'search', true, 'dk-input dk-search-input dk-input--size-md extra', 'search-input', 32, 'Search projects']);
     expect([(ic.querySelector('[data-icon]') as HTMLElement).dataset.icon, ic.getAttribute('aria-hidden'), clearBtn('q')]).toEqual(['search', 'true', null]);
@@ -109,14 +109,14 @@ describe('SearchInput', () => {
       <SearchInput id="slg" aria-label="Lg" size="lg" defaultValue="big" clearLabel="Clear" />
     </Wrap>);
     expect(clearBtn('sdis')).toBeNull();
-    expect([Math.round(box('slg').getBoundingClientRect().height), clearBtn('slg')!.getAttribute('aria-label'), css(box('slg').querySelector('.dk-search-input__icon .dk-icon')).fontSize])
+    expect([Math.round(box('slg').getBoundingClientRect().height), clearBtn('slg')!.getAttribute('aria-label'), css(box('slg').querySelector(':scope > span:first-child [data-icon]')).fontSize])
       .toEqual([44, 'Clear', '20px']);
   });
 
   test('loading: a 16px loader named "Searching" in place of the icon', async () => {
     const { rerender } = await render(<Wrap><Main calls={[]} /></Wrap>);
     await rerender(<Wrap><Main calls={[]} loading /></Wrap>);
-    const ic = box('q').querySelector('.dk-search-input__icon')!, loader = () => ic.querySelector('[data-component=loader]');
+    const ic = box('q').querySelector(':scope > span:first-child')!, loader = () => ic.querySelector('[data-component=loader]');
     await expect.poll(loader).not.toBeNull();
     expect([loader()!.getAttribute('role'), loader()!.getAttribute('aria-label'), Math.round(loader()!.getBoundingClientRect().width), ic.getAttribute('aria-hidden')])
       .toEqual(['progressbar', 'Searching', 16, null]);
@@ -161,7 +161,7 @@ describe('SearchInput', () => {
   });
   test('size sm: the clear button is 22px but takes presses over 24px (WCAG 2.5.8), past each edge, without moving anything', async () => {
     await render(<div style={{ width: '320px', padding: '8px' }}><SearchInput id="hb" aria-label="Search" size="sm" defaultValue="shoes" /></div>);
-    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelector<HTMLElement>('.dk-search-input__clear')!];
+    const buttons = [document.querySelector<HTMLElement>('#hb')!.closest('[data-component="search-input"]')!.querySelector<HTMLElement>('button[aria-controls]')!];
     expect(buttons.length).toBeGreaterThan(0);
     for (const b of buttons) {
       expect(Math.round(b.getBoundingClientRect().height)).toBeLessThan(24);
