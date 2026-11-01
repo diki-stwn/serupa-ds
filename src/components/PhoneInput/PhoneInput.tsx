@@ -171,8 +171,10 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     // types ٠٨١٢, a Japanese IME ０８１２, and they're the same number (GR43). One character stays one, so the caret holds.
     const raw = latinDigits(e.target.value.normalize("NFKC")), at = e.target.selectionStart ?? raw.length;
     let before = raw.slice(0, at).replace(/\D/g, "").length;
-    // A lone "0" where it's the trunk prefix (Germany) would strip to nothing, so the "00" of "0044" never came together.
-    if (raw.trim() === "0" && country.trunk === "0") { commit("", country); setLead("0"); caret.current = 1; return; }
+    // A lone "0" waits as typed, so the "00" of "0044" can come together: where it's the trunk prefix (Germany) it
+    // stripped to nothing, and the +1 pattern wrote it "(0" (GR85). The next digit decides what it was: "06" is still
+    // Rome's number in Italy.
+    if (raw.trim() === "0") { commit("", country); setLead("0"); caret.current = 1; return; }
     if (/^\s*(\+|00)/.test(raw)) {
       const p = parsePhone(raw, country.code, table);
       if (p) { const d = commit(p.national, p.country); caret.current = formatNational(d, p.country).length; return; }
