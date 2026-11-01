@@ -340,7 +340,7 @@ const MenuItemBase = /* @__PURE__ */ component<HTMLElement, MenuItemBaseProps>("
     if (props.disabled) { e.preventDefault(); return; }
     if (props.onSelect) props.onSelect(e);
     // onSelect may move focus itself (to the next row, after deleting this one): then it stays there (L8E21).
-    const a = activeIn(e.currentTarget as Element);
+    const a = activeIn(e.currentTarget);
     if (!e.defaultPrevented && ctx) ctx.close("select", !a || a === document.body || !!a.closest('[role="menu"]'));
   };
   const onClick = (e: React.MouseEvent<HTMLElement>) => { if (own.onClick) own.onClick(e); if (linked && !props.disabled) { if (props.onSelect) props.onSelect(e); if (ctx) ctx.close("select", false); return; } choose(e); };
