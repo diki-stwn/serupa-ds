@@ -74,6 +74,10 @@ export function buildTokensCss(t) {
   css += '}\n';
   for (const f of t.type.fonts || [])
     css += `@font-face {\n  font-family: "${f.family}";\n  src: url("${f.file}") format("woff2");\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  font-display: swap;\n${f.unicodeRange ? `  unicode-range: ${f.unicodeRange};\n` : ''}}\n`;
+  // "Inter Fallback" (144, tools/fonts/fallback.py): a font already on the device, sized like Inter, drawn until Inter
+  // arrives, so the text doesn't move when it swaps in.
+  for (const f of t.type.fallbacks || [])
+    css += `@font-face {\n  font-family: "${f.family}";\n  src: ${f.local.map((n) => `local("${n}")`).join(', ')};\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  size-adjust: ${f.sizeAdjust};\n  ascent-override: ${f.ascentOverride};\n  descent-override: ${f.descentOverride};\n  line-gap-override: ${f.lineGapOverride};\n  unicode-range: ${f.unicodeRange};\n}\n`;
   return css;
 }
 
