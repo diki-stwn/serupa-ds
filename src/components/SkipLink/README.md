@@ -48,6 +48,7 @@ import { SkipLink } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one SkipLink. The list lives in `src/components/SkipLink/skip-link.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from skip-link.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--skip-link-bg` | `surface-raised` | The shown link's background. |
@@ -55,8 +56,9 @@ Each is an optional override: set it on the page, a container or one SkipLink. T
 | `--skip-link-border` | `border-raised` | The shown link's border. |
 | `--skip-link-focus-ring` | `focus-ring` | The focus ring around it while it's shown. |
 | `--skip-link-shadow` | `shadow-lg` | Lifts it above the page and a sticky Navbar. |
-| `--skip-link-radius` | `rounded-md` | Its corners (6px). |
-| `--skip-link-border-width` | `border-width-1` | Its border's width (1px). |
-| `--skip-link-offset` | `spacing-3` | How far it sits from the viewport's top and start edges (12px). |
-| `--skip-link-padding-x` | `spacing-4` | Space at its start and end (16px). |
-| `--skip-link-padding-y` | `spacing-2` | Space above and below its text (8px). |
+| `--skip-link-radius` | `rounded-md` | Its corners. |
+| `--skip-link-border-width` | `border-width-1` | Its border's width. |
+| `--skip-link-offset` | `spacing-3` | How far it sits from the viewport's top and start edges. |
+| `--skip-link-padding-x` | `spacing-4` | Space at its start and end. |
+| `--skip-link-padding-y` | `spacing-2` | Space above and below its text. |
+<!-- token-table:end -->
