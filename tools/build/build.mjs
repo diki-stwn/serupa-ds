@@ -121,6 +121,9 @@ export default config;
 // stylelint.js: the Stylelint config for an app's own CSS (serupa-ds/stylelint), shipped as written.
 fs.writeFileSync(path.join(D, 'stylelint.js'), stamp(read('src/stylelint.js')));
 fs.copyFileSync(path.join(P, 'src', 'stylelint.d.ts'), path.join(D, 'stylelint.d.ts'));
+// testing.js (184): forEachTheme() for screenshots of an app's own pages in each theme (serupa-ds/testing), as written.
+fs.writeFileSync(path.join(D, 'testing.js'), stamp(read('src/testing.js')));
+fs.copyFileSync(path.join(P, 'src', 'testing.d.ts'), path.join(D, 'testing.d.ts'));
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
 const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });

@@ -49,6 +49,11 @@
       "import": "./dist/stylelint.js",
       "default": "./dist/stylelint.js"
     },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js",
+      "default": "./dist/testing.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",

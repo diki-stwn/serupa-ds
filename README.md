@@ -122,6 +122,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
 | `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
 | `dist/stylelint.js` (`serupa-ds/stylelint`) | A Stylelint config for your own CSS: it flags a color, a spacing length or a radius written out where a token belongs. See Getting started in Storybook. |
+| `dist/testing.js` (`serupa-ds/testing`) | `forEachTheme(page, fn)` for your own CI: it draws a Playwright page in each of the six themes, with transitions off and the color scheme to match, and calls `fn` so you can take a screenshot in each. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
 ### For your own components
