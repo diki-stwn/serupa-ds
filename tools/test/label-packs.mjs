@@ -51,6 +51,7 @@ const SAME_OK = new Set(['menu', 'formatHint', 'hexCode', 'keyName', 'avatarStat
 const SAME_IN = {
   de: ['fieldOptional', 'optional', 'sliderMaximum', 'colorName'],
   es: ['generalShortcuts'],
+  nl: ['sliderMaximum'],
   fr: ['colorName', 'notificationCenter', 'notifications', 'pagination', 'sliderMaximum', 'image', 'page'],
 };
 const sameOk = (l, k) => SAME_OK.has(k) || (SAME_IN[l] || []).includes(k);

@@ -1,0 +1,192 @@
+// serupa-ds/labels/pl: every built-in word in Polish, with its plural forms (plural()).
+//   import { labels, locale } from "serupa-ds/labels/pl";
+//   <SerupaProvider locale={locale} labels={labels}>
+import type { SerupaLabels } from "../internal/labels";
+import { plural } from "../internal/plural";
+
+/** The locale the words are written for. */
+export const locale = "pl";
+
+const n = (x: number) => new Intl.NumberFormat("pl").format(x);
+/** one, few, many: "1 wynik", "2 wyniki", "5 wyników" (fractions take other). */
+const p3 = (x: number, one: string, few: string, many: string, other = few) => plural("pl", x, { one: "# " + one, few: "# " + few, many: "# " + many, other: "# " + other });
+const HUES: Record<string, string> = { red: "czerwony", orange: "pomarańczowy", yellow: "żółty", green: "zielony", teal: "morski", blue: "niebieski", purple: "fioletowy", pink: "różowy", brown: "brązowy", gray: "szary", black: "czarny", white: "biały" };
+const STATUS = { online: "dostępny", busy: "zajęty", away: "zaraz wracam", offline: "niedostępny" };
+const ZONES = { low: "niski", medium: "średni", high: "wysoki" };
+const KINDS: Record<string, string> = { image: "obrazem", video: "filmem", "audio file": "plikiem audio", "text file": "plikiem tekstowym" };
+const KEYS: Record<string, string> = {
+  "Up arrow": "Strzałka w górę", "Down arrow": "Strzałka w dół", "Left arrow": "Strzałka w lewo", "Right arrow": "Strzałka w prawo",
+  Space: "Spacja", Delete: "Delete", Backspace: "Backspace", Enter: "Enter", Escape: "Escape", Function: "Fn",
+};
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
+export const labels: SerupaLabels = {
+  expandAll: "Rozwiń wszystko",
+  collapseAll: "Zwiń wszystko",
+  avatarStatus: (status) => STATUS[status],
+  avatarMore: (count) => "jeszcze " + n(count),
+  breadcrumb: "Ścieżka nawigacji",
+  showHiddenPages: "Pokaż wszystkie strony",
+  morePages: "Więcej stron",
+  previousMonth: "Poprzedni miesiąc",
+  nextMonth: "Następny miesiąc",
+  month: "Miesiąc",
+  year: "Rok",
+  previousSlide: "Poprzedni slajd",
+  nextSlide: "Następny slajd",
+  slideOf: (slide, total) => slide + " z " + total,
+  slidesOf: (first, last, total) => first + "–" + last + " z " + total,
+  carouselRole: "karuzela",
+  slideRole: "slajd",
+  selectAtLeastOne: "Wybierz co najmniej jedną opcję.",
+  commandPalette: "Paleta poleceń",
+  searchCommands: "Szukaj poleceń i stron",
+  noCommands: "Brak pasujących poleceń",
+  commandsCount: (count) => p3(count, "polecenie", "polecenia", "poleceń"),
+  otherCommands: "Polecenia",
+  colorName: (hue, tone) => cap((tone === "light" ? "jasno" : tone === "dark" ? "ciemno" : "") + HUES[hue]),
+  customColor: "Własny kolor",
+  hexCode: "Kod szesnastkowy",
+  contrast: (ratio) => "Kontrast " + ratio.replace(".", ",") + ":1",
+  lowContrast: (min) => "poniżej " + min.replace(".", ",") + ":1, może być trudny do odczytania",
+  loadingResults: "Wczytywanie…",
+  loadFailed: "Nie udało się wczytać opcji. Pisz dalej, aby spróbować ponownie.",
+  noResults: "Brak wyników",
+  resultsCount: (count) => p3(count, "wynik", "wyniki", "wyników", "wyniku"),
+  moreResults: (count) => "Pisz dalej, aby zawęzić pozostałe (" + n(count) + ")",
+  showOptions: "Pokaż opcje",
+  clearValue: (label) => (label ? "Wyczyść: " + label : "Wyczyść"),
+  valueAdded: (label) => "Dodano: " + label,
+  valueRemoved: (label) => "Usunięto: " + label,
+  copied: "Skopiowano",
+  copyFailed: "Nie udało się skopiować. Zaznacz tekst i skopiuj go samodzielnie.",
+  discardTitle: "Odrzucić zmiany?",
+  discardDescription: "Zmiany wprowadzone tutaj nie zostały zapisane.",
+  discard: "Odrzuć",
+  keepEditing: "Edytuj dalej",
+  chooseDate: "Wybierz datę",
+  inputNotAccepted: (text) => `Nie przyjęto „${text}”, więc pozostała poprzednia wartość.`,
+  formatHint: (pattern) => "Format: " + pattern,
+  chooseDates: "Wybierz daty",
+  startDate: "Data początkowa",
+  endDate: "Data końcowa",
+  chooseStartDate: "Wybierz datę początkową",
+  chooseEndDate: "Wybierz datę końcową",
+  didYouMean: "Czy chodziło o:",
+  clearFilters: "Wyczyść filtry",
+  errorTitle: "Coś poszło nie tak",
+  errorDescription: "Nie udało się wczytać tej części strony.",
+  tryAgain: "Spróbuj ponownie",
+  errorSummaryTitle: (count) => (count === 1 ? "Jest 1 problem" : plural("pl", count, { one: "Jest # problem", few: "Są # problemy", many: "Jest # problemów", other: "Jest # problemu" })),
+  fieldOptional: "(opcjonalnie)",
+  dragFiles: "Przeciągnij pliki tutaj",
+  dragFile: "Przeciągnij plik tutaj",
+  chooseFiles: "Wybierz pliki",
+  chooseFile: "Wybierz plik",
+  chosenFiles: "Wybrane pliki",
+  chosenFile: "Wybrany plik",
+  fileWrongType: (name, types) => (types
+    ? `${name} nie jest ${new Intl.ListFormat("pl", { type: "disjunction" }).format(types.map((t) => KINDS[t] || t))}.`
+    : `${name}: ten typ pliku nie jest akceptowany.`),
+  fileTooLarge: (name, limit) => `${name} jest większy niż ${limit}.`,
+  fileTooMany: (name, max) => `Nie dodano ${name}: maksymalnie ${p3(max, "plik", "pliki", "plików")}.`,
+  fileOnlyOne: (name) => `Nie dodano ${name}: tylko jeden plik.`,
+  fileMissing: (multiple) => (multiple ? "Wybierz co najmniej jeden plik." : "Wybierz plik."),
+  fileFolder: (name) => `${name} to folder: wybierz pliki, które zawiera.`,
+  fileAlreadyAdded: (name) => `${name} został już dodany.`,
+  filesAdded: (names) => (names.length === 1 ? `Dodano ${names[0]}.` : `Dodano ${p3(names.length, "plik", "pliki", "plików")}.`),
+  fileRemoved: (name) => `Usunięto ${name}.`,
+  viewImage: "Wyświetl obraz",
+  removeImage: "Usuń obraz",
+  edit: "Edytuj",
+  charactersLeft: (left) => (left === 0 ? "Osiągnięto limit znaków." : "Pozostało: " + p3(left, "znak", "znaki", "znaków", "znaku") + "."),
+  invalidValue: (p) => {
+    switch (p.reason) {
+      case "valueMissing": return "Wypełnij to pole.";
+      case "typeMismatch": return p.type === "email" ? "Wpisz poprawny adres e-mail." : p.type === "url" ? "Wpisz poprawny adres URL." : "Wpisz poprawną wartość.";
+      case "badInput": return "Wpisz liczbę.";
+      case "tooShort": return "Co najmniej " + p.minLength + " znaków (teraz " + p.length + ").";
+      case "tooLong": return "Najwyżej " + p.maxLength + " znaków (teraz " + p.length + ").";
+      case "rangeUnderflow": return "Wartość musi wynosić " + p.min + " lub więcej.";
+      case "rangeOverflow": return "Wartość musi wynosić " + p.max + " lub mniej.";
+      case "stepMismatch": return "Wpisz wielokrotność " + p.step + ".";
+      case "patternMismatch": return "Użyj wymaganego formatu." + (p.title ? " " + p.title : "");
+      default: return "";
+    }
+  },
+  keyName: (name) => KEYS[name] || name,
+  keyboardShortcuts: "Skróty klawiszowe",
+  generalShortcuts: "Ogólne",
+  showShortcuts: "Pokaż skróty klawiszowe",
+  opensInNewTab: "(otwiera się w nowej karcie)",
+  loadMore: "Wczytaj więcej",
+  showingOf: (shown, total) => `Wyświetlono ${shown} z ${total}`,
+  loadedMore: (added) => `Wczytano kolejne: ${added}`,
+  moreLoaded: "Wczytano więcej",
+  allLoaded: "To już wszystko",
+  meterZone: (value, zone) => value + ", " + ZONES[zone],
+  notificationCenter: "Powiadomienia",
+  noNotifications: "Brak powiadomień",
+  unreadNotification: "Nieprzeczytane",
+  markRead: "Oznacz jako przeczytane",
+  markAllRead: "Oznacz wszystkie jako przeczytane",
+  clearNotifications: "Wyczyść wszystkie",
+  decrease: "Zmniejsz",
+  increase: "Zwiększ",
+  pagination: "Podział na strony",
+  previousPage: "Poprzednia strona",
+  nextPage: "Następna strona",
+  itemsOf: (first, last, total) => (first === last ? first : first + "–" + last) + " z " + total,
+  perPage: "Elementów na stronie",
+  showPassword: "Pokaż hasło",
+  capsLockOn: "Caps Lock jest włączony",
+  country: "Kraj",
+  progressComplete: (name) => (name ? name + ": ukończono" : "Ukończono"),
+  ratingStars: (value) => p3(value, "gwiazdka", "gwiazdki", "gwiazdek", "gwiazdki"),
+  ratingValue: (value, max) => n(value) + " z " + n(max),
+  saving: "Zapisywanie…",
+  saved: "Zapisano",
+  saveFailed: "Nie udało się zapisać",
+  retrySave: "Spróbuj ponownie",
+  searching: "Wyszukiwanie",
+  clearSearch: "Wyczyść wyszukiwanie",
+  sliderMinimum: "Minimum",
+  sliderMaximum: "Maksimum",
+  reorder: "Zmień kolejność",
+  reorderInstructions: "Naciśnij spację, aby chwycić, strzałki, aby przesunąć, ponownie spację, aby upuścić, lub Escape, aby anulować.",
+  reorderGrabbed: (item, p, total) => "Chwycono " + item + ", pozycja " + p + " z " + total + ".",
+  reorderMoved: (item, p, total) => item + ", pozycja " + p + " z " + total + ".",
+  reorderDropped: (item, p, total) => "Upuszczono " + item + " na pozycji " + p + " z " + total + ".",
+  reorderCancelled: (item, p, total) => "Anulowano. " + item + " wraca na pozycję " + p + " z " + total + ".",
+  resizePanes: "Zmień rozmiar paneli",
+  splitterPlace: "Dotknij miejsca, w którym ma być uchwyt, lub dotknij uchwytu ponownie, aby anulować.",
+  skipToContent: "Przejdź do treści",
+  completed: "ukończono",
+  hasError: "zawiera błąd",
+  hasWarning: "wymaga uwagi",
+  stepOf: (step, total) => "Krok " + step + " z " + total,
+  table: "Tabela",
+  tableSorted: (column, direction) => "Posortowano według: " + column + ", " + (direction === "ascending" ? "rosnąco" : "malejąco") + ".",
+  tableSelected: (count) => "Zaznaczono: " + n(count),
+  clearSelection: "Wyczyść zaznaczenie",
+  chooseTime: "Wybierz godzinę",
+  notifications: "Powiadomienia",
+  toastShortcut: (key) => "Naciśnij " + key + ", aby tam przejść.",
+  moreToasts: (count) => "+" + n(count) + " więcej",
+  toastRepeated: (count) => n(count) + "×",
+  undo: "Cofnij",
+  typeToConfirm: "Aby potwierdzić, wpisz",
+  typePhraseFirst: (phrase) => "Najpierw wpisz „" + phrase + "”",
+  close: "Zamknij",
+  dismiss: "Odrzuć",
+  loading: "Wczytywanie…",
+  copy: "Kopiuj",
+  remove: "Usuń",
+  image: "Obraz",
+  page: (p) => "Strona " + p,
+  progress: "Postęp",
+  optional: "Opcjonalne",
+  mainNavigation: "Główna",
+  menu: "Menu",
+  required: "Wymagane",
+};
