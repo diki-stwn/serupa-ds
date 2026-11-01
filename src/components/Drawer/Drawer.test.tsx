@@ -13,7 +13,7 @@ import { Drawer, type DrawerProps } from './Drawer';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const drw = () => el('drw') as HTMLDialogElement;
-const panel = (id = 'drw') => el(id).querySelector('.dk-drawer__panel') as HTMLElement;
+const panel = (id = 'drw') => el(id).firstElementChild as HTMLElement;
 const isOpen = () => drw().open;
 // The title is the element that names the dialog (aria-labelledby).
 const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
@@ -446,7 +446,7 @@ describe('Drawer', () => {
   test('long content scrolls in the body; the footer is pinned to the bottom, edge to edge, under a 1px line', async () => {
     await render(<App asks={[]} ctl={{}} />);
     await openDrw();
-    const bd = el('drw').querySelector('.dk-drawer__body') as HTMLElement, ft = el('drw').querySelector('.dk-drawer__footer') as HTMLElement, f = ft.getBoundingClientRect();
+    const bd = el('drw').querySelector('.dk-drawer__body') as HTMLElement, ft = panel().lastElementChild as HTMLElement, f = ft.getBoundingClientRect();
     expect([bd.scrollHeight > bd.clientHeight, getComputedStyle(bd).overflowY]).toEqual([true, 'auto']);
     expect([Math.round(f.bottom), Math.round(f.left), Math.round(f.right), getComputedStyle(ft).borderTopWidth]).toEqual([700, 616, 1000, '1px']);
   });

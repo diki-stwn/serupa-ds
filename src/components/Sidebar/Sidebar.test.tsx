@@ -303,6 +303,22 @@ describe('Sidebar', () => {
     expect(document.activeElement).toBe(el('ihome'));
   });
 
+  test('inside a shadow root, collapsing and expanding keep focus in the item it was in too (GR90)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<App />, { container: inner });
+      const root = host.shadowRoot!, id = (x: string) => root.getElementById(x) as HTMLElement;
+      id('ihome').focus();
+      React.act(() => setCollapsed(true));
+      await expect.poll(() => root.activeElement).toBe(id('ihome'));
+      React.act(() => setCollapsed(false));
+      await expect.poll(() => root.activeElement).toBe(id('ihome'));
+    } finally { host.remove(); }
+  });
+
   test('collapsed: a group opens its items in a menu', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));

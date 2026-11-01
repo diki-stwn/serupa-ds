@@ -8,6 +8,7 @@ import { Tooltip } from "../Tooltip/Tooltip";
 import { config } from "../../internal/config";
 import { Menu, MenuItem, MenuSub } from "../Menu/Menu";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { flattenChildren } from "../../internal/children";
 import { useSettings } from "../../internal/provider";
 import type { OpenChangeDetails } from "../../internal/openChange";
@@ -89,7 +90,7 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   // in is kept, and focus goes to that item's link or button once the switch has rendered (GM3).
   const keep = React.useRef<Element | null>(null);
   const setShown = React.useCallback((v: boolean) => {
-    const n = nav.current, a = document.activeElement;
+    const n = nav.current, a = activeIn(n);   // its own root's focus, in a shadow root too (GR90)
     let li = n && a && n.contains(a) ? a.closest(".dk-sidebar__li") : null;
     for (let up = li && li.parentElement ? li.parentElement.closest(".dk-sidebar__li") : null; up && n && n.contains(up); up = up.parentElement ? up.parentElement.closest(".dk-sidebar__li") : null) li = up;
     keep.current = li;
@@ -98,7 +99,7 @@ export const Sidebar = /* @__PURE__ */ component<HTMLElement, SidebarProps>("Sid
   useIsoLayoutEffect(() => {
     const li = keep.current, n = nav.current;
     keep.current = null;
-    if (li && li.isConnected && n && !n.contains(document.activeElement)) { const to = li.querySelector<HTMLElement>("a[href], button"); if (to) to.focus(); }
+    if (li && li.isConnected && n && !n.contains(activeIn(n))) { const to = li.querySelector<HTMLElement>("a[href], button"); if (to) to.focus(); }
   }, [shown]);
   const want = React.useRef(collapsed);
   const timer = React.useRef<{ raf?: number; end?: ReturnType<typeof setTimeout> }>({});
