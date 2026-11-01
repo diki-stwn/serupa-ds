@@ -43,7 +43,7 @@ describe('Icon', () => {
   test("a component's own icons draw on the first render, on the server too", async () => {
     expect(renderToString(<Checkbox defaultChecked aria-label="Done" />)).toContain('<path d="');
     await render(<Checkbox id="done" defaultChecked aria-label="Done" />);
-    expect(document.querySelector('.dk-checkbox__icon svg path')).not.toBeNull();
+    expect(document.getElementById('done')!.nextElementSibling!.querySelector('svg path')).not.toBeNull();
   });
 
   test("a component icon's name loads from the small chunk, then draws", async () => {

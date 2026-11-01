@@ -64,7 +64,7 @@ describe('typing with an input method', () => {
       <DateRangePicker data-testid="r" aria-label="Stay" locale="en-US" onValueChange={(v) => calls.push('range ' + String(v.start))} />
       <NumberInput id="n" aria-label="Count" step={1} onValueChange={(v) => calls.push('number ' + v)} />
     </div>);
-    const range = document.querySelector<HTMLInputElement>('[data-testid=r] .dk-date-range-picker__field')!;
+    const range = document.querySelector<HTMLInputElement>('[data-testid=r] [aria-label="Start date"]')!;
     for (const [i, text] of [[el('t'), '2'], [el('d'), '1/2'], [range, '1/2']] as const) {
       i.focus();
       // Set the text without an input event, as a composition in progress would show it.
