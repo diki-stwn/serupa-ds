@@ -6,6 +6,13 @@
    32px. vertical: a column at the start with the line on its end side. Every value goes through --tabs-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+/* The fades' widths, typed (177), so they transition: a fade grows in as tabs scroll past an edge and shrinks away
+   as the row reaches it, where an untyped custom property would jump. Only once the list has scrolled (TabList sets
+   data-scrolled): a fade there from the first frame is just there. */
+/* stylelint-disable serupa/no-raw-value -- an initial-value must be a literal: @property takes no var() */
+@property --dk-tabs-fade-a { syntax: '<length-percentage>'; inherits: false; initial-value: 0px; }
+@property --dk-tabs-fade-b { syntax: '<length-percentage>'; inherits: false; initial-value: 0px; }
+/* stylelint-enable serupa/no-raw-value */
 /* min-width 0: in a grid track or a flex row, a long tab row scrolls in its box instead of widening the page (GO2). */
 .dk-tabs { font-family: var(--font-sans); min-width: var(--spacing-0); }
 .dk-tabs__list {
@@ -22,6 +29,7 @@
 }
 /* Safari before 18.2 ignores scrollbar-width; browsers that have it ignore this. */
 .dk-tabs__list::-webkit-scrollbar { display: none; }
+.dk-tabs__list[data-scrolled] { transition: --dk-tabs-fade-a var(--motion-change-sm) var(--ease-move), --dk-tabs-fade-b var(--motion-change-sm) var(--ease-move); }
 .dk-tabs__list[data-fade-before] { --dk-tabs-fade-a: var(--dk-tabs-fade); }
 .dk-tabs__list[data-fade-after] { --dk-tabs-fade-b: var(--dk-tabs-fade); }
 .dk-tabs__list:is([data-fade-before], [data-fade-after]) {
