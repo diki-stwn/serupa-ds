@@ -49,7 +49,7 @@ const LABELS = [2.6, 1.9];
 const PHONE_DATA = 2.8;
 // Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set), and to 2.4 on
 // 31 Oct 2026 with the choice read again on a return from the back/forward cache (FEC6: 2.37).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.8, 'serupa-icons.iife.js': 525 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2); serupa-icons.iife.js: 492.9 the same day, every Material Symbol, loaded only when a plain page names one outside the everyday set (PF1)
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.9, 'serupa-icons.iife.js': 525 };   // tokens.css: 7.9 on 1 Nov 2026, the link-visited color in each of the six themes (Prose); 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2); serupa-icons.iife.js: 492.9 the same day, every Material Symbol, loaded only when a plain page names one outside the everyday set (PF1)
 // KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
 // whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
 const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
