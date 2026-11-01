@@ -78,6 +78,17 @@ describe('Tabs', () => {
     expect([state('un'), changes.join()]).toEqual(['One *Two0 Three | -input +Panel two -', 'two']);
   });
 
+  test('L8E107: the selected tab pressed again (a click, Enter, Space) calls no onValueChange, controlled or not', async () => {
+    await setup();
+    const tab = (id: string, n: number) => el(id).querySelector<HTMLElement>('[role="tab"]:nth-child(' + n + ')')!;
+    await userEvent.click(tab('un', 1));
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    await userEvent.click(tab('ctl', 2));
+    await userEvent.click(tab('ctl', 3));
+    expect(changes).toEqual(['ctl:three x']);
+  });
+
   test('keys: arrows move and select (wrapping), Home and End jump to the ends; Tab goes on to the selected panel\'s content', async () => {
     await setup();
     await userEvent.click(el('un').querySelector('[role="tab"]:nth-child(2)')!);
