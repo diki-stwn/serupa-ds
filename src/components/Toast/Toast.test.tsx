@@ -617,6 +617,16 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     expect(log).toEqual(['commit']);
   });
 
+  test('TF4: each toast\'s Dismiss is described by that toast\'s title, so three of them are told apart', async () => {
+    await render(<Toaster />);
+    React.act(() => { toast({ title: 'Saved' }); toast({ title: 'Copied' }); });
+    const said = toasts().map((x) => {
+      const b = x.querySelector<HTMLButtonElement>('button[aria-label="Dismiss"]')!;
+      return b.getAttribute('aria-describedby')!.split(' ').map((id) => document.getElementById(id)!.textContent).join(' ');
+    });
+    expect(said.sort()).toEqual(['Copied', 'Saved']);
+  });
+
   test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
     const { SerupaProvider } = await import('../../internal/provider');
     await render(<SerupaProvider labels={idLabels}><Toaster /></SerupaProvider>);
