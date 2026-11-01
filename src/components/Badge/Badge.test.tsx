@@ -17,6 +17,10 @@ const VARIANTS: BadgeVariant[] = ['subtle', 'solid', 'outline'];
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
+// A badge holds, in order: the dot or the leading icon (hidden spans), the label (the one span that isn't hidden),
+// the remove button and the loader's hidden span.
+const BADGE = '[data-component=badge]', LABEL = ':scope > span:not([aria-hidden])', DOT = ':scope > span[aria-hidden] > span:empty:not([data-icon])';
+const loaderOf = (b: Element) => b.querySelector('[data-component=loader]')?.parentElement ?? null;
 const tv = (t: string, v: string) => q(`[data-t="${t}"][data-v="${v}"]`);
 /** Jumps the element's finite transitions and animations to their end, so a test reads where they land. In CI, WebKit
  *  sometimes holds a transition at its start, or mid-way, for over a second (runs 119-123: a press scale still at 1, a
@@ -161,7 +165,7 @@ describe('Badge', () => {
   test('defaults: a <span> badge, subtle, neutral, with no size attribute or class; unknown variant and tone fall back to subtle and neutral', async () => {
     await show();
     const d = el('def');
-    expect([d.tagName, d.dataset.component, d.dataset.variant, d.dataset.tone, d.hasAttribute('data-size'), /size/.test(d.className), d.querySelector('.dk-badge__label')!.textContent])
+    expect([d.tagName, d.dataset.component, d.dataset.variant, d.dataset.tone, d.hasAttribute('data-size'), /size/.test(d.className), d.querySelector(LABEL)!.textContent])
       .toEqual(['SPAN', 'badge', 'subtle', 'neutral', false, false, 'Default']);
     expect([el('bad').dataset.variant, el('bad').dataset.tone]).toEqual(['subtle', 'neutral']);
   });
@@ -215,7 +219,7 @@ describe('Badge', () => {
 
   test('dot: a 6px round dot centered in a 10×12px box (as tall as an icon, 2px narrower) before the label, in the text color, hidden from screen readers', async () => {
     await show();
-    const e = el('dot'), d = e.querySelector('.dk-badge__dot') as HTMLElement, bx = d.parentElement!, s = css(d), br = bx.getBoundingClientRect(), dr = d.getBoundingClientRect();
+    const e = el('dot'), d = e.querySelector(DOT) as HTMLElement, bx = d.parentElement!, s = css(d), br = bx.getBoundingClientRect(), dr = d.getBoundingClientRect();
     expect(e.firstElementChild).toBe(bx);
     expect(bx.classList.contains('dk-badge__icon--dot')).toBe(true);
     expect([br.width, br.height]).toEqual([10, 12]);
@@ -227,8 +231,8 @@ describe('Badge', () => {
 
   test('leftIcon: a Material Symbols icon before the label at 12px, decorative; it replaces the dot', async () => {
     await show();
-    const e = el('icon'), i = e.querySelector('.dk-badge__icon') as HTMLElement;
-    expect([(i.querySelector('[data-icon]') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('[data-icon]')).fontSize, !!e.querySelector('.dk-badge__dot')])
+    const e = el('icon'), i = e.querySelector(':scope > span[aria-hidden] > [data-icon]')!.parentElement as HTMLElement;
+    expect([(i.querySelector('[data-icon]') as HTMLElement).dataset.icon, i.getAttribute('aria-hidden'), css(i.querySelector('[data-icon]')).fontSize, !!e.querySelector(DOT)])
       .toEqual(['schedule', 'true', '12px', false]);
   });
 
@@ -240,7 +244,7 @@ describe('Badge', () => {
     </>);
     const shown = (id: string) => { const e = document.getElementById(id)!; return (e.querySelector('[aria-hidden="true"]') || e).textContent; };
     expect(['car7', 'car120', 'cfa12', 'cen1500'].map(shown)).toEqual(['٧', '٩٩+', '۱۲', '1500']);
-    expect([document.getElementById('car120')!.title, document.getElementById('car120')!.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['١٢٠', '١٢٠']);
+    expect([document.getElementById('car120')!.title, document.getElementById('car120')!.querySelector('[data-component=visually-hidden]')!.textContent]).toEqual(['١٢٠', '١٢٠']);
   });
 
   test('count: a round pill (20px for one digit), "99+" past the default max, "max+" past a given max; nothing at 0, unless showZero', async () => {
@@ -259,13 +263,13 @@ describe('Badge', () => {
   test('count past max: "99+" shows, and screen readers and the tooltip get the real count (AW1); your title wins', async () => {
     await render(<><Badge id="big" count={150} /><Badge id="own" count={150} title="150 unread messages" /><Badge id="few" count={7} /></>, { wrapper: EnUS });
     const big = el('big');
-    expect([big.title, big.querySelector('[aria-hidden="true"]')!.textContent, el('own').title, el('few').title, el('few').querySelector('.dk-visually-hidden'), big.querySelector('.dk-visually-hidden')!.textContent]).toEqual(['150', '99+', '150 unread messages', '', null, '150']);
+    expect([big.title, big.querySelector('[aria-hidden="true"]')!.textContent, el('own').title, el('few').title, el('few').querySelector('[data-component=visually-hidden]'), big.querySelector('[data-component=visually-hidden]')!.textContent]).toEqual(['150', '99+', '150 unread messages', '', null, '150']);
   });
 
   test('count: a badge whose count goes from 0 to 2 and back to 0 appears and disappears without an error (hooks run on every render)', async () => {
     await show();
     setCount(2);
-    await expect.poll(() => el('grow').querySelector('.dk-badge')?.textContent ?? null).toBe('2');
+    await expect.poll(() => el('grow').querySelector(BADGE)?.textContent ?? null).toBe('2');
     setCount(0);
     await expect.poll(() => el('grow').children.length).toBe(0);
   });
@@ -280,7 +284,7 @@ describe('Badge', () => {
 
   test('removable: the × mirrors a leading icon (a 12px box, --badge-gap less 2px from the label, the badge padding at the end, less 2px; a × with no leading icon adds the 2px offset at the start), and keeps a 24×24 target', async () => {
     await show();
-    const e = q('#tags .dk-badge'), l = e.querySelector('.dk-badge__label')!.getBoundingClientRect(), btn = e.querySelector('button')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
+    const e = el('tags').querySelector(BADGE) as HTMLElement, l = e.querySelector(LABEL)!.getBoundingClientRect(), btn = e.querySelector('button')!, b = btn.getBoundingClientRect(), r = e.getBoundingClientRect(), cs = css(e);
     const ring = getComputedStyle(btn, '::after');
     expect([b.width, b.height]).toEqual([12, 20]);
     expect(Math.round((b.left - l.right) * 10) / 10).toBe(2);
@@ -302,7 +306,7 @@ describe('Badge', () => {
     q('#tags button').focus();
     await userEvent.keyboard('{Enter}');
     await expect.poll(() => removed.join()).toBe('Design,Research');
-    expect(document.querySelectorAll('#tags .dk-badge').length).toBe(0);
+    expect(el('tags').querySelectorAll(BADGE).length).toBe(0);
   });
 
   test('subtle: a 1px outline in the text color at 20% (every tone), --badge-subtle-border: 0% removes it; solid stays borderless', async () => {
@@ -430,10 +434,10 @@ describe('Badge', () => {
     await userEvent.click(ld, { force: true });
     await userEvent.keyboard('{Enter}');
     // The cross-fade can start late on a busy runner, so wait for it to finish rather than for a fixed time.
-    const sp = ld.querySelector('.dk-badge__loader') as HTMLElement;
+    const sp = loaderOf(ld) as HTMLElement;
     const content = () => [...ld.children].filter((c) => c !== sp);
     await expect.poll(() => [sp, ...content()].every((x) => x.getAnimations().every((a) => a.playState === 'finished'))).toBe(true);
-    const xf = { lab: css(ld.querySelector('.dk-badge__label')).transitionDuration, ldr: css(sp).animationName, ldd: css(sp).animationDuration };
+    const xf = { lab: css(ld.querySelector(LABEL)).transitionDuration, ldr: css(sp).animationName, ldd: css(sp).animationDuration };
     expect(xf.lab).toMatch(/0\.15s/);
     expect([xf.ldr, xf.ldd]).toEqual(['dk-badge-loader-in', '0.15s']);
     // They cross as one change, as on Button: the content ends blurred (blur-xs) and the ring sharpens from the same blur.
@@ -446,11 +450,11 @@ describe('Badge', () => {
     expect([blurFrom, css(sp).filter.replace('blur(0px)', 'none')]).toEqual(['blur(4px)', 'none']);
     // The label's blur is a transition, which WebKit can start after the wait above has already seen nothing running,
     // or hold part-way: read where it ends.
-    const label = ld.querySelector('.dk-badge__label')!;
+    const label = ld.querySelector(LABEL)!;
     ended(label);
     expect(css(label).filter).toBe('blur(4px)');
-    const art = sp.querySelector('.dk-loader__art')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
-    expect(!!sp.querySelector('.dk-loader--ring')).toBe(true);
+    const art = sp.querySelector('[data-component=loader] > span:first-child')!.getBoundingClientRect(), r = ld.getBoundingClientRect();
+    expect(!!sp.querySelector('[data-component=loader][data-variant=ring]')).toBe(true);
     expect(Math.round(art.width)).toBe(12);
     expect(Math.abs((art.left + art.width / 2) - (r.left + r.width / 2))).toBeLessThan(1);
     expect(Math.abs((art.top + art.height / 2) - (r.top + r.height / 2))).toBeLessThan(1);
@@ -464,7 +468,7 @@ describe('Badge', () => {
     expect([ld.getAttribute('aria-disabled'), document.activeElement === ld, clicks]).toEqual(['true', true, c0]);
     setLoading(false);
     await expect.poll(() => ld.getAttribute('aria-busy')).toBe(null);
-    expect(!!ld.querySelector('.dk-badge__loader')).toBe(false);
+    expect(!!loaderOf(ld)).toBe(false);
     expect([ld.offsetWidth, ld.offsetHeight]).toEqual(busy);
     ended(label);
     expect(css(label).opacity).toBe('1');
@@ -473,7 +477,7 @@ describe('Badge', () => {
   test('loading on a plain badge: aria-busy, stays a span, no aria-disabled; a remove button is disabled while it loads', async () => {
     await show();
     const e = el('ldspan');
-    expect([e.tagName, e.getAttribute('aria-busy'), e.getAttribute('aria-disabled'), (q('#ldrm .dk-badge__remove') as HTMLButtonElement).disabled]).toEqual(['SPAN', 'true', null, true]);
+    expect([e.tagName, e.getAttribute('aria-busy'), e.getAttribute('aria-disabled'), (el('ldrm').querySelector(':scope > button') as HTMLButtonElement).disabled]).toEqual(['SPAN', 'true', null, true]);
   });
 
   test('micro-interactions: no ripple layer on any badge; scale comes back over motion-release (300ms) with ease-enter (ease-out-quart), no spring', async () => {
@@ -525,7 +529,7 @@ describe('Badge', () => {
 
   test('optical balance, like Button: an icon on one side only (leading icon or dot / the ×) gives the text side 2px more padding; both or neither stay even; mirrored in right-to-left', async () => {
     await show();
-    const ob = [...document.querySelectorAll('#ob .dk-badge')].map((e) => { const c = css(e); return parseFloat(c.paddingLeft) + '/' + parseFloat(c.paddingRight); });
+    const ob = [...el('ob').querySelectorAll(BADGE)].map((e) => { const c = css(e); return parseFloat(c.paddingLeft) + '/' + parseFloat(c.paddingRight); });
     expect(ob).toEqual(['6/6', '6/8', '6/8', '8/6', '6/6', '4/4', '8/6']);
   });
 
@@ -545,8 +549,8 @@ describe('Badge', () => {
   test('ping: off by default; with dot, a copy of the dot (its color, its size) runs the system\'s ping animation (1s, forever) on a dot in a label or the indicator; the dot stays 6px; ignored without a dot or with an icon; your absolute class still places the indicator', async () => {
     await show();
     const a = (e: Element) => { const c = getComputedStyle(e, '::after'); return { name: c.animationName, dur: c.animationDuration, iter: c.animationIterationCount, bg: c.backgroundColor, pos: c.position, w: c.width }; };
-    const dot = q('#pg .dk-badge__dot'), ind = el('pgind');
-    expect(getComputedStyle(q('#dot .dk-badge__dot'), '::after').animationName).toBe('none');
+    const dot = (el('pg').querySelector(DOT) as HTMLElement), ind = el('pgind');
+    expect(getComputedStyle((el('dot').querySelector(DOT) as HTMLElement), '::after').animationName).toBe('none');
     expect(a(dot)).toMatchObject({ name: 'ping', dur: '1s', iter: 'infinite', bg: css(dot).backgroundColor, pos: 'absolute' });
     expect(css(dot).width).toBe('6px');
     expect(a(ind)).toMatchObject({ name: 'ping', bg: css(ind).backgroundColor, w: '8px' });
@@ -566,7 +570,7 @@ describe('Badge', () => {
       await show();
       const o = await hold(el('mi'), async () => {
         await new Promise(requestAnimationFrame);
-        return { ping: getComputedStyle(q('#pg .dk-badge__dot'), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, blur: css(el('ldspan').querySelector('.dk-badge__label')).filter, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
+        return { ping: getComputedStyle((el('pg').querySelector(DOT) as HTMLElement), '::after').animationName + '/' + getComputedStyle(el('pgind'), '::after').display, scale: css(el('mi')).scale, blur: css(el('ldspan').querySelector(LABEL)).filter, from: css(el('ldspan')).getPropertyValue('--dk-badge-loader-from').trim(), anim: css(el('ldspan').querySelector('[data-component=loader]')!.parentElement).animationName };
       }, { ms: 200, at: { x: 6, y: 6 } });
       expect(o.ping).toBe('none/none');
       expect(['1', 'none']).toContain(o.scale);
