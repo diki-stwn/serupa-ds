@@ -313,7 +313,7 @@ describe('Table: stickyHeader and focus', () => {
       <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Action</TableHeaderCell></TableRow></TableHead>
       <TableBody>{rows}</TableBody>
     </Table>);
-    const head = document.querySelector('.dk-table__head') as HTMLElement, frame = head.closest('.dk-table') as HTMLElement;
+    const head = document.querySelector('thead') as HTMLElement, frame = head.closest('[data-component="table"]') as HTMLElement;
     await expect.poll(() => frame.style.getPropertyValue('--dk-table-head')).toBe(head.getBoundingClientRect().height + 'px');
     el('e39').focus();
     const covered: number[] = [];
