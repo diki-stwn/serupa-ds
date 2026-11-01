@@ -128,6 +128,17 @@ describe('VirtualList', () => {
     }
   });
 
+  test('Tab through rows of links: the list scrolls to show each one (it used to scroll back to the top, leaving focus out of view)', async () => {
+    const link = (i: number) => <ListItem href="#" title={'Row ' + (i + 1)} />;
+    await render(<><button id="b">b</button><VirtualList id="v" aria-label="Rows" count={10000} renderItem={link} /></>);
+    await expect.poll(() => rows('v').length).toBeLessThan(30);
+    el('b').focus();
+    for (let k = 0; k < 20; k++) await userEvent.tab();
+    const box = el('v').getBoundingClientRect(), r = document.activeElement!.getBoundingClientRect();
+    expect(document.activeElement!.closest('[data-index]')?.getAttribute('data-index')).toBe('18');
+    expect([r.top >= box.top - 1, r.bottom <= box.bottom + 1, el('v').scrollTop > 0]).toEqual([true, true, true]);
+  });
+
   test('GR94: past the height limit (10,000,000 rows), the arrow and Page keys and the wheel move through the rows as in a short list, and stop at either end', async () => {
     const first = () => { const box = el('v').getBoundingClientRect().top; return Number(rows('v').find((x) => x.getBoundingClientRect().bottom > box + 1)!.getAttribute('aria-posinset')); };
     await render(<VirtualList id="v" aria-label="Rows" count={10_000_000} renderItem={item} />);
