@@ -275,6 +275,8 @@ describe('Calendar weekday headers in Arabic, Persian, Hebrew and Thai (GR6)', (
       // The week, edge to edge, leaves a 3rem gutter (60px here) for the page's and a popover's padding.
       const week = Math.max(...days.map((d) => d.getBoundingClientRect().right)) - Math.min(...days.map((d) => d.getBoundingClientRect().left));
       expect([week <= 320 - 60 + 1, Math.min(...days.map((d) => d.getBoundingClientRect().width)) >= 24]).toEqual([true, true]);
+      // Each day a whole pixel wide (178), not a seventh of the screen (37.14px), so the edges stay sharp.
+      expect([...new Set(days.map((d) => d.getBoundingClientRect().width))]).toEqual([37]);
     } finally { document.documentElement.style.fontSize = ''; await page.viewport(900, 700); }
   });
 });
