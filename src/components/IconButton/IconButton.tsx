@@ -16,7 +16,7 @@ interface IconButtonOwnProps {
   shape?: 'square' | 'round';
   /** Leaves out the title tooltip, for when visible text already shows the label. A wrapping Tooltip (aria-describedby or aria-labelledby) leaves it out by itself. Default: false. */
   hideTitle?: boolean;
-  /** @deprecated Use hideTitle: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 12.0.0. */
+  /** @deprecated Use hideTitle: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 13.0.0. */
   noTitle?: boolean;
 }
 
@@ -32,7 +32,7 @@ type IconButtonElement = HTMLButtonElement | HTMLAnchorElement;
 /** A Button that shows only an icon, with a required label for screen readers. Default variant: ghost. */
 export const IconButton = /* @__PURE__ */ component<IconButtonElement, IconButtonProps>("IconButton", function IconButton(props, ref) {
   const { icon, label, shape, hideTitle, noTitle, className, ...rest } = props;
-  if (process.env.NODE_ENV !== "production" && noTitle != null) warnOnce("icon-button-no-title", "IconButton: noTitle is deprecated and is removed in 12.0.0. Use hideTitle, which does the same.");
+  if (process.env.NODE_ENV !== "production" && noTitle != null) warnOnce("icon-button-no-title", "IconButton: noTitle is deprecated and is removed in 13.0.0. Use hideTitle, which does the same.");
   const round = shape === "round";
   // No title when a Tooltip (or anything else) already describes or names it: the native tooltip would show on top of it.
   const shown = hideTitle || noTitle || rest["aria-describedby"] != null || rest["aria-labelledby"] != null;
