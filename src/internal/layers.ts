@@ -1,9 +1,11 @@
+import { pageShared } from "./pageShared";
+
 // The open modal dialogs (Dialog and Drawer, shown with showModal()), innermost last. While one is open the
 // browser makes everything outside it inert: screen readers skip it and it can't be clicked. So what the whole
 // page shares (the live regions, the Toaster) moves into the innermost open modal, and back when it closes.
+// Kept once per page (pageShared), so a second copy of the package on the page sees the same modals.
 // module state: browser only: showModal() fills it, and a server never opens a dialog.
-const modals: HTMLElement[] = [];
-const listeners = new Set<() => void>();
+const { modals, listeners } = pageShared("layers@1", () => ({ modals: [] as HTMLElement[], listeners: new Set<() => void>() }));
 
 /** The innermost open modal, or null. */
 export const topModal = (): HTMLElement | null => modals[modals.length - 1] || null;
