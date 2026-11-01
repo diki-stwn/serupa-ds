@@ -38,7 +38,7 @@ export interface Command {
   onSelect?: () => void;
 }
 
-export interface CommandPaletteProps extends Omit<DialogProps, "title" | "description" | "footer" | "alert" | "children" | "size" | "fullScreen" | "initialFocus" | "closeButton" | "closeLabel" | "onSelect"> {
+export interface CommandPaletteProps extends Omit<DialogProps, "title" | "description" | "footer" | "alert" | "children" | "size" | "fullScreen" | "initialFocus" | "closeButton" | "closeLabel" | "onSelect" | "unsaved"> {
   /** The commands and pages it searches, in the order they're listed before anything is typed. */
   commands: Command[];
   /** Runs for any command chosen, after the palette has closed and after the command's own onSelect. */

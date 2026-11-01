@@ -17,7 +17,7 @@ interface Command {
     disabled?: boolean;
     onSelect?: () => void;
 }
-interface CommandPaletteProps extends Omit<DialogProps, "alert" | "children" | "closeButton" | "closeLabel" | "description" | "footer" | "fullScreen" | "initialFocus" | "onSelect" | "size" | "title"> {
+interface CommandPaletteProps extends Omit<DialogProps, "alert" | "children" | "closeButton" | "closeLabel" | "description" | "footer" | "fullScreen" | "initialFocus" | "onSelect" | "size" | "title" | "unsaved"> {
     commands: Command[];
     onSelect?: (command: Command) => void;
     hotkey?: false | string[];
