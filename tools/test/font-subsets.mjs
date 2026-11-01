@@ -16,7 +16,10 @@ t('tokens.css has an @font-face with its unicode-range for each', (read('tokens.
 // Its own folder, not .test-tmp/: the other suites running beside it empty that one when they finish.
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-fonts-'));
 const at = (f) => 'file://' + path.join(PROJECT, f);
-const b = await browser();
+// Hinting off. With it on (Linux CI), FreeType's autohinter works out its measurements from each file's own
+// glyphs, so a line that mixes subsets can land a pixel wider or narrower than with the whole font. That is how
+// hinting treats any split font, not a missing glyph or feature, which is what this test looks for.
+const b = await browser(['--font-render-hinting=none']);
 const p = await b.newPage({ viewport: { width: 900, height: 520 } });
 const fetched = [];
 p.on('request', (r) => { if (r.url().endsWith('.woff2')) fetched.push(r.url().split('/').pop()); });

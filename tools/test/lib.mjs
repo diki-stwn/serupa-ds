@@ -51,7 +51,8 @@ export function cleanup() { fs.rmSync(path.join(PROJECT, '.test-tmp'), { recursi
 // Baselines are kept per engine (Chromium's are the reference; tools/test/compat.mjs compares engines).
 export const ENGINE = process.env.SERUPA_BROWSER || 'chromium';
 export const suffix = ENGINE === 'chromium' ? '' : '-' + ENGINE;
-export async function browser() {
+/** @param {string[]} [args] extra Chromium switches (other engines ignore them) */
+export async function browser(args) {
   /** @type {Record<string, import('playwright').BrowserType>} */
   let pw;
   try { pw = /** @type {any} */ (await import('playwright')); } catch { fail(`Install Playwright first: npm i -D playwright && npx playwright install ${ENGINE}`); }
@@ -59,6 +60,7 @@ export async function browser() {
   // Headless Firefox finds no pointing device and reports (hover: none), so hover styles behind
   // @media (hover: hover) never apply. Give it a desktop's fine, hovering pointer (2 | 4).
   const opts = ENGINE === 'firefox' ? { firefoxUserPrefs: { 'ui.primaryPointerCapabilities': 6, 'ui.allPointerCapabilities': 6 } } : {};
+  if (args && ENGINE === 'chromium') opts.args = args;
   try { return await pw[ENGINE].launch(opts); } catch (e) { fail(`Can't start ${ENGINE}: run "npx playwright install ${ENGINE}".\n${e.message.split('\n')[0]}`); }
 }
 
