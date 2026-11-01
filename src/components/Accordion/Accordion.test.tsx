@@ -11,11 +11,11 @@ import { Accordion, AccordionItem } from './Accordion';
 const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
-const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > .dk-accordion__item')];
+const items = (id: string) => [...el(id).querySelectorAll<HTMLElement>(':scope > [data-state]')];
 const state = (id: string) => items(id).map((i) => (i.dataset.state === 'open' ? 1 : 0)).join('');
 const trigger = (id: string, n: number) => items(id)[n - 1].querySelector('button[aria-expanded]') as HTMLButtonElement;
 const panel = (id: string, n = 1) => items(id)[n - 1].querySelector('[aria-labelledby]') as HTMLElement;
-const contentOf = (id: string, n = 1) => panel(id, n).querySelector('.dk-accordion__content') as HTMLElement;
+const contentOf = (id: string, n = 1) => panel(id, n).firstElementChild!.firstElementChild as HTMLElement;
 const focused = () => (document.activeElement!.matches('button[aria-expanded]') ? document.activeElement!.textContent : undefined);
 // The open and close animation finished (the panel and the chevron).
 
@@ -104,7 +104,7 @@ describe('Accordion', () => {
     await settled(el('adef'), { subtree: true });
     const full = pn.getBoundingClientRect().height;
     expect([full > 0, mid > 0 && mid < full]).toEqual([true, true]);
-    expect([css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('.dk-accordion__icon')).rotate])
+    expect([css(pn).opacity, css(pn).clipPath, css(pn).visibility, trigger('adef', 1).getAttribute('aria-expanded'), css(el('adef').querySelector('[data-icon="expand_more"]')).rotate])
       .toEqual(['1', 'inset(0px)', 'visible', 'true', '180deg']);
     await userEvent.click(trigger('adef', 1));
     expect(runs().map(([p, d, e]) => `${String(p)} ${String(d)}${p === 'dk-accordion-height' ? ' ' + String(e) : ''}`).filter((x) => /opacity|clip-path|height/.test(x))).toEqual(['clip-path 150', 'dk-accordion-height 150 ' + root('--ease-move'), 'opacity 150']);
