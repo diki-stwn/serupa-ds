@@ -1,0 +1,31 @@
+/* ---------------------------------------------------------------
+   CommandPalette: inside its Dialog, a borderless search field over a line, then the commands by group: a small
+   muted heading, then 44px rows with an icon, the label (what matched underlined, Highlight) and the shortcut in Kbd
+   at the end. The active row gets the highlight with a bar at its start, as Combobox's options do. Every value reads
+   one of its own tokens (command-palette.tokens.json), which fall back to the shared ones.
+   --------------------------------------------------------------- */
+@layer dk.components {
+.dk-command-palette .dk-dialog__body { padding-block-start: var(--spacing-2); }
+.dk-command-palette__field {
+  box-sizing: border-box; width: var(--sizing-full); min-height: var(--control-height-lg); margin: var(--spacing-0) var(--spacing-0) var(--spacing-2);
+  padding: var(--spacing-0) var(--spacing-1); border: 0; border-bottom: var(--border-width-1) solid var(--command-palette-divider, var(--border));
+  background: transparent; color: inherit; font: inherit; font-size: var(--text-base); outline: none;
+}
+.dk-command-palette__field::placeholder { color: var(--text-muted); }
+.dk-command-palette__list { max-height: var(--command-palette-list-height, var(--spacing-80)); overflow-y: auto; overscroll-behavior: contain; }
+.dk-command-palette__group + .dk-command-palette__group { margin-top: var(--spacing-2); }
+.dk-command-palette__heading { padding: var(--spacing-1) var(--spacing-2); font-size: var(--text-xs); font-weight: var(--font-semibold); color: var(--command-palette-heading, var(--text-muted)); }
+.dk-command-palette__option {
+  --dk-bar: var(--border-width-2);
+  display: flex; align-items: center; gap: var(--spacing-2); min-height: var(--command-palette-option-height, var(--control-height-lg)); padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--rounded-md); cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.dk-command-palette__option:dir(rtl) { --dk-bar: calc(var(--border-width-2) * -1); }
+.dk-command-palette__option--active { background: var(--command-palette-option-bg-active, var(--highlight)); box-shadow: inset var(--dk-bar) 0 0 var(--primary); }
+.dk-command-palette__option--disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+.dk-command-palette__icon { display: inline-flex; flex: none; color: var(--text-muted); }
+.dk-command-palette__option--active .dk-command-palette__icon { color: inherit; }
+.dk-command-palette__label { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
+.dk-command-palette__keys { flex: none; margin-inline-start: auto; }
+.dk-command-palette__empty { margin: var(--spacing-0); padding: var(--spacing-6) var(--spacing-2); text-align: center; color: var(--text-muted); }
+}

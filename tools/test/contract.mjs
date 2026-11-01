@@ -81,7 +81,7 @@ t('no Directions story is left: pick a take, write why in the pull request, then
 // it can show, and nothing it links to is gone, so a component renamed or removed since the release can't leave a
 // dead link.
 const index = componentIndex(PROJECT);
-const unsaid = comps.filter((c) => !new RegExp(`^\\| \\[${c}\\]\\([^)]+\\) \\| \\S`, 'm').test(index));
+const unsaid = comps.filter((c) => !new RegExp(`^\\| \\[${c}\\]\\([^)]+\\)(?: \\([a-z]+\\))? \\| \\S`, 'm').test(index));
 t('every guide opens with a sentence for the README components index', !unsaid.length, `no first paragraph under the heading: ${unsaid.join(', ')}`);
 const readme = fs.readFileSync(path.join(PROJECT, 'README.md'), 'utf8');
 const dead = [...readme.matchAll(/\]\((src\/components\/[^)#]+)\)/g)].map((m) => m[1]).filter((f) => !fs.existsSync(path.join(PROJECT, f)));
