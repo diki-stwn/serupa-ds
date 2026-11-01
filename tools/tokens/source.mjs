@@ -55,7 +55,7 @@ export function toSource(t) {
   };
   const src = { $description: t.meta.source, $extensions: { [NS]: { version: t.version, name: t.name, themes: t.color.themes, type: t.type } } };
   for (const [g, grp] of groups) {
-    const out = (src[g] = {});
+    const out = /** @type {Record<string, any>} */ (src[g] = {});
     if (grp.note != null) out.$description = grp.note;
     for (const x of grp.tokens) {
       const ext = {};
