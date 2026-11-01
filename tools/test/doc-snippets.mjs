@@ -25,11 +25,7 @@ const GLOBALS = ['open', 'close', 'name', 'error', 'status', 'event', 'focus', '
 const HOOKS = ['useState', 'useEffect', 'useRef', 'useMemo', 'useCallback', 'useId', 'useTransition', 'useDeferredValue'];
 
 // Blocks that don't compile yet, and why. It only shrinks: a block listed here that compiles fails until it's taken out.
-const KNOWN = {
-  // NavbarLink's `as` is React.ElementType, so the router link's own props (to) are a type error in
-  // a TypeScript project. Link, BreadcrumbItem and SidebarItem type it with the element's props (#779, G10); it's next.
-  'src/components/Navbar/README.md:5': 'as={RouterLink} to',
-};
+const KNOWN = {};
 
 const COMP = path.join(PROJECT, 'src', 'components');
 const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : /\.mdx?$/.test(e.name) ? [path.join(dir, e.name)] : []));
