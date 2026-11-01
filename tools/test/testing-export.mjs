@@ -37,12 +37,12 @@ t('afterwards the page is as it was: no data-theme it didn\'t have, transitions 
 await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'emerald-dark'));
 const some = [];
 let thrown = null;
-try { await forEachTheme(page, (theme) => { some.push(theme); if (theme === 'blue-dark') throw new Error('picture differs'); }, { themes: ['violet-light', 'blue-dark', 'blue-light'] }); } catch (e) { thrown = e.message; }
+try { await forEachTheme(page, (theme) => { some.push(theme); if (theme === THEMES[1]) throw new Error('picture differs'); }, { themes: [THEMES[2], THEMES[1], THEMES[0]] }); } catch (e) { thrown = e.message; }
 const kept = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-t('themes picks some, in its order; a throw in fn stops there, comes out, and the page still gets its own theme back', some.join() === 'violet-light,blue-dark' && thrown === 'picture differs' && kept === 'emerald-dark', `${some} / ${thrown} / ${kept}`);
+t('themes picks some, in its order; a throw in fn stops there, comes out, and the page still gets its own theme back', some.join() === `${THEMES[2]},${THEMES[1]}` && thrown === 'picture differs' && kept === 'emerald-dark', `${some} / ${thrown} / ${kept}`);
 
 let unknown = '';
-try { await forEachTheme(page, () => {}, { themes: ['blue-light', 'red-dark'] }); } catch (e) { unknown = e.message; }
+try { await forEachTheme(page, () => {}, { themes: [THEMES[0], 'red-dark'] }); } catch (e) { unknown = e.message; }
 t('a theme that doesn\'t exist is an error that lists the six', /no theme called red-dark/.test(unknown) && unknown.includes('emerald-dark'), unknown);
 
 const still = [];
