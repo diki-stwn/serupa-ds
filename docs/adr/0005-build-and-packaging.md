@@ -52,6 +52,10 @@ The JavaScript side is sound and conventional. The CSS side works but was shaped
 - Harder: the browser script. Decide at 5.0 whether `diki.iife.js` stays (pinned to React 18) or is dropped now that the artifacts are frozen and projects use ESM.
 - Revisit: React 19 in CI (types and `forwardRef` are React 18 style; structure review item 5).
 
+## Update, 1 November 2026 (13.0)
+
+The masks and gradients moved out of `utilities.css` and `bundle.css` into `utilities-extra.css` (`tools/utilities/extra.mjs` splits them off at build time; the template, Storybook and the tests keep them in one place). They were a quarter of the utility rules (about 530 KB of 1.76 MB) and few pages use them. A page that does imports the extra file after `bundle.css`.
+
 ## Action items
 
 1. [ ] 5.0: wrap every stylesheet in `@layer`, drop the fallbacks, update `foundation.py` to check "no fallbacks" instead of "fallback equals token". Migration note: "import `tokens.css` first; your unlayered CSS now always wins".

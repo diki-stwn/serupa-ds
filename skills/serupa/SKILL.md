@@ -19,6 +19,7 @@ Pin a release tag, never `#main`. The tag is prebuilt, so nothing runs on instal
 import 'serupa-ds/tokens.css';   // every token, the themes, the fonts: always first
 import 'serupa-ds/base.css';     // page defaults; leave out when adding Serupa to an existing app
 import 'serupa-ds/bundle.css';   // components and utility classes (or components.css, plus utilities.css)
+// import 'serupa-ds/utilities-extra.css';   // only for masks and gradients: mask-*, bg-linear-*, from-*, via-*, to-*
 import { Button, Field, Input } from 'serupa-ds';
 ```
 
