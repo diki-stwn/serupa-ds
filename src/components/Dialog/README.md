@@ -48,7 +48,8 @@ const [open, setOpen] = React.useState(false);
 - It enters as a sequence: the backdrop fades in, and 50ms later (`motion-sequence`) the panel fades and grows in over 200ms. It fades and shrinks out over 150ms with the backdrop, both in place at the centre; with `prefers-reduced-motion` it only fades. The motion is a transition, so closing it while it opens turns back from where it is. Focus goes back to what opened it at once, not after the fade, and presses reach the page while it fades. One open on arrival (`defaultOpen`, or `open` on the first render) is there from the first frame. Firefox and Safari can't keep a closing dialog in the top layer yet, so there it closes at once.
 - On Android, the system back gesture asks to close it, the same as Escape. The browser sends it as the native `<dialog>`'s `cancel` event, so the page doesn't navigate away.
 - Without `open`, it keeps its own state: `defaultOpen` shows it on arrival, and Escape, the × or the backdrop close it by themselves (`onOpenChange(false)` still comes).
-- To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
+- With `unsaved`, Escape, the ×, the backdrop or the browser closing it first ask "Discard changes?" in a small alert dialog on top, with Keep editing focused. Keep editing (or Escape) goes back to the form as it was; Discard closes both, and only then does `onOpenChange(false)` come, with the reason of the first request. Leaving or reloading the page while it's open asks too (the browser's own `beforeunload` question). Set it from your form's state (`unsaved={name !== saved.name}`), and back to `false` once saved. Your own Cancel button sets `open` itself, so it closes without asking.
+- To keep it open for some other reason, leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 - Under `<React.StrictMode>`, a Dialog that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
 
 ## Accessibility
@@ -64,7 +65,7 @@ const [open, setOpen] = React.useState(false);
 | Key | Does |
 | --- | --- |
 | Tab / Shift+Tab | Between the controls in the dialog; the page behind is inert, so focus stays inside |
-| Escape | Asks to close it (`onOpenChange(false)`), in an `alert` dialog too; in stacked dialogs, only the top one |
+| Escape | Asks to close it (`onOpenChange(false)`), in an `alert` dialog too; in stacked dialogs, only the top one. With `unsaved`, it asks "Discard changes?" first, and Escape there keeps editing |
 | Enter / Space | On the ×, the same as Escape |
 
 ## Props
@@ -86,6 +87,7 @@ const [open, setOpen] = React.useState(false);
 | `fullScreen` | boolean \| `'mobile'` | `false` | Fills the screen: `true` always, or `'mobile'` under 640px wide. Square corners, no shadow, the body takes the free height, and the padding clears the notch and home bar |
 | `initialFocus` | `RefObject<HTMLElement>` | | The element that takes focus when it opens, instead of the first that can. A ref to something outside the dialog is ignored |
 | `finalFocus` | `RefObject<HTMLElement>` | | Where focus goes when it closes, instead of back to the opener. Used when it's on the page then; otherwise focus goes back to the opener |
+| `unsaved` | boolean | `false` | There are changes that would be lost: closing asks "Discard changes?" first (Keep editing or Discard), and leaving the page asks too. `onOpenChange(false)` comes after Discard |
 
 `children` is the body, which scrolls when it's taller than the screen. `className`, `style`, `ref` and everything else go to the `<dialog>`, which has `data-component="dialog"` and `data-size`.
 

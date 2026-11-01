@@ -1,4 +1,10 @@
 // exports: Dialog, type DialogProps
+interface DialogLabels {
+    discardTitle: string;
+    discardDescription: string;
+    discard: string;
+    keepEditing: string;
+}
 interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "title"> {
     open?: boolean;
     defaultOpen?: boolean;
@@ -14,5 +20,6 @@ interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>
     fullScreen?: "mobile" | boolean;
     initialFocus?: React.RefObject<HTMLElement | null>;
     finalFocus?: React.RefObject<HTMLElement | null>;
+    unsaved?: boolean;
 }
 declare const Dialog: React.ForwardRefExoticComponent<DialogProps & React.RefAttributes<HTMLDialogElement>>;
