@@ -3,6 +3,7 @@
 // same pixels: no glyph, feature or weight lost). Chromium.
 //   node tools/test/font-subsets.mjs
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { PROJECT, browser, read, report, done } from './lib.mjs';
 
@@ -12,13 +13,14 @@ const faces = JSON.parse(read('tokens.json')).type.fonts;
 t('every face in tokens.json is a file in fonts/ with a unicode-range', faces.length > 2 && faces.every((f) => f.unicodeRange && fs.existsSync(path.join(PROJECT, f.file))), faces.filter((f) => !f.unicodeRange || !fs.existsSync(path.join(PROJECT, f.file))).map((f) => f.file).join(', '));
 t('tokens.css has an @font-face with its unicode-range for each', (read('tokens.css').match(/unicode-range:/g) || []).length === faces.length, `${(read('tokens.css').match(/unicode-range:/g) || []).length} of ${faces.length}`);
 
-const dir = path.join(PROJECT, '.test-tmp');
-fs.mkdirSync(dir, { recursive: true });
+// Its own folder, not .test-tmp/: the other suites running beside it empty that one when they finish.
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'serupa-fonts-'));
+const at = (f) => 'file://' + path.join(PROJECT, f);
 const b = await browser();
 const p = await b.newPage({ viewport: { width: 900, height: 520 } });
 const fetched = [];
 p.on('request', (r) => { if (r.url().endsWith('.woff2')) fetched.push(r.url().split('/').pop()); });
-fs.writeFileSync(path.join(dir, 'font-english.html'), '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><body style="font-family:var(--font-sans)"><p>Save — 12.50 € … “Ready”, <b>bold</b> <i>and italic</i>.</p>');
+fs.writeFileSync(path.join(dir, 'font-english.html'), `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="${at('tokens.css')}"><body style="font-family:var(--font-sans)"><p>Save — 12.50 € … “Ready”, <b>bold</b> <i>and italic</i>.</p>`);
 await p.goto('file://' + path.join(dir, 'font-english.html'));
 await p.evaluate(() => document.fonts.ready);
 t('an English page downloads only the latin files, upright and italic', fetched.sort().join() === 'InterVariable-Italic-latin.woff2,InterVariable-latin.woff2', fetched.join(', '));
@@ -30,8 +32,8 @@ const text = `<p>Hello -> world <- 1/2 3x4 ‘q’ “dq” – — … fi fl 01
 <p style="font-feature-settings:'tnum','ss01','cv11','zero'">1110 0O Il1 Ag</p>
 <p>Привет Ӂ Ελληνικά ἄλφα Tiếng Việt ŁĞİŞČŦ ʼ ﬀ ₿ ℃ №</p>
 <p style="font-style:italic;font-weight:650">Italic -> Привет Ελληνικά Tiếng ✓</p><p style="font-weight:200">Thin 2/3 Ǆ</p>`;
-const whole = `@font-face{font-family:T;src:url("../fonts/InterVariable.woff2");font-weight:100 900}@font-face{font-family:T;src:url("../fonts/InterVariable-Italic.woff2");font-weight:100 900;font-style:italic}`;
-const split = faces.map((f) => `@font-face{font-family:T;src:url("../${f.file}");font-weight:${f.weight};font-style:${f.style};unicode-range:${f.unicodeRange}}`).join('');
+const whole = `@font-face{font-family:T;src:url("${at('fonts/InterVariable.woff2')}");font-weight:100 900}@font-face{font-family:T;src:url("${at('fonts/InterVariable-Italic.woff2')}");font-weight:100 900;font-style:italic}`;
+const split = faces.map((f) => `@font-face{font-family:T;src:url("${at(f.file)}");font-weight:${f.weight};font-style:${f.style};unicode-range:${f.unicodeRange}}`).join('');
 const shot = async (name, css) => {
   fs.writeFileSync(path.join(dir, name), `<!doctype html><meta charset="utf-8"><style>${css} body{font-family:T;font-size:22px;margin:8px}</style>${text}`);
   await p.goto('file://' + path.join(dir, name));
