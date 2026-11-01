@@ -5,6 +5,7 @@ import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { warnOnce } from "../../internal/warn";
+import { delegateFocus, useAutoFocus } from "../../internal/focus";
 
 /** V is the radios' value type: string (or number) as you use them, inferred from value or onValueChange. */
 export interface RadioGroupProps<V extends string | number = string | number> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -55,7 +56,7 @@ const RadioContext = /* @__PURE__ */ React.createContext<RadioContextValue | nul
    (value with onValueChange, or defaultValue), and passes size, invalid, disabled and required down. onValueChange
    gets (value, event); the old onChange alias is gone (use onValueChange). orientation "vertical" (default) or "horizontal". Renders <div role="radiogroup">: label it
    with Field group (a fieldset and legend), aria-label or aria-labelledby. */
-const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1 } as const;
+const GROUP_OWN = { name: 1, value: 1, defaultValue: 1, onValueChange: 1, orientation: 1, size: 1, invalid: 1, disabled: 1, required: 1, children: 1, className: 1, autoFocus: 1 } as const;
 
 /** One choice from a set of Radios: a <div role="radiogroup"> that names them, holds the value and passes size, invalid, disabled and required down. Label it with Field group, aria-label or aria-labelledby. */
 export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupProps>("RadioGroup", function RadioGroup(props: RadioGroupProps, ref) {
@@ -74,13 +75,14 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
   const ctx: RadioContextValue = { name: props.name || autoName, value: cur, size: props.size, invalid: invalid, disabled: !!props.disabled, required: !!props.required,
     select: function (v, e) { if (!controlled) setPicked(v as string | number); if (onValueChange) onValueChange(v as string | number, e); } };
   // The arrows wrap from the last radio to the first and back, as the radio group pattern asks: Chromium and Firefox
-  // do that themselves, but WebKit stops at the ends.
+  // do that themselves, but WebKit stops at the ends. A radio hidden by CSS isn't one of the ends: wrapping to it checked
+  // it out of sight while focus stayed put (L8E82).
   const own = rest.onKeyDown;
   rest.onKeyDown = function (e: React.KeyboardEvent<HTMLDivElement>) {
     if (own) own(e);
     const t = e.target as HTMLInputElement, k = e.key;
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || t.type !== "radio" || k.indexOf("Arrow") !== 0) return;
-    const all = Array.prototype.filter.call(root.current!.querySelectorAll("input[type=radio]"), function (r: HTMLInputElement) { return r.name === t.name && !r.disabled; }) as HTMLInputElement[];
+    const all = Array.prototype.filter.call(root.current!.querySelectorAll("input[type=radio]"), function (r: HTMLInputElement) { return r.name === t.name && !r.disabled && r.getClientRects().length > 0; }) as HTMLInputElement[];
     const fwd = k === "ArrowDown" || k === (getComputedStyle(t).direction === "rtl" ? "ArrowLeft" : "ArrowRight"), i = all.indexOf(t);
     const to = fwd ? (i === all.length - 1 ? all[0] : null) : (i === 0 ? all[all.length - 1] : null);
     if (!to || to === t) return;
@@ -88,8 +90,16 @@ export const RadioGroup = /* @__PURE__ */ component<HTMLDivElement, RadioGroupPr
     to.focus();
     to.click();
   };
+  useAutoFocus(props.autoFocus, () => root.current);   // through the delegation below; the <div> ignored it (L8E93)
   return (
-    <div {...rest} ref={function (n) { root.current = n; nameRef(n); setRef(ref, n); }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || undefined} aria-disabled={props.disabled || undefined}
+    <div {...rest} ref={function (n) {
+      root.current = n;
+      // ref.current.focus() (a form library focusing the first invalid field) lands on the radio in the Tab order, the
+      // checked one or else the first that can be picked; the <div> took no focus. aria-required given to the group
+      // is kept, not overwritten by the required prop (L8E90).
+      delegateFocus(n, () => n && (n.querySelector<HTMLElement>("input:checked:enabled") || n.querySelector<HTMLElement>("input:enabled")));
+      nameRef(n); setRef(ref, n);
+    }} role="radiogroup" aria-invalid={invalid || undefined} aria-required={props.required || rest["aria-required"] || undefined} aria-disabled={props.disabled || undefined}
       className={cn("dk-radio-group", "dk-radio-group--" + orientation, invalid && "dk-radio-group--invalid", props.className)} data-component="radio-group" data-orientation={orientation}>
       <RadioContext.Provider value={ctx}>{props.children}</RadioContext.Provider>
     </div>

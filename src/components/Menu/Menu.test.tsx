@@ -594,6 +594,33 @@ describe('Menu', () => {
     radios()[2].click();
     expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
   });
+
+  test('L8E112: choosing the MenuRadioItem that is chosen already closes the menu but calls no onValueChange', async () => {
+    const asks: string[] = [];
+    await render(<Menu trigger={<Button id="rs">Sort</Button>}>
+      <MenuRadioGroup label="Sort by" value="name" onValueChange={(v) => asks.push(v)}>
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="date">Date</MenuRadioItem>
+      </MenuRadioGroup>
+    </Menu>);
+    await userEvent.click(el('rs'));
+    await userEvent.keyboard('{Enter}');
+    expect([el('rs').getAttribute('aria-expanded'), asks]).toEqual(['false', []]);
+  });
+
+  test('L8E80: an item hidden by CSS or the hidden attribute is skipped by the arrows, Home, End and on open, so focus never sticks', async () => {
+    await render(<Menu trigger={<Button id="hb">More</Button>}>
+      <MenuItem hidden>Gone first</MenuItem>
+      <MenuItem>One</MenuItem>
+      <MenuItem style={{ display: 'none' }}>Gone</MenuItem>
+      <MenuItem>Two</MenuItem>
+      <MenuItem hidden>Gone last</MenuItem>
+    </Menu>);
+    await userEvent.click(el('hb'));
+    const seen = [focus()];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowUp}', '{End}', '{Home}', '{ArrowUp}']) { await userEvent.keyboard(k); seen.push(focus()); }
+    expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One', 'Two']);
+  });
 });
 
 describe('ContextMenu', () => {
@@ -791,5 +818,18 @@ describe('Menu: motion (DZ1)', () => {
       await userEvent.keyboard('{Escape}');
       expect([m.hidden, getComputedStyle(m).display, m.getAnimations().length, m.querySelectorAll('[role="menuitem"]').length]).toEqual([true, 'none', 0, 0]);
     });
+  });
+
+  test('L8E104: the <dialog> it sits in closing closes it, so it is not open again when the dialog reopens', async () => {
+    await render(<dialog id="l8e104d"><Menu trigger={<Button id="l8e104t">Actions</Button>}><MenuItem>Rename</MenuItem></Menu></dialog>);
+    const d = document.getElementById('l8e104d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.click(document.getElementById('l8e104t')!);
+    d.close();
+    // The close event comes in a task after close().
+    await new Promise((r) => setTimeout(r, 50));
+    d.showModal();
+    expect([document.getElementById('l8e104t')!.getAttribute('aria-expanded'), document.querySelectorAll('[role="menu"]:popover-open').length]).toEqual(['false', 0]);
+    d.close();
   });
 });

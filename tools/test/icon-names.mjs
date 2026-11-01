@@ -7,9 +7,12 @@
 //   node tools/test/icon-names.mjs
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import { read, writePage, browser, cleanup, report, done, PROJECT } from './lib.mjs';
 
-const all = new Map([...read('src/material/icons.ts').matchAll(/name: "([a-z0-9_]+)", d: "([^"]+)"/g)].map((m) => [m[1], m[2]]));
+// The table, from its parts (src/material/part/NN.ts), which src/material/icons.ts re-exports.
+const parts = fs.readdirSync(path.join(PROJECT, 'src/material/part')).sort().map((f) => read('src/material/part/' + f)).join('');
+const all = new Map([...parts.matchAll(/name: "([a-z0-9_]+)", d: "([^"]+)"/g)].map((m) => [m[1], m[2]]));
 const names = [...all.keys()];
 
 const R = [];

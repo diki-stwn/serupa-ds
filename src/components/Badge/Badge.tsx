@@ -48,7 +48,7 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onC
   target?: string;
   /** The link's relation to the page, as on <a>. */
   rel?: string;
-  /** Native button attributes, when interactive. */
+  /** Turns an interactive badge off. A link has no disabled state in HTML: a disabled link badge renders without href, with role="link" and aria-disabled, and can't be focused or followed. */
   disabled?: boolean;
   /** 'button' (default, never submits by accident), 'submit' or 'reset', when interactive. */
   type?: 'button' | 'submit' | 'reset';
@@ -174,6 +174,15 @@ export const Badge = /* @__PURE__ */ component<HTMLElement, BadgeProps>("Badge",
   if (isLink) {
     if (rest.target === "_blank" && rest.rel == null) rest.rel = "noopener noreferrer";
     delete rest.type;
+    if (rest.disabled) {
+      // Links have no disabled state: as Button does, drop href so it can't be followed or focused, and say what it is
+      // with role="link" and aria-disabled (L8E73).
+      delete rest.href; delete rest.disabled;
+      rest.role = "link";
+      rest["aria-disabled"] = true;
+      rest.onClick = block;
+      return React.createElement("a", Object.assign(rest, { ref: setNode, className: classes }), ...content);
+    }
     return React.createElement(config.link, Object.assign(rest, { ref: setNode, className: classes }), ...content);
   }
   if (interactive && rest.type === undefined) rest.type = "button";   // never submits a form by accident

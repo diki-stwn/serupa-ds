@@ -29,6 +29,20 @@ export default function RootLayout({ children }) {
 
 What wins, in order: the component's own prop (`dismissLabel`, `locale`, …), the nearest provider, an outer provider, then the defaults. A nested provider changes only the keys it sets.
 
+## Labels that count
+
+Some labels take a number, such as Combobox's `resultsCount` or Pagination's `page`. English needs two forms ("1 result", "2 results"); Russian needs three, Arabic six, Indonesian one. `plural(locale, count, forms)` picks the form with `Intl.PluralRules` and writes the count the locale's way where the words have `#`. Only `other` is required; a form left out falls back to it.
+
+```tsx
+import { plural, SerupaProvider } from "serupa-ds";
+
+const ruLabels = {
+  resultsCount: (n: number) => plural("ru", n, { one: "# результат", few: "# результата", many: "# результатов", other: "# результата" }),
+};
+
+<SerupaProvider locale="ru-RU" labels={ruLabels}>{children}</SerupaProvider>;
+```
+
 ## Server-rendered pages
 
 A server can't know the visitor's locale. Without a `locale`, the components that write dates, times and numbers render the server HTML in `en-US`, hydrate in `en-US` too so React sees no mismatch, and switch to the browser's locale right after. To show the visitor's format from the first paint, set the provider's `locale` from the request, for example from the `Accept-Language` header or the user's saved setting. Without one, the server logs a warning once ("Serupa: rendered on the server without a locale…") so the change after hydration doesn't go unnoticed:

@@ -62,7 +62,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 | `brand` | node | none | The logo or product name, usually a link home |
 | `children` | NavbarLinks | none | The main pages |
 | `actions` | node | none | Controls on the right; they stay in the bar on small screens |
-| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. Once the page scrolls under it, the bar lifts: a shadow fades in over the first bar height of scroll, and in the dark themes the bar turns the lighter raised surface, where a shadow alone barely shows, tied to the scroll rather than a clock (where scroll-driven animations are supported; elsewhere the line alone). |
+| `sticky` | boolean | `false` | Stays at the top while the page scrolls (z-40). What Tab focuses, or a #link jumps to, scrolls into view below the bar instead of under it (WCAG 2.4.11): the page's `scroll-padding-top` follows the bar's height. Once the page scrolls under it, the bar lifts: a shadow fades in over the first bar height of scroll, tied to the scroll rather than a clock (where scroll-driven animations are supported; elsewhere the line alone). |
 | `size` | `'prose'` \| `'md'` \| `'lg'` \| `'xl'` \| `'2xl'` \| `'full'` | `'xl'` | The content's maximum width, the same as Container, so it lines up with the page |
 | `aria-label` | string | `"Main"` | The links' nav name |
 | `menuLabel` | string | `"Menu"` | The small-screen menu button's name |
@@ -83,27 +83,66 @@ Following a link closes the small-screen menu. `className`, `ref` and everything
 
 Each is an optional override: set it on the page, a container or one navbar. The list lives in `src/components/Navbar/navbar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from navbar.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--navbar-bg` | `surface` | The bar's background. |
+| `--navbar-bg-scrolled` | `surface-raised` | A sticky bar's background once the page has scrolled under it, faded in with its shadow. In the dark themes it's the lighter raised surface, since a shadow barely shows on a near-black page; in the light ones it's the same white. Set it with --navbar-bg when you change that. |
 | `--navbar-border` | `border` | The line under the bar. |
 | `--navbar-brand-text` | `text` | The brand (logo and name) at the start of the bar. |
 | `--navbar-link-text` | `text-muted` | A link (4.5:1 on bg and link-bg-hover). |
 | `--navbar-link-text-hover` | `text` | A link on hover. |
 | `--navbar-link-text-active` | `text` | The current page's link. |
 | `--navbar-link-bg-hover` | `secondary` | A link's background on hover. |
-| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
 | `--navbar-link-bg-active` | `secondary` | The current page's link background. |
 | `--navbar-focus-ring` | `focus-ring` | The keyboard focus ring. |
+| `--navbar-link-bg-pressed` | `pressed` | A link's fill while it's held down. |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-link-size` | `text-sm` | Link text (14px). |
 | `--navbar-link-weight` | `font-medium` | Link weight (500). |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-height` | `spacing-16` | The bar's height (64px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-gap` | `spacing-6` | Space between the brand, the links and the actions (24px). |
 | `--navbar-link-gap` | `spacing-1` | Space between links (4px). |
 | `--navbar-link-padding-x` | `spacing-3` | A link's side padding (12px). |
 | `--navbar-link-padding-y` | `spacing-2` | A link's top and bottom padding (8px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-border-width` | `border-width-1` | The line under the bar (1px). |
+
+**Radius**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-link-radius` | `rounded-md` | A link's corners (6px). |
+
+**Layout**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-z-index` | `z-40` | Above the page when sticky. |
+
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--navbar-shadow-scrolled` | `shadow-md` | A sticky bar's shadow once the page has scrolled under it. |
-| `--navbar-bg-scrolled` | `surface-raised` | A sticky bar's background once the page has scrolled under it (lighter in the dark themes; set it with `--navbar-bg`). |
+<!-- token-table:end -->

@@ -49,6 +49,12 @@
 .dk-card__body { min-width: var(--spacing-0); }
 .dk-card__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--spacing-2); }
 .dk-card__footer--start { justify-content: flex-start; }
+/* Footer under 20rem: each action takes the full row (75). Like a container query, without size containment. */
+.dk-card__footer > * {
+  /* stylelint-disable-next-line serupa/no-raw-value -- all-or-nothing multiplier */
+  --dk-card-stack: calc((var(--spacing-80) - var(--sizing-full)) * 999);
+  min-width: clamp(var(--spacing-0), var(--dk-card-stack), var(--sizing-full));
+}
 .dk-card__footer--between { justify-content: space-between; }
 
 /* Interactive (href): one link, around the title (or empty, over the card), whose area is stretched over the whole

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, contrast, css, settle, settled, withMotion } from '../../../tools/test/vitest/helpers';
@@ -50,6 +50,22 @@ describe('Tooltip', () => {
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => isOpen('twhy')).toBe(false);
     expect(why).toEqual(['show hover', 'hide hover', 'show focus', 'hide blur', 'show focus', 'hide escape']);
+  });
+
+  test('L8E106: onOpenChange is called only for a change: not for a press, a blur or a quick pass while hidden, nor while disabled', async () => {
+    const asks: string[] = [];
+    await render(<div style={{ padding: '80px' }}>
+      <Tooltip content="Quiet" onOpenChange={(v, d) => asks.push((v ? 'show ' : 'hide ') + d.reason)}><button id="l8e106a">Quiet</button></Tooltip>
+      <Tooltip content="Off" disabled delay={0} onOpenChange={(v, d) => asks.push('off ' + (v ? 'show ' : 'hide ') + d.reason)}><button id="l8e106b">Off</button></Tooltip>
+    </div>);
+    await userEvent.hover(el('l8e106a'));   // passes on before the delay: never shown
+    await away();
+    await settle(500);
+    await userEvent.click(el('l8e106a'));   // a press, then focus that isn't from the keyboard
+    el('l8e106b').focus();                  // a blur from the first; the second is disabled
+    await userEvent.hover(el('l8e106b'));
+    await settle(100);
+    expect([isOpen('l8e106a'), asks]).toEqual([false, []]);
   });
 
   test('wiring: the tooltip (role tooltip) describes its element, keeping an existing aria-describedby; role="label" names it instead', async () => {
@@ -275,5 +291,24 @@ describe('Tooltip warm-up (EC1)', () => {
       expect([css(a).display, a.getAnimations().length, b.getAnimations().length]).toEqual(['none', 0, 0]);
       await away();
     });
+  });
+});
+
+describe('Tooltip content is plain text (PT5)', () => {
+  test('a link or button in content warns once (tooltip-interactive); plain text and a Kbd-style element don\'t', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const calls = () => warn.mock.calls.filter(([m]) => /Tooltip: its content holds a link, button or field/.test(String(m)));
+    await render(<>
+      <Tooltip content="Download"><button type="button">A</button></Tooltip>
+      <Tooltip content={<>Save <kbd>Ctrl S</kbd></>}><button type="button">B</button></Tooltip>
+    </>);
+    expect(calls()).toHaveLength(0);
+    await render(<>
+      <Tooltip content={<>See <a href="#help">help</a></>}><button type="button">C</button></Tooltip>
+      <Tooltip content={<button type="button">Undo</button>}><button type="button">D</button></Tooltip>
+    </>);
+    expect(calls()).toHaveLength(1);
+    expect(String(calls()[0][0])).toMatch(/use a Popover/);
+    warn.mockRestore();
   });
 });

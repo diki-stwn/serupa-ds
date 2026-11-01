@@ -1,0 +1,12 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { TokenExplorer } from '../blocks';
+
+<Meta title="Foundations/Token explorer" />
+
+# Token explorer
+
+Every design token Serupa publishes: the shared tokens in `tokens.json` and each component's own tokens (its `<name>.tokens.json`). Search by a token's name, its value, what it's for, or a component's name. A color that changes with the theme shows its value in all six themes, as the palette color it reads and the color that comes out. "Used by" lists the components whose CSS reads the token, and the copy button copies it as `var(--name)`, ready for CSS.
+
+The page is made from the token files on each build, so it can't drift from the package.
+
+<TokenExplorer />

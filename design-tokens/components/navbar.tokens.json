@@ -229,7 +229,7 @@
       "shadow-scrolled": {
         "$type": "shadow",
         "$value": "{shadow.shadow-md}",
-        "$description": "A sticky bar's shadow once the page has scrolled under it, faded in over the first bar height of scroll (where scroll-driven animations are supported).",
+        "$description": "A sticky bar's shadow once the page has scrolled under it.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--navbar-shadow-scrolled"

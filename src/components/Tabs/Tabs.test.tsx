@@ -78,6 +78,17 @@ describe('Tabs', () => {
     expect([state('un'), changes.join()]).toEqual(['One *Two0 Three | -input +Panel two -', 'two']);
   });
 
+  test('L8E107: the selected tab pressed again (a click, Enter, Space) calls no onValueChange, controlled or not', async () => {
+    await setup();
+    const tab = (id: string, n: number) => el(id).querySelector<HTMLElement>('[role="tab"]:nth-child(' + n + ')')!;
+    await userEvent.click(tab('un', 1));
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    await userEvent.click(tab('ctl', 2));
+    await userEvent.click(tab('ctl', 3));
+    expect(changes).toEqual(['ctl:three x']);
+  });
+
   test('keys: arrows move and select (wrapping), Home and End jump to the ends; Tab goes on to the selected panel\'s content', async () => {
     await setup();
     await userEvent.click(el('un').querySelector('[role="tab"]:nth-child(2)')!);
@@ -224,6 +235,34 @@ describe('Tabs', () => {
     still.remove();
     expect([low, n]).toEqual([[], 30]);
   });
+
+  test('L8E81: a tab hidden by CSS or the hidden attribute is skipped by the arrows, Home and End, and never selected from the keyboard', async () => {
+    await render(<Tabs id="h" defaultValue="a">
+      <TabList aria-label="Hidden"><Tab value="z" hidden>Z</Tab><Tab value="a">A</Tab><Tab value="x" style={{ display: 'none' }}>X</Tab><Tab value="b">B</Tab><Tab value="y" hidden>Y</Tab></TabList>
+      <TabPanel value="z">pz</TabPanel><TabPanel value="a">pa</TabPanel><TabPanel value="x">px</TabPanel><TabPanel value="b">pb</TabPanel><TabPanel value="y">py</TabPanel>
+    </Tabs>);
+    selected('h').focus();
+    const seen: (string | null)[] = [];
+    for (const k of ['{ArrowRight}', '{ArrowRight}', '{ArrowLeft}', '{End}', '{Home}', '{ArrowLeft}']) { await userEvent.keyboard(k); seen.push(focused() + ':' + selected('h').dataset.value); }
+    expect(seen).toEqual(['B:b', 'A:a', 'B:b', 'B:b', 'A:a', 'B:b']);
+  });
+
+  test('GR67: when the selected tab is hidden by CSS, the first shown tab takes the Tab stop, and gives it back once the selected one shows again', async () => {
+    await render(<><button id="before">Before</button><Tabs id="hs" defaultValue="a">
+      <TabList aria-label="Hidden selected"><Tab value="a">A</Tab><Tab value="b">B</Tab><Tab value="c" disabled>C</Tab></TabList>
+      <TabPanel value="a">pa</TabPanel><TabPanel value="b">pb</TabPanel>
+    </Tabs></>);
+    const stops = () => Array.from(document.querySelectorAll<HTMLElement>('#hs [role="tab"]')).map((t) => t.tabIndex).join();
+    expect(stops()).toBe('0,-1,-1');
+    // A responsive class hides the selected tab: the next shown, enabled tab is reachable with Tab.
+    (document.querySelector('#hs [data-value="a"]') as HTMLElement).style.display = 'none';
+    await expect.poll(stops).toBe('0,0,-1');
+    (document.getElementById('before') as HTMLElement).focus();
+    await userEvent.tab();
+    expect(focused()).toBe('B');
+    (document.querySelector('#hs [data-value="a"]') as HTMLElement).style.display = '';
+    await expect.poll(stops).toBe('0,-1,-1');
+  });
 });
 
 // Server rendering: without defaultValue the first enabled tab is picked while rendering, so the HTML already
@@ -308,11 +347,34 @@ describe('Tabs on the server', () => {
     // Polled: once the fonts load, the tabs change width and the list scrolls the selected one back into view.
     await expect.poll(() => { const box = list.getBoundingClientRect(), t = selected('ov').getBoundingClientRect(); return [list.scrollLeft > 0, t.right <= box.right + 0.5, t.left >= box.left]; }).toEqual([true, true, true]);
     await expect.poll(() => [list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([true, false]);
-    expect(css(list).maskImage).toMatch(/linear-gradient/);
+    // The fade eases in (KW13): stops at 16% and 84% between clear and solid, so it has no hard line where it starts.
+    expect([/linear-gradient/.test(css(list).maskImage), (css(list).maskImage.match(/0\.16\)/g) || []).length, (css(list).maskImage.match(/0\.84\)/g) || []).length]).toEqual([true, 2, 2]);
     await userEvent.click(el('first'));
     await expect.poll(() => [list.scrollLeft, list.hasAttribute('data-fade-before'), list.hasAttribute('data-fade-after')]).toEqual([0, false, true]);
     const fit = el('fit').querySelector<HTMLElement>('[role="tablist"]')!;
     expect([fit.hasAttribute('data-fade-before'), fit.hasAttribute('data-fade-after'), css(fit).maskImage]).toEqual([false, false, 'none']);
+  });
+
+  test('the fade grows in and shrinks away (177) once the list scrolls: its width is a typed property, so it transitions instead of jumping; on mount it is just there', async () => {
+    await withMotion(async () => {
+      await render(<div style={{ width: '200px' }}><Tabs id="fd"><TabList aria-label="Fade">{['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'].map((t) => <Tab key={t} value={t}>{t}</Tab>)}</TabList></Tabs></div>);
+      const list = el('fd').querySelector<HTMLElement>('[role="tablist"]')!;
+      // On mount the fade is just there; it eases once the list scrolls. (After the fonts: they scroll the selected tab back into view.)
+      expect([list.hasAttribute('data-fade-after'), list.getAnimations().length]).toEqual([true, 0]);
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(r));
+      // A first nudge, too small to fade anything, so the list counts as scrolled.
+      list.scrollTo({ left: 1, behavior: 'instant' });
+      await expect.poll(() => list.hasAttribute('data-scrolled')).toBe(true);
+      // Read the moment the start fade turns on, before the transition can end.
+      const on = new Promise<void>((r) => { const mo = new MutationObserver(() => { if (list.hasAttribute('data-fade-before')) { mo.disconnect(); r(); } }); mo.observe(list, { attributes: true }); });
+      list.scrollTo({ left: 60, behavior: 'instant' });
+      await on;
+      const moving = list.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty);
+      const mid = parseFloat(css(list).getPropertyValue('--dk-tabs-fade-a'));
+      await Promise.all(list.getAnimations().map((a) => a.finished));
+      expect([moving, mid >= 0 && mid < 32, css(list).getPropertyValue('--dk-tabs-fade-a')]).toEqual([['--dk-tabs-fade-a'], true, '32px']);
+    });
   });
 
   test('orientation="vertical": aria-orientation vertical, the tabs in a column at the start with the line on their end side; ↓ and ↑ move and select (wrapping), ← → do nothing', async () => {
@@ -447,5 +509,41 @@ describe('Tabs in a grid or flex row (GO2)', () => {
       const list = document.querySelector<HTMLElement>(`#${tabs} [role="tablist"]`)!;
       expect([document.getElementById(box)!.scrollWidth, document.getElementById(tabs)!.getBoundingClientRect().width <= 320, list.scrollWidth > list.clientWidth]).toEqual([320, true, true]);
     }
+  });
+});
+
+describe('Tabs inside a shadow root (GR60)', () => {
+  test('the arrows, Home and End move focus and the selection, as on the page', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Tabs defaultValue="a"><TabList aria-label="Shadow"><Tab value="a">A</Tab><Tab value="b">B</Tab><Tab value="c">C</Tab></TabList></Tabs>, { container: inner });
+      const root = host.shadowRoot!, tabs = [...root.querySelectorAll<HTMLElement>('[role="tab"]')];
+      const at = () => [tabs.indexOf(root.activeElement as HTMLElement), tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true')];
+      tabs[0].focus();
+      await userEvent.keyboard('{ArrowRight}');
+      expect(at()).toEqual([1, 1]);
+      await userEvent.keyboard('{End}');
+      expect(at()).toEqual([2, 2]);
+      await userEvent.keyboard('{Home}');
+      expect(at()).toEqual([0, 0]);
+    } finally { host.remove(); }
+  });
+});
+
+describe('Tabs and form validation (L8E100)', () => {
+  test('L8E100 a required field on a tab that is not selected: submitting the form selects its tab and focuses the field; the submit was stopped with nothing shown', async () => {
+    let sent = 0;
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent++; }}>
+      <Tabs defaultValue="one"><TabList aria-label="Steps"><Tab value="one">One</Tab><Tab value="two">Two</Tab></TabList>
+        <TabPanel value="one">First</TabPanel><TabPanel value="two"><label htmlFor="l8e100-city">City</label><input id="l8e100-city" required /></TabPanel></Tabs>
+      <button id="l8e100-go">Send</button>
+    </form>);
+    await expect.poll(() => document.getElementById('l8e100-city')!.closest('[hidden]')?.getAttribute('hidden')).toBe('until-found');
+    await userEvent.click(document.getElementById('l8e100-go')!);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e100-city');
+    expect([sent, document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')]).toEqual([0, 'true']);
   });
 });

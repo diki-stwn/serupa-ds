@@ -108,7 +108,10 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const [open, setOpen] = React.useState(false);
   const [picking, setPicking] = React.useState<"start" | "end">("start");
   const [hover, setHover] = React.useState<Date | null>(null);
-  const [base, setBase] = React.useState(() => startOfMonth(value.start || new Date()));
+  // With no start, today, or min or max when today is outside them, so the popup doesn't open on a month where
+  // nothing can be picked (L8E79).
+  const home = () => { const t = new Date(); return min && compare(t, min) < 0 ? min : max && compare(t, max) > 0 ? max : t; };
+  const [base, setBase] = React.useState(() => startOfMonth(value.start || home()));
   const popId = domId("dk-drp", React.useId());
   const box = React.useRef<HTMLSpanElement | null>(null);
   const startField = React.useRef<HTMLInputElement | null>(null);
@@ -148,7 +151,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   const close = (focus: boolean) => { setOpen(false); setHover(null); if (focus && startField.current) startField.current.focus(); };
   const show = () => {
     const typed = parseDate(text.start, locale);
-    setBase(startOfMonth((typed && allowed(typed) ? typed : null) || value.start || new Date()));
+    setBase(startOfMonth((typed && allowed(typed) ? typed : null) || value.start || home()));
     setPicking(value.start && !value.end ? "end" : "start");
     setOpen(true);
   };

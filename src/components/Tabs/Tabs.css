@@ -6,6 +6,13 @@
    32px. vertical: a column at the start with the line on its end side. Every value goes through --tabs-* tokens.
    --------------------------------------------------------------- */
 @layer dk.components {
+/* The fades' widths, typed (177), so they transition: a fade grows in as tabs scroll past an edge and shrinks away
+   as the row reaches it, where an untyped custom property would jump. Only once the list has scrolled (TabList sets
+   data-scrolled): a fade there from the first frame is just there. */
+/* stylelint-disable serupa/no-raw-value -- an initial-value must be a literal: @property takes no var() */
+@property --dk-tabs-fade-a { syntax: '<length-percentage>'; inherits: false; initial-value: 0px; }
+@property --dk-tabs-fade-b { syntax: '<length-percentage>'; inherits: false; initial-value: 0px; }
+/* stylelint-enable serupa/no-raw-value */
 /* min-width 0: in a grid track or a flex row, a long tab row scrolls in its box instead of widening the page (GO2). */
 .dk-tabs { font-family: var(--font-sans); min-width: var(--spacing-0); }
 .dk-tabs__list {
@@ -22,11 +29,30 @@
 }
 /* Safari before 18.2 ignores scrollbar-width; browsers that have it ignore this. */
 .dk-tabs__list::-webkit-scrollbar { display: none; }
+.dk-tabs__list[data-scrolled] { transition: --dk-tabs-fade-a var(--motion-change-sm) var(--ease-move), --dk-tabs-fade-b var(--motion-change-sm) var(--ease-move); }
 .dk-tabs__list[data-fade-before] { --dk-tabs-fade-a: var(--dk-tabs-fade); }
 .dk-tabs__list[data-fade-after] { --dk-tabs-fade-b: var(--dk-tabs-fade); }
 .dk-tabs__list:is([data-fade-before], [data-fade-after]) {
   --dk-tabs-fade-end: calc(var(--sizing-full) - var(--dk-tabs-fade-b));
-  mask-image: linear-gradient(var(--dk-tabs-fade-to), transparent, black var(--dk-tabs-fade-a), black var(--dk-tabs-fade-end), transparent);
+  /* Each fade follows a smoothstep curve (16% at a quarter of its width, 84% at three quarters, and so 50% half way),
+     so it has no visible line where it starts or ends, as a straight two-stop gradient does (KW13). */
+  /* stylelint-disable serupa/no-raw-value -- the curve's points are its geometry, not design values */
+  --dk-tabs-fade-16: color-mix(in srgb, black 16%, transparent);
+  --dk-tabs-fade-84: color-mix(in srgb, black 84%, transparent);
+  --dk-tabs-fade-a1: calc(var(--dk-tabs-fade-a) * 0.25);
+  --dk-tabs-fade-a3: calc(var(--dk-tabs-fade-a) * 0.75);
+  --dk-tabs-fade-b1: calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.25);
+  --dk-tabs-fade-b3: calc(var(--dk-tabs-fade-end) + var(--dk-tabs-fade-b) * 0.75);
+  mask-image: linear-gradient(var(--dk-tabs-fade-to),
+    transparent,
+    var(--dk-tabs-fade-16) var(--dk-tabs-fade-a1),
+    var(--dk-tabs-fade-84) var(--dk-tabs-fade-a3),
+    black var(--dk-tabs-fade-a),
+    black var(--dk-tabs-fade-end),
+    var(--dk-tabs-fade-84) var(--dk-tabs-fade-b1),
+    var(--dk-tabs-fade-16) var(--dk-tabs-fade-b3),
+    transparent);
+  /* stylelint-enable serupa/no-raw-value */
 }
 .dk-tabs--line .dk-tabs__list { border-bottom: var(--border-width-1) solid var(--tabs-border, var(--border)); }
 .dk-tabs__tab {

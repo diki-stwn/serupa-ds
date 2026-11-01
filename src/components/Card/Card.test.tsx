@@ -93,12 +93,12 @@ describe('Card', () => {
     expect(f.boxShadow === 'none' || /0px 0px 0px 0px/.test(f.boxShadow)).toBe(true);
   });
 
-  test('elevated in dark: one step up from the page (zinc-900 on zinc-950) with a zinc-800 edge, in every dark theme', async () => {
+  test('elevated in dark: one step up from the page (zinc-800 on zinc-900) with a zinc-700 edge, in every dark theme', async () => {
     await render(<Variants />);
     for (const th of THEMES.filter((t) => t.endsWith('-dark'))) {
       document.documentElement.setAttribute('data-theme', th);
       const e = css(el('el'));
-      expect([th, e.backgroundColor, e.borderTopColor]).toEqual([th, color('var(--zinc-900)'), color('var(--zinc-800)')]);
+      expect([th, e.backgroundColor, e.borderTopColor]).toEqual([th, color('var(--zinc-800)'), color('var(--zinc-700)')]);
       expect(e.backgroundColor).not.toBe(color('var(--surface)'));
     }
     document.documentElement.setAttribute('data-theme', 'blue-light');
@@ -122,6 +122,15 @@ describe('Card', () => {
       <Card id="kids"><CardHeader title="T"><span id="extra">More</span></CardHeader></Card>
     </Col>);
     expect([!!q('#bare .dk-card__description'), !!q('#bare .dk-card__action'), el('extra').parentElement!.className]).toEqual([false, false, 'dk-card__heading']);
+  });
+
+  test('a narrow card stacks its footer actions, each the full row (75); a wider one keeps them side by side at their own width', async () => {
+    const card = (id: string, w: string) => <div style={{ width: w }}><Card id={id}><CardBody>Body</CardBody><CardFooter><Button variant="outline">Cancel</Button><Button>Save</Button></CardFooter></Card></div>;
+    await render(<Col>{card('narrow', '240px')}{card('wide', '480px')}</Col>);
+    // The footer is the Save button's parent.
+    const row = (id: string) => { const [a, b] = [...el(id).querySelectorAll('button')].map((n) => n.getBoundingClientRect()), f = el(id).querySelectorAll('button')[1].parentElement!.getBoundingClientRect(); return [Math.round(a.width) === Math.round(f.width), Math.round(b.width) === Math.round(f.width), b.top > a.top]; };
+    expect(row('narrow')).toEqual([true, true, true]);
+    expect(row('wide')).toEqual([false, false, false]);
   });
 
   test('footer: justify end (default, and for unknown values), start, between', async () => {

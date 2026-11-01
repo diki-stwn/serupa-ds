@@ -9,7 +9,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 Install a released version straight from GitHub, pinned to its tag:
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v11.0.0
+npm install github:diki-stwn/serupa-ds#v12.0.0
 ```
 
 Pin a tag, never `#main`, so updates reach your project only when you choose. Each release tag is prebuilt, so nothing runs on install.
@@ -48,7 +48,7 @@ A bundler hashes the file names and compresses them for you, so of the delivery 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hello · Example</title>
   <script src="dist/theme.js"></script>
-  <link rel="preload" href="fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="dist/base.css">
   <link rel="stylesheet" href="dist/components.css">
@@ -98,6 +98,22 @@ export default [
 ```
 
 It sets the settings for eslint-plugin-jsx-a11y and for its maintained fork, eslint-plugin-jsx-a11y-x, so it works with either. Oxlint reads the same `jsx-a11y` settings from `.oxlintrc.json`. Print them once with `node -e "import('serupa-ds/eslint').then((m) => console.log(JSON.stringify({ settings: m.default.settings }, null, 2)))"` and paste them in, then print them again after you update the package.
+
+## Lint your CSS for raw values
+
+A hex color in your own CSS doesn't change in dark mode, and a `13px` gap sits off the spacing scale. `serupa-ds/stylelint` is a Stylelint config with three rules that flag those values and name the token to use instead. Install `stylelint`, then extend the config in `stylelint.config.js`:
+
+```js
+export default {
+  extends: ['serupa-ds/stylelint'],
+};
+```
+
+- `serupa/no-raw-color` flags a color written out, such as `#333`, `rgb()`, `oklch()` or `black`. A color name only counts in a property that takes a color, so `grid-area: tan` passes. Use a color token, such as `var(--text)` or `var(--surface)`.
+- `serupa/no-raw-spacing` flags a fixed length, such as `12px` or `1.5rem`, in `margin`, `padding`, `gap` or `inset`. A percentage or a viewport or container unit, such as `inset: 50%` or `1vw`, passes, because no token says that. Use a spacing token, such as `var(--spacing-4)`.
+- `serupa/no-raw-radius` flags a length in `border-radius`. Use a rounded token, such as `var(--rounded-md)`.
+
+These values always pass: anything inside `var()` (including its fallback), `calc()` over tokens, `0`, `transparent` and `currentcolor`, and the values of custom properties, since that is where your own tokens go. When a line needs a raw value, say why in a comment: `/* stylelint-disable-next-line serupa/no-raw-color -- the logo's exact ink */`.
 
 ## Working on the system
 

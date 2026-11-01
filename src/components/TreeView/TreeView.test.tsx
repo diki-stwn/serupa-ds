@@ -158,6 +158,21 @@ describe('TreeView', () => {
     expect(last()).toBe('a,a1,a2,c,d');
   });
 
+  test('L8E111: Ctrl+A or a Shift range over items all picked already calls no onValueChange', async () => {
+    const onValueChange = vi.fn();
+    await render(<Tree selectionMode="multiple" defaultExpanded={['a']} onValueChange={onValueChange} />);
+    await enter();
+    await userEvent.keyboard('{Control>}a{/Control}');
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard('{Control>}a{/Control}');   // everything is picked already
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    await userEvent.click(row('a1'));
+    await userEvent.click(row('a1'));   // picked again, and now the anchor
+    expect(onValueChange).toHaveBeenCalledTimes(3);
+    await userEvent.keyboard('{End}{Shift>} {/Shift}');   // a1 to d, all picked already
+    expect(onValueChange).toHaveBeenCalledTimes(3);
+  });
+
   test('L8E4: Ctrl+A picks all on a layout whose A key types another script (Russian "ф"), by the key\'s position', async () => {
     const onValueChange = vi.fn();
     await render(<Tree selectionMode="multiple" defaultExpanded={['a']} onValueChange={onValueChange} />);

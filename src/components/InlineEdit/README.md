@@ -85,14 +85,16 @@ Every other prop, `className` and `ref` go to the outer `<div>`. `autoFocus` foc
 
 Each is an optional override: set it on the page, a container or one InlineEdit. The field and the button's height and padding use Input's tokens. The list lives in `src/components/InlineEdit/inline-edit.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from inline-edit.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--inline-edit-text` | `text` | The text in the button. |
-| `--inline-edit-text-disabled` | `text-muted` | The text of a disabled InlineEdit. |
 | `--inline-edit-placeholder` | `text-muted` | The placeholder when the text is empty. |
+| `--inline-edit-text-disabled` | `text-muted` | The text of a disabled InlineEdit. |
 | `--inline-edit-icon` | `text-muted` | The pencil. |
 | `--inline-edit-bg-hover` | `surface-muted` | The button's background on hover. |
-| `--inline-edit-focus-ring` | `focus-ring` | The button's keyboard focus ring. |
 | `--inline-edit-error` | `danger-text` | The validation message. |
+| `--inline-edit-focus-ring` | `focus-ring` | The button's keyboard focus ring. |
 | `--inline-edit-radius` | `rounded-md` | The button's corners (6px). |
 | `--inline-edit-gap` | `spacing-1` | Space between the field and its message (4px). |
+<!-- token-table:end -->
