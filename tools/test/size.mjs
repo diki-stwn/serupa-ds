@@ -49,15 +49,16 @@ const LABELS = [2.6, 1.9];
 const PHONE_DATA = 2.8;
 // Not made of component folders. theme.js went from 2 to 2.3 with theme-color (KW12: 2.2 when set), and to 2.4 on
 // 31 Oct 2026 with the choice read again on a return from the back/forward cache (FEC6: 2.37).
-const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 7.9, 'serupa-icons.iife.js': 525 };   // tokens.css: 7.9 on 1 Nov 2026, the link-visited color in each of the six themes (Prose); 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2); serupa-icons.iife.js: 492.9 the same day, every Material Symbol, loaded only when a plain page names one outside the everyday set (PF1)
-// KiB as shipped (woff2 is compressed already): 344 and 379 on 31 Oct 2026. The upright alone weighs more than a
-// whole family should, so these hold any gain from subsetting (F6) once it lands: lower them then.
-const FONTS = { 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
+const FIXED = { 'utilities.css': 168, 'base.css': 1.85, 'theme.js': 2.4, 'tokens.css': 8.6, 'serupa-icons.iife.js': 525 };   // tokens.css: 7.4 on 31 Oct 2026, once it shipped without the description comments (PF2), 8.5 on 1 Nov 2026 with a unicode-range @font-face per script (F6), 0.7 KiB that saves 240 KiB of font on an English page; serupa-icons.iife.js: 492.9 the same day, every Material Symbol, loaded only when a plain page names one outside the everyday set (PF1)
+// KiB as shipped (woff2 is compressed already). Since F6 (1 Nov 2026) tokens.css points at Inter split by script
+// (tools/fonts/subset.py), so an English page downloads the latin files: 103.3 and 113.2 KiB, against 344 and 379
+// for the whole fonts, which still ship for a page that links them itself.
+const FONTS = { 'fonts/InterVariable-latin.woff2': 110, 'fonts/InterVariable-Italic-latin.woff2': 120, 'fonts/InterVariable.woff2': 360, 'fonts/InterVariable-Italic.woff2': 395 };
 // KiB, gzipped, each file on its own as a server sends it: what a first page costs, a sign-in form (STARTER_PAGE)
 // with tokens.css, base.css, bundle.css trimmed by serupa-purge --components to what the page uses, and the
 // JavaScript of Button, Field and Input (29.5 on 31 Oct 2026: 7.4 + 1.3 + 9.9 of CSS, 10.8 of JavaScript). The
 // number to watch when shared code or the base styles grow, since no single component's budget sees it.
-const STARTER = 31;
+const STARTER = 32;   // 30.8 on 1 Nov 2026, once tokens.css had a unicode-range @font-face per script (F6)
 const STARTER_PAGE = `import { Button, Field, Input } from 'serupa-ds';
 export function SignIn() {
   return (
