@@ -106,7 +106,7 @@ describe('Navbar', () => {
   test('a Navbar with no links has no nav and no menu button; an unknown size falls back to xl', async () => {
     await render(<Navbar id="nbare" brand="Only a brand" size={'huge' as never} />);
     const n = el('nbare');
-    expect([n.querySelector('nav'), n.querySelector('.dk-navbar__toggle'), n.querySelector('.dk-navbar__inner')!.className])
+    expect([n.querySelector('nav'), n.querySelector('button[aria-controls]'), n.querySelector('.dk-navbar__inner')!.className])
       .toEqual([null, null, 'dk-navbar__inner dk-container dk-container--padded dk-container--xl']);
   });
 
@@ -119,7 +119,7 @@ describe('Navbar', () => {
     window.scrollTo(0, 600);
     await expect.poll(() => window.scrollY).toBe(600);
     const n = el('nsticky');
-    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.querySelector('.dk-navbar__inner')).maxWidth]) // lg: 1024px of content plus 32px padding each side
+    expect([Math.round(n.getBoundingClientRect().top), css(n).zIndex, n.querySelector('nav')!.getAttribute('aria-label'), css(n.firstElementChild).maxWidth]) // lg: 1024px of content plus 32px padding each side
       .toEqual([0, '40', 'Docs', '1088px']);
   });
 
@@ -359,7 +359,7 @@ describe('Navbar', () => {
 
   test('links inside a Fragment each get their own list item', async () => {
     await render(<Navbar id="nfrag" brand="Acme"><NavbarLink href="/">Home</NavbarLink><><NavbarLink href="/a">A</NavbarLink><NavbarLink href="/b">B</NavbarLink></>{false}</Navbar>);
-    expect([...el('nfrag').querySelectorAll('.dk-navbar__links > li')].map((li) => li.textContent)).toEqual(['Home', 'A', 'B']);
+    expect([...el('nfrag').querySelectorAll('ul > li')].map((li) => li.textContent)).toEqual(['Home', 'A', 'B']);
   });
 
   test('pressed: a link held down fills with pressed at once, with no fade in (ED1)', async () => {
