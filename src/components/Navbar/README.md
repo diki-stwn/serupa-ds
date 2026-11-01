@@ -75,7 +75,7 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 | --- | --- | --- | --- |
 | `href` | string | none | Where it goes |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
-| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. Typed: the props and `ref` are those of the element `as` names, so `as={RouterLink} to="/team"` checks `to`, and without `as` they're an `<a>`'s. A link set only with `configure({ link })` is typed as an `<a>`, so pass it `href`. |
 
 Following a link closes the small-screen menu. `className`, `ref` and everything else go to the link.
 
