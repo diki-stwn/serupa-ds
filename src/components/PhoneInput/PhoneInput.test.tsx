@@ -282,6 +282,20 @@ describe('PhoneInput', () => {
     expect([menu('q').value, calls.at(-1)]).toEqual(['GB', '+442079460958']);
   });
 
+  test('GR85: "0044 …" typed key by key in a +1 field picks the country too, and a lone 0 still starts an Italian number', async () => {
+    const calls: string[] = [];
+    await render(<Wrap>
+      <PhoneInput id="p" aria-label="Phone" onValueChange={(v) => calls.push(v)} />
+      <PhoneInput id="q" aria-label="Phone" defaultCountry="IT" onValueChange={(v) => calls.push(v)} />
+    </Wrap>);
+    await userEvent.type(field('p'), '0');
+    expect([field('p').value, menu('p').value]).toEqual(['0', 'US']);
+    await userEvent.type(field('p'), '044 20 7946 0958');
+    expect([menu('p').value, calls.at(-1)]).toEqual(['GB', '+442079460958']);
+    await userEvent.type(field('q'), '06 1234 5678');
+    expect([menu('q').value, calls.at(-1)]).toEqual(['IT', '+390612345678']);
+  });
+
   test('Germany groups by the area code: "030 123456" is "30 123456"', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="DE" /></Wrap>);
     await userEvent.type(field('p'), '030 123456');
