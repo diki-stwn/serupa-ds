@@ -51,15 +51,25 @@ const [open, setOpen] = React.useState(false);
 ## Accessibility
 
 - **Role and name:** a modal `<dialog>` named "Command palette" (`labels.commandPalette`, or your `aria-label`). The search field is a `role="combobox"` with `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` and `aria-activedescendant`, over a `role="listbox"` with one `role="group"` per group, named by its heading, of `role="option"` rows. A disabled command has `aria-disabled="true"`.
-- **Keyboard:** focus stays in the field. ArrowDown and ArrowUp move through the enabled commands and wrap, PageUp and PageDown go to the first and last, Enter chooses, Escape closes. Focus goes back to where it was when the palette closes.
+- **Keyboard:** focus stays in the field, and goes back to where it was when the palette closes (table below).
 - **Screen readers:** once typing stops, the number of matches ("3 commands", `labels.commandsCount`) or "No matching commands" is said through the shared announcer.
 - **Contrast:** the field, headings, rows and active row read 4.5:1 in all six themes (`CommandPalette.test.tsx`).
 - **What's still yours:** labels people can guess, and a visible way to open it (a Button showing the keys) for people who don't know ⌘K.
+
+| Key | Does |
+| --- | --- |
+| ⌘K (Ctrl+K off Apple devices), or `hotkey` | Opens it from anywhere on the page |
+| ArrowDown, ArrowUp | Move through the enabled commands, wrapping at the ends |
+| PageDown, PageUp | Go to the last or first command |
+| Enter | Runs the active command (or, on a command focused another way, that one; Space too) |
+| Escape | Closes it with nothing chosen |
+| Tab | Stays in the dialog: the field is its only stop |
 
 ## Props
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `id` | string | none | Goes to the root `<dialog>`. |
 | `commands` | `Command[]` | | The commands and pages: `{ id, label, group?, keywords?, icon?, shortcut?, href?, disabled?, onSelect? }`. |
 | `onSelect` | `(command: Command) => void` | | Runs for any command chosen, after the palette has closed and after the command's own `onSelect`. |
 | `hotkey` | `string[] \| false` | `["mod", "K"]` | The keys that open it from anywhere on the page; `false` for none. |
@@ -69,6 +79,8 @@ const [open, setOpen] = React.useState(false);
 | `open` | `boolean` | | Controlled: close it yourself in `onOpenChange`. |
 | `defaultOpen` | `boolean` | `false` | Open at first (uncontrolled). |
 | `onOpenChange` | `(open, { reason }) => void` | | Called with `true` on the hotkey (`reason: 'trigger'`) and `false` on Escape, the backdrop or a choice (`reason: 'select'`). |
+| `closeOnBackdrop` | `boolean` | `true` | Whether a click on the backdrop closes it. |
+| `finalFocus` | `RefObject<HTMLElement>` | | Where focus goes when it closes, instead of back to where it was. |
 
 Every other prop, `className` and `ref` go to the [Dialog](../Dialog/README.md)'s `<dialog>`.
 

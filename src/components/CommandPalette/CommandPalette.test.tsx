@@ -8,7 +8,9 @@ import { CommandPalette, type Command } from './CommandPalette';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const isOpen = (id: string) => (el(id) as HTMLDialogElement).open;
-const field = () => document.querySelector<HTMLInputElement>('.dk-command-palette__field')!;
+const field = () => document.querySelector<HTMLInputElement>('dialog [role="combobox"]')!;
+// The first ancestor with a background of its own (the dialog's panel).
+const backdropOf = (e: HTMLElement): string => { for (let x: HTMLElement | null = e; x; x = x.parentElement) { const bg = css(x).backgroundColor; if (bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg; } return 'rgb(255, 255, 255)'; };
 const options = () => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
 const labels = () => options().map((o) => o.textContent);
 const activeLabel = () => document.getElementById(field().getAttribute('aria-activedescendant') || '')?.textContent;
@@ -54,7 +56,7 @@ describe('CommandPalette', () => {
     await userEvent.type(field(), 's');
     expect(labels().slice(0, 2)).toEqual(['Settings', 'Switch theme']);   // starts with "s" before only has an "s"
     await userEvent.type(field(), 'zzz');
-    expect([labels(), document.querySelector('.dk-command-palette__empty')?.textContent, field().hasAttribute('aria-activedescendant')]).toEqual([[], 'No matching commands', false]);
+    expect([labels(), document.querySelector('dialog[open] p')?.textContent, field().hasAttribute('aria-activedescendant')]).toEqual([[], 'No matching commands', false]);
   });
 
   test('ArrowDown and ArrowUp move over the enabled rows and wrap; PageUp and PageDown go to the ends; Enter chooses', async () => {
@@ -154,15 +156,14 @@ describe('CommandPalette', () => {
   test('its field, headings, rows and active row read 4.5:1 in all six themes', async () => {
     await render(<CommandPalette id="p" defaultOpen commands={COMMANDS} />);
     const low: string[] = [];
-    const panel = el('p').querySelector('.dk-dialog__panel') as HTMLElement;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const bg = css(panel).backgroundColor;
+      const bg = backdropOf(field());
       const check = (name: string, e: Element, on = bg) => { const r = contrast(css(e).color, on); if (r < 4.5) low.push(`${th} ${name} ${r.toFixed(2)}`); };
       check('field', field());
-      check('heading', document.querySelector('.dk-command-palette__heading')!);
+      check('heading', document.getElementById(document.querySelector('[role="group"]')!.getAttribute('aria-labelledby')!)!);
       check('row', options()[1]);
-      const act = document.querySelector('.dk-command-palette__option--active')!;
+      const act = document.querySelector('[role="option"][aria-selected="true"]')!;
       const actBg = css(act).backgroundColor;
       check('active', act, actBg === 'rgba(0, 0, 0, 0)' ? bg : actBg);
     }

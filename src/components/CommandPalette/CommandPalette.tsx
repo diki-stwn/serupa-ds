@@ -77,7 +77,7 @@ function score(c: Command, q: string): number {
  *  @beta New: its API may still change in a minor release. Take this tag off once it has shipped with its bug bash done (CONTRIBUTING.md). */
 export const CommandPalette = /* @__PURE__ */ component<HTMLDialogElement, CommandPaletteProps>("CommandPalette", function CommandPalette(props, ref) {
   const sds = useSettings(words), labels = sds.labels;
-  const rest = omit(props, { commands: 1, onSelect: 1, hotkey: 1, placeholder: 1, emptyText: 1, limit: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1 } as const);
+  const rest = omit(props, { commands: 1, onSelect: 1, hotkey: 1, placeholder: 1, emptyText: 1, limit: 1, open: 1, defaultOpen: 1, onOpenChange: 1, className: 1, closeOnBackdrop: 1, finalFocus: 1 } as const);
   const [own, setOwn] = React.useState(!!props.defaultOpen);
   const controlled = props.open != null;
   const open = controlled ? !!props.open : own;
@@ -152,7 +152,7 @@ export const CommandPalette = /* @__PURE__ */ component<HTMLDialogElement, Comma
 
   return (
     <Dialog {...rest} ref={ref} className={cn("dk-command-palette", props.className)} aria-label={rest["aria-label"] || labels.commandPalette}
-      open={open} onOpenChange={change} closeButton={false} initialFocus={field}>
+      open={open} onOpenChange={change} closeButton={false} initialFocus={field} closeOnBackdrop={props.closeOnBackdrop} finalFocus={props.finalFocus}>
       <input ref={field} className="dk-command-palette__field" type="text" role="combobox" aria-expanded="true" aria-controls={base + "-list"}
         aria-autocomplete="list" aria-activedescendant={currentId || undefined} aria-label={props.placeholder || labels.searchCommands}
         placeholder={props.placeholder || labels.searchCommands} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}

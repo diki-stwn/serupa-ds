@@ -1,4 +1,4 @@
-// exports: CommandPalette, type CommandPaletteProps
+// exports: type Command, CommandPalette, type CommandPaletteProps
 interface CommandPaletteLabels {
     commandPalette: string;
     searchCommands: string;
