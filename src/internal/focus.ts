@@ -20,8 +20,8 @@ export function windowBlur(e: React.FocusEvent): boolean {
 
 /** autoFocus for such a control: focuses target() once, after the first render. */
 export function useAutoFocus(on: boolean | undefined, target: () => HTMLElement | null | undefined): void {
+  // The first render's on and target: target reads a ref, so the first one finds the element as well as any.
   const first = React.useRef({ on, target });
-  first.current.target = target;
   React.useEffect(() => { if (first.current.on) first.current.target()?.focus(); }, []);
 }
 

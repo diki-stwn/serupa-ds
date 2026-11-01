@@ -64,6 +64,7 @@ const { Alert, Button } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one alert. The list lives in `src/components/Alert/alert.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from alert.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--alert-bg-info` | `info-subtle` | The background of a info alert. |
@@ -86,3 +87,4 @@ Each is an optional override: set it on the page, a container or one alert. The 
 | `--alert-gap` | `spacing-3` | Space between the icon, the content and the close button (12px). |
 | `--alert-content-gap` | `spacing-1` | Space between the title, the message and the actions (4px). |
 | `--alert-title-weight` | `font-semibold` | The title's weight (600). |
+<!-- token-table:end -->

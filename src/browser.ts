@@ -1,7 +1,7 @@
 // The browser script (serupa.iife.js): reads React from window.React and puts
 // the components on window.Serupa, for plain pages without a bundler.
 import * as Serupa from "./index";
-import { iconChunks } from "./icons";
+import { iconChunks, loadAllIcons } from "./icons";
 
 // Everything the package exports (index.ts), so a new component reaches plain pages without a line here.
 window.Serupa = Object.assign(window.Serupa || {}, Serupa);
@@ -23,3 +23,5 @@ iconChunks.all = () => window.SerupaIcons ? Promise.resolve(window.SerupaIcons) 
   try { tag.src = from; } catch (err) { return fail(`${from} can't be added here (${err instanceof Error ? err.message : String(err)})`); }
   document.head.appendChild(tag);
 });
+// The script has every icon, so any name loads it, once (loadAllIcons keeps the one load).
+iconChunks.part = () => loadAllIcons().then(() => ({}));

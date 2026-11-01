@@ -143,6 +143,9 @@ Any other attribute (`id`, `className`, `style`, `title`, `type`, `aria-*`, `dat
 
 Each is an optional override: set it on the page, a container or one badge. Unset, it uses the shared token below. The list lives in `src/components/Badge/badge.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from badge.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--badge-neutral-subtle-bg` | `secondary` | Neutral subtle: fill |
@@ -157,22 +160,48 @@ Each is an optional override: set it on the page, a container or one badge. Unse
 | `--badge-primary-solid-text` | `on-primary` | Primary solid: text and icon |
 | `--badge-primary-outline-text` | `primary` | Primary outline: text and icon |
 | `--badge-primary-outline-border` | `primary` | Primary outline: border |
+| `--badge-indicator-ring-color` | `surface` | The indicator's ring color; set it to the color behind |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--badge-height` | `spacing-5` | Height (20px) |
 | `--badge-icon-size` | `spacing-3` | Icon size (12px): leading icon, ×, loading ring, the dot box's height |
-| `--badge-indicator-size` | `spacing-2` | The lone indicator dot (8px) |
-| `--badge-indicator-ring` | `border-width-2` | The indicator's ring in the surface color (2px) |
-| `--badge-indicator-ring-color` | `surface` | The indicator's ring color; set it to the color behind |
 | `--badge-dot-size` | `spacing-1.5` | Status dot (6px) |
+| `--badge-indicator-size` | `spacing-2` | The lone indicator dot (8px) |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--badge-padding-x` | `spacing-1.5` | Side padding (6px) |
 | `--badge-icon-offset` | `spacing-0.5` | Extra padding on the text side when there's an icon (or dot, or ×) on one side only (2px) |
 | `--badge-gap` | `spacing-1` | Gap between the dot or icon, the label and the × (4px) |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--badge-border-width` | `border-width-1` | Border width (subtle and outline badges, and every badge in forced-colors mode) |
-| `--badge-subtle-border` | `opacity-20` | Strength of the subtle badge's outline, in its text color (20%). Set `0%` for no outline |
 | `--badge-radius` | `rounded-md` | Corner radius (6px), like Button. Count badges are always fully round |
+| `--badge-subtle-border` | `opacity-20` | Strength of the subtle badge's outline, in its text color (20%). Set `0%` for no outline |
+| `--badge-indicator-ring` | `border-width-2` | The indicator's ring in the surface color (2px) |
+
+**States**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--badge-hover-layer` | `opacity-10` | Clickable badges: the hover layer's strength (10%) |
 | `--badge-active-layer` | `opacity-15` | Clickable badges: the layer while pressed (15%) |
 | `--badge-state-text` | `opacity-30` | Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%) |
 | `--badge-focus-ring` | `focus-ring` | Clickable badges: the keyboard focus ring |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--badge-press-scale` | `scale-97` | Clickable badges: size while pressed (97%); `100%` turns it off |
 | `--badge-press-duration` | `motion-press` | How fast the press scales down (100ms). The release comes back over `motion-release` with `ease-enter`. |
 | `--badge-loading-duration` | `motion-enter-sm` | Cross-fade between the content and the loading ring (150ms) |
+<!-- token-table:end -->

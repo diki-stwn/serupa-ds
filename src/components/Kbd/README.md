@@ -73,6 +73,7 @@ Use `mod` for shortcuts that follow the platform. Any other text shows as it is,
 
 Each is an optional override: set it on the page, a container or one key. The list lives in `src/components/Kbd/kbd.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from kbd.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--kbd-bg` | `surface-muted` | A key's background. |
@@ -82,5 +83,6 @@ Each is an optional override: set it on the page, a container or one key. The li
 | `--kbd-radius` | `rounded-sm` | A key's corners (4px). |
 | `--kbd-height-sm` | `spacing-5` | size="sm" (20px). |
 | `--kbd-height-md` | `spacing-6` | size="md", the default (24px). |
-| `--kbd-padding-x` | `spacing-1_5` | Space on each side of a key's label (6px). |
+| `--kbd-padding-x` | `spacing-1.5` | Space on each side of a key's label (6px). |
 | `--kbd-gap` | `spacing-1` | Space between keys and the + in a combination (4px). |
+<!-- token-table:end -->

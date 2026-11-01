@@ -328,6 +328,17 @@ describe('Badge', () => {
     expect([d.classList.contains('dk-badge--interactive'), css(d).cursor, getComputedStyle(d, '::before').content]).toEqual([false, 'auto', 'none']);
   });
 
+  test('L8E73 a disabled link badge: no href, so it can\'t be followed or focused; role="link" and aria-disabled say what it is; your onClick doesn\'t run; faded', async () => {
+    const hit = vi.fn();
+    await render(<div><button id="before">Before</button><Badge id="dl" href="#gone" onClick={hit} disabled>Archived</Badge><button id="after">After</button></div>);
+    const l = el('dl');
+    l.click();   // a script's (or screen reader's) click: Playwright won't click an aria-disabled element
+    el('before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect([l.tagName, l.hasAttribute('href'), l.hasAttribute('disabled'), l.getAttribute('role'), l.getAttribute('aria-disabled'), hit.mock.calls.length, location.hash, document.activeElement!.id, css(l).opacity])
+      .toEqual(['A', false, false, 'link', 'true', 0, '', 'after', '0.5']);
+  });
+
   test('interactive: click, Enter and Space call onClick', async () => {
     await show();
     await userEvent.click(el('btn'));

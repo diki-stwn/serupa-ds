@@ -43,8 +43,14 @@ const OWN_MENU = { trigger: 1, children: 1, "aria-label": 1, "aria-labelledby": 
 interface Ctx { close: (reason: OpenChangeReason, focusTrigger: boolean) => void; open: boolean; typed: React.RefObject<Typed> }
 const MenuContext = /* @__PURE__ */ React.createContext<Ctx | null>(null);
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
-/** The items of one panel (the menu or a submenu), not those of the submenus inside it. */
-const itemsOf = (panel: HTMLElement | null): HTMLElement[] => panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
+/** The items of one panel (the menu or a submenu), not those of the submenus inside it. An item hidden by CSS or the
+    hidden attribute can't take focus, so the keys skip it rather than stick on it (L8E80), unless the panel isn't
+    laid out yet, when none of them is. */
+const itemsOf = (panel: HTMLElement | null): HTMLElement[] => {
+  const all = panel ? Array.from(panel.querySelectorAll<HTMLElement>(ITEMS)).filter((it) => it.closest('[role="menu"]') === panel) : [];
+  const shown = all.filter((it) => it.getClientRects().length > 0);
+  return shown.length ? shown : all;
+};
 
 /* The keys inside an open menu (or a submenu's panel, whose keys bubble to the menu's element): ↑ ↓ move,
    wrapping, Home and End jump, typing goes to the next item starting with what was typed, Escape closes and puts
@@ -267,7 +273,8 @@ export const ContextMenu = /* @__PURE__ */ component<HTMLDivElement, ContextMenu
   );
 });
 
-export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
+/** MenuItem's own props, beside those of the element it renders. */
+export interface MenuItemOwnProps {
   /** Called when the item is chosen (click, Enter or Space). The menu then closes, unless you call event.preventDefault(). */
   onSelect?: (event: React.SyntheticEvent) => void;
   /** An icon before the label: an icon name or any element. */
@@ -280,6 +287,10 @@ export interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, '
   destructive?: boolean;
   /** Still reachable with the keys, but can't be chosen (aria-disabled). */
   disabled?: boolean;
+}
+
+// Inside, and for the checkable items, an item is a <div> or a link: attributes and handlers typed for HTMLElement.
+interface ItemProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
   /** Makes it a link (the configure({ link }) component, <a> by default). */
   href?: string;
   /** Makes it a link with this component, in place of the configure({ link }) one: a router's Link, with its own props (to). */
@@ -318,7 +329,7 @@ function chord(text: string): string {
 }
 
 /** One action in a Menu. */
-export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("MenuItem", function MenuItem(props, ref) {
+const MenuItemBase = /* @__PURE__ */ component<HTMLElement, ItemProps>("MenuItem", function MenuItem(props, ref) {
   const ctx = React.useContext(MenuContext);
   const rest = omit(props, { onSelect: 1, icon: 1, shortcut: 1, destructive: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1, as: 1 });
   const own = { onClick: props.onClick, onKeyDown: props.onKeyDown, onPointerMove: props.onPointerMove };
@@ -362,7 +373,20 @@ export const MenuItem = /* @__PURE__ */ component<HTMLElement, MenuItemProps>("M
     props.shortcut ? <kbd className="dk-menu__shortcut" aria-hidden="true">{props.shortcut}</kbd> : null);
 });
 
-type CheckableProps = Omit<MenuItemProps, 'href' | 'as' | 'target' | 'rel' | 'destructive' | 'role' | 'aria-checked'>;
+/** One action in a Menu, or with href a link. `as` renders your router's link, typed with its props. */
+export const MenuItem = MenuItemBase as {
+  <C extends React.ElementType = 'a'>(props: MenuItemProps<C> & { ref?: React.Ref<HTMLElement> }): React.ReactElement | null;
+  displayName?: string;
+};
+
+/** MenuItem's props: its own, `as`, and the props of the element `as` names (an <a>'s by default, for href, target
+ *  and rel), so <MenuItem as={RouterLink} to="/settings"> takes RouterLink's `to`. */
+export type MenuItemProps<C extends React.ElementType = 'a'> = MenuItemOwnProps & {
+  /** Makes it a link with this component, in place of the configure({ link }) one: a router's Link, with its own props (to). */
+  as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof MenuItemOwnProps | 'as'>;
+
+type CheckableProps = Omit<ItemProps, 'href' | 'as' | 'target' | 'rel' | 'destructive' | 'role' | 'aria-checked'>;
 export interface MenuCheckboxItemProps extends CheckableProps {
   /** Whether it's on. The menu's items unmount while it's closed, so the state lives with you: set it in onCheckedChange. */
   checked: boolean;
@@ -396,7 +420,8 @@ export interface MenuRadioGroupProps extends Omit<MenuGroupProps, 'defaultValue'
 export const MenuRadioGroup = /* @__PURE__ */ component<HTMLDivElement, MenuRadioGroupProps>("MenuRadioGroup", function MenuRadioGroup(props, ref) {
   const rest = omit(props, { value: 1, onValueChange: 1 });
   const ask = React.useRef(props.onValueChange); ask.current = props.onValueChange;
-  const ctx = React.useMemo<RadioCtx>(() => ({ value: props.value, choose: (v) => { if (ask.current) ask.current(v); } }), [props.value]);
+  // Choosing the item that's chosen already changes nothing, so it isn't told.
+  const ctx = React.useMemo<RadioCtx>(() => ({ value: props.value, choose: (v) => { if (v !== props.value && ask.current) ask.current(v); } }), [props.value]);
   return <RadioContext.Provider value={ctx}><MenuGroup {...rest} ref={ref} /></RadioContext.Provider>;
 });
 

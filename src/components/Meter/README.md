@@ -77,6 +77,7 @@ Every other prop, `className` and `ref` go to the outer `<div>`. It has `data-co
 
 Each is an optional override: set it on the page, a container or one meter. The list lives in `src/components/Meter/meter.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from meter.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--meter-track` | `secondary` | The empty part of the bar. |
@@ -90,6 +91,7 @@ Each is an optional override: set it on the page, a container or one meter. The 
 | `--meter-height-md` | `spacing-2` | The bar's thickness, size md (8px, the default). |
 | `--meter-height-lg` | `spacing-3` | The bar's thickness, size lg (12px). |
 | `--meter-radius` | `rounded-full` | The bar's ends. |
-| `--meter-gap` | `spacing-1_5` | Space between the label row and the bar (6px). |
+| `--meter-gap` | `spacing-1.5` | Space between the label row and the bar (6px). |
 | `--meter-label-weight` | `font-medium` | The label's weight. |
 | `--meter-duration` | `motion-change-lg` | How long the fill takes to move to a new value. |
+<!-- token-table:end -->

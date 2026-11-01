@@ -5,7 +5,7 @@
       "primary": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Color with tone=\"primary\".",
+        "$description": "Color with `tone=\"primary\"`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-primary"
@@ -15,7 +15,7 @@
       "muted": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "Color with tone=\"muted\".",
+        "$description": "Color with `tone=\"muted\"`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-muted"
@@ -25,7 +25,7 @@
       "inverse": {
         "$type": "color",
         "$value": "{color.white}",
-        "$description": "Color with tone=\"inverse\" (ring, dots or text): white in every theme, for dark scrims, overlays and media.",
+        "$description": "Color with `tone=\"inverse\"` (every variant)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-inverse"
@@ -37,7 +37,7 @@
       "size-sm": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "Size sm (16px): inline with text-sm, inside small controls.",
+        "$description": "Size sm (16px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-size-sm"
@@ -47,7 +47,7 @@
       "size-md": {
         "$type": "dimension",
         "$value": "{spacing.spacing-6}",
-        "$description": "Size md (24px, default): in cards, panels and lists.",
+        "$description": "Size md (24px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-size-md"
@@ -57,7 +57,7 @@
       "size-lg": {
         "$type": "dimension",
         "$value": "{spacing.spacing-10}",
-        "$description": "Size lg (40px): a whole page or an empty area that is loading.",
+        "$description": "Size lg (40px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-size-lg"
@@ -67,7 +67,7 @@
       "skeleton-rect-height": {
         "$type": "dimension",
         "$value": "{spacing.spacing-24}",
-        "$description": "Height of the skeleton's rect shape (96px) when className doesn't set one.",
+        "$description": "Height of the skeleton rect when no class sets one (96px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-skeleton-rect-height"
@@ -79,7 +79,7 @@
       "stroke-width": {
         "$type": "number",
         "$value": "{borders.stroke-width-2}",
-        "$description": "Ring thickness, in the ring's 24-unit drawing (2: about 8% of its size, at any size).",
+        "$description": "Ring thickness in its 24-unit drawing (about 8% of its size)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-stroke-width"
@@ -89,7 +89,7 @@
       "track-opacity": {
         "$type": "number",
         "$value": "{opacity.opacity-20}",
-        "$description": "How strong the ring's faint track is (20% of the color).",
+        "$description": "Strength of the ring's track",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-track-opacity"
@@ -99,7 +99,7 @@
       "dots-dim": {
         "$type": "number",
         "$value": "{opacity.opacity-25}",
-        "$description": "How faint a dot gets between pulses (25%).",
+        "$description": "How faint a dot gets between pulses",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-dots-dim"
@@ -109,7 +109,7 @@
       "label-dim": {
         "$type": "number",
         "$value": "{opacity.opacity-65}",
-        "$description": "How strong the text variant's words are between shines (65% of the text color: still 4.5:1 on surface in every theme).",
+        "$description": "How strong the text variant's words are between shines (keeps 4.5:1 on `surface`)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-label-dim"
@@ -119,7 +119,7 @@
       "skeleton-fill": {
         "$type": "number",
         "$value": "{opacity.opacity-10}",
-        "$description": "The skeleton's fill: the text color at this strength.",
+        "$description": "Strength of the skeleton's fill (the text color)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-skeleton-fill"
@@ -129,7 +129,7 @@
       "skeleton-shine": {
         "$type": "number",
         "$value": "{opacity.opacity-5}",
-        "$description": "The band that sweeps through the skeleton: the text color at this strength (lighter than the fill).",
+        "$description": "Strength of the band that sweeps through the skeleton",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-skeleton-shine"
@@ -139,7 +139,7 @@
       "skeleton-radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "Corner radius of the skeleton's rect shape (6px).",
+        "$description": "Corners of the skeleton rect (6px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-skeleton-radius"
@@ -149,7 +149,7 @@
       "skeleton-text-radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-sm}",
-        "$description": "Corner radius of the skeleton's text lines (4px).",
+        "$description": "Corners of the skeleton's text lines (4px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-skeleton-text-radius"
@@ -159,7 +159,7 @@
       "pixel-dim": {
         "$type": "number",
         "$value": "{opacity.opacity-15}",
-        "$description": "How faint a pixel square is between waves.",
+        "$description": "How faint a pixel square is between waves",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-dim"
@@ -169,7 +169,7 @@
       "pixel-glow": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0}",
-        "$description": "Glow around the lit pixel squares, as a blur radius; 0 (default) is off. The glow prop sets it to --loader-pixel-glow-size; set it yourself to glow every pixel loader in an area.",
+        "$description": "Glow around the lit pixel squares (blur radius); 0 is off. The `glow` prop sets it to `--loader-pixel-glow-size`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-glow"
@@ -179,7 +179,7 @@
       "pixel-divider": {
         "$type": "number",
         "$value": "{opacity.opacity-10}",
-        "$description": "Strength of the hairlines between pixel squares, in the loader's color (10%); the same whether the squares beside them are lit or dim.",
+        "$description": "Strength of the dividers, in the loader's color; the same next to lit and dim squares",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-divider"
@@ -189,7 +189,7 @@
       "pixel-divider-width": {
         "$type": "number",
         "$value": "{borders.stroke-width-1}",
-        "$description": "Width of the hairlines between pixel squares, in half-units of the grid's 24-unit drawing (1: 0.5px at 24px, 1px at 48px).",
+        "$description": "Width of the dividers, in half-units of the 24-unit drawing (1: 0.5px at 24px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-divider-width"
@@ -199,7 +199,7 @@
       "pixel-glow-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0_5}",
-        "$description": "Blur radius of the glow that the glow prop turns on (2px).",
+        "$description": "Blur radius of the glow the `glow` prop turns on (2px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-glow-size"
@@ -209,7 +209,7 @@
       "spokes-width": {
         "$type": "number",
         "$value": "{borders.stroke-width-4}",
-        "$description": "Spoke thickness, in the spokes' drawing (drawn at 5/8 scale: 4 is 2.5 of the 24 units, about 10% of the loader's size, like iOS).",
+        "$description": "Spoke thickness (drawn at 5/8 scale: 2.5 of the 24 units, about 10% of the size)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-spokes-width"
@@ -221,7 +221,7 @@
       "dots-duration": {
         "$type": "duration",
         "$value": "{transitions.duration-1000}",
-        "$description": "One pulse of the dots (1s).",
+        "$description": "One pulse of the dots",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-dots-duration"
@@ -231,7 +231,7 @@
       "dots-stagger": {
         "$type": "duration",
         "$value": "{transitions.delay-150}",
-        "$description": "Delay between one dot and the next (150ms).",
+        "$description": "Delay from one dot to the next",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-dots-stagger"
@@ -241,7 +241,7 @@
       "pixel-stagger": {
         "$type": "duration",
         "$value": "{transitions.delay-75}",
-        "$description": "Delay from one step of a pixel pattern to the next (75ms): one diagonal of the wave, one square of the snake or spiral; rows and columns take two.",
+        "$description": "Delay from one step of a pixel pattern to the next",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-stagger"
@@ -251,7 +251,7 @@
       "pixel-duration": {
         "$type": "duration",
         "$value": "{transitions.duration-1200}",
-        "$description": "One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s). Snake and spiral loop in 1.5s, cross and checker in 1s, random on its own clocks. Each square spends about 30% of a loop brightening, 25% lit and 30% fading.",
+        "$description": "One loop of the pixel grid in the wave, sweep, fall and rise patterns (1.2s)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-pixel-duration"
@@ -261,7 +261,7 @@
       "spokes-duration": {
         "$type": "duration",
         "$value": "{transitions.duration-1000}",
-        "$description": "One full turn of the spokes, a spoke at a time (1s: a tick every 125ms).",
+        "$description": "One full turn of the spokes, a spoke at a time (a tick every 125ms)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--loader-spokes-duration"

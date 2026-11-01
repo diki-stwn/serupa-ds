@@ -89,6 +89,7 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `prefix`, `suffix`, `plac
 
 Each is an optional override: set it on the page, a container or one field. The box uses Input's tokens. The list lives in `src/components/NumberInput/number-input.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from number-input.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--number-input-stepper` | `text-muted` | The − and + icons (3:1 on the field). |
@@ -96,4 +97,5 @@ Each is an optional override: set it on the page, a container or one field. The 
 | `--number-input-stepper-bg-hover` | `secondary` | The buttons' background on hover. |
 | `--number-input-stepper-radius` | `rounded-sm` | The buttons' corners (4px). |
 | `--number-input-stepper-padding` | `spacing-1` | Space around each button's icon (4px). |
-| `--number-input-stepper-gap` | `spacing-0_5` | Space between the − and + buttons (2px). |
+| `--number-input-stepper-gap` | `spacing-0.5` | Space between the − and + buttons (2px). |
+<!-- token-table:end -->

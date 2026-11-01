@@ -255,6 +255,15 @@ describe('DateRangePicker', () => {
     expect(getComputedStyle(pop('trip').querySelector('.dk-calendar__day--in-range')!).backgroundColor).toBe('rgb(1, 2, 3)');
     still.remove();
   });
+
+  test('L8E79: with no value, a today outside min..max opens the popup on min\'s or max\'s month, not on one where nothing can be picked', async () => {
+    const t = new Date(), at = (n: number) => new Date(t.getFullYear(), t.getMonth(), t.getDate() + n);
+    const name = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
+    const lo = at(400), hi = at(-400);
+    await render(<><DateRangePicker data-testid="lo" aria-label="Lo" locale="en-US" months={1} min={lo} /><DateRangePicker data-testid="hi" aria-label="Hi" locale="en-US" months={1} max={hi} /></>);
+    const title = async (tid: string) => { await userEvent.click(btn(tid)); const g = pop(tid).querySelector('[role=grid]')!, s = document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent; await userEvent.keyboard('{Escape}'); return s; };
+    expect([await title('lo'), await title('hi')]).toEqual([name(lo), name(hi)]);
+  });
 });
 
 describe('DateRangePicker popup on a phone (GR9)', () => {
@@ -275,5 +284,14 @@ describe('DateRangePicker popup on a phone (GR9)', () => {
         }
       }
     } finally { await page.viewport(900, 700); }
+  });
+  test('a narrow box (200px): the fields shrink so both and the calendar button stay inside it, nothing scrolls sideways (GR70)', async () => {
+    await render(<div style={{ width: '200px' }}><DateRangePicker data-testid="narrow" aria-label="Stay" locale="en-US" /></div>);
+    const b = box('narrow').getBoundingClientRect();
+    for (const e of [...fields('narrow'), btn('narrow')]) {
+      const r = e.getBoundingClientRect();
+      expect([r.left >= b.left - 1, r.right <= b.right + 1], e.tagName).toEqual([true, true]);
+    }
+    expect(box('narrow').scrollWidth).toBeLessThanOrEqual(box('narrow').clientWidth + 1);
   });
 });

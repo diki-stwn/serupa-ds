@@ -51,7 +51,7 @@ The thumb slides in 100ms (`motion-press`, `ease-move`: feedback for a toggle ta
 ## Accessibility
 
 - A press anywhere within 24px of the row counts (WCAG 2.5.8): when the row is shorter, its hit area reaches past what is drawn, so nothing moves. On a touch screen it's 44px high, as Apple and Material ask.
-- A native checkbox with `role="switch"`: Space flips it, forms submit it (as a checkbox), and screen readers say "on" or "off".
+- A native checkbox with `role="switch"`: Space flips it, forms submit it (as a checkbox), and screen readers say "on" or "off". It also carries the native `switch` attribute, so Safari 18 on iPhone gives its haptic tick when it flips, as a system switch does. The tick follows the phone's own haptics setting, and the switch always shows its change, so the tick is never the only feedback.
 - The label names it; a description is read after it. The thumb is decorative.
 - `pending` sets `aria-busy` and stops clicks and Space from flipping it until the save is done, so a change can't be sent twice. It stays focusable and is still submitted. The ring is Loader's: a quarter arc on a faint track of the same color, turning once a second (`motion-loop-spinner`). It is decorative (`aria-hidden`), stands still and breathes with `prefers-reduced-motion`, and uses system colors in forced-colors mode.
 - `readOnly` keeps it focusable and read out with `aria-readonly`, but a click or Space doesn't flip it, and `onChange` doesn't run (your `onClick` does). The browser's own `readonly` does nothing on a checkbox, so Switch cancels the click. An on read-only switch is still submitted, which `disabled` isn't.
@@ -86,6 +86,9 @@ Everything else (`checked`, `defaultChecked`, `onChange`, `name`, `value`, `disa
 
 Each is an optional override: set it on the page, a container or one switch. The list lives in `src/components/Switch/switch.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from switch.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--switch-track` | `field-border` | The track while off |
@@ -99,9 +102,31 @@ Each is an optional override: set it on the page, a container or one switch. The
 | `--switch-focus-ring` | `focus-ring` | The focus ring |
 | `--switch-invalid` | `danger` | The track's edge and the focus ring, when invalid |
 | `--switch-pending` | `primary` | pending's ring on the thumb (3:1 on the thumb, on or off) |
-| `--switch-width-sm` / `-md` / `-lg` | `spacing-7` / `spacing-9` / `spacing-11` | Track widths (28, 36, 44px) |
-| `--switch-height-sm` / `-md` / `-lg` | `spacing-4` / `spacing-5` / `spacing-6` | Track heights (16, 20, 24px) |
-| `--switch-thumb-size-sm` / `-md` / `-lg` | `spacing-3` / `spacing-4` / `spacing-5` | Thumb sizes (12, 16, 20px) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--switch-width-sm` | `spacing-7` | Track width, sm (28px). |
+| `--switch-width-md` | `spacing-9` | Track width, md (36px, default). |
+| `--switch-width-lg` | `spacing-11` | Track width, lg (44px). |
+| `--switch-height-sm` | `spacing-4` | Track height, sm (16px, the text-xs line). |
+| `--switch-height-md` | `spacing-5` | Track height, md (20px, the text-sm line). |
+| `--switch-height-lg` | `spacing-6` | Track height, lg (24px, the text-base line). |
+| `--switch-thumb-size-sm` | `spacing-3` | Thumb size, sm (12px). |
+| `--switch-thumb-size-md` | `spacing-4` | Thumb size, md (16px). |
+| `--switch-thumb-size-lg` | `spacing-5` | Thumb size, lg (20px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--switch-padding` | `spacing-0.5` | Thumb to the track's ends (2px) |
 | `--switch-gap` | `spacing-2` | Track to label (8px) |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--switch-press-scale` | `scale-90` | Size of the thumb while it's held down (90%). 1 turns it off |
+<!-- token-table:end -->

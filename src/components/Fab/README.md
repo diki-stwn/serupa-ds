@@ -61,6 +61,7 @@ Every other Button prop works the same: `onClick`, `loading`, `disabled`, `destr
 
 Each is an optional override: set it on the page, a container or one FAB. The list lives in `src/components/Fab/fab.tokens.json` (also in `design-tokens/components/`). Button's primary tokens set the colors.
 
+<!-- token-table:start (made from fab.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--fab-size` | `spacing-14` | The height (and width, without a label) of a medium FAB (56px). |
@@ -72,3 +73,4 @@ Each is an optional override: set it on the page, a container or one FAB. The li
 | `--fab-offset` | `spacing-6` | The distance from the corner of the screen (24px). |
 | `--fab-padding-x` | `spacing-5` | Padding at the sides of an extended FAB (20px). |
 | `--fab-z-index` | `z-30` | The stacking level: above the page, under dialogs and toasts. |
+<!-- token-table:end -->
