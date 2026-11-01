@@ -8,7 +8,8 @@ import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { named } from "../../internal/component";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
+import { displayNumber } from "../../internal/numbers";
 import { onModalChange, topModal } from "../../internal/layers";
 import { settleTime, speed, track, type Samples } from "../../internal/fling";
 import * as icons from "../../material/builtin";
@@ -156,16 +157,20 @@ let undoWord = "";
 function undo(options: ToastUndoOptions): string {
   const { commit, onUndo, undoLabel, ...rest } = options;
   let settled = false;
-  const once = (f?: () => void) => () => {
+  // Leaving commits, since the page may never come back. If it does come back from the back/forward cache, the
+  // toast is still there but its Undo can no longer undo anything, so it goes (FEC5).
+  const returned = (e: PageTransitionEvent) => { window.removeEventListener("pageshow", returned); if (e.persisted) dismiss(id); };
+  const once = (f?: () => void, leaving?: boolean) => () => {
     if (settled) return;
     settled = true;
-    window.removeEventListener("pagehide", keep);
+    window.removeEventListener("pagehide", left);
+    if (leaving) window.addEventListener("pageshow", returned);
     if (f) f();
   };
-  const keep = once(commit), back = once(onUndo);
+  const keep = once(commit), back = once(onUndo), left = once(commit, true);
   const id = show(Object.assign({}, rest, { action: { label: undoLabel || undoWord || ownWords.undo, onClick: back }, autoDismiss: true }));
   onClose.set(id, keep);
-  window.addEventListener("pagehide", keep);
+  window.addEventListener("pagehide", left);
   return id;
 }
 /** Shows a toast in the page's <Toaster> and returns its id; toast.dismiss(id) closes it, toast.promise(p, { loading, success, error }) follows a promise, and toast.undo({ title, commit, onUndo }) does an action for good only if Undo isn't chosen. */
@@ -484,6 +489,8 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     toast.dismiss(t.id);
   };
   const titleId = t.id + "-title", descId = t.id + "-desc";
+  // The repeat count in the locale's digits ("×١٢" in ar-EG), as Badge writes its count (GR25).
+  const locale = useLocale();
   const icon = ICONS[t.tone];
   return (
     <li ref={self} tabIndex={-1} className={cn("dk-toast", "dk-toast--" + t.tone)} data-tone={t.tone} data-toast={t.id}
@@ -493,11 +500,11 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
       onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
       {icon ? <span className="dk-toast__icon" aria-hidden="true"><Icon icon={icon} /></span> : null}
       <div className="dk-toast__content">
-        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count"><span aria-hidden="true">{"×" + t.count}</span><span className="dk-visually-hidden">{", " + sds.labels.toastRepeated(t.count)}</span></span> : null}</p>
+        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count"><span aria-hidden="true">{"×" + displayNumber(t.count, locale, { useGrouping: false })}</span><span className="dk-visually-hidden">{", " + sds.labels.toastRepeated(t.count)}</span></span> : null}</p>
         {t.description != null ? <p className="dk-toast__description" id={descId}>{t.description}</p> : null}
       </div>
       {t.action ? <Button className="dk-toast__action" size="sm" variant="secondary" onClick={() => { t.action!.onClick(); toast.dismiss(t.id); }}>{t.action.label}</Button> : null}
-      <IconButton className="dk-toast__close" icon={icons.Close} label={props.dismissLabel} size="sm" hideTitle onClick={() => toast.dismiss(t.id)} />
+      <IconButton className="dk-toast__close" icon={icons.Close} label={props.dismissLabel} aria-describedby={titleId} size="sm" hideTitle onClick={() => toast.dismiss(t.id)} />
     </li>
   );
 }

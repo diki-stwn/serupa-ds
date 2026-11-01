@@ -130,7 +130,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     <NavbarContext.Provider value={{ close }}>
       <header {...rest} ref={(n) => { bar.current = n; setRef(ref, n); }} onKeyDown={onKeyDown} onBlur={onBlur} data-component="navbar" data-state={open ? "open" : "closed"} className={cn("dk-navbar", props.sticky && "dk-navbar--sticky", props.className)}>
         <div className={cn("dk-navbar__inner dk-container dk-container--padded", "dk-container--" + size)}>
-          {props.brand != null ? <div className="dk-navbar__brand">{props.brand}</div> : null}
+          {props.brand != null ? <div className="dk-navbar__brand">{typeof props.brand === "string" || typeof props.brand === "number" ? <span>{props.brand}</span> : props.brand}</div> : null}
           {open || leaving ? null : nav}
           {props.actions != null ? <div className="dk-navbar__actions">{props.actions}</div> : null}
           {hasLinks ? (

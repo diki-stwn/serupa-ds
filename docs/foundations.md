@@ -65,7 +65,7 @@ Each color that changes between themes is a `light-dark()` pair, and `data-mode`
 
 **Shadows** — `data-shadow="brand"` tints the box shadows (`shadow-2xs` to `shadow-2xl`): each one's black becomes a deep shade of the brand color, at the same opacity, so raised cards, menus and dialogs sit in the brand rather than in grey. The shade is worked out where the attribute is, so a section with its own `data-brand` needs its own `data-shadow="brand"` too. `data-shadow="neutral"` puts the black back for one section.
 
-**Fluid type** — `data-type-scale="fluid"` lets the heading sizes (`text-2xl` to `text-9xl`, and the `type-*` styles that use them, such as `type-display` and `type-heading-1`) follow the width of the window: 70% of their size on a 320px phone, never under 20px, growing to their full size at 1280px and wider. Body sizes (`text-xl` and smaller) don't change. Each size is a `clamp()` with a `rem` part, so browser zoom still doubles the text (WCAG 1.4.4). Line heights stay as they are. `data-type-scale="fixed"` puts the fixed sizes back for one section.
+**Fluid type** — `data-type-scale="fluid"` lets the heading sizes (`text-2xl` to `text-9xl`, and the `type-*` styles that use them, such as `type-display` and `type-heading-1`) follow the width of the window: 70% of their size on a 320px phone, never under 20px, growing to their full size at 1280px and wider. Body sizes (`text-xl` and smaller) don't change. Each size is a `clamp()` with a `rem` part, so browser zoom still enlarges it. Zooming also narrows the window the sizes follow, so at 200% a heading is about 1.6 times its size and at 300% at least double, which meets WCAG 1.4.4 (body text doubles at 200% as usual). Line heights stay as they are. `data-type-scale="fixed"` puts the fixed sizes back for one section.
 
 **Automatic dark mode** — `theme.js` (standalone, no React, `dist/theme.js` in the package) sets `data-theme` for the page from a brand and a mode, follows the visitor's light/dark setting live when the mode is `auto`, and remembers a choice the visitor makes. Load it first in `<head>` so the page never flashes the wrong theme:
 
@@ -272,6 +272,7 @@ Text rules of thumb:
 
 - Set text color with aliases (`text-text`, `text-text-muted`, `text-primary`), not palette colors, so it follows the theme.
 - Headings: `text-balance`; paragraphs: `text-pretty`. Numbers in tables: `tabular-nums`.
+- Japanese: with `base.css`, a heading inside `lang="ja"` breaks between phrases (`word-break: auto-phrase`), so a word isn't split across lines. Chrome and Edge 119 and later do this; other browsers break as before.
 - Truncate single lines with `truncate`; clamp previews with `line-clamp-2` or `-3`, and make the full text reachable.
 - Links in body text: `underline underline-offset-2`. Uppercase labels: `uppercase tracking-wide text-xs font-medium`.
 
