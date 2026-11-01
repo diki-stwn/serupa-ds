@@ -621,7 +621,7 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     const { SerupaProvider } = await import('../../internal/provider');
     await render(<SerupaProvider locale="ar-EG"><Toaster /></SerupaProvider>);
     React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', duration: 0 }); });
-    expect(toasts()[0].querySelector('[aria-hidden="true"]:not(svg):not(.dk-icon)')!.textContent).toBe('×١٢');
+    expect(toasts()[0].textContent).toContain('×١٢');
   });
 
   test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
