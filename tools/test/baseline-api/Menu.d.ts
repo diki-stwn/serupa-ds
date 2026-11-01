@@ -1,4 +1,4 @@
-// exports: ContextMenu, type ContextMenuProps, Menu, MenuCheckboxItem, type MenuCheckboxItemProps, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemProps, type MenuProps, MenuRadioGroup, type MenuRadioGroupProps, MenuRadioItem, type MenuRadioItemProps, MenuSeparator, type MenuSeparatorProps, MenuSub, type MenuSubProps
+// exports: ContextMenu, type ContextMenuProps, Menu, MenuCheckboxItem, type MenuCheckboxItemProps, MenuGroup, type MenuGroupProps, MenuItem, type MenuItemOwnProps, type MenuItemProps, type MenuProps, MenuRadioGroup, type MenuRadioGroupProps, MenuRadioItem, type MenuRadioItemProps, MenuSeparator, type MenuSeparatorProps, MenuSub, type MenuSubProps
 interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "role"> {
     trigger: React.ReactElement;
     children: React.ReactNode;
@@ -22,19 +22,29 @@ interface ContextMenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "c
     style?: React.CSSProperties;
 }
 declare const ContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & React.RefAttributes<HTMLDivElement>>;
-interface MenuItemProps extends Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
+interface MenuItemOwnProps {
     onSelect?: (event: React.SyntheticEvent) => void;
     icon?: IconSource;
     shortcut?: string;
     destructive?: boolean;
     disabled?: boolean;
+}
+interface ItemProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
     href?: string;
     as?: React.ElementType;
     target?: string;
     rel?: string;
 }
-declare const MenuItem: React.ForwardRefExoticComponent<MenuItemProps & React.RefAttributes<HTMLElement>>;
-type CheckableProps = Omit<MenuItemProps, "aria-checked" | "as" | "destructive" | "href" | "rel" | "role" | "target">;
+declare const MenuItem: {
+    <C extends React.ElementType = "a">(props: MenuItemProps<C> & {
+        ref?: React.Ref<HTMLElement>;
+    }): null | React.ReactElement;
+    displayName?: string;
+};
+type MenuItemProps<C extends React.ElementType = "a"> = MenuItemOwnProps & {
+    as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, "as" | keyof MenuItemOwnProps>;
+type CheckableProps = Omit<ItemProps, "aria-checked" | "as" | "destructive" | "href" | "rel" | "role" | "target">;
 interface MenuCheckboxItemProps extends CheckableProps {
     checked: boolean;
     onCheckedChange?: (checked: boolean) => void;
