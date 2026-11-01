@@ -33,6 +33,7 @@ import { FileUpload } from "serupa-ds";
 ## Behavior
 
 - The button opens the file picker; files can also be dropped on the area, which highlights while they're dragged over it. Text or a link dragged across it doesn't highlight it. While it can take files, a file dropped just outside the area is ignored rather than opened by the browser in place of the page. A dropped folder is refused ("Invoices is a folder: choose the files in it instead."), and a file that's already in the list is skipped with a message ("report.pdf is already added.").
+- Pasting (Ctrl+V, ⌘V on Apple devices) while focus is on the choose button or a remove button adds the clipboard's files, such as a screenshot, checked like dropped ones. It works from the keyboard alone. A paste with no files in it does nothing. `readOnly` and `disabled` ignore it.
 - Files that don't fit are listed under the area in danger text and passed to `onReject`; the same file picked twice is skipped quietly.
 - Removing a file moves focus to the next file's remove button, or the one before it, so clearing several files stays in the list; with none left, focus goes to the choose button.
 - A long file name is cut in the middle, as Finder and Drive do: "quarterly-report-fi…t-2026.pdf". The last few characters and the extension stay, so files that differ only by year or version still look different. Hover shows the full name, and it's laid out in its own direction. It is cut wherever FileUpload sits, a grid cell or a flex row included, so a long name never widens the page.
@@ -47,7 +48,7 @@ import { FileUpload } from "serupa-ds";
 - In a [Field](../Field/README.md), the button is named by the label and its own text ("Due date, Choose a file") and described by the Field's hint and error, then the `hint`. `aria-describedby` goes to the button too. A button supports none of `aria-invalid`, `aria-errormessage` and `aria-required`, so the button is described by the Field's `error` (or your own `aria-errormessage`), and with `required` by "Required" first (`labels.required`). `aria-invalid` goes on the native input.
 - Text keeps 4.5:1 (also while dragging), and the icons and dashed outline 3:1, in all six themes (`FileUpload.test.tsx`).
 - In forced colors (Windows High Contrast), the drag-over area turns its border solid and `Highlight`, so the state still shows without the primary fill.
-- **Keyboard:** Tab reaches the choose button, where Enter or Space opens the file picker, then each chosen file's remove button. Dropping files needs a pointer, so the button is the keyboard's way in. Read-only, the choose button stays focusable but opens nothing.
+- **Keyboard:** Tab reaches the choose button, where Enter or Space opens the file picker, then each chosen file's remove button. Dropping files needs a pointer, so the button is the keyboard's way in; Ctrl+V (⌘V) there pastes copied files. Read-only, the choose button stays focusable but opens nothing.
 
 ## Props
 

@@ -103,6 +103,26 @@ describe('FileUpload', () => {
     expect([list(el).length, errs(el)]).toEqual([3, 'alert: b.jpg wasn\'t added: up to 3 files.']);
   });
 
+  test('N9: pasting files with focus on the choose button adds them, checked like dropped ones; a paste with no files, or read-only, adds nothing', async () => {
+    await render(<><Many /><FileUpload id="ro" readOnly /></>);
+    const el = q(many);
+    const paste = (target: Element, ...files: File[]) => {
+      const dt = new DataTransfer(); for (const f of files) dt.items.add(f);
+      if (!files.length) dt.setData('text/plain', 'hello');
+      const e = new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dt });
+      target.dispatchEvent(e); return e.defaultPrevented;
+    };
+    choose(el).focus();
+    expect(paste(choose(el), file('image.png', 'image/png', 40), file('notes.txt', 'text/plain', 10))).toBe(true);
+    await expect.poll(() => names(el)).toBe('image.png');
+    expect([input(el).files!.length, errs(el)]).toEqual([1, 'alert: notes.txt isn\'t an image or PDF.']);
+    expect(paste(choose(el))).toBe(false);
+    expect(names(el)).toBe('image.png');
+    const ro = rootOf('ro');
+    expect(paste(choose(ro), file('shot.png', 'image/png', 40))).toBe(false);
+    expect(names(ro)).toBe('');
+  });
+
   test('L8E110: files that are all refused (a duplicate, a wrong type) call no onFilesChange; the list is as it was', async () => {
     const changes: string[] = [];
     await render(<FileUpload id="l8e110" multiple accept="image/*" onFilesChange={(f) => changes.push(f.map((x) => x.name).join('|'))} />);

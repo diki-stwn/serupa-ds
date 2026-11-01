@@ -9,6 +9,7 @@ import { useScrolls } from "../../internal/useScrolls";
 import { warnOnce } from "../../internal/warn";
 import { en as words } from "./labels";
 import { clickAfterDrag } from "../../internal/timing";
+import { activeIn } from "../../internal/root";
 
 export interface SplitterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
   /** The two panes, first and second. The handle between them resizes the first; the second takes the rest. */
@@ -187,7 +188,7 @@ export const Splitter = /* @__PURE__ */ component<HTMLDivElement, SplitterProps>
   const focusedIn = React.useRef(false);
   useIsoLayoutEffect(() => {
     if (!collapsed || !paneA || !handle.current) return;
-    const active = document.activeElement;
+    const active = activeIn(paneA);   // its own root's focus, in a shadow root too (GR60)
     if (paneA.contains(active) || ((!active || active === document.body) && focusedIn.current)) handle.current.focus();
     focusedIn.current = false;
   }, [collapsed, paneA]);

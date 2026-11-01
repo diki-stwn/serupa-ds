@@ -8,7 +8,7 @@ import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 // The trail as written: each item's text, ">" for a separator.
-const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector('.dk-breadcrumb__separator') ? '> ' : '') + li.querySelector('.dk-breadcrumb__item')!.textContent).join(' ');
+const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector(':scope > span[aria-hidden="true"]') ? '> ' : '') + li.querySelector('.dk-breadcrumb__item')!.textContent).join(' ');
 const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('[data-icon]')].filter((i) => css(i).display !== 'none');
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
@@ -47,7 +47,7 @@ describe('Breadcrumb', () => {
     await render(<Home />);
     const s = q('#bdef .dk-breadcrumb__separator'), vis = shownIcons(s);
     expect([s.getAttribute('aria-hidden'), vis.map((i) => i.dataset.icon).join(), css(vis[0]).fontSize, s.parentElement!.tagName]).toEqual(['true', 'chevron_right', '16px', 'LI']);
-    expect([...el('bdef').querySelectorAll('li')].map((li) => li.querySelectorAll('.dk-breadcrumb__separator').length)).toEqual([0, 1, 1]);
+    expect([...el('bdef').querySelectorAll('li')].map((li) => li.querySelectorAll(':scope > span[aria-hidden="true"]').length)).toEqual([0, 1, 1]);
     const a = q('#bdef a').getBoundingClientRect(), sr = s.getBoundingClientRect(), b = el('bdef').querySelectorAll('a')[1].getBoundingClientRect();
     expect([Math.round(sr.left - a.right), Math.round(b.left - sr.right)]).toEqual([6, 6]);
     const i = q('#bdef .dk-breadcrumb__icon .dk-icon');
@@ -79,7 +79,7 @@ describe('Breadcrumb', () => {
   test('separator="slash", a custom aria-label, and a router link through as', async () => {
     await render(<Slash />);
     const n = el('bslash'), r = n.querySelector('[data-router]')!;
-    expect([n.getAttribute('aria-label'), n.querySelector('.dk-breadcrumb__separator')!.textContent, r.getAttribute('href'), r.className])
+    expect([n.getAttribute('aria-label'), n.querySelector('li > span[aria-hidden="true"]')!.textContent, r.getAttribute('href'), r.className])
       .toEqual(['You are here', '/', '#router/b', 'dk-breadcrumb__item dk-breadcrumb__link']);
   });
 
@@ -141,8 +141,8 @@ describe('Breadcrumb', () => {
       <Breadcrumb id="bbad" separator="arrow" maxItems={1}><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem href="#b">B</BreadcrumbItem><BreadcrumbItem href="#c">C</BreadcrumbItem></Breadcrumb>
       <div dir="rtl"><Breadcrumb id="brtl"><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem>B</BreadcrumbItem></Breadcrumb></div>
     </>);
-    expect([el('bbad').querySelectorAll('.dk-breadcrumb__item').length, (q('#bbad .dk-breadcrumb__separator .dk-icon')).dataset.icon]).toEqual([3, 'chevron_right']);
-    expect([...el('brtl').querySelectorAll('.dk-breadcrumb__separator [data-icon]')].map(iconPoints).join()).toBe('left');
+    expect([el('bbad').querySelectorAll('.dk-breadcrumb__item').length, (q('#bbad li > span[aria-hidden="true"] [data-icon]')).dataset.icon]).toEqual([3, 'chevron_right']);
+    expect([...el('brtl').querySelectorAll('li > span[aria-hidden="true"] [data-icon]')].map(iconPoints).join()).toBe('left');
   });
 
   test('keyboard focus: a 2px ring on the link', async () => {

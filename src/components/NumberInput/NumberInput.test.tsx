@@ -423,7 +423,7 @@ describe('NumberInput', () => {
 
   test('steppers={false}: no buttons', async () => {
     await render(<NumberInput id="bare" aria-label="Bare" steppers={false} />);
-    expect(field('bare').parentElement!.querySelector('.dk-number-input__steppers')).toBe(null);
+    expect(field('bare').parentElement!.querySelector('button[aria-controls]')).toBe(null);
   });
 
   test('disabled: both buttons disabled, the value doesn\'t change', async () => {
@@ -435,7 +435,7 @@ describe('NumberInput', () => {
   test('lg: 44px with 20px icons', async () => {
     await render(<NumberInput id="lg" aria-label="Lg" size="lg" defaultValue={1} />);
     const box = field('lg').parentElement!;
-    expect([Math.round(box.getBoundingClientRect().height), css(box.querySelector('.dk-number-input__step .dk-icon')).fontSize]).toEqual([44, '20px']);
+    expect([Math.round(box.getBoundingClientRect().height), css(box.querySelector('button[aria-controls] [data-icon]')).fontSize]).toEqual([44, '20px']);
   });
 
   test('contrast: the − and + keep 3:1 and the number 4.5:1 on the field in all six themes', async () => {
@@ -465,7 +465,7 @@ describe('NumberInput', () => {
   });
   test('size sm: each stepper is 22px but takes presses over 24px (WCAG 2.5.8), past each outer edge, without moving anything', async () => {
     await render(<div style={{ width: '320px', padding: '8px' }}><NumberInput id="hb" aria-label="Seats" size="sm" defaultValue={5} /></div>);
-    const [dec, inc] = [...document.querySelector<HTMLElement>('#hb')!.closest('.dk-input')!.querySelectorAll<HTMLElement>('.dk-number-input__step')];
+    const [dec, inc] = [...document.querySelector<HTMLElement>('#hb')!.closest('[data-component="number-input"]')!.querySelectorAll<HTMLElement>('button[aria-controls]')];
     expect([Math.round(dec.getBoundingClientRect().height), Math.round(inc.getBoundingClientRect().width)]).toEqual([22, 22]);
     // Start, top and bottom of Decrease; end, top and bottom of Increase. The 2px between them goes to one or the other.
     const [ds, , dt, db] = reach(dec), [, ie, it, ib] = reach(inc);

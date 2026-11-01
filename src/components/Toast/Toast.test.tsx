@@ -115,7 +115,7 @@ describe('Toast', () => {
     await render(<App />);
     let id = '';
     React.act(() => { id = toast({ title: 'Changes saved', tone: 'success', duration: 0 }); toast('Plain message'); });
-    expect(toasts().map((x) => x.dataset.tone + ':' + !!x.querySelector('.dk-toast__icon'))).toEqual(['success:true', 'neutral:false']);
+    expect(toasts().map((x) => x.dataset.tone + ':' + !!x.querySelector(':scope > span[aria-hidden] > [data-icon]'))).toEqual(['success:true', 'neutral:false']);
     React.act(() => { toast({ id, title: 'Saved again', tone: 'info', duration: 0 }); });
     expect(titles()).toEqual(['Saved again', 'Plain message']);
     await userEvent.click(q('.dk-toast:first-child button[aria-label="Dismiss"]'));
@@ -263,7 +263,7 @@ describe('Toast', () => {
     React.act(() => { toast({ title: 'Archived', action: { label: 'Undo', onClick: () => { undos++; } }, duration: 0 }); });
     (document.activeElement as HTMLElement | null)?.blur();
     let toAction = false;
-    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.matches('.dk-toast button:not([aria-label])'); }
+    for (let i = 0; i < 10 && !toAction; i++) { await userEvent.keyboard('{Tab}'); toAction = document.activeElement!.matches('[data-toast] button:not([aria-label])'); }
     await userEvent.keyboard('{Tab}');
     expect([toAction, document.activeElement!.getAttribute('aria-label') === 'Dismiss']).toEqual([true, true]);
     await userEvent.keyboard('{Shift>}{Tab}{/Shift}{Enter}');
@@ -356,7 +356,7 @@ describe('Toast', () => {
       document.documentElement.setAttribute('data-theme', th);
       await settle();
       const more = q('.dk-toaster__more'), count = q('.dk-toast__count');
-      for (const [name, el, bg] of [['waiting line', more, css(more).backgroundColor], ['count', count, css(count.closest('.dk-toast')).backgroundColor]] as const) {
+      for (const [name, el, bg] of [['waiting line', more, css(more).backgroundColor], ['count', count, css(count.closest('[data-toast]')).backgroundColor]] as const) {
         const r = contrast(css(el).color, bg);
         if (r < 4.5) low.push(`${th} ${name} ${r.toFixed(2)}`);
       }
@@ -699,5 +699,25 @@ describe('Toaster on a short screen (GQ1b)', () => {
       await page.viewport(568, 900);
       await expect.poll(() => toasts().filter((x) => !x.hasAttribute('data-leaving')).length).toBe(3);
     } finally { await page.viewport(900, 700); }
+  });
+});
+
+describe('Toaster inside a shadow root (GR60)', () => {
+  test('F8 reaches the newest toast and F8 again goes back to the field it came from', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<><input aria-label="Shadow field" /><Toaster /></>, { container: inner });
+      const root = host.shadowRoot!, field = root.querySelector('input')!;
+      React.act(() => { toast({ title: 'In the shadow', duration: 0 }); });
+      await expect.poll(() => root.querySelectorAll('[data-toast]').length).toBe(1);
+      field.focus();
+      await userEvent.keyboard('{F8}');
+      await expect.poll(() => !!root.activeElement?.closest('[data-toast]')).toBe(true);
+      await userEvent.keyboard('{F8}');
+      await expect.poll(() => root.activeElement).toBe(field);
+    } finally { React.act(() => { toast.dismiss(); }); host.remove(); }
   });
 });

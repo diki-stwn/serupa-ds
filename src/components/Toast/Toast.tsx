@@ -16,6 +16,7 @@ import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
 import { en as ownWords } from "./labels";
 import { repeatQuiet } from "../../internal/timing";
+import { deepActive } from "../../internal/root";
 import { pageShared } from "../../internal/pageShared";
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
@@ -237,13 +238,14 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     const onKey = (e: KeyboardEvent) => {
       const region = self.current;
       if (!region || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      const inside = region.contains(document.activeElement);
+      // Focus read through shadow roots, so a Toaster inside one (or a page field inside one) still counts (GR60).
+      const active = deepActive(), inside = region.contains(active);
       if (e.key === HOTKEY) {
         const toasts = region.querySelectorAll<HTMLElement>("[data-toast]:not([data-leaving])");
         if (inside) { e.preventDefault(); away(); return; }
         if (!toasts.length) return;
         e.preventDefault();
-        back.current = document.activeElement as HTMLElement | null;
+        back.current = active as HTMLElement | null;
         // The newest one: last in the list, or first when the toasts stack downward from the top.
         toasts[pos.startsWith("top") ? 0 : toasts.length - 1].focus();
       } else if (e.key === "Escape" && inside && back.current) { e.preventDefault(); away(); }
@@ -269,7 +271,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     if (rest.onBlur) rest.onBlur(e);
     const h = held.current, to = e.relatedTarget as Node | null;
     if (to && self.current && !self.current.contains(to)) held.current = null;
-    else if (!to && h) window.setTimeout(() => { if (held.current === h && h.toast.isConnected && !h.toast.contains(document.activeElement)) held.current = null; }, 0);
+    else if (!to && h) window.setTimeout(() => { if (held.current === h && h.toast.isConnected && !h.toast.contains(deepActive())) held.current = null; }, 0);
   };
   useIsoLayoutEffect(() => {
     const h = held.current, region = self.current;
@@ -277,7 +279,7 @@ export const Toaster = /* @__PURE__ */ named("Toaster", function Toaster(props: 
     if (!h || (h.toast.isConnected && !h.toast.hasAttribute("data-leaving")) || !region) return;
     held.current = null;
     if (!h.keys) return;
-    const now = document.activeElement;
+    const now = deepActive();
     if (now && now !== document.body && now.isConnected && !h.toast.contains(now)) return;
     const b = back.current, toasts = region.querySelectorAll<HTMLElement>("[data-toast]:not([data-leaving])");
     if (b && b.isConnected) { back.current = null; b.focus(); }

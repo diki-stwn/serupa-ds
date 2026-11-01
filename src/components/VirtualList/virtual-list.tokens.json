@@ -1,0 +1,29 @@
+{
+  "virtualList": {
+    "$description": "VirtualList's component tokens. Each one is an optional override: set the CSS variable (--virtual-list-<name>) on the page, a container or one VirtualList, and every VirtualList inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults. Its rows, lines and frame read List's tokens.",
+    "color": {
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The ring around the list while it has keyboard focus (3:1).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--virtual-list-focus-ring"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "height": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-96}",
+        "$description": "The most the list grows to before it scrolls inside (384px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--virtual-list-height"
+          }
+        }
+      }
+    }
+  }
+}

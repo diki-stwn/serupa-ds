@@ -5,6 +5,7 @@ import { useServerStyles } from "../../internal/serverStyles";
 import { Icon } from "../Icon/Icon";
 import { IconButton } from "../IconButton/IconButton";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { flattenChildren } from "../../internal/children";
 import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
@@ -168,7 +169,11 @@ export const Carousel = /* @__PURE__ */ component<HTMLElement, CarouselProps>("C
     const r = refocus.current;
     refocus.current = null;
     if (r === "dot") (dotsRef.current?.children[page] as HTMLElement | undefined)?.focus();
-    else if (r && (document.activeElement === prevBtn.current || document.activeElement === nextBtn.current || document.activeElement === document.body)) (r === "prev" ? prevBtn : nextBtn).current?.focus();
+    else if (r) {
+      // its own root's focus: inside a shadow root that's null once the hidden button lost it, not the body (GR90)
+      const a = activeIn(viewport.current);
+      if (!a || a === prevBtn.current || a === nextBtn.current || a === document.body) (r === "prev" ? prevBtn : nextBtn).current?.focus();
+    }
   });
 
   const onPointerDown = (e: React.PointerEvent) => {
