@@ -12,6 +12,10 @@
      - pointing at one draws its box and a panel with its name, its variant and size (the modifiers of its block class, such as dk-btn--primary), its state
        (data-state, aria-checked, aria-expanded, aria-selected, aria-invalid, disabled), its size in px, and the
        component tokens (--button-…, --input-…) that have a value on it, so a token your app overrides shows here;
+     - the color pairs Serupa draws (text on each surface, button text, field borders, the focus ring …) are checked
+       against WCAG 2.2 where they are, so a color token your app overrides can't quietly fail contrast: the ones
+       that fail on the page are listed in the console when it turns on, and the panel lists any more that fail on
+       the component you point at (from a token set on it, or on a section or card around it);
      - Escape, or Serupa.debug.off(), turns it off.
 
    API (window.Serupa.debug):
@@ -19,11 +23,14 @@
      off()       turn it off, and forget it for this tab
      toggle()    on if off, off if on
      isOn()      true while it's on
-     inspect(el) what the panel shows for the Serupa component at or above el, as an object, or null */
+     inspect(el) what the panel shows for the Serupa component at or above el, as an object, or null
+     contrast(el) each color pair as drawn at el (default: the page), with its ratio and the ratio it needs */
 (function () {
   if (window.Serupa && window.Serupa.debug) return;
   var KEY = "serupa-debug", PINK = "#db2777";
   var on = false, style = null, box = null, panel = null, current = null;
+  // The pairs that fail on the page itself, named in the console when it turns on, so the panel doesn't repeat them.
+  var pageLow = {};
   // Each component's tokens, by prefix (button for Button), read once from the loaded style sheets.
   var tokenCache = {};
 
@@ -58,6 +65,53 @@
     return names;
   }
 
+  // The color pairs Serupa puts on screen, each [foreground, background, ratio it needs, what it is]: the build
+  // writes them here from tools/tokens/contrast-pairs.mjs, the list tools/test/foundation.mjs checks in each theme.
+  var PAIRS = /*__PAIRS__*/[];
+  var probe = null, ctx = null;
+  // A token's color at el as sRGB, drawn over `under` (and white, under everything), so a translucent color counts
+  // as it looks. A custom property's computed value has its var()s filled in, so it holds up on its own.
+  function paint(value, under) {
+    if (!ctx) {
+      var canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      ctx = canvas.getContext("2d", { willReadFrequently: true });
+      probe = document.createElement("span");
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+    }
+    document.body.appendChild(probe);
+    probe.style.color = "rgb(0, 0, 0)";
+    probe.style.color = value;
+    var css = getComputedStyle(probe).color;
+    probe.parentNode.removeChild(probe);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, 1, 1);
+    if (under) { ctx.fillStyle = "rgb(" + under.join(",") + ")"; ctx.fillRect(0, 0, 1, 1); }
+    ctx.fillStyle = css;
+    ctx.fillRect(0, 0, 1, 1);
+    var d = ctx.getImageData(0, 0, 1, 1).data;
+    return [d[0], d[1], d[2]];
+  }
+  function luminance(c) {
+    var v = c.map(function (x) { x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function contrast(el) {
+    el = el || document.documentElement;
+    var computed = getComputedStyle(el), out = [];
+    PAIRS.forEach(function (p) {
+      var fg = computed.getPropertyValue("--" + p[0]).trim(), bg = computed.getPropertyValue("--" + p[1]).trim();
+      if (!fg || !bg) return;
+      var back = paint(bg), a = luminance(paint(fg, back)), b = luminance(back);
+      var ratio = Math.round((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) * 100) / 100;
+      out.push({ foreground: "--" + p[0], background: "--" + p[1], ratio: ratio, needs: p[2], what: p[3], ok: ratio >= p[2] });
+    });
+    return out;
+  }
+  function failing(list) { return list.filter(function (r) { return !r.ok; }); }
+
   function inspect(el) {
     var host = el && el.closest ? el.closest("[data-component]") : null;
     if (!host) return null;
@@ -78,7 +132,7 @@
       if (v) tokens[t] = v;
     });
     var r = host.getBoundingClientRect();
-    return { element: host, component: name, modifiers: modifiers, state: state, width: Math.round(r.width), height: Math.round(r.height), tokens: tokens };
+    return { element: host, component: name, modifiers: modifiers, state: state, width: Math.round(r.width), height: Math.round(r.height), tokens: tokens, lowContrast: failing(contrast(host)) };
   }
 
   function line(parent, label, value) {
@@ -109,6 +163,12 @@
       if (names.length > 12) line(panel, "", "and " + (names.length - 12) + " more: Serupa.debug.inspect(el).tokens");
     }
     // Below the box, or above it when there's no room, and never past the window's edge.
+    // Only what fails here and not on the whole page: a token set on this component or around it.
+    var low = info.lowContrast.filter(function (c) { return !pageLow[c.foreground + " " + c.background]; });
+    low.slice(0, 4).forEach(function (c, i) {
+      line(panel, i ? "" : "low contrast", c.foreground + " on " + c.background + " " + c.ratio + ":1, needs " + c.needs + ":1 (" + c.what + ")");
+    });
+    if (low.length > 4) line(panel, "", "and " + (low.length - 4) + " more: Serupa.debug.contrast(el)");
     var below = r.bottom + 8, w = Math.min(360, innerWidth - 16);
     panel.style.cssText = "position:fixed;z-index:2147483647;pointer-events:none;max-width:" + w + "px;padding:8px 10px;border-radius:6px;"
       + "background:#18181b;color:#fafafa;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;box-shadow:0 4px 16px rgba(0,0,0,.3);"
@@ -148,6 +208,13 @@
       addEventListener("scroll", onScroll, true);
       addEventListener("resize", onScroll);
       document.addEventListener("keydown", onKey);
+      var low = failing(contrast());
+      pageLow = {};
+      low.forEach(function (c) { pageLow[c.foreground + " " + c.background] = true; });
+      if (low.length && window.console) {
+        console.warn("Serupa debug: " + low.length + " color pair" + (low.length > 1 ? "s" : "") + " on this page fail WCAG contrast, most likely from a color token your app sets:\n"
+          + low.map(function (c) { return "  " + c.foreground + " on " + c.background + ": " + c.ratio + ":1, needs " + c.needs + ":1 (" + c.what + ")"; }).join("\n"));
+      }
     },
     off: function () {
       store(false);
@@ -162,7 +229,8 @@
     },
     toggle: function () { if (on) api.off(); else api.on(); },
     isOn: function () { return on; },
-    inspect: function (el) { var info = inspect(el); return info; }
+    inspect: function (el) { var info = inspect(el); return info; },
+    contrast: function (el) { return contrast(el); }
   };
   window.Serupa = window.Serupa || {};
   window.Serupa.debug = api;

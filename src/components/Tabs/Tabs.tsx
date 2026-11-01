@@ -74,7 +74,15 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   const [shown, setShown] = React.useState(value);
   if (shown !== value) { setShown(value); setKeyed(lastInputKeyboard()); }
   useIsoLayoutEffect(listenForInput, []);
-  const select = React.useCallback((v: string) => { if (before.current) before.current(); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
+  // The selected tab pressed again (a click, Enter or Space) changes nothing, so it doesn't call onValueChange: an app
+  // that puts the tab in the URL pushed the same page into the history each time (L8E107).
+  const current = React.useRef(value); current.current = value;
+  const select = React.useCallback((v: string) => {
+    if (v === current.current) return;
+    if (before.current) before.current();
+    if (!controlled) { current.current = v; setInner(v); }
+    if (onChange.current) onChange.current(v);
+  }, [controlled]);
   const variant = oneOf(["line", "pill"] as const, props.variant, "line");
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   // Which values have a TabPanel, so a tab only points (aria-controls) at a panel that exists: a tab row can
