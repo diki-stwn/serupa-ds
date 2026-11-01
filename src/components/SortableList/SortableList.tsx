@@ -109,12 +109,20 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     const d = current.current;
     if (d && !d.pointer && !dropping.current && handles.current.get(d.key) !== document.activeElement) finish(d, false);
   });
-  // Moving a row in the DOM can take focus off its handle: give it back.
+  // Moving a row in the DOM can take focus off its handle: give it back. And keep the moved row on screen (GR69): in
+  // a list or row longer than its box, the arrows would carry it out of view while focus stays on it (WCAG 2.4.11).
+  // Only once it has moved, so picking it up scrolls nothing.
+  const shownAt = React.useRef(-1);
   // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
   useIsoLayoutEffect(() => {
-    if (!drag || drag.pointer) return;
+    if (!drag || drag.pointer) { shownAt.current = -1; return; }
     const h = handles.current.get(drag.key);
     if (h && document.activeElement !== h) h.focus({ preventScroll: true });
+    if (shownAt.current === -1) { shownAt.current = drag.to; return; }
+    if (shownAt.current === drag.to) return;
+    shownAt.current = drag.to;
+    const row = h && h.closest("li");
+    if (row && typeof row.scrollIntoView === "function") row.scrollIntoView({ block: "nearest", inline: "nearest" });
   });
 
   // Pointer: press a handle and move more than a few pixels to drag; the row follows the pointer. The moves are
