@@ -11,6 +11,8 @@ const PIC = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w
 // A path the test server doesn't have: the picture fails to load.
 const BROKEN = '/__no-such-picture__/none.png';
 const frame = (id: string) => document.querySelector(`[data-testid=${id}]`) as HTMLElement;
+// In the frame: the picture (or the button that views it), then the fallback span when it failed, then the remove button.
+const FALLBACK = ':scope > :is(img, picture) + span', REMOVE = ':scope > button:not([aria-haspopup])';
 const box = (id: string) => {
   const f = frame(id), r = f.getBoundingClientRect(), i = f.querySelector('img');
   return { w: Math.round(r.width), h: Math.round(r.height), state: f.dataset.state, fit: i && css(i).objectFit, radius: css(f).borderTopLeftRadius };
@@ -107,10 +109,10 @@ describe('Image', () => {
       <Pic id="custom" src={BROKEN} alt="Logo" ratio="square" fallback={<span className="my-fallback">No logo</span>} />
     </Row>);
     await expect.poll(() => [frame('broken').dataset.state, frame('custom').dataset.state]).toEqual(['error', 'error']);
-    const f = frame('broken'), fb = f.querySelector('.dk-image__fallback')!;
+    const f = frame('broken'), fb = f.querySelector(FALLBACK)!;
     expect([css(f.querySelector('img')).visibility, fb.getAttribute('role'), fb.getAttribute('aria-label'), fb.querySelector<HTMLElement>('[data-icon]')?.dataset.icon, Math.round(f.getBoundingClientRect().height)])
       .toEqual(['hidden', 'img', 'Team photo', 'broken_image', 200]);
-    expect(frame('custom').querySelector('.dk-image__fallback')!.textContent).toBe('No logo');
+    expect(frame('custom').querySelector(FALLBACK)!.textContent).toBe('No logo');
   });
 
   test('on error, what was passed to the picture stays: className, style, id, data-* and the ref, and the frame keeps the size they gave it (GJ1)', async () => {
@@ -161,7 +163,7 @@ describe('Image', () => {
   test('viewable: the picture is a button named "View image: <alt>" with a zoom-in cursor; the remove button is "Remove image: <alt>"', async () => {
     await render(<Viewer removed={() => {}} />);
     const b = viewBtn();
-    expect([b.getAttribute('aria-label'), b.getAttribute('aria-haspopup'), css(b).cursor, frame('view').querySelector('.dk-image__remove')!.getAttribute('aria-label')])
+    expect([b.getAttribute('aria-label'), b.getAttribute('aria-haspopup'), css(b).cursor, frame('view').querySelector(REMOVE)!.getAttribute('aria-label')])
       .toEqual(['View image: Harbor at dusk', 'dialog', 'zoom-in', 'Remove image: Harbor at dusk']);
   });
 
@@ -173,7 +175,7 @@ describe('Image', () => {
     await finished();
     const d = dialog(), full = d.querySelector<HTMLImageElement>('img')!;
     // The Dialog is titled with the alt text, so the picture is alt="" (not read twice).
-    expect([d.querySelector('.dk-dialog__title')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.getAttribute('alt'), d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, '', true]);
+    expect([d.querySelector('h2')!.textContent, full.getAttribute('src')!.endsWith('#full'), full.getAttribute('alt'), d.contains(document.activeElement)]).toEqual(['Harbor at dusk', true, '', true]);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => dialog().open).toBe(false);
     expect(document.activeElement).toBe(viewBtn());
@@ -226,7 +228,7 @@ describe('Image', () => {
   test('onRemove: the remove button calls it without opening the viewer, 8px from the top end corner', async () => {
     let removed = 0;
     await render(<Viewer removed={() => { removed++; }} />);
-    const rm = frame('view').querySelector('.dk-image__remove')!;
+    const rm = frame('view').querySelector(REMOVE)!;
     await userEvent.click(rm);
     expect([removed, dialog().open]).toEqual([1, false]);
     const f = frame('view').getBoundingClientRect(), r = rm.getBoundingClientRect();
@@ -236,7 +238,7 @@ describe('Image', () => {
   test('contrast: the fallback icon and the remove button\'s icon keep 3:1 in all six themes', async () => {
     await render(<Row><Pic id="broken" src={BROKEN} alt="Team photo" ratio="square" /><Viewer removed={() => {}} /></Row>);
     await expect.poll(() => frame('broken').dataset.state).toBe('error');
-    const f = frame('broken'), fb = f.querySelector('.dk-image__fallback')!, rm = frame('view').querySelector('.dk-image__remove')!, low: string[] = [];
+    const f = frame('broken'), fb = f.querySelector(FALLBACK)!, rm = frame('view').querySelector(REMOVE)!, low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       // The remove button's colors transition into the new theme: read them once that's done.

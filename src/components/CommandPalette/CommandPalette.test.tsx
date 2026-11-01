@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { THEMES, contrast, css } from '../../../tools/test/vitest/helpers';
+import { THEMES, contrast, css, forcedColors } from '../../../tools/test/vitest/helpers';
 import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 import { CommandPalette, type Command } from './CommandPalette';
@@ -99,9 +99,38 @@ describe('CommandPalette', () => {
       options()[3].click();
       expect([onSelect.mock.calls.length, isOpen('p')]).toEqual([0, true]);
       options()[5].click();
-      expect([location.hash, (onSelect.mock.calls[0][0] as Command).id]).toEqual(['#cmdk-docs', 'docs']);
-      await expect.poll(() => isOpen('p')).toBe(false);
+      await expect.poll(() => onSelect.mock.calls.length).toBe(1);
+      expect([location.hash, (onSelect.mock.calls[0][0] as Command).id, isOpen('p')]).toEqual(['#cmdk-docs', 'docs', false]);
     } finally { history.replaceState(null, '', before || location.pathname + location.search); }
+  });
+
+  test('a command runs after the palette has closed and given focus back: its onSelect can focus a field on the page (GR97)', async () => {
+    const order: string[] = [];
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      return <>
+        <button id="opener" onClick={() => setOpen(true)}>Commands</button>
+        <input id="q" aria-label="Search" />
+        <CommandPalette id="p" open={open} onOpenChange={setOpen} onSelect={() => order.push('palette ' + (document.activeElement?.id || ''))}
+          commands={[{ id: 'focus', label: 'Focus search', onSelect: () => { order.push('command ' + String(isOpen('p'))); el('q').focus(); } }]} />
+      </>;
+    }
+    await render(<App />);
+    el('opener').focus();
+    el('opener').click();
+    await expect.poll(() => isOpen('p')).toBe(true);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => order).toEqual(['command false', 'palette q']);
+    await expect.poll(() => document.activeElement?.id).toBe('q');
+  });
+
+  test('forced colors: the active row has an outline in Highlight (GR98)', async () => {
+    await render(<CommandPalette id="p" defaultOpen commands={COMMANDS} />);
+    await forcedColors(async (active) => {
+      if (!active) return;
+      const on = el(field().getAttribute('aria-activedescendant')!), off = options().find((o) => o !== on)!;
+      expect([css(on).outlineStyle, css(off).outlineStyle]).toEqual(['solid', 'none']);
+    });
   });
 
   test('Ctrl+K (⌘K on Apple devices), or its hotkey, opens it from anywhere; each opening starts empty; hotkey false turns it off', async () => {
