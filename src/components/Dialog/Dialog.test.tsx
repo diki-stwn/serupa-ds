@@ -452,6 +452,29 @@ describe('Dialog: unsaved (13)', () => {
   const question = () => document.querySelector<HTMLDialogElement>('dialog[role="alertdialog"]');
   const button = (name: string) => [...question()!.querySelectorAll('button')].find((b) => b.textContent === name)!;
 
+  test('the app closing it while the question shows takes the question away, and opening it again asks afresh (GR96)', async () => {
+    let set: (v: boolean) => void = () => {};
+    function App() {
+      const [open, setOpen] = React.useState(true); set = setOpen;
+      return <Dialog id="form" open={open} unsaved onOpenChange={setOpen} title="Rename project"><Input id="name" aria-label="Name" /></Dialog>;
+    }
+    await render(<App />);
+    await expect.poll(() => isOpen('form')).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    set(false);
+    await expect.poll(() => [isOpen('form'), !!question()?.open]).toEqual([false, false]);
+    set(true);
+    await expect.poll(() => isOpen('form')).toBe(true);
+    expect(question()?.open ?? false).toBe(false);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Discard'));
+    await expect.poll(() => [isOpen('form'), !!question()?.open]).toEqual([false, false]);
+  });
+
   test('Escape, the × and the backdrop ask "Discard changes?" first, with Keep editing focused; Keep editing and Escape go back to the form; Discard closes it with the first reason', async () => {
     const why: string[] = [];
     await render(<Form why={why} />);
