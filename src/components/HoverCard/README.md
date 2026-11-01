@@ -57,6 +57,7 @@ import { HoverCard, Link, Avatar } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one HoverCard. The list lives in `src/components/HoverCard/hover-card.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from hover-card.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--hover-card-bg` | `surface-overlay` | The card's background. |
@@ -69,3 +70,4 @@ Each is an optional override: set it on the page, a container or one HoverCard. 
 | `--hover-card-padding` | `spacing-4` | Space inside, on every side (16px). |
 | `--hover-card-offset` | `spacing-2` | The gap between the link and the card (8px). |
 | `--hover-card-z-index` | `z-popover` | Its stacking level, for a browser without the top layer. |
+<!-- token-table:end -->
