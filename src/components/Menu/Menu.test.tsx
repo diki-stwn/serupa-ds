@@ -806,4 +806,17 @@ describe('Menu: motion (DZ1)', () => {
       expect([m.hidden, getComputedStyle(m).display, m.getAnimations().length, m.querySelectorAll('[role="menuitem"]').length]).toEqual([true, 'none', 0, 0]);
     });
   });
+
+  test('L8E104: the <dialog> it sits in closing closes it, so it is not open again when the dialog reopens', async () => {
+    await render(<dialog id="l8e104d"><Menu trigger={<Button id="l8e104t">Actions</Button>}><MenuItem>Rename</MenuItem></Menu></dialog>);
+    const d = document.getElementById('l8e104d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.click(document.getElementById('l8e104t')!);
+    d.close();
+    // The close event comes in a task after close().
+    await new Promise((r) => setTimeout(r, 50));
+    d.showModal();
+    expect([document.getElementById('l8e104t')!.getAttribute('aria-expanded'), document.querySelectorAll('[role="menu"]:popover-open').length]).toEqual(['false', 0]);
+    d.close();
+  });
 });

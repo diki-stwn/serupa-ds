@@ -162,6 +162,32 @@ for (const scheme of ['light', 'dark']) {
   await p.close();
 }
 
+// 3b. debug.js (204): off until ?serupa-debug; then each component is outlined, pointing at one names it with its
+// classes, state and the component tokens set on it, it survives a reload in the tab, and Escape turns it off. It
+// shares window.Serupa with the components and theme.js.
+{
+  const body = '<div id="root"></div><script>ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Serupa.Button, { id: "b", style: { "--button-radius": "0px" } }, "Save"));</script>';
+  const url = writePage('debug.html', body, { react: true, theme: true, extraHead: '<script src="../dist/debug.js"></script>' });
+  const p = await b.newPage();
+  await p.goto(url);
+  await p.waitForSelector('#b');
+  t('debug.js: off by default, and window.Serupa keeps the components and theme', await p.evaluate(() => !document.getElementById('serupa-debug') && !Serupa.debug.isOn() && typeof Serupa.Button === 'object' && typeof Serupa.theme.get === 'function'));
+  await p.goto(url + '?serupa-debug');
+  await p.waitForSelector('#b');
+  t('debug.js: ?serupa-debug turns it on and outlines each component', await p.evaluate(() => Serupa.debug.isOn() && getComputedStyle(document.getElementById('b')).outlineStyle === 'dashed'));
+  await p.hover('#b');
+  const panel = await p.evaluate(() => document.getElementById('serupa-debug-panel')?.textContent || '');
+  t('debug.js: pointing at a Button names it, its variant and size, and the token set on it', /button/.test(panel) && /primary/.test(panel) && /size-md/.test(panel) && /--button-radius\s*0px/.test(panel), panel);
+  const info = await p.evaluate(() => { const i = Serupa.debug.inspect(document.querySelector('#b .dk-btn__label')); return i && { c: i.component, m: i.modifiers, r: i.tokens['--button-radius'], h: i.height }; });
+  t('debug.js: inspect() finds the component from an element inside it', info?.c === 'button' && info.m.includes('primary') && info.r === '0px' && info.h === 32, JSON.stringify(info));
+  await p.goto(url);
+  await p.waitForSelector('#b');
+  t('debug.js: it stays on for the tab after the address loses ?serupa-debug', await p.evaluate(() => Serupa.debug.isOn()));
+  await p.keyboard.press('Escape');
+  t('debug.js: Escape turns it off and takes its outline and panel away', await p.evaluate(() => !Serupa.debug.isOn() && !document.getElementById('serupa-debug') && !document.getElementById('serupa-debug-panel') && sessionStorage.getItem('serupa-debug') === null));
+  await p.close();
+}
+
 // 4. serupa-purge keeps exactly what a page needs
 {
   const dir = path.join(PROJECT, '.test-tmp');
