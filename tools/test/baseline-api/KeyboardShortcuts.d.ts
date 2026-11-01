@@ -15,7 +15,7 @@ interface ShortcutOptions {
     enabled?: boolean;
     inInputs?: boolean;
 }
-interface KeyboardShortcutsProps extends Omit<DialogProps, "alert" | "children" | "closeButton" | "closeLabel" | "closeOnBackdrop" | "description" | "finalFocus" | "footer" | "fullScreen" | "initialFocus" | "size" | "title"> {
+interface KeyboardShortcutsProps extends Omit<DialogProps, "alert" | "children" | "closeButton" | "closeLabel" | "closeOnBackdrop" | "description" | "finalFocus" | "footer" | "fullScreen" | "initialFocus" | "size" | "title" | "unsaved"> {
     title?: React.ReactNode;
     shortcuts?: Shortcut[];
     helpKeys?: false | string[];

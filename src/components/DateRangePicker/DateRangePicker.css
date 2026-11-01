@@ -5,7 +5,14 @@
    --------------------------------------------------------------- */
 @layer dk.components {
 .dk-date-range-picker { --dk-drp-offset: var(--date-picker-offset, var(--spacing-1)); width: auto; max-width: var(--sizing-full); padding-inline-end: var(--spacing-1); }
-.dk-date-range-picker__field { flex: initial; min-width: var(--spacing-0); width: var(--date-range-picker-field-width, var(--spacing-24)); }
+/* A box too narrow for both dates wraps the end date onto a second line (GR73) rather than shrinking the fields
+   past a full date, which cut the year off. One line, it's the input's height; wrapped, it grows, each line a full control height so a field stays a
+   24px target (WCAG 2.5.8). */
+.dk-date-range-picker { flex-wrap: wrap; row-gap: var(--spacing-0); height: auto; min-height: var(--dk-input-h); }
+.dk-date-range-picker__field { flex: none; align-self: stretch; height: auto; min-height: calc(var(--dk-input-h) - var(--input-border-width, var(--border-width-1)) - var(--input-border-width, var(--border-width-1))); width: var(--date-range-picker-field-width, var(--spacing-24)); max-width: var(--sizing-full); }
+/* sm: the 24px calendar button is taller than the box inside its border, as it always was; it overlaps the border
+   rather than growing the box past the control height. */
+.dk-date-range-picker.dk-input--size-sm .dk-date-range-picker__button { margin-block: calc(var(--spacing-0) - var(--input-border-width, var(--border-width-1))); }
 .dk-date-range-picker__dash { flex-shrink: 0; color: var(--date-range-picker-dash, var(--text-muted)); }
 .dk-date-range-picker__months { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--date-range-picker-months-gap, var(--spacing-6)); }
 .dk-date-range-picker__months > :first-child .dk-calendar__nav--next, .dk-date-range-picker__months > :last-child:not(:first-child) .dk-calendar__nav--prev { visibility: hidden; }

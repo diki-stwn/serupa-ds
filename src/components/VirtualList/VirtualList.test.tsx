@@ -108,6 +108,74 @@ describe('VirtualList', () => {
     expect([rows('v').length, el('v').style.getPropertyValue('--dk-vl-after'), el('v').scrollHeight <= el('v').clientHeight]).toEqual([0, '0px', true]);
   });
 
+  test('GR93: after a jump to the middle, each small scroll moves the view by about as much, while the rows it brings in are measured', async () => {
+    const at = () => { const box = el('v').getBoundingClientRect().top; const r = rows('v').find((x) => x.getBoundingClientRect().bottom > box + 1)!; return Number(r.getAttribute('aria-posinset')) * 1000 + (box - r.getBoundingClientRect().top); };
+    const screen = await render(<div />);
+    for (const count of [10000, 100000]) {
+      await screen.rerender(<VirtualList key={count} id="v" aria-label="Rows" count={count} renderItem={item} />);
+      await expect.poll(() => rows('v').length).toBeLessThan(30);
+      const h = rows('v')[1].getBoundingClientRect().height;
+      await scrollTo('v', el('v').scrollHeight / 2);
+      await new Promise((r) => setTimeout(r, 300));
+      for (let k = 0; k < 5; k++) {
+        // Where the view is, as row * 1000 + px into it: 40px further down is 40px further into the rows.
+        const was = at();
+        el('v').scrollTop += 40;
+        await new Promise((r) => setTimeout(r, 200));
+        const moved = at() - was, rowsMoved = Math.round(moved / 1000);
+        expect(Math.abs(rowsMoved * h + (moved - rowsMoved * 1000) - 40), `step ${k + 1} of ${count}`).toBeLessThan(2);
+      }
+    }
+  });
+
+  test('Tab through rows of links: the list scrolls to show each one (it used to scroll back to the top, leaving focus out of view)', async () => {
+    const link = (i: number) => <ListItem href="#" title={'Row ' + (i + 1)} />;
+    await render(<><button id="b">b</button><VirtualList id="v" aria-label="Rows" count={10000} renderItem={link} /></>);
+    await expect.poll(() => rows('v').length).toBeLessThan(30);
+    el('b').focus();
+    for (let k = 0; k < 20; k++) await userEvent.tab();
+    const box = el('v').getBoundingClientRect(), r = document.activeElement!.getBoundingClientRect();
+    expect(document.activeElement!.closest('[data-index]')?.getAttribute('data-index')).toBe('18');
+    expect([r.top >= box.top - 1, r.bottom <= box.bottom + 1, el('v').scrollTop > 0]).toEqual([true, true, true]);
+  });
+
+  test('GR94: past the height limit (10,000,000 rows), the arrow and Page keys and the wheel move through the rows as in a short list, and stop at either end', async () => {
+    const first = () => { const box = el('v').getBoundingClientRect().top; return Number(rows('v').find((x) => x.getBoundingClientRect().bottom > box + 1)!.getAttribute('aria-posinset')); };
+    await render(<VirtualList id="v" aria-label="Rows" count={10_000_000} renderItem={item} />);
+    await expect.poll(() => rows('v').length).toBeLessThan(30);
+    const h = rows('v')[1].getBoundingClientRect().height, page = Math.floor(el('v').clientHeight * 0.875 / h);
+    await scrollTo('v', (el('v').scrollHeight - el('v').clientHeight) / 2);
+    await new Promise((r) => setTimeout(r, 300));
+    el('v').focus();
+    const step = async (key: string, rows: number) => {
+      const was = first();
+      await userEvent.keyboard(key);
+      await new Promise((r) => setTimeout(r, 100));
+      expect(Math.abs(first() - was - rows), key).toBeLessThanOrEqual(1);
+    };
+    await step('{ArrowDown}', 40 / h);
+    await step('{ArrowDown}', 40 / h);
+    await step('{PageDown}', page);
+    await step('{PageUp}', -page);
+    await step('{ArrowUp}', -40 / h);
+    let was = first();
+    el('v').dispatchEvent(new WheelEvent('wheel', { deltaY: 3 * h, bubbles: true, cancelable: true }));
+    await new Promise((r) => setTimeout(r, 100));
+    expect(Math.abs(first() - was - 3)).toBeLessThanOrEqual(1);
+    // At the top, the wheel up is left to the page; Home and End still go to either end.
+    await userEvent.keyboard('{Home}');
+    await expect.poll(() => titles('v')[0], { timeout: 5000 }).toBe('Row 1');   // the browser's smooth scroll
+    const up = new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true });
+    el('v').dispatchEvent(up);
+    expect(up.defaultPrevented).toBe(false);
+    await userEvent.keyboard('{End}');
+    await expect.poll(() => rows('v').at(-1)?.getAttribute('aria-posinset'), { timeout: 5000 }).toBe('10000000');
+    was = first();
+    await userEvent.keyboard('{ArrowDown}');
+    await new Promise((r) => setTimeout(r, 100));
+    expect(first()).toBe(was);
+  });
+
   test('GR91, GR92: End on 600,000 and 1,000,000 rows taller than the guess reaches the last row without an update loop; past the browser\'s height limit the scroll range is scaled down, and the top comes back', async () => {
     const tall = (i: number) => <ListItem title={'Row ' + (i + 1)} description="A second line, so the row is taller than the guess" />;
     const errors: unknown[] = [];

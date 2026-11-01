@@ -31,9 +31,9 @@ import { VirtualList, ListItem } from "serupa-ds";
 
 ## Behavior
 
-- Browsers stop an element's height at about 17.9 million px (33.5 million in Chromium and WebKit). Past 15 million px of rows (about 270,000 rows of 56px), the scroll range stays at 15 million and is scaled: the scrollbar's position is the same fraction of the rows, so every row, the last included, can be reached. The wheel and the scrollbar then move through the rows faster than one pixel per pixel. End and Home still go to the last and first rows.
+- Browsers stop an element's height at about 17.9 million px (33.5 million in Chromium and WebKit). Past 15 million px of rows (about 270,000 rows of 56px), the scroll range stays at 15 million and is scaled: the scrollbar's position is the same fraction of the rows, so every row, the last included, can be reached. Dragging the scrollbar then moves through the rows faster than one pixel per pixel, but the arrow and Page keys and the wheel still move by as much as in a short list, so no row is skipped. End and Home still go to the last and first rows. At either end the wheel scrolls the page.
 - It draws the rows in view and 4 more on each side (`overscan`); an empty space above and below stands in for the rest, so the scrollbar is the right size.
-- Rows not measured yet count as the average height of those seen. When a row above the view turns out taller or shorter, the scroll moves by as much, so what's seen stays still.
+- Rows not measured yet count as the average height of those seen. When a row above the view turns out taller or shorter, or the average changes, the row at the top of the view stays where it is, so what's seen stays still, even after a jump to the middle of a long list.
 - On the server it draws the first 20 rows.
 
 ## Accessibility

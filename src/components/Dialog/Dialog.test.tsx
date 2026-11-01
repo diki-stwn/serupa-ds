@@ -438,6 +438,77 @@ describe('Dialog: a body that scrolls', () => {
   });
 });
 
+describe('Dialog: unsaved (13)', () => {
+  function Form(props: { why: string[]; unsaved?: boolean }) {
+    const [open, setOpen] = React.useState(true);
+    return <>
+      <button id="opener" onClick={() => setOpen(true)}>Open</button>
+      <Dialog id="form" open={open} unsaved={props.unsaved ?? true} onOpenChange={(v, d) => { props.why.push(d.reason); setOpen(v); }} title="Rename project"
+        footer={<Button id="cancel" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>}>
+        <Input id="name" aria-label="Name" defaultValue="Atlas" />
+      </Dialog>
+    </>;
+  }
+  const question = () => document.querySelector<HTMLDialogElement>('dialog[role="alertdialog"]');
+  const button = (name: string) => [...question()!.querySelectorAll('button')].find((b) => b.textContent === name)!;
+
+  test('Escape, the × and the backdrop ask "Discard changes?" first, with Keep editing focused; Keep editing and Escape go back to the form; Discard closes it with the first reason', async () => {
+    const why: string[] = [];
+    await render(<Form why={why} />);
+    await expect.poll(() => isOpen('form')).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    expect([why, isOpen('form'), question()!.getAttribute('aria-labelledby') && document.getElementById(question()!.getAttribute('aria-labelledby')!)!.textContent]).toEqual([[], true, 'Discard changes?']);
+    await expect.poll(() => document.activeElement?.textContent).toBe('Keep editing');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(false);
+    expect([why, isOpen('form')]).toEqual([[], true]);
+    await userEvent.click(page.getByRole('button', { name: 'Close' }));
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    expect([why, isOpen('form'), (el('name') as HTMLInputElement).value]).toEqual([[], true, 'Atlas']);
+    const r = dlg('form').getBoundingClientRect();
+    await userEvent.click(document.body, { position: { x: Math.max(2, r.left / 2), y: 2 } });
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Discard'));
+    await expect.poll(() => isOpen('form')).toBe(false);
+    expect([why, question()?.open ?? false]).toEqual([['outside'], false]);
+  });
+
+  test('without changes it closes at once; your own Cancel closes without asking; a browser close asks and keeps it open', async () => {
+    const why: string[] = [];
+    const screen = await render(<Form why={why} unsaved={false} />);
+    await expect.poll(() => isOpen('form')).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen('form')).toBe(false);
+    expect([why, question()]).toEqual([['escape'], null]);
+    await screen.rerender(<Form why={why} unsaved />);
+    await userEvent.click(el('opener'));
+    await expect.poll(() => isOpen('form')).toBe(true);
+    flushSync(() => dlg('form').close());
+    await expect.poll(() => question()?.open).toBe(true);
+    expect([why, isOpen('form')]).toEqual([['escape'], true]);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    await userEvent.click(el('cancel'));
+    await expect.poll(() => isOpen('form')).toBe(false);
+    expect([why, question()?.open ?? false]).toEqual([['escape'], false]);
+  });
+
+  test('while open with changes, leaving the page asks (beforeunload is cancelled); not once closed', async () => {
+    const why: string[] = [];
+    const screen = await render(<Form why={why} />);
+    await expect.poll(() => isOpen('form')).toBe(true);
+    const leave = () => { const e = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; };
+    expect(leave()).toBe(true);
+    await screen.rerender(<Form why={why} unsaved={false} />);
+    expect(leave()).toBe(false);
+  });
+});
+
 describe('Dialog: motion (DZ1)', () => {
   // WebKit reports a ::backdrop transition with no pseudoElement, on the dialog itself; the dialog has no opacity transition of its own.
   const backdropOf = (d: Element) => document.getAnimations().filter((a) => a.effect instanceof KeyframeEffect && a.effect.target === d && (a.effect.pseudoElement === '::backdrop' || (!a.effect.pseudoElement && a instanceof CSSTransition && a.transitionProperty === 'opacity')));

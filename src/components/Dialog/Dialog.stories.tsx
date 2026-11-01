@@ -50,3 +50,19 @@ export const OpenOnArrival: Story = {
   args: { open: undefined, title: 'Welcome to Atlas', description: 'Your projects, files and team in one place.' },
   render: (args: DialogProps) => <Dialog {...args} defaultOpen footer={<Button onClick={(e) => (e.currentTarget.closest('dialog') as HTMLDialogElement).close()}>Get started</Button>} />,
 };
+/** `unsaved` once the name differs from the saved one: Escape, the × or the backdrop ask "Discard changes?" first. */
+export const UnsavedChanges: Story = {
+  name: 'Unsaved changes',
+  args: { title: 'Rename project', description: undefined, size: 'sm' },
+  render: function Render(args: DialogProps) {
+    const [open, setOpen] = React.useState(false), [saved, setSaved] = React.useState('Atlas'), [name, setName] = React.useState('Atlas');
+    const show = () => { setName(saved); setOpen(true); };
+    return <>
+      <Button onClick={show}>Rename {saved}</Button>
+      <Dialog {...args} open={open} onOpenChange={setOpen} unsaved={name !== saved}
+        footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={() => { setSaved(name); setOpen(false); }}>Save</Button></>}>
+        <Field label="Name"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
+      </Dialog>
+    </>;
+  },
+};

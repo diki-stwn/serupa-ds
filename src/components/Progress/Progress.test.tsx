@@ -11,11 +11,11 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const pb = (id: string) => (el(id).querySelector('[role=progressbar]') || el(id));
 // How much of the track the fill covers, in whole percent.
 const share = (id: string) => {
-  const tr = el(id).querySelector('.dk-progress__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-progress__fill')!.getBoundingClientRect();
+  const tr = el(id).querySelector('[role=progressbar]')!.getBoundingClientRect(), f = el(id).querySelector('[role=progressbar] > div')!.getBoundingClientRect();
   return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
-const thick = (id: string) => Math.round(el(id).querySelector('.dk-progress__track')!.getBoundingClientRect().height);
-const value = (id: string) => el(id).querySelector('.dk-progress__value')?.textContent ?? null;
+const thick = (id: string) => Math.round(el(id).querySelector('[role=progressbar]')!.getBoundingClientRect().height);
+const value = (id: string) => el(id).querySelector('span[aria-hidden]')?.textContent ?? null;
 const aria = (id: string) => { const b = pb(id); return [b.getAttribute('aria-valuenow'), b.getAttribute('aria-valuemin'), b.getAttribute('aria-valuemax'), b.getAttribute('aria-valuetext')]; };
 
 let errors: MockInstance<typeof console.error>;
@@ -71,7 +71,7 @@ describe('Progress', () => {
   test('no value: indeterminate, without valuenow or valuetext, a sliding segment', async () => {
     await render(<Wrap><Progress id="ind" label="Preparing" /></Wrap>);
     expect([pb('ind').hasAttribute('aria-valuenow'), pb('ind').hasAttribute('aria-valuetext'), el('ind').dataset.state]).toEqual([false, false, 'indeterminate']);
-    expect(withMotion(() => css(el('ind').querySelector('.dk-progress__fill')).animationName)).toBe('dk-progress-slide');
+    expect(withMotion(() => css(el('ind').querySelector('[role=progressbar] > div')).animationName)).toBe('dk-progress-slide');
   });
 
   test('sizes: sm 4px, lg 12px', async () => {
@@ -86,11 +86,11 @@ describe('Progress', () => {
       <Progress id="clg" variant="circle" size="lg" value={30} showValue aria-label="lg" />
       <Progress id="cind" variant="circle" aria-label="Loading" />
     </div></SerupaProvider>);
-    const r = (id: string) => el(id).getBoundingClientRect(), dash = (id: string) => el(id).querySelector('.dk-progress__arc')!.getAttribute('stroke-dasharray');
+    const r = (id: string) => el(id).getBoundingClientRect(), dash = (id: string) => el(id).querySelector('svg > circle:last-child')!.getAttribute('stroke-dasharray');
     expect([Math.round(r('c1').width), Math.round(r('c1').height), Math.round(r('csm').width), Math.round(r('clg').width)]).toEqual([40, 40, 24, 64]);
     expect([el('c1').getAttribute('role'), el('c1').getAttribute('aria-valuenow'), el('c1').getAttribute('aria-label'), dash('c1')]).toEqual(['progressbar', '30', 'Storage', '30 100']);
     expect([value('c1'), value('clg'), value('csm')]).toEqual(['30%', '30%', null]);
-    expect([el('cind').getAttribute('aria-valuenow'), dash('cind'), withMotion(() => css(el('cind').querySelector('.dk-progress__ring')).animationName)]).toEqual([null, '25 100', 'dk-progress-turn']);
+    expect([el('cind').getAttribute('aria-valuenow'), dash('cind'), withMotion(() => css(el('cind').querySelector('svg')).animationName)]).toEqual([null, '25 100', 'dk-progress-turn']);
   });
 
   test('contrast: every tone\'s fill keeps 3:1 on the page, and the label and values 4.5:1, in all six themes', async () => {
@@ -105,7 +105,7 @@ describe('Progress', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       for (const tone of tones) {
-        const r = contrast(css(el('tone-' + tone).querySelector('.dk-progress__fill')).backgroundColor, 'var(--surface)'); n++;
+        const r = contrast(css(el('tone-' + tone).querySelector('[role=progressbar] > div')).backgroundColor, 'var(--surface)'); n++;
         if (r < 3) low.push(`${th} ${tone} fill on the page ${r.toFixed(2)}`);
       }
       for (const sel of ['#p1 .dk-progress__label', '#p1 .dk-progress__value', '#c1 .dk-progress__value']) {
@@ -119,7 +119,7 @@ describe('Progress', () => {
 
   test('--progress-fill overrides one bar', async () => {
     await render(<Wrap><Progress id="tok" value={60} aria-label="tok" style={{ '--progress-fill': 'rgb(1, 2, 3)' } as React.CSSProperties} /></Wrap>);
-    expect(css(el('tok').querySelector('.dk-progress__fill')).backgroundColor).toBe('rgb(1, 2, 3)');
+    expect(css(el('tok').querySelector('[role=progressbar] > div')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 });
 

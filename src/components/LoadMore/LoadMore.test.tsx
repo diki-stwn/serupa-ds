@@ -61,6 +61,20 @@ describe('LoadMore', () => {
     expect(sum.tabIndex).toBe(-1);
   });
 
+  test('inside a shadow root, the last page focuses the end text too, not the page (GR90)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<SerupaProvider locale="en-US"><Paged id="sh" step={10} all={20} /></SerupaProvider>, { container: inner });
+      const root = host.shadowRoot!;
+      root.querySelector<HTMLElement>('#sh button')!.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => root.activeElement?.textContent, { timeout: 3000 }).toBe('You’ve reached the end');
+    } finally { host.remove(); }
+  });
+
   test('with endText={null} and no summary, the last page leaves focus on LoadMore itself, not the page; it isn\'t a tab stop after (L8E58)', async () => {
     function Bare() {
       const [more, setMore] = React.useState(true);
