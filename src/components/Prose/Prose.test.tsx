@@ -70,4 +70,16 @@ describe('Prose', () => {
     (el('w').firstElementChild as HTMLElement).textContent = 'short';
     await expect.poll(() => el('w').hasAttribute('tabindex')).toBe(false);
   });
+  test('an embed or picture with a width attribute (a 560px video iframe, a 600px svg) is held to a 320px column, so the page doesn\'t scroll sideways (GR77)', async () => {
+    await render(<div style={{ width: 320 }}><Prose id="pe" dangerouslySetInnerHTML={{ __html: '<p>Watch:</p><iframe id="pf" width="560" height="315" title="Video"></iframe><svg id="ps" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" /></svg><canvas id="pc" width="640" height="320"></canvas>' }} /></div>);
+    expect(el('pe').scrollWidth).toBeLessThanOrEqual(320);
+    expect(['pf', 'ps', 'pc'].map((id) => el(id).getBoundingClientRect().width <= 320)).toEqual([true, true, true]);
+    expect([Math.round(el('pf').getBoundingClientRect().height), Math.round(el('ps').getBoundingClientRect().height)]).toEqual([315, 160]);
+  });
+
+  test('a code block on a right-to-left page reads left to right, starts at its left edge and opens scrolled to its start (GR78)', async () => {
+    await render(<div dir="rtl" style={{ width: 200 }}><Prose id="pr2" dangerouslySetInnerHTML={{ __html: '<pre id="pc2"><code>run(); // done. and a line long enough to need scrolling inside its own box</code></pre>' }} /></div>);
+    const pre = el('pc2'), code = pre.firstElementChild as HTMLElement;
+    expect([css(pre).direction, css(pre).unicodeBidi, pre.scrollLeft, Math.round(code.getBoundingClientRect().left - pre.getBoundingClientRect().left - parseFloat(css(pre).paddingLeft))]).toEqual(['ltr', 'isolate', 0, 0]);
+  });
 });

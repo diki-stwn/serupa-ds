@@ -51,6 +51,7 @@
   overscroll-behavior-x: contain;
   overflow-x: auto; padding: var(--prose-pre-padding, var(--spacing-4)); border-radius: var(--prose-pre-radius, var(--rounded-md));
   background: var(--prose-code-bg, var(--surface-muted)); line-height: var(--text-sm--line-height); white-space: pre; overflow-wrap: normal;
+  direction: ltr; unicode-bidi: isolate; text-align: start;   /* code reads left to right in every script, so an rtl page doesn't turn run(); into ;()run (GR78) */
 }
 /* A wide table scrolls in its own box (display: block keeps its rows and cells for screen readers in current
    browsers); its cells wrap long words. */
@@ -58,7 +59,10 @@
 .dk-prose :where(th, td) { padding: var(--spacing-2) var(--spacing-3); border-bottom: var(--border-width-1) solid var(--prose-table-border, var(--border)); text-align: start; vertical-align: top; }
 .dk-prose :where(th) { font-weight: var(--font-semibold); }
 /* A bare image never overflows the column. One that fails to load shows its alt text, muted and italic. */
-.dk-prose :where(img, video) { max-inline-size: var(--sizing-full); block-size: auto; }
+.dk-prose :where(img, video, svg, canvas) { max-inline-size: var(--sizing-full); block-size: auto; }
+/* An embed (a video player's iframe) with a width attribute is held to the column too (GR77); it keeps its height,
+   as an iframe's width and height don't give it a ratio. */
+.dk-prose :where(iframe, embed, object) { max-inline-size: var(--sizing-full); }
 .dk-prose :where(img) { color: var(--prose-caption, var(--text-muted)); font-style: italic; }
 .dk-prose :where(figcaption) { margin-block-start: var(--spacing-2); color: var(--prose-caption, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 @media (forced-colors: active) { .dk-prose :where(blockquote) { border-inline-start-color: CanvasText; } }
