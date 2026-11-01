@@ -606,6 +606,34 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     expect(new Set(ids).size).toBe(4);   // each its own toast, not a count on one
   });
 
+  test('FEC5: toast.undo commits when the page is left, and a page brought back from the back/forward cache drops the toast, whose Undo can no longer undo', async () => {
+    await render(<Toaster />);
+    const log: string[] = [];
+    React.act(() => { toast.undo({ title: 'Deleted', commit: () => log.push('commit'), onUndo: () => log.push('undo') }); });
+    expect(toasts().length).toBe(1);
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    React.act(() => { window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); });
+    await expect.poll(() => toasts().length, { timeout: 3000 }).toBe(0);
+    expect(log).toEqual(['commit']);
+  });
+
+  test('GR25: the repeat count is written in the locale\'s digits, as Badge writes its count', async () => {
+    const { SerupaProvider } = await import('../../internal/provider');
+    await render(<SerupaProvider locale="ar-EG"><Toaster /></SerupaProvider>);
+    React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', duration: 0 }); });
+    expect(toasts()[0].textContent).toContain('×١٢');
+  });
+
+  test('TF4: each toast\'s Dismiss is described by that toast\'s title, so three of them are told apart', async () => {
+    await render(<Toaster />);
+    React.act(() => { toast({ title: 'Saved' }); toast({ title: 'Copied' }); });
+    const said = toasts().map((x) => {
+      const b = x.querySelector<HTMLButtonElement>('button[aria-label="Dismiss"]')!;
+      return b.getAttribute('aria-describedby')!.split(' ').map((id) => document.getElementById(id)!.textContent).join(' ');
+    });
+    expect(said.sort()).toEqual(['Copied', 'Saved']);
+  });
+
   test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
     const { SerupaProvider } = await import('../../internal/provider');
     await render(<SerupaProvider labels={idLabels}><Toaster /></SerupaProvider>);
@@ -642,6 +670,16 @@ describe('Toast on a phone (GQ1)', () => {
     expect(probe()).toEqual([[true, true, 0], [true, true, 0]]);
     await screen.rerender(at('384px'));
     expect(probe().map(([, under]) => under)).toEqual([false, false]);
+  });
+  test('at a phone width a long action label wraps onto more lines under the text, whole, not cut with an ellipsis (GR74)', async () => {
+    const label = 'Reconnect the Northwind integration now';
+    await render(<Toaster style={{ '--toast-width': '288px' } as React.CSSProperties} />);
+    React.act(() => { toast({ title: 'Integration disconnected', action: { label, onClick: () => {} } }); });
+    await expect.poll(() => toasts().length).toBe(1);
+    await landed();
+    const t = toasts()[0], b = undoButton(t), r = b.getBoundingClientRect(), q = t.getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 30, b.textContent]).toEqual([true, true, true, label]);
   });
 });
 

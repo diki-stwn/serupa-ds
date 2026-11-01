@@ -149,4 +149,54 @@ describe('Toolbar', () => {
       expect(contrast(css(el('c')).color, css(el('c')).backgroundColor), th).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  test('L8E77: a control hidden by CSS (display: none) is skipped by the arrows and never holds the Tab stop', async () => {
+    await render(
+      <>
+        <button id="before">Before</button>
+        <Toolbar id="tb" aria-label="Tools">
+          <Button id="h0" style={{ display: 'none' }}>Hidden first</Button>
+          <Button id="a">A</Button>
+          <Button id="h1" style={{ display: 'none' }}>Hidden</Button>
+          <Button id="c">C</Button>
+        </Toolbar>
+      </>,
+    );
+    el('before').focus();
+    await userEvent.tab();
+    expect(focused()).toBe('a');
+    const seen: (string | null)[] = [];
+    for (const k of ['{ArrowRight}', '{ArrowRight}', '{End}', '{Home}', '{ArrowLeft}']) { await userEvent.keyboard(k); seen.push(focused()); }
+    expect(seen).toEqual(['c', 'a', 'c', 'a', 'c']);
+    expect(el('c').tabIndex).toBe(0);
+  });
+
+  test('GR66: when the window narrows and a breakpoint hides the control holding the Tab stop, the stop moves to one still shown, and back', async () => {
+    await page.viewport(800, 640);
+    await render(
+      <>
+        <style>{'@media (max-width: 500px) { #gr66u { display: none; } }'}</style>
+        <button id="before">Before</button>
+        <Toolbar id="tb66" aria-label="Edit">
+          <Button id="gr66u">Undo</Button>
+          <Button id="gr66b">Bold</Button>
+        </Toolbar>
+        <button id="after">After</button>
+      </>,
+    );
+    try {
+      expect(el('gr66u').tabIndex).toBe(0);
+      await page.viewport(400, 640);
+      await expect.poll(() => el('gr66b').tabIndex).toBe(0);
+      el('before').focus();
+      await userEvent.tab();
+      expect(focused()).toBe('gr66b');
+      await page.viewport(800, 640);
+      el('before').focus();
+      await userEvent.tab();
+      expect(focused()).toBe('gr66b');   // the stop stays where it went; Undo is reachable with the arrows again
+      await userEvent.keyboard('{ArrowLeft}');
+      expect(focused()).toBe('gr66u');
+    } finally { await page.viewport(900, 700); }
+  });
 });

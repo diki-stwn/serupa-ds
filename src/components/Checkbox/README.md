@@ -122,6 +122,9 @@ Other props (`id`, `aria-label`, `aria-labelledby`, `className`…) and `ref` go
 
 Each is an optional override: set it on the page, a container or one checkbox. The list lives in `src/components/Checkbox/checkbox.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from checkbox.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--checkbox-bg` | `field` | The box while unchecked |
@@ -135,11 +138,36 @@ Each is an optional override: set it on the page, a container or one checkbox. T
 | `--checkbox-description-color` | `text-muted` | The description |
 | `--checkbox-focus-ring` | `focus-ring` | The focus ring |
 | `--checkbox-invalid` | `danger` | Border and focus ring when invalid |
-| `--checkbox-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Box sizes (14, 16, 20px) |
-| `--checkbox-icon-size-sm` / `-md` / `-lg` | `spacing-3` / `spacing-3.5` / `spacing-4` | Check sizes (12, 14, 16px) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--checkbox-size-sm` | `spacing-3.5` | Box size, sm (14px). |
+| `--checkbox-size-md` | `spacing-4` | Box size, md (16px, default). |
+| `--checkbox-size-lg` | `spacing-5` | Box size, lg (20px). |
+| `--checkbox-icon-size-sm` | `spacing-3` | Check size, sm (12px). |
+| `--checkbox-icon-size-md` | `spacing-3.5` | Check size, md (14px). |
+| `--checkbox-icon-size-lg` | `spacing-4` | Check size, lg (16px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--checkbox-gap` | `spacing-2` | Box to label (8px) |
-| `--checkbox-border-width` | `border-width-1` | Border width (1px) |
-| `--checkbox-radius` | `rounded-sm` | Corner radius (4px) |
 | `--checkbox-group-gap` | `spacing-2` | Between boxes in a CheckboxGroup stack, and between rows (8px) |
 | `--checkbox-group-gap-horizontal` | `spacing-4` | Between boxes in a CheckboxGroup row (16px) |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--checkbox-border-width` | `border-width-1` | Border width (1px) |
+| `--checkbox-radius` | `rounded-sm` | Corner radius (4px) |
+
+**Motion**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--checkbox-press-scale` | `scale-90` | Size of the box while it's held down (90%). 1 turns it off |
+<!-- token-table:end -->

@@ -5,7 +5,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "Text in the field that has no token of its own (the label, hint and error have theirs).",
+        "$description": "Text with no token of its own (the label, hint and error have theirs)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-text"
@@ -15,7 +15,7 @@
       "label-color": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The label.",
+        "$description": "Label",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-label-color"
@@ -25,7 +25,7 @@
       "hint-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The hint (4.5:1 on surface).",
+        "$description": "Hint and \"(optional)\"",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-hint-color"
@@ -35,7 +35,7 @@
       "error-color": {
         "$type": "color",
         "$value": "{color.danger-text}",
-        "$description": "The error message and its icon (4.5:1+ on surface in every theme).",
+        "$description": "Error message and its icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-error-color"
@@ -45,7 +45,7 @@
       "required-color": {
         "$type": "color",
         "$value": "{color.danger-text}",
-        "$description": "The required asterisk.",
+        "$description": "The `*`",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-required-color"
@@ -57,7 +57,7 @@
       "label-weight": {
         "$type": "fontWeight",
         "$value": "{typography.font-medium}",
-        "$description": "The label's weight (500).",
+        "$description": "Label weight (500)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-label-weight"
@@ -69,7 +69,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1_5}",
-        "$description": "Space between the label, hint, control and error (6px).",
+        "$description": "Space between label, hint, control and error (6px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-gap"
@@ -79,7 +79,7 @@
       "error-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Space between the error icon and its text (4px).",
+        "$description": "Error icon to text (4px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-error-gap"
@@ -89,7 +89,7 @@
       "column-gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "layout=\"horizontal\": space between the label column and the control (16px).",
+        "$description": "`layout=\"horizontal\"`: label column to control (16px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-column-gap"
@@ -101,7 +101,7 @@
       "error-icon-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-4}",
-        "$description": "The error icon (16px).",
+        "$description": "Error icon (16px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-error-icon-size"
@@ -111,7 +111,7 @@
       "label-width": {
         "$type": "dimension",
         "$value": "{spacing.spacing-48}",
-        "$description": "layout=\"horizontal\": the label column (192px).",
+        "$description": "`layout=\"horizontal\"`: the label column (192px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-label-width"
@@ -121,7 +121,7 @@
       "control-min-width": {
         "$type": "dimension",
         "$value": "{sizing.container-3xs}",
-        "$description": "layout=\"horizontal\": the narrowest the control column gets before it wraps under the label (256px).",
+        "$description": "`layout=\"horizontal\"`: the narrowest control column before it wraps under the label (256px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--field-control-min-width"

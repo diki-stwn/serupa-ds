@@ -313,4 +313,34 @@ describe('Accordion', () => {
       root.unmount();
     } finally { host.remove(); }
   });
+
+  test('L8E83: an item hidden by the hidden attribute or CSS (a filtered FAQ) is skipped by Down, Up, Home and End, so focus never sticks', async () => {
+    await render(<Accordion id="hid">
+      <AccordionItem value="z" title="Gone first" hidden>z</AccordionItem>
+      <AccordionItem value="a" title="One">a</AccordionItem>
+      <AccordionItem value="x" title="Gone" style={{ display: 'none' }}>x</AccordionItem>
+      <AccordionItem value="b" title="Two">b</AccordionItem>
+      <AccordionItem value="y" title="Gone last" hidden>y</AccordionItem>
+    </Accordion>);
+    (page.getByRole('button', { name: 'One' }).element() as HTMLElement).focus();
+    const seen: Array<string | undefined> = [focused()];
+    for (const k of ['{ArrowDown}', '{ArrowDown}', '{ArrowUp}', '{End}', '{Home}']) { await userEvent.keyboard(k); seen.push(focused()); }
+    expect(seen).toEqual(['One', 'Two', 'One', 'Two', 'Two', 'One']);
+  });
+});
+
+describe('Accordion and form validation (L8E99)', () => {
+  test('L8E99 a required field in a closed item: submitting the form opens the item and focuses the field, so the browser can say what is missing; the submit was stopped with nothing shown', async () => {
+    let sent = 0;
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent++; }}>
+      <Accordion><AccordionItem value="contact" title="Contact"><label htmlFor="l8e99-email">Email</label><input id="l8e99-email" required /></AccordionItem>
+        <AccordionItem value="more" title="More"><label htmlFor="l8e99-city">City</label><input id="l8e99-city" required /></AccordionItem></Accordion>
+      <button id="l8e99-go">Send</button>
+    </form>);
+    await expect.poll(() => document.getElementById('l8e99-email')!.closest('[hidden]')?.getAttribute('hidden')).toBe('until-found');
+    await userEvent.click(document.getElementById('l8e99-go')!);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e99-email');
+    // Only the form's first invalid field's item opens.
+    expect([sent, ...[...document.querySelectorAll('[aria-expanded]')].map((b) => b.getAttribute('aria-expanded'))]).toEqual([0, 'true', 'false']);
+  });
 });

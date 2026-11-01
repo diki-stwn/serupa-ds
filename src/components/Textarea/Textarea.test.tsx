@@ -233,7 +233,7 @@ describe('Textarea', () => {
     await expect.poll(() => box('inv').bs).toContain(d);
   });
 
-  test('read-only: surface-muted background, no handle; disabled: native disabled, 50%, not-allowed, no handle', async () => {
+  test('read-only: field-readonly background, no handle; disabled: native disabled, 50%, not-allowed, no handle', async () => {
     await setup();
     const ro = box('ro'), dis = box('dis');
     expect(ro.bg).not.toBe(box('md').bg);

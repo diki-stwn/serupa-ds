@@ -131,6 +131,8 @@ export const TreeView = /* @__PURE__ */ component<HTMLUListElement, TreeViewProp
   }, [rows, focusId]);
 
   const pick = (next: string[]) => {
+    // Ctrl+A or a Shift range over items all picked already changes nothing.
+    if (next.length === value.length && next.every((v) => valueSet.has(v))) return;
     if (props.value === undefined) setOwnValue(next);
     if (props.onValueChange) props.onValueChange(next);
   };

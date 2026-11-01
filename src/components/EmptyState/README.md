@@ -77,6 +77,7 @@ The words "Did you mean:" and "Clear filters" are the labels `didYouMean` and `c
 
 Each is an optional override: set it on the page, a container or one empty state. The list lives in `src/components/EmptyState/empty-state.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from empty-state.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--empty-state-icon-color` | `text-muted` | The icon (3:1 on icon-bg). |
@@ -96,3 +97,4 @@ Each is an optional override: set it on the page, a container or one empty state
 | `--empty-state-gap` | `spacing-4` | Space between the icon, the text and the actions (16px). |
 | `--empty-state-border-width` | `border-width-1` | The dashed frame (1px). |
 | `--empty-state-radius` | `rounded-lg` | The dashed frame's corners (8px). |
+<!-- token-table:end -->

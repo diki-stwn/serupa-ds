@@ -27,6 +27,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { HERE, projectArg, report, done } from './lib.mjs';
+import { PAIRS } from '../tokens/contrast-pairs.mjs';
 
 const P = projectArg();
 const results = [];
@@ -108,9 +109,13 @@ const badRef = [], unused = [], wrong = [];
 for (const [n, [, tok]] of COMP) {
   const d = compDefault(tok);
   if (d == null) { badRef.push(`${n} → ${JSON.stringify(tok.$value)}`); continue; }
-  const uses = [...css.matchAll(new RegExp(String.raw`var\(--${esc(n)}(?:,\s*((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*))?\)`, 'g'))].map((m) => m[1]);
+  // Read with no default only as the origin of a relative color (oklch(from var(--x) …)): there, unset is the point.
+  const uses = [...css.matchAll(new RegExp(String.raw`var\(--${esc(n)}(?:,\s*((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*))?\)`, 'g'))].filter((m) => !(m[1] == null && /\bfrom\s+$/.test(css.slice(Math.max(0, m.index - 8), m.index)))).map((m) => m[1]);
   if (!uses.length && !tok.$deprecated) unused.push(n);   // a deprecated token may have no effect until it's removed
-  for (const fb of uses) if (fb == null || norm(fb) !== norm(d)) wrong.push(`${n}: CSS default ${String(fb).trim().slice(0, 50)} ≠ ${d}`);
+  // An internal --dk- variable may stand in front of the default (var(--dk-x, default)): one the component works out
+  // from another token, such as a hover color from a background that was set (Button, 176).
+  const unwrap = (v) => /^var\(--dk-[\w-]+,\s*([\s\S]*)\)$/.exec(v.trim())?.[1] ?? v;
+  for (const fb of uses) if (fb == null || norm(unwrap(fb)) !== norm(d)) wrong.push(`${n}: CSS default ${String(fb).trim().slice(0, 50)} ≠ ${d}`);
 }
 if (COMP.size) {
   check(`component tokens: all ${COMP.size} refer to shared tokens`, !badRef.length, badRef.slice(0, 8).join('; '));
@@ -170,19 +175,7 @@ const lum = (h) => {
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 };
 const ratio = (a, b) => { const la = lum(a), lb = lum(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
-/** @type {Array<[string, string, number]>} */
-const PAIRS = [['text', 'surface', 4.5], ['text', 'surface-muted', 4.5], ['text-muted', 'surface', 4.5], ['text-muted', 'surface-muted', 4.5],
-  ['text', 'surface-raised', 4.5], ['text-muted', 'surface-raised', 4.5], ['text', 'surface-overlay', 4.5], ['text-muted', 'surface-overlay', 4.5],
-  ['primary', 'surface-overlay', 3], ['focus-ring', 'surface-overlay', 3], ['danger-text', 'surface-overlay', 4.5],
-  ['text-inverse', 'surface-inverse', 4.5], ['on-primary', 'primary', 4.5], ['on-primary', 'primary-hover', 4.5],
-  ['on-danger', 'danger', 4.5], ['on-danger', 'danger-hover', 4.5], ['danger-text', 'surface', 4.5], ['danger-text', 'danger-subtle', 4.5],
-  ['danger-text', 'surface-muted', 4.5], ['success-text', 'surface', 4.5], ['success-text', 'surface-muted', 4.5], ['success-text', 'success-subtle', 4.5],
-  ['warning-text', 'surface', 4.5], ['warning-text', 'surface-muted', 4.5], ['warning-text', 'warning-subtle', 4.5],
-  ['info-text', 'surface', 4.5], ['info-text', 'surface-muted', 4.5], ['info-text', 'info-subtle', 4.5],
-  ['primary', 'surface', 3], ['focus-ring', 'surface', 3], ['text', 'secondary', 4.5], ['text', 'secondary-hover', 4.5], ['text', 'pressed', 4.5],
-  ['text', 'field', 4.5], ['placeholder', 'field', 4.5], ['field-border', 'field', 3], ['field-border', 'surface', 3],
-  ['info', 'surface', 4.5], ['text', 'primary-subtle', 4.5],
-  ['primary', 'surface', 4.5], ['primary-hover', 'primary-subtle', 4.5], ['danger', 'surface', 3]];   // secondary button: brand text and border on surface, hover tint; destructive secondary border
+// The pairs live in tools/tokens/contrast-pairs.mjs, which the Foundations/Contrast matrix page shows too.
 const known = (n) => ALIAS.has(n) || PAL.has(n);
 const low = [];
 for (const th of THEMES) for (const [fg, bg, need] of PAIRS) {

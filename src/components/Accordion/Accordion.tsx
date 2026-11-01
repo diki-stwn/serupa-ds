@@ -7,6 +7,7 @@ import { flattenChildren } from "../../internal/children";
 import * as icons from "../../material/builtin";
 import { useSettings } from "../../internal/provider";
 import { warnOnce } from "../../internal/warn";
+import { revealInvalid } from "../../internal/untilFound";
 import { buttonClass } from "../Button/buttonClass";
 import { en as words } from "./labels";
 
@@ -82,7 +83,8 @@ export const Accordion = /* @__PURE__ */ component<HTMLDivElement, AccordionProp
     const t = e.target as HTMLElement;
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !t.classList.contains("dk-accordion__trigger") || t.closest(".dk-accordion") !== e.currentTarget) return;
-    const all = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".dk-accordion__trigger")).filter((b) => b.closest(".dk-accordion") === e.currentTarget && !b.disabled);
+    // An item hidden by the hidden attribute or CSS (a filtered FAQ) can't take focus: skip it rather than stick (L8E83).
+    const all = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".dk-accordion__trigger")).filter((b) => b.closest(".dk-accordion") === e.currentTarget && !b.disabled && b.getClientRects().length > 0);
     const i = all.indexOf(t as HTMLButtonElement);
     const to = e.key === "ArrowDown" ? all[(i + 1) % all.length] : e.key === "ArrowUp" ? all[(i - 1 + all.length) % all.length] : e.key === "Home" ? all[0] : e.key === "End" ? all[all.length - 1] : null;
     if (to) { e.preventDefault(); to.focus(); }
@@ -192,7 +194,8 @@ export const AccordionItem = /* @__PURE__ */ component<HTMLDivElement, Accordion
     if (!el) return;
     const onMatch = () => { if (toggle.current) toggle.current(); };
     el.addEventListener("beforematch", onMatch);
-    return () => el.removeEventListener("beforematch", onMatch);
+    el.addEventListener("invalid", revealInvalid, true);   // a required field in it, on submit, opens it (L8E99)
+    return () => { el.removeEventListener("beforematch", onMatch); el.removeEventListener("invalid", revealInvalid, true); };
   }, []);
   return (
     <div {...rest} ref={ref} data-state={open ? "open" : "closed"} className={cn("dk-accordion__item", open && "dk-accordion__item--open", props.disabled && "dk-accordion__item--disabled", props.className)}>

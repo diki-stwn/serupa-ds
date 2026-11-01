@@ -67,7 +67,9 @@ A function `fallback` gets `ErrorBoundaryFallbackProps`: `error`, the value that
 
 Each is an optional override: set it on the page, a container or one boundary. The fallback is an Alert, so its colors follow the `--alert-*` tokens. The list lives in `src/components/ErrorBoundary/error-boundary.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from error-boundary.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--error-boundary-focus-ring` | `focus-ring` | The ring when the fallback takes focus. |
 | `--error-boundary-radius` | `rounded-lg` | The fallback box's corners, matching the Alert (8px). |
+<!-- token-table:end -->

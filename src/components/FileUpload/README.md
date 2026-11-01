@@ -78,6 +78,7 @@ import { FileUpload } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one upload. The list lives in `src/components/FileUpload/file-upload.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from file-upload.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--file-upload-zone-bg` | `surface-muted` | The drop area's background. |
@@ -96,3 +97,4 @@ Each is an optional override: set it on the page, a container or one upload. The
 | `--file-upload-zone-padding` | `spacing-6` | Space inside the drop area (24px). |
 | `--file-upload-gap` | `spacing-2` | Space between the drop area's lines, and between file rows (8px). |
 | `--file-upload-item-padding` | `spacing-2` | Space inside a file row (8px). |
+<!-- token-table:end -->

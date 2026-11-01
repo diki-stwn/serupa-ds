@@ -139,3 +139,28 @@ describe('TypeToConfirm at 320px (GQ5)', () => {
     expect(el('gq5').scrollWidth).toBe(320);
   });
 });
+
+describe('TypeToConfirm autoFocus (L8E94)', () => {
+  test('L8E94 autoFocus focuses the field, as in a dialog that opens on it; it went to the wrapper <div> and did nothing', async () => {
+    await render(<><button>Before</button><Confirm id="l8e94" autoFocus /></>);
+    await expect.poll(() => document.activeElement === parts('l8e94').input).toBe(true);
+    expect(parts('l8e94').root.hasAttribute('autofocus')).toBe(false);
+  });
+});
+
+describe('TypeToConfirm clears what was typed (L8E101)', () => {
+  test('closing the dialog it is in, or resetting its form, clears the phrase, so reopened the button doesn\'t already work', async () => {
+    await render(<><dialog id="l8e101-d"><Confirm id="l8e101" /></dialog><form id="l8e101-f"><Confirm id="l8e101b" /></form></>);
+    const d = el('l8e101-d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.type(parts('l8e101').input, 'acme/web');
+    expect(parts('l8e101').button.getAttribute('aria-disabled')).toBeNull();
+    d.close();
+    d.showModal();
+    await expect.poll(() => [parts('l8e101').input.value, parts('l8e101').button.getAttribute('aria-disabled')]).toEqual(['', 'true']);
+    d.close();
+    await userEvent.type(parts('l8e101b').input, 'acme/web');
+    (el('l8e101-f') as HTMLFormElement).reset();
+    await expect.poll(() => [parts('l8e101b').input.value, parts('l8e101b').button.getAttribute('aria-disabled')]).toEqual(['', 'true']);
+  });
+});

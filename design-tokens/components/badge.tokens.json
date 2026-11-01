@@ -5,7 +5,7 @@
       "neutral-subtle-bg": {
         "$type": "color",
         "$value": "{color.secondary}",
-        "$description": "Neutral subtle badge: the fill.",
+        "$description": "Neutral subtle: fill",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-subtle-bg"
@@ -15,7 +15,7 @@
       "neutral-subtle-text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "Neutral subtle badge: the text and icon.",
+        "$description": "Neutral subtle: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-subtle-text"
@@ -25,7 +25,7 @@
       "neutral-solid-bg": {
         "$type": "color",
         "$value": "{color.surface-inverse}",
-        "$description": "Neutral solid badge: the fill.",
+        "$description": "Neutral solid: fill",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-solid-bg"
@@ -35,7 +35,7 @@
       "neutral-solid-text": {
         "$type": "color",
         "$value": "{color.text-inverse}",
-        "$description": "Neutral solid badge: the text and icon.",
+        "$description": "Neutral solid: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-solid-text"
@@ -45,7 +45,7 @@
       "neutral-outline-text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "Neutral outline badge: the text and icon.",
+        "$description": "Neutral outline: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-outline-text"
@@ -55,7 +55,7 @@
       "neutral-outline-border": {
         "$type": "color",
         "$value": "{color.border-strong}",
-        "$description": "Neutral outline badge: the border.",
+        "$description": "Neutral outline: border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-neutral-outline-border"
@@ -65,7 +65,7 @@
       "primary-subtle-bg": {
         "$type": "color",
         "$value": "{color.primary-subtle}",
-        "$description": "Primary subtle badge: the fill.",
+        "$description": "Primary subtle: fill",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-subtle-bg"
@@ -75,7 +75,7 @@
       "primary-subtle-text": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Primary subtle badge: the text and icon.",
+        "$description": "Primary subtle: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-subtle-text"
@@ -85,7 +85,7 @@
       "primary-solid-bg": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Primary solid badge: the fill.",
+        "$description": "Primary solid: fill",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-solid-bg"
@@ -95,7 +95,7 @@
       "primary-solid-text": {
         "$type": "color",
         "$value": "{color.on-primary}",
-        "$description": "Primary solid badge: the text and icon.",
+        "$description": "Primary solid: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-solid-text"
@@ -105,7 +105,7 @@
       "primary-outline-text": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Primary outline badge: the text and icon.",
+        "$description": "Primary outline: text and icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-outline-text"
@@ -115,7 +115,7 @@
       "primary-outline-border": {
         "$type": "color",
         "$value": "{color.primary}",
-        "$description": "Primary outline badge: the border.",
+        "$description": "Primary outline: border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-primary-outline-border"
@@ -125,7 +125,7 @@
       "indicator-ring-color": {
         "$type": "color",
         "$value": "{color.surface}",
-        "$description": "The lone indicator dot's ring, which keeps it apart from what it overlaps; set it to the color behind.",
+        "$description": "The indicator's ring color; set it to the color behind",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-indicator-ring-color"
@@ -137,7 +137,7 @@
       "height": {
         "$type": "dimension",
         "$value": "{spacing.spacing-5}",
-        "$description": "Height (20px). Badges have one size, with text-xs.",
+        "$description": "Height (20px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-height"
@@ -147,7 +147,7 @@
       "icon-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-3}",
-        "$description": "Icon size (12px): a leading icon, the remove ×, the loading ring, and the height of the dot's box.",
+        "$description": "Icon size (12px): leading icon, ×, loading ring, the dot box's height",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-icon-size"
@@ -157,7 +157,7 @@
       "dot-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1_5}",
-        "$description": "Status dot (6px).",
+        "$description": "Status dot (6px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-dot-size"
@@ -167,7 +167,7 @@
       "indicator-size": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "The lone indicator dot (<Badge dot /> with no label) (8px).",
+        "$description": "The lone indicator dot (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-indicator-size"
@@ -179,7 +179,7 @@
       "padding-x": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1_5}",
-        "$description": "Side padding (6px).",
+        "$description": "Side padding (6px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-padding-x"
@@ -189,7 +189,7 @@
       "icon-offset": {
         "$type": "dimension",
         "$value": "{spacing.spacing-0_5}",
-        "$description": "Extra padding on the text side of a badge with an icon on one side only (a leading icon or dot, or the remove ×), which reads lighter than text (2px), like Button's icon offset.",
+        "$description": "Extra padding on the text side when there's an icon (or dot, or ×) on one side only (2px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-icon-offset"
@@ -199,7 +199,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Gap between the dot or icon, the label and the remove button (4px).",
+        "$description": "Gap between the dot or icon, the label and the × (4px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-gap"
@@ -211,7 +211,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "Border width (1px; drawn on subtle and outline badges, invisible on solid ones but shown in forced-colors mode).",
+        "$description": "Border width (subtle and outline badges, and every badge in forced-colors mode)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-border-width"
@@ -221,7 +221,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "Corner radius (6px), like Button. Count badges are always fully round.",
+        "$description": "Corner radius (6px), like Button. Count badges are always fully round",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-radius"
@@ -231,7 +231,7 @@
       "subtle-border": {
         "$type": "number",
         "$value": "{opacity.opacity-20}",
-        "$description": "Strength of the subtle badge's outline, in its text color (20%), so it follows every tone and theme.",
+        "$description": "Strength of the subtle badge's outline, in its text color (20%). Set `0%` for no outline",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-subtle-border"
@@ -241,7 +241,7 @@
       "indicator-ring": {
         "$type": "dimension",
         "$value": "{borders.border-width-2}",
-        "$description": "The indicator dot's ring in the surface color, which keeps it apart from the icon or avatar it overlaps (2px).",
+        "$description": "The indicator's ring in the surface color (2px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-indicator-ring"
@@ -253,7 +253,7 @@
       "hover-layer": {
         "$type": "number",
         "$value": "{opacity.opacity-10}",
-        "$description": "Interactive badges (onClick or href): strength of the hover layer, in the text color (10%).",
+        "$description": "Clickable badges: the hover layer's strength (10%)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-hover-layer"
@@ -263,7 +263,7 @@
       "active-layer": {
         "$type": "number",
         "$value": "{opacity.opacity-15}",
-        "$description": "Interactive badges: strength of the layer while pressed (15%).",
+        "$description": "Clickable badges: the layer while pressed (15%)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-active-layer"
@@ -273,7 +273,7 @@
       "state-text": {
         "$type": "number",
         "$value": "{opacity.opacity-30}",
-        "$description": "Interactive subtle and outline badges: how far the text moves toward black (light themes) or white (dark) on hover and press (30%), so it keeps 4.5:1 over the layer.",
+        "$description": "Clickable subtle and outline badges: how far the text moves toward black (light) or white (dark) on hover and press (30%)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-state-text"
@@ -283,7 +283,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "Interactive badges: the 2px keyboard focus ring, outside a 2px gap in the surface color.",
+        "$description": "Clickable badges: the keyboard focus ring",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-focus-ring"
@@ -295,7 +295,7 @@
       "press-scale": {
         "$type": "number",
         "$value": "{transforms.scale-97}",
-        "$description": "Clickable badges: size while pressed (97%). 1 turns press feedback off.",
+        "$description": "Clickable badges: size while pressed (97%); `100%` turns it off",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-press-scale"
@@ -305,7 +305,7 @@
       "press-duration": {
         "$type": "duration",
         "$value": "{transitions.motion-press}",
-        "$description": "Clickable badges: how fast the press scales down and back (100ms).",
+        "$description": "How fast the press scales down (100ms). The release comes back over `motion-release` with `ease-enter`.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-press-duration"
@@ -315,7 +315,7 @@
       "loading-duration": {
         "$type": "duration",
         "$value": "{transitions.motion-enter-sm}",
-        "$description": "Cross-fade between the content and the loading spinner (150ms).",
+        "$description": "Cross-fade between the content and the loading ring (150ms)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--badge-loading-duration"

@@ -32,6 +32,10 @@ export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
    <input>. */
 const OWN = { size: 1, invalid: 1, pending: 1, onCheckedChange: 1, description: 1, labelPosition: 1, children: 1, className: 1, style: 1, type: 1, role: 1 } as const;
 
+// Safari 18 draws <input type="checkbox" switch> as a native switch and, on iOS, gives a haptic tick when it flips.
+// appearance: none keeps our drawn track; the attribute is spelled out as switch="" so React writes it.
+const NATIVE_SWITCH = { switch: "" } as React.InputHTMLAttributes<HTMLInputElement>;
+
 /** An on/off setting that applies at once: a native checkbox with role="switch" (ref, checked, onChange and every input attribute go to it), drawn as a track and thumb; className and style go to the <label> around it. */
 export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("Switch", function Switch(props, ref) {
   const nameRef = useNameCheck("Switch", NAME_HOW.label, ref);   // warns when it has no accessible name
@@ -53,7 +57,9 @@ export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("
   if (pending) rest["aria-busy"] = true;
   if (readOnly || pending) {
     if (readOnly) rest["aria-readonly"] = true;
-    delete rest.onChange;
+    // React calls a checkbox's onChange from its click, so yours is left out; a no-op one in its place keeps React from
+    // warning about a checked field without onChange while a controlled switch is pending (L8E74).
+    rest.onChange = () => {};
     const onClick = rest.onClick;
     rest.onClick = (e) => { if (onClick) onClick(e); e.preventDefault(); };
   }
@@ -65,7 +71,7 @@ export const Switch = /* @__PURE__ */ component<HTMLInputElement, SwitchProps>("
   return (
     <label className={cn("dk-switch", "dk-switch--size-" + size, props.labelPosition === "start" && "dk-switch--label-start", invalid && "dk-switch--invalid", rest.disabled && "dk-switch--disabled", readOnly && "dk-switch--readonly", pending && "dk-switch--pending", !hasLabel && !hasDesc && "dk-switch--bare", props.className)} style={props.style} data-component="switch" data-size={size} data-pending={pending ? "" : undefined}>
       <span className="dk-switch__control" key="control">
-        <input {...rest} ref={nameRef} type="checkbox" role="switch" className="dk-switch__input" key="input" />
+        <input {...rest} {...NATIVE_SWITCH} ref={nameRef} type="checkbox" role="switch" className="dk-switch__input" key="input" />
         <span className="dk-switch__thumb" aria-hidden key="thumb">{pending ? <span className="dk-switch__spinner" key="spin" /> : null}</span>
       </span>
       {hasLabel || hasDesc ? <span className="dk-switch__text" key="text">

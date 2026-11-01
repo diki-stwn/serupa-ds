@@ -82,12 +82,15 @@ const [stars, setStars] = React.useState<number | null>(null);
 
 Each is an optional override: set it on the page, a container or one Rating. The list lives in `src/components/Rating/rating.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from rating.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--rating-fill` | `warning` | A star's filled part (3:1 on the page). |
 | `--rating-empty` | `field-border` | A star's empty part (3:1 on the page). |
+| `--rating-invalid` | `danger` | The empty stars' color when invalid (3:1 on the page), so the error shows on the stars as well as in the Field's message. |
 | `--rating-focus-ring` | `focus-ring` | The ring around the focused star. |
 | `--rating-size-sm` | `spacing-5` | A star at size sm (20px). |
 | `--rating-size-md` | `spacing-6` | A star at size md (24px). |
 | `--rating-size-lg` | `spacing-8` | A star at size lg (32px). |
-| `--rating-gap` | `spacing-0_5` | The space between stars (2px). |
+| `--rating-gap` | `spacing-0.5` | The space between stars (2px). |
+<!-- token-table:end -->

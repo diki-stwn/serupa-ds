@@ -50,8 +50,10 @@ const { Container } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one element. The list lives in `src/components/Container/container.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from container.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--container-padding-x` | `spacing-4` | Side padding on small screens (16px). |
 | `--container-padding-x-sm` | `spacing-6` | Side padding from 640px (24px). |
 | `--container-padding-x-lg` | `spacing-8` | Side padding from 1024px (32px). |
+<!-- token-table:end -->

@@ -124,6 +124,19 @@ describe('ErrorBoundary', () => {
     await expect.poll(() => document.activeElement?.id).toBe('cur');
   });
 
+  test('L8E76 focus after recovering skips a control in a disabled <fieldset>, which can\'t take focus', async () => {
+    broken = true;
+    function Form(): React.ReactElement {
+      if (broken) throw new Error('boom');
+      return <div><fieldset disabled><legend>Locked</legend><button type="button">Off</button></fieldset><button type="button" id="on">On</button></div>;
+    }
+    await render(<div><input id="before" /><ErrorBoundary><Form /></ErrorBoundary></div>);
+    (page.getByRole('button', { name: 'Try again' }).element() as HTMLElement).focus();
+    broken = false;
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('on');
+  });
+
   test('focus after recovering (FL1): content with nothing focusable takes focus itself for that one move (tabIndex -1, gone on blur); focus elsewhere on the page stays put', async () => {
     broken = true;
     function Text(): React.ReactElement { if (broken) throw new Error('boom'); return <p id="plain">Saved.</p>; }

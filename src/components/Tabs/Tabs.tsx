@@ -5,6 +5,7 @@ import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
 import { warnOnce } from "../../internal/warn";
+import { revealInvalid } from "../../internal/untilFound";
 import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
 import { activeIn } from "../../internal/root";
 
@@ -73,7 +74,15 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   const [shown, setShown] = React.useState(value);
   if (shown !== value) { setShown(value); setKeyed(lastInputKeyboard()); }
   useIsoLayoutEffect(listenForInput, []);
-  const select = React.useCallback((v: string) => { if (before.current) before.current(); if (!controlled) setInner(v); if (onChange.current) onChange.current(v); }, [controlled]);
+  // The selected tab pressed again (a click, Enter or Space) changes nothing, so it doesn't call onValueChange: an app
+  // that puts the tab in the URL pushed the same page into the history each time (L8E107).
+  const current = React.useRef(value); current.current = value;
+  const select = React.useCallback((v: string) => {
+    if (v === current.current) return;
+    if (before.current) before.current();
+    if (!controlled) { current.current = v; setInner(v); }
+    if (onChange.current) onChange.current(v);
+  }, [controlled]);
   const variant = oneOf(["line", "pill"] as const, props.variant, "line");
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   // Which values have a TabPanel, so a tab only points (aria-controls) at a panel that exists: a tab row can
@@ -83,7 +92,11 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
   // Controlled with a value no tab has (a stale link, data still loading): the first enabled tab takes the Tab stop,
   // so the tab list can still be reached from the keyboard.
   const [stop, setStop] = React.useState<string | null>(null);
-  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop, before, keyed }), [base, value, select, props.activation, vertical, panels, register, stop, keyed]);
+  // The selected tab hidden by CSS or the hidden attribute (a responsive class, at load or after a resize) can't take
+  // focus, so its tabindex 0 left the list out of the Tab order: the first shown enabled tab takes the stop (GR67).
+  const [hiddenStop, setHiddenStop] = React.useState<string | null>(null);
+  const tabStop = stop != null ? stop : hiddenStop;
+  const ctx = React.useMemo(() => ({ base, value, select, manual: props.activation === "manual", vertical, panels, register, stop: tabStop, before, keyed }), [base, value, select, props.activation, vertical, panels, register, tabStop, keyed]);
   // After each render: uncontrolled with no defaultValue, and the tabs out of firstTab's sight, the first enabled tab.
   // When the selected tab is removed (a closable tab), the nearest enabled one: the next, or else the previous. So a
   // tab is always selected and the tab list stays in the Tab order. Controlled Tabs leave it to you, with a warning.
@@ -115,6 +128,21 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     // selected, not to the page. A removed element can still read as the active one until the browser next looks.
     const active = activeIn(self.current);
     if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
+  });
+  // every render: tabs can be added, removed or re-rendered any time; then again whenever a tab or the list changes size (a media query hiding a tab sets it to 0).
+  React.useEffect(() => {
+    const el = self.current;
+    if (!el) return;
+    const tabs = Array.from(el.querySelectorAll<HTMLElement>('[role="tab"]')).filter((t) => t.id.startsWith(base + "-tab-"));
+    const check = () => {
+      const sel = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+      const next = sel && !sel.getClientRects().length ? tabs.find((t) => !t.hasAttribute("disabled") && t.getClientRects().length > 0) : undefined;
+      setHiddenStop(next ? (next.dataset.value as string) : null);
+    };
+    check();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    if (ro) { ro.observe(el); for (const t of tabs) ro.observe(t); }
+    return () => { if (ro) ro.disconnect(); };
   });
   return (
     <TabsContext.Provider value={ctx}>
@@ -196,10 +224,12 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     const el = list.current;
     if (!el) return;
     measure();
-    el.addEventListener("scroll", measure, { passive: true });
+    // The fades ease only once the list has been scrolled (Tabs.css): one that's there from the first frame is just there.
+    const scrolled = () => { el.setAttribute("data-scrolled", ""); measure(); };
+    el.addEventListener("scroll", scrolled, { passive: true });
     const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
     if (ro) { ro.observe(el); Array.from(el.children).forEach((c) => ro.observe(c)); }
-    return () => { el.removeEventListener("scroll", measure); if (ro) ro.disconnect(); };
+    return () => { el.removeEventListener("scroll", scrolled); if (ro) ro.disconnect(); };
   }, [measure]);
   // The selected tab, scrolled into view inside the list only (the page doesn't move), with the fade's room to spare.
   const reveal = React.useCallback(() => {
@@ -229,7 +259,9 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     if (props.onKeyDown) props.onKeyDown(e);
     // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E28).
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
-    const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'));
+    // A tab hidden by CSS or the hidden attribute can't take focus: the keys skip it rather than select it out of
+    // sight while focus stays put (L8E81).
+    const tabs = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])')).filter((t) => t.getClientRects().length > 0);
     const i = tabs.indexOf(activeIn(e.currentTarget) as HTMLButtonElement);
     if (i < 0 || !tabs.length) return;
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
@@ -303,7 +335,8 @@ export const TabPanel = /* @__PURE__ */ component<HTMLDivElement, TabPanelProps>
     if (!el) return;
     const onMatch = () => { if (pick.current) pick.current(); };
     el.addEventListener("beforematch", onMatch);
-    return () => el.removeEventListener("beforematch", onMatch);
+    el.addEventListener("invalid", revealInvalid, true);   // a required field in it, on submit, selects its tab (L8E100)
+    return () => { el.removeEventListener("beforematch", onMatch); el.removeEventListener("invalid", revealInvalid, true); };
   }, []);
   return (
     <div tabIndex={selected ? 0 : -1} {...rest} ref={(n) => { own.current = n; setRef(ref, n); }} role="tabpanel" id={ctx.base + "-panel-" + safe(props.value)} aria-labelledby={ctx.base + "-tab-" + safe(props.value)}

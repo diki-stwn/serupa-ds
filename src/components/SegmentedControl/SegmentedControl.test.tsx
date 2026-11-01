@@ -98,6 +98,19 @@ describe('SegmentedControl', () => {
     expect(seen).toEqual(['week/week', 'month/month', 'day/day', 'month/month']);   // Year is disabled
   });
 
+  test('L8E72 nothing checked that can be chosen (null, or a disabled segment): the arrows go from the focused segment, as in a native radio group', async () => {
+    const seen: Array<string | null | undefined> = [];
+    for (const v of [null, 'year']) {
+      const { unmount } = await render(<SegmentedControl id="nc" aria-label="Period" options={PERIODS} value={v as string} onValueChange={(x) => seen.push(x)} />);
+      seg('nc', 'day').focus();
+      await userEvent.keyboard('{ArrowRight}');
+      seg('nc', 'day').focus();
+      await userEvent.keyboard('{ArrowLeft}');
+      await unmount();
+    }
+    expect(seen).toEqual(['week', 'month', 'week', 'month']);
+  });
+
   test('a click selects, and the selection moves to it; a disabled segment can\'t be chosen', async () => {
     await render(<Col><Period /></Col>);
     await userEvent.click(seg('per', 'month'));
@@ -361,5 +374,13 @@ describe('SegmentedControl', () => {
     try {
       expect([el('ssr').firstElementChild!.tagName, css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual(['BUTTON', color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
     } finally { host.remove(); }
+  });
+  test('L8E85 in a Field, a level down (a row with a note after it): the label, hint, error, required and disabled still reach it', async () => {
+    await render(<Field label="Period" hint="Shown on the chart" error="Pick one" required disabled><div><SegmentedControl data-testid="sd1" options={PERIODS} /><span>UTC</span></div></Field>);
+    const g = document.querySelector<HTMLElement>('[data-testid=sd1]')!;
+    const text = (ids: string | null) => (ids || '').split(' ').map((i) => document.getElementById(i)?.textContent).join(' / ');
+    expect([text(g.getAttribute('aria-labelledby')), text(g.getAttribute('aria-describedby')), g.getAttribute('aria-invalid'), g.getAttribute('aria-required'), g.getAttribute('aria-disabled')])
+      .toEqual(['Period*', 'Shown on the chart / Pick one', 'true', 'true', 'true']);   // the * is aria-hidden
+    expect([...g.querySelectorAll('button')].every((b) => b.disabled)).toBe(true);
   });
 });

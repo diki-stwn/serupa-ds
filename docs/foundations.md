@@ -59,9 +59,13 @@ Switch themes with the `data-theme` attribute on any element, e.g. `<html data-t
 
 Each color that changes between themes is a `light-dark()` pair, and `data-mode` sets `color-scheme` (`auto` is `light dark`), so the light or dark value is chosen where the color is used. Server-rendered and React apps get dark mode with nothing to inject and no flash. With `base.css`, a section with its own `data-mode`, `data-brand` or `data-theme` also takes that theme's text color and `surface` background, so its plain text switches with it (a class on the section still sets its background). When printing, a `data-mode` page or section prints its light colors, since printers drop backgrounds; a flat `*-dark` theme has no light values, so it prints with its backgrounds. A page with neither attribute stays light. An element with `data-theme` keeps that flat theme, so it still wins; inside such a page, give a section both `data-brand` and `data-mode` to switch it. Needs `light-dark()`: Chrome and Edge 123, Safari 17.5, Firefox 120. Older browsers lose the colors of a page or section themed only by `data-brand` and `data-mode`; one with `data-theme` (which `theme.js` sets on the page) keeps them, since the flat themes don't use `light-dark()`.
 
-**More contrast** — `data-contrast="more"` gives 7:1 text (muted text and placeholders included), stronger borders and field outlines, and a 3px focus ring instead of 2px, in every theme. It also applies on its own when the visitor's system asks for more contrast (`prefers-contrast: more`); a page can opt out with `data-contrast="normal"` on `<html>`.
+**More contrast** — `data-contrast="more"` gives 7:1 body text (muted text and placeholders included), stronger borders and field outlines, and a 3px focus ring instead of 2px, in every theme. Status text (`success-text`, `warning-text`, `danger-text`, `info-text`) reaches 7:1 too, on the page, on cards and on its own subtle fill, and the status icon colors step up with it. The brand color steps up within its own hue (brand 800 in light themes, brand 300 in dark, so violet stays violet): links and secondary button labels reach 7:1 on the page and on the brand tint, so does the text on a primary fill, and the focus ring takes brand 700 / 300. Subtle badge labels keep their normal 4.5:1 colors for now. It also applies on its own when the visitor's system asks for more contrast (`prefers-contrast: more`); a page can opt out with `data-contrast="normal"` on `<html>`.
 
 **Density** — `data-density="compact"` makes `md` controls 28px and `lg` 36px (from 32 and 44) for dashboards and data-heavy screens; `sm` stays 24px, the WCAG 2.2 minimum target. Components read the `--control-height-*` tokens, so they need nothing else. `data-density="comfortable"` puts the defaults back for one section.
+
+**Shadows** — `data-shadow="brand"` tints the box shadows (`shadow-2xs` to `shadow-2xl`): each one's black becomes a deep shade of the brand color, at the same opacity, so raised cards, menus and dialogs sit in the brand rather than in grey. The shade is worked out where the attribute is, so a section with its own `data-brand` needs its own `data-shadow="brand"` too. `data-shadow="neutral"` puts the black back for one section.
+
+**Fluid type** — `data-type-scale="fluid"` lets the heading sizes (`text-2xl` to `text-9xl`, and the `type-*` styles that use them, such as `type-display` and `type-heading-1`) follow the width of the window: 70% of their size on a 320px phone, never under 20px, growing to their full size at 1280px and wider. Body sizes (`text-xl` and smaller) don't change. Each size is a `clamp()` with a `rem` part, so browser zoom still enlarges it. Zooming also narrows the window the sizes follow, so at 200% a heading is about 1.6 times its size and at 300% at least double, which meets WCAG 1.4.4 (body text doubles at 200% as usual). Line heights stay as they are. `data-type-scale="fixed"` puts the fixed sizes back for one section.
 
 **Automatic dark mode** — `theme.js` (standalone, no React, `dist/theme.js` in the package) sets `data-theme` for the page from a brand and a mode, follows the visitor's light/dark setting live when the mode is `auto`, and remembers a choice the visitor makes. Load it first in `<head>` so the page never flashes the wrong theme:
 
@@ -92,22 +96,22 @@ Alias tokens give a colour a **job** instead of a hue. Each one points to a pale
 | `primary-hover` | `‹brand›-700` | `‹brand›-300` | Hover / pressed state of `primary`. |
 | `primary-subtle` | `‹brand›-50` | `‹brand›-950` | Brand tint for selected rows and badges. |
 | `on-primary` | `white` | `‹brand›-950` | Text and icons on `primary` fills. |
-| `secondary` | `zinc-100` | `zinc-800` | Secondary button fill; hover fill for outline and ghost buttons. |
-| `secondary-hover` | `zinc-200` | `zinc-700` | Hover state of `secondary`. |
+| `secondary` | `zinc-100` | `zinc-700` | Secondary button fill; hover fill for outline and ghost buttons. |
+| `secondary-hover` | `zinc-200` | `zinc-600` | Hover state of `secondary`. |
 | `highlight` | `zinc-200` | `zinc-700` | The highlighted row in a list: a focused Menu item, the active Combobox or TimePicker option, the current Sidebar page. Text, icons and a primary bar keep AA on it; muted text does not, so a highlighted row switches its muted lines to `text`. |
 | `pressed` | `zinc-300` | `zinc-600` | The fill while a row, tab, day or page button is held down: one step past its hover. |
-| `surface` | `white` | `zinc-950` | Page and card background. |
-| `surface-muted` | `zinc-50` | `zinc-900` | Secondary panels, sidebars, table headers. |
-| `surface-raised` | `white` | `zinc-900` | A raised card (Card `elevated`). In dark, where shadows don't show, the lighter surface carries the lift. |
-| `surface-overlay` | `white` | `zinc-900` | Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast, and the Combobox, DatePicker and TimePicker lists. |
+| `surface` | `white` | `zinc-900` | Page and card background. |
+| `surface-muted` | `zinc-50` | `zinc-800` | Secondary panels, sidebars, table headers. |
+| `surface-raised` | `white` | `zinc-800` | A raised card (Card `elevated`). In dark, where shadows don't show, the lighter surface carries the lift. |
+| `surface-overlay` | `white` | `zinc-800` | Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast, and the Combobox, DatePicker and TimePicker lists. |
 | `surface-inverse` | `zinc-900` | `zinc-50` | Contrasting blocks: tooltips, inverse banners. |
 | `text` | `zinc-900` | `zinc-50` | Body text and headings on `surface`. |
 | `text-muted` | `zinc-500` | `zinc-400` | Secondary text, captions, placeholders. |
 | `text-inverse` | `white` | `zinc-900` | Text on `surface-inverse`. |
-| `border` | `zinc-200` | `zinc-800` | Default borders and dividers. |
-| `border-strong` | `zinc-300` | `zinc-700` | Emphasised dividers and outlines. Form fields use `field-border`. |
-| `border-raised` | `white` | `zinc-800` | A raised card's edge: invisible in light, a 1px lighter edge in dark. |
-| `border-overlay` | `zinc-200` | `zinc-700` | The edge of a top-layer surface; one step stronger than `border` in dark. |
+| `border` | `zinc-200` | `zinc-700` | Default borders and dividers. |
+| `border-strong` | `zinc-300` | `zinc-600` | Emphasised dividers and outlines. Form fields use `field-border`. |
+| `border-raised` | `white` | `zinc-700` | A raised card's edge: invisible in light, a 1px lighter edge in dark. |
+| `border-overlay` | `zinc-200` | `zinc-600` | The edge of a top-layer surface; one step stronger than `border` in dark. |
 | `focus-ring` | `‹brand›-500` | `‹brand›-400` | Keyboard focus outline, in the brand hue. |
 | `success` | `green-600` | `green-500` | Success icons and fills (3:1). Not for text: use `success-text`. |
 | `success-subtle` | `green-50` | `green-950` | Success alert / badge background. |
@@ -125,9 +129,10 @@ Alias tokens give a colour a **job** instead of a hue. Each one points to a pale
 | `info` | `sky-700` | `sky-400` | Informational icons and text. |
 | `info-subtle` | `sky-50` | `sky-950` | Info alert / badge background. |
 | `info-text` | `sky-700` | `sky-300` | Info text on `surface`, `surface-muted` and `info-subtle` (4.5:1+). Class `text-info-text`. |
-| `field` | `white` | `zinc-900` | Background of text inputs, selects and other form fields. |
-| `field-border` | `zinc-500` | `zinc-500` | Border of form fields: 3:1+ on `field` and `surface` (WCAG 1.4.11, a control's boundary). |
-| `field-border-hover` | `zinc-600` | `zinc-400` | Field border on hover. |
+| `field` | `white` | `zinc-800` | Background of text inputs, selects and other form fields. |
+| `field-readonly` | `zinc-50` | `zinc-900` | Background of read-only and disabled fields: a step flatter than `field`, so they read as not editable. |
+| `field-border` | `zinc-500` | `zinc-400` | Border of form fields: 3:1+ on `field` and `surface` (WCAG 1.4.11, a control's boundary). |
+| `field-border-hover` | `zinc-600` | `zinc-300` | Field border on hover. |
 | `placeholder` | `zinc-500` | `zinc-400` | Placeholder text (4.5:1+ on `field`). A hint, never a label. |
 | `overlay` | zinc-900 at 50% | zinc-950 at 70% | The dimmed backdrop behind dialogs and drawers. |
 
@@ -267,6 +272,7 @@ Text rules of thumb:
 
 - Set text color with aliases (`text-text`, `text-text-muted`, `text-primary`), not palette colors, so it follows the theme.
 - Headings: `text-balance`; paragraphs: `text-pretty`. Numbers in tables: `tabular-nums`.
+- Japanese: with `base.css`, a heading inside `lang="ja"` breaks between phrases (`word-break: auto-phrase`), so a word isn't split across lines. Chrome and Edge 119 and later do this; other browsers break as before.
 - Truncate single lines with `truncate`; clamp previews with `line-clamp-2` or `-3`, and make the full text reachable.
 - Links in body text: `underline underline-offset-2`. Uppercase labels: `uppercase tracking-wide text-xs font-medium`.
 
@@ -441,7 +447,7 @@ How things sit above one another: the page, raised cards, floating menus and dia
 
 **Light and dark**
 
-In light themes, shadows carry the lift: `surface-raised` and `surface-overlay` are white like `surface`, and `border-raised` is invisible. In dark themes, shadows hardly show against a near-black page, so the surface steps up to `zinc-900` and the edge to `zinc-800` or `zinc-700`. Because the tokens change with the theme, the same classes work in both: `bg-surface-overlay border border-border-overlay shadow-lg` is a correct floating panel in all six themes.
+In light themes, shadows carry the lift: `surface-raised` and `surface-overlay` are white like `surface`, and `border-raised` is invisible. In dark themes (a `zinc-900` page), shadows hardly show, so the surface steps up to `zinc-800` and the edge to `zinc-700` or `zinc-600`. Because the tokens change with the theme, the same classes work in both: `bg-surface-overlay border border-border-overlay shadow-lg` is a correct floating panel in all six themes.
 
 In forced-colors mode, backgrounds and shadows are replaced, so only the edge survives. Every floating surface has a real border for that reason; keep it if you restyle one.
 
@@ -1058,9 +1064,9 @@ The target is **WCAG 2.2 level AA**, in all six themes, at any zoom up to 400%, 
 
 **What the system guarantees**
 
-- **Contrast.** Text, placeholder, icon, control-border and focus-ring colors meet 4.5:1 or 3:1 in every theme; the foundation check measures every pair on every change. `data-contrast="more"` (or the system's "increase contrast" setting) raises text to 7:1.
+- **Contrast.** Text, placeholder, icon, control-border and focus-ring colors meet 4.5:1 or 3:1 in every theme; the foundation check measures every pair on every change. `data-contrast="more"` (or the system's "increase contrast" setting) raises body, muted, placeholder, status and brand-colored text to 7:1.
 - **Keyboard.** Every component works with the keys its pattern in the ARIA Authoring Practices expects: Tab into it, arrows inside composite widgets (menus, tabs, lists, calendars), Enter and Space to act, Escape to close. Each README has a Keyboard table.
-- **Focus.** Focus is always visible: a 2px ring in the brand color, plus an outline that survives forced colors. Dialogs and drawers move focus in, keep it there, and return it to the button that opened them. Menus and lists return focus to their button when they close.
+- **Focus.** Focus is always visible: a 2px ring in the brand color, plus an outline that survives forced colors. Inside a strong fill (`bg-primary`, `bg-danger`, `bg-surface-inverse`) the ring takes the fill's text color, so it still stands out at 3:1; a light surface nested inside such a fill should set `--focus-ring` back itself. Dialogs and drawers move focus in, keep it there, and return it to the button that opened them. Menus and lists return focus to their button when they close.
 - **Names, roles and states.** Each component renders the right element or ARIA role and keeps `aria-expanded`, `aria-selected`, `aria-invalid`, `aria-current` and the rest in step. Built-in buttons have names (the words in Content and voice), and Field ties a control to its label, hint and error.
 - **Announcements.** Loading, toasts and other status changes are announced through live regions that work inside an open Dialog too.
 - **Target size.** Buttons, fields and other sized controls are at least 24px tall (2.5.8), including `sm` and compact density; `lg` is 44px for touch-first screens. A checkbox, radio or switch takes clicks on its label too; one without a visible label is smaller than 24px, so leave space around it (the spacing exception in 2.5.8).

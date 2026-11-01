@@ -24,8 +24,6 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   caption?: React.ReactNode;
   /** Hides the caption on screen; screen readers still announce it. Default: false. */
   hideCaption?: boolean;
-  /** @deprecated Use hideCaption: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 12.0.0. */
-  captionHidden?: boolean;
   /** Props for the scrolling frame around the table (style with a maxHeight for stickyHeader). */
   containerProps?: React.HTMLAttributes<HTMLDivElement>;
 }
@@ -34,6 +32,14 @@ export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement>
   /** Marks a row as selected: a shaded background and a primary bar at its start. Screen readers can't tell from
       the shading (and ignore aria-selected in a table), so give the row a TableSelectCell, whose checkbox says it. */
   selected?: boolean;
+  /** Makes the whole row a link to this URL: a real <a> in one cell (the first TableCell, or the one marked link)
+      whose area is stretched over the row. Buttons, checkboxes and links in other cells sit above it and work on
+      their own. Ctrl/Cmd-click and middle-click open it in a new tab, as any link does. */
+  href?: string;
+  /** The row link's target. "_blank" adds rel="noopener noreferrer". */
+  target?: string;
+  /** The row link's rel. */
+  rel?: string;
 }
 
 export interface TableSelectCellProps extends Omit<CheckboxProps, 'children' | 'description' | 'size'> {
@@ -59,6 +65,9 @@ export interface TableHeaderCellProps extends Omit<React.ThHTMLAttributes<HTMLTa
 export interface TableCellProps extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, 'align'> {
   /** Lines the text up: 'start' (default), 'center' or 'end' (numbers, which also get tabular digits). */
   align?: 'start' | 'center' | 'end';
+  /** In a TableRow with href: this cell holds the row's link (its text is the link's name). Default: the row's
+      first TableCell. Mark one when that cell isn't a direct child of the row, or isn't the one that names it. */
+  link?: boolean;
 }
 
 export interface TableActionBarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -80,8 +89,7 @@ const ALIGN = ["start", "center", "end"] as const;
 /** A data table: native table markup in a scrolling frame, with sizes, stripes, a sticky header and sortable columns. */
 export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Table", function Table(props, ref) {
   const sds = useSettings(words);
-  if (process.env.NODE_ENV !== "production" && props.captionHidden != null) warnOnce("table-caption-hidden", "Table: captionHidden is deprecated and is removed in 12.0.0. Use hideCaption, which does the same.");
-  const rest = omit(props, { size: 1, striped: 1, stickyHeader: 1, caption: 1, hideCaption: 1, captionHidden: 1, containerProps: 1, className: 1, children: 1 });
+  const rest = omit(props, { size: 1, striped: 1, stickyHeader: 1, caption: 1, hideCaption: 1, containerProps: 1, className: 1, children: 1 });
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const frame = React.useRef<HTMLDivElement>(null);
   const [scrolls, setScrolls] = React.useState(false);
@@ -128,7 +136,7 @@ export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Ta
   return (
     <div {...cp} {...region} ref={frame} data-component="table" className={cn("dk-table", size === "sm" && "dk-table--sm", props.striped && "dk-table--striped", props.stickyHeader && "dk-table--sticky", cp.className)}>
       <table {...rest} ref={ref} className={cn("dk-table__table", props.className)}>
-        {hasCaption ? <caption id={cid} className={cn("dk-table__caption", (props.hideCaption || props.captionHidden) && "dk-visually-hidden")}>{props.caption}</caption> : null}
+        {hasCaption ? <caption id={cid} className={cn("dk-table__caption", props.hideCaption && "dk-visually-hidden")}>{props.caption}</caption> : null}
         {props.children}
       </table>
     </div>
@@ -154,10 +162,32 @@ export const TableFoot = /* @__PURE__ */ component<HTMLTableSectionElement, Tabl
   return <tfoot {...props} ref={ref} className={cn("dk-table__foot", props.className)} />;
 });
 
-/** A row (<tr>). selected shades it, with a bar at its start; a TableSelectCell in it says so to screen readers. */
+type RowLink = { href: string; target?: string; rel?: string };
+const RowLinkContext = /* @__PURE__ */ React.createContext<RowLink | null>(null);
+
+/* With href, the row is one link: an <a> in its link cell (the TableCell marked link, or else the first direct
+   TableCell child), whose ::after covers the row (Table.css). A real link, so Ctrl/Cmd and middle click, "Copy link"
+   and the status bar work, with nothing re-dispatched. onClick on a row without href reaches the mouse only. */
+/** A row (<tr>). selected shades it, with a bar at its start; a TableSelectCell in it says so to screen readers. With href, the whole row is a link. */
 export const TableRow = /* @__PURE__ */ component<HTMLTableRowElement, TableRowProps>("TableRow", function TableRow(props, ref) {
-  const rest = omit(props, { selected: 1, className: 1 });
-  return <tr {...rest} ref={ref} className={cn("dk-table__row", props.selected && "dk-table__row--selected", props.className)} />;
+  const rest = omit(props, { selected: 1, className: 1, href: 1, target: 1, rel: 1, children: 1 });
+  const isLink = props.href != null;
+  if (process.env.NODE_ENV !== "production" && props.onClick && !isLink) warnOnce("table-row-click", "TableRow: onClick on a row reaches mouse users only: the keyboard and screen readers can't press a row. To open something, give the row an href (the whole row becomes a link); for an action, put a button in a cell.");
+  const link = React.useMemo(function () {
+    return isLink ? { href: props.href!, target: props.target, rel: props.target === "_blank" && props.rel == null ? "noopener noreferrer" : props.rel } : null;
+  }, [isLink, props.href, props.target, props.rel]);
+  let children = props.children;
+  if (isLink) {
+    const kids = React.Children.toArray(children);
+    const marked = kids.some(function (k) { return React.isValidElement(k) && k.type === TableCell && (k.props as TableCellProps).link; });
+    if (!marked) {
+      const first = kids.findIndex(function (k) { return React.isValidElement(k) && k.type === TableCell; });
+      if (first >= 0) children = kids.map(function (k, i) { return i === first ? React.cloneElement(k as React.ReactElement<TableCellProps>, { link: true }) : k; });
+    }
+  }
+  return <tr {...rest} ref={ref} className={cn("dk-table__row", props.selected && "dk-table__row--selected", isLink && "dk-table__row--link", props.className)}>
+    {link ? <RowLinkContext.Provider value={link}>{children}</RowLinkContext.Provider> : children}
+  </tr>;
 });
 
 /* TableSelectCell: a narrow cell holding a checkbox named by label, for picking rows ("Select Alpha") or, with
@@ -207,12 +237,14 @@ const PLAIN = { useGrouping: false } as const;
 /** A data cell (<td>). align="end" for numbers. A number as its child is written in the locale's digits (ungrouped,
  *  as given: 1204 stays 1204 in en-US and is ١٢٠٤ in ar-EG); for grouping, currency or units, pass FormattedNumber. */
 export const TableCell = /* @__PURE__ */ component<HTMLTableCellElement, TableCellProps>("TableCell", function TableCell(props, ref) {
-  const rest = omit(props, { align: 1, className: 1, children: 1 });
+  const rest = omit(props, { align: 1, className: 1, children: 1, link: 1 });
   const align = oneOf(ALIGN, props.align, "start");
   const locale = useLocale();
+  const row = React.useContext(RowLinkContext);
   const n = props.children;
+  const content = typeof n === "number" && Number.isFinite(n) ? displayNumber(n, locale, PLAIN) : n;
   return <td {...rest} ref={ref} className={cn("dk-table__cell", align !== "start" && "dk-table__cell--" + align, props.className)}>
-    {typeof n === "number" && Number.isFinite(n) ? displayNumber(n, locale, PLAIN) : n}
+    {row && props.link ? <a className="dk-table__row-link" href={row.href} target={row.target} rel={row.rel}>{content}</a> : content}
   </td>;
 });
 

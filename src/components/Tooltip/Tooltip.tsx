@@ -8,6 +8,7 @@ import { named } from "../../internal/component";
 import { isComposing } from "../../internal/ime";
 import type { OpenChangeDetails, OpenChangeReason } from "../../internal/openChange";
 import { hoverIntent, hoverLeave, hoverWarm } from "../../internal/timing";
+import { warnOnce } from "../../internal/warn";
 
 export interface TooltipProps {
   /** What the tooltip says: a short line of text. Keep links and buttons out (people can't reach them). */
@@ -60,7 +61,16 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const anchorRef = React.useRef<HTMLElement | null>(null);
   const timer = React.useRef<number | undefined>(undefined);
   const onOpenChange = React.useRef(props.onOpenChange); onOpenChange.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { window.clearTimeout(timer.current); if (!controlled) setInner(v); if (onOpenChange.current) onOpenChange.current(v, { reason }); }, [controlled]);
+  // What it shows, and whether it may show: a press, a blur or the pointer leaving while it's hidden (or one of them
+  // while disabled) asked onOpenChange to hide it, or to show it, when nothing was to change (L8E106).
+  const shown = React.useRef(open); shown.current = open;
+  const off = React.useRef(props.disabled); off.current = props.disabled;
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => {
+    window.clearTimeout(timer.current);
+    if (v === shown.current || (v && off.current)) return;
+    if (!controlled) { shown.current = v; setInner(v); }
+    if (onOpenChange.current) onOpenChange.current(v, { reason });
+  }, [controlled]);
   const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, "hover"), ms); };
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
   // The open tooltip is the warm one: opening another closes it, and closing it keeps others warm for hoverWarm.
@@ -84,6 +94,13 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
 
   // Place it while open, and keep it placed as the page scrolls or resizes, or its text changes. A press outside hides it.
   useAnchoredLayer(open, tipRef, anchorRef, { placement: props.placement, fallback: "top", offsetVar: "--dk-tooltip-offset", watch: props.content, onOutside: () => set(false, "outside") });
+
+  /* Its content is plain text: the keyboard can't reach a link or button in it (focus leaving the element hides it),
+     and on its inverse fill a link's color measures under 4.5:1 in every theme. Warn when one is there, rendered or not. */
+  React.useEffect(() => {
+    const tip = tipRef.current;
+    if (process.env.NODE_ENV !== "production" && tip && tip.querySelector("a[href], button, input, select, textarea, summary, [tabindex], [contenteditable]")) warnOnce("tooltip-interactive", "Tooltip: its content holds a link, button or field, and nobody can use it: focus leaving the element hides the tooltip, so the keyboard can't reach it, and touch screens never show it. Keep content to plain text; for anything people press, use a Popover.");
+  }, [props.content]);
 
   // Escape hides it from anywhere while it's open (the element may not have focus when hovered). It's the top
   // layer, so it takes that Escape: caught first (capture) and stopped, so a Dialog or Menu around it stays open.
