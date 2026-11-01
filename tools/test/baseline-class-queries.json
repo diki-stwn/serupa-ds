@@ -39,7 +39,6 @@
   "src/components/Radio/Radio.test.tsx": 6,
   "src/components/SearchInput/SearchInput.test.tsx": 5,
   "src/components/SegmentedControl/SegmentedControl.test.tsx": 4,
-  "src/components/Select/Select.test.tsx": 2,
   "src/components/Sidebar/Sidebar.test.tsx": 13,
   "src/components/Slider/Slider.test.tsx": 10,
   "src/components/SortableList/SortableList.test.tsx": 3,
@@ -48,6 +47,5 @@
   "src/components/Tabs/Tabs.test.tsx": 3,
   "src/components/TimePicker/TimePicker.test.tsx": 6,
   "src/components/Toast/Toast.test.tsx": 5,
-  "src/internal/fieldsetDisabled.test.tsx": 1,
-  "src/internal/ownLang.test.tsx": 2
+  "src/internal/fieldsetDisabled.test.tsx": 1
 }
