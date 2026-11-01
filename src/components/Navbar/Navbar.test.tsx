@@ -181,6 +181,15 @@ describe('Navbar', () => {
     expect(el('brand').scrollWidth > el('brand').clientWidth).toBe(false);
   });
 
+  test('320px: a brand given as plain text ends in an ellipsis too, and never runs under the actions (GR79)', async () => {
+    await render(<Navbar id="nav" brand="Kommunikationsplattform" actions={<Button size="sm" variant="ghost" id="act">Sign in</Button>} />);
+    await resize(320);
+    const b = q('#nav .dk-navbar__brand');
+    expect([Math.round(b.getBoundingClientRect().right) <= Math.round(el('act').getBoundingClientRect().left), b.scrollWidth > b.clientWidth, css(b).textOverflow, document.documentElement.scrollWidth <= 320]).toEqual([true, true, 'ellipsis', true]);
+    await resize(1100);
+    expect(b.scrollWidth > b.clientWidth).toBe(false);
+  });
+
   test('320px, menu open: a link with a long unbroken word wraps inside the panel, not cut off or scrolled sideways (RF1)', async () => {
     await render(<Navbar id="nav" brand="Serupa"><NavbarLink href="#a">Dashboard</NavbarLink><NavbarLink href="#w" id="lw">Donaudampfschifffahrtsgesellschaftskapitänskajüte</NavbarLink></Navbar>);
     await resize(320);
