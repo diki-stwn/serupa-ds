@@ -10,7 +10,8 @@ const REASONS: ValidityProblem["reason"][] = ["valueMissing", "typeMismatch", "b
    the invalid event, which fires just before the browser shows the message, and only when nothing else set a
    custom one; it's cleared on the next input, or when a controlled value changes, so the field is judged by its
    constraints again. `ours` marks a field holding our message rather than the product's own setCustomValidity. */
-export function useValidityMessages<P extends { onInvalid?: React.FormEventHandler<E>; onInput?: React.FormEventHandler<E>; value?: unknown }, E extends Field>(rest: P, own: React.RefObject<E | null>): void {
+export function useValidityMessages<P extends { onInvalid?: React.FormEventHandler<E>; onInput?: React.FormEventHandler<E>; value?: unknown }, E extends Field>(props: P, own: React.RefObject<E | null>): P {
+  const rest: P = { ...props };   // a copy with the handlers in place, returned
   const say = useSettings(inputWords).labels.invalidValue;
   const ours = React.useRef(false);
   const clear = (el: E | null) => { if (el && ours.current) { ours.current = false; el.setCustomValidity(""); } };
@@ -33,5 +34,6 @@ export function useValidityMessages<P extends { onInvalid?: React.FormEventHandl
     const el = own.current;
     if (el && ours.current) { ours.current = false; el.setCustomValidity(""); }
   }, [value, own]);
+  return rest;
 }
 const attr = (el: Field, name: string) => el.getAttribute(name) || undefined;
