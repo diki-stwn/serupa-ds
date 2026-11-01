@@ -31,7 +31,9 @@ t('every component it lists is in the package (dist/components.json)', !gone.len
 
 // The rest of the text: what it tells an agent to use has to exist.
 const prose = skill.replace(index, '');
-const exported = new Set([...read('dist/index.d.ts').matchAll(/\bexport (?:declare )?(?:const|function|class) (\w+)|\bexport \{([^}]*)\}/g)].flatMap((m) => (m[1] ? [m[1]] : m[2].split(',').map((x) => x.trim().split(/\s+as\s+/).pop()))).filter(Boolean));
+// The main entry's exports and the subpath tools' (serupa-ds/purge's serupaPurge(), serupa-ds/testing's forEachTheme()).
+const declared = ['index', 'purge', 'testing', 'stylelint', 'eslint'].map((f) => read(`dist/${f}.d.ts`)).join('\n');
+const exported = new Set([...declared.matchAll(/\bexport (?:declare )?(?:const|function|class) (\w+)|\bexport \{([^}]*)\}/g)].flatMap((m) => (m[1] ? [m[1]] : m[2].split(',').map((x) => x.trim().split(/\s+as\s+/).pop()))).filter(Boolean));
 // A component or helper it names in code: `<Container …`, `Field`, `announcePage()`.
 const names = [...new Set([...prose.matchAll(/`<?([A-Z][A-Za-z]+)\b/g), ...prose.matchAll(/`([a-z]\w*)\(/g)].map((m) => m[1]))];
 const missing = names.filter((n) => n !== 'var' && !exported.has(n) && !components[n]);

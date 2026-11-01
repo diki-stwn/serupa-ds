@@ -25,7 +25,7 @@ import { Button, Field, Input } from 'serupa-ds';
 
 The styles sit in cascade layers (`dk.tokens`, `dk.base`, `dk.components`, `dk.utilities`). The app's own unlayered CSS always wins over them, so an override never needs `!important`.
 
-For production, trim the CSS: `npx serupa-purge src -o public/bundle.min.css --components`. List any class the code builds at runtime with `--keep`.
+For production, trim the CSS in the build: `import { serupaPurge } from 'serupa-ds/purge'` and add `serupaPurge()` to Vite's `plugins` (or `serupaPurgePostcss()` to `postcss.config.mjs` for Next.js and webpack). Without a bundler: `npx serupa-purge src -o public/bundle.min.css --components`. List any class the code builds at runtime with `keep: [...]` (or `--keep`).
 
 ## Theme
 

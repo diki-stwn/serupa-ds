@@ -10,6 +10,7 @@
     "src/stylelint.js!",
     "src/testing.js!",
     "src/labels/*.ts!",
+    "src/purge.js!",
     "bin/*.mjs!",
     "tools/**/*.mjs",
     "src/**/*.stories.tsx",

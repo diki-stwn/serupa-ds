@@ -61,6 +61,11 @@
       "import": "./dist/js/labels/*.js",
       "default": "./dist/js/labels/*.js"
     },
+    "./purge": {
+      "types": "./dist/purge.d.ts",
+      "import": "./dist/purge.js",
+      "default": "./dist/purge.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./native/*": "./dist/native/*",

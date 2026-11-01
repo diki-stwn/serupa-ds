@@ -144,6 +144,9 @@ fs.mkdirSync(path.join(D, 'labels'), { recursive: true });
 for (const f of fs.readdirSync(path.join(P, 'src', 'labels')).filter((x) => x.endsWith('.ts'))) {
   fs.writeFileSync(path.join(D, 'labels', f.replace(/\.ts$/, '.d.ts')), `import type { SerupaLabels } from "../index.js";\n/** Every built-in word, in this language: <SerupaProvider locale={locale} labels={labels}>. */\nexport declare const labels: SerupaLabels;\n/** The locale the words are written for. */\nexport declare const locale: string;\n`);
 }
+// purge.js (D11): serupa-purge as a Vite and a PostCSS plugin (serupa-ds/purge), as written; it imports bin/serupa-purge.mjs.
+fs.writeFileSync(path.join(D, 'purge.js'), stamp(read('src/purge.js')));
+fs.copyFileSync(path.join(P, 'src', 'purge.d.ts'), path.join(D, 'purge.d.ts'));
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
 const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });
