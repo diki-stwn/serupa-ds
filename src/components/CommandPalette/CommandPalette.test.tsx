@@ -77,6 +77,17 @@ describe('CommandPalette', () => {
     await expect.poll(() => isOpen('p')).toBe(false);
   });
 
+  test('a press on a row leaves focus in the field; a row focused another way (as a screen reader can) is chosen with Enter', async () => {
+    const onSelect = vi.fn();
+    await render(<CommandPalette id="p" defaultOpen commands={COMMANDS} onSelect={onSelect} />);
+    await expect.poll(() => document.activeElement).toBe(field());
+    options()[1].dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(field());
+    options()[2].focus();
+    await userEvent.keyboard('{Enter}');
+    expect((onSelect.mock.calls[0][0] as Command).id).toBe('new');
+  });
+
   test('a click chooses; a disabled row does nothing; a row with only href goes there', async () => {
     const onSelect = vi.fn();
     const before = location.hash;

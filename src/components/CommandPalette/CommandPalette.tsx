@@ -164,9 +164,12 @@ export const CommandPalette = /* @__PURE__ */ component<HTMLDialogElement, Comma
             {rs.map((r) => {
               const on = current === r;
               return (
-                <div key={r.c.id} id={optId(r)} role="option" aria-selected={on} aria-disabled={r.c.disabled || undefined}
+                // Focus stays in the field (a press doesn't take it); an option focused some other way, as a screen
+                // reader can, is chosen with Enter or Space.
+                <div key={r.c.id} id={optId(r)} role="option" tabIndex={-1} aria-selected={on} aria-disabled={r.c.disabled || undefined}
                   className={cn("dk-command-palette__option", on && "dk-command-palette__option--active", r.c.disabled && "dk-command-palette__option--disabled")}
-                  onMouseMove={() => { if (!r.c.disabled && !on) setActive(usable.indexOf(r)); }} onClick={() => choose(r)}>
+                  onMouseDown={(e) => e.preventDefault()} onMouseMove={() => { if (!r.c.disabled && !on) setActive(usable.indexOf(r)); }} onClick={() => choose(r)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(r); } }}>
                   {r.c.icon != null ? <span className="dk-command-palette__icon" aria-hidden>{asIcon(r.c.icon)}</span> : null}
                   <Highlight className="dk-command-palette__label" query={query}>{r.c.label}</Highlight>
                   {r.c.shortcut && r.c.shortcut.length ? <Kbd className="dk-command-palette__keys" keys={r.c.shortcut} size="sm" /> : null}
