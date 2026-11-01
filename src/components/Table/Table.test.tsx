@@ -385,6 +385,23 @@ describe('TableActionBar (62)', () => {
     expect(document.activeElement).toBe(box('Select all rows'));
   });
 
+  test('inside a shadow root, Clear with focus in the bar moves focus to "Select all" too, not the page (GR95)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Picker log={[]} />, { container: inner });
+      const sr = host.shadowRoot!, cb = (name: string) => sr.querySelector<HTMLInputElement>(`input[aria-label="${name}"]`)!;
+      cb('Select Grace').click();
+      await expect.poll(() => sr.getElementById('bar')!.hidden).toBe(false);
+      [...sr.getElementById('bar')!.querySelectorAll('button')].find((b) => b.textContent === 'Clear selection')!.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => sr.getElementById('bar')!.hidden).toBe(true);
+      expect(sr.activeElement).toBe(cb('Select all rows'));
+    } finally { host.remove(); }
+  });
+
   test('a new count is read out ("3 selected"), not on the first render or at 0; Indonesian words', async () => {
     const said: string[] = [];
     const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
