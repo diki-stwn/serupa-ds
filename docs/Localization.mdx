@@ -38,7 +38,7 @@ import { labels, locale } from 'serupa-ds/labels/id';
 <SerupaProvider locale={locale} labels={labels}>{children}</SerupaProvider>
 ```
 
-Packs ship for English (`en`, the default), Indonesian (`id`, the same words as `idLabels`), German (`de`), Spanish (`es`) and French (`fr`). `node tools/test/label-packs.mjs` checks each pack has every word, says something for each case (a count of one and of several, each reason a field can fail), and leaves nothing in English.
+Packs ship for English (`en`, the default), Indonesian (`id`, the same words as `idLabels`), German (`de`), Spanish (`es`), French (`fr`), Portuguese (`pt`, Brazilian) and Japanese (`ja`). `node tools/test/label-packs.mjs` checks each pack has every word, says something for each case (a count of one and of several, each reason a field can fail), and leaves nothing in English.
 
 What wins, in order: the component's own prop (`dismissLabel`, `locale`, …), the nearest provider, an outer provider, then the defaults. A nested provider changes only the keys it sets.
 
