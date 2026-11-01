@@ -187,7 +187,7 @@ node tools/icons/build.mjs                    # build assets/Icons/*.svg into sr
 node tools/icons/build.mjs path/to/svgs       # from another folder
 node tools/icons/build.mjs --check            # exit 1 if the components are out of step (for CI)
 node tools/icons/builtin.mjs                  # after a component imports a new icon: src/material/builtin.ts and named.ts
-python3 tools/icons/material.py               # rebuild src/material/icons.ts from the font in tools/icons/source/ (needs fonttools, brotli)
+python3 tools/icons/material.py               # rebuild src/material/icons.ts, part/ and parts.ts from the font in tools/icons/source/ (needs fonttools, brotli)
 ```
 
 Each file becomes an icon named after the file. The build keeps only shapes, draws them in the text color, and refuses unsafe or off-system files with the reason; the Icon guidelines (`src/components/Icon/README.md`) have the drawing rules. On the design system page, icons dropped into an Icons set are uploads: download them into `assets/Icons/` (or ask Claude) and run the build.

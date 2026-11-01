@@ -180,10 +180,13 @@ async function buildModules() {
     format: 'esm', target: 'es2022', platform: 'neutral', sourcemap: true, jsx: 'transform', logLevel: 'warning',
     define: { __VERSION__: JSON.stringify(version) },
   });
-  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none.
-  const table = path.join(D, 'js', 'material', 'icons.js');
-  fs.rmSync(table + '.map');
-  fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=icons\.js\.map\n?$/, ''));
+  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none, for
+  // icons.js and each of its parts (material/part/NN.js).
+  const part = path.join(D, 'js', 'material', 'part');
+  for (const table of [path.join(D, 'js', 'material', 'icons.js'), ...fs.readdirSync(part).filter((f) => f.endsWith('.js')).map((f) => path.join(part, f))]) {
+    fs.rmSync(table + '.map');
+    fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=[\w.]+\.js\.map\n?$/, ''));
+  }
   fs.writeFileSync(path.join(D, 'index.js'), 'export * from "./js/index.js";\n');
   fs.writeFileSync(path.join(D, 'icons.js'), 'export * from "./js/material/index.js";\n');
 }
