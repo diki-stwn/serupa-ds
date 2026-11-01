@@ -36,6 +36,12 @@ import { HoverCard, Link, Avatar } from "serupa-ds";
 - **Contrast:** its text reads 4.5:1 on its background in all six themes (`HoverCard.test.tsx`).
 - **What's still yours:** the same details reachable without hover (the page the link opens), and links in the card with names that make sense on their own.
 
+| Key | Does |
+| --- | --- |
+| Tab | To the link: once focus rests there, the card opens. Tab again goes into the card |
+| Shift+Tab | From the card's first link back to the link it previews |
+| Escape | Closes the card, from anywhere; from inside it, focus goes back to the link |
+
 ## Props
 
 | Prop | Type | Default | Notes |

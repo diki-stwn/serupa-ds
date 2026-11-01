@@ -98,6 +98,25 @@ describe('HoverCard', () => {
     expect(isOpen('hc')).toBe(false);
   });
 
+  test('every placement: the card opens on that side of the link, its start or end lined up with the link\'s', async () => {
+    const all = ['bottom', 'bottom-start', 'bottom-end', 'top', 'top-start', 'top-end', 'right', 'right-start', 'right-end', 'left', 'left-start', 'left-end'] as const;
+    const at = (placement: typeof all[number]) => <div style={{ display: 'grid', placeItems: 'center', height: '700px' }}>
+      <HoverCard key={placement} id="hp" open placement={placement} trigger={<a id="tp" href="#dewi">@dewi</a>}><strong>Dewi Lestari</strong></HoverCard>
+    </div>;
+    const r = await render(at(all[0]));
+    for (const placement of all) {
+      await r.rerender(at(placement));
+      await expect.poll(() => isOpen('hp'), placement).toBe(true);
+      const [side, align] = placement.split('-'), c = el('hp');
+      await expect.poll(() => c.dataset.side, placement).toBe(side);
+      const a = rect(el('tp')), b = rect(c);
+      expect(side === 'bottom' ? b.top >= a.bottom : side === 'top' ? b.bottom <= a.top : side === 'right' ? b.left >= a.right : b.right <= a.left, placement).toBe(true);
+      const across = side === 'top' || side === 'bottom';
+      if (align === 'start') expect(near(across ? b.left : b.top, across ? a.left : a.top), placement).toBe(true);
+      if (align === 'end') expect(near(across ? b.right : b.bottom, across ? a.right : a.bottom), placement).toBe(true);
+    }
+  });
+
   test('controlled and disabled: open shows it; disabled never does', async () => {
     const s = await render(<Card open onOpenChange={() => {}} />);
     await expect.poll(() => isOpen('hc')).toBe(true);

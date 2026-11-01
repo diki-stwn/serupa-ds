@@ -40,6 +40,8 @@ export const Playground: Story = {};
 export const Open: Story = { args: { open: true }, decorators: [centered], parameters: { centered: true } };
 export const Top: Story = { name: 'Placement: top', args: { open: true, placement: 'top' }, decorators: [centered], parameters: { centered: true } };
 export const BottomStart: Story = { name: 'Placement: bottom-start', args: { open: true, placement: 'bottom-start' }, decorators: [centered], parameters: { centered: true } };
+// Disabled: it never opens, for example while the link is disabled; hovering or focusing the link shows nothing.
+export const Disabled: Story = { args: { disabled: true } };
 // The stress story (G14): a long unbroken name and a long summary; the card wraps them inside its 320px.
 export const LongText: Story = {
   args: {
