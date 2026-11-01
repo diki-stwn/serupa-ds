@@ -140,6 +140,8 @@ mode, and a new script is picked up with no entry anywhere. Run with `node`, a s
 | `licenses.mjs` | The package's own license (`"license": "UNLICENSED"` and `LICENSE`), and every outside work it ships with its license: each license file the README's Credits table names is in `licenses/` and each file there is in the table, every font in `fonts/` is in it, and each package the build bundles into `dist/lib/` (read from esbuild's metafile) is covered by a row whose license matches the package's own |
 | `nightly-issue.mjs` | `tools/nightly-issue.mjs`, which the nightly Cross-browser run calls to open, update or close its "Nightly cross-browser failing" issue, reads the failing tests out of Vitest's output (colors stripped, each test once across both passes) and writes an issue that lists them per browser |
 | `scroll-lock.mjs` | Dialog and Drawer lock the page's scrolling without shifting it: in Chromium with classic scrollbars shown, the page keeps the scrollbar's space while one is open, and a page with no scrollbar gets no extra space |
+| `script-fonts.mjs` | Fonts by script (143): the sans stack names Noto Sans Arabic, Hebrew, Devanagari and Thai after Inter; `ja`, `ko`, `zh` and `zh-TW` put their own CJK font first and a nested `lang` wins; `text-*--line-height` is at least 1.6 times the size in Arabic and 1.5 in Devanagari, Thai and CJK, unchanged in English and Hebrew. |
+| `font-fallback.mjs` | Inter Fallback (144): `tokens.css` writes its four faces and lists it after Inter; each finds a font on the machine; a line of English is within 2% of Inter's width and closer than plain Arial; ascent and descent within a pixel; a 320px paragraph wraps within a line of Inter's. |
 | `font-subsets.mjs` | Inter split by script: each face in `tokens.json` is a file with a `unicode-range` in `tokens.css`, an English page downloads only the two latin files, and each line of a sample (latin, symbols, features, cyrillic and greek, vietnamese and latin-ext, italic, a thin weight) draws the same pixels as with the whole font |
 | `testing-export.mjs` | `serupa-ds/testing` as an app's CI uses it (build first): `forEachTheme()` runs once per theme in order, each theme draws differently, transitions are off and the color scheme matches, the page gets its own theme back even when the callback throws, and an unknown theme is an error |
 | `browser-baseline.mjs` | Every property, value keyword, function, at-rule and pseudo-class in `bundle.css` works in the README's baseline (Chrome and Edge 123, Safari 17.5, Firefox 128), going by MDN's browser-compat-data; what is newer on purpose is listed in `KNOWN` with what happens without it, the README names the classes that do nothing in some browsers, a property the data doesn't know fails, an `@supports` every baseline browser passes fails, and every static built-in `serupa.iife.js` reads (`Object.groupBy`, `Intl.Segmenter`, …) works at the baseline or is in `KNOWN_JS` |
@@ -187,7 +189,7 @@ node tools/icons/build.mjs                    # build assets/Icons/*.svg into sr
 node tools/icons/build.mjs path/to/svgs       # from another folder
 node tools/icons/build.mjs --check            # exit 1 if the components are out of step (for CI)
 node tools/icons/builtin.mjs                  # after a component imports a new icon: src/material/builtin.ts and named.ts
-python3 tools/icons/material.py               # rebuild src/material/icons.ts from the font in tools/icons/source/ (needs fonttools, brotli)
+python3 tools/icons/material.py               # rebuild src/material/icons.ts, part/ and parts.ts from the font in tools/icons/source/ (needs fonttools, brotli)
 ```
 
 Each file becomes an icon named after the file. The build keeps only shapes, draws them in the text color, and refuses unsafe or off-system files with the reason; the Icon guidelines (`src/components/Icon/README.md`) have the drawing rules. On the design system page, icons dropped into an Icons set are uploads: download them into `assets/Icons/` (or ask Claude) and run the build.
@@ -196,8 +198,13 @@ Each file becomes an icon named after the file. The build keeps only shapes, dra
 
 ```sh
 python3 -I tools/fonts/subset.py    # split fonts/InterVariable*.woff2 by script, and list the faces in tokens.json (needs fonttools, brotli)
+node tools/fonts/fallback.mjs       # measure Inter against Arial in Chromium and list the Inter Fallback faces in tokens.json (needs fonts-liberation on Linux)
 npm run tokens                      # then write their @font-face rules into tokens.css
 ```
+
+`Inter Fallback` comes right after Inter in `--font-sans`: Arial (or Helvetica, Liberation Sans, Arimo) with `size-adjust` and Inter's ascent and descent, for the latin range only. It draws the text until Inter arrives, at almost the same width, so the page doesn't move when Inter swaps in.
+
+After Inter, `--font-sans` names Noto Sans Arabic, Hebrew, Devanagari and Thai (143). They aren't shipped: a device that has them uses them, and each draws only its own script, so the browser picks the right one for each character whatever the `lang`. Han characters are drawn differently in Japanese, Korean and Chinese, so under `lang="ja"`, `"ko"`, `"zh"` and `"zh-TW"` (or `zh-Hant`) `--font-sans` puts that language's Noto Sans CJK first. Marks above and below the letters need room: under those langs every `--text-*--line-height` is at least 1.6 times the font size for Arabic and 1.5 for Devanagari, Thai and CJK. The list is `type.scripts` in `tokens.json`.
 
 Each script gets its own file with Google Fonts' `unicode-range` for it (latin, latin-ext, cyrillic, cyrillic-ext, greek, greek-ext, vietnamese), and `symbols` takes every other character Inter draws, so a page downloads only the scripts its text uses. All features, the variation axes and the names stay. Run it again only when a font in `fonts/` changes. `size.mjs` holds the latin files to their size.
 

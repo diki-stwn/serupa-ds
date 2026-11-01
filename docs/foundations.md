@@ -63,6 +63,8 @@ Each color that changes between themes is a `light-dark()` pair, and `data-mode`
 
 **Density** — `data-density="compact"` makes `md` controls 28px and `lg` 36px (from 32 and 44) for dashboards and data-heavy screens; `sm` stays 24px, the WCAG 2.2 minimum target. Components read the `--control-height-*` tokens, so they need nothing else. `data-density="comfortable"` puts the defaults back for one section.
 
+**Shadows** — `data-shadow="brand"` tints the box shadows (`shadow-2xs` to `shadow-2xl`): each one's black becomes a deep shade of the brand color, at the same opacity, so raised cards, menus and dialogs sit in the brand rather than in grey. The shade is worked out where the attribute is, so a section with its own `data-brand` needs its own `data-shadow="brand"` too. `data-shadow="neutral"` puts the black back for one section.
+
 **Automatic dark mode** — `theme.js` (standalone, no React, `dist/theme.js` in the package) sets `data-theme` for the page from a brand and a mode, follows the visitor's light/dark setting live when the mode is `auto`, and remembers a choice the visitor makes. Load it first in `<head>` so the page never flashes the wrong theme:
 
 ```html
@@ -1061,7 +1063,7 @@ The target is **WCAG 2.2 level AA**, in all six themes, at any zoom up to 400%, 
 
 - **Contrast.** Text, placeholder, icon, control-border and focus-ring colors meet 4.5:1 or 3:1 in every theme; the foundation check measures every pair on every change. `data-contrast="more"` (or the system's "increase contrast" setting) raises body, muted, placeholder, status and brand-colored text to 7:1.
 - **Keyboard.** Every component works with the keys its pattern in the ARIA Authoring Practices expects: Tab into it, arrows inside composite widgets (menus, tabs, lists, calendars), Enter and Space to act, Escape to close. Each README has a Keyboard table.
-- **Focus.** Focus is always visible: a 2px ring in the brand color, plus an outline that survives forced colors. Dialogs and drawers move focus in, keep it there, and return it to the button that opened them. Menus and lists return focus to their button when they close.
+- **Focus.** Focus is always visible: a 2px ring in the brand color, plus an outline that survives forced colors. Inside a strong fill (`bg-primary`, `bg-danger`, `bg-surface-inverse`) the ring takes the fill's text color, so it still stands out at 3:1; a light surface nested inside such a fill should set `--focus-ring` back itself. Dialogs and drawers move focus in, keep it there, and return it to the button that opened them. Menus and lists return focus to their button when they close.
 - **Names, roles and states.** Each component renders the right element or ARIA role and keeps `aria-expanded`, `aria-selected`, `aria-invalid`, `aria-current` and the rest in step. Built-in buttons have names (the words in Content and voice), and Field ties a control to its label, hint and error.
 - **Announcements.** Loading, toasts and other status changes are announced through live regions that work inside an open Dialog too.
 - **Target size.** Buttons, fields and other sized controls are at least 24px tall (2.5.8), including `sm` and compact density; `lg` is 44px for touch-first screens. A checkbox, radio or switch takes clicks on its label too; one without a visible label is smaller than 24px, so leave space around it (the spacing exception in 2.5.8).
