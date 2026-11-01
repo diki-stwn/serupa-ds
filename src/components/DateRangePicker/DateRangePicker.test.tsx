@@ -296,6 +296,8 @@ describe('DateRangePicker popup on a phone (GR9)', () => {
     // The year isn't cut off: each field's text fits it.
     expect([s.value, s.scrollWidth <= s.clientWidth + 1, e.value, e.scrollWidth <= e.clientWidth + 1]).toEqual(['12/28/2025', true, '01/06/2026', true]);
     expect(e.getBoundingClientRect().top).toBeGreaterThan(s.getBoundingClientRect().bottom - 1);
+    // Each line is a full control height, so both fields stay 24px targets (WCAG 2.5.8).
+    expect([s, e].map((f) => f.getBoundingClientRect().height >= 24)).toEqual([true, true]);
     expect(box('narrow').scrollWidth).toBeLessThanOrEqual(box('narrow').clientWidth + 1);
   });
 });
