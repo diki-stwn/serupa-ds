@@ -206,6 +206,20 @@ describe('Calendar: long jumps and midnight (EM1)', () => {
     expect(cal('.dk-calendar__header').scrollWidth).toBeLessThanOrEqual(cal('.dk-calendar__header').clientWidth);
   });
 
+  test('monthYearPicker inside a form: a reset leaves the Month and Year menus on the month the grid shows (GR87)', async () => {
+    await render(<form id="f87"><Calendar data-testid="cal" monthYearPicker defaultMonth={new Date(2026, 5, 1)} locale="en-US" /></form>);
+    const f = document.getElementById('f87') as HTMLFormElement, shown = () => [menus()[0].selectedOptions[0].text, menus()[1].value, title()];
+    f.reset();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(shown()).toEqual(['June', '2026', 'June 2026']);
+    await pickOption(menus()[1], '2027');
+    f.reset();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(shown()).toEqual(['June', '2027', 'June 2027']);
+    // They're not form data either.
+    expect([[...f.elements].filter((e) => e.tagName === 'SELECT').length, [...new FormData(f).keys()]]).toEqual([0, []]);
+  });
+
   test('monthYearPicker with min and max: only their years, months outside are disabled, and a year that lands outside clamps', async () => {
     await render(<Calendar data-testid="cal" monthYearPicker min="2025-03-10" max="2027-08-20" defaultMonth={new Date(2026, 0, 1)} locale="en-US" />);
     const [m, y] = menus();
