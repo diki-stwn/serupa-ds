@@ -24,7 +24,7 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   caption?: React.ReactNode;
   /** Hides the caption on screen; screen readers still announce it. Default: false. */
   hideCaption?: boolean;
-  /** @deprecated Use hideCaption: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 12.0.0. */
+  /** @deprecated Use hideCaption: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 13.0.0. */
   captionHidden?: boolean;
   /** Props for the scrolling frame around the table (style with a maxHeight for stickyHeader). */
   containerProps?: React.HTMLAttributes<HTMLDivElement>;
@@ -80,7 +80,7 @@ const ALIGN = ["start", "center", "end"] as const;
 /** A data table: native table markup in a scrolling frame, with sizes, stripes, a sticky header and sortable columns. */
 export const Table = /* @__PURE__ */ component<HTMLTableElement, TableProps>("Table", function Table(props, ref) {
   const sds = useSettings(words);
-  if (process.env.NODE_ENV !== "production" && props.captionHidden != null) warnOnce("table-caption-hidden", "Table: captionHidden is deprecated and is removed in 12.0.0. Use hideCaption, which does the same.");
+  if (process.env.NODE_ENV !== "production" && props.captionHidden != null) warnOnce("table-caption-hidden", "Table: captionHidden is deprecated and is removed in 13.0.0. Use hideCaption, which does the same.");
   const rest = omit(props, { size: 1, striped: 1, stickyHeader: 1, caption: 1, hideCaption: 1, captionHidden: 1, containerProps: 1, className: 1, children: 1 });
   const size = oneOf(["sm", "md"] as const, props.size, "md");
   const frame = React.useRef<HTMLDivElement>(null);
