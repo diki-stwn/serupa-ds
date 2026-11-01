@@ -1,6 +1,7 @@
 import * as React from "react";
 import { setRef } from "./cn";
 import { warnOnce } from "./warn";
+import { byId } from "./root";
 
 /** Whether el has an accessible name from aria-labelledby, aria-label, a <label> (a Field's too) or title, or, for a
  *  group, the <legend> of the fieldset it's in (Field group). Text inside el doesn't count: none of the elements this
@@ -8,7 +9,7 @@ import { warnOnce } from "./warn";
 export function hasName(el: Element, group = false): boolean {
   const says = (n: Element | null) => !!n && !!((n.getAttribute("aria-label") || "").trim() || (n.textContent || "").trim());
   const by = el.getAttribute("aria-labelledby");
-  if (by && by.split(/\s+/).some((id) => says(el.ownerDocument.getElementById(id)))) return true;
+  if (by && by.split(/\s+/).some((id) => says(byId(el, id)))) return true;
   if ((el.getAttribute("aria-label") || "").trim() || (el.getAttribute("title") || "").trim()) return true;
   const labels = (el as HTMLInputElement).labels;
   if (labels && Array.from(labels).some(says)) return true;
