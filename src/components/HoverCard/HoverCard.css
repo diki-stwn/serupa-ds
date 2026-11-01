@@ -33,4 +33,6 @@
   .dk-hover-card[hidden] { scale: var(--scale-95); }
   @starting-style { .dk-hover-card:not([hidden]):not([data-instant]) { scale: var(--scale-95); } }
 }
+  /* A card floating over the page has no place on paper: printing leaves it out. */
+  @media print { .dk-hover-card { display: none !important; } }
 }

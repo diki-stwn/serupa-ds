@@ -92,7 +92,7 @@ export const HoverCard = /* @__PURE__ */ component<HTMLDivElement, HoverCardProp
 
   // Focus moving somewhere other than the trigger or the card closes it, after the same grace as the pointer.
   const within = (to: EventTarget | null) => !!to && ((!!cardRef.current && cardRef.current.contains(to as Node)) || (!!triggerRef.current && triggerRef.current.contains(to as Node)));
-  const blurred = (e: React.FocusEvent) => { if (!within(e.relatedTarget)) later(false, closeDelay, "blur"); };
+  const blurred = (e: React.SyntheticEvent) => { if (!within((e as React.FocusEvent).relatedTarget)) later(false, closeDelay, "blur"); };
   const touch = (e: React.SyntheticEvent) => "pointerType" in e && (e as React.PointerEvent).pointerType === "touch";
 
   const child = oneElement<TriggerProps>(props.trigger, "HoverCard", "trigger");
@@ -107,7 +107,7 @@ export const HoverCard = /* @__PURE__ */ component<HTMLDivElement, HoverCardProp
     onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) later(false, closeDelay, "hover"); }),
     // Keyboard focus only (focus-visible): a click on the link is on its way to the page it opens.
     onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (openRef.current) stay(); else if (!t.matches || t.matches(":focus-visible")) later(true, openDelay, "focus"); }),
-    onBlur: chain("onBlur", (e) => blurred(e as unknown as React.FocusEvent)),
+    onBlur: chain("onBlur", blurred),
   });
   return (
     <>
