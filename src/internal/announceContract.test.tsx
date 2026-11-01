@@ -11,6 +11,7 @@ import { commands, userEvent } from 'vitest/browser';
 import { Badge } from '../components/Badge/Badge';
 import { Button } from '../components/Button/Button';
 import { Combobox } from '../components/Combobox/Combobox';
+import { CommandPalette } from '../components/CommandPalette/CommandPalette';
 import { CopyButton } from '../components/CopyButton/CopyButton';
 import { Dialog } from '../components/Dialog/Dialog';
 import { EmptyState } from '../components/EmptyState/EmptyState';
@@ -63,6 +64,9 @@ const SITES: Record<string, Site> = {
   'Combobox: how many options match once typing stops': {
     ui: () => <Combobox aria-label="Planet" options={['Mars', 'Mercury', 'Venus']} />,
     act: async () => { await userEvent.click($('input[role="combobox"]')); await userEvent.keyboard('M'); }, says: /2 results/ },
+  'CommandPalette: how many commands match once typing stops (the palette is a dialog on top)': {
+    ui: (s) => <CommandPalette open={!!s} hotkey={false} commands={[{ id: 'a', label: 'Mars' }, { id: 'b', label: 'Mercury' }, { id: 'c', label: 'Venus' }]} />,
+    act: async (next) => { await next(); await expect.poll(() => document.activeElement?.getAttribute('role')).toBe('combobox'); await userEvent.keyboard('M'); }, says: /2 commands/ },
   'EmptyState: a result with announce as it appears': {
     ui: (s) => (s ? <EmptyState announce title="No results for “mars”" /> : <span />),
     act: (next) => next(), says: /No results for “mars”/ },
