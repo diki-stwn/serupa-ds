@@ -181,9 +181,9 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   );
 });
 
-// The "Discard changes?" question an unsaved Dialog asks before it closes: Keep editing (focused, the safe choice)
-// or Discard. Escape keeps editing.
-function Discard(props: { open: boolean; onKeep: () => void; onDiscard: () => void }) {
+// The "Discard changes?" question an unsaved Dialog (or Drawer) asks before it closes: Keep editing (focused, the
+// safe choice) or Discard. Escape keeps editing. Not in the package's exports (index.ts).
+export function Discard(props: { open: boolean; onKeep: () => void; onDiscard: () => void }) {
   const sds = useSettings(words);
   const keep = React.useRef<HTMLButtonElement | null>(null);
   return (
