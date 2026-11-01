@@ -33,7 +33,8 @@ export interface SidebarSectionProps extends Omit<React.HTMLAttributes<HTMLDivEl
   children?: React.ReactNode;
 }
 
-export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLElement>, "children"> {
+/** SidebarItem's own props, beside those of the element it renders. */
+export interface SidebarItemOwnProps {
   /** The item's text. */
   label: React.ReactNode;
   /** An icon before the label: a Material Symbols or custom name, or an element. Top-level items need one to show when collapsed. */
@@ -50,9 +51,18 @@ export interface SidebarItemProps extends Omit<React.AnchorHTMLAttributes<HTMLEl
   open?: boolean;
   /** With children: called when the group's button asks to open or close it, with why: { reason: 'trigger' }. */
   onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
-  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
-  as?: React.ElementType;
 }
+
+/** SidebarItem's props: its own, `as`, and the props of the element `as` names (an <a>'s by default), so
+ *  <SidebarItem as={RouterLink} to="/inbox"> takes RouterLink's `to`. With children it renders a button, which
+ *  gets those attributes and handlers too. */
+export type SidebarItemProps<C extends React.ElementType = 'a'> = SidebarItemOwnProps & {
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
+  as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof SidebarItemOwnProps | 'as'>;
+
+// Inside, the item is a link or a button, so its attributes and handlers are typed for HTMLElement, which both are.
+type ItemProps = SidebarItemOwnProps & { as?: React.ElementType } & Omit<React.AnchorHTMLAttributes<HTMLElement>, keyof SidebarItemOwnProps>;
 
 const SidebarContext = /* @__PURE__ */ React.createContext<{ collapsed: boolean; depth: number }>({ collapsed: false, depth: 0 });
 
@@ -146,7 +156,7 @@ export const SidebarSection = /* @__PURE__ */ component<HTMLDivElement, SidebarS
 });
 
 const ITEM_OWN = { label: 1, icon: 1, active: 1, badge: 1, children: 1, defaultOpen: 1, open: 1, onOpenChange: 1, as: 1, className: 1 } as const;
-type ItemElement = React.ReactElement<SidebarItemProps>;
+type ItemElement = React.ReactElement<ItemProps>;
 const itemsOf = (children: React.ReactNode) => flattenChildren(children).filter(React.isValidElement) as ItemElement[];
 /** The item is the current page, or one of its items is, at any depth: a group opens and shows active for a grandchild too. */
 const activeWithin = (k: ItemElement): boolean => !!k.props.active || itemsOf(k.props.children).some(activeWithin);
@@ -167,7 +177,7 @@ function railItems(kids: ItemElement[]): React.ReactNode {
    hides them. Collapsed: only the icon, with the label as a tooltip; a group opens its items in a Menu. The ref
    goes to the link or the group's button. */
 /** An item in a Sidebar: a link, or a group of nested items. */
-export const SidebarItem = /* @__PURE__ */ component<HTMLElement, SidebarItemProps>("SidebarItem", function SidebarItem(props, ref) {
+const SidebarItemBase = /* @__PURE__ */ component<HTMLElement, ItemProps>("SidebarItem", function SidebarItem(props, ref) {
   const ctx = React.useContext(SidebarContext);
   const rest = omit(props, ITEM_OWN);
   const kids = itemsOf(props.children);
@@ -235,3 +245,9 @@ export const SidebarItem = /* @__PURE__ */ component<HTMLElement, SidebarItemPro
     </li>
   );
 });
+
+/** An item in a Sidebar: a link, or a group of nested items. `as` renders your router's link, typed with its props. */
+export const SidebarItem = SidebarItemBase as {
+  <C extends React.ElementType = 'a'>(props: SidebarItemProps<C> & { ref?: React.Ref<HTMLElement> }): React.ReactElement | null;
+  displayName?: string;
+};
