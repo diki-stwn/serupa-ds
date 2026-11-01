@@ -24,7 +24,7 @@ describe('Field', () => {
   test('the label names the control (Field\'s id becomes the control\'s id); the ref still reaches it; className and attributes go to the outer element; the label is font-medium', async () => {
     const ref = React.createRef<HTMLInputElement>();
     await render(<Field id="plain" label="Name" className="extra" data-x="y"><Input ref={ref} /></Field>);
-    const f = el('plain').closest('.dk-field') as HTMLElement;
+    const f = el('plain').closest('[data-component="field"]') as HTMLElement;
     expect(ref.current).toBe(el('plain'));
     expect(el('plain').labels?.[0].textContent).toBe('Name');
     expect(f.className).toMatch(/dk-field extra/);
@@ -44,7 +44,7 @@ describe('Field', () => {
       </>;
     }
     const screen = await render(<App />);
-    const f = el('mail').closest('.dk-field') as HTMLElement;
+    const f = el('mail').closest('[data-component="field"]') as HTMLElement;
     const ids = described('mail');
     expect(ids[0]).toBe('own');
     expect(document.getElementById(ids[1])?.textContent).toBe('For receipts.');
@@ -52,14 +52,14 @@ describe('Field', () => {
     expect(el('mail').getAttribute('aria-invalid')).toBe('true');
     expect(el('mail').parentElement?.className).toMatch(/dk-input--invalid/);
     expect(el('mail').getAttribute('aria-required')).toBe('true');
-    expect(f.querySelector('.dk-field__required')?.getAttribute('aria-hidden')).toBe('true');
+    expect(f.querySelector('label > span[aria-hidden]')?.getAttribute('aria-hidden')).toBe('true');
     expect([...f.children].map((c) => c.className.split(' ')[0])).toEqual(['dk-field__label', 'dk-field__hint', 'dk-field__control', 'dk-field__error']);
     expect((f.querySelector<HTMLElement>('.dk-field__error .dk-icon'))?.dataset.icon).toBe('error');
 
     await screen.getByRole('button', { name: 'Clear' }).click();
     expect(described('mail')).toHaveLength(2);
     expect(el('mail').getAttribute('aria-invalid')).toBeNull();
-    expect(f.querySelector('.dk-field__error')).toBeNull();
+    expect(f.querySelector('[data-icon="error"]')).toBeNull();
   });
 
   test('optional adds "(optional)" or your words; a plain DOM control gets aria-invalid, never an unknown invalid attribute', async () => {
@@ -114,7 +114,7 @@ describe('Field', () => {
   test('disabled disables the control and dims the label', async () => {
     await render(<Field label="Locked" disabled><Input id="locked" /></Field>);
     expect(el('locked').disabled).toBe(true);
-    expect(css(el('locked').closest('.dk-field')!.querySelector('.dk-field__label')).opacity).toBe('0.5');
+    expect(css(el('locked').closest('[data-component="field"]')!.querySelector('label')).opacity).toBe('0.5');
   });
 
   test('group: a <fieldset> whose <legend> lays out like a label; the hint and error describe the fieldset; controls keep their ids; a disabled group disables every control', async () => {

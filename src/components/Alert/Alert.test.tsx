@@ -42,7 +42,7 @@ describe('Alert', () => {
     await render(<Alert id="def" ref={r} className="extra" data-x="y">Plain message</Alert>);
     const e = el('def');
     expect([e.tagName, e.className, e.dataset.component, e.dataset.tone, e.getAttribute('role'), r.current === e, e.dataset.x]).toEqual(['DIV', 'dk-alert dk-alert--info extra', 'alert', 'info', 'status', true, 'y']);
-    expect([iconName(e), e.querySelector('.dk-alert__icon')!.getAttribute('aria-hidden'), !!e.querySelector('.dk-alert__title'), e.querySelector('.dk-alert__message')!.textContent, !!e.querySelector('button')])
+    expect([iconName(e), e.querySelector(':scope > span[aria-hidden]')!.getAttribute('aria-hidden'), !!e.querySelector('.dk-alert__title'), e.querySelector('.dk-alert__message')!.textContent, !!e.querySelector('button')])
       .toEqual(['info', 'true', false, 'Plain message', false]);
   });
 
@@ -60,14 +60,14 @@ describe('Alert', () => {
       <Alert id="role" tone="danger" role="status">Quiet danger</Alert>
     </>);
     expect([el('bad').dataset.tone, el('role').getAttribute('role')]).toEqual(['info', 'status']);
-    expect([el('noicon').querySelector('.dk-alert__icon'), iconName(el('named')), el('noicon').querySelector('.dk-alert__message')]).toEqual([null, 'bolt', null]);
+    expect([el('noicon').querySelector(':scope > span[aria-hidden]'), iconName(el('named')), el('noicon').querySelector('.dk-alert__message')]).toEqual([null, 'bolt', null]);
   });
 
   test('layout: 12px by 16px padding, a 1px border, 8px corners, 12px between icon and content, text-sm; the icon is 20px, as tall as the first line', async () => {
     await render(<Alert id="def">Plain message</Alert>);
     const s = css(el('def'));
     expect([s.paddingTop, s.paddingLeft, s.borderTopWidth, s.borderTopLeftRadius, s.columnGap, s.fontSize, s.lineHeight, s.display]).toEqual(['12px', '16px', '1px', '8px', '12px', '14px', '20px', 'flex']);
-    expect(css(el('def').querySelector('.dk-alert__icon .dk-icon')).fontSize).toBe('20px');
+    expect(css(el('def').querySelector(':scope > span[aria-hidden] > [data-icon]')).fontSize).toBe('20px');
   });
 
   test('title: font-semibold, no margin; actions in a row under the message; backgrounds: each tone\'s -subtle color (neutral: surface-muted)', async () => {
