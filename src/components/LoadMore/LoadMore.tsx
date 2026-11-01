@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { useLocale, useSettings } from "../../internal/provider";
 import { announce } from "../../internal/announce";
 import { Button } from "../Button/Button";
@@ -51,7 +52,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
 
   const run = React.useCallback(() => {
     if (busy) return;
-    hadFocus.current = !!box.current && box.current.contains(document.activeElement);
+    hadFocus.current = !!box.current && box.current.contains(activeIn(box.current));   // its own root's focus, in a shadow root too (GR90)
     follow.current = hadFocus.current ? { from: count } : null;
     const out = onLoadMore();
     if (!isThenable(out)) return;
@@ -78,7 +79,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
   // with neither, LoadMore itself, focusable only until focus leaves it, so Tab goes on from here: L8E58).
   React.useEffect(() => {
     const to = end.current || summary.current || box.current;
-    if (!hasMore && hadFocus.current && to && !box.current!.contains(document.activeElement)) {
+    if (!hasMore && hadFocus.current && to && !box.current!.contains(activeIn(box.current))) {
       if (to === box.current) to.tabIndex = -1;
       to.focus();
     }
@@ -91,7 +92,7 @@ export const LoadMore = /* @__PURE__ */ component<HTMLDivElement, LoadMoreProps>
     // Landed: settled, and with count, once it has grown (the items can arrive after the promise settles).
     if (busy || !follow.current || count != null && count === follow.current.from) return;
     follow.current = null;
-    const at = document.activeElement as HTMLElement | null;
+    const at = activeIn(box.current) as HTMLElement | null;
     if (at && box.current && box.current.contains(at) && typeof at.scrollIntoView === "function") at.scrollIntoView({ block: "nearest" });
   }, [busy, count]);
 
