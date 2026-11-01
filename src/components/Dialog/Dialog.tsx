@@ -84,6 +84,8 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   // unsaved: a request to close asks "Discard changes?" first, and remembers why it came.
   const unsaved = React.useRef(props.unsaved); unsaved.current = props.unsaved;
   const [asking, setAsking] = React.useState<OpenChangeReason | null>(null);
+  // The app closing it while the question shows takes the question away too, so it can't come back stale (GR96).
+  if (!open && asking) setAsking(null);
   const request = (reason: OpenChangeReason) => { if (unsaved.current) setAsking(reason); else close(reason); };
   React.useEffect(() => {
     if (!open || !props.unsaved) return;
@@ -179,9 +181,9 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   );
 });
 
-// The "Discard changes?" question an unsaved Dialog asks before it closes: Keep editing (focused, the safe choice)
-// or Discard. Escape keeps editing.
-function Discard(props: { open: boolean; onKeep: () => void; onDiscard: () => void }) {
+// The "Discard changes?" question an unsaved Dialog (or Drawer) asks before it closes: Keep editing (focused, the
+// safe choice) or Discard. Escape keeps editing. Not in the package's exports (index.ts).
+export function Discard(props: { open: boolean; onKeep: () => void; onDiscard: () => void }) {
   const sds = useSettings(words);
   const keep = React.useRef<HTMLButtonElement | null>(null);
   return (

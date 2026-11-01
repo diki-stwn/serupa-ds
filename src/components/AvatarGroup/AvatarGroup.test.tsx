@@ -14,7 +14,11 @@ const av = (n: number) => P.slice(0, n).map((x) => <Avatar key={x} name={x} size
 const SIZES: AvatarSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const kids = (e: Element) => [...e.children] as HTMLElement[];
-const more = (id: string) => el(id).querySelector<HTMLElement>('.dk-avatar-group__more');
+// The "+N" is an avatar too, but without a shape (data-shape), which every Avatar has. An avatar holds its frame, then
+// its status dot.
+const AV = '[data-component=avatar]', FACE = '[data-component=avatar][data-shape]', MORE = '[data-component=avatar]:not([data-shape])';
+const FRAME = ':scope > span:first-child', STATUS = `${AV} > span + span`;
+const more = (id: string) => el(id).querySelector<HTMLElement>(MORE);
 const lap = (a: Element, b: Element) => Math.round(a.getBoundingClientRect().right - b.getBoundingClientRect().left);
 
 /** Applies the stylesheets' @media (forced-colors: active) rules, as Windows High Contrast would, until the returned function is called. */
@@ -45,13 +49,13 @@ describe('AvatarGroup', () => {
 
   test('the "+N" avatar is named in the provider\'s words: "2 lainnya" under id-ID', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><AvatarGroup label="Tim" max={3}>{av(5)}</AvatarGroup></SerupaProvider>);
-    expect(document.querySelector('.dk-avatar-group__more')!.getAttribute('aria-label')).toBe('2 lainnya');
+    expect(document.querySelector(MORE)!.getAttribute('aria-label')).toBe('2 lainnya');
   });
 
   test('a role="group" <div> named by label, with each avatar keeping its own name; no "+N" when all fit; ref, className and props reach it', async () => {
     const r = React.createRef<HTMLDivElement>();
     await render(<AvatarGroup id="all" label="Assigned to" ref={r} className="extra" data-x="y">{av(3)}</AvatarGroup>);
-    const g = el('all'), a = kids(g).map((i) => i.querySelector('.dk-avatar')!);
+    const g = el('all'), a = kids(g).map((i) => i.querySelector(AV)!);
     expect([g.tagName, g.getAttribute('role'), g.getAttribute('aria-label'), a.length, a.map((e) => e.getAttribute('aria-label')).join('|'), !!more('all'), r.current === g, g.dataset.x, g.dataset.component])
       .toEqual(['DIV', 'group', 'Assigned to', 3, 'Ada Lovelace|Grace Hopper|Alan Turing', false, true, 'y', 'avatar-group']);
     expect(g.className).toMatch(/extra/);
@@ -64,10 +68,10 @@ describe('AvatarGroup', () => {
       <AvatarGroup id="frag" max={2}><>{av(4)}</></AvatarGroup>
     </Col></EnUS>);
     const g = el('max'), m = more('max')!;
-    expect([g.querySelectorAll('.dk-avatar:not(.dk-avatar-group__more)').length, m.textContent, m.getAttribute('role'), m.getAttribute('aria-label'), m.querySelector('[aria-hidden="true"]') !== null, g.lastElementChild!.contains(m)])
+    expect([g.querySelectorAll(FACE).length, m.textContent, m.getAttribute('role'), m.getAttribute('aria-label'), m.querySelector('[aria-hidden="true"]') !== null, g.lastElementChild!.contains(m)])
       .toEqual([3, '+2', 'img', '2 more', true, true]);
     expect([el('zero').children.length, el('zero').textContent]).toEqual([1, '+2']);
-    expect([el('frag').querySelectorAll('.dk-avatar:not(.dk-avatar-group__more)').length, more('frag')!.textContent]).toEqual([2, '+2']);
+    expect([el('frag').querySelectorAll(FACE).length, more('frag')!.textContent]).toEqual([2, '+2']);
   });
 
   test('total={120} with 4 avatars: 116 more (written "99+"), and moreLabel names it; at xs, past 9, "+N" reads "9+" so it fits, and its name keeps the exact count', async () => {
@@ -76,7 +80,7 @@ describe('AvatarGroup', () => {
       <AvatarGroup id="big" size="xs" total={120}>{av(4)}</AvatarGroup>
     </Col></EnUS>);
     expect([more('tot')!.textContent, more('tot')!.getAttribute('aria-label')]).toEqual(['99+', '116 other members']);
-    const m = more('big')!, s = m.querySelector('.dk-avatar__initials')!;
+    const m = more('big')!, s = m.querySelector(`${FRAME} > [aria-hidden]`)!;
     expect([s.textContent, m.getAttribute('aria-label'), s.getBoundingClientRect().width <= m.getBoundingClientRect().width]).toEqual(['9+', '116 more', true]);
   });
 
@@ -92,7 +96,7 @@ describe('AvatarGroup', () => {
     const want: Record<string, [number, number]> = { xs: [24, 8], sm: [32, 8], md: [40, 12], lg: [48, 12], xl: [64, 16] };
     for (const s of SIZES) {
       const g = document.querySelector(`[data-s="${s}"]`)!, a = kids(g);
-      expect([s, Math.round(a[0].getBoundingClientRect().width), lap(a[0], a[1]), lap(a[1], a[2]), [...g.querySelectorAll<HTMLElement>('.dk-avatar')].map((e) => e.dataset.size).join('')])
+      expect([s, Math.round(a[0].getBoundingClientRect().width), lap(a[0], a[1]), lap(a[1], a[2]), [...g.querySelectorAll<HTMLElement>(AV)].map((e) => e.dataset.size).join('')])
         .toEqual([s, want[s][0], want[s][1], want[s][1], s.repeat(3)]);
     }
   });
@@ -105,13 +109,13 @@ describe('AvatarGroup', () => {
     </Col>);
     const surface = color('var(--surface)');
     for (const i of kids(el('max'))) {
-      const r = css(i.querySelector('.dk-avatar__frame')).boxShadow;
+      const r = css(i.querySelector(`${AV} > span:first-child`)).boxShadow;
       expect(r).toContain(surface);
       expect(r).toMatch(/0px 0px 0px 2px/);
     }
     const a = kids(el('all')), r = a[0].getBoundingClientRect();
     expect(a[0].contains(document.elementFromPoint(r.right - 3, r.top + r.height / 2))).toBe(true);
-    expect([...el('st').querySelectorAll('.dk-avatar__status')].map((d) => { const b = d.getBoundingClientRect(); return d === document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); })).toEqual([true, true, true]);
+    expect([...el('st').querySelectorAll(STATUS)].map((d) => { const b = d.getBoundingClientRect(); return d === document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); })).toEqual([true, true, true]);
   });
 
   test('avatars wrapped in a Tooltip or a link still overlap, get the ring and take the group size; the Tooltip still opens on hover', async () => {
@@ -120,8 +124,8 @@ describe('AvatarGroup', () => {
       <a href="#g"><Avatar name="Grace Hopper" size="xl" /></a>
       <Avatar name="Alan Turing" />
     </AvatarGroup>);
-    const a = [...el('wrap').querySelectorAll<HTMLElement>('.dk-avatar')];
-    expect([a.length, a.map((e) => e.dataset.size).join(), lap(a[0], a[1]), lap(a[1], a[2]), css(a[0].querySelector('.dk-avatar__frame')).boxShadow !== 'none', Math.round(a[0].getBoundingClientRect().width)])
+    const a = [...el('wrap').querySelectorAll<HTMLElement>(AV)];
+    expect([a.length, a.map((e) => e.dataset.size).join(), lap(a[0], a[1]), lap(a[1], a[2]), css(a[0].querySelector(FRAME)).boxShadow !== 'none', Math.round(a[0].getBoundingClientRect().width)])
       .toEqual([3, 'sm,sm,sm', 8, 8, true, 32]);
     await userEvent.hover(a[0]);
     await expect.poll(() => (el('wrap').querySelector<HTMLElement>('[role="tooltip"]'))?.hidden).toBe(false);
@@ -136,7 +140,7 @@ describe('AvatarGroup', () => {
   test('component tokens (--avatar-group-overlap-md, --avatar-group-ring) override one group', async () => {
     await render(<AvatarGroup id="tok" style={{ '--avatar-group-overlap-md': '20px', '--avatar-group-ring': 'rgb(1, 2, 3)' } as React.CSSProperties}>{av(2)}</AvatarGroup>);
     const a = kids(el('tok'));
-    expect([lap(a[0], a[1]), css(a[0].querySelector('.dk-avatar__frame')).boxShadow.includes('rgb(1, 2, 3)')]).toEqual([20, true]);
+    expect([lap(a[0], a[1]), css(a[0].querySelector(`${AV} > span:first-child`)).boxShadow.includes('rgb(1, 2, 3)')]).toEqual([20, true]);
   });
 
   test('contrast: the "+N" text keeps 4.5:1 on its background in all six themes', async () => {
@@ -145,7 +149,7 @@ describe('AvatarGroup', () => {
     let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const f = css(more('max')!.querySelector('.dk-avatar__frame')), r = contrast(f.color, f.backgroundColor); n++;
+      const f = css(more('max')!.querySelector(FRAME)), r = contrast(f.color, f.backgroundColor); n++;
       if (r < 4.5) low.push(`${th} +N: ${r.toFixed(2)}`);
     }
     expect([low, n]).toEqual([[], 6]);
@@ -193,7 +197,7 @@ describe('AvatarGroup', () => {
     const restore = forcedColors();
     try {
       await render(<AvatarGroup id="max" max={3}>{av(5)}</AvatarGroup>);
-      const c = css(el('max').querySelector('.dk-avatar__frame'));
+      const c = css(el('max').querySelector(`${AV} > span:first-child`));
       expect([c.boxShadow, c.borderTopStyle]).toEqual(['none', 'solid']);
     } finally { restore(); }
   });

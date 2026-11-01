@@ -20,6 +20,7 @@ interface NotificationCenterProps extends DrawerProps {
     description?: never;
     footer?: never;
     children?: never;
+    unsaved?: never;
     items: NotificationItem[];
     onMarkRead?: (id: string) => void;
     onMarkAllRead?: () => void;
