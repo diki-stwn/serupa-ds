@@ -1,0 +1,81 @@
+{
+  "commandPalette": {
+    "$description": "CommandPalette's component tokens. Each one is an optional override: set the CSS variable (--command-palette-<name>) on the page, a container or one CommandPalette, and every CommandPalette inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "heading": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "A group's heading (4.5:1 on the dialog).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-heading"
+          }
+        }
+      },
+      "divider": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line under the search field.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-divider"
+          }
+        }
+      },
+      "option-bg-active": {
+        "$type": "color",
+        "$value": "{color.highlight}",
+        "$description": "The active row's background (its text stays 4.5:1 on it).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-option-bg-active"
+          }
+        }
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "The placeholder, icons and the empty message (4.5:1 on the dialog).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-muted"
+          }
+        }
+      },
+      "indicator-active": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The bar at the start of the active row.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-indicator-active"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "list-height": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-80}",
+        "$description": "The most the list grows to before it scrolls (320px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-list-height"
+          }
+        }
+      }
+    },
+    "sizing": {
+      "option-height": {
+        "$type": "dimension",
+        "$value": "{sizing.control-height-lg}",
+        "$description": "A row's least height (44px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--command-palette-option-height"
+          }
+        }
+      }
+    }
+  }
+}

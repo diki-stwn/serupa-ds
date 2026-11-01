@@ -1,0 +1,80 @@
+# Default
+- paragraph: "Press Control K anywhere, or the button. Last chosen: Nothing yet."
+- button "Search commands"
+- dialog "Command palette":
+  - combobox "Search commands and pages" [expanded]
+  - listbox "Command palette":
+    - group "Pages":
+      - text: Pages
+      - option "Home" [selected]
+      - option "Projects"
+      - option "Settings"
+    - group "Actions":
+      - text: Actions
+      - option "New project Control N"
+      - option "Invite people"
+      - option "Switch to dark theme Control Shift L"
+      - option "Export as PDF" [disabled]
+
+# LongText
+- paragraph: "Press Control K anywhere, or the button. Last chosen: Nothing yet."
+- button "Search commands"
+- dialog "Command palette":
+  - combobox "Search commands and pages" [expanded]
+  - listbox "Command palette":
+    - group "A group name long enough to wrap twice in a narrow column":
+      - text: A group name long enough to wrap twice in a narrow column
+      - option "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung Control Shift Alt K" [selected]
+    - group "Projects":
+      - text: Projects
+      - option "Project number 1"
+      - option "Project number 2"
+      - option "Project number 3"
+      - option "Project number 4"
+      - option "Project number 5"
+      - option "Project number 6"
+      - option "Project number 7"
+      - option "Project number 8"
+      - option "Project number 9"
+      - option "Project number 10"
+      - option "Project number 11"
+      - option "Project number 12"
+      - option "Project number 13"
+      - option "Project number 14"
+      - option "Project number 15"
+      - option "Project number 16"
+      - option "Project number 17"
+      - option "Project number 18"
+      - option "Project number 19"
+      - option "Project number 20"
+      - option "Project number 21"
+      - option "Project number 22"
+      - option "Project number 23"
+      - option "Project number 24"
+      - option "Project number 25"
+      - option "Project number 26"
+      - option "Project number 27"
+      - option "Project number 28"
+      - option "Project number 29"
+      - option "Project number 30"
+
+# Playground
+- paragraph: "Press Control K anywhere, or the button. Last chosen: Nothing yet."
+- button "Search commands"
+
+# Ungrouped
+- paragraph: "Press Control K anywhere, or the button. Last chosen: Nothing yet."
+- button "Search commands"
+- dialog "Command palette":
+  - combobox "Search commands and pages" [expanded]
+  - listbox "Command palette":
+    - group "Commands":
+      - text: Commands
+      - option "Home" [selected]
+      - option "Projects"
+      - option "Settings"
+      - option "New project Control N"
+      - option "Invite people"
+      - option "Switch to dark theme Control Shift L"
+      - option "Export as PDF" [disabled]
+
