@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import Ajv from 'ajv/dist/2020.js';
+import { Ajv2020 } from 'ajv/dist/2020.js';
 import { HERE, projectArg, report, done, fail } from './lib.mjs';
 
 const P = projectArg();
@@ -69,7 +69,7 @@ check('token names avoid the reserved characters . { } and a leading $', !badNam
 
 // The JSON Schema shipped for editors and pipelines: it must accept every file, and turn down what the checks above do,
 // so the two can't drift apart.
-const validate = new Ajv({ allErrors: true, strict: true, allowUnionTypes: true }).compile(schema);
+const validate = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true }).compile(schema);
 const schemaBad = allFiles.flatMap(([f, tree]) => validate(tree) ? [] : [`${f}: ${validate.errors.slice(0, 2).map((e) => `${e.instancePath} ${e.message}`).join(', ')}`]);
 check('every file is valid against tokens.schema.json', !schemaBad.length, schemaBad.slice(0, 4).join('; '));
 const WRONG = {
