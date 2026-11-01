@@ -31,6 +31,7 @@
 | `data-mode` | `auto` (default), `light`, `dark` | `color-scheme: light dark` / `light` / `dark` |
 | `data-contrast` | `auto` (default), `more` | Stronger borders, text and focus ring. `auto` follows `prefers-contrast: more`. |
 | `data-density` | `comfortable` (default), `compact` | `--control-height-*`, padding and gap tokens (G5) |
+| `data-shadow` | `neutral` (default), `brand` | `--shadow-2xs` to `--shadow-2xl`: black, or a deep shade of the element's `--primary` at the same opacity (added later, 73) |
 
 Any element can carry the axes, not only `<html>`. For example, a compact table inside a comfortable page, or a dark hero section inside a light page.
 
