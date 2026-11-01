@@ -1,4 +1,4 @@
-// One scale for every one-line control (165): at each size, a Button, every input-like field and SegmentedControl
+// One scale for every one-line control (165): at each size, in the default and the compact density, a Button, every input-like field and SegmentedControl
 // are the same height (control-height-sm, -md, -lg: 24, 32 and 44px), with the same corner radius and text size, so a
 // Button beside an Input in a toolbar or a form row lines up. A component that drifts by a pixel fails here, not in a
 // screenshot someone has to notice.
@@ -38,8 +38,8 @@ const CONTROLS: [string, (size: Size) => React.ReactElement][] = [
   ['SegmentedControl', (size) => <SegmentedControl size={size} aria-label="View" options={OPTIONS} />],
 ];
 
-const token = (name: string) => {
-  const probe = document.body.appendChild(document.createElement('div'));
+const token = (name: string, within: Element) => {
+  const probe = within.appendChild(document.createElement('div'));
   probe.style.height = `var(--${name})`;
   const px = probe.getBoundingClientRect().height;
   probe.remove();
@@ -52,12 +52,14 @@ const box = (root: Element) => [root, ...root.querySelectorAll('*')].find((e) =>
 }) as HTMLElement;
 const textOf = (root: Element) => [root, ...root.querySelectorAll('input, button, [role="combobox"], [role="radio"]')].at(-1) as HTMLElement;
 
-describe.each(['sm', 'md', 'lg'] as Size[])('size %s', (size) => {
+// The default density, and data-density="compact" (md 28px and lg 36px, sm stays 24px).
+const HEIGHTS = { comfortable: { sm: 24, md: 32, lg: 44 }, compact: { sm: 24, md: 28, lg: 36 } } as const;
+describe.each((['comfortable', 'compact'] as const).flatMap((density) => (['sm', 'md', 'lg'] as Size[]).map((size) => ({ density, size }))))('$density, size $size', ({ density, size }) => {
   test('every one-line control is control-height tall, with one corner radius and one text size', async () => {
-    const { container } = await render(<div>{CONTROLS.map(([n, el]) => <div key={n} data-name={n}>{el(size)}</div>)}</div>);
+    const { container } = await render(<div data-density={density}>{CONTROLS.map(([n, el]) => <div key={n} data-name={n}>{el(size)}</div>)}</div>);
     await document.fonts.ready;
-    const height = token('control-height-' + size);
-    expect([24, 32, 44]).toContain(height);
+    const height = token('control-height-' + size, container.firstElementChild!);
+    expect(height).toBe(HEIGHTS[density][size]);
     const rows = [...container.querySelectorAll<HTMLElement>('[data-name]')].map((cell) => {
       const b = box(cell.firstElementChild!), c = getComputedStyle(b);
       return { name: cell.dataset.name, height: Math.round(b.getBoundingClientRect().height * 10) / 10, radius: c.borderTopLeftRadius, text: getComputedStyle(textOf(b)).fontSize };
