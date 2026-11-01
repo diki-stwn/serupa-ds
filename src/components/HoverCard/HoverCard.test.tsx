@@ -56,6 +56,28 @@ describe('HoverCard', () => {
     expect(isOpen('hc')).toBe(false);
   });
 
+  test('Escape during the open delay cancels the open, by hover or focus; leaving and coming back opens it again (GR88)', async () => {
+    const asks: string[] = [];
+    await render(<Card onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)} />);
+    await userEvent.hover(el('t'));
+    await settle(200);
+    await userEvent.keyboard('{Escape}');
+    await settle(700);
+    expect(isOpen('hc')).toBe(false);
+    await away();
+    await userEvent.hover(el('t'));
+    await expect.poll(() => isOpen('hc')).toBe(true);
+    await away();
+    await expect.poll(() => isOpen('hc')).toBe(false);
+    el('before').focus();
+    await userEvent.tab();
+    await settle(200);
+    await userEvent.keyboard('{Escape}');
+    await settle(700);
+    expect([document.activeElement === el('t'), isOpen('hc')]).toEqual([true, false]);
+    expect(asks).toEqual(['true hover', 'false hover']);
+  });
+
   test('the pointer can move onto the card and stay; Escape closes it while hovered', async () => {
     await render(<Card />);
     await userEvent.hover(el('t'));
