@@ -14,6 +14,7 @@ dist/base.css
 dist/bundle.css
 dist/components.css
 dist/components.json
+dist/debug.js
 dist/eslint.d.ts
 dist/eslint.js
 dist/icons.d.ts
