@@ -3,6 +3,7 @@ import * as React from "react";
 import { announce, ensureAnnouncer } from "../../internal/announce";
 import { cn, domId, omit, oneOf, SIZES } from "../../internal/cn";
 import { component } from "../../internal/component";
+import { deepActive } from "../../internal/root";
 import { useAutoFocus } from "../../internal/focus";
 import { isComposing } from "../../internal/ime";
 import { useSettings } from "../../internal/provider";
@@ -115,7 +116,7 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
     // A rejected check keeps the field open without a message: return one to say what went wrong.
     // Focus goes back to the button only if it's still in the field (or nowhere) when the check settles: someone who
     // tabbed away while it ran stays where they went.
-    const here = () => { const a = document.activeElement; return !a || a === document.body || a === field.current; };
+    const here = () => { const a = deepActive(); return !a || a === document.body || a === field.current; };
     problem.then((p) => { if (mine === check.current) { setChecking(false); finish(p, text, keyboard && here()); } },
       () => { if (mine === check.current) setChecking(false); });
   };
@@ -136,8 +137,9 @@ export const InlineEdit = /* @__PURE__ */ component<HTMLDivElement, InlineEditPr
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (ip.onBlur) ip.onBlur(e);
     // Switching to another window or tab blurs the field but leaves it focused there: that isn't leaving it, and
-    // the edit stays open for when they come back (L8E25).
-    if (editing && !closing.current && !checking && document.activeElement !== e.currentTarget) save(false);
+    // the edit stays open for when they come back (L8E25). Focus is read through shadow roots, so inside one it's the
+    // field, not the host (GR95).
+    if (editing && !closing.current && !checking && deepActive() !== e.currentTarget) save(false);
   };
 
   const empty = value === "";

@@ -84,6 +84,8 @@ export const Dialog = /* @__PURE__ */ component<HTMLDialogElement, DialogProps>(
   // unsaved: a request to close asks "Discard changes?" first, and remembers why it came.
   const unsaved = React.useRef(props.unsaved); unsaved.current = props.unsaved;
   const [asking, setAsking] = React.useState<OpenChangeReason | null>(null);
+  // The app closing it while the question shows takes the question away too, so it can't come back stale (GR96).
+  if (!open && asking) setAsking(null);
   const request = (reason: OpenChangeReason) => { if (unsaved.current) setAsking(reason); else close(reason); };
   React.useEffect(() => {
     if (!open || !props.unsaved) return;

@@ -12,7 +12,10 @@ const el = (id: string) => document.getElementById(id) as HTMLElement;
 const thumb = (id: string, i = 0) => el(id).querySelectorAll<HTMLElement>('[role=slider]')[i];
 const now = (id: string, i = 0) => Number(thumb(id, i).getAttribute('aria-valuenow'));
 const rect = (e: Element) => e.getBoundingClientRect();
-const track = (id: string) => rect(el(id).querySelector('.dk-slider__track')!);
+// The root holds the track (a div) and the hidden inputs. The track holds the fill (a div), the marks (hidden
+// spans, each an optional empty tick and a label) and the thumbs (role=slider), each with its value chip.
+const MARK = ':scope > div > span[aria-hidden]', LABEL = `${MARK} > span:not(:empty)`;
+const track = (id: string) => rect(el(id).querySelector(':scope > div')!);
 const center = (e: Element) => { const r = rect(e); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; };
 // A point on the track at a share of its width, relative to the slider root (as Playwright's positions are).
 const at = (id: string, share: number) => { const t = track(id), r = rect(el(id)); return { x: t.left - r.left + t.width * share, y: r.height / 2 }; };
@@ -103,7 +106,7 @@ describe('Slider', () => {
 
   test('the thumb is centered on 50% of the track, vertically on the track; the fill covers half', async () => {
     await setup();
-    const t = track('one'), c = center(thumb('one')), f = rect(el('one').querySelector('.dk-slider__fill')!);
+    const t = track('one'), c = center(thumb('one')), f = rect(el('one').querySelector(':scope > div > div')!);
     expect(Math.abs(c.x - (t.left + t.width / 2))).toBeLessThanOrEqual(1);
     expect(Math.abs(c.y - (t.top + t.height / 2))).toBeLessThanOrEqual(1);
     expect(Math.round(f.width / t.width * 100)).toBe(50);
@@ -270,7 +273,7 @@ describe('Slider', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const page = css(document.body).backgroundColor, q = (s: string) => css(el('one').querySelector(s));
-      const parts = { track: q('.dk-slider__track').backgroundColor, fill: q('.dk-slider__fill').backgroundColor, thumb: q('.dk-slider__thumb').borderTopColor };
+      const parts = { track: q(':scope > div').backgroundColor, fill: q(':scope > div > div').backgroundColor, thumb: q('[role=slider]').borderTopColor };
       for (const [k, c] of Object.entries(parts)) { const r = contrast(c, page); n++; if (r < 3) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
     expect([low, n]).toEqual([[], 18]);
@@ -278,7 +281,7 @@ describe('Slider', () => {
 
   test('--slider-fill overrides one slider', async () => {
     await setup();
-    expect(css(el('tok').querySelector('.dk-slider__fill')).backgroundColor).toBe('rgb(1, 2, 3)');
+    expect(css(el('tok').querySelector(':scope > div > div')).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 
   test('min with decimals the step doesn\'t have (min 0.5, max 5.5, step 1): the value stays on 0.5, 1.5, 2.5…', async () => {
@@ -323,7 +326,7 @@ describe('Slider', () => {
     const low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const page = css(document.body).backgroundColor, danger = css(el('bad').querySelector('.dk-slider__fill')).backgroundColor;
+      const page = css(document.body).backgroundColor, danger = css(el('bad').querySelector(':scope > div > div')).backgroundColor;
       expect(css(el('bad').querySelector('[role=slider]')).borderTopColor).toBe(danger);
       const r = contrast(danger, page); if (r < 3) low.push(`${th}: ${r.toFixed(2)}`);
     }
@@ -346,8 +349,8 @@ describe('Slider', () => {
       <Slider id="mk2" aria-label="Fine" min={0} max={100} step={0.5} largeStep={10} marks />
     </div>);
     const count = (id: string, s: string) => el(id).querySelectorAll(s).length;
-    expect([count('mk', '.dk-slider__mark'), count('mk', '.dk-slider__tick'), count('mk', '.dk-slider__mark-label'), count('mk2', '.dk-slider__mark')]).toEqual([11, 9, 0, 21]);
-    expect([...el('mk').querySelectorAll('.dk-slider__mark')].every((m) => m.getAttribute('aria-hidden') === 'true')).toBe(true);
+    expect([count('mk', MARK), count('mk', `${MARK} > span:empty`), count('mk', LABEL), count('mk2', MARK)]).toEqual([11, 9, 0, 21]);
+    expect([...el('mk').querySelectorAll(MARK)].every((m) => m.getAttribute('aria-hidden') === 'true')).toBe(true);
     // No labels, so no room is added under the track.
     expect(rect(el('mk')).height).toBe(rect(thumb('mk')).height);
   });
@@ -359,7 +362,7 @@ describe('Slider', () => {
       <div dir="rtl"><Slider id="mlr" aria-label="Heat" marks={marks} defaultValue={20} /></div>
     </div>);
     for (const [id, dir] of [['ml', 1], ['mlr', -1]] as const) {
-      const labels = [...el(id).querySelectorAll<HTMLElement>('.dk-slider__mark-label')], t = track(id);
+      const labels = [...el(id).querySelectorAll<HTMLElement>(LABEL)], t = track(id);
       expect(labels.map((l) => l.textContent)).toEqual(['0°', 'Half', '100°']);
       const mid = center(labels[1]);
       const want = dir === 1 ? t.left + t.width / 2 : t.right - t.width / 2;
@@ -375,14 +378,14 @@ describe('Slider', () => {
     }
     // The thumb still sits on the track's line, and a press on a label moves it there.
     expect(Math.abs(center(thumb('ml')).y - (track('ml').top + track('ml').height / 2))).toBeLessThan(1);
-    const half = el('ml').querySelectorAll<HTMLElement>('.dk-slider__mark-label')[1], hr = rect(half), r = rect(el('ml'));
+    const half = el('ml').querySelectorAll<HTMLElement>(LABEL)[1], hr = rect(half), r = rect(el('ml'));
     await userEvent.click(el('ml'), { position: { x: hr.left - r.left + hr.width / 2, y: hr.top - r.top + hr.height / 2 } });
     expect(now('ml')).toBe(50);
   });
 
   test('showValue: the formatted value shows over the thumb only while it is focused, and stays out of what is read out', async () => {
     await render(<div style={{ width: '420px', paddingTop: '40px' }}><Slider id="sv" aria-label="Price" showValue formatValue={(v) => '$' + v} defaultValue={40} /><button id="away">Away</button></div>);
-    const chip = () => el('sv').querySelector<HTMLElement>('.dk-slider__value')!;
+    const chip = () => el('sv').querySelector<HTMLElement>('[role=slider] > [aria-hidden]')!;
     expect([chip().textContent, chip().getAttribute('aria-hidden'), thumb('sv').getAttribute('aria-valuetext'), css(chip()).opacity]).toEqual(['$40', 'true', '$40', '0']);
     thumb('sv').focus();
     await userEvent.keyboard('{ArrowRight}');
@@ -399,8 +402,8 @@ describe('Slider', () => {
     const low: string[] = [];
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const page = css(document.body).backgroundColor, chip = css(el('mc').querySelector('.dk-slider__value > span'));
-      const a = contrast(css(el('mc').querySelector('.dk-slider__mark-label')).color, page), b = contrast(chip.color, chip.backgroundColor);
+      const page = css(document.body).backgroundColor, chip = css(el('mc').querySelector('[role=slider] > [aria-hidden] > span'));
+      const a = contrast(css(el('mc').querySelector(LABEL)).color, page), b = contrast(chip.color, chip.backgroundColor);
       if (a < 4.5) low.push(`${th} label: ${a.toFixed(2)}`);
       if (b < 4.5) low.push(`${th} chip: ${b.toFixed(2)}`);
     }

@@ -5,6 +5,7 @@ import { cn, domId, isInvalid, omit, oneOf, setRef, SIZES } from "../../internal
 import type { IconSource } from "../Icon/Icon";
 import { asIcon } from "../Icon/asIcon";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { useFieldControl } from "../../internal/field";
 import { displayNumber } from "../../internal/numbers";
 import { useLocale } from "../../internal/provider";
@@ -60,7 +61,7 @@ function useMask<P extends InputProps>(input: P, mask: string | undefined): P {
     if (text !== v) {
       const n = Math.min(unmask(slots, v.slice(0, at)).length, ends.length);
       el.value = text;
-      if (document.activeElement === el) el.setSelectionRange(n ? ends[n - 1] : 0, n ? ends[n - 1] : 0);
+      if (activeIn(el) === el) el.setSelectionRange(n ? ends[n - 1] : 0, n ? ends[n - 1] : 0);
     }
     if (change) change(e);
   };
