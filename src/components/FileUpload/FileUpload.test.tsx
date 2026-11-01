@@ -112,6 +112,20 @@ describe('FileUpload', () => {
     expect([names(el), changes]).toEqual(['photo.png', ['photo.png']]);
   });
 
+  test('a refused pick leaves the shown files on the input, so the form sends what the list shows, in single and multiple mode (GR75)', async () => {
+    await render(<><form id="gr75-1"><FileUpload id="gr75a" name="report" accept=".pdf" maxSize={50} /></form><form id="gr75-2"><FileUpload id="gr75b" name="report" multiple accept=".pdf" maxSize={50} /></form></>);
+    const sent = (id: string) => new FormData(document.getElementById(id) as HTMLFormElement).getAll('report').map((f) => (f as File).name).join();
+    for (const [id, form] of [['gr75a', 'gr75-1'], ['gr75b', 'gr75-2']]) {
+      const el = rootOf(id);
+      await userEvent.upload(input(el), [file('ok.pdf', 'application/pdf', 10)]);
+      await userEvent.upload(input(el), [file('big.pdf', 'application/pdf', 100)]);
+      await expect.poll(() => sent(form)).toBe('ok.pdf');
+      await userEvent.upload(input(el), [file('photo.png', 'image/png', 10)]);
+      await expect.poll(() => sent(form)).toBe('ok.pdf');
+      expect([id, names(el), errs(el) !== null]).toEqual([id, 'ok.pdf', true]);
+    }
+  });
+
   test('the remove button (named "Remove report.pdf") takes the file off the list, clears old messages and moves focus to the next file\'s remove button (FQ1)', async () => {
     await render(<Many />);
     const el = q(many);
