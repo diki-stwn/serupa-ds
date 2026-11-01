@@ -83,7 +83,6 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `label` | node | required | The item's text |
-| `href` | string | none | Where it goes |
 | `icon` | an icon name or element | none | A 20px icon; top-level items need one to show when collapsed |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
 | `badge` | node | none | At the end, such as a count Badge. Collapsed, a dot on the icon shows there is one, and screen readers still read the badge |
@@ -91,9 +90,9 @@ It takes its parent's height and scrolls its items when they don't fit, so give 
 | `defaultOpen` | boolean | open when a child is active | Whether a group starts open |
 | `open` | boolean | none | Whether a group is open, controlled. Pair it with `onOpenChange` |
 | `onOpenChange` | (open, { reason }) => void | none | Called when the group's button asks to open or close it, with `reason: 'trigger'` |
-| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one item |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one item. Typed: the props are those of the element `as` names, so `as={RouterLink} to="/inbox"` checks `to`, and without `as` they're an `<a>`'s. A link set only with `configure({ link })` is typed as an `<a>`, so pass it `href`. The `ref` is an `HTMLElement`: the link, or a group's button. |
 
-`className`, `ref` and everything else go to the link (or a group's button).
+`href`, `className`, `ref` and everything else go to the link (an `<a>`, or what `as` names), or to a group's button.
 
 ## Component tokens
 
