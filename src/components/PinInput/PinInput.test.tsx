@@ -9,7 +9,7 @@ const modified = (t: Element, key = 'ArrowRight') => ['altKey', 'ctrlKey', 'meta
 
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 const root = (id: string) => el(id).closest('[data-component="pin-input"]') as HTMLElement;
-const boxes = (id: string) => [...root(id).querySelectorAll<HTMLElement>('.dk-pin-input__box')];
+const boxes = (id: string) => [...root(id).querySelectorAll<HTMLElement>(':scope > span[aria-hidden] > span')];
 // A shared color, as the browser computes it.
 const resolve = (name: string) => { const s = document.createElement('span'); s.style.color = `var(${name})`; document.body.appendChild(s); const c = getComputedStyle(s).color; s.remove(); return c; };
 const shown = (id: string) => boxes(id).map((b) => b.textContent || '_').join('');
@@ -140,7 +140,7 @@ describe('PinInput', () => {
     await render(<Field label="Verification code" hint="Sent to your phone." error="That code has expired."><PinInput defaultValue="1" /></Field>);
     const i = page.getByRole('textbox', { name: 'Verification code' }).element() as HTMLInputElement;
     expect([i.getAttribute('aria-invalid'), !!i.getAttribute('aria-describedby')]).toEqual(['true', true]);
-    const box = i.closest('[data-component="pin-input"]')!.querySelector<HTMLElement>('.dk-pin-input__box')!;
+    const box = i.closest('[data-component="pin-input"]')!.querySelector<HTMLElement>(':scope > span[aria-hidden] > span')!;
     expect(css(box).borderTopColor).toBe(resolve('--danger'));
   });
 
