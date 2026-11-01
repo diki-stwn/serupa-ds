@@ -21,6 +21,7 @@ dist/icons.d.ts
 dist/icons.js
 dist/index.d.ts
 dist/index.js
+dist/labels/ar.d.ts
 dist/labels/de.d.ts
 dist/labels/en.d.ts
 dist/labels/es.d.ts
