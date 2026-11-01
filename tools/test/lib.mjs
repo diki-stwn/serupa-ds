@@ -23,7 +23,7 @@ export function tokensCss(t = tokens()) {
     for (const x of g.tokens) root += `--${x.name.replace(/[\\.]/g, '\\$&')}:${ref(first(x.value))};`;
   }
   for (const [k, v] of Object.entries(t.type.families)) root += `--font-${k}:${v};`;
-  let css = (t.type.fonts || []).map((f) => `@font-face{font-family:"${f.family}";src:url("${path.join(PROJECT, f.file)}") format("woff2");font-weight:${f.weight};font-style:${f.style};font-display:block}`).join('');
+  let css = (t.type.fonts || []).map((f) => `@font-face{font-family:"${f.family}";src:url("${path.join(PROJECT, f.file)}") format("woff2");font-weight:${f.weight};font-style:${f.style};font-display:block${f.unicodeRange ? `;unicode-range:${f.unicodeRange}` : ''}}`).join('');
   css += `:root{${root}}`;
   for (const th of themes) {
     css += `[data-theme="${th}"]{` + t.color.tokens.filter((x) => x.value && typeof x.value === 'object' && x.value[th] != null && Object.keys(x.value).length > 1).map((x) => `--${x.name}:${ref(x.value[th])};`).join('') + '}';
