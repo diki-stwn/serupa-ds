@@ -37,12 +37,27 @@ const split = faces.map((f) => `@font-face{font-family:T;src:url("${at(f.file)}"
 const shot = async (name, css) => {
   fs.writeFileSync(path.join(dir, name), `<!doctype html><meta charset="utf-8"><style>${css} body{font-family:T;font-size:22px;margin:8px}</style>${text}`);
   await p.goto('file://' + path.join(dir, name));
-  // A face with a unicode-range starts loading at layout, so wait for a frame before asking whether fonts are ready.
-  await p.evaluate(() => new Promise((ok) => requestAnimationFrame(() => document.fonts.ready.then(() => requestAnimationFrame(() => ok())))));
+  // Load every face first: one with a unicode-range only starts loading when layout meets one of its characters, and
+  // on a busy runner fonts.ready can settle before that.
+  await p.evaluate(async () => { await Promise.all([...document.fonts].map((f) => f.load())); await document.fonts.ready; await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(() => ok()))); });
   return p.screenshot();
 };
 const a = await shot('font-whole.html', whole), c = await shot('font-split.html', split);
-t('text in latin, cyrillic, greek and vietnamese, with features, weights and italic, draws the same pixels as with the whole font', Buffer.compare(a, c) === 0, 'the split fonts draw differently: run python3 -I tools/fonts/subset.py again');
+// Where they differ, if they do (compared in the page, on a canvas): the rows, so the line of the sample can be found.
+const diff = Buffer.compare(a, c) === 0 ? '' : await p.evaluate(async ([x, y]) => {
+  const load = (b64) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.src = 'data:image/png;base64,' + b64; });
+  const [ia, ic] = await Promise.all([load(x), load(y)]);
+  const pixels = (im) => { const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const g = cv.getContext('2d'); g.drawImage(im, 0, 0); return g.getImageData(0, 0, im.width, im.height).data; };
+  const da = pixels(ia), dc = pixels(ic);
+  let n = 0, top = Infinity, bottom = -1, left = Infinity, right = -1;
+  for (let i = 0; i < da.length; i += 4) {
+    if (da[i] === dc[i] && da[i + 1] === dc[i + 1] && da[i + 2] === dc[i + 2]) continue;
+    const px = (i / 4) % ia.width, py = Math.floor(i / 4 / ia.width);
+    n++; top = Math.min(top, py); bottom = Math.max(bottom, py); left = Math.min(left, px); right = Math.max(right, px);
+  }
+  return n ? `${n} pixels differ, x ${left}-${right}, y ${top}-${bottom} (a line is about 48px)` : '';
+}, [a.toString('base64'), c.toString('base64')]);
+t('text in latin, cyrillic, greek and vietnamese, with features, weights and italic, draws the same pixels as with the whole font', !diff, `${diff}: run python3 -I tools/fonts/subset.py again`);
 
 await b.close();
 fs.rmSync(dir, { recursive: true, force: true });
