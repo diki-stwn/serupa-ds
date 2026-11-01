@@ -23,7 +23,7 @@ function Viewer({ removed }: { removed: () => void }) {
   return <Pic id="view" fullSrc={PIC + '#full'} alt="Harbor at dusk" ratio="video" viewable onRemove={removed} />;
 }
 const dialog = () => frame('view').querySelector('dialog') as HTMLDialogElement;
-const viewBtn = () => frame('view').querySelector('.dk-image__view') as HTMLButtonElement;
+const viewBtn = () => frame('view').querySelector('button[aria-haspopup="dialog"]') as HTMLButtonElement;
 const finished = () => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined)));
 
 describe('Image', () => {

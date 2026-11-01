@@ -108,6 +108,36 @@ describe('VirtualList', () => {
     expect([rows('v').length, el('v').style.getPropertyValue('--dk-vl-after'), el('v').scrollHeight <= el('v').clientHeight]).toEqual([0, '0px', true]);
   });
 
+  test('GR91, GR92: End on 600,000 and 1,000,000 rows taller than the guess reaches the last row without an update loop; past the browser\'s height limit the scroll range is scaled down, and the top comes back', async () => {
+    const tall = (i: number) => <ListItem title={'Row ' + (i + 1)} description="A second line, so the row is taller than the guess" />;
+    const errors: unknown[] = [];
+    const onError = (e: ErrorEvent) => { errors.push(e.error || e.message); };
+    window.addEventListener('error', onError);
+    try {
+      const screen = await render(<div />);
+      for (const count of [600000, 1000000]) {
+        await screen.rerender(<VirtualList key={count} id="big" aria-label="Rows" count={count} renderItem={tall} />);
+        el('big').focus();
+        for (let k = 0; k < 3; k++) {
+          await userEvent.keyboard('{End}');
+          await expect.poll(() => rows('big').at(-1)?.getAttribute('aria-posinset')).toBe(String(count));
+          await scrollTo('big', 0);
+          await expect.poll(() => titles('big')[0]).toBe('Row 1');
+        }
+        expect(el('big').scrollHeight).toBeLessThanOrEqual(16_000_000);
+        await userEvent.keyboard('{End}');
+        await expect.poll(() => rows('big').at(-1)?.getAttribute('aria-posinset')).toBe(String(count));
+        const last = rows('big').at(-1)!.getBoundingClientRect(), box = el('big').getBoundingClientRect();
+        expect(Math.abs(last.bottom - box.bottom)).toBeLessThan(2);   // the last row sits at the bottom, all of it shown
+        // Half way down the scrollbar is about half way down the rows.
+        await scrollTo('big', (el('big').scrollHeight - el('big').clientHeight) / 2);
+        const mid = Number(rows('big')[0].getAttribute('aria-posinset'));
+        expect(Math.abs(mid - count / 2)).toBeLessThan(count * 0.02);
+      }
+    } finally { window.removeEventListener('error', onError); }
+    expect(errors).toEqual([]);
+  });
+
   test('its rows and focus ring read in all six themes', async () => {
     await render(<VirtualList id="v" variant="card" aria-label="Rows" count={100} renderItem={(i) => <ListItem title={'Row ' + i} description="Muted" />} />);
     el('v').focus();

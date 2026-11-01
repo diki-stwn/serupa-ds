@@ -45,12 +45,12 @@ describe('Avatar', () => {
     expect([e.tagName, e.getAttribute('role'), e.getAttribute('aria-label'), i.getAttribute('alt'), css(i).objectFit, b.width, b.height, r.current === e, e.dataset.x, e.dataset.component])
       .toEqual(['SPAN', 'img', 'Ada Lovelace', '', 'cover', 40, 40, true, 'y', 'avatar']);
     expect(e.className).toMatch(/extra/);
-    expect(parseFloat(css(e.querySelector('.dk-avatar__frame')).borderTopLeftRadius)).toBeGreaterThanOrEqual(20);
+    expect(parseFloat(css(e.firstElementChild).borderTopLeftRadius)).toBeGreaterThanOrEqual(20);
   });
 
   test('initials: first and last words ("GH"), one word gives one letter, and a picture that fails to load falls back to initials', async () => {
     await render(<Row><Avatar id="ini" name="grace brewster hopper" /><Avatar id="one" name="Linus" /><Avatar id="broken" src="/nowhere.png" name="Alan Turing" /></Row>);
-    const m = (id: string) => { const e = el(id), s = e.querySelector('.dk-avatar__initials'); return [s && s.textContent, s && s.getAttribute('aria-hidden'), !!e.querySelector('img')].join(':'); };
+    const m = (id: string) => { const e = el(id), s = e.querySelector(':scope > span:first-child > span[aria-hidden]:not([data-icon])'); return [s && s.textContent, s && s.getAttribute('aria-hidden'), !!e.querySelector('img')].join(':'); };
     await expect.poll(() => m('broken')).toBe('AT:true:false');
     expect([m('ini'), m('one')]).toEqual(['GH:true:false', 'L:true:false']);
   });
@@ -85,7 +85,7 @@ describe('Avatar', () => {
     </Row>);
     const img = (id: string) => el(id).querySelector('img')!;
     expect([img('lazy').loading, img('lazy').decoding, img('eager').loading, img('eager').referrerPolicy, img('eager').className]).toEqual(['lazy', 'async', 'eager', 'no-referrer', 'dk-avatar__img mine']);
-    await expect.poll(() => el('bad').querySelector('.dk-avatar__initials')?.textContent).toBe('LT');
+    await expect.poll(() => el('bad').querySelector(':scope > span:first-child > span[aria-hidden]:not([data-icon])')?.textContent).toBe('LT');
     expect(err).toHaveBeenCalledTimes(1);
   });
 
@@ -105,7 +105,7 @@ describe('Avatar', () => {
     // @ts-expect-error: unknown values, as plain JavaScript could pass
     await render(<Avatar id="bad" size="huge" shape="blob" status="party" name="X Y" />);
     const e = el('bad');
-    expect([e.dataset.size, e.dataset.shape, !!e.querySelector('.dk-avatar__status'), e.getAttribute('aria-label')]).toEqual(['md', 'circle', false, 'X Y']);
+    expect([e.dataset.size, e.dataset.shape, !!e.querySelector(':scope > span + span'), e.getAttribute('aria-label')]).toEqual(['md', 'circle', false, 'X Y']);
   });
 
   test('status: a 10px dot at the bottom end in a 2px surface ring, hidden itself but added to the name ("Ada Lovelace, online"); statusLabel changes what it says', async () => {
@@ -113,7 +113,7 @@ describe('Avatar', () => {
       {STATUSES.map((s) => <Avatar key={s} data-st={s} status={s} name="Ada Lovelace" />)}
       <Avatar id="stl" status="busy" statusLabel="in a meeting" name="Ada Lovelace" />
     </Row>);
-    const sts = STATUSES.map((s) => { const e = q(`[data-st="${s}"]`), d = e.querySelector('.dk-avatar__status') as HTMLElement, r = d.getBoundingClientRect(), o = e.getBoundingClientRect();
+    const sts = STATUSES.map((s) => { const e = q(`[data-st="${s}"]`), d = e.querySelector(':scope > span + span') as HTMLElement, r = d.getBoundingClientRect(), o = e.getBoundingClientRect();
       return { name: e.getAttribute('aria-label'), w: r.width, end: Math.round(o.right - r.right), bottom: Math.round(o.bottom - r.bottom), ring: /0px 0px 0px 2px/.test(css(d).boxShadow), hidden: d.getAttribute('aria-hidden'), bg: css(d).backgroundColor }; });
     STATUSES.forEach((s, i) => expect({ ...sts[i], bg: undefined }).toEqual({ name: 'Ada Lovelace, ' + s, w: 10, end: 0, bottom: 0, ring: true, hidden: 'true', bg: undefined }));
     expect(new Set(sts.map((s) => s.bg)).size).toBeGreaterThan(1);
@@ -145,7 +145,7 @@ describe('Avatar', () => {
 
   test('component tokens (--avatar-bg, --avatar-size-md) override one avatar', async () => {
     await render(<Avatar id="tok" name="T K" style={{ '--avatar-bg': 'rgb(1, 2, 3)', '--avatar-size-md': '50px' } as React.CSSProperties} />);
-    expect([css(el('tok').querySelector('.dk-avatar__frame')).backgroundColor, el('tok').getBoundingClientRect().width]).toEqual(['rgb(1, 2, 3)', 50]);
+    expect([css(el('tok').firstElementChild).backgroundColor, el('tok').getBoundingClientRect().width]).toEqual(['rgb(1, 2, 3)', 50]);
   });
 
   test('contrast: initials and the icon keep 4.5:1 on their background in all six themes', async () => {
@@ -154,7 +154,7 @@ describe('Avatar', () => {
     let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const f = css(el('ini').querySelector('.dk-avatar__frame')), r = contrast(f.color, f.backgroundColor); n++;
+      const f = css(el('ini').firstElementChild), r = contrast(f.color, f.backgroundColor); n++;
       if (r < 4.5) low.push(`${th} initials: ${r.toFixed(2)}`);
     }
     expect([low, n]).toEqual([[], 6]);
@@ -201,7 +201,7 @@ describe('Avatar', () => {
     const restore = forcedColors();
     try {
       await render(<Avatar id="ini" name="grace brewster hopper" />);
-      expect(css(el('ini').querySelector('.dk-avatar__frame')).borderTopStyle).toBe('solid');
+      expect(css(el('ini').firstElementChild).borderTopStyle).toBe('solid');
     } finally { restore(); }
   });
 

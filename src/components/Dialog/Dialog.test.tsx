@@ -12,7 +12,7 @@ import { Dialog } from './Dialog';
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const dlg = (id: string) => el(id) as HTMLDialogElement;
-const panel = (id: string) => el(id).querySelector('.dk-dialog__panel') as HTMLElement;
+const panel = (id: string) => el(id).firstElementChild as HTMLElement;
 const isOpen = (id: string) => dlg(id).open;
 // The title is the element that names the dialog (aria-labelledby).
 const titleOf = (id: string) => document.getElementById(el(id).getAttribute('aria-labelledby')!) as HTMLElement;
@@ -349,7 +349,7 @@ describe('Dialog', () => {
     await expect.poll(() => isOpen('dlg')).toBe(true);
     await settled();
     const s = getComputedStyle(panel('dlg')), ti = getComputedStyle(titleOf('dlg'));
-    expect([s.paddingTop, s.borderTopLeftRadius, s.rowGap, ti.fontSize, ti.fontWeight, getComputedStyle(el('dlg').querySelector('.dk-dialog__footer')!).justifyContent]).toEqual(['24px', '12px', '16px', '18px', '600', 'flex-end']);
+    expect([s.paddingTop, s.borderTopLeftRadius, s.rowGap, ti.fontSize, ti.fontWeight, getComputedStyle(panel('dlg').lastElementChild!).justifyContent]).toEqual(['24px', '12px', '16px', '18px', '600', 'flex-end']);
     expect(s.boxShadow).toMatch(/20px 25px -5px/);
     const still = document.createElement('style'); still.textContent = '* { transition: none !important; animation: none !important; }'; document.head.appendChild(still);
     const low: string[] = []; let n = 0;
@@ -381,7 +381,7 @@ describe('Dialog', () => {
     await settled();
     const r = panel('fs').getBoundingClientRect(), s = getComputedStyle(panel('fs'));
     expect([Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height), s.borderTopLeftRadius]).toEqual([0, 0, 1000, 700, '0px']);
-    const foot = panel('fs').querySelector('.dk-dialog__footer')!.getBoundingClientRect();
+    const foot = panel('fs').lastElementChild!.getBoundingClientRect();
     expect(Math.round(foot.bottom)).toBe(700 - 24);
   });
 

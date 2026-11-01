@@ -10,7 +10,7 @@ import { SerupaProvider } from '../../internal/provider';
 import { idLabels } from '../../internal/labels';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
-const label = (id: string) => input(id).closest('.dk-checkbox') as HTMLElement;
+const label = (id: string) => input(id).closest('[data-component="checkbox"]') as HTMLElement;
 
 describe('Checkbox', () => {
   test('a native checkbox in a <label class="dk-checkbox">: md is a 16px box with a 1px field border, 4px corners and text-sm', async () => {
@@ -33,7 +33,7 @@ describe('Checkbox', () => {
       <Checkbox id="bad" size="xl">Bad</Checkbox>
     </>);
     const mid = (id: string) => {
-      const box = input(id).getBoundingClientRect(), text = label(id).querySelector('.dk-checkbox__label')!.getBoundingClientRect();
+      const box = input(id).getBoundingClientRect(), text = label(id).querySelector(':scope > span + span > span:first-child')!.getBoundingClientRect();
       const line = Math.min(text.height, parseFloat(css(label(id)).lineHeight));
       return Math.abs(box.top + box.height / 2 - (text.top + line / 2));
     };
@@ -71,7 +71,7 @@ describe('Checkbox', () => {
       return <Checkbox id="c" checked={on} onChange={(e) => { changes.push(e.target.checked); setOn(e.target.checked); }}>Newsletter</Checkbox>;
     }
     await render(<App />);
-    const icon = label('c').querySelector('.dk-checkbox__icon') as HTMLElement;
+    const icon = input('c').nextElementSibling as HTMLElement;
     expect(css(icon).visibility).toBe('hidden');
     await page.getByText('Newsletter').click();
     await page.getByText('Newsletter').unhover();
@@ -132,18 +132,18 @@ describe('Checkbox', () => {
       <Checkbox id="d" description="Get an email when someone mentions you." aria-describedby="outside" defaultChecked>Mentions</Checkbox>
       <span id="outside">Outside</span>
     </>);
-    const d = label('d').querySelector('.dk-checkbox__description') as HTMLElement;
+    const d = label('d').querySelector(':scope > span + span > span:last-child') as HTMLElement;
     expect(input('d').getAttribute('aria-describedby')).toBe('outside ' + d.id);
     expect(d.textContent).toBe('Get an email when someone mentions you.');
     expect(css(d).color).toBe(color('var(--text-muted)'));
-    expect(d.getBoundingClientRect().top).toBeGreaterThanOrEqual(label('d').querySelector('.dk-checkbox__label')!.getBoundingClientRect().bottom - 1);
+    expect(d.getBoundingClientRect().top).toBeGreaterThanOrEqual(label('d').querySelector(':scope > span + span > span:first-child')!.getBoundingClientRect().bottom - 1);
   });
 
   test('without a label it is just the 16px box', async () => {
     await render(<Checkbox id="b" aria-label="Select row" />);
     expect(label('b').className).toMatch(/dk-checkbox--bare/);
     expect(label('b').getBoundingClientRect().height).toBe(16);
-    expect(label('b').querySelector('.dk-checkbox__text')).toBeNull();
+    expect(label('b').querySelector(':scope > span + span')).toBeNull();
   });
 
   test('hover darkens the border to field-border-hover', async () => {
