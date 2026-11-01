@@ -386,6 +386,21 @@ describe('Input mask', () => {
     expect([field('d').value, caret('d')]).toEqual(['01/22/02', [2, 2]]);
   });
 
+  test('inside a shadow root, an edit in the middle keeps the caret after the same character too, not at the end (GR95)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Input id="sd" aria-label="Date" mask="99/99/9999" defaultValue="01022024" />, { container: inner });
+      const i = host.shadowRoot!.getElementById('sd') as HTMLInputElement;
+      i.focus();
+      i.setSelectionRange(1, 1);
+      await userEvent.keyboard('9');
+      expect([i.value, i.selectionStart]).toEqual(['09/10/2202', 2]);
+    } finally { host.remove(); }
+  });
+
   test('L8E31: an onKeyDown that prevents Backspace or Delete also stops the caret skip past the pattern\'s text, and the skip waits while an input method is composing', async () => {
     await render(<Input id="mk" aria-label="Date" mask="99/99/9999" defaultValue="01022024" onKeyDown={(e) => { if (e.key === 'Delete') e.preventDefault(); }} />);
     const i = field('mk');
