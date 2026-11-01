@@ -129,7 +129,7 @@ export const Tabs = /* @__PURE__ */ component<HTMLDivElement, TabsProps>("Tabs",
     const active = activeIn(self.current);
     if (focusedIn.current && (!active || active === document.body || !active.isConnected)) { const t = tabs.find((x) => x.dataset.value === next); if (t) t.focus(); }
   });
-  // Layout, so after paint; again whenever a tab or the list changes size (a media query hiding a tab sets it to 0).
+  // every render: tabs can be added, removed or re-rendered any time; then again whenever a tab or the list changes size (a media query hiding a tab sets it to 0).
   React.useEffect(() => {
     const el = self.current;
     if (!el) return;
