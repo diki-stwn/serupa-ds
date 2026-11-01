@@ -285,13 +285,17 @@ describe('DateRangePicker popup on a phone (GR9)', () => {
       }
     } finally { await page.viewport(900, 700); }
   });
-  test('a narrow box (200px): the fields shrink so both and the calendar button stay inside it, nothing scrolls sideways (GR70)', async () => {
-    await render(<div style={{ width: '200px' }}><DateRangePicker data-testid="narrow" aria-label="Stay" locale="en-US" /></div>);
+  test('a narrow box (200px): the end date wraps under the start date, each shown in full, and the fields and the calendar button stay inside it, nothing scrolls sideways (GR70, GR73)', async () => {
+    await render(<div style={{ width: '200px' }}><DateRangePicker data-testid="narrow" aria-label="Stay" locale="en-US" defaultValue={{ start: new Date(2025, 11, 28), end: new Date(2026, 0, 6) }} /></div>);
     const b = box('narrow').getBoundingClientRect();
     for (const e of [...fields('narrow'), btn('narrow')]) {
       const r = e.getBoundingClientRect();
       expect([r.left >= b.left - 1, r.right <= b.right + 1], e.tagName).toEqual([true, true]);
     }
+    const [s, e] = fields('narrow');
+    // The year isn't cut off: each field's text fits it.
+    expect([s.value, s.scrollWidth <= s.clientWidth + 1, e.value, e.scrollWidth <= e.clientWidth + 1]).toEqual(['12/28/2025', true, '01/06/2026', true]);
+    expect(e.getBoundingClientRect().top).toBeGreaterThan(s.getBoundingClientRect().bottom - 1);
     expect(box('narrow').scrollWidth).toBeLessThanOrEqual(box('narrow').clientWidth + 1);
   });
 });
