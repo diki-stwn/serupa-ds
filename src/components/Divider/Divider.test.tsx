@@ -20,7 +20,7 @@ describe('Divider', () => {
 
   test('label: role separator with "or" between two lines, text-xs', async () => {
     await render(<Wide><Divider id="dlabel" label="or" /></Wide>);
-    const e = el('dlabel'), l = e.querySelector('.dk-divider__label')!;
+    const e = el('dlabel'), l = e.firstElementChild!;
     expect([e.tagName, e.getAttribute('role'), e.textContent, css(e).fontSize, getComputedStyle(e, '::before').borderTopWidth]).toEqual(['DIV', 'separator', 'or', '12px', '1px']);
     expect(l.getBoundingClientRect().left - e.getBoundingClientRect().left).toBeGreaterThan(250);
   });

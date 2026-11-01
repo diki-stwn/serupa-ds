@@ -105,14 +105,14 @@ describe('Select', () => {
     const i = field('grp');
     expect([...i.querySelectorAll('optgroup')].map((g) => g.label + '=' + [...g.children].map((o) => (o as HTMLOptionElement).value).join('/')).join()).toBe('Europe=London/Paris');
     expect([...i.options].map((o) => o.value).join()).toBe('London,Paris,Tokyo,kid');
-    expect([...box('grp').querySelectorAll<HTMLElement>('.dk-select__icon')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).join())
+    expect([...box('grp').querySelectorAll<HTMLElement>(':scope > [aria-hidden="true"]')].map((x) => x.getAttribute('aria-hidden') + ':' + css(x).pointerEvents + ':' + (x.querySelector<HTMLElement>('[data-icon]'))?.dataset.icon).join())
       .toBe('true:none:schedule,true:none:expand_more');
     expect(css(i).paddingLeft).toBe('36px');
   });
 
   test('a click on the chevron lands on the <select>, so it opens', async () => {
     await render(<Grid><Select id="lg" size="lg" options={['x']} aria-label="Large" /></Grid>);
-    const r = field('lg').getBoundingClientRect(), c = box('lg').querySelector('.dk-select__icon--chevron')!.getBoundingClientRect();
+    const r = field('lg').getBoundingClientRect(), c = box('lg').querySelector('[data-icon="expand_more"]')!.getBoundingClientRect();
     expect(document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2)).toBe(field('lg'));
     expect(c.right <= r.right && c.left >= r.left).toBe(true);
   });

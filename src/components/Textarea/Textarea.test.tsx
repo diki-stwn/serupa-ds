@@ -14,7 +14,7 @@ const box = (id: string) => {
   const i = el(id), w = i.parentElement as HTMLElement, c = css(w), f = css(i);
   return { rows: i.rows, wrap: w.className, fh: Math.round(i.getBoundingClientRect().height), fs: f.fontSize, pl: f.paddingLeft, pt: f.paddingTop, bc: c.borderTopColor, bw: c.borderTopWidth, r: c.borderRadius, bs: c.boxShadow, bg: c.backgroundColor, op: c.opacity, size: w.dataset.size, comp: w.dataset.component, resize: f.resize, oy: f.overflowY };
 };
-const count = (id: string) => el(id).parentElement!.querySelector('.dk-textarea__count') as HTMLElement;
+const count = (id: string) => el(id).nextElementSibling as HTMLElement;
 const away = () => userEvent.hover(document.body, { position: { x: 800, y: 5 } });
 
 function Ctrl(props: { onValue: (v: string) => void }) {

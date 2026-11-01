@@ -193,7 +193,7 @@ export const DateRangePicker = /* @__PURE__ */ component<HTMLSpanElement, DateRa
   return (
     <span {...rest} ref={(n) => { box.current = n; delegateFocus(n, start); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }} role="group"
       className={cn("dk-input", "dk-input--size-" + size, "dk-date-range-picker", invalid && "dk-input--invalid", disabled && "dk-input--disabled", readOnly && "dk-input--readonly", className)}
-      data-component="date-range-picker" data-size={size}>
+      data-component="date-range-picker" data-state={open ? "open" : "closed"} data-size={size}>
       {field("start")}
       <span className="dk-date-range-picker__dash" aria-hidden>–</span>
       <span id={popId + "-format"} hidden>{sds.labels.formatHint(datePattern(locale))}</span>

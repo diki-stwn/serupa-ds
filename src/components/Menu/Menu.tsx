@@ -292,7 +292,7 @@ export interface MenuItemOwnProps {
 }
 
 // Inside, and for the checkable items, an item is a <div> or a link: attributes and handlers typed for HTMLElement.
-interface ItemProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
+interface MenuItemBaseProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
   /** Makes it a link (the configure({ link }) component, <a> by default). */
   href?: string;
   /** Makes it a link with this component, in place of the configure({ link }) one: a router's Link, with its own props (to). */
@@ -331,7 +331,7 @@ function chord(text: string): string {
 }
 
 /** One action in a Menu. */
-const MenuItemBase = /* @__PURE__ */ component<HTMLElement, ItemProps>("MenuItem", function MenuItem(props, ref) {
+const MenuItemBase = /* @__PURE__ */ component<HTMLElement, MenuItemBaseProps>("MenuItem", function MenuItem(props, ref) {
   const ctx = React.useContext(MenuContext);
   const rest = omit(props, { onSelect: 1, icon: 1, shortcut: 1, destructive: 1, disabled: 1, className: 1, children: 1, onClick: 1, onKeyDown: 1, onPointerMove: 1, as: 1 });
   const own = { onClick: props.onClick, onKeyDown: props.onKeyDown, onPointerMove: props.onPointerMove };
@@ -388,7 +388,7 @@ export type MenuItemProps<C extends React.ElementType = 'a'> = MenuItemOwnProps 
   as?: C;
 } & Omit<React.ComponentPropsWithoutRef<C>, keyof MenuItemOwnProps | 'as'>;
 
-type CheckableProps = Omit<ItemProps, 'href' | 'as' | 'target' | 'rel' | 'destructive' | 'role' | 'aria-checked'>;
+type CheckableProps = Omit<MenuItemBaseProps, 'href' | 'as' | 'target' | 'rel' | 'destructive' | 'role' | 'aria-checked'>;
 export interface MenuCheckboxItemProps extends CheckableProps {
   /** Whether it's on. The menu's items unmount while it's closed, so the state lives with you: set it in onCheckedChange. */
   checked: boolean;
