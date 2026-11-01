@@ -9,13 +9,13 @@ import { Meter, meterState } from './Meter';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const mt = (id: string) => el(id).querySelector('[role=meter]') as HTMLElement;
 const share = (id: string) => {
-  const tr = el(id).querySelector('.dk-meter__track')!.getBoundingClientRect(), f = el(id).querySelector('.dk-meter__fill')!.getBoundingClientRect();
+  const tr = el(id).querySelector('[role=meter]')!.getBoundingClientRect(), f = el(id).querySelector('[role=meter] > div')!.getBoundingClientRect();
   return Math.round((Math.min(f.right, tr.right) - Math.max(f.left, tr.left)) / tr.width * 100); // the part the track shows
 };
-const thick = (id: string) => Math.round(el(id).querySelector('.dk-meter__track')!.getBoundingClientRect().height);
-const value = (id: string) => el(id).querySelector('.dk-meter__value')?.textContent ?? null;
+const thick = (id: string) => Math.round(el(id).querySelector('[role=meter]')!.getBoundingClientRect().height);
+const value = (id: string) => el(id).querySelector('span[aria-hidden]')?.textContent ?? null;
 const aria = (id: string) => { const b = mt(id); return [b.getAttribute('aria-valuenow'), b.getAttribute('aria-valuemin'), b.getAttribute('aria-valuemax'), b.getAttribute('aria-valuetext')]; };
-const fill = (id: string) => css(el(id).querySelector('.dk-meter__fill')).backgroundColor;
+const fill = (id: string) => css(el(id).querySelector('[role=meter] > div')).backgroundColor;
 
 let errors: MockInstance<typeof console.error>;
 beforeEach(() => { errors = vi.spyOn(console, 'error'); });
