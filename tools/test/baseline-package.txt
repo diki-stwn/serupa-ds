@@ -40,6 +40,7 @@ dist/stylelint.js
 dist/testing.d.ts
 dist/testing.js
 dist/theme.js
+dist/utilities-extra.css
 dist/utilities.css
 dist/vscode/serupa.css-data.json
 dist/vscode/serupa.html-data.json
