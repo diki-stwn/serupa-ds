@@ -23,6 +23,15 @@ dist/index.d.ts
 dist/index.js
 dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
+dist/native/android/SerupaTokens.kt
+dist/native/android/res-blue/values-night/serupa_colors.xml
+dist/native/android/res-blue/values/serupa_colors.xml
+dist/native/android/res-emerald/values-night/serupa_colors.xml
+dist/native/android/res-emerald/values/serupa_colors.xml
+dist/native/android/res-violet/values-night/serupa_colors.xml
+dist/native/android/res-violet/values/serupa_colors.xml
+dist/native/android/res/values/serupa_tokens.xml
+dist/native/ios/SerupaTokens.swift
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
 dist/serupa.iife.js.map
