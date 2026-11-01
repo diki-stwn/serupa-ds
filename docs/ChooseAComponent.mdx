@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Choose a component" />
+
+# Choose a component
+
+Some components look alike but say different things to a screen reader and behave differently on the keyboard. A radio group says "one of these". Checkboxes say "any number". A switch says "on now". This page puts the look-alikes side by side, so you can pick by what people are doing. Each component's own page says more under "When not to use".
+
+## Pick one value
+
+| People are… | Use |
+| --- | --- |
+| Choosing from 2 to about 5 options they should see at once | [Radio](?path=/docs/components-forms-radio--docs) (a RadioGroup) |
+| Choosing from a few options that change a view right away, such as Day, Week, Month | [SegmentedControl](?path=/docs/components-forms-segmentedcontrol--docs) |
+| Choosing from about 5 to 10 options, where space is short | [Select](?path=/docs/components-forms-select--docs) |
+| Searching a long list, such as countries or people | [Combobox](?path=/docs/components-forms-combobox--docs) |
+| Typing an answer that may not be in any list | [Input](?path=/docs/components-forms-input--docs) |
+| Rating something with stars | [Rating](?path=/docs/components-forms-rating--docs) |
+
+## On or off
+
+| People are… | Use |
+| --- | --- |
+| Turning a setting on that applies at once, such as notifications | [Switch](?path=/docs/components-forms-switch--docs) |
+| Ticking an option that is saved later, with the form's Save button | [Checkbox](?path=/docs/components-forms-checkbox--docs) |
+| Turning a tool on in a toolbar, such as bold or mute | [ToggleButton](?path=/docs/components-actions-togglebutton--docs) |
+| Turning several tools on or off together, such as bold, italic and underline | [ToggleGroup](?path=/docs/components-actions-togglegroup--docs) |
+
+Never use two radios for on and off: one Checkbox or Switch says it in one control.
+
+## Pick several values
+
+| People are… | Use |
+| --- | --- |
+| Picking any number from a short list they should see at once | [Checkbox](?path=/docs/components-forms-checkbox--docs) (a CheckboxGroup) |
+| Picking any number from a long list they search | [Combobox](?path=/docs/components-forms-combobox--docs) with `multiple` |
+| Putting items in their own order | [SortableList](?path=/docs/components-content-sortablelist--docs) |
+
+## Numbers, dates and times
+
+| People are… | Use |
+| --- | --- |
+| Typing an exact number, such as a quantity or an amount of money | [NumberInput](?path=/docs/components-forms-numberinput--docs) |
+| Setting a value where its place in a range matters more than the number, such as volume | [Slider](?path=/docs/components-forms-slider--docs) |
+| Typing digits that aren't an amount: a postcode, a card number | [Input](?path=/docs/components-forms-input--docs) with the right `inputMode` |
+| Typing a phone number | [PhoneInput](?path=/docs/components-forms-phoneinput--docs) |
+| Typing a one-time code or a PIN | [PinInput](?path=/docs/components-forms-pininput--docs) |
+| Picking a day near today, such as a delivery date | [DatePicker](?path=/docs/components-forms-datepicker--docs) |
+| Typing a day they know by heart, such as a date of birth | [Input](?path=/docs/components-forms-input--docs) with a format hint |
+| Picking a start and an end day | [DateRangePicker](?path=/docs/components-forms-daterangepicker--docs) |
+| Seeing a month that stays on the page, such as a booking view | [Calendar](?path=/docs/components-forms-calendar--docs) |
+| Picking a time of day | [TimePicker](?path=/docs/components-forms-timepicker--docs) |
+| Picking a color | [ColorPicker](?path=/docs/components-forms-colorpicker--docs) |
+
+## Text
+
+| People are… | Use |
+| --- | --- |
+| Typing a name, an email or another one-line answer | [Input](?path=/docs/components-forms-input--docs) |
+| Typing a password | [PasswordInput](?path=/docs/components-forms-passwordinput--docs) |
+| Searching | [SearchInput](?path=/docs/components-forms-searchinput--docs) |
+| Writing a few sentences or more | [Textarea](?path=/docs/components-forms-textarea--docs) |
+| Changing one value in place, such as a page title, without opening a form | [InlineEdit](?path=/docs/components-forms-inlineedit--docs) |
+| Confirming an action that can't be undone, such as deleting a project, by typing its name | [TypeToConfirm](?path=/docs/components-forms-typetoconfirm--docs) |
+
+Wrap every form control in a [Field](?path=/docs/components-forms-field--docs), which gives it its label, hint and error. When a form is sent with errors, put an [ErrorSummary](?path=/docs/components-forms-errorsummary--docs) at its top.
+
+## Actions and links
+
+| People are… | Use |
+| --- | --- |
+| Doing something: saving, sending, opening a dialog | [Button](?path=/docs/components-actions-button--docs) |
+| Going somewhere: another page or a place on this one | [Link](?path=/docs/components-actions-link--docs) in text, or a [Button](?path=/docs/components-actions-button--docs) with `href` for a call to action |
+| Doing something with a well-known icon and no room for words, such as close | [IconButton](?path=/docs/components-actions-iconbutton--docs) |
+| Doing the one main action of a screen on a phone, such as Compose | [Fab](?path=/docs/components-actions-fab--docs) |
+| Copying a key, a link or a command | [CopyButton](?path=/docs/components-actions-copybutton--docs) |
+| Choosing from a list of actions behind one button | [Menu](?path=/docs/components-overlays-menu--docs) |
+| Using a set of related actions, such as an editor's formatting | [Toolbar](?path=/docs/components-actions-toolbar--docs) |
+| Using a few related buttons joined together | [ButtonGroup](?path=/docs/components-actions-buttongroup--docs) |
+
+The rule: a Button does, a Link goes. A link that runs code, or a button that changes the URL, breaks the back button, middle-click and screen readers' lists of links.
+
+## Things that open over the page
+
+| People need… | Use |
+| --- | --- |
+| A short hint about a control, such as what an icon button does | [Tooltip](?path=/docs/components-overlays-tooltip--docs) |
+| A few controls or details next to the button that opens them, while the page stays usable | [Popover](?path=/docs/components-overlays-popover--docs) |
+| A list of actions | [Menu](?path=/docs/components-overlays-menu--docs) |
+| To answer a question or finish a short form before going on | [Dialog](?path=/docs/components-overlays-dialog--docs) |
+| A long form, filters, or details they check while looking at the page | [Drawer](?path=/docs/components-overlays-drawer--docs) |
+| The messages that came in while they were away | [NotificationCenter](?path=/docs/components-overlays-notificationcenter--docs) |
+| The list of the app's keyboard shortcuts | [KeyboardShortcuts](?path=/docs/components-overlays-keyboardshortcuts--docs) |
+
+Nothing anyone needs to do the task goes only in a Tooltip: touch screens never show it, and nothing inside it can be reached.
+
+## Messages and status
+
+| People need to know… | Use |
+| --- | --- |
+| That something just happened, such as "Link copied", with Undo at most | [Toast](?path=/docs/components-feedback-toast--docs) |
+| Something about the page or a task, which stays until it's fixed or dismissed | [Alert](?path=/docs/components-feedback-alert--docs) |
+| What is wrong with one field | The `error` of its [Field](?path=/docs/components-forms-field--docs) |
+| What is wrong with a whole form that was sent | [ErrorSummary](?path=/docs/components-forms-errorsummary--docs) |
+| A short status, a count or a category, in a table or on a card | [Badge](?path=/docs/components-feedback-badge--docs) |
+| That their changes are being saved, or were, without a Save button | [SaveStatus](?path=/docs/components-feedback-savestatus--docs) |
+| That a page or a panel is empty, and what fills it | [EmptyState](?path=/docs/components-feedback-emptystate--docs) |
+| That one part of the page broke, without losing the rest | [ErrorBoundary](?path=/docs/components-feedback-errorboundary--docs) |
+
+## Waiting and amounts
+
+| People are… | Use |
+| --- | --- |
+| Waiting for something you can't measure, such as content loading | [Loader](?path=/docs/components-feedback-loader--docs) |
+| Waiting for something you can measure, such as an upload | [Progress](?path=/docs/components-feedback-progress--docs) |
+| Waiting on a button's own action | [Button](?path=/docs/components-actions-button--docs) with `loading` |
+| Reading an amount within known limits, such as storage used | [Meter](?path=/docs/components-feedback-meter--docs) |
+| Reading a count with no maximum, such as unread messages | [Badge](?path=/docs/components-feedback-badge--docs) |
+
+## Moving around
+
+| People are… | Use |
+| --- | --- |
+| Moving between the app's main pages | [Navbar](?path=/docs/components-navigation-navbar--docs) or [Sidebar](?path=/docs/components-navigation-sidebar--docs) |
+| Going back up the pages above this one | [Breadcrumb](?path=/docs/components-navigation-breadcrumb--docs) |
+| Switching between views of the same thing, on one page | [Tabs](?path=/docs/components-navigation-tabs--docs) |
+| Opening and closing sections, such as FAQs | [Accordion](?path=/docs/components-content-accordion--docs) |
+| Going through steps in order, such as a checkout | [Stepper](?path=/docs/components-navigation-stepper--docs) |
+| Moving through pages of results they may come back to or link to | [Pagination](?path=/docs/components-navigation-pagination--docs) |
+| Reading on through a feed, without caring which page they're on | [LoadMore](?path=/docs/components-navigation-loadmore--docs) |
+| Moving through nested items, such as folders | [TreeView](?path=/docs/components-navigation-treeview--docs) |
+| Looking through slides one at a time | [Carousel](?path=/docs/components-content-carousel--docs) |
+
+## Showing a collection
+
+| The items are… | Use |
+| --- | --- |
+| A line or two of text each, such as people or files | [List](?path=/docs/components-content-list--docs) |
+| Data with columns to compare or sort | [Table](?path=/docs/components-content-table--docs) |
+| Pictures or a lot of content each | [Card](?path=/docs/components-content-card--docs)s in a [Grid](?path=/docs/components-layout-and-type-grid--docs) |
+| Events in order of time | [Timeline](?path=/docs/components-data-display-timeline--docs) |
+
+[Grid](?path=/docs/components-layout-and-type-grid--docs) and [Stack](?path=/docs/components-layout-and-type-stack--docs) lay out the page. A Table is for data only.

@@ -66,7 +66,7 @@ A bundler hashes the file names and compresses them for you, so of the delivery 
 </html>
 ```
 
-The stylesheet is `components.css` (about 290 KB), not `bundle.css`, because a plain page links it as is and the browser waits for it before drawing anything: `bundle.css` adds every utility class, nearly 2 MB. If the page uses utility classes, link the output of `serupa-purge` instead (see Before you ship). `theme.js` stays in `<head>`, since it has to run before the first paint, and the other scripts go at the end of `<body>`. What else a page needs, its title, landmarks, skip link and focus after a route change, is in [Build a page](?path=/docs/guides-build-a-page--docs).
+The stylesheet is `components.css` (about 290 KB), not `bundle.css`, because a plain page links it as is and the browser waits for it before drawing anything: `bundle.css` adds every utility class, nearly 2 MB. If the page uses utility classes, link the output of `serupa-purge` instead (see Before you ship). `theme.js` stays in `<head>`, since it has to run before the first paint, and the other scripts go at the end of `<body>`. What else a page needs, its title, landmarks, skip link and focus after a route change, is in [Build a page](?path=/docs/guides-build-a-page--docs). Which component fits a job, among the ones that look alike, is in [Choose a component](?path=/docs/guides-choose-a-component--docs).
 
 ## 3. Pick a theme
 
