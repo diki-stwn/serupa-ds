@@ -224,10 +224,12 @@ export const TabList = /* @__PURE__ */ component<HTMLDivElement, TabListProps>("
     const el = list.current;
     if (!el) return;
     measure();
-    el.addEventListener("scroll", measure, { passive: true });
+    // The fades ease only once the list has been scrolled (Tabs.css): one that's there from the first frame is just there.
+    const scrolled = () => { el.setAttribute("data-scrolled", ""); measure(); };
+    el.addEventListener("scroll", scrolled, { passive: true });
     const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
     if (ro) { ro.observe(el); Array.from(el.children).forEach((c) => ro.observe(c)); }
-    return () => { el.removeEventListener("scroll", measure); if (ro) ro.disconnect(); };
+    return () => { el.removeEventListener("scroll", scrolled); if (ro) ro.disconnect(); };
   }, [measure]);
   // The selected tab, scrolled into view inside the list only (the page doesn't move), with the fade's room to spare.
   const reveal = React.useCallback(() => {

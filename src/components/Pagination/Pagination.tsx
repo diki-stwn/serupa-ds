@@ -100,6 +100,17 @@ export const Pagination = /* @__PURE__ */ component<HTMLElement, PaginationProps
     ro.observe(l);
     return () => ro.disconnect();
   }, []);
+  // GR66: a row first measured in a fallback font keeps its cuts when the web font (narrower or wider) arrives, since
+  // the box doesn't change size. Once fonts load, the cuts start over and the row is measured again, as Stepper does.
+  useIsoLayoutEffect(function () {
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
+    if (!fonts) return;
+    let live = true;
+    const again = () => { if (!live) return; setCut(0); remeasure(); };
+    if (fonts.status !== "loaded") fonts.ready.then(again, () => {});
+    fonts.addEventListener("loadingdone", again);
+    return () => { live = false; fonts.removeEventListener("loadingdone", again); };
+  }, []);
   // An arrow that takes you to the first or last page turns disabled under focus (FJ1): focus goes to the other one.
   const handover = useFocusHandover();
   const go = (n: number, e: React.MouseEvent) => {

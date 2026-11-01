@@ -226,4 +226,12 @@ describe('Alert inside a shadow root (GR60)', () => {
       await expect.poll(() => root.activeElement && root.activeElement.textContent).toBe('After');
     } finally { host.remove(); }
   });
+  test('a long action label wraps onto more lines in a narrow box (240px), whole, not cut with an ellipsis (GR74)', async () => {
+    const label = 'Review the three invoices that failed to send';
+    await render(<div style={{ width: '240px' }}><Alert id="aw" title="Sync failed" actions={<><Button size="sm" variant="secondary">Retry</Button><Button size="sm" id="awreview">{label}</Button></>}>Some items didn’t sync.</Alert></div>);
+    const b = el('awreview'), r = b.getBoundingClientRect(), q = el('aw').getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 30, b.textContent]).toEqual([true, true, true, label]);
+    expect(b.previousElementSibling!.getBoundingClientRect().height).toBe(24);
+  });
 });

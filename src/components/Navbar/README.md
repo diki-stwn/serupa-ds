@@ -73,11 +73,10 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `href` | string | none | Where it goes |
 | `active` | boolean | `false` | The current page: shaded, with `aria-current="page"` |
-| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. |
+| `as` | a component | the `configure({ link })` link, else `'a'` | Your router's link component. Set it once for the app with `configure({ link })`; `as` wins for one link. Typed: the props and `ref` are those of the element `as` names, so `as={RouterLink} to="/team"` checks `to`, and without `as` they're an `<a>`'s. A link set only with `configure({ link })` is typed as an `<a>`, so pass it `href`. |
 
-Following a link closes the small-screen menu. `className`, `ref` and everything else go to the link.
+Following a link closes the small-screen menu. `href`, `className`, `ref` and everything else go to the link (an `<a>`, or what `as` names).
 
 ## Component tokens
 
@@ -89,6 +88,7 @@ Each is an optional override: set it on the page, a container or one navbar. The
 | Token | Default | Use |
 | --- | --- | --- |
 | `--navbar-bg` | `surface` | The bar's background. |
+| `--navbar-bg-scrolled` | `surface-raised` | A sticky bar's background once the page has scrolled under it, faded in with its shadow. In the dark themes it's the lighter raised surface, since a shadow barely shows on a near-black page; in the light ones it's the same white. Set it with --navbar-bg when you change that. |
 | `--navbar-border` | `border` | The line under the bar. |
 | `--navbar-brand-text` | `text` | The brand (logo and name) at the start of the bar. |
 | `--navbar-link-text` | `text-muted` | A link (4.5:1 on bg and link-bg-hover). |

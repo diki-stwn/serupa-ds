@@ -438,6 +438,16 @@
           "cssVar": "--info-text"
         }
       }
+    },
+    "link-visited": {
+      "$type": "color",
+      "$value": "{color.fuchsia-700}",
+      "$description": "Alias. A visited link in reading content (Prose): a shade apart from primary, 4.5:1+ on `surface` and `surface-muted` in every theme.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--link-visited"
+        }
+      }
     }
   }
 }

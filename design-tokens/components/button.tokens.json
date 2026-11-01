@@ -15,7 +15,7 @@
       "primary-bg-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "Primary background on hover.",
+        "$description": "Primary background on hover. Unset on a button given its own `--button-primary-bg`, it is worked out from that one: a step darker in light themes, lighter in dark.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-primary-bg-hover"

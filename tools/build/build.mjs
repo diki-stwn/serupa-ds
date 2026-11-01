@@ -90,7 +90,8 @@ for (const n of IMPORTS) {
 const code = [];
 const scan = (dir) => { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { const f = path.join(dir, e.name); if (e.isDirectory()) scan(f); else if (/\.tsx?$/.test(e.name) && !/\.(test|stories)\.tsx?$/.test(e.name)) code.push(fs.readFileSync(f, 'utf8')); } };
 scan(path.join(P, 'src'));
-const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/g)].map((m) => m[1].replace(/\\(.)/g, '$1')));
+// Component classes a utility rule names (the focus ring on a Card inside a fill, GR80) are not utilities.
+const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/g)].map((m) => m[1].replace(/\\(.)/g, '$1')).filter((n) => !n.startsWith('dk-')));
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
@@ -180,10 +181,13 @@ async function buildModules() {
     format: 'esm', target: 'es2022', platform: 'neutral', sourcemap: true, jsx: 'transform', logLevel: 'warning',
     define: { __VERSION__: JSON.stringify(version) },
   });
-  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none.
-  const table = path.join(D, 'js', 'material', 'icons.js');
-  fs.rmSync(table + '.map');
-  fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=icons\.js\.map\n?$/, ''));
+  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none, for
+  // icons.js and each of its parts (material/part/NN.js).
+  const part = path.join(D, 'js', 'material', 'part');
+  for (const table of [path.join(D, 'js', 'material', 'icons.js'), ...fs.readdirSync(part).filter((f) => f.endsWith('.js')).map((f) => path.join(part, f))]) {
+    fs.rmSync(table + '.map');
+    fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=[\w.]+\.js\.map\n?$/, ''));
+  }
   fs.writeFileSync(path.join(D, 'index.js'), 'export * from "./js/index.js";\n');
   fs.writeFileSync(path.join(D, 'icons.js'), 'export * from "./js/material/index.js";\n');
 }
