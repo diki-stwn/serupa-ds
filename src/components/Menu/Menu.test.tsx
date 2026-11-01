@@ -595,6 +595,19 @@ describe('Menu', () => {
     expect([asks, radios()[2].getAttribute('aria-checked')]).toEqual([['date'], 'false']);
   });
 
+  test('L8E112: choosing the MenuRadioItem that is chosen already closes the menu but calls no onValueChange', async () => {
+    const asks: string[] = [];
+    await render(<Menu trigger={<Button id="rs">Sort</Button>}>
+      <MenuRadioGroup label="Sort by" value="name" onValueChange={(v) => asks.push(v)}>
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="date">Date</MenuRadioItem>
+      </MenuRadioGroup>
+    </Menu>);
+    await userEvent.click(el('rs'));
+    await userEvent.keyboard('{Enter}');
+    expect([el('rs').getAttribute('aria-expanded'), asks]).toEqual(['false', []]);
+  });
+
   test('L8E80: an item hidden by CSS or the hidden attribute is skipped by the arrows, Home, End and on open, so focus never sticks', async () => {
     await render(<Menu trigger={<Button id="hb">More</Button>}>
       <MenuItem hidden>Gone first</MenuItem>

@@ -144,7 +144,7 @@ It also takes MenuItem's `onSelect`, `icon`, `shortcut` and `disabled`.
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `value` (group) | string | required | The chosen item's value |
-| `onValueChange` (group) | `(value) => void` | | Called with an item's value when it's chosen |
+| `onValueChange` (group) | `(value) => void` | | Called with an item's value when it's chosen, unless it was chosen already |
 | `label` (group) | node | | A small heading that names the group, as on `MenuGroup` |
 | `value` (item) | string | required | The value the group chooses with this item |
 

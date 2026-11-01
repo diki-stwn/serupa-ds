@@ -246,6 +246,23 @@ describe('Tabs', () => {
     for (const k of ['{ArrowRight}', '{ArrowRight}', '{ArrowLeft}', '{End}', '{Home}', '{ArrowLeft}']) { await userEvent.keyboard(k); seen.push(focused() + ':' + selected('h').dataset.value); }
     expect(seen).toEqual(['B:b', 'A:a', 'B:b', 'B:b', 'A:a', 'B:b']);
   });
+
+  test('GR67: when the selected tab is hidden by CSS, the first shown tab takes the Tab stop, and gives it back once the selected one shows again', async () => {
+    await render(<><button id="before">Before</button><Tabs id="hs" defaultValue="a">
+      <TabList aria-label="Hidden selected"><Tab value="a">A</Tab><Tab value="b">B</Tab><Tab value="c" disabled>C</Tab></TabList>
+      <TabPanel value="a">pa</TabPanel><TabPanel value="b">pb</TabPanel>
+    </Tabs></>);
+    const stops = () => Array.from(document.querySelectorAll<HTMLElement>('#hs [role="tab"]')).map((t) => t.tabIndex).join();
+    expect(stops()).toBe('0,-1,-1');
+    // A responsive class hides the selected tab: the next shown, enabled tab is reachable with Tab.
+    (document.querySelector('#hs [data-value="a"]') as HTMLElement).style.display = 'none';
+    await expect.poll(stops).toBe('0,0,-1');
+    (document.getElementById('before') as HTMLElement).focus();
+    await userEvent.tab();
+    expect(focused()).toBe('B');
+    (document.querySelector('#hs [data-value="a"]') as HTMLElement).style.display = '';
+    await expect.poll(stops).toBe('0,-1,-1');
+  });
 });
 
 // Server rendering: without defaultValue the first enabled tab is picked while rendering, so the HTML already
