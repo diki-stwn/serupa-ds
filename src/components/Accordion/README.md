@@ -91,15 +91,16 @@ const { Accordion, AccordionItem } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one accordion. The list lives in `src/components/Accordion/accordion.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from accordion.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--accordion-border` | `border` | The lines between items, and the frame of variant="card". |
 | `--accordion-title-color` | `text` | An item's title. |
 | `--accordion-content-color` | `text-muted` | An item's content (4.5:1 on surface). |
 | `--accordion-icon-color` | `text-muted` | The chevron. |
-| `--accordion-trigger-bg-pressed` | `pressed` | A title's fill while it's held down. |
 | `--accordion-bg` | `surface` | The background of variant="card". |
 | `--accordion-focus-ring` | `focus-ring` | The keyboard focus ring. |
+| `--accordion-trigger-bg-pressed` | `pressed` | A title's fill while it's held down. |
 | `--accordion-title-size` | `text-sm` | Title text (14px). |
 | `--accordion-title-weight` | `font-medium` | Title weight (500). |
 | `--accordion-content-size` | `text-sm` | Content text (14px). |
@@ -109,3 +110,4 @@ Each is an optional override: set it on the page, a container or one accordion. 
 | `--accordion-border-width` | `border-width-1` | Lines and frame (1px). |
 | `--accordion-radius` | `rounded-lg` | The corners of variant="card" (8px). |
 | `--accordion-duration` | `motion-change-md` | Opening: the fade, unfold and height (200ms), and the chevron turning. Closing folds back and shrinks over motion-exit-md (150ms). |
+<!-- token-table:end -->

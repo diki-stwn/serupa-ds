@@ -78,6 +78,27 @@ describe('PinInput', () => {
     expect(shown('p')).toBe('5___');
   });
 
+  test('L8E105: a whole code pasted after a part typed replaces it, instead of being added after it and cut off', async () => {
+    const done = vi.fn();
+    await render(<div><input id="l8e105src" defaultValue="483 921" /><PinInput id="p" aria-label="Code" onComplete={done} /></div>);
+    el('l8e105src').select();
+    await userEvent.copy();
+    await userEvent.click(el('p'));
+    await userEvent.keyboard('12');
+    await userEvent.paste();
+    expect([shown('p'), done.mock.calls]).toEqual(['483921', [['483921']]]);
+  });
+
+  test('a part of a code pasted is added to what is typed', async () => {
+    await render(<div><input id="l8e105src" defaultValue="34" /><PinInput id="p" aria-label="Code" length={4} /></div>);
+    el('l8e105src').select();
+    await userEvent.copy();
+    await userEvent.click(el('p'));
+    await userEvent.keyboard('12');
+    await userEvent.paste();
+    expect(shown('p')).toBe('1234');
+  });
+
   test('focused from code (the caret at the start), typing still adds to the end', async () => {
     await render(<PinInput id="p" aria-label="Code" length={4} defaultValue="12" />);
     el('p').focus();

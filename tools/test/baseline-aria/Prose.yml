@@ -1,0 +1,72 @@
+# LongContent
+- article:
+  - heading "Donaudampfschifffahrtsgesellschaftskapitänswitwenrentenversicherung" [level=2]
+  - paragraph: See https://example.com/a/very/long/path/that/does/not/break/anywhere/on/its/own/without/help/from/css for details.
+  - code: const veryLongVariableName = someFunctionWithALongName(argumentNumberOne, argumentNumberTwo, argumentNumberThree);
+  - table:
+    - rowgroup:
+      - row "Name Role Team Location Started Calls":
+        - columnheader "Name"
+        - columnheader "Role"
+        - columnheader "Team"
+        - columnheader "Location"
+        - columnheader "Started"
+        - columnheader "Calls"
+    - rowgroup:
+      - row "Maximiliana Wolfeschlegelsteinhausen Administrator Billing and invoicing Jakarta Selatan 2024-03-01 1,204":
+        - cell "Maximiliana Wolfeschlegelsteinhausen"
+        - cell "Administrator"
+        - cell "Billing and invoicing"
+        - cell "Jakarta Selatan"
+        - cell "2024-03-01"
+        - cell "1,204"
+
+# Playground
+- article:
+  - heading "Getting started" [level=2]
+  - paragraph:
+    - text: Serupa styles your app's screens with components. Content written in Markdown, such as this help page, has
+    - link "plain links":
+      - /url: "#install"
+    - text: ","
+    - strong: bold
+    - text: ","
+    - emphasis: emphasis
+    - text: and
+    - code: inline code
+    - text: .
+  - list:
+    - listitem: Install the package.
+    - listitem:
+      - text: Import the styles once.
+      - list:
+        - listitem: Or link the CSS file from a plain page.
+    - listitem: Render a component.
+  - heading "Install" [level=3]
+  - list:
+    - listitem: Run the installer.
+    - listitem: Restart the dev server.
+  - code: npm install serupa-ds import "serupa-ds/styles.css";
+  - blockquote:
+    - paragraph: Good defaults make the right thing the easy thing.
+  - table:
+    - rowgroup:
+      - row "Plan Seats Price":
+        - columnheader "Plan"
+        - columnheader "Seats"
+        - columnheader "Price"
+    - rowgroup:
+      - row "Free 3 $0":
+        - cell "Free"
+        - cell "3"
+        - cell "$0"
+      - row "Team 25 $12 a seat":
+        - cell "Team"
+        - cell "25"
+        - cell "$12 a seat"
+  - separator
+  - term: Token
+  - definition: A named value, such as a color or a space.
+  - paragraph:
+    - img "A diagram of the install steps"
+

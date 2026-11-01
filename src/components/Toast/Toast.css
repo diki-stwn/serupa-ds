@@ -103,6 +103,9 @@
   .dk-toast__icon { grid-area: icon; }
   .dk-toast__content { grid-area: text; }
   .dk-toast__action { grid-area: action; justify-self: start; }
+  /* A long action label wraps onto more lines under the text instead of ending in an ellipsis (GR74): there is no
+     hover on a phone to show the rest. It keeps a sm Button's height as the least it can be. */
+  .dk-toast > .dk-toast__action { white-space: normal; overflow-wrap: anywhere; text-align: start; height: auto; min-height: var(--button-height-sm, var(--control-height-sm)); padding-block: var(--button-padding-y-wrap-sm, var(--spacing-0\.5)); }
   .dk-toast__close { grid-area: close; }
 }
 @media (forced-colors: active) { .dk-toast { border-color: CanvasText; } .dk-toaster__more { border: var(--border-width-1) solid CanvasText; } }

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useIsoLayoutEffect } from "./cn";
 import { byId } from "./root";
 
 /* Custom inputs submit through a hidden input whose value comes from React state, and form.reset() (or React 19
@@ -8,7 +9,8 @@ import { byId } from "./root";
    (a div with hidden inputs), naming a form it sits outside of. */
 export function useFormReset(el: React.RefObject<HTMLElement | null>, reset: () => void, formId?: string): void {
   const run = React.useRef(reset);
-  run.current = reset;
+  // every render: keeps the latest reset, before any reset event can run.
+  useIsoLayoutEffect(() => { run.current = reset; });
   React.useEffect(() => {
     const node = el.current;
     const named = formId ? byId(node, formId) : null;   // in node's document or shadow root (GR60)

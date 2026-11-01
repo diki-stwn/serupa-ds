@@ -13,6 +13,16 @@
   --dk-carousel-step: calc((var(--sizing-full) + var(--dk-carousel-space)) / var(--dk-carousel-per, 1));
 }
 .dk-carousel--multi { --dk-carousel-space: var(--carousel-slide-gap, var(--spacing-4)); }
+/* perView with a breakpoint map: the count at each width comes from these media queries (the same widths as Carousel.tsx's
+   matchMedia), so the server HTML is laid out for the screen before JavaScript runs. A dot past the last page at a
+   width is hidden there until the dots are counted again. */
+.dk-carousel[data-per-map] { --dk-carousel-per: var(--dk-carousel-per-base); }
+@media (min-width: 640px) { .dk-carousel[data-per-map] { --dk-carousel-per: var(--dk-carousel-per-sm); } }
+@media (min-width: 768px) { .dk-carousel[data-per-map] { --dk-carousel-per: var(--dk-carousel-per-md); } }
+@media (min-width: 1024px) { .dk-carousel[data-per-map] { --dk-carousel-per: var(--dk-carousel-per-lg); } }
+@media (min-width: 640px) and (max-width: 767.98px) { .dk-carousel__dot[data-past~="sm"] { display: none; } }
+@media (min-width: 768px) and (max-width: 1023.98px) { .dk-carousel__dot[data-past~="md"] { display: none; } }
+@media (min-width: 1024px) { .dk-carousel__dot[data-past~="lg"] { display: none; } }
 .dk-carousel__track {
   display: flex; gap: var(--dk-carousel-space);
   transform: translateX(calc(var(--spacing-0) - var(--dk-carousel-index) * var(--dk-carousel-step) + var(--dk-carousel-drag, 0px)));

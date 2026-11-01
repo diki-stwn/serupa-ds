@@ -81,6 +81,7 @@ const [start, setStart] = React.useState<string | null>("09:00");
 
 Each is an optional override: set it on the page, a container or one picker. The list lives in `src/components/TimePicker/time-picker.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from time-picker.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--time-picker-button` | `text-muted` | The clock button's icon (3:1 on the field). |
@@ -100,5 +101,6 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--time-picker-list-padding` | `spacing-1` | Space inside the list (4px). |
 | `--time-picker-offset` | `spacing-1` | The gap between the field and the list (4px). |
 | `--time-picker-z-index` | `z-popover` | The list's stacking order, where the top layer isn't available. |
+<!-- token-table:end -->
 
 It uses Input's box, so it lines up with other fields.

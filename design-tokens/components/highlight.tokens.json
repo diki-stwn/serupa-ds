@@ -27,7 +27,7 @@
       "weight": {
         "$type": "fontWeight",
         "$value": "{typography.font-semibold}",
-        "$description": "A match's weight, so it isn't marked by color alone.",
+        "$description": "A match's weight, so it isn't marked by color alone (not in an option or menu item, where it's underlined instead).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--highlight-weight"

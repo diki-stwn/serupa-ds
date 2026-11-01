@@ -126,9 +126,9 @@ An id on the target stays on the target.
 | `shortcut` | string | | A hint at the end, such as `⌘K` (wire the shortcut yourself); also sets `aria-keyshortcuts` |
 | `destructive` | boolean | `false` | Danger colors |
 | `disabled` | boolean | `false` | Still reachable with the keys (so people learn it exists), but can't be chosen |
-| `href` | string | | Makes it a link (the `configure({ link })` component) |
-| `as` | component | | Makes it a link with this component instead, such as a router's Link (pass its props, like `to`, on the item) |
-| `target`, `rel` | string | | For a link item. `target="_blank"` without `rel` gets `rel="noopener noreferrer"` |
+| `as` | component | | Makes it a link with this component instead of the `configure({ link })` one, such as a router's Link. Typed: its props are those of the element `as` names, so `as={RouterLink} to="/settings"` checks `to`, and without `as` they're an `<a>`'s (`href`, `target`, `rel`) |
+
+`href` makes it a link (the `configure({ link })` component). `target` and `rel` go to a link item, and `target="_blank"` without `rel` gets `rel="noopener noreferrer"`. `className`, `ref` and the rest go to the item: the link, or a `<div>` for an action.
 
 ### MenuCheckboxItem
 
@@ -144,7 +144,7 @@ It also takes MenuItem's `onSelect`, `icon`, `shortcut` and `disabled`.
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `value` (group) | string | required | The chosen item's value |
-| `onValueChange` (group) | `(value) => void` | | Called with an item's value when it's chosen |
+| `onValueChange` (group) | `(value) => void` | | Called with an item's value when it's chosen, unless it was chosen already |
 | `label` (group) | node | | A small heading that names the group, as on `MenuGroup` |
 | `value` (item) | string | required | The value the group chooses with this item |
 
@@ -165,6 +165,9 @@ A `MenuRadioItem` also takes MenuItem's `onSelect`, `icon`, `shortcut` and `disa
 
 Each is an optional override: set it on the page, a container or one menu. The list lives in `src/components/Menu/menu.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from menu.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--menu-bg` | `surface-overlay` | The menu's background. |
@@ -177,16 +180,42 @@ Each is an optional override: set it on the page, a container or one menu. The l
 | `--menu-danger` | `danger-text` | A destructive item's label and icon. |
 | `--menu-danger-bg-active` | `danger-subtle` | A highlighted destructive item's background. |
 | `--menu-separator` | `border` | The line between groups. |
+
+**Shadow**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--menu-shadow` | `shadow-lg` | The menu's shadow. |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--menu-radius` | `rounded-lg` | The menu's corners (8px). |
 | `--menu-item-radius` | `rounded-md` | An item's corners (6px). |
 | `--menu-border-width` | `border-width-1` | The menu's border. |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--menu-min-width` | `spacing-48` | The narrowest a menu gets (192px). |
 | `--menu-max-width` | `spacing-80` | The widest a menu gets (320px). Longer labels wrap. |
 | `--menu-item-height` | `control-height-md` | An item's height (32px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--menu-padding` | `spacing-1` | Padding inside the menu (4px). |
 | `--menu-item-padding-x` | `spacing-2` | Padding at an item's sides (8px). |
 | `--menu-item-gap` | `spacing-2` | Space between an item's icon, label and shortcut (8px). |
 | `--menu-offset` | `spacing-1` | The gap between the menu and its button (4px). |
 | `--menu-sub-offset` | `spacing-0` | The gap between a submenu and the item that opens it (0: the submenu overlaps the menu's padding). |
+
+**Layout**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--menu-z-index` | `z-popover` | The stacking level where the browser has no top layer (popover). |
+<!-- token-table:end -->
