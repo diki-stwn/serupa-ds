@@ -52,14 +52,15 @@ const [open, setOpen] = React.useState(false);
 - The title, description and body text keep 4.5:1 on the panel in all six themes (`Drawer.test.tsx`). In forced-colors mode the panel gets a border.
 - A Dialog opened from inside it closes on its own: Escape closes the Dialog first, and the next Escape the Drawer.
 - On Android, the system back gesture asks to close it, like Escape. Under `<React.StrictMode>`, a Drawer that is open on its first render stays the innermost modal, so toasts and announcements still move into it.
-- To keep it open (unsaved changes, say), leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
+- With `unsaved`, Escape, the ×, the backdrop, a swipe or the browser closing it first ask "Discard changes?" in a small alert dialog on top, with Keep editing focused, as Dialog does. Keep editing (or Escape) goes back to the form as it was; Discard closes both, and only then does `onOpenChange(false)` come, with the reason of the first request. Leaving or reloading the page while it's open asks too (the browser's own `beforeunload` question). Your own Cancel button sets `open` itself, so it closes without asking.
+- To keep it open for another reason, leave `open` true when `onOpenChange(false)` comes. Chromium closes a modal dialog itself on a second Escape with no click in between; the component shows it again, so `open` stays the truth.
 
 ### Keyboard
 
 | Key | Does |
 | --- | --- |
 | Tab / Shift+Tab | Between the controls in the drawer; the page behind is inert, so focus stays inside |
-| Escape | Asks to close it (`onOpenChange(false)`); with a Dialog open from it, the Dialog first |
+| Escape | Asks to close it (`onOpenChange(false)`); with a Dialog open from it, the Dialog first. With `unsaved`, it asks "Discard changes?" first, and Escape there keeps editing |
 | Enter / Space | On the ×, the same as Escape |
 
 ## Props
@@ -82,6 +83,7 @@ const [open, setOpen] = React.useState(false);
 | `initialFocus` | `RefObject<HTMLElement>` | | The element that takes focus when it opens, instead of the first that can. A ref to something outside the drawer is ignored. |
 | `finalFocus` | `RefObject<HTMLElement>` | | Where focus goes when it closes, instead of back to the opener. Used when it's on the page then; otherwise focus goes back to the opener. |
 | `modal` | `boolean` | `true` | `false`: a side panel beside a usable page, with no backdrop, opened with `show()`. |
+| `unsaved` | `boolean` | `false` | There are changes that would be lost: closing asks "Discard changes?" first (Keep editing or Discard), and leaving the page asks too. `onOpenChange(false)` comes after Discard. |
 
 Every other prop, `className` and `ref` go to the native `<dialog>`.
 

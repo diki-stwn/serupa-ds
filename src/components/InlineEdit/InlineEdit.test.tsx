@@ -36,6 +36,31 @@ describe('InlineEdit', () => {
     expect(saved).toEqual(['Atlas 2']);
   });
 
+  test('inside a shadow root, switching windows mid-edit keeps the field open too, and an Enter whose check settles later puts focus back on the button (GR95)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    const saved: string[] = [];
+    const pending: Array<(m: string | null) => void> = [];
+    try {
+      await render(<InlineEdit id="sh" label="Name" defaultValue="Atlas" onValueChange={(v) => saved.push(v)} validate={() => new Promise<string | null>((res) => { pending.push(res); })} />, { container: inner });
+      const sr = host.shadowRoot!, field = () => sr.querySelector<HTMLInputElement>('input');
+      sr.querySelector<HTMLElement>('button')!.click();
+      await expect.poll(() => sr.activeElement?.tagName).toBe('INPUT');
+      await userEvent.keyboard('Atlas 2');
+      field()!.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      field()!.dispatchEvent(new FocusEvent('blur'));
+      await new Promise((r) => setTimeout(r, 30));
+      expect([!!field(), pending.length]).toEqual([true, 0]);
+      await userEvent.keyboard('{Enter}');
+      pending[0](null);
+      await expect.poll(() => field()).toBeNull();
+      await expect.poll(() => sr.activeElement?.tagName).toBe('BUTTON');
+      expect(saved).toEqual(['Atlas 2']);
+    } finally { host.remove(); }
+  });
+
   test('the text in a button named "label: text, Edit"; a click opens an Input named by label with the text selected; ref and props reach the outer div', async () => {
     const ref = React.createRef<HTMLDivElement>();
     await render(<Box><InlineEdit id="a" ref={ref} className="extra" data-x="y" label="Project name" defaultValue="Apollo" /></Box>);
