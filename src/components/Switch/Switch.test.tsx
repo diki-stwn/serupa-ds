@@ -67,6 +67,12 @@ describe('Switch', () => {
     s.remove();
   });
 
+  test('carries the native switch attribute (Safari 18 gives a haptic tick on iOS), which a prop can\'t remove, and keeps its drawn look', async () => {
+    const { container } = await render(<Switch {...({ switch: undefined } as object)}>Wi-Fi</Switch>);
+    const input = container.querySelector('input')!;
+    expect(input.getAttribute('switch')).toBe('');
+    expect(getComputedStyle(input).appearance).toBe('none');
+  });
   test('sizes: sm 28 by 16 with a 12px thumb and text-xs, lg 44 by 24 with a 20px thumb and text-base, each centered on the first line; an unknown size falls back to md', async () => {
     await setup();
     const sm = box('sm'), lg = box('lg');
@@ -211,6 +217,13 @@ describe('Switch', () => {
     }
     document.documentElement.removeAttribute('data-theme');
     expect(low).toEqual([]);
+  });
+
+  test('L8E74 pending and controlled (checked with onChange): no React warning while it waits, and it stays as it was', async () => {
+    const warned: unknown[] = [], warn = console.error;
+    console.error = (...a: unknown[]) => { warned.push(a[0]); };
+    try { await render(<Switch id="pdc" checked pending onChange={() => {}}>Saving</Switch>); } finally { console.error = warn; }
+    expect([el('pdc').checked, warned]).toEqual([true, []]);
   });
 
   test('readOnly and controlled (checked without onChange): no React warning, and it stays on', async () => {

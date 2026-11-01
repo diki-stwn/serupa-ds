@@ -259,4 +259,31 @@ describe('Radio', () => {
       await press(dot('pq').closest('label')!, () => expect(css(dot('pq')).scale).toBe('none'));
     });
   });
+
+  test('L8E82: wrapping at the ends skips a radio hidden by CSS, rather than checking it out of sight while focus stays put', async () => {
+    const seen: string[] = [];
+    await render(<RadioGroup aria-label="Size" name="hid" defaultValue="b" onValueChange={(v) => seen.push(String(v))}>
+      <Radio id="hid-x" value="x" style={{ display: 'none' }}>X</Radio><Radio id="hid-a" value="a">A</Radio><Radio id="hid-b" value="b">B</Radio>
+    </RadioGroup>);
+    input('hid-b').focus();
+    const at = async (key: string) => { await userEvent.keyboard(`{${key}}`); return document.activeElement!.id + (input(document.activeElement!.id).checked ? '*' : ''); };
+    expect([await at('ArrowRight'), await at('ArrowLeft')]).toEqual(['hid-a*', 'hid-b*']);
+    expect(seen.join()).toBe('a,b');
+  });
+  test('L8E90 ref.current.focus() (a form library focusing the first invalid field) focuses the checked radio, else the first one that isn\'t disabled; aria-required is kept', async () => {
+    const a = React.createRef<HTMLDivElement>(), b = React.createRef<HTMLDivElement>();
+    await render(<>
+      <RadioGroup ref={a} aria-label="Plan" defaultValue="pro"><Radio value="free">Free</Radio><Radio value="pro">Pro</Radio></RadioGroup>
+      <RadioGroup ref={b} aria-label="Size" aria-required><Radio value="s" disabled>S</Radio><Radio value="m">M</Radio></RadioGroup>
+    </>);
+    a.current!.focus();
+    const now = () => (document.activeElement as HTMLInputElement).value;
+    const first = now();
+    b.current!.focus();
+    expect([first, now(), b.current!.getAttribute('aria-required')]).toEqual(['pro', 'm', 'true']);
+  });
+  test('L8E93 autoFocus on a RadioGroup focuses the checked radio, else the first, as it does on SegmentedControl and Slider', async () => {
+    await render(<><button>Before</button><RadioGroup aria-label="Size" defaultValue="m" autoFocus><Radio value="s">S</Radio><Radio value="m">M</Radio></RadioGroup></>);
+    await expect.poll(() => (document.activeElement as HTMLInputElement).value).toBe('m');
+  });
 });

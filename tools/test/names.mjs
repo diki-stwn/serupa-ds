@@ -16,8 +16,8 @@ const DEMO = /Sizes|States|Shapes|Locales|Tones|Variants|Destructive|Disabled|Lo
 const KNOWN = {
   'NotificationCenter/Open': 'each "Mark as read" is described by its row\'s title (aria-describedby, TF4 #940), which the snapshot doesn\'t show',
   'NumberInput/Currency': 'each field\'s Decrease and Increase sit in that field\'s own labelled group, as in every number field',
-  'Toast/Burst': 'TF4: each toast\'s "Dismiss" isn\'t described by its title yet',
-  'Toast/TopCenter': 'TF4: each toast\'s "Dismiss" isn\'t described by its title yet',
+  'Toast/Burst': 'each toast\'s "Dismiss" is described by its title (aria-describedby, TF4), which the snapshot doesn\'t show',
+  'Toast/TopCenter': 'each toast\'s "Dismiss" is described by its title (aria-describedby, TF4), which the snapshot doesn\'t show',
 };
 
 const R = [];

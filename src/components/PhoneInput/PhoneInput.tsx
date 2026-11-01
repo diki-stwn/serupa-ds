@@ -103,6 +103,9 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const [ownCountry, setOwnCountry] = React.useState<string>(() => (start ? start.country.code : fallback.code));
   const country = find(props.country) || find(ownCountry) || fallback;
   const [national, setNational] = React.useState(() => (start ? start.national : ""));
+  // A calling code being typed ("+", "+4", "00"): shown as typed until it names a country, which it then picks, as a
+  // pasted "+44 …" does. Without it the lone "+" formats to nothing, and "+44 20…" became a US number (GR83).
+  const [lead, setLead] = React.useState<string | null>(null);
   // The digits as last typed, pasted or set: a new country cuts the number to its length from these, so arrowing
   // through the menu (a change per arrow) doesn't leave it cut to the shortest country passed on the way.
   const typed = React.useRef(national);
@@ -127,6 +130,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   // controlled field shows its value again (the browser reset the text to its first value).
   const [, rerender] = React.useState(0);
   useFormReset(input, () => {
+    setLead(null);
     if (props.value === undefined) {
       const d = parsePhone(props.defaultValue ?? "", props.defaultCountry, table);
       setNational(d ? d.national : "");
@@ -137,7 +141,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     rerender((n) => n + 1);
   });
   const caret = React.useRef<number | null>(null);
-  const text = formatNational(shown, country);
+  const text = lead != null && !shown ? lead : formatNational(shown, country);
   // every render: an edit that reformats the number asks for the caret back, and the new text is there only after the render.
   React.useLayoutEffect(function () {
     if (caret.current == null || !input.current || document.activeElement !== input.current) return;
@@ -147,6 +151,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
 
   const commit = function (digits: string, c: PhoneCountry, picked?: boolean) {
     digits = digits.slice(0, c.max);
+    setLead(null);
     if (!picked) typed.current = digits;
     setNational(digits);
     if (c.code !== country.code) {
@@ -166,9 +171,14 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
     // types ٠٨١٢, a Japanese IME ０８１２, and they're the same number (GR43). One character stays one, so the caret holds.
     const raw = latinDigits(e.target.value.normalize("NFKC")), at = e.target.selectionStart ?? raw.length;
     let before = raw.slice(0, at).replace(/\D/g, "").length;
+    // A lone "0" where it's the trunk prefix (Germany) would strip to nothing, so the "00" of "0044" never came together.
+    if (raw.trim() === "0" && country.trunk === "0") { commit("", country); setLead("0"); caret.current = 1; return; }
     if (/^\s*(\+|00)/.test(raw)) {
       const p = parsePhone(raw, country.code, table);
       if (p) { const d = commit(p.national, p.country); caret.current = formatNational(d, p.country).length; return; }
+      // Only the start of a calling code so far: keep it in the field, and the number empty, until it names a country.
+      const code = raw.trim();
+      if (/^(\+|00)\d{0,3}$/.test(code)) { commit("", country); setLead(code); caret.current = code.length; return; }
       if (process.env.NODE_ENV !== "production" && raw.replace(/\D/g, "").length > 3) warnOnce("phone-code", `PhoneInput: "${raw.trim()}" starts with a calling code PhoneInput doesn't know, so its digits are read as a number in ${country.code}. Pass the country's row in countries.`);
     }
     const all = raw.replace(/\D/g, "");

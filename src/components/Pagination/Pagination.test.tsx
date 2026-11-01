@@ -157,6 +157,17 @@ describe('Pagination', () => {
     await vi.waitFor(() => expect(shown('fit')).toBe('< 1 … 9 [10] 11 … 20 >'));
   });
 
+  test('GR66: when web fonts load, the cuts start over and the row is measured again, though its box keeps its size', async () => {
+    const wide = document.createElement('style');
+    wide.textContent = '#gr66 li { padding-inline: 24px !important; }';   // stands in for a wider fallback font
+    document.head.append(wide);
+    await render(<div id="gr66" style={{ width: '600px' }}><Pagination id="f66" count={20} defaultPage={10} /></div>, { wrapper: EnUS });
+    await vi.waitFor(() => expect(shown('f66')).not.toBe('< 1 … 9 [10] 11 … 20 >'));   // cut to fit the wide font
+    wide.remove();   // the web font arrives, narrower; the box is still 600px
+    document.fonts.dispatchEvent(new Event('loadingdone'));
+    await vi.waitFor(() => expect(shown('f66')).toBe('< 1 … 9 [10] 11 … 20 >'));
+  });
+
   test('right to left: the arrows point the other way', async () => {
     await render(<div dir="rtl"><Pagination id="prtl" count={3} /></div>);
     expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => iconPoints(a.querySelector('[data-icon]')!)).join()).toBe('right,left');

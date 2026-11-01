@@ -14,22 +14,22 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v11.0.0
+npm install github:diki-stwn/serupa-ds#v12.0.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v11.0.0/serupa-ds-11.0.0.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v12.0.0/serupa-ds-12.0.0.tgz
 ```
 
 To check a downloaded file before you install it: the release notes give its SHA-256, and releases after 10.1.0 also carry a build attestation, GitHub's signed record that this repository's Release workflow built the file from the tagged commit. With the [GitHub CLI](https://cli.github.com):
 
 ```sh
-gh attestation verify ./serupa-ds-11.0.0.tgz --repo diki-stwn/serupa-ds
+gh attestation verify ./serupa-ds-12.0.0.tgz --repo diki-stwn/serupa-ds
 ```
 
-Always pin a tag (`#v11.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v12.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -120,7 +120,10 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
 | `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
+| `dist/debug.js` | A debug overlay for finding why a screen looks off. Load it, then add `?serupa-debug` to the page's address: every component gets a dashed outline, and pointing at one shows its name, variant and size, its state and the component tokens set on it. It also checks the color pairs against WCAG contrast where they're drawn, so a color token you override can't quietly fail: the console lists the failures on the page, and the panel adds those on the component. Escape turns it off. `Serupa.debug.inspect(element)` and `Serupa.debug.contrast(element)` give the same as objects. Leave it out of production. |
 | `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
+| `dist/stylelint.js` (`serupa-ds/stylelint`) | A Stylelint config for your own CSS: it flags a color, a spacing length or a radius written out where a token belongs. See Getting started in Storybook. |
+| `dist/testing.js` (`serupa-ds/testing`) | `forEachTheme(page, fn)` for your own CI: it draws a Playwright page in each of the six themes, with transitions off and the color scheme to match, and calls `fn` so you can take a screenshot in each. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
 ### For your own components
@@ -132,6 +135,7 @@ The package also exports what the components use themselves, so a component you 
 | `useSerupa()` | The nearest `SerupaProvider`'s settings: `locale`, `labels` (the built-in words), `icons` and `platform`. |
 | `useLocale(own?)` | The locale the components use: `own` when given, else the provider's, else the browser's (`en-US` in server HTML until hydrated). |
 | `useCollator(options?)` | An `Intl.Collator` for that locale, to sort the way people expect. |
+| `plural(locale, count, forms)` | The words for `count` in that language's plural rules (`one`, `few`, `many`, … and `other`), with `#` replaced by the count: for labels in languages with more than "1" and "the rest". |
 | `announce(text, { assertive? })` | Says `text` to screen readers through the components' live regions, which move into an open Dialog or Drawer so it's heard there too. `assertive` interrupts: only for errors. |
 | `announcePage({ title?, focus? })` | After a client-side route change, does what a full page load would: focuses the new page's main heading (the `h1` in `<main>`, made focusable with `tabindex="-1"`) and says its title (`document.title` by default) to screen readers, unless the focused heading already says it. `focus` takes an element or a selector, or `false` to leave focus where it is. Call it in an effect once the new page has rendered. |
 | `withViewTransition(update, { types? })` | Runs a state change as a View Transition, so what it moves glides to its new place instead of jumping: a list reordered or filtered, a card expanded, a layout switched. Mark what should travel with `view-transition-name` or the `view-transition-match` class. It uses `motion-change-md` with `ease-move`, only crossfades under reduced motion, and applies the change at once where View Transitions are missing. |
@@ -337,6 +341,8 @@ The system follows [Semantic Versioning](https://semver.org): the version is in 
 | **Minor** (1.1.0) | Something new; everything existing keeps working | New tokens, classes, components or props; a new theme |
 | **Patch** (1.0.1) | A fix that doesn't change what correct code gets | A contrast fix inside the rules, a bug in a component, docs |
 
+Each component is **stable** unless it says otherwise. A component marked **beta** is ready to use, but its API may still change in a minor release, and that release's changeset says how; an **alpha** one is still taking shape and may change in any release. A **deprecated** one keeps working until the next major removes it. The status is in the doc comment on the component's export (`@beta`, `@alpha` or `@deprecated`), so your editor shows it on hover, and it also appears above the component's guide in Storybook and after its name in the index below.
+
 Names are never removed in a minor or patch release: they're marked deprecated in `CHANGELOG.md`, keep working, and go in the next major. The test suite enforces it: a utility class that disappears is reported as a breaking change. To release: each pull request carries a changeset (`npx changeset`: patch, minor or major, and the note); on `main` a "Release" pull request gathers them into the next version and `CHANGELOG.md`, and merging it tags the version and makes a GitHub release (see `tools/README.md`).
 
 ## Design tokens for design tools
@@ -389,7 +395,7 @@ Current Chrome, Edge, Safari and Firefox. The tests run in Chromium, and the cro
 | `*-safe` alignment (`items-end-safe`, `justify-center-safe`, …) | Safari before 17.6 (they align as without `-safe`) |
 | `field-sizing-*` | Firefox, and Safari before 26.2 (Textarea's `autoResize` measures in script there) |
 
-Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
+Popover and command buttons (`popoverTarget`, `command`), `text-wrap: balance` and `pretty`, phrase breaks in Japanese headings (`word-break: auto-phrase`), entry and exit animations (`@starting-style`, `transition-behavior`), view transitions and scrollbar styling are progressive: older browsers ignore them and the page still works.
 
 Three features set the oldest versions that get the whole system, so the baseline is Chrome and Edge 123, Safari 17.5 and Firefox 128. A check (`tools/test/browser-baseline.mjs`) holds every property, value and at-rule in `bundle.css` to it, with MDN's compatibility data, and lists what is newer on purpose:
 
@@ -416,6 +422,6 @@ The system is self-contained: every file it needs is in it, and nothing loads fr
 | Work | Used for | License |
 | --- | --- | --- |
 | Tailwind CSS (Tailwind Labs) | The naming and values of the utility classes, the palette and the scales, checked against its compiler (v4.3.3) | MIT — `licenses/TailwindCSS-MIT.txt` |
-| Inter (Rasmus Andersson) | `font-sans` — `fonts/InterVariable.woff2`, `fonts/InterVariable-Italic.woff2` | SIL Open Font License 1.1 — `licenses/Inter-OFL-1.1.txt` |
+| Inter (Rasmus Andersson) | `font-sans` — `fonts/InterVariable.woff2`, `fonts/InterVariable-Italic.woff2`, and the same split by script, `fonts/InterVariable-*.woff2` | SIL Open Font License 1.1 — `licenses/Inter-OFL-1.1.txt` |
 | Material Symbols (Google) | Icons, as SVG in the components and `serupa-ds/icons`: the Rounded, filled, weight-400 style | Apache 2.0 — `licenses/MaterialSymbols-Apache-2.0.txt` |
 | React 19.3.1 (Meta) | Running the components on plain pages — `dist/lib/`, built from the `react` and `react-dom` packages by the build | MIT — `licenses/React-MIT.txt` |

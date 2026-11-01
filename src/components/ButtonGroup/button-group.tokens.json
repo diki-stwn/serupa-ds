@@ -27,7 +27,7 @@
       "divider": {
         "$type": "number",
         "$value": "{opacity.opacity-40}",
-        "$description": "Strength of the edge between two attached solid (primary) buttons, in their text color (40%). Set 0% for none.",
+        "$description": "Strength of the edge between two attached primary buttons, in their text color (40%). Set `0%` for none.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--button-group-divider"
