@@ -164,6 +164,17 @@ describe('PhoneInput', () => {
     expect([field('pr').value, sel.value]).toEqual([start, 'ID']);
   });
 
+  test('form reset with the country unchanged: the menu shows it, not the first option, and ArrowDown on it goes on from there (GR86)', async () => {
+    await render(<form id="pg"><PhoneInput id="pgb" aria-label="Phone" name="phone" defaultValue="+442079460958" /><button type="reset" id="pgr">Reset</button></form>);
+    const f = document.getElementById('pg') as HTMLFormElement;
+    await userEvent.click(document.getElementById('pgr')!);
+    await new Promise((r) => setTimeout(r, 100));
+    expect([menu('pgb').value, new FormData(f).get('phone')]).toEqual(['GB', '+442079460958']);
+    menu('pgb').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(new FormData(f).get('phone')).not.toMatch(/^\+358/);
+  });
+
   test('controlled: value in E.164 is shown grouped and follows the parent; the default country comes from the locale\'s region', async () => {
     function Ctl() {
       const [v, setV] = React.useState('+819012345678');
@@ -280,6 +291,20 @@ describe('PhoneInput', () => {
     expect([menu('p').value, calls.at(-1), new FormData(document.getElementById('f83') as HTMLFormElement).get('tel')]).toEqual(['GB', '+442079460958', '+442079460958']);
     await userEvent.type(field('q'), '0044 20 7946 0958');
     expect([menu('q').value, calls.at(-1)]).toEqual(['GB', '+442079460958']);
+  });
+
+  test('GR85: "0044 …" typed key by key in a +1 field picks the country too, and a lone 0 still starts an Italian number', async () => {
+    const calls: string[] = [];
+    await render(<Wrap>
+      <PhoneInput id="p" aria-label="Phone" onValueChange={(v) => calls.push(v)} />
+      <PhoneInput id="q" aria-label="Phone" defaultCountry="IT" onValueChange={(v) => calls.push(v)} />
+    </Wrap>);
+    await userEvent.type(field('p'), '0');
+    expect([field('p').value, menu('p').value]).toEqual(['0', 'US']);
+    await userEvent.type(field('p'), '044 20 7946 0958');
+    expect([menu('p').value, calls.at(-1)]).toEqual(['GB', '+442079460958']);
+    await userEvent.type(field('q'), '06 1234 5678');
+    expect([menu('q').value, calls.at(-1)]).toEqual(['IT', '+390612345678']);
   });
 
   test('Germany groups by the area code: "030 123456" is "30 123456"', async () => {

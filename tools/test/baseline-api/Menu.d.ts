@@ -29,7 +29,7 @@ interface MenuItemOwnProps {
     destructive?: boolean;
     disabled?: boolean;
 }
-interface ItemProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
+interface MenuItemBaseProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
     href?: string;
     as?: React.ElementType;
     target?: string;
@@ -44,7 +44,7 @@ declare const MenuItem: {
 type MenuItemProps<C extends React.ElementType = "a"> = MenuItemOwnProps & {
     as?: C;
 } & Omit<React.ComponentPropsWithoutRef<C>, "as" | keyof MenuItemOwnProps>;
-type CheckableProps = Omit<ItemProps, "aria-checked" | "as" | "destructive" | "href" | "rel" | "role" | "target">;
+type CheckableProps = Omit<MenuItemBaseProps, "aria-checked" | "as" | "destructive" | "href" | "rel" | "role" | "target">;
 interface MenuCheckboxItemProps extends CheckableProps {
     checked: boolean;
     onCheckedChange?: (checked: boolean) => void;
