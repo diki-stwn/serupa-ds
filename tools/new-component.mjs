@@ -74,7 +74,8 @@ export interface ${name}Props extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 }
 
-/** ${TODO}: one line on what ${name} is for. */
+/** ${TODO}: one line on what ${name} is for.
+ *  @beta New: its API may still change in a minor release. Take this tag off once it has shipped with its bug bash done (CONTRIBUTING.md). */
 export const ${name} = /* @__PURE__ */ component<HTMLDivElement, ${name}Props>("${name}", function ${name}(props, ref) {
   const { className, ...rest } = props;
   return <div {...rest} ref={ref} className={cn("dk-${kebab}", className)} data-component="${kebab}" />;
