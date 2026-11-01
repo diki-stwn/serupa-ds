@@ -9091,7 +9091,7 @@
     "sans": {
       "$type": "fontFamily",
       "$value": [
-        "Inter",
+        "Inter, \"Inter Fallback",
         "ui-sans-serif",
         "system-ui",
         "sans-serif"

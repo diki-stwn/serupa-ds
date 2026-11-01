@@ -20,5 +20,10 @@
 .dk-empty-state__suggestions { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: var(--spacing-2); row-gap: var(--spacing-1); margin: var(--spacing-0); color: var(--empty-state-description-color, var(--text-muted)); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dk-empty-state__suggestions .dk-empty-state__suggestion { height: auto; min-height: var(--spacing-6); padding-block: var(--spacing-0); padding-inline: var(--spacing-0); font-size: inherit; line-height: inherit; text-decoration: underline; }
 strong.dk-empty-state__suggestion { color: var(--empty-state-title-color, var(--text)); font-weight: var(--font-semibold); text-decoration: none; }
-.dk-empty-state__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--spacing-2); }
+.dk-empty-state__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--spacing-2); max-inline-size: var(--sizing-full); }
+/* A long label wraps onto more lines rather than widening the whole state past a narrow screen (GR71): the
+   button's own wrap look, its height growing from its size's height (centered in the row, so a short one keeps its own). */
+.dk-empty-state__actions > .dk-btn:not(.dk-btn--icon-only) { white-space: normal; overflow-wrap: anywhere; text-align: center; height: auto; min-height: var(--button-height-md, var(--control-height-md)); padding-block: var(--button-padding-y-wrap, var(--spacing-1)); }
+.dk-empty-state__actions > .dk-btn--size-sm:not(.dk-btn--icon-only) { min-height: var(--button-height-sm, var(--control-height-sm)); padding-block: var(--button-padding-y-wrap-sm, var(--spacing-0\.5)); }
+.dk-empty-state__actions > .dk-btn--size-lg:not(.dk-btn--icon-only) { min-height: var(--button-height-lg, var(--control-height-lg)); }
 }
