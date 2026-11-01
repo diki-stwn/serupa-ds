@@ -144,9 +144,9 @@ describe('Navbar', () => {
       for (const th of THEMES) {
         document.documentElement.setAttribute('data-theme', th);
         window.scrollTo(0, 0);
-        await expect.poll(() => css(n).backgroundColor, th).toBe(paint('surface'));
+        await expect.poll(() => css(n).backgroundColor, { message: th }).toBe(paint('surface'));
         window.scrollTo(0, 600);
-        await expect.poll(() => css(n).backgroundColor, th).toBe(paint('surface-raised'));
+        await expect.poll(() => css(n).backgroundColor, { message: th }).toBe(paint('surface-raised'));
         if (th.endsWith('dark')) expect(paint('surface-raised'), th).not.toBe(paint('surface'));
       }
     } finally { window.scrollTo(0, 0); }
