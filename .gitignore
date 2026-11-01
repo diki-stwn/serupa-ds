@@ -16,3 +16,4 @@ __screenshots__/
 src/styles/utilities.css
 coverage/
 src/generated/
+docs/generated/

@@ -38,6 +38,7 @@
     "./serupa.iife.js": "./dist/serupa.iife.js",
     "./serupa-icons.iife.js": "./dist/serupa-icons.iife.js",
     "./theme.js": "./dist/theme.js",
+    "./debug.js": "./dist/debug.js",
     "./components.json": "./dist/components.json",
     "./eslint": {
       "types": "./dist/eslint.d.ts",
@@ -72,6 +73,7 @@
   "sideEffects": [
     "*.css",
     "./dist/theme.js",
+    "./dist/debug.js",
     "./dist/serupa.iife.js",
     "./dist/serupa-icons.iife.js"
   ],
