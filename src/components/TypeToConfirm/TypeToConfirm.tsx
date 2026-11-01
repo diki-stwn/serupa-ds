@@ -34,7 +34,7 @@ export interface TypeToConfirmProps extends Omit<React.HTMLAttributes<HTMLDivEle
    the phrase is typed (it stays focusable, aria-disabled, and says why), so the action needs a deliberate step. Paste
    is allowed (WCAG 3.3.8): the step is reading what's at stake, not retyping it. The field turns off autocomplete,
    spellcheck, autocapitalize and autocorrect, which would change what's typed. Enter in the field confirms once it
-   matches. autoFocus goes to the field (L8E94); className and other props go to the wrapper <div>. */
+   matches. What's typed clears when a Dialog around it closes or its form resets. autoFocus goes to the field (L8E94); className and other props go to the wrapper <div>. */
 /** A field and a destructive button: the button works only once the phrase (a name) is typed, for actions that can't be undone. */
 export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToConfirmProps>("TypeToConfirm", function TypeToConfirm(props, ref) {
   const sds = useSettings(words);
@@ -59,6 +59,16 @@ export const TypeToConfirm = /* @__PURE__ */ component<HTMLDivElement, TypeToCon
   const button = React.useRef<HTMLButtonElement | null>(null);
   const field = React.useRef<HTMLInputElement | null>(null);
   useAutoFocus(autoFocus, () => field.current);
+  // What was typed goes once the Dialog or Drawer around it closes (it stays mounted), or its form resets: reopened,
+  // the button would already work, without the deliberate step it's there for (L8E101).
+  React.useEffect(() => {
+    const at = field.current, box = at && (at.closest("dialog") || at.form);
+    if (!box) return;
+    const clear = () => setText("");
+    const type = box.tagName === "DIALOG" ? "close" : "reset";
+    box.addEventListener(type, clear);
+    return () => box.removeEventListener(type, clear);
+  }, []);
   return (
     <div {...rest} ref={ref} className={cn("dk-type-to-confirm", className)} data-component="type-to-confirm">
       <Field label={label != null ? label : <>{sds.labels.typeToConfirm} <strong className="dk-type-to-confirm__phrase">{phrase}</strong></>} hint={hint} disabled={disabled}>
