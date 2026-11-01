@@ -13,7 +13,7 @@ import { CopyButton } from '../src/components/CopyButton/CopyButton';
 import { customIcons, isIconData } from '../src/icons';
 import { DEFAULT_LABELS, idLabels, type SerupaLabels } from '../src/internal/labels';
 import labelsSource from '../src/internal/labels.ts?raw';
-import { componentStatus } from '../src/generated/status';
+import { componentStatus } from './generated/status';
 // Each component's own words (src/components/<Name>/labels.ts), whose doc comments say where each is used too.
 const componentLabelSources = Object.values(import.meta.glob('../src/components/*/labels.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>);
 

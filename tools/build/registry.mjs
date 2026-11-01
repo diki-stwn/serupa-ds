@@ -87,7 +87,9 @@ export function buildRegistry(root = ROOT) {
     + `export const componentId: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.id`).join(', ')});\n`);
   // For the docs pages (docs/blocks.tsx), not the package: each component that isn't stable, and its status.
   const unstable = all.map((n) => [n, status(n, root)]).filter(([, st]) => st !== 'stable');
-  write(path.join(out, 'status.ts'), BANNER
+  // In docs/generated/, not src/: nothing in the package reads it.
+  fs.mkdirSync(path.join(root, 'docs', 'generated'), { recursive: true });
+  write(path.join(root, 'docs', 'generated', 'status.ts'), BANNER
     + '/** Each component that isn\'t stable, by name: alpha, beta or deprecated, from the doc comment on its export. */\n'
     + `export const componentStatus: Record<string, 'alpha' | 'beta' | 'deprecated'> = {${unstable.map(([n, st]) => ` ${n}: '${st}'`).join(',')}${unstable.length ? ' ' : ''}};\n`);
 }
