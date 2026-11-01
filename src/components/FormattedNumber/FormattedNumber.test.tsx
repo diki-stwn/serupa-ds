@@ -110,8 +110,8 @@ describe('FormattedNumber: no negative zero (GR84)', () => {
   test('a negative value that rounds to zero is written as zero, in the component, formatNumber and the server; a real negative keeps its minus', async () => {
     const usd = { format: 'currency' as const, currency: 'USD' };
     expect([formatNumber(-0.004, 'en-US', usd), formatNumber(-0.004, 'de-DE', { format: 'currency', currency: 'EUR' }), formatNumber(-0.0001, 'en-US', { format: 'percent' }),
-      formatNumber(-0, 'en-US'), formatNumber(-0.4, 'en-US', { maximumFractionDigits: 0 }), formatNumber(-0.004, 'en-US', { format: 'compact' })])
-      .toEqual(['$0.00', nf('de-DE', { style: 'currency', currency: 'EUR' }, 0), '0%', '0', '0', '0']);
+      formatNumber(-0, 'en-US'), formatNumber(-0.4, 'en-US', { maximumFractionDigits: 0 }), formatNumber(-0.4, 'en-US', { format: 'bytes' })])
+      .toEqual(['$0.00', nf('de-DE', { style: 'currency', currency: 'EUR' }, 0), '0%', '0', '0', '0 byte']);
     expect([formatNumber(-0.006, 'en-US', usd), formatNumber(-1.5, 'en-US'), formatNumber(-1n, 'en-US')]).toEqual(['-$0.01', '-1.5', '-1']);
     // A signDisplay of your own is kept.
     expect(formatNumber(-0, 'en-US', { signDisplay: 'always' })).toBe(nf('en-US', { signDisplay: 'always' }, -0));
