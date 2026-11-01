@@ -65,9 +65,24 @@ export const HoverCard = /* @__PURE__ */ component<HTMLDivElement, HoverCardProp
     if (!controlled) setInner(v);
     if (ask.current) ask.current(v, { reason });
   }, [controlled]);
-  const later = (v: boolean, ms: number, reason: OpenChangeReason) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, reason), ms); };
+  // Escape during the open delay cancels the open, and the card stays shut until the pointer or focus leaves the
+  // trigger and comes back (GR88): it was dismissed before it showed. Nothing is on screen yet, so that Escape
+  // goes on to whatever else handles it.
+  const muted = React.useRef(false);
+  const armed = React.useRef<((e: KeyboardEvent) => void) | null>(null);
+  const unarm = () => { if (armed.current) document.removeEventListener("keydown", armed.current, true); armed.current = null; };
+  const later = (v: boolean, ms: number, reason: OpenChangeReason) => {
+    window.clearTimeout(timer.current); unarm();
+    if (v && muted.current) return;
+    timer.current = window.setTimeout(() => { unarm(); set(v, reason); }, ms);
+    if (!v || openRef.current) return;
+    const esc = (e: KeyboardEvent) => { if (e.key !== "Escape" || isComposing(e)) return; window.clearTimeout(timer.current); unarm(); muted.current = true; };
+    armed.current = esc;
+    document.addEventListener("keydown", esc, true);
+  };
+  const unmute = () => { muted.current = false; };
   const stay = () => window.clearTimeout(timer.current);
-  React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  React.useEffect(() => () => { window.clearTimeout(timer.current); unarm(); }, []);
   const openDelay = props.openDelay == null ? cardIntent : props.openDelay;
   const closeDelay = props.closeDelay == null ? cardLeave : props.closeDelay;
 
@@ -92,7 +107,7 @@ export const HoverCard = /* @__PURE__ */ component<HTMLDivElement, HoverCardProp
 
   // Focus moving somewhere other than the trigger or the card closes it, after the same grace as the pointer.
   const within = (to: EventTarget | null) => !!to && ((!!cardRef.current && cardRef.current.contains(to as Node)) || (!!triggerRef.current && triggerRef.current.contains(to as Node)));
-  const blurred = (e: React.SyntheticEvent) => { if (!within((e as React.FocusEvent).relatedTarget)) later(false, closeDelay, "blur"); };
+  const blurred = (e: React.SyntheticEvent) => { if (!within((e as React.FocusEvent).relatedTarget)) { unmute(); later(false, closeDelay, "blur"); } };
   const touch = (e: React.SyntheticEvent) => "pointerType" in e && (e as React.PointerEvent).pointerType === "touch";
 
   const child = oneElement<TriggerProps>(props.trigger, "HoverCard", "trigger");
@@ -104,7 +119,7 @@ export const HoverCard = /* @__PURE__ */ component<HTMLDivElement, HoverCardProp
     ref: (n: HTMLElement | null) => { triggerRef.current = n; if (childRef) setRef(childRef, n); },
     // Pointer events, not mouse events: a tap sends a mouseenter and never a mouseleave. A touch pointer doesn't hover.
     onPointerEnter: chain("onPointerEnter", (e) => { if (touch(e)) return; if (openRef.current) stay(); else later(true, openDelay, "hover"); }),
-    onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) later(false, closeDelay, "hover"); }),
+    onPointerLeave: chain("onPointerLeave", (e) => { if (!touch(e)) { unmute(); later(false, closeDelay, "hover"); } }),
     // Keyboard focus only (focus-visible): a click on the link is on its way to the page it opens.
     onFocus: chain("onFocus", (e) => { const t = e.target as HTMLElement; if (openRef.current) stay(); else if (!t.matches || t.matches(":focus-visible")) later(true, openDelay, "focus"); }),
     onBlur: chain("onBlur", blurred),
