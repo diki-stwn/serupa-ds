@@ -107,7 +107,7 @@ function FileName({ name }: { name: string }) {
    and a remove button. accept, maxSize and maxFiles are checked on the way in; files that don't fit are listed
    in a danger message (role="alert") and passed to onReject. A native file input does the choosing (so name
    submits the files with a form), and files dropped in are put into it too. Uploading is up to you: read the
-   files from onFilesChange. */
+   files from onFilesChange. Files pasted while focus is inside it (a screenshot) are added as if dropped. */
 /** A drop area and a button for choosing files, with the chosen files listed under it. */
 export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadProps>("FileUpload", function FileUpload(props, ref) {
   const sds = useSettings(words), locale = useLocale();
@@ -240,6 +240,15 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
       add(dropped, folders);
     },
   };
+  // Pasting with focus inside (on the choose button, a remove button) adds the clipboard's files, such as a screenshot
+  // (N9). Text pasted there is left alone.
+  const onPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    if (rest.onPaste) rest.onPaste(e);
+    const pasted = e.clipboardData ? Array.from(e.clipboardData.files || []) : [];
+    if (e.defaultPrevented || still || !pasted.length) return;
+    e.preventDefault();
+    add(pasted);
+  };
   const hasHint = props.hint != null && props.hint !== "";
   // In a Field (whose <label for> reaches only the hidden input), the button is named "Due date, Choose a file" and
   // described by the Field's hint and error, then its own hint.
@@ -251,7 +260,7 @@ export const FileUpload = /* @__PURE__ */ component<HTMLDivElement, FileUploadPr
   const given = props["aria-describedby"];
   const described = cn(required && base + "-req", given, errorId && !(given || "").split(/\s+/).includes(errorId) && errorId, hasHint && base + "-hint", missing && base + "-missing") || undefined;
   return (
-    <div {...rest} ref={(n) => { delegateFocus(n, choose); setRef(ref, n); }} aria-disabled={disabled || undefined} className={cn("dk-file-upload", disabled && "dk-file-upload--disabled", readOnly && "dk-file-upload--readonly", (invalid || missing) && "dk-file-upload--invalid", props.className)} data-component="file-upload">
+    <div {...rest} onPaste={onPaste} ref={(n) => { delegateFocus(n, choose); setRef(ref, n); }} aria-disabled={disabled || undefined} className={cn("dk-file-upload", disabled && "dk-file-upload--disabled", readOnly && "dk-file-upload--readonly", (invalid || missing) && "dk-file-upload--invalid", props.className)} data-component="file-upload">
       {/* A click on the area's padding opens the picker too, for the pointer only: the choose button is how the
           keyboard and screen readers reach it, so the area is presentational and carries no state (TF1b); a disabled upload says so on the whole of it. */}
       <div className={cn("dk-file-upload__zone", over && "dk-file-upload__zone--over")} data-dragging={over ? "" : undefined} role="presentation" {...drag}
