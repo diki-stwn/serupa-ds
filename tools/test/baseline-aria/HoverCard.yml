@@ -10,6 +10,12 @@
   - /url: "#dewi-projects"
 - text: on Monday.
 
+# Disabled
+- text: Reviewed by
+- link "@dewi":
+  - /url: "#dewi"
+- text: on Monday.
+
 # LongText
 - text: Reviewed by
 - link "@dewi":
