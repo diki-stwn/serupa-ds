@@ -41,6 +41,7 @@ In a React app (Vite, Next.js, Remix):
 import 'serupa-ds/tokens.css';
 import 'serupa-ds/base.css';     // page defaults; leave out when adding the system to an existing app
 import 'serupa-ds/bundle.css';   // or components.css, plus utilities.css if you use the classes
+// import 'serupa-ds/utilities-extra.css';   // masks and gradients (mask-*, bg-linear-*, from-*…), if you use them
 import { Button, Field, Input } from 'serupa-ds';
 
 export function SignUp() {
@@ -114,7 +115,8 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `tokens.css` | Every token as a CSS variable, the six themes, and the fonts. Load it first. |
 | `dist/base.css` | Page defaults (font, colors, focus style, reduced motion, print), all inside `:where()` so any class wins. When printing, filled controls (Button, Badge, Progress, checked boxes) keep their colors, toasts, tooltips and open menus and pickers are left out, and `data-print-urls` on a container prints each outside link's address after it. |
 | `dist/components.css` | The component styles (`dk-*`), about 205 KB (27 KB gzipped). |
-| `dist/utilities.css` | Every utility class. |
+| `dist/utilities.css` | The utility classes, apart from masks and gradients. |
+| `dist/utilities-extra.css` | The masks (`mask-*`) and gradients (`bg-linear-*`, `bg-radial`, `bg-conic`, and the `from-`, `via-` and `to-` stops): a quarter of the utility rules, which few pages use. Import it after `bundle.css` or `utilities.css`. |
 | `dist/bundle.css` | `components.css` + `utilities.css`. |
 | `dist/index.js`, `dist/index.d.ts` | The components as ES modules, with types. |
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
@@ -361,6 +363,19 @@ Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The fil
 ### In Figma
 
 The Figma variables workflow keeps a Figma file's variables in step with the tokens: three collections (Serupa palette, Serupa themes with a mode per theme, Serupa scales), each variable named by its path (`spacing/spacing-4`) with its description and its CSS variable as the code syntax Dev Mode shows. It runs on `main` when the tokens change, once the repository has a `FIGMA_TOKEN` (with the `file_variables:read` and `file_variables:write` scopes) and a `FIGMA_FILE` secret; Figma's Variables REST API needs an Enterprise plan. `node tools/tokens/figma-variables.mjs` shows what it would send.
+
+## Tokens for native apps
+
+`dist/native/` (`serupa-ds/native/…`) holds the colors, spacing, radii, border widths, sizes, font sizes, opacities and durations for an iOS or Android app that sits beside a web app on Serupa, made from the same tokens by `npm run build`. A rem is 16 points (dp).
+
+| File | Holds |
+| --- | --- |
+| `ios/SerupaTokens.swift` | SwiftUI: `SerupaTokens.spacing4` (points), `SerupaTokens.motionHover` (seconds), `SerupaPalette.blue600`, and `SerupaColors.blueLight.primary`: the alias colors, one set per theme |
+| `android/SerupaTokens.kt` | Jetpack Compose (package `com.serupa.tokens`): the same in `dp`, `sp` and milliseconds, and `SerupaColors.BlueLight.primary` |
+| `android/res/values/serupa_tokens.xml` | Android resources: the palette, `@dimen/serupa_spacing_4`, durations as integers and opacities as float dimens |
+| `android/res-<brand>/values/` and `values-night/` | One brand's alias colors (`@color/serupa_primary`), light and dark. Add the brand's folder as a resource directory and night mode picks the dark ones |
+
+Shadows, easings and the type styles aren't in them yet.
 
 ## Editor autocomplete
 

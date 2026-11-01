@@ -35,6 +35,7 @@
     "./bundle.css": "./dist/bundle.css",
     "./components.css": "./dist/components.css",
     "./utilities.css": "./dist/utilities.css",
+    "./utilities-extra.css": "./dist/utilities-extra.css",
     "./serupa.iife.js": "./dist/serupa.iife.js",
     "./serupa-icons.iife.js": "./dist/serupa-icons.iife.js",
     "./theme.js": "./dist/theme.js",
@@ -57,6 +58,7 @@
     },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
+    "./native/*": "./dist/native/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
   },

@@ -33,13 +33,14 @@ export function tokensCss(t = tokens()) {
 
 // A page with the tokens, bundle.css and (optionally) React + serupa.iife.js, written next to the
 // project so file:// URLs to fonts and libraries resolve.
-export function writePage(name, body, { react = false, extraHead = '', base = false, theme = false, htmlAttrs = null, bundle = '../dist/bundle.css' } = {}) {
+// extra: also load utilities-extra.css (the masks and gradients) after the bundle, as a page that uses them does.
+export function writePage(name, body, { react = false, extraHead = '', base = false, theme = false, htmlAttrs = null, bundle = '../dist/bundle.css', extra = false } = {}) {
   const dir = path.join(PROJECT, '.test-tmp');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'tokens.test.css'), tokensCss().css);
   const libs = react ? ['dist/lib/react.production.min.js', 'dist/lib/react-dom.production.min.js', 'dist/serupa.iife.js'].map((s) => `<script src="../${s}"></script>`).join('') : '';
   const attrs = htmlAttrs ?? `data-theme="${tokensCss().themes[0]}"`;
-  const head = (theme ? '<script src="../dist/theme.js"></script>' : '') + '<link rel="stylesheet" href="tokens.test.css">' + (base ? '<link rel="stylesheet" href="../dist/base.css">' : '') + `<link rel="stylesheet" href="${bundle}">`;
+  const head = (theme ? '<script src="../dist/theme.js"></script>' : '') + '<link rel="stylesheet" href="tokens.test.css">' + (base ? '<link rel="stylesheet" href="../dist/base.css">' : '') + `<link rel="stylesheet" href="${bundle}">` + (extra ? '<link rel="stylesheet" href="../dist/utilities-extra.css">' : '');
   const html = `<!doctype html><html ${attrs}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${head}${libs}${extraHead}</head><body>${body}</body></html>`;
   const file = path.join(dir, name);
   fs.writeFileSync(file, html);

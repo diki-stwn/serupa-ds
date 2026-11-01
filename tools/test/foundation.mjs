@@ -39,7 +39,8 @@ const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const VAR = String.raw`var\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)`;
 
 const t = JSON.parse(read('tokens.json'));
-const cssRaw = read('dist/bundle.css');
+// The masks and gradients (utilities-extra.css) are held to the same rules as bundle.css.
+const cssRaw = read('dist/bundle.css') + read('dist/utilities-extra.css');
 const css = stripComments(cssRaw);
 const js = read('dist/serupa.iife.js');
 
@@ -215,7 +216,7 @@ check('tokens.css is exactly what tokens.json gives (npm run tokens if not)', tc
 
 // 12. cascade layers: every shipped stylesheet declares the same layer order and keeps its rules inside its layer
 const ORDER = '@layer dk.tokens, dk.base, dk.components, dk.utilities;';
-const layered = { 'tokens.css': 'dk.tokens', 'dist/base.css': 'dk.base', 'dist/components.css': 'dk.components', 'dist/utilities.css': 'dk.utilities' };
+const layered = { 'tokens.css': 'dk.tokens', 'dist/base.css': 'dk.base', 'dist/components.css': 'dk.components', 'dist/utilities.css': 'dk.utilities', 'dist/utilities-extra.css': 'dk.utilities' };
 const unlayered = [];
 for (const [f, layer] of Object.entries(layered)) {
   const body = stripComments(read(f)).trim();
