@@ -10,7 +10,7 @@ import { toast, Toaster, type ToasterPosition } from './Toast';
 import { idLabels } from '../../internal/labels';
 import { SerupaProvider } from '../../internal/provider';
 
-const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
+const toasts = () => [...document.querySelectorAll<HTMLElement>('[data-toast]')];
 // Each toast is named by its title (aria-labelledby).
 const titles = () => toasts().map((x) => document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent);
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
@@ -61,7 +61,7 @@ describe('Toast', () => {
     const x = toasts()[0], r = x.getBoundingClientRect();
     expect(typeof id).toBe('string');
     expect([document.getElementById(x.getAttribute('aria-labelledby')!)!.textContent, document.getElementById(x.getAttribute('aria-describedby')!)!.textContent]).toEqual(['Changes saved', 'All files are up to date.']);
-    expect([x.querySelector<HTMLElement>('.dk-toast__icon .dk-icon')?.dataset.icon, x.querySelector('button[aria-label="Dismiss"]')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
+    expect([x.querySelector<HTMLElement>(':scope > span[aria-hidden] > [data-icon]')?.dataset.icon, x.querySelector('button[aria-label="Dismiss"]')!.getAttribute('aria-label')]).toEqual(['check_circle', 'Dismiss']);
     expect([r.width, Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)]).toEqual([384, 16, 16]);
   });
 
