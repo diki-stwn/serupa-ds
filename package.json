@@ -1,6 +1,6 @@
 {
   "name": "serupa-ds",
-  "version": "11.0.0",
+  "version": "12.0.0",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -38,6 +38,7 @@
     "./serupa.iife.js": "./dist/serupa.iife.js",
     "./serupa-icons.iife.js": "./dist/serupa-icons.iife.js",
     "./theme.js": "./dist/theme.js",
+    "./debug.js": "./dist/debug.js",
     "./components.json": "./dist/components.json",
     "./eslint": {
       "types": "./dist/eslint.d.ts",
@@ -48,6 +49,11 @@
       "types": "./dist/stylelint.d.ts",
       "import": "./dist/stylelint.js",
       "default": "./dist/stylelint.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js",
+      "default": "./dist/testing.js"
     },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
@@ -72,6 +78,7 @@
   "sideEffects": [
     "*.css",
     "./dist/theme.js",
+    "./dist/debug.js",
     "./dist/serupa.iife.js",
     "./dist/serupa-icons.iife.js"
   ],

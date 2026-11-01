@@ -14,7 +14,7 @@ The components take care of themselves: their roles, names, focus, keyboard and 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Invoices · Acme</title>
   <script src="dist/theme.js"></script>
-  <link rel="preload" href="fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="dist/base.css">
   <link rel="stylesheet" href="serupa.min.css">
@@ -41,7 +41,7 @@ The components take care of themselves: their roles, names, focus, keyboard and 
 - **A skip link.** "Skip to content" comes first in the page and points at `main`'s `id`. Wrap it in [`<VisuallyHidden focusable>`](?path=/docs/components-layout-and-type-visuallyhidden--docs), which hides it until it's tabbed to and then shows it (2.4.1). `tabindex="-1"` on `main` lets focus land there in every browser.
 - **Focus after a route change.** A single-page app doesn't reload, so nothing moves focus or says the page changed. After a route change, move focus to the new page's `h1` or `main` (give it `tabindex="-1"`). The [Accessibility](?path=/docs/foundations-accessibility--docs) foundation lists what else stays the app's: errors, color in your own content, media and help.
 - **The theme, before anything paints.** Load `theme.js` first in `<head>`, before the stylesheets, so the page never flashes the wrong theme. It also keeps `<meta name="theme-color">` on the page's surface, so a phone's status bar and address bar follow light and dark. A `theme-color` meta the page writes itself is left as it is ([Themes](?path=/docs/foundations-themes--docs)).
-- **Preload the font.** Inter is one variable file, `fonts/InterVariable.woff2`, for every weight, so a single preload covers the regular, medium and semibold text at the top of the page. Text then appears in Inter on the first paint instead of swapping in. Keep `crossorigin` even on your own server: fonts are fetched that way, and a preload without it is downloaded twice. Preload the italic file only when italic text shows at the top of the page.
+- **Preload the font.** Inter comes split by script, and tokens.css gives each file its `unicode-range`, so a page downloads only the scripts its text uses. Each file is variable, with every weight, so one preload of the script your page is written in (`fonts/InterVariable-latin.woff2` for English and most of Western Europe, 103 KiB instead of 344 for the whole font) covers the regular, medium and semibold text at the top of the page. Also preload `-latin-ext`, `-cyrillic` or `-greek` when your page's language needs it. Text then appears in Inter on the first paint instead of swapping in. Keep `crossorigin` even on your own server: fonts are fetched that way, and a preload without it is downloaded twice. Preload the italic file only when italic text shows at the top of the page.
 
 ## What stays the app's
 

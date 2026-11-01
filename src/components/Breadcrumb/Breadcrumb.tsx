@@ -83,6 +83,11 @@ export const Breadcrumb = /* @__PURE__ */ component<HTMLElement, BreadcrumbProps
   const focusAfter = React.useRef(false);
   const items = flattenChildren(props.children).filter(React.isValidElement) as React.ReactElement<BreadcrumbItemProps>[];
   const max = typeof props.maxItems === "number" && props.maxItems >= 2 ? Math.floor(props.maxItems) : 0;
+  // Another page's trail (a router keeps the layout, and Breadcrumb, mounted) starts collapsed again: the "…" shown
+  // on one page didn't stay open for every page after it (L8E102).
+  const trail = items.map((el) => String(el.key) + el.props.href).join(" ");
+  const [was, setWas] = React.useState(trail);
+  if (was !== trail) { setWas(trail); setExpanded(false); }
   const collapse = !expanded && max > 0 && items.length > max;
   // collapsed: the first item, "…", then the last max - 1
   const shown = items.map((el, i) => ({ el, i })).filter(({ i }) => !collapse || i === 0 || i >= items.length - (max - 1));
