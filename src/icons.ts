@@ -20,8 +20,9 @@ export function hasIcon(name: unknown): name is string {
 
 /* Material Symbols by name. Components import the icons they draw (src/material/builtin.ts), so a bundle keeps only
    those. A name drawn as a string loads on first use: the components' icons from a small chunk (src/material/named.ts),
-   any other from the full set (src/material/icons.ts). Names a project registers win over both. */
-// module state: icons by name, the same for every request; the two loads below run once per process (a failed one is
+   any other from the one part of the full set that holds it (src/material/parts.ts: about 90 KB of the 2.7 MB).
+   Names a project registers win over both. */
+// module state: icons by name, the same for every request; each load below runs once per process (a failed one is
 // forgotten, so the next call tries again: a network blip, or a deploy that removed the old chunk).
 const NAMED = new Map<string, IconData>();
 let loading: Promise<void> | undefined;
@@ -31,22 +32,40 @@ let loadingNamed: Promise<void> | undefined;
 // after another).
 const LOADED = new Set<string>();
 const loaded = (v: IconData) => { if (!NAMED.has(v.name)) { NAMED.set(v.name, v); LOADED.add(v.name); } };
-// The two chunks, as an object so a test can make a load fail (Icon's IconLoad.test.tsx).
-// serupa.iife.js swaps `all` for a script tag (src/browser.ts): an IIFE can't split, so the table is a script of its own.
-export const iconChunks: { named: () => Promise<{ NAMED_ICONS: readonly IconData[] }>; all: () => Promise<Readonly<Record<string, unknown>>> } =
-  { named: () => import("./material/named"), all: () => import("./material/icons") };
+// The chunks, as an object so a test can make a load fail (Icon's IconLoad.test.tsx). `part` loads the part of the
+// table that would hold a name (parts.ts, 1 KB, says which), `all` the whole table (loadAllIcons).
+// serupa.iife.js swaps `all` for a script tag and `part` for loadAllIcons (src/browser.ts): an IIFE can't split, so the
+// table is a script of its own.
+export const iconChunks: {
+  named: () => Promise<{ NAMED_ICONS: readonly IconData[] }>;
+  part: (name: string) => Promise<Readonly<Record<string, unknown>>>;
+  all: () => Promise<Readonly<Record<string, unknown>>>;
+} = {
+  named: () => import("./material/named"),
+  part: (name) => import("./material/parts").then((m) => m.loadPart(name)),
+  all: () => import("./material/icons"),
+};
 
 /** Loads the icon for a name (Icon calls it when it meets a name it doesn't know yet): the components' own icons first,
- * from a small chunk, then every Material Symbol. Resolves to the icon, or undefined if no icon has that name. */
+ * from a small chunk, then the part of the Material Symbols that would hold it. Resolves to the icon, or undefined if
+ * no icon has that name. */
 export function loadIcon(name: string): Promise<IconData | undefined> {
   const found = () => NAMED.get(name);
   if (!loadingNamed) loadingNamed = iconChunks.named().then((m) => {
     for (const v of m.NAMED_ICONS) loaded(v);
   }).catch((err: unknown) => { loadingNamed = undefined; throw err; });
-  return loadingNamed.then(() => found() || loadAllIcons().then(found));
+  return loadingNamed.then(() => found() || (loading ? loading.then(found) : loadPartFor(name).then(found)));
 }
 
-/** Loads every Material Symbol so its name works (once; Icon calls it when it meets a name it doesn't know yet). */
+// Every icon in the part comes with it, so the other names in that part are found without another load. Two loads of
+// one part at once share the request (the browser loads a module once).
+function loadPartFor(name: string): Promise<void> {
+  return iconChunks.part(name).then((all) => {
+    for (const v of Object.values(all)) if (isIconData(v)) loaded(v);
+  });
+}
+
+/** Loads every Material Symbol so its name works (once). Icon doesn't need it: it loads the one part a name is in. */
 export function loadAllIcons(): Promise<void> {
   return loading || (loading = iconChunks.all().then((all) => {
     for (const v of Object.values(all)) if (isIconData(v)) loaded(v);

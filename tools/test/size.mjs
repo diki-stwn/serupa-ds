@@ -73,7 +73,9 @@ export function SignIn() {
 `;
 // KiB, gzipped: Button bundled by a build that doesn't split dynamic imports (DM1), so the icon set drawn by name
 // comes along (512.7 on 25 Oct 2026). Icon's README and Getting started say so; this keeps the number in sight.
-const NO_SPLIT = 530;
+// 550 on 1 Nov 2026 (548.5): the table is now 32 parts (I1), and a build that inlines them wraps each part and the
+// re-exports in its own module helpers. A build that splits loads one part of about 25 KiB instead of the table.
+const NO_SPLIT = 550;
 
 const DIR = path.join(HERE, 'baseline-size');
 const COMP = path.join(PROJECT, 'src', 'components');

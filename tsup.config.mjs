@@ -18,12 +18,13 @@ const windowReact = {
   },
 };
 
-// serupa.iife.js leaves out the full icon table (src/material/icons.ts): src/browser.ts loads serupa-icons.iife.js,
-// which has it, when an Icon first needs it. Here src/icons.ts's import of it is an empty module.
+// serupa.iife.js leaves out the full icon table (src/material/icons.ts and its parts): src/browser.ts loads
+// serupa-icons.iife.js, which has it, when an Icon first needs it. Here src/icons.ts's imports of the table and of
+// parts.ts are empty modules: an IIFE can't split, so the parts would all land in the script.
 const noTable = {
   name: 'no-icon-table',
   setup(build) {
-    build.onResolve({ filter: /^\.\/material\/icons$/ }, (a) => (/[\\/]src[\\/]icons\.ts$/.test(a.importer) ? { path: 'icons', namespace: 'no-icon-table' } : undefined));
+    build.onResolve({ filter: /^\.\/material\/(icons|parts)$/ }, (a) => (/[\\/]src[\\/]icons\.ts$/.test(a.importer) ? { path: a.path, namespace: 'no-icon-table' } : undefined));
     build.onLoad({ filter: /.*/, namespace: 'no-icon-table' }, () => ({ contents: 'export {};', loader: 'js' }));
   },
 };
@@ -32,14 +33,16 @@ const noTable = {
 const only = process.env.SERUPA_BUILD;
 
 export default defineConfig([
-  ...(only === 'iife' ? [] : [{
-    entry: { index: 'src/index.ts', icons: 'src/material/index.ts' },
+  // One build per entry, so each .d.ts holds its own types: built together, the types both use (IconData,
+  // MaterialIconName) would go to a third, hashed file.
+  ...(only === 'iife' ? [] : [{ index: 'src/index.ts' }, { icons: 'src/material/index.ts' }].map((entry) => ({
+    entry,
     format: ['esm'],
     // stripInternal: a prop tagged @internal (Calendar's hooks for DateRangePicker) stays out of the public types.
     dts: { only: true, compilerOptions: { stripInternal: true } },
     clean: false,
     external: ['react', 'react-dom'],
-  }]),
+  }))),
   ...[['serupa.iife', 'src/browser.ts'], ['serupa-icons.iife', 'src/browser-icons.ts']].map(([name, file]) => ({
     entry: { [name]: file },
     format: ['iife'],

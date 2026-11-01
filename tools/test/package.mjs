@@ -38,7 +38,8 @@ const untyped = exported.filter((n) => !typed.has(n));
 t('every export is on window.Serupa (src/browser.ts) and in its type (src/index.ts)', !untyped.length && bundlesAll, `not typed: ${untyped.join(', ')}; ${bundlesAll ? '' : 'browser.ts must assign everything from ./index to window.Serupa'}`);
 t('react and react-dom are peer dependencies (one React in the app)', pkg.peerDependencies && pkg.peerDependencies.react && pkg.peerDependencies['react-dom'] && !(pkg.dependencies || {}).react);
 // dist/index.d.ts imports React's types: a TypeScript project needs @types/react, a JavaScript one doesn't.
-const typeImports = [...new Set([...read('dist/index.d.ts').matchAll(/from ['"]([^'"./][^'"]*)['"]/g)].map((m) => m[1]))];
+// Import and export lines only: a doc comment can quote one (`import { Add } from "serupa-ds/icons"`).
+const typeImports = [...new Set([...read('dist/index.d.ts').matchAll(/^(?:import|export)\b[^\n]*\bfrom ['"]([^'"./][^'"]*)['"]/gm)].map((m) => m[1]))];
 const untypedPeers = typeImports.filter((m) => !pkg.peerDependencies?.[`@types/${m}`] || !pkg.peerDependenciesMeta?.[`@types/${m}`]?.optional);
 t('every package dist/index.d.ts imports types from has its @types package as an optional peer', typeImports.length && !untypedPeers.length, `${untypedPeers.map((m) => `@types/${m}`).join(', ')} (imports: ${typeImports.join(', ')})`);
 
@@ -125,15 +126,15 @@ if (D) {
   // index.js and every module it imports (dist/js/), as a bundler puts them together, without the full icon set.
   // Measured minified, as a project ships it. 31 Oct 2026: it was measured unminified, so comments counted, and main
   // sat 3 B under 150 KB; minified it is 117 KB. This is a backstop: the tight line is "All components (index.js)" in size.mjs.
-  const indexJs = esbuild.buildSync({ entryPoints: [path.join(PROJECT, 'dist', 'index.js')], bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].text;
+  const indexJs = esbuild.buildSync({ entryPoints: [path.join(PROJECT, 'dist', 'index.js')], bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js', './material/parts.js'], logLevel: 'silent' }).outputFiles[0].text;
   t('index.js leaves the full icon set out (loaded on demand) and stays under 130 KB gzipped, minified', !indexJs.includes('"sports_cricket"') && zlib.gzipSync(indexJs).length < 130 * 1024, `${Math.round(zlib.gzipSync(indexJs).length / 1024)} KB`);
   // Tree-shaking: a bundler keeps only what a project imports. Every component is made by component() or named()
   // with a /* @__PURE__ */ mark and nothing else runs at the top of a module, so Divider alone is a few hundred bytes.
-  const alone = (name) => zlib.gzipSync(esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].contents).length;
+  const alone = (name) => zlib.gzipSync(esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js', './material/parts.js'], logLevel: 'silent' }).outputFiles[0].contents).length;
   const shaken = { Divider: alone('Divider'), toast: alone('toast') };
   t('a bundler drops the components a project doesn\'t import (Divider or toast alone: under 2 KB gzipped)', shaken.Divider < 2048 && shaken.toast < 2048, JSON.stringify(shaken));
   // …and the icons they don't draw: Dialog keeps its close icon, Button keeps none.
-  const code = (name) => esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js'], logLevel: 'silent' }).outputFiles[0].text;
+  const code = (name) => esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js', './material/parts.js'], logLevel: 'silent' }).outputFiles[0].text;
   const drawn = (js) => [...js.matchAll(/name: "([a-z0-9_]+)",\s*d: "/g)].map((m) => m[1]);
   const icons = { Button: drawn(code('Button')), Dialog: drawn(code('Dialog')) };
   t('a bundler keeps only the icons a component draws (Button: none, Dialog: close)', !icons.Button.length && icons.Dialog.join() === 'close', JSON.stringify(icons));
@@ -172,9 +173,9 @@ const ENTRIES = new Set(['browser', 'browser-icons', 'theme-types']);
 const modules = fs.readdirSync(path.join(PROJECT, 'src'), { recursive: true }).map((f) => String(f).split(path.sep).join('/'))
   .filter((f) => /\.tsx?$/.test(f) && !/\.(test|stories)\.tsx?$|\.d\.ts$/.test(f)).map((f) => f.replace(/\.tsx?$/, '')).filter((f) => !ENTRIES.has(f));
 const tokenFiles = fs.readdirSync(path.join(PROJECT, 'src', 'components'), { recursive: true }).map(String).filter((f) => f.endsWith('.tokens.json')).map((f) => `design-tokens/components/${path.basename(f)}`);
-// The generated icon table ships without a source map (tools/build/build.mjs).
-const NO_MAP = new Set(['material/icons']);
-const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, ...(NO_MAP.has(m) ? [] : [`dist/js/${m}.js.map`])]), ...tokenFiles]);
+// The generated icon table ships without a source map, both icons.js and its parts (tools/build/build.mjs).
+const noMap = (m) => m === 'material/icons' || m.startsWith('material/part/');
+const expected = new Set([...read('tools/test/baseline-package.txt').split('\n').filter(Boolean), ...modules.flatMap((m) => [`dist/js/${m}.js`, ...(noMap(m) ? [] : [`dist/js/${m}.js.map`])]), ...tokenFiles]);
 const extra = shipped ? [...shipped].filter((f) => !expected.has(f)) : [], gone = shipped ? [...expected].filter((f) => !shipped.has(f)) : [];
 t('npm pack ships exactly the expected files (tools/test/baseline-package.txt, a module per src/ file, a tokens file per component)', shipped && !extra.length && !gone.length,
   shipped ? `ships unexpectedly: ${extra.slice(0, 8).join(', ') || 'none'}; missing: ${gone.slice(0, 8).join(', ') || 'none'}. If intended, edit tools/test/baseline-package.txt (or package.json "files")` : pack.stderr.slice(0, 300));
