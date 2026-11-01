@@ -170,6 +170,18 @@ describe('focus after dismissing (DQ1)', () => {
     await expect.poll(() => document.activeElement?.id).toBe('t2');
   });
 
+  test('L8E75 skips a control that can\'t take focus, in a disabled <fieldset>: focus goes to the next one that can', async () => {
+    function Fenced() {
+      const [shown, setShown] = React.useState(true);
+      return <>{shown ? <Alert title="Saved" onDismiss={() => setShown(false)} /> : null}
+        <fieldset disabled><legend>Locked</legend><button type="button" id="off">Off</button></fieldset><button type="button" id="on">On</button></>;
+    }
+    await render(<Fenced />);
+    dismiss().focus();
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement?.id).toBe('on');
+  });
+
   test('with nothing after it, focus goes to the element before it', async () => {
     function Last() {
       const [shown, setShown] = React.useState(true);
@@ -193,5 +205,33 @@ describe('focus after dismissing (DQ1)', () => {
     await userEvent.keyboard('{Enter}');
     await new Promise((r) => setTimeout(r, 30));
     expect(document.activeElement).toBe(x[x.length - 1]);
+  });
+});
+
+describe('Alert inside a shadow root (GR60)', () => {
+  test('dismissing with the focused × moves focus to the next control in the shadow root, not to the page', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    function Own() {
+      const [shown, setShown] = React.useState(true);
+      return <>{shown ? <Alert onDismiss={() => setShown(false)}>Saved</Alert> : null}<button>After</button></>;
+    }
+    try {
+      await render(<Own />, { container: inner });
+      const root = host.shadowRoot!;
+      (root.querySelector('button') as HTMLElement).focus();   // the Alert's ×, the first button
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => root.activeElement && root.activeElement.textContent).toBe('After');
+    } finally { host.remove(); }
+  });
+  test('a long action label wraps onto more lines in a narrow box (240px), whole, not cut with an ellipsis (GR74)', async () => {
+    const label = 'Review the three invoices that failed to send';
+    await render(<div style={{ width: '240px' }}><Alert id="aw" title="Sync failed" actions={<><Button size="sm" variant="secondary">Retry</Button><Button size="sm" id="awreview">{label}</Button></>}>Some items didn’t sync.</Alert></div>);
+    const b = el('awreview'), r = b.getBoundingClientRect(), q = el('aw').getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 30, b.textContent]).toEqual([true, true, true, label]);
+    expect(b.previousElementSibling!.getBoundingClientRect().height).toBe(24);
   });
 });

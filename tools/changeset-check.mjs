@@ -50,7 +50,13 @@ if (changesets.length) {
     return exists ? execFileSync('git', ['show', `${ref}:${f}`], { cwd: P, encoding: 'utf8', maxBuffer: 64 << 20 }) : null;
   };
   const exportsOf = (ref, f) => (/^\/\/ exports: (.*)$/m.exec(show(ref, f) ?? '') || [])[1]?.split(', ') ?? [];
-  const gone = api.flatMap(([, f]) => { const now = exportsOf('HEAD', f); return exportsOf(base, f).filter((e) => !now.includes(e)).map((e) => `${e} (${path.basename(f, '.d.ts')})`); });
+  // An export that only gains its `type` mark (`IconData` to `type IconData`) is still there when the file declares it as
+  // an interface or a type alias: it was a type all along, imported from another file where the list couldn't tell.
+  const typeOnly = (f, e) => new RegExp(`^(?:interface|type) ${e}\\b`, 'm').test(show('HEAD', f) ?? '');
+  const gone = api.flatMap(([, f]) => {
+    const now = exportsOf('HEAD', f);
+    return exportsOf(base, f).filter((e) => !now.includes(e) && !(now.includes('type ' + e) && typeOnly(f, e))).map((e) => `${e} (${path.basename(f, '.d.ts')})`);
+  });
   // Token names (with the font-* and text-* families the type scale makes) and utility class names at a commit.
   const json = (ref, f) => { const text = show(ref, f); return text == null ? null : JSON.parse(text); };
   const tokensAt = (ref) => {

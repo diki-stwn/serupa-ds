@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
 import { markDismissal } from "./layers";
-import { cssLength, hideLayer, isRtl, placeLayer, showLayer, type Placement } from "./position";
+import { cssLength, firstSide, hideLayer, isRtl, placeLayer, showLayer, type Placement } from "./position";
 
 type Ref = React.RefObject<HTMLElement | null>;
 
@@ -12,8 +12,8 @@ export interface AnchoredLayerOptions {
   fallback?: Placement;
   /** The custom property holding the gap between anchor and layer, such as "--dk-menu-offset". */
   offsetVar: string;
-  /** Called on a press outside the layer and `inside`. On touch it waits for the tap's click, so a finger that
-      starts a scroll outside doesn't close the layer. */
+  /** Called on a press outside the layer and `inside`, and when the <dialog> it sits in closes. On touch it waits
+      for the tap's click, so a finger that starts a scroll outside doesn't close the layer. */
   onOutside?: () => void;
   /** Called when focus moves to an element outside the layer, the anchor and `inside` (Tab past the layer). */
   onFocusOutside?: () => void;
@@ -26,8 +26,8 @@ export interface AnchoredLayerOptions {
 }
 
 /** Shows `layer` in the top layer next to `anchor` while open, following scrolls, resizes and size changes;
-    a press outside the layer (and `inside`) calls onOutside, and focus moving outside them and the anchor calls
-    onFocusOutside. Focus is the caller's: do it in a layout effect
+    a press outside the layer (and `inside`) calls onOutside, as does the <dialog> it sits in closing, and focus
+    moving outside them and the anchor calls onFocusOutside. Focus is the caller's: do it in a layout effect
     declared after this hook, which runs once the layer is shown and placed. */
 export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: AnchoredLayerOptions): void {
   const { placement, fallback = "bottom", offsetVar, inside, matchWidth, watch } = opts;
@@ -40,7 +40,7 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
     if (!open || !a) { hideLayer(p); return; }
     // A first guess at the side before it shows: showing resolves the layer's first style, which is when an entry
     // from @starting-style keyed on data-side (Tooltip's slide) is fixed. placeLayer corrects it on a flip.
-    if (!p.dataset.side) p.dataset.side = (placement || fallback || "bottom").split("-")[0];
+    firstSide(p, (placement || fallback || "bottom").split("-")[0]);
     showLayer(p);
     // The gap and the page's direction are style reads: once, and again only when sizes change (a density or
     // theme switch), not on every scroll.
@@ -87,7 +87,13 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
     document.addEventListener("pointercancel", cancel, true);
     document.addEventListener("click", click, true);
     document.addEventListener("focusin", focus, true);
+    // The <dialog> or Drawer it sits in closing (a close() from code, a form's method="dialog") hides it with them,
+    // but it stayed open and was back, open, the next time they opened (L8E104).
+    const box = layer.current && layer.current.parentElement && layer.current.parentElement.closest("dialog");
+    const shut = () => { if (outside.current) outside.current(); };
+    if (box) box.addEventListener("close", shut);
     return () => {
+      if (box) box.removeEventListener("close", shut);
       document.removeEventListener("pointerdown", down, true); document.removeEventListener("pointercancel", cancel, true);
       document.removeEventListener("click", click, true); document.removeEventListener("focusin", focus, true);
     };

@@ -78,6 +78,7 @@ The panel's id is made for you unless you pass one, and the trigger's `aria-cont
 
 Each is an optional override: set it on the page, a container or one popover. The list lives in `src/components/Popover/popover.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from popover.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--popover-bg` | `surface-overlay` | The panel's background. |
@@ -95,3 +96,4 @@ Each is an optional override: set it on the page, a container or one popover. Th
 | `--popover-gap` | `spacing-2` | Space under the title (8px). |
 | `--popover-offset` | `spacing-2` | The gap between the panel and its trigger (8px). |
 | `--popover-z-index` | `z-popover` | The stacking level where the browser has no top layer (popover). |
+<!-- token-table:end -->

@@ -1336,6 +1336,17 @@
 @each color {
   .bg-{k} { background-color: var(--{t}); }
 }
+/* On a strong fill, the focus ring of what's inside takes the fill's own text color (74): the brand-colored ring
+   would all but vanish on the brand, and on the inverse surface. It's set on what's inside, not on the filled box,
+   whose own ring sits outside it on the page. */
+:is(.bg-primary, .bg-primary-hover) * { --focus-ring: var(--on-primary); }
+:is(.bg-danger, .bg-danger-hover) * { --focus-ring: var(--on-danger); }
+.bg-surface-inverse * { --focus-ring: var(--text-inverse); }
+/* A light surface painted inside the fill (a Card, a menu, a table, a light bg- class) gives what's inside it the
+   page's ring back (GR80): there the fill's text color would be white on white, or near-black on a dark card. The fill
+   keeps the page's ring in --dk-page-focus-ring for them. The surface's own ring sits outside it, on the fill. */
+:is(.bg-primary, .bg-primary-hover, .bg-danger, .bg-danger-hover, .bg-surface-inverse) { --dk-page-focus-ring: var(--focus-ring); }
+:is(.bg-primary, .bg-primary-hover, .bg-danger, .bg-danger-hover, .bg-surface-inverse) :is(.bg-surface, .bg-surface-muted, .bg-surface-raised, .bg-surface-overlay, .bg-field, .bg-secondary, .bg-primary-subtle, .bg-danger-subtle, .bg-success-subtle, .bg-warning-subtle, .bg-info-subtle, .dk-card, .dk-accordion--card, .dk-list--card, .dk-dialog__panel, .dk-drawer__panel, .dk-popover, .dk-menu, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-sidebar, .dk-navbar, .dk-toolbar, .dk-table, .dk-tree-view, .dk-toast, .dk-error-summary, .dk-sortable-list__item, .dk-file-upload__zone) * { --focus-ring: var(--dk-page-focus-ring); }
 /* background-image: none and gradients */
 .bg-none { background-image: none; }
 .bg-linear-to-t { --dk-gradient-position: to top in oklab; background-image: linear-gradient(var(--dk-gradient-stops)); }

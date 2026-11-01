@@ -81,6 +81,7 @@ import { Image } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one image. The list lives in `src/components/Image/image.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from image.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--image-bg` | `surface-muted` | The frame's fill while the picture loads, and behind a failed one. |
@@ -93,3 +94,4 @@ Each is an optional override: set it on the page, a container or one image. The 
 | `--image-fallback-icon` | `spacing-6` | The broken-image icon's size (24px). |
 | `--image-remove-offset` | `spacing-2` | The remove button's distance from the corner (8px). |
 | `--image-remove-shadow` | `shadow-sm` | The remove button's shadow, so it stands out on any picture. |
+<!-- token-table:end -->

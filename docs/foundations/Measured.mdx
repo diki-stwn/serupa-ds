@@ -1,0 +1,14 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { MeasuredStates } from '../measured';
+
+<Meta title="Foundations/Measured" />
+
+# Measured
+
+Each component below is measured in your browser as the page loads: the height, corner radius and starting padding of the box it draws, its text size, and the focus ring its styles declare. Every number is named by the token it equals, such as `control-height-md` or `rounded-md`. A radius or padding that no token gives reads **off scale**, which is a drift worth a look.
+
+Nothing on this page is typed in. The numbers come from the components' computed styles, and the focus rings from their `:focus-visible` and `:focus-within` rules in the loaded style sheets, so the page shows what ships today. Switch the theme or brand in the toolbar and the numbers follow.
+
+`src/internal/controlSizes.test.tsx` holds the one-line controls to one height, radius and text size per size on every pull request; [Control sizes](?path=/docs/foundations-control-sizes--docs) shows them side by side. This page is wider and looser: it is for reading, not a test.
+
+<MeasuredStates />

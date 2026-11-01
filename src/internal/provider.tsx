@@ -85,9 +85,10 @@ function same(a: unknown, b: unknown, depth: number): boolean {
 }
 /** The value from the render before while the new one has the same contents, so a memo that depends on it holds. */
 function useSameAsBefore<T>(v: T, depth: number): T {
-  const kept = React.useRef(v);
-  if (!same(kept.current, v, depth)) kept.current = v;
-  return kept.current;
+  const [kept, setKept] = React.useState(() => v);
+  if (same(kept, v, depth)) return kept;
+  setKept(() => v);   // during render: React renders again with it before the children
+  return v;
 }
 
 /** The components' view of the settings. The labels are the shared words, and a component's own words only where a

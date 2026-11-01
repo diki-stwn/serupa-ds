@@ -177,7 +177,7 @@
       "duration": {
         "$type": "duration",
         "$value": "{transitions.motion-enter-lg}",
-        "$description": "Sliding in (300ms).",
+        "$description": "Sliding in (300ms). Sliding out takes `motion-exit-lg` (200ms).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--drawer-duration"

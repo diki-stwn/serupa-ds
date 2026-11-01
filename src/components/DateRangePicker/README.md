@@ -80,11 +80,13 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 
 Each is an optional override: set it on the page, a container or one picker. The list lives in `src/components/DateRangePicker/date-range-picker.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from date-range-picker.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--date-range-picker-dash` | `text-muted` | The dash between the two fields. |
 | `--date-range-picker-status-color` | `text-muted` | "Choose the start date" under the months (4.5:1 on surface). |
 | `--date-range-picker-months-gap` | `spacing-6` | Space between the two months (24px). |
 | `--date-range-picker-field-width` | `spacing-24` | Each field's width (96px), enough for a full date. |
+<!-- token-table:end -->
 
 It uses Input's box, DatePicker's button and popup (`--date-picker-*` tokens), and Calendar's days (`--calendar-*`, with `--calendar-range-bg` and `--calendar-range-color` for the days between).

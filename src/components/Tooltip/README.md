@@ -27,7 +27,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 ## When not to use
 
-- Content with links, buttons or fields: use a [Popover](../Popover/README.md) instead; people can't reach anything inside a tooltip.
+- Content with links, buttons or fields: use a [Popover](../Popover/README.md) instead. People can't reach anything inside a tooltip: focus leaving the element hides it, and touch screens never show it. A link on its inverse fill also reads under 4.5:1 in every theme (1.84:1 to 3.43:1). A focusable element in `content` warns once in development (`tooltip-interactive`).
 - Anything people need to do the task: put it in the page instead, such as the `hint` of a [Field](../Field/README.md). Touch screens have no hover.
 - Error or status messages: use the error in [Field](../Field/README.md) or an [Alert](../Alert/README.md) instead.
 
@@ -77,6 +77,7 @@ const { Tooltip, IconButton, Button } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one tooltip. The list lives in `src/components/Tooltip/tooltip.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from tooltip.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--tooltip-bg` | `surface-inverse` | The background: the inverse surface, so it stands out in light and dark themes. |
@@ -85,6 +86,7 @@ Each is an optional override: set it on the page, a container or one tooltip. Th
 | `--tooltip-radius` | `rounded-md` | The corners (6px). |
 | `--tooltip-padding-x` | `spacing-2` | Padding at the sides (8px). |
 | `--tooltip-padding-y` | `spacing-1` | Padding at the top and bottom (4px). |
-| `--tooltip-offset` | `spacing-1_5` | The gap between the tooltip and what it describes (6px). |
+| `--tooltip-offset` | `spacing-1.5` | The gap between the tooltip and what it describes (6px). |
 | `--tooltip-max-width` | `spacing-60` | The widest a tooltip gets before it wraps (240px). |
 | `--tooltip-z-index` | `z-tooltip` | The stacking level where the browser has no top layer (popover). |
+<!-- token-table:end -->

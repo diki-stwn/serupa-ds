@@ -61,8 +61,10 @@ Every other Button prop works (`size`, `icon`, `leftIcon`, `rightIcon`, `disable
 
 Each is an optional override: set it on the page, a container or one toggle. The list lives in `src/components/ToggleButton/toggle-button.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from toggle-button.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--toggle-button-bg-pressed` | `primary-subtle` | The background while pressed (on). |
 | `--toggle-button-text-pressed` | `primary` | Text and icon while pressed (4.5:1 on bg-pressed). |
 | `--toggle-button-border-pressed` | `primary` | The outline variant's border while pressed (3:1 on surface). |
+<!-- token-table:end -->

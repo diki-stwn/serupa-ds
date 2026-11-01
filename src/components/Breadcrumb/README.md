@@ -79,6 +79,7 @@ The last item is the current page (Breadcrumb sets its `current` prop; you don't
 
 Each is an optional override: set it on the page, a container or one breadcrumb. The list lives in `src/components/Breadcrumb/breadcrumb.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from breadcrumb.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--breadcrumb-text` | `text-muted` | A link to a parent page (4.5:1 on surface). |
@@ -88,7 +89,8 @@ Each is an optional override: set it on the page, a container or one breadcrumb.
 | `--breadcrumb-focus-ring` | `focus-ring` | The keyboard focus ring. |
 | `--breadcrumb-font-size` | `text-sm` | The text (14px). |
 | `--breadcrumb-weight-current` | `font-medium` | The current page's weight (500). |
-| `--breadcrumb-gap` | `spacing-1_5` | Space between an item and a separator (6px). |
+| `--breadcrumb-gap` | `spacing-1.5` | Space between an item and a separator (6px). |
 | `--breadcrumb-separator-size` | `spacing-4` | The chevron's size (16px). |
 | `--breadcrumb-icon-size` | `spacing-4` | An item's icon (16px). |
 | `--breadcrumb-focus-radius` | `rounded-sm` | The focus ring's corners (4px). |
+<!-- token-table:end -->
