@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
 import { THEMES, color, contrast, css, press, settle, withMotion } from '../../../tools/test/vitest/helpers';
@@ -260,17 +260,6 @@ describe('Table', () => {
       f.scrollTop = 0;
       await expect.poll(lifted).toBe(false);
     });
-  });
-
-  test('captionHidden, the deprecated name, still hides the caption on screen and warns once to use hideCaption', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    await render(<><Table id="old" caption="Old"><TableBody><TableRow><TableCell>1</TableCell></TableRow></TableBody></Table>
-      <Table caption="Old 2" captionHidden><TableBody><TableRow><TableCell>2</TableCell></TableRow></TableBody></Table>
-      <Table caption="Old 3" captionHidden><TableBody><TableRow><TableCell>3</TableCell></TableRow></TableBody></Table></>);
-    const caps = [...document.querySelectorAll('caption')];
-    expect(caps.map((c) => c.classList.contains('dk-visually-hidden'))).toEqual([false, true, true]);
-    expect(warn.mock.calls.filter(([m]) => /captionHidden is deprecated/.test(String(m)))).toHaveLength(1);
-    warn.mockRestore();
   });
 
   test('unknown size and align fall back to md and start', async () => {

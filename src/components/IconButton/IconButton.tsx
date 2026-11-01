@@ -3,7 +3,6 @@ import type { IconSource } from "../Icon/Icon";
 import { cn } from "../../internal/cn";
 import { ButtonBase, type ButtonAsButtonProps, type ButtonAsLinkProps } from "../Button/Button";
 import { component } from "../../internal/component";
-import { warnOnce } from "../../internal/warn";
 
 type Without<T> = T extends unknown ? Omit<T, 'icon' | 'leftIcon' | 'rightIcon' | 'children' | 'aria-label'> : never;
 
@@ -16,8 +15,6 @@ interface IconButtonOwnProps {
   shape?: 'square' | 'round';
   /** Leaves out the title tooltip, for when visible text already shows the label. A wrapping Tooltip (aria-describedby or aria-labelledby) leaves it out by itself. Default: false. */
   hideTitle?: boolean;
-  /** @deprecated Use hideTitle: a boolean says what it turns on, in the positive. Still works, with a warning in development; removed in 12.0.0. */
-  noTitle?: boolean;
 }
 
 export type IconButtonProps = Without<ButtonAsButtonProps> & IconButtonOwnProps | Without<ButtonAsLinkProps> & IconButtonOwnProps;
@@ -31,11 +28,10 @@ type IconButtonElement = HTMLButtonElement | HTMLAnchorElement;
    loading, href, onClick, ref…) works the same. */
 /** A Button that shows only an icon, with a required label for screen readers. Default variant: ghost. */
 export const IconButton = /* @__PURE__ */ component<IconButtonElement, IconButtonProps>("IconButton", function IconButton(props, ref) {
-  const { icon, label, shape, hideTitle, noTitle, className, ...rest } = props;
-  if (process.env.NODE_ENV !== "production" && noTitle != null) warnOnce("icon-button-no-title", "IconButton: noTitle is deprecated and is removed in 12.0.0. Use hideTitle, which does the same.");
+  const { icon, label, shape, hideTitle, className, ...rest } = props;
   const round = shape === "round";
   // No title when a Tooltip (or anything else) already describes or names it: the native tooltip would show on top of it.
-  const shown = hideTitle || noTitle || rest["aria-describedby"] != null || rest["aria-labelledby"] != null;
+  const shown = hideTitle || rest["aria-describedby"] != null || rest["aria-labelledby"] != null;
   // aria-label isn't in the props, but from JavaScript (or a spread) it's taken as label, as Button takes it.
   const name = label || (rest as { "aria-label"?: string })["aria-label"];
   const title = !shown && rest.title == null ? name : rest.title;

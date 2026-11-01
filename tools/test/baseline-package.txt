@@ -14,6 +14,7 @@ dist/base.css
 dist/bundle.css
 dist/components.css
 dist/components.json
+dist/debug.js
 dist/eslint.d.ts
 dist/eslint.js
 dist/icons.d.ts
@@ -27,6 +28,8 @@ dist/serupa.iife.js
 dist/serupa.iife.js.map
 dist/stylelint.d.ts
 dist/stylelint.js
+dist/testing.d.ts
+dist/testing.js
 dist/theme.js
 dist/utilities.css
 dist/vscode/serupa.css-data.json

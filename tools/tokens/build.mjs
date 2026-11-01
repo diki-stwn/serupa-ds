@@ -19,6 +19,8 @@ import path from 'node:path';
 
 const P = path.resolve(process.argv.slice(2).find((a) => !a.startsWith('--')) || path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..'));
 const OUT = path.join(P, 'tokens.css');
+// A contrastMore keyed by theme id ({ "blue-light": …, "violet-dark": … }) rather than { light, dark }.
+const perTheme = (x) => !!x.contrastMore && typeof x.contrastMore === 'object' && !('light' in x.contrastMore);
 
 /** Each token's description from tokens.json, by its property name (--primary → "Main action color…"). */
 export function tokenDescriptions(t) {
@@ -36,7 +38,11 @@ export function buildTokensCss(t) {
   // stay in tokens.json (tokenDescriptions below), design-tokens/ and the editor data.
   const line = (n, v) => `  --${name(n)}: ${ref(v)};\n`;
   const groups = Object.values(t).filter((g) => g && Array.isArray(g.tokens));
-  const all = groups.flatMap((g) => g.tokens);
+  const tokens = groups.flatMap((g) => g.tokens);
+  // A contrastMore with a value per theme (a brand color: violet's is violet) can't be one light-dark() pair, so it
+  // becomes an internal themed token, --dk-more-<name>, that every theme and brand rule below sets like any alias;
+  // the contrast rule then points the token at it (contrastAndDensity).
+  const all = [...tokens, ...tokens.filter(perTheme).map((x) => ({ name: `dk-more-${x.name}`, value: x.contrastMore }))];
 
   let css = '/* Serupa — generated from tokens.json */\n';
   css += '@layer dk.tokens, dk.base, dk.components, dk.utilities;\n@layer dk.tokens {\n';
@@ -111,12 +117,21 @@ function axes(t, varying, line) {
 // The pairs are light-dark(), so data-theme sets color-scheme here too, not only in base.css. A token's compact
 // value is its size under data-density="compact"; data-density="comfortable" puts the defaults back in a section.
 function contrastAndDensity(all, line) {
-  const more = all.filter((x) => x.contrastMore);
+  const more = all.filter((x) => x.contrastMore && !perTheme(x));
   const pairs = more.map((x) => line(x.name, typeof x.contrastMore === 'string' ? x.contrastMore : `light-dark(${x.contrastMore.light}, ${x.contrastMore.dark})`)).join('');
+  // A per-theme one reads its --dk-more-* token, set by whichever theme or brand rule applies to the element. The
+  // brand rules that set the normal value weigh up to three attributes (:root[data-brand]:not([data-theme])), so
+  // these carry :not(#dk-more), which matches every element and outweighs them: asking for more contrast beats the
+  // brand. They also go on nested data-brand and data-theme sections, which redeclare the brand's colors.
+  const brand = all.filter(perTheme).map((x) => `  --${x.name}: var(--dk-more-${x.name});\n`).join('');
+  const nested = ':is([data-mode], [data-brand], [data-theme])';
   let css = `[data-theme$="-light"] { color-scheme: light; }\n[data-theme$="-dark"] { color-scheme: dark; }\n`;
   // Also on nested data-mode elements, which redeclare the normal colors.
   css += `[data-contrast="more"], [data-contrast="more"] [data-mode] {\n${pairs}}\n`;
-  css += `@media (prefers-contrast: more) {\n:root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {\n${pairs}}\n}\n`;
+  if (brand) css += `[data-contrast="more"]:not(#dk-more), [data-contrast="more"] ${nested}:not(#dk-more) {\n${brand}}\n`;
+  css += `@media (prefers-contrast: more) {\n:root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {\n${pairs}}\n`;
+  if (brand) css += `:root:not([data-contrast="normal"]):not(#dk-more), :root:not([data-contrast="normal"]) ${nested}:not([data-contrast="normal"], [data-contrast="normal"] *, #dk-more) {\n${brand}}\n`;
+  css += '}\n';
   const compact = all.filter((x) => x.compact != null);
   css += `[data-density="compact"] {\n${compact.map((x) => line(x.name, x.compact)).join('')}}\n`;
   css += `[data-density="comfortable"] {\n${compact.map((x) => line(x.name, x.value)).join('')}}\n`;

@@ -14,22 +14,22 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v11.0.0
+npm install github:diki-stwn/serupa-ds#v12.0.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v11.0.0/serupa-ds-11.0.0.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v12.0.0/serupa-ds-12.0.0.tgz
 ```
 
 To check a downloaded file before you install it: the release notes give its SHA-256, and releases after 10.1.0 also carry a build attestation, GitHub's signed record that this repository's Release workflow built the file from the tagged commit. With the [GitHub CLI](https://cli.github.com):
 
 ```sh
-gh attestation verify ./serupa-ds-11.0.0.tgz --repo diki-stwn/serupa-ds
+gh attestation verify ./serupa-ds-12.0.0.tgz --repo diki-stwn/serupa-ds
 ```
 
-Always pin a tag (`#v11.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v12.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
@@ -120,8 +120,10 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
 | `dist/serupa-icons.iife.js` | Every Material Symbol by name, for a plain page. `serupa.iife.js` loads it from its own folder when an Icon needs it, so keep the two together. |
 | `dist/theme.js` | Automatic dark mode and the theme switcher API. |
+| `dist/debug.js` | A debug overlay for finding why a screen looks off. Load it, then add `?serupa-debug` to the page's address: every component gets a dashed outline, and pointing at one shows its name, variant and size, its state and the component tokens set on it. Escape turns it off. `Serupa.debug.inspect(element)` gives the same as an object. Leave it out of production. |
 | `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
 | `dist/stylelint.js` (`serupa-ds/stylelint`) | A Stylelint config for your own CSS: it flags a color, a spacing length or a radius written out where a token belongs. See Getting started in Storybook. |
+| `dist/testing.js` (`serupa-ds/testing`) | `forEachTheme(page, fn)` for your own CI: it draws a Playwright page in each of the six themes, with transitions off and the color scheme to match, and calls `fn` so you can take a screenshot in each. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
 ### For your own components
@@ -338,6 +340,8 @@ The system follows [Semantic Versioning](https://semver.org): the version is in 
 | **Major** (2.0.0) | Something that worked stops working | A token, class, prop or file removed or renamed; a default that changes existing screens; removing a deprecated name |
 | **Minor** (1.1.0) | Something new; everything existing keeps working | New tokens, classes, components or props; a new theme |
 | **Patch** (1.0.1) | A fix that doesn't change what correct code gets | A contrast fix inside the rules, a bug in a component, docs |
+
+Each component is **stable** unless it says otherwise. A component marked **beta** is ready to use, but its API may still change in a minor release, and that release's changeset says how; an **alpha** one is still taking shape and may change in any release. A **deprecated** one keeps working until the next major removes it. The status is in the doc comment on the component's export (`@beta`, `@alpha` or `@deprecated`), so your editor shows it on hover, and it also appears above the component's guide in Storybook and after its name in the index below.
 
 Names are never removed in a minor or patch release: they're marked deprecated in `CHANGELOG.md`, keep working, and go in the next major. The test suite enforces it: a utility class that disappears is reported as a breaking change. To release: each pull request carries a changeset (`npx changeset`: patch, minor or major, and the note); on `main` a "Release" pull request gathers them into the next version and `CHANGELOG.md`, and merging it tags the version and makes a GitHub release (see `tools/README.md`).
 
