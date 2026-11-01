@@ -32,6 +32,7 @@
 | `data-contrast` | `auto` (default), `more` | Stronger borders, text and focus ring. `auto` follows `prefers-contrast: more`. |
 | `data-density` | `comfortable` (default), `compact` | `--control-height-*`, padding and gap tokens (G5) |
 | `data-shadow` | `neutral` (default), `brand` | `--shadow-2xs` to `--shadow-2xl`: black, or a deep shade of the element's `--primary` at the same opacity (added later, 73) |
+| `data-type-scale` | `fixed` (default), `fluid` | `--text-2xl` to `--text-9xl` and the `--text-type-*` shorthands that use them: fixed, or a `clamp()` from 70% at a 320px viewport to the full size at 1280px (added later, 22) |
 
 Any element can carry the axes, not only `<html>`. For example, a compact table inside a comfortable page, or a dark hero section inside a light page.
 
