@@ -222,6 +222,18 @@ describe('Dialog', () => {
     await expect.poll(() => { const b = el('send').getBoundingClientRect(), q = p.getBoundingClientRect(); return b.top >= q.top - 0.5 && b.bottom <= q.bottom + 0.5 && b.bottom <= 256; }).toBe(true);
   });
 
+  test('a 320px screen: a long footer label wraps onto more lines inside the panel, whole, not cut with an ellipsis (GR74)', async () => {
+    await page.viewport(320, 640);
+    const label = 'Send the signed agreement back to the legal team';
+    await render(<Dialog id="dw" open onOpenChange={() => {}} title="Agreement" footer={[<Button key={1} variant="secondary">Cancel</Button>, <Button key={2} id="dwsend">{label}</Button>]}>Ready.</Dialog>);
+    await expect.poll(() => isOpen('dw')).toBe(true);
+    await settled();
+    const b = el('dwsend'), r = b.getBoundingClientRect(), q = panel('dw').getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 40, b.textContent]).toEqual([true, true, true, label]);
+    expect(el('dwsend').previousElementSibling!.getBoundingClientRect().height).toBe(32);
+  });
+
   test('data-autofocus on a child chooses where focus lands when it opens, not the ×', async () => {
     function Pick() {
       const [open, setOpen] = React.useState(false);
