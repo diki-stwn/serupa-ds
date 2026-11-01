@@ -8,7 +8,8 @@ import { Icon } from "../Icon/Icon";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import { named } from "../../internal/component";
-import { useSettings } from "../../internal/provider";
+import { useLocale, useSettings } from "../../internal/provider";
+import { displayNumber } from "../../internal/numbers";
 import { onModalChange, topModal } from "../../internal/layers";
 import { settleTime, speed, track, type Samples } from "../../internal/fling";
 import * as icons from "../../material/builtin";
@@ -488,6 +489,8 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
     toast.dismiss(t.id);
   };
   const titleId = t.id + "-title", descId = t.id + "-desc";
+  // The repeat count in the locale's digits ("×١٢" in ar-EG), as Badge writes its count (GR25).
+  const locale = useLocale();
   const icon = ICONS[t.tone];
   return (
     <li ref={self} tabIndex={-1} className={cn("dk-toast", "dk-toast--" + t.tone)} data-tone={t.tone} data-toast={t.id}
@@ -497,7 +500,7 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
       onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
       {icon ? <span className="dk-toast__icon" aria-hidden="true"><Icon icon={icon} /></span> : null}
       <div className="dk-toast__content">
-        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count"><span aria-hidden="true">{"×" + t.count}</span><span className="dk-visually-hidden">{", " + sds.labels.toastRepeated(t.count)}</span></span> : null}</p>
+        <p className="dk-toast__title" id={titleId}>{t.title}{t.count > 1 ? <span className="dk-toast__count"><span aria-hidden="true">{"×" + displayNumber(t.count, locale, { useGrouping: false })}</span><span className="dk-visually-hidden">{", " + sds.labels.toastRepeated(t.count)}</span></span> : null}</p>
         {t.description != null ? <p className="dk-toast__description" id={descId}>{t.description}</p> : null}
       </div>
       {t.action ? <Button className="dk-toast__action" size="sm" variant="secondary" onClick={() => { t.action!.onClick(); toast.dismiss(t.id); }}>{t.action.label}</Button> : null}
