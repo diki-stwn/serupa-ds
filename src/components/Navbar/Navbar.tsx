@@ -28,12 +28,18 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   menuLabel?: string;
 }
 
-export interface NavbarLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+/** NavbarLink's own props, beside those of the element it renders. */
+export interface NavbarLinkOwnProps {
   /** The current page: shaded, with aria-current="page". Default: false. */
   active?: boolean;
-  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
-  as?: React.ElementType;
 }
+
+/** NavbarLink's props: its own, `as`, and the props of the element `as` names (an <a>'s by default), so
+ *  <NavbarLink as={RouterLink} to="/team"> takes RouterLink's `to`, and its ref is that element's. */
+export type NavbarLinkProps<C extends React.ElementType = 'a'> = NavbarLinkOwnProps & {
+  /** What renders the link: your router's link component. Default: the link set with configure({ link }), else 'a'. */
+  as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof NavbarLinkOwnProps | 'as'>;
 
 const NavbarContext = /* @__PURE__ */ React.createContext<{ close: () => void } | null>(null);
 
@@ -130,7 +136,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
     <NavbarContext.Provider value={{ close }}>
       <header {...rest} ref={(n) => { bar.current = n; setRef(ref, n); }} onKeyDown={onKeyDown} onBlur={onBlur} data-component="navbar" data-state={open ? "open" : "closed"} className={cn("dk-navbar", props.sticky && "dk-navbar--sticky", props.className)}>
         <div className={cn("dk-navbar__inner dk-container dk-container--padded", "dk-container--" + size)}>
-          {props.brand != null ? <div className="dk-navbar__brand">{props.brand}</div> : null}
+          {props.brand != null ? <div className="dk-navbar__brand">{typeof props.brand === "string" || typeof props.brand === "number" ? <span>{props.brand}</span> : props.brand}</div> : null}
           {open || leaving ? null : nav}
           {props.actions != null ? <div className="dk-navbar__actions">{props.actions}</div> : null}
           {hasLinks ? (
@@ -145,7 +151,7 @@ export const Navbar = /* @__PURE__ */ component<HTMLElement, NavbarProps>("Navba
 });
 
 /** A main page link in a Navbar. active marks the current page; following one closes the small-screen menu. */
-export const NavbarLink = /* @__PURE__ */ component<HTMLAnchorElement, NavbarLinkProps>("NavbarLink", function NavbarLink(props, ref) {
+const NavbarLinkBase = /* @__PURE__ */ component<HTMLAnchorElement, NavbarLinkProps>("NavbarLink", function NavbarLink(props, ref) {
   const ctx = React.useContext(NavbarContext);
   const rest = omit(props, { active: 1, as: 1, className: 1, onClick: 1 });
   return React.createElement(props.as || config.link, Object.assign(rest, {
@@ -154,3 +160,9 @@ export const NavbarLink = /* @__PURE__ */ component<HTMLAnchorElement, NavbarLin
     onClick: (e: React.MouseEvent<HTMLAnchorElement>) => { if (props.onClick) props.onClick(e); if (ctx) ctx.close(); },
   }));
 });
+
+/** A main page link in a Navbar. active marks the current page; following one closes the small-screen menu. `as` renders your router's link, typed with its props. */
+export const NavbarLink = NavbarLinkBase as {
+  <C extends React.ElementType = 'a'>(props: NavbarLinkProps<C> & { ref?: React.Ref<React.ComponentRef<C>> }): React.ReactElement | null;
+  displayName?: string;
+};

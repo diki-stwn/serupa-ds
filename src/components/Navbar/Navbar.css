@@ -12,7 +12,9 @@
 @supports (animation-timeline: scroll()) {
   .dk-navbar--sticky { animation: dk-navbar-lift var(--ease-linear) both; animation-timeline: scroll(); animation-range: var(--spacing-0) var(--navbar-height, var(--spacing-16)); }
 }
-@keyframes dk-navbar-lift { to { box-shadow: var(--navbar-shadow-scrolled, var(--shadow-md)); } }
+/* The lift: a shadow, and the raised surface. On the dark themes' near-black page a shadow barely shows, so there the
+   bar turns the lighter raised surface (as Card elevated does); in the light themes that's the same white (GR64). */
+@keyframes dk-navbar-lift { to { box-shadow: var(--navbar-shadow-scrolled, var(--shadow-md)); background-color: var(--navbar-bg-scrolled, var(--surface-raised)); } }
 /* What the keyboard focuses, or a #link jumps to, scrolls into view below a sticky bar, not under it (WCAG 2.4.11).
    Navbar measures the bar into --dk-navbar-offset; until then, the default bar height. */
 :root:has(.dk-navbar--sticky) { scroll-padding-top: var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16))); }
@@ -60,8 +62,6 @@
      that doesn't fit ends in an ellipsis. Its link keeps its own box, so its focus ring isn't clipped. */
   .dk-navbar__brand { flex-shrink: initial; min-width: var(--spacing-0); }
   .dk-navbar__brand > * { min-width: var(--spacing-0); max-width: var(--sizing-full); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* A brand given as plain text has no element to put the ellipsis on, so the brand itself takes it (GR79). */
-  .dk-navbar__brand:not(:has(> *)) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__nav + .dk-navbar__toggle, .dk-navbar__brand + .dk-navbar__toggle, .dk-navbar__toggle:first-child { margin-inline-start: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .dk-navbar__link { transition: none; } }

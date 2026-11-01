@@ -13,7 +13,8 @@ import { lastInputKeyboard, listenForInput } from "./lastInput";
 export function useExit(open: boolean, layer: React.RefObject<HTMLElement | null>): { leaving: boolean; arrived: boolean; instant: boolean } {
   const [leaving, setLeaving] = React.useState(false), [was, setWas] = React.useState(open), [byKey, setByKey] = React.useState(false);
   if (was !== open) { const k = lastInputKeyboard(); setWas(open); setByKey(k); setLeaving(!open && !k); }
-  const arrived = React.useRef(open); if (!open) arrived.current = false;
+  const [arrived, setArrived] = React.useState(open);
+  if (!open && arrived) setArrived(false);
   useIsoLayoutEffect(listenForInput, []);
   useIsoLayoutEffect(() => {
     const p = layer.current;
@@ -24,5 +25,5 @@ export function useExit(open: boolean, layer: React.RefObject<HTMLElement | null
     void Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => { if (on) setLeaving(false); });
     return () => { on = false; };
   }, [leaving, layer]);
-  return { leaving, arrived: arrived.current, instant: arrived.current || byKey };
+  return { leaving, arrived: arrived && open, instant: (arrived && open) || byKey };
 }

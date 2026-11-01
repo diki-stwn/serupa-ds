@@ -3,6 +3,7 @@ import { announce } from "./announce";
 import { graphemeCount, limitEdit } from "./graphemes";
 import { useSettings } from "./provider";
 import { useFormReset } from "./useFormReset";
+import { useIsoLayoutEffect } from "./cn";
 import { en as inputWords } from "../components/Input/labels";
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
@@ -16,10 +17,12 @@ type Handlers<E extends Field> = {
 
 /* The character count and maxLength of Input and Textarea, in characters as people see them (👨‍👩‍👧 is one), not the
    browser's UTF-16 units. It takes maxLength off the native field once hydrated (the browser's would stop typing at
-   "4 / 10" with emoji) and applies it itself, wrapping rest's change and composition handlers. With announce (showCount), the count
+   "4 / 10" with emoji) and applies it itself, wrapping the change and composition handlers: props is the field's
+   props with those in place (a copy, so the caller's object is left as it was). With announce (showCount), the count
    is read out only near the limit, once when few characters are left and once when it's reached, not on every
    keystroke. A form reset puts the count back to the default's. */
-export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.RefObject<E | null>, opts: { announce: boolean }): { length: number; max: number | null } {
+export function useTextLimit<E extends Field, P extends Handlers<E>>(input: P, field: React.RefObject<E | null>, opts: { announce: boolean }): { length: number; max: number | null; props: P } {
+  const rest = input;   // read only; the result is a copy, built at the end
   const labels = useSettings(inputWords).labels;
   const controlled = rest.value != null;
   const initial = String(controlled ? rest.value : rest.defaultValue != null ? rest.defaultValue : "");
@@ -29,10 +32,12 @@ export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.Re
   // Server HTML and the hydration render keep the native maxLength, so the cap holds before the script runs or
   // without it; it comes off right after hydration. A client-only render never has it.
   const hydrated = React.useSyncExternalStore(never, yes, no);
-  if (hydrated || max == null) delete rest.maxLength;
   const last = React.useRef(initial);
   const composing = React.useRef(false);
-  if (controlled && !composing.current) last.current = String(rest.value);   // the value the parent holds now
+  const held = controlled ? String(rest.value) : null;
+  // Mid-composition a render leaves last alone, so a dependency list would miss the value held once it ends.
+  // every render: the value the parent holds now, before any event of this render's field can run.
+  useIsoLayoutEffect(() => { if (held != null && !composing.current) last.current = held; });
   const defaultText = String(rest.defaultValue != null ? rest.defaultValue : "");
   useFormReset(field, function () {
     if (controlled) return;
@@ -54,7 +59,7 @@ export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.Re
     return !!cut;
   };
   const onChange = rest.onChange;
-  rest.onChange = function (e: React.ChangeEvent<E>) {
+  const changed = function (e: React.ChangeEvent<E>) {
     limit(e.target);
     if (!composing.current) {   // mid-composition, the edit runs from before it began
       tell(graphemeCount(last.current), graphemeCount(e.target.value));
@@ -64,11 +69,11 @@ export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.Re
     if (onChange) onChange(e);
   };
   const onCompositionStart = rest.onCompositionStart, onCompositionEnd = rest.onCompositionEnd;
-  rest.onCompositionStart = function (e: React.CompositionEvent<E>) {
+  const started = function (e: React.CompositionEvent<E>) {
     composing.current = true;
     if (onCompositionStart) onCompositionStart(e);
   };
-  rest.onCompositionEnd = function (e: React.CompositionEvent<E>) {
+  const ended = function (e: React.CompositionEvent<E>) {
     composing.current = false;
     const el = e.currentTarget, before = el.value;
     // Confirmed text past the limit: cut it and tell onChange, through the input event React listens for.
@@ -83,5 +88,7 @@ export function useTextLimit<E extends Field>(rest: Handlers<E>, field: React.Re
     }
     if (onCompositionEnd) onCompositionEnd(e);
   };
-  return { length, max };
+  const props: P = { ...input, onChange: changed, onCompositionStart: started, onCompositionEnd: ended };
+  if (hydrated || max == null) delete props.maxLength;
+  return { length, max, props };
 }
