@@ -33,7 +33,7 @@ export interface ShortcutOptions {
   inInputs?: boolean;
 }
 
-export interface KeyboardShortcutsProps extends Omit<DialogProps, "title" | "description" | "footer" | "alert" | "children" | "size" | "fullScreen" | "initialFocus" | "finalFocus" | "closeButton" | "closeOnBackdrop" | "closeLabel"> {
+export interface KeyboardShortcutsProps extends Omit<DialogProps, "title" | "description" | "footer" | "alert" | "children" | "size" | "fullScreen" | "initialFocus" | "finalFocus" | "closeButton" | "closeOnBackdrop" | "closeLabel" | "unsaved"> {
   /** The dialog's title. Default: "Keyboard shortcuts" (labels.keyboardShortcuts). */
   title?: React.ReactNode;
   /** Shortcuts to list that aren't set up with useShortcut, such as the browser's or another library's. */
