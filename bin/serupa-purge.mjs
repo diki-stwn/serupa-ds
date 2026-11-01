@@ -74,8 +74,12 @@ const classesIn = (sel) => [...sel.matchAll(/\.((?:[A-Za-z0-9_-]|\\[0-9a-fA-F]{1
 export function unusedComponentClasses(manifest, used) {
   const words = new Set([...used].flatMap((w) => w.split(/[./:]/)));
   const all = manifest.components, keep = new Set();
+  // A name more than one component exports (each one's label sets, en and id) says nothing about which is used: a
+  // source with id="save" or lang="en" in it kept 45 components (GR99).
+  const owners = new Map();
+  for (const c of Object.values(all)) for (const e of c.exports) owners.set(e, (owners.get(e) || 0) + 1);
   const add = (n) => { if (keep.has(n) || !all[n]) return; keep.add(n); all[n].uses.forEach(add); };
-  for (const [n, c] of Object.entries(all)) if (c.exports.some((e) => words.has(e))) add(n);
+  for (const [n, c] of Object.entries(all)) if (c.exports.some((e) => owners.get(e) === 1 && words.has(e))) add(n);
   const kept = new Set([...keep].flatMap((n) => all[n].classes));
   return new Set(Object.values(all).flatMap((c) => c.classes).filter((c) => !kept.has(c)));
 }
