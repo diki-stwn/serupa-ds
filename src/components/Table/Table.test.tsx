@@ -504,3 +504,11 @@ describe('TableRow href (TF3)', () => {
     warn.mockRestore();
   });
 });
+
+describe('Table: no negative zero (GR84)', () => {
+  test('a cell holding -0 shows 0, and a real negative keeps its minus', async () => {
+    await render(<Table id="tnz"><TableBody><TableRow><TableCell id="cz">{-0}</TableCell><TableCell id="cn">{-2}</TableCell></TableRow></TableBody></Table>);
+    expect(document.getElementById('cz')!.textContent).toBe('0');
+    expect(document.getElementById('cn')!.textContent).not.toBe('2');
+  });
+});
