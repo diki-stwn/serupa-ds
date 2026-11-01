@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useIsoLayoutEffect } from "./cn";
 import { markDismissal } from "./layers";
-import { cssLength, hideLayer, isRtl, placeLayer, showLayer, type Placement } from "./position";
+import { cssLength, firstSide, hideLayer, isRtl, placeLayer, showLayer, type Placement } from "./position";
 
 type Ref = React.RefObject<HTMLElement | null>;
 
@@ -40,7 +40,7 @@ export function useAnchoredLayer(open: boolean, layer: Ref, anchor: Ref, opts: A
     if (!open || !a) { hideLayer(p); return; }
     // A first guess at the side before it shows: showing resolves the layer's first style, which is when an entry
     // from @starting-style keyed on data-side (Tooltip's slide) is fixed. placeLayer corrects it on a flip.
-    if (!p.dataset.side) p.dataset.side = (placement || fallback || "bottom").split("-")[0];
+    firstSide(p, (placement || fallback || "bottom").split("-")[0]);
     showLayer(p);
     // The gap and the page's direction are style reads: once, and again only when sizes change (a density or
     // theme switch), not on every scroll.
