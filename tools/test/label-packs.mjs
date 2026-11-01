@@ -52,6 +52,7 @@ const SAME_IN = {
   de: ['fieldOptional', 'optional', 'sliderMaximum', 'colorName'],
   es: ['generalShortcuts'],
   nl: ['sliderMaximum'],
+  sv: ['sliderMaximum', 'colorName'],
   fr: ['colorName', 'notificationCenter', 'notifications', 'pagination', 'sliderMaximum', 'image', 'page'],
 };
 const sameOk = (l, k) => SAME_OK.has(k) || (SAME_IN[l] || []).includes(k);

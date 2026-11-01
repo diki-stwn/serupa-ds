@@ -35,7 +35,9 @@ dist/labels/nl.d.ts
 dist/labels/pl.d.ts
 dist/labels/pt.d.ts
 dist/labels/ru.d.ts
+dist/labels/sv.d.ts
 dist/labels/tr.d.ts
+dist/labels/uk.d.ts
 dist/labels/vi.d.ts
 dist/labels/zh.d.ts
 dist/lib/react-dom.production.min.js
