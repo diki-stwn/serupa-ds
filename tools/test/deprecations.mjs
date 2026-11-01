@@ -14,11 +14,15 @@ import { PROJECT, read, report, done } from './lib.mjs';
 // (12.0.0 shipped with two that said "removed in 12.0.0").
 const current = Number(JSON.parse(read('package.json')).version.split('.')[0]);
 const changesets = fs.readdirSync(path.join(PROJECT, '.changeset')).filter((n) => n.endsWith('.md') && n !== 'README.md');
-const pendingMajor = changesets.some((n) => /^---\n[\s\S]*?["']serupa-ds["']\s*:\s*major\s*\n[\s\S]*?---/.test(read(path.join('.changeset', n))));
+// An empty changeset (--- then ---, for a change that releases nothing) bumps nothing.
+const bumps = changesets.map((n) => { const text = read(path.join('.changeset', n)); return [n, /^---\s*\n---/.test(text) ? 'none' : /^---\n[\s\S]*?["']serupa-ds["']\s*:\s*(\w+)\s*\n[\s\S]*?---/.exec(text)?.[1]]; });
+const pendingMajor = bumps.some(([, bump]) => bump === 'major');
 const major = pendingMajor ? current + 1 : current;
 const now = pendingMajor ? `the next release is ${major}.0.0, with a pending major changeset` : `the package is ${major}.x`;
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
+// The next major is read from the pending changesets, so each must name its serupa-ds bump where this finds it.
+for (const [n, bump] of bumps) t(`.changeset/${n} names a patch, minor or major bump for serupa-ds, or none`, ['patch', 'minor', 'major', 'none'].includes(bump), 'start it with ---, "serupa-ds": patch, minor or major, then ---');
 const removedIn = (s) => { const m = /removed in (\d+)\.0\.0/i.exec(s); return m ? Number(m[1]) : null; };
 const due = (where, what, text) => {
   const n = removedIn(text);
