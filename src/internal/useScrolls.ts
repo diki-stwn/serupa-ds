@@ -6,7 +6,7 @@ import * as React from "react";
 export function useScrolls(el: HTMLElement | null): boolean {
   const [scrolls, setScrolls] = React.useState(false);
   React.useEffect(() => {
-    if (!el || typeof ResizeObserver === "undefined") { setScrolls(false); return; }
+    if (!el || typeof ResizeObserver === "undefined") return;
     const check = () => setScrolls(el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
     const ro = new ResizeObserver(check);
     const watch = () => { ro.disconnect(); ro.observe(el); for (const c of Array.from(el.children)) ro.observe(c); check(); };
@@ -15,5 +15,5 @@ export function useScrolls(el: HTMLElement | null): boolean {
     watch();
     return () => { ro.disconnect(); if (mo) mo.disconnect(); };
   }, [el]);
-  return scrolls;
+  return scrolls && !!el && typeof ResizeObserver !== "undefined";
 }

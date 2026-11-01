@@ -199,12 +199,15 @@ describe('Navbar', () => {
     expect(el('brand').scrollWidth > el('brand').clientWidth).toBe(false);
   });
 
-  test('320px: a brand given as plain text ends in an ellipsis too, and never runs under the actions (GR79)', async () => {
+  test('320px: a brand given as plain text ends in an ellipsis too, and never runs under the actions (GR79, GR81)', async () => {
     await render(<Navbar id="nav" brand="Kommunikationsplattform" actions={<><Button size="sm" variant="ghost" id="act">Sign in</Button><Button size="sm">Start free trial</Button></>}>
       <NavbarLink href="#dash">Dashboard</NavbarLink>
     </Navbar>);
     await resize(320);
-    const b = q('#nav .dk-navbar__brand');
+    // A string brand gets a span of its own, so the ellipsis rule reaches it (GR81): text-overflow on the flex
+    // brand box itself never reaches its anonymous text, which was cut off with no ellipsis.
+    const b = q('#nav .dk-navbar__brand > span');
+    expect(b?.textContent).toBe('Kommunikationsplattform');
     expect([Math.round(b.getBoundingClientRect().right) <= Math.round(el('act').getBoundingClientRect().left), b.scrollWidth > b.clientWidth, css(b).overflow, css(b).textOverflow, document.documentElement.scrollWidth <= 320]).toEqual([true, true, 'hidden', 'ellipsis', true]);
     await resize(1100);
     expect(b.scrollWidth > b.clientWidth).toBe(false);

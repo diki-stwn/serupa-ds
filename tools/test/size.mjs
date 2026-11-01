@@ -58,7 +58,7 @@ const FONTS = { 'fonts/InterVariable-latin.woff2': 110, 'fonts/InterVariable-Ita
 // with tokens.css, base.css, bundle.css trimmed by serupa-purge --components to what the page uses, and the
 // JavaScript of Button, Field and Input (29.5 on 31 Oct 2026: 7.4 + 1.3 + 9.9 of CSS, 10.8 of JavaScript). The
 // number to watch when shared code or the base styles grow, since no single component's budget sees it.
-const STARTER = 32;   // 30.8 on 1 Nov 2026, once tokens.css had a unicode-range @font-face per script (F6)
+const STARTER = 32.5;   // 30.8 on 1 Nov 2026, once tokens.css had a unicode-range @font-face per script (F6); 32.0 on 1 Nov 2026 (D7: Input's hooks copy their props instead of changing them)
 const STARTER_PAGE = `import { Button, Field, Input } from 'serupa-ds';
 export function SignIn() {
   return (

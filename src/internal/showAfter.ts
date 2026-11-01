@@ -6,7 +6,8 @@ import { spinnerMinShown } from "./timing";
    on again while the minimum runs out keeps it shown. Loader uses it; Button and Badge are next. */
 export function useShowAfter(on: boolean, delay: number): boolean {
   const [shown, setShown] = React.useState(on && delay <= 0);
-  const since = React.useRef(shown ? Date.now() : 0);
+  const [shownAt] = React.useState(() => (shown ? Date.now() : 0));
+  const since = React.useRef(shownAt);
   React.useEffect(function () {
     if (on === shown) return;
     const show = function () { since.current = Date.now(); setShown(true); };

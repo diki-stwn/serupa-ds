@@ -617,6 +617,13 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
     expect(log).toEqual(['commit']);
   });
 
+  test('GR25: the repeat count is written in the locale\'s digits, as Badge writes its count', async () => {
+    const { SerupaProvider } = await import('../../internal/provider');
+    await render(<SerupaProvider locale="ar-EG"><Toaster /></SerupaProvider>);
+    React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', duration: 0 }); });
+    expect(toasts()[0].textContent).toContain('×١٢');
+  });
+
   test('TF4: each toast\'s Dismiss is described by that toast\'s title, so three of them are told apart', async () => {
     await render(<Toaster />);
     React.act(() => { toast({ title: 'Saved' }); toast({ title: 'Copied' }); });

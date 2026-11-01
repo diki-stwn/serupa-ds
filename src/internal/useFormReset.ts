@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useIsoLayoutEffect } from "./cn";
 
 /* Custom inputs submit through a hidden input whose value comes from React state, and form.reset() (or React 19
    resetting a form after its action) doesn't touch state: the form kept submitting and showing the old choice.
@@ -7,7 +8,8 @@ import * as React from "react";
    (a div with hidden inputs), naming a form it sits outside of. */
 export function useFormReset(el: React.RefObject<HTMLElement | null>, reset: () => void, formId?: string): void {
   const run = React.useRef(reset);
-  run.current = reset;
+  // every render: keeps the latest reset, before any reset event can run.
+  useIsoLayoutEffect(() => { run.current = reset; });
   React.useEffect(() => {
     const node = el.current;
     const named = formId ? document.getElementById(formId) : null;

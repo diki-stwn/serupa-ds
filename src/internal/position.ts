@@ -105,6 +105,10 @@ function restingRect(el: Element): DOMRect {
 }
 
 /** Shows an element in the top layer when the browser supports popover="manual", so nothing can cover or clip it. */
+/** The side a layer opens on, before placeLayer has measured: kept when it has one already. */
+export function firstSide(el: HTMLElement, side: string): void {
+  if (!el.dataset.side) el.dataset.side = side;
+}
 export function showLayer(el: HTMLElement | null): void {
   if (!el) return;
   if (typeof el.showPopover === "function" && el.hasAttribute("popover")) { try { if (!el.matches(":popover-open")) el.showPopover(); } catch { /* not connected yet */ } }
