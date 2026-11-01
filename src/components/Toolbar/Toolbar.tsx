@@ -50,13 +50,19 @@ export const Toolbar = /* @__PURE__ */ component<HTMLDivElement, ToolbarProps>("
     for (const it of itemsOf(r, true)) it.tabIndex = it === active.current ? 0 : -1;
   }, []);
   useIsoLayoutEffect(sync);   // every render: new children may bring new controls, which need their tabIndex
-  // Controls added, removed, disabled or hidden later (a Menu's trigger rendering, a button turning disabled).
+  // Controls added, removed, disabled or hidden later (a Menu's trigger rendering, a button turning disabled). And
+  // hidden or shown by CSS later, which renders nothing: a breakpoint that hides the control holding the Tab stop
+  // as the window narrows (display: none) left no Tab stop at all (GR66). Each control's box is watched, since one
+  // that goes display: none reports a zero box, and one that comes back reports its size.
   React.useEffect(function () {
     const r = root.current;
-    if (!r || typeof MutationObserver === "undefined") return;
-    const mo = new MutationObserver(sync);
-    mo.observe(r, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "hidden", "inert"] });
-    return function () { mo.disconnect(); };
+    if (!r) return;
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(sync);
+    const watch = function () { if (ro) { ro.disconnect(); for (const it of itemsOf(r, true)) ro.observe(it); } };
+    watch();
+    const mo = typeof MutationObserver === "undefined" ? null : new MutationObserver(function () { watch(); sync(); });
+    if (mo) mo.observe(r, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "hidden", "inert"] });
+    return function () { if (mo) mo.disconnect(); if (ro) ro.disconnect(); };
   }, [sync]);
 
   const onFocus = function (e: React.FocusEvent<HTMLDivElement>) {
