@@ -29,11 +29,29 @@ function Main({ r, lr }: { r?: React.Ref<HTMLElement>; lr?: React.Ref<HTMLAnchor
   return <Navbar id="nav" ref={r} className="extra" data-x="y" brand={<a href="#home" id="brand">Serupa</a>} actions={<Button size="sm" id="act">Sign in</Button>}>
     <NavbarLink href="#dash" active ref={lr}>Dashboard</NavbarLink>
     <NavbarLink href="#projects" id="lp">Projects</NavbarLink>
-    <NavbarLink as={RouterLink} {...{ to: '/team' }} id="lr">Team</NavbarLink>
+    <NavbarLink as={RouterLink} to="/team" id="lr">Team</NavbarLink>
   </Navbar>;
 }
 
 describe('Navbar', () => {
+  test('NavbarLink: as is typed (G10), with the props and ref of the element it names, an <a>\'s by default', async () => {
+    const a = React.createRef<HTMLAnchorElement>(), r = React.createRef<HTMLAnchorElement>(), b = React.createRef<HTMLButtonElement>(), wrong = React.createRef<HTMLAnchorElement>();
+    await render(<Navbar id="nav-t">
+      <NavbarLink id="nt-a" href="#a" ref={a}>A</NavbarLink>
+      <NavbarLink id="nt-r" as={RouterLink} to="/r" ref={r} active>Router</NavbarLink>
+      <NavbarLink id="nt-b" as="button" type="button" ref={b}>Button</NavbarLink>
+      {/* @ts-expect-error RouterLink needs to */}
+      <NavbarLink id="nt-x" as={RouterLink}>No to</NavbarLink>
+      {/* @ts-expect-error an <a> has no to */}
+      <NavbarLink id="nt-y" href="#y" to="/y">Stray to</NavbarLink>
+      {/* @ts-expect-error a <button>'s ref isn't an anchor's */}
+      <NavbarLink id="nt-z" as="button" ref={wrong}>Ref</NavbarLink>
+    </Navbar>);
+    const is = (n: Element | null, id: string) => n === el(id);
+    expect([is(a.current, 'nt-a'), is(r.current, 'nt-r'), is(b.current, 'nt-b'), el('nt-r').getAttribute('aria-current'), el('nt-b').tagName])
+      .toEqual([true, true, true, 'page', 'BUTTON']);
+  });
+
   test('a <header> with a <nav aria-label="Main"> list; 64px tall plus a 1px line; refs and props reach it', async () => {
     const r = React.createRef<HTMLElement>(), lr = React.createRef<HTMLAnchorElement>();
     await render(<Main r={r} lr={lr} />);
