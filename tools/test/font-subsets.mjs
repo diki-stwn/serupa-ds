@@ -28,36 +28,49 @@ t('an English page downloads only the latin files, upright and italic', fetched.
 // The same text, set once with the whole fonts and once with the faces tokens.css uses. Each word keeps to one file:
 // a word mixing two (Łódź: Ł and ź from latin-ext, ó and d from latin) loses the kerning between them, since a font
 // kerns only its own glyphs. That is the cost of any split by unicode-range, Google Fonts' included.
-const text = `<p>Hello -> world <- 1/2 3x4 ‘q’ “dq” – — … fi fl 0123456789 €£¥ © ™ ½ ±×÷ ← ↑ → ↓ ⌘ ✓ ①</p>
-<p style="font-feature-settings:'tnum','ss01','cv11','zero'">1110 0O Il1 Ag</p>
-<p>Привет Ӂ Ελληνικά ἄλφα Tiếng Việt ŁĞİŞČŦ ʼ ﬀ ₿ ℃ №</p>
-<p style="font-style:italic;font-weight:650">Italic -> Привет Ελληνικά Tiếng ✓</p><p style="font-weight:200">Thin 2/3 Ǆ</p>`;
+const LINES = [
+  ['latin, with contextual arrows, fractions, quotes, ligatures and currency', '', 'Hello -> world <- 1/2 3x4 ‘q’ “dq” – — … fi fl 0123456789 €£¥ © ™ ½'],
+  ['symbols', '', '±×÷ ← ↑ → ↓ ⌘ ✓ ① ₿ ℃ №'],
+  ['features: tabular figures, ss01, cv11, slashed zero', "font-feature-settings:'tnum','ss01','cv11','zero'", '1110 0O Il1 Ag'],
+  ['cyrillic and greek', '', 'Привет Ӂ Ελληνικά ἄλφα'],
+  ['vietnamese and latin-ext', '', 'Tiếng Việt ŁĞİŞČŦ ʼ'],
+  ['italic 650', 'font-style:italic;font-weight:650', 'Italic -> Привет Ελληνικά Tiếng ✓'],
+  ['weight 200', 'font-weight:200', 'Thin 2/3'],
+];
+const text = LINES.map(([, style, words]) => `<p style="${style}">${words}</p>`).join('');
 const whole = `@font-face{font-family:T;src:url("${at('fonts/InterVariable.woff2')}");font-weight:100 900}@font-face{font-family:T;src:url("${at('fonts/InterVariable-Italic.woff2')}");font-weight:100 900;font-style:italic}`;
 const split = faces.map((f) => `@font-face{font-family:T;src:url("${at(f.file)}");font-weight:${f.weight};font-style:${f.style};unicode-range:${f.unicodeRange}}`).join('');
-const shot = async (name, css) => {
-  fs.writeFileSync(path.join(dir, name), `<!doctype html><meta charset="utf-8"><style>${css} body{font-family:T;font-size:22px;margin:8px}</style>${text}`);
+// A picture of each line, as base64.
+const shots = async (name, css) => {
+  fs.writeFileSync(path.join(dir, name), `<!doctype html><meta charset="utf-8"><style>${css} body{font-family:T;font-size:22px;margin:8px} p{width:max-content}</style>${text}`);
   await p.goto('file://' + path.join(dir, name));
   // Load every face first: one with a unicode-range only starts loading when layout meets one of its characters, and
   // on a busy runner fonts.ready can settle before that.
   await p.evaluate(async () => { await Promise.all([...document.fonts].map((f) => f.load())); await document.fonts.ready; await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(() => ok()))); });
-  return p.screenshot();
+  const out = [];
+  for (let i = 0; i < LINES.length; i++) out.push((await p.locator('p').nth(i).screenshot()).toString('base64'));
+  return out;
 };
-const a = await shot('font-whole.html', whole), c = await shot('font-split.html', split);
-// Where they differ, if they do (compared in the page, on a canvas): the rows, so the line of the sample can be found.
-const diff = Buffer.compare(a, c) === 0 ? '' : await p.evaluate(async ([x, y]) => {
+const a = await shots('font-whole.html', whole), c = await shots('font-split.html', split);
+// How many pixels differ, compared in the page on a canvas (no image library).
+const differ = (x, y) => p.evaluate(async ([x, y]) => {
   const load = (b64) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.src = 'data:image/png;base64,' + b64; });
   const [ia, ic] = await Promise.all([load(x), load(y)]);
+  if (ia.width !== ic.width || ia.height !== ic.height) return `sizes ${ia.width}x${ia.height} and ${ic.width}x${ic.height}`;
   const pixels = (im) => { const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const g = cv.getContext('2d'); g.drawImage(im, 0, 0); return g.getImageData(0, 0, im.width, im.height).data; };
   const da = pixels(ia), dc = pixels(ic);
-  let n = 0, top = Infinity, bottom = -1, left = Infinity, right = -1;
+  let n = 0, left = Infinity, right = -1;
   for (let i = 0; i < da.length; i += 4) {
     if (da[i] === dc[i] && da[i + 1] === dc[i + 1] && da[i + 2] === dc[i + 2]) continue;
-    const px = (i / 4) % ia.width, py = Math.floor(i / 4 / ia.width);
-    n++; top = Math.min(top, py); bottom = Math.max(bottom, py); left = Math.min(left, px); right = Math.max(right, px);
+    const px = (i / 4) % ia.width;
+    n++; left = Math.min(left, px); right = Math.max(right, px);
   }
-  return n ? `${n} pixels differ, x ${left}-${right}, y ${top}-${bottom} (a line is about 48px)` : '';
-}, [a.toString('base64'), c.toString('base64')]);
-t('text in latin, cyrillic, greek and vietnamese, with features, weights and italic, draws the same pixels as with the whole font', !diff, `${diff}: run python3 -I tools/fonts/subset.py again`);
+  return n ? `${n} of ${ia.width * ia.height} pixels differ, x ${left}-${right}` : '';
+}, [x, y]);
+for (let i = 0; i < LINES.length; i++) {
+  const d = a[i] === c[i] ? '' : await differ(a[i], c[i]);
+  t(`${LINES[i][0]} draws the same pixels as with the whole font`, !d, d);
+}
 
 await b.close();
 fs.rmSync(dir, { recursive: true, force: true });
