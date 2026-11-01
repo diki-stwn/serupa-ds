@@ -247,7 +247,7 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow(props: { item: TreeV
   return (
     <li role="treeitem" data-id={id} tabIndex={key[2] === "t" ? 0 : -1}
       aria-level={level} aria-posinset={props.pos} aria-setsize={props.size}
-      aria-expanded={canOpen ? isOpen : undefined}
+      aria-expanded={canOpen ? isOpen : undefined} data-state={canOpen ? (isOpen ? "open" : "closed") : undefined}
       aria-selected={mode === "none" ? undefined : mode === "multiple" ? picked : picked || undefined}
       aria-disabled={item.disabled || undefined}
       className={cn("dk-tree-view__item", picked && "dk-tree-view__item--selected", item.disabled && "dk-tree-view__item--disabled")}
