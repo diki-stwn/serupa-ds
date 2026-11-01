@@ -24,9 +24,20 @@ const frames = (n: number) => new Promise<void>((r) => { const f = () => (n-- > 
 // Each element's box, from the host's corner, rounded to the pixel, in document order. A weight first used by this
 // story (ErrorSummary's medium links) starts loading at layout, so wait for it: measured in the fallback font, a link
 // came out a few pixels narrower on one side only.
+// In a full run, with the machine busy, an element an effect adds after mount (an icon drawn once its data loads)
+// could land after one hydration was measured and before the other, so the lists came out shifted by one ("53
+// elements differ", each want the got before it). So wait for a frame in which nothing is added or removed (at most
+// about half a second) before measuring.
 async function boxes(host: HTMLElement) {
   await frames(2);
   await document.fonts.ready;
+  for (let tries = 0, changed = true; changed && tries < 30; tries++) {
+    const seen = new MutationObserver(() => {});
+    seen.observe(host, { childList: true, subtree: true });
+    await frames(1);
+    changed = seen.takeRecords().length > 0;
+    seen.disconnect();
+  }
   for (const a of document.getAnimations()) a.finish();
   const o = host.getBoundingClientRect();
   return [...host.querySelectorAll('*')].map((e) => {
