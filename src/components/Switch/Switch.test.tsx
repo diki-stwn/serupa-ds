@@ -9,7 +9,7 @@ import { Switch } from './Switch';
 const el = (id: string) => document.getElementById(id) as HTMLInputElement;
 // The input (track), its label and thumb, measured.
 const box = (id: string) => {
-  const i = el(id), w = i.closest('label') as HTMLElement, c = css(i), lc = css(w), ir = i.getBoundingClientRect(), th = w.querySelector('.dk-switch__thumb')!, tr = th.getBoundingClientRect(), tx = w.querySelector('.dk-switch__label'), xr = tx && tx.getBoundingClientRect();
+  const i = el(id), w = i.closest('label') as HTMLElement, c = css(i), lc = css(w), ir = i.getBoundingClientRect(), th = w.querySelector('input + span')!, tr = th.getBoundingClientRect(), tx = w.querySelector('.dk-switch__label'), xr = tx && tx.getBoundingClientRect();
   return {
     tag: i.tagName + ':' + i.type + ':' + i.getAttribute('role'), root: w.tagName, wrap: w.className, w: ir.width, h: ir.height, app: c.appearance, bg: c.backgroundColor, r: c.borderTopLeftRadius, bs: c.boxShadow,
     fs: lc.fontSize, op: lc.opacity, cur: lc.cursor, size: w.dataset.size, comp: w.dataset.component, checked: i.checked, disabled: i.matches(':disabled'), thumb: tr.width, thumbBg: css(th).backgroundColor,
@@ -93,7 +93,7 @@ describe('Switch', () => {
 
   test('a click on the label turns a controlled switch on through onChange; on: a primary track and the thumb at the end (2px in) in on-primary', async () => {
     await setup();
-    await userEvent.click(document.querySelector('label.extra .dk-switch__label')!);
+    await userEvent.click(document.querySelector('label.extra > span + span > span:first-child')!);
     await away();
     expect([changes.join(), el('md').checked]).toEqual(['true', true]);
     await expect.poll(() => { const b = box('md'); return [b.bg, b.endGap, b.thumbBg]; }).toEqual([color('var(--primary)'), 2, color('var(--on-primary)')]);
@@ -109,7 +109,7 @@ describe('Switch', () => {
 
   test('description: a muted second line in aria-describedby', async () => {
     await setup();
-    const i = el('desc'), d = i.closest('label')!.querySelector('.dk-switch__description')!;
+    const i = el('desc'), d = i.closest('label')!.querySelector(':scope > span + span > span:last-child')!;
     expect([i.getAttribute('aria-describedby'), css(d).color]).toEqual([d.id, color('var(--text-muted)')]);
   });
 
@@ -189,21 +189,21 @@ describe('Switch', () => {
     }
     await render(<Saving />);
     const lab = (id: string) => el(id).closest('label') as HTMLElement;
-    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('.dk-switch__spinner')]).toEqual([false, null]);
+    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('input + span > span')]).toEqual([false, null]);
     await userEvent.click(lab('pd'));
     expect([el('pd').checked, el('pd').getAttribute('aria-busy'), el('pd').hasAttribute('aria-readonly'), css(lab('pd')).cursor, el('pd').tabIndex]).toEqual([true, 'true', false, 'progress', 0]);
-    expect(withMotion(() => css(lab('pd').querySelector('.dk-switch__thumb > .dk-switch__spinner')).animationName)).toBe('spin');
+    expect(withMotion(() => css(lab('pd').querySelector('input + span > span')).animationName)).toBe('spin');
     await userEvent.click(lab('pd'));
     el('pd').focus();
     await userEvent.keyboard(' ');
     expect([el('pd').checked, onChange.mock.calls.length, document.activeElement === el('pd')]).toEqual([true, 1, true]);
     expect(new FormData(document.getElementById('pd-form') as HTMLFormElement).get('sync')).toBe('on');
     await userEvent.click(el('pd-done'));
-    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('.dk-switch__spinner')]).toEqual([false, null]);
+    expect([el('pd').hasAttribute('aria-busy'), lab('pd').querySelector('input + span > span')]).toEqual([false, null]);
     await userEvent.click(lab('pd'));
     expect(el('pd').checked).toBe(false);
     // The ring sits inside the thumb.
-    const t = lab('pd-on').querySelector('.dk-switch__thumb')!.getBoundingClientRect(), r = lab('pd-on').querySelector('.dk-switch__spinner')!.getBoundingClientRect();
+    const t = lab('pd-on').querySelector('input + span')!.getBoundingClientRect(), r = lab('pd-on').querySelector('input + span > span')!.getBoundingClientRect();
     expect([r.width > 0, r.left >= t.left, r.right <= t.right, r.top >= t.top, r.bottom <= t.bottom]).toEqual([true, true, true, true, true]);
     const low: string[] = [];
     function Off() { return <Switch id="pd-off" pending>Off</Switch>; }
@@ -211,7 +211,7 @@ describe('Switch', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       for (const id of ['pd-on', 'pd-off']) {
-        const w = lab(id), ring = css(w.querySelector('.dk-switch__spinner')).borderBlockStartColor, bg = css(w.querySelector('.dk-switch__thumb')).backgroundColor;
+        const w = lab(id), ring = css(w.querySelector('input + span > span')).borderBlockStartColor, bg = css(w.querySelector('input + span')).backgroundColor;
         const c = contrast(ring, bg); if (c < 3) low.push(`${th} ${id}: ${c.toFixed(2)}`);
       }
     }
@@ -243,7 +243,7 @@ describe('Switch', () => {
 
   test('the thumb slides in 100ms (motion-press: feedback for a toggle is 100ms or less, FI1), a press on it springs back over motion-release, and nothing animates with reduced motion', async () => {
     await setup();
-    const dur = () => withMotion(() => css(document.querySelector('.dk-switch__thumb')).transitionDuration + '|' + css(document.querySelector('.dk-switch__input')).transitionDuration);
+    const dur = () => withMotion(() => css(document.querySelector('input + span')).transitionDuration + '|' + css(document.querySelector('[role=switch]')).transitionDuration);
     expect(dur()).toBe('0.1s, 0.1s, 0.3s|0.1s');
     if (server.browser === 'chromium') {
       const session = cdp() as unknown as { send: (method: string, params: object) => Promise<unknown> };
@@ -272,7 +272,7 @@ describe('Switch', () => {
   test('no React warnings', async () => {
     const error = vi.spyOn(console, 'error'), warn = vi.spyOn(console, 'warn');
     await setup();
-    await userEvent.click(document.querySelector('label.extra .dk-switch__label')!);
+    await userEvent.click(document.querySelector('label.extra > span + span > span:first-child')!);
     expect(error).not.toHaveBeenCalled();
     expect(warn).not.toHaveBeenCalled();
     error.mockRestore(); warn.mockRestore();
