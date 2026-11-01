@@ -8958,7 +8958,7 @@
 "font-medium":"font-weight:500;child font-weight:500",
 "font-mono":"font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace;child font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace",
 "font-normal":"(no effect)",
-"font-sans":"font-family:Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif;child font-family:Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+"font-sans":"#87cb8ec58b60",
 "font-semibold":"font-weight:600;child font-weight:600",
 "font-serif":"font-family:Georgia, Cambria, \"Times New Roman\", Times, serif;child font-family:Georgia, Cambria, \"Times New Roman\", Times, serif",
 "font-stretch-100%":"(no effect)",
