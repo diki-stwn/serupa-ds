@@ -47,6 +47,18 @@ describe('Drawer', () => {
   beforeEach(async () => { await page.viewport(1000, 700); });
   afterAll(async () => { await page.viewport(900, 700); });
 
+  test('a 320px screen: a long footer label wraps onto more lines inside the panel, whole, not cut with an ellipsis (GR74)', async () => {
+    await page.viewport(320, 640);
+    const label = 'Apply these filters to every one of your saved views';
+    await render(<Drawer id="dww" open onOpenChange={() => {}} title="Filters" footer={[<Button key={1} variant="secondary">Reset</Button>, <Button key={2} id="dwapply">{label}</Button>]}>Pick filters.</Drawer>);
+    await expect.poll(() => (el('dww') as HTMLDialogElement).open).toBe(true);
+    await settled();
+    const b = el('dwapply'), r = b.getBoundingClientRect(), q = panel('dww').getBoundingClientRect();
+    const text = [...b.querySelectorAll('*')].find((x) => x.textContent === label) as HTMLElement;
+    expect([r.right <= q.right + 0.5, text.scrollWidth <= text.clientWidth + 1, r.height > 40, b.textContent]).toEqual([true, true, true, label]);
+    expect(b.previousElementSibling!.getBoundingClientRect().height).toBe(32);
+  });
+
   // GR52: at 320x256 (400% zoom) a bottom drawer's header and footer filled the panel, the body was squeezed to 0px
   // and the footer sat below the screen (309-341px), clipped, with nothing to scroll; Tab focused Apply off screen.
   test('a short screen (320x256, 400% zoom), bottom and right: the panel scrolls as a whole, the body keeps its height, and focusing Apply brings it into view (GR52)', async () => {
