@@ -128,6 +128,15 @@ describe('Slider', () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);
   });
 
+  test('L8E109: a press on the thumb let go where it was, or a drag back to the start, calls no onValueCommit', async () => {
+    await setup();
+    await press('one', 0.5);                                  // on the thumb at 50
+    await drag(el('one'), at('one', 0.5), at('one', 0.5));    // a drag that ends where it began
+    expect([now('one'), commits]).toEqual([50, []]);
+    await press('one', 0.7);
+    expect(commits).toEqual(['70']);
+  });
+
   test('pointer: dragging past the end clamps (100), changing as it goes, with one commit at the end', async () => {
     await setup();
     const t = track('one'), r = rect(el('one'));
