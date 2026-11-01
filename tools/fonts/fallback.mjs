@@ -3,7 +3,7 @@
 // every line changes width and the text below moves. "Inter Fallback" is Arial (or a font with Arial's metrics:
 // Helvetica, Liberation Sans, Arimo) scaled with size-adjust so a line of English is as wide as in Inter, with
 // Inter's ascent and descent. Next.js and Fontaine do the same.
-//   node tools/fonts/fallback.mjs     measures in Chromium and writes the faces into tokens.json's type.fallbacks
+//   node tools/fonts/fallback.mjs     measures in Chromium and writes the faces into the token source's type.fallbacks (tokens/serupa.tokens.json; then npm run tokens)
 // It measures in the browser, so kerning and Inter's optical size count, as they do on a page. Arial's widths come
 // from Liberation Sans, which has them glyph for glyph (it was made to): on Linux, apt install fonts-liberation.
 // Run it again only when fonts/ changes.
@@ -30,8 +30,9 @@ const FACES = [
 // a hair under Inter's would make some lines a pixel shorter.
 const pct = (x) => `${Number((Math.ceil(x * 1e5 - 1e-6) / 1e3).toFixed(3))}%`;
 
-const tokensPath = path.join(ROOT, 'tokens.json');
-const tokens = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
+const tokensPath = path.join(ROOT, 'tokens', 'serupa.tokens.json');   // the token source; npm run tokens makes tokens.json
+const source = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
+const tokens = source.$extensions['com.serupa'];
 // Only for the latin range, the file an English page loads first: a character Inter doesn't draw (Arabic, Hebrew,
 // CJK) skips Inter Fallback and goes on down the stack to the system font, as before.
 const LATIN = tokens.type.fonts.find((f) => f.file === 'fonts/InterVariable-latin.woff2').unicodeRange;
@@ -73,4 +74,4 @@ tokens.type.fallbacks = FACES.map(([style, weight, names], i) => {
     descentOverride: pct(got[i].descent / size), lineGapOverride: '0%', unicodeRange: LATIN,
   };
 });
-fs.writeFileSync(tokensPath, JSON.stringify(tokens, null, 2) + '\n');
+fs.writeFileSync(tokensPath, JSON.stringify(source, null, 2) + '\n');

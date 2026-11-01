@@ -4,7 +4,7 @@
 # needs (latin-ext for Polish, Turkish or Czech, vietnamese for its stacked accents), and "symbols" takes every
 # other character Inter has (arrows, math, box drawing …), so nothing the full font draws goes missing.
 #   pip install fonttools brotli
-#   python3 -I tools/fonts/subset.py     writes fonts/InterVariable-<subset>.woff2 and their faces in tokens.json
+#   python3 -I tools/fonts/subset.py     writes fonts/InterVariable-<subset>.woff2 and their faces in tokens/serupa.tokens.json (then npm run tokens)
 # Run it again only when the fonts in fonts/ change. All layout features, the variation axes and the names (with
 # the licence) are kept, and each file keeps the glyphs its features reach, so "->" still turns into an arrow.
 import json, os, sys
@@ -69,8 +69,10 @@ for source in ("InterVariable.woff2", "InterVariable-Italic.woff2"):
         faces.append({"family": "Inter", "file": "fonts/" + out, "weight": "100 900", "style": style, "unicodeRange": SUBSETS.get(name) or ranges(codes, claimed)})
         print("%-40s %6.1f KiB" % (out, os.path.getsize(os.path.join(FONTS, out)) / 1024))
 
-# tokens.json's type.fonts lists the faces, and tools/tokens/build.mjs writes an @font-face for each into tokens.css.
-path = os.path.join(ROOT, "tokens.json")
+# The token source's type.fonts lists the faces (tokens.json's, once npm run tokens has run), and tools/tokens/build.mjs
+# writes an @font-face for each into tokens.css.
+path = os.path.join(ROOT, "tokens", "serupa.tokens.json")
 tokens = json.load(open(path, encoding="utf-8"))
-tokens["type"]["fonts"] = faces
+tokens["$extensions"]["com.serupa"]["type"]["fonts"] = faces
 open(path, "w", encoding="utf-8").write(json.dumps(tokens, indent=2, ensure_ascii=False) + "\n")
+print("faces written to tokens/serupa.tokens.json: run npm run tokens")
