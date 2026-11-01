@@ -15,7 +15,7 @@ const checked = (id: string) => el(id).querySelector<HTMLElement>('[aria-checked
 const focused = () => (document.activeElement as HTMLElement).dataset.value;
 // How far the sliding selection is from the checked segment: [left, width] differences in px.
 const off = (id: string) => {
-  const i = el(id).querySelector('.dk-segmented__indicator')!.getBoundingClientRect(), c = el(id).querySelector('[aria-checked=true]')!.getBoundingClientRect();
+  const i = el(id).querySelector(':scope > span[aria-hidden]')!.getBoundingClientRect(), c = el(id).querySelector('[aria-checked=true]')!.getBoundingClientRect();
   return [Math.round(i.left - c.left) || 0, Math.round(i.width - c.width) || 0]; // || 0: no -0
 };
 // Transitions still running (a theme change can cancel one and start another, so poll rather than await .finished).
@@ -189,7 +189,7 @@ describe('SegmentedControl', () => {
     const centers = it.map((x) => { const r = x.getBoundingClientRect(); return r.left + r.width / 2; });
     expect(Math.round(centers[1] - centers[0])).toBeGreaterThanOrEqual(24);
     // The selection sits exactly on the checked segment.
-    const ind = el('ico').querySelector('.dk-segmented__indicator')!.getBoundingClientRect(), c = it[1].getBoundingClientRect();
+    const ind = el('ico').querySelector(':scope > span[aria-hidden]')!.getBoundingClientRect(), c = it[1].getBoundingClientRect();
     expect([Math.round(ind.left), Math.round(ind.width)]).toEqual([Math.round(c.left), Math.round(c.width)]);
     await render(<SegmentedControl id="icomd" aria-label="Align" options={[{ value: 'l', icon: 'format_align_left', 'aria-label': 'Left' }, { value: 'r', icon: 'format_align_right', 'aria-label': 'Right' }]} />);
     expect(items('icomd').map((x) => Math.round(x.getBoundingClientRect().width)).join()).toBe('26,26');
@@ -255,7 +255,7 @@ describe('SegmentedControl', () => {
 
   test('contrast: the outline keeps 3:1 on the page, labels 4.5:1 (the selection\'s outline 2:1), in all six themes', async () => {
     await render(<Col><Period /></Col>);
-    const e = el('per'), indi = e.querySelector('.dk-segmented__indicator')!;
+    const e = el('per'), indi = e.querySelector(':scope > span[aria-hidden]')!;
     const low: string[] = [];
     let n = 0;
     for (const th of THEMES) {

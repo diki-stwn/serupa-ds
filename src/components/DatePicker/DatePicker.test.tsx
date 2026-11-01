@@ -257,7 +257,7 @@ describe('DatePicker', () => {
       day.style.background = 'var(--calendar-day-bg-hover, var(--surface-muted))';
       pairs.push(['day on hover', getComputedStyle(day).color, getComputedStyle(day).backgroundColor, 4.5]);
       day.style.background = '';
-      const tb = document.querySelector('[data-testid=today] .dk-calendar__day--today:not(.dk-calendar__day--selected)');
+      const tb = document.querySelector('[data-testid=today] td:not([aria-selected="true"]) > [aria-current="date"]');
       if (tb) pairs.push(['today', getComputedStyle(tb).color, getComputedStyle(document.body).backgroundColor, 4.5]);
       const btn = button('ctl');
       pairs.push(['calendar button', getComputedStyle(btn).color, getComputedStyle(btn.parentElement!).backgroundColor, 3]);

@@ -170,7 +170,7 @@ describe('Pagination', () => {
 
   test('right to left: the arrows point the other way', async () => {
     await render(<div dir="rtl"><Pagination id="prtl" count={3} /></div>);
-    expect([...el('prtl').querySelectorAll('.dk-pagination__arrow')].map((a) => iconPoints(a.querySelector('[data-icon]')!)).join()).toBe('right,left');
+    expect([...el('prtl').querySelectorAll('button [data-icon]')].map((i) => iconPoints(i)).join()).toBe('right,left');
   });
 
   test('Pagination tokens (--pagination-current-bg, --pagination-size) override one pagination', async () => {

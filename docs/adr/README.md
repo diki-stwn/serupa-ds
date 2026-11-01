@@ -15,6 +15,7 @@ Each record says why Serupa is built the way it is: the context, the options wei
 | [0010](0010-serupa-provider.md) | One app-level provider instead of module-global settings | Accepted |
 | [0011](0011-theming-v2.md) | Theme axes, CSS-only dark mode, one brand registry | Accepted |
 | [0012](0012-data-state.md) | One `data-state` vocabulary across components | Accepted |
+| [0013](0013-overlay-layers.md) | How overlays share Escape, focus and outside presses | Accepted |
 
 There is no 0008: that number was never used.
 

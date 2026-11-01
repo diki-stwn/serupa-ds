@@ -9,7 +9,7 @@ import { SortableList } from './SortableList';
 
 type Item = { id: string; name: string };
 const ITEMS: Item[] = ['Apollo', 'Gemini', 'Mercury', 'Artemis'].map((name) => ({ id: name.toLowerCase(), name }));
-const names = () => [...document.querySelectorAll('#sl .dk-sortable-list__content')].map((n) => n.textContent);
+const names = () => [...document.querySelectorAll('#sl li > div')].map((n) => n.textContent);
 const handle = (name: string) => document.querySelector(`#sl button[aria-label$=" ${name}"]`) as HTMLButtonElement;
 const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 const said = (text: string | RegExp) => expect.poll(() => announcer()?.textContent || '', { timeout: 3000 }).toMatch(text);
@@ -258,7 +258,7 @@ describe('SortableList', () => {
       document.documentElement.setAttribute('data-theme', th);
       await Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined)));
       const row = document.querySelector('#sl > li')!, bg = css(row).backgroundColor;
-      for (const [el, need] of [[row.querySelector('.dk-sortable-list__handle'), 3], [row.querySelector('.dk-sortable-list__content'), 4.5]] as const) {
+      for (const [el, need] of [[row.querySelector('button'), 3], [row.querySelector(':scope > div'), 4.5]] as const) {
         const r = contrast(css(el).color, bg);
         if (r < need) low.push(`${th} ${(el as Element).className} ${r.toFixed(2)}`);
       }

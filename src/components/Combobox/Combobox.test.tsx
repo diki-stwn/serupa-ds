@@ -20,7 +20,7 @@ const activeOf = (id: string) => document.getElementById(el(id).getAttribute('ar
 // The popup's message rows: Loading (role=status), "No results" and "Couldn't load" (plain text: the announcer says them, GR53).
 const messagesOf = (pop: Element) => [...pop.children].filter((c) => c.getAttribute('role') !== 'listbox');
 const statusOf = (id: string) => messagesOf(popOf(id))[0];
-const label = (o: Element) => o.querySelector('.dk-combobox__label')!.textContent;
+const label = (o: Element) => o.firstElementChild!.firstElementChild!.textContent;
 const st = (id: string) => {
   const i = el(id), list = i.closest('[data-component=combobox]')!.querySelector('[role=listbox]')!, pop = list.parentElement!, ad = i.getAttribute('aria-activedescendant');
   return { open: i.getAttribute('aria-expanded'), shown: !pop.hidden && pop.matches(':popover-open'), opts: [...list.querySelectorAll('[role=option]')].map(label), active: ad ? label(document.getElementById(ad)!) : null, text: i.value, focus: document.activeElement === i };
@@ -332,7 +332,7 @@ describe('Combobox', () => {
     await render(<Countries />);
     await open();
     const ci = [...popOf('cb').querySelectorAll('[role=option]')].find((o) => label(o) === 'Côte d’Ivoire')!;
-    expect([ci.getAttribute('aria-description'), ci.querySelector('.dk-combobox__description')!.getAttribute('aria-hidden')]).toEqual(['Africa', 'true']);
+    expect([ci.getAttribute('aria-description'), ci.firstElementChild!.lastElementChild!.getAttribute('aria-hidden')]).toEqual(['Africa', 'true']);
   });
 
   test('once typing stops, how many options match is said ("2 results"); Indonesian "2 hasil" (BE1)', async () => {
@@ -387,7 +387,7 @@ describe('Combobox', () => {
       document.documentElement.setAttribute('data-theme', th);
       const pop = popOf('cb'), act = activeOf('cb'), c = (e: Element) => getComputedStyle(e).color;
       const bg = getComputedStyle(pop).backgroundColor, abg = getComputedStyle(act).backgroundColor, field = getComputedStyle(el('cb').parentElement!).backgroundColor;
-      const pairs: Array<[string, string, string, number]> = [['label', c(pop.querySelector('.dk-combobox__label')!), bg, 4.5], ['active label', c(act), abg, 4.5], ['description on active', c(act.querySelector('.dk-combobox__description')!), abg, 4.5], ['chevron', c(toggleOf('cb')), field, 3]];
+      const pairs: Array<[string, string, string, number]> = [['label', c(pop.querySelector('[role=option] > span > span')!), bg, 4.5], ['active label', c(act), abg, 4.5], ['description on active', c(act.firstElementChild!.lastElementChild!), abg, 4.5], ['chevron', c(toggleOf('cb')), field, 3]];
       for (const [k, fg, on, min] of pairs) { const r = contrast(fg, on); if (r < min) low.push(`${th} ${k} ${r.toFixed(2)}`); }
     }
     still.remove();
