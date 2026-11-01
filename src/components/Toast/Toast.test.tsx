@@ -8,6 +8,7 @@ import { Dialog } from '../Dialog/Dialog';
 import { Drawer } from '../Drawer/Drawer';
 import { toast, Toaster, type ToasterPosition } from './Toast';
 import { idLabels } from '../../internal/labels';
+import { SerupaProvider } from '../../internal/provider';
 
 const toasts = () => [...document.querySelectorAll<HTMLElement>('.dk-toast')];
 // Each toast is named by its title (aria-labelledby).
@@ -316,7 +317,8 @@ describe('Toast', () => {
   });
 
   test('a burst of the same message is one toast with a count ("×12", read as "12 times"); one with an id or an action is never merged', async () => {
-    await render(<App />);
+    // In en-US whatever SERUPA_LOCALE the run uses: the count is in the locale's digits (GR25, tested below).
+    await render(<SerupaProvider locale="en-US"><App /></SerupaProvider>);
     React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', tone: 'danger', duration: 0 }); });
     expect([toasts().length, q('.dk-toast__count [aria-hidden]').textContent, q('.dk-toast__count .dk-visually-hidden').textContent]).toEqual([1, '×12', ', 12 times']);
     React.act(() => { toast({ title: 'Network error', tone: 'warning', duration: 0 }); toast({ title: 'Network error', tone: 'danger', id: 'mine', duration: 0 }); toast({ title: 'Network error', tone: 'danger', duration: 0, action: { label: 'Retry', onClick: () => {} } }); });
@@ -340,7 +342,7 @@ describe('Toast', () => {
 
   test('limit={1} shows only the newest; Indonesian words for the waiting line', async () => {
     const { idLabels } = await import('../../internal/labels');
-    const { SerupaProvider } = await import('../../internal/provider');
+
     await render(<SerupaProvider labels={idLabels}><Toaster limit={1} /></SerupaProvider>);
     React.act(() => { toast({ title: 'A', duration: 0 }); toast({ title: 'B', duration: 0 }); toast({ title: 'C', duration: 0 }); });
     expect([titles(), q('.dk-toaster__more').textContent]).toEqual([['C'], '+2 lainnya']);
@@ -618,7 +620,7 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
   });
 
   test('GR25: the repeat count is written in the locale\'s digits, as Badge writes its count', async () => {
-    const { SerupaProvider } = await import('../../internal/provider');
+
     await render(<SerupaProvider locale="ar-EG"><Toaster /></SerupaProvider>);
     React.act(() => { for (let i = 0; i < 12; i++) toast({ title: 'Network error', duration: 0 }); });
     expect(toasts()[0].textContent).toContain('×١٢');
@@ -635,7 +637,7 @@ describe('Toast: autoDismiss and the Toaster\'s defaults (FY1)', () => {
   });
 
   test('toast.undo: "Undo" in the provider\'s labels, or undoLabel (12)', async () => {
-    const { SerupaProvider } = await import('../../internal/provider');
+
     await render(<SerupaProvider labels={idLabels}><Toaster /></SerupaProvider>);
     React.act(() => { toast.undo({ title: 'Dihapus', commit: () => {} }); toast.undo({ title: 'Archived', commit: () => {}, undoLabel: 'Restore' }); });
     expect(toasts().map((x) => undoButton(x).textContent)).toEqual(['Urungkan', 'Restore']);
