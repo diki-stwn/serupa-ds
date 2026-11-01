@@ -106,11 +106,11 @@ export const SortableList = /* @__PURE__ */ component<HTMLUListElement, Sortable
     const d = current.current;
     if (d && !d.pointer && handles.current.get(d.key) !== document.activeElement) finish(d, false);
   });
-  // Moving a row in the DOM can take focus off its handle: give it back.
-  // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
-  // And keep the moved row on screen (GR69): in a list or row longer than its box, the arrows would carry it out of
-  // view while focus stays on it (WCAG 2.4.11). Only once it has moved, so picking it up scrolls nothing.
+  // Moving a row in the DOM can take focus off its handle: give it back. And keep the moved row on screen (GR69): in
+  // a list or row longer than its box, the arrows would carry it out of view while focus stays on it (WCAG 2.4.11).
+  // Only once it has moved, so picking it up scrolls nothing.
   const shownAt = React.useRef(-1);
+  // every render: a keyboard move re-renders the rows; nothing is read unless a row is being moved.
   useIsoLayoutEffect(() => {
     if (!drag || drag.pointer) { shownAt.current = -1; return; }
     const h = handles.current.get(drag.key);
