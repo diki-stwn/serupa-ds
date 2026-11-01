@@ -14,6 +14,10 @@ keepMotion();
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
+// The section holds the viewport (its first div: the track, marked aria-live, then the two arrows) and, when
+// there are dots, a second div of dot buttons.
+const VIEW = ':scope > div:first-child', TRACK = `${VIEW} > [aria-live]`, ARROWS = `${VIEW} > button`, DOTS = ':scope > div + div > button';
+const part = (id: string, sel: string) => el(id).querySelector(sel) as HTMLElement;
 const focused = () => document.activeElement!.getAttribute('aria-label');
 
 /** Flips the page's @media rules that match `feature` on (and its opposite off) until the returned function is called. */
@@ -70,25 +74,25 @@ function App({ carRef }: { carRef?: React.Ref<HTMLElement> }) {
 }
 
 function state(id: string) {
-  const c = el(id), v = c.querySelector('.dk-carousel__viewport')!.getBoundingClientRect(), sl = slidesOf(c);
+  const c = el(id), v = c.querySelector(VIEW)!.getBoundingClientRect(), sl = slidesOf(c);
   return {
     index: +c.dataset.index!,
     shown: sl.findIndex((s) => Math.abs(s.getBoundingClientRect().left - v.left) < 1),
     active: sl.findIndex((s) => s.hasAttribute('data-active')),
     inert: sl.map((s) => (s.inert ? 1 : 0)).join(''),
     hidden: sl.map((s) => (s.getAttribute('aria-hidden') === 'true' ? 1 : 0)).join(''),
-    dots: [...c.querySelectorAll<HTMLElement>('.dk-carousel__dot')].map((d) => (d.getAttribute('aria-current') === 'true' ? 'C' : '-') + d.tabIndex).join(' '),
-    prev: c.querySelector<HTMLButtonElement>('.dk-carousel__arrow--prev')?.disabled,
-    next: c.querySelector<HTMLButtonElement>('.dk-carousel__arrow--next')?.disabled,
+    dots: [...c.querySelectorAll<HTMLElement>(DOTS)].map((d) => (d.getAttribute('aria-current') === 'true' ? 'C' : '-') + d.tabIndex).join(' '),
+    prev: c.querySelectorAll<HTMLButtonElement>(ARROWS)[0]?.disabled,
+    next: c.querySelectorAll<HTMLButtonElement>(ARROWS)[1]?.disabled,
   };
 }
-const arrow = (id: string, which: 'prev' | 'next') => q(`#${id} .dk-carousel__arrow--${which}`);
+const arrow = (id: string, which: 'prev' | 'next') => el(id).querySelectorAll<HTMLElement>(ARROWS)[which === 'prev' ? 0 : 1];
 // The slides, found as people find them: the groups described as slides.
 const slidesOf = (c: Element) => [...c.querySelectorAll<HTMLElement>('[role=group][aria-roledescription]')];
-const dot = (id: string, n: number) => el(id).querySelectorAll<HTMLElement>('.dk-carousel__dot')[n];
+const dot = (id: string, n: number) => el(id).querySelectorAll<HTMLElement>(DOTS)[n];
 /** A mouse swipe across the viewport, from its middle (40px down) by dx, or from the middle of `from`. */
 async function swipe(id: string, dx: number, from?: HTMLElement) {
-  const v = q(`#${id} .dk-carousel__viewport`);
+  const v = part(id, VIEW);
   v.scrollIntoView({ block: 'center' });
   const r = v.getBoundingClientRect(), s = from ? from.getBoundingClientRect() : null;
   const x = s ? s.left + s.width / 2 - r.left : r.width / 2, y = s ? s.top + s.height / 2 - r.top : 40;
@@ -109,7 +113,7 @@ describe('Carousel', () => {
   test('the slide and dot names and the role descriptions come from labels, so SerupaProvider translates them: "korsel", "2 dari 3" in Indonesian', async () => {
     await render(<SerupaProvider locale="id-ID" labels={idLabels}><Carousel id="cid" label="Foto">{slides(3, 'i')}</Carousel></SerupaProvider>);
     const c = el('cid');
-    expect([...c.querySelectorAll('.dk-carousel__dot')].map((x) => x.getAttribute('aria-label'))).toEqual(['1 dari 3', '2 dari 3', '3 dari 3']);
+    expect([...c.querySelectorAll(DOTS)].map((x) => x.getAttribute('aria-label'))).toEqual(['1 dari 3', '2 dari 3', '3 dari 3']);
     const s = slidesOf(c)[0];
     expect([c.getAttribute('aria-roledescription'), s.getAttribute('aria-roledescription'), s.getAttribute('aria-label')]).toEqual(['korsel', 'slide', '1 dari 3']);
   });
@@ -119,9 +123,9 @@ describe('Carousel', () => {
     await render(<App carRef={ref} />);
     const c = el('car'), s = slidesOf(c)[0];
     expect([c.tagName, c.getAttribute('aria-roledescription'), c.getAttribute('aria-label'), c.dataset.component, c.dataset.x]).toEqual(['SECTION', 'carousel', 'Photos', 'carousel', 'y']);
-    expect([s.getAttribute('role'), s.getAttribute('aria-roledescription'), s.getAttribute('aria-label'), c.querySelector('.dk-carousel__track')!.getAttribute('aria-live')]).toEqual(['group', 'slide', '1 of 4', 'polite']);
-    expect([...c.querySelectorAll('.dk-carousel__arrow')].map((x) => x.getAttribute('aria-label'))).toEqual(['Previous slide', 'Next slide']);
-    expect([...c.querySelectorAll('.dk-carousel__dot')].map((x) => x.getAttribute('aria-label'))).toEqual(['1 of 4', '2 of 4', '3 of 4', '4 of 4']);
+    expect([s.getAttribute('role'), s.getAttribute('aria-roledescription'), s.getAttribute('aria-label'), c.querySelector(TRACK)!.getAttribute('aria-live')]).toEqual(['group', 'slide', '1 of 4', 'polite']);
+    expect([...c.querySelectorAll(ARROWS)].map((x) => x.getAttribute('aria-label'))).toEqual(['Previous slide', 'Next slide']);
+    expect([...c.querySelectorAll(DOTS)].map((x) => x.getAttribute('aria-label'))).toEqual(['1 of 4', '2 of 4', '3 of 4', '4 of 4']);
     expect(ref.current).toBe(c);
     expect(c.className).toMatch(/extra/);
     expect(Math.round(s.getBoundingClientRect().width)).toBe(Math.round(c.getBoundingClientRect().width));
@@ -212,11 +216,11 @@ describe('Carousel', () => {
   test('RTL: slides run right to left, next sits on the left with a flipped chevron, and a swipe to the right goes forward; CSS direction alone (no dir attribute) shows the right slide', async () => {
     await render(<App />);
     await userEvent.click(arrow('rtl', 'next'));
-    const c = el('rtl'), v = c.querySelector('.dk-carousel__viewport')!.getBoundingClientRect(), sl = slidesOf(c).map((s) => s.getBoundingClientRect());
+    const c = el('rtl'), v = c.querySelector(VIEW)!.getBoundingClientRect(), sl = slidesOf(c).map((s) => s.getBoundingClientRect());
     expect(sl.findIndex((r) => Math.abs(r.left - v.left) < 1)).toBe(1);
     expect(sl[0].left).toBeGreaterThan(sl[1].left);
     expect(arrow('rtl', 'prev').getBoundingClientRect().left).toBeGreaterThan(arrow('rtl', 'next').getBoundingClientRect().left);
-    expect(getComputedStyle(c.querySelector('.dk-carousel__ltr')!).display).toBe('none');
+    expect(getComputedStyle(c.querySelector(`${ARROWS} [data-icon]`)!).display).toBe('none');
     await swipe('rtl', 120);
     expect(state('rtl').index).toBe(2);
     expect(state('cssrtl').shown).toBe(1);
@@ -224,7 +228,7 @@ describe('Carousel', () => {
 
   /** A mouse drag across the viewport through `path`: [dx from the start, ms after the move before]. */
   const trace = async (id: string, path: [number, number][], up = true) => {
-    const v = q(`#${id} .dk-carousel__viewport`);
+    const v = part(id, VIEW);
     v.scrollIntoView({ block: 'center' });
     const r = v.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + 40;
     const ev = (name: string, cx: number) => v.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 9, isPrimary: true, pointerType: 'mouse', button: 0, buttons: 1, clientX: cx, clientY: y }));
@@ -258,7 +262,7 @@ describe('Carousel', () => {
     await render(<App />);
     await trace('car', [[40, 50], [120, 50], [200, 50]], false);
     const moved = parseFloat(el('car').style.getPropertyValue('--dk-carousel-drag'));
-    q('#car .dk-carousel__viewport').dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 9 }));
+    part('car', VIEW).dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 9 }));
     expect([moved > 0, moved < 120]).toEqual([true, true]);
   });
 
@@ -266,7 +270,7 @@ describe('Carousel', () => {
     motion();
     try {
       await render(<App />);
-      const c = el('loop'), t = q('#loop .dk-carousel__track'), x = () => new DOMMatrix(getComputedStyle(t).transform).m41;
+      const c = el('loop'), t = part('loop', TRACK), x = () => new DOMMatrix(getComputedStyle(t).transform).m41;
       for (let i = 0; i < 2; i++) { await userEvent.click(arrow('loop', 'next')); await Promise.all(t.getAnimations().map((a) => a.finished)); }
       expect(state('loop').index).toBe(2);
       const from = x();
@@ -289,15 +293,15 @@ describe('Carousel', () => {
 
   test('reduced motion: slides change at once; without it they move in 300ms', async () => {
     await render(<App />);
-    expect(getComputedStyle(q('#car .dk-carousel__track')).transitionDuration).toBe('0s');
+    expect(getComputedStyle(part('car', TRACK)).transitionDuration).toBe('0s');
     motion();
-    try { expect(getComputedStyle(q('#car .dk-carousel__track')).transitionDuration).toBe('0.3s'); } finally { motion = emulate(REDUCE, NO_PREF); }
+    try { expect(getComputedStyle(part('car', TRACK)).transitionDuration).toBe('0.3s'); } finally { motion = emulate(REDUCE, NO_PREF); }
   });
 
   test('component tokens (--carousel-dot-active, --carousel-radius) override one carousel; dots are 8px, the current one 24px wide, each in a 24px target', async () => {
     await render(<App />);
-    expect([getComputedStyle(q('#tok .dk-carousel__dot[aria-current="true"]'), '::before').backgroundColor, getComputedStyle(q('#tok .dk-carousel__viewport')).borderTopLeftRadius]).toEqual(['rgb(1, 2, 3)', '3px']);
-    const d = q('#car .dk-carousel__dot:not([aria-current])'), r = d.getBoundingClientRect(), a = getComputedStyle(d, '::before'), cur = getComputedStyle(q('#car .dk-carousel__dot[aria-current="true"]'), '::before');
+    expect([getComputedStyle(part('tok', `${DOTS}[aria-current="true"]`), '::before').backgroundColor, getComputedStyle(part('tok', VIEW)).borderTopLeftRadius]).toEqual(['rgb(1, 2, 3)', '3px']);
+    const d = part('car', `${DOTS}:not([aria-current])`), r = d.getBoundingClientRect(), a = getComputedStyle(d, '::before'), cur = getComputedStyle(part('car', `${DOTS}[aria-current="true"]`), '::before');
     // Each dot is drawn 24px wide and clipped 8px in from both sides to an 8px circle; the current one isn't clipped.
     const cr = q('#car button[aria-current="true"]').getBoundingClientRect();
     expect([Math.round(r.width), Math.round(r.height), Math.round(cr.width), a.width, a.height, a.clipPath, cur.width, cur.clipPath]).toEqual([24, 24, 24, '24px', '8px', 'inset(0px 8px round 9999px)', '24px', 'inset(0px round 9999px)']);
@@ -325,8 +329,8 @@ describe('Carousel', () => {
       document.documentElement.setAttribute('data-theme', th);
       const bc = getComputedStyle(arrow('car', 'next'));
       for (const [k, r] of [
-        ['dot', contrast(getComputedStyle(q('#car .dk-carousel__dot:not([aria-current])'), '::before').backgroundColor, 'var(--surface)')],
-        ['current dot', contrast(getComputedStyle(q('#car .dk-carousel__dot[aria-current="true"]'), '::before').backgroundColor, 'var(--surface)')],
+        ['dot', contrast(getComputedStyle(part('car', `${DOTS}:not([aria-current])`), '::before').backgroundColor, 'var(--surface)')],
+        ['current dot', contrast(getComputedStyle(part('car', `${DOTS}[aria-current="true"]`), '::before').backgroundColor, 'var(--surface)')],
         ['button icon', contrast(bc.color, bc.backgroundColor)],
       ] as const) { n++; if (r < 3) low.push(`${th} ${k}: ${r.toFixed(2)}`); }
     }
@@ -338,13 +342,13 @@ describe('Carousel', () => {
     await swipe('pics', -120);
     expect(state('pics').index).toBe(1);
     const h0 = location.hash;
-    await swipe('car', -120, q('#car .dk-carousel__slide[data-active] a'));
+    await swipe('car', -120, part('car', '[role=group][data-active] a'));
     expect(location.hash).toBe(h0);
   });
 
   test('a cancelled touch (the browser scrolls instead) puts the slide back and doesn\'t change it', async () => {
     await render(<App />);
-    const i0 = state('car').index, v = q('#car .dk-carousel__viewport'), o = { bubbles: true, pointerId: 7, pointerType: 'touch', isPrimary: true, clientY: v.getBoundingClientRect().top + 40 };
+    const i0 = state('car').index, v = part('car', VIEW), o = { bubbles: true, pointerId: 7, pointerType: 'touch', isPrimary: true, clientY: v.getBoundingClientRect().top + 40 };
     v.dispatchEvent(new PointerEvent('pointerdown', { ...o, clientX: 300 }));
     v.dispatchEvent(new PointerEvent('pointermove', { ...o, clientX: 250 }));
     v.dispatchEvent(new PointerEvent('pointermove', { ...o, clientX: 180 }));
@@ -385,7 +389,7 @@ describe('Carousel', () => {
     await render(<App />);
     const restore = emulate(/forced-colors\s*:\s*active/, null);
     try {
-      const fc = [getComputedStyle(q('#car .dk-carousel__dot:not([aria-current])'), '::before').backgroundColor, getComputedStyle(q('#car .dk-carousel__dot[aria-current="true"]'), '::before').backgroundColor];
+      const fc = [getComputedStyle(part('car', `${DOTS}:not([aria-current])`), '::before').backgroundColor, getComputedStyle(part('car', `${DOTS}[aria-current="true"]`), '::before').backgroundColor];
       expect(fc[0]).not.toBe(fc[1]);
       expect(fc).not.toContain('rgba(0, 0, 0, 0)');
       expect(fc).toEqual([color('CanvasText'), color('Highlight')]);
@@ -446,6 +450,6 @@ describe('Carousel', () => {
 
   test('slides inside a Fragment are slides of their own', async () => {
     await render(<Carousel id="cfrag" label="Photos"><div>A</div><><div>B</div><div>C</div></></Carousel>);
-    expect(el('cfrag').querySelectorAll('.dk-carousel__dot').length).toBe(3);
+    expect(el('cfrag').querySelectorAll(DOTS).length).toBe(3);
   });
 });
