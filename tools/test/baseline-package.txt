@@ -28,6 +28,8 @@ dist/labels/fr.d.ts
 dist/labels/id.d.ts
 dist/labels/ja.d.ts
 dist/labels/pt.d.ts
+dist/labels/ru.d.ts
+dist/labels/zh.d.ts
 dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
 dist/serupa-icons.iife.js
