@@ -172,7 +172,7 @@ describe('PhoneInput', () => {
     expect([menu('pgb').value, new FormData(f).get('phone')]).toEqual(['GB', '+442079460958']);
     menu('pgb').focus();
     await userEvent.keyboard('{ArrowDown}');
-    expect(String(new FormData(f).get('phone'))).not.toMatch(/^\+358/);
+    expect(new FormData(f).get('phone')).not.toMatch(/^\+358/);
   });
 
   test('controlled: value in E.164 is shown grouped and follows the parent; the default country comes from the locale\'s region', async () => {
