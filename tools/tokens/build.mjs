@@ -187,8 +187,9 @@ function tintedShadows(all, line) {
 
 // Fluid type (22): data-type-scale="fluid" makes every size from 1.5rem (text-2xl) up a clamp() that is 70% of the
 // size on a 320px viewport and grows to the full size at 1280px. The body sizes stay put. The smallest size is never
-// under 1.25rem, and the largest is at most 1.43 times the smallest, well inside the 2.5 that WCAG 1.4.4 allows for
-// text to still double with browser zoom (the rem part grows with zoom). The --text-* sizes, the --text-type-*
+// under 1.25rem, and the largest is at most 1.43 times the smallest, inside the 2.5 of WCAG 1.4.4. Browser zoom also
+// narrows the viewport, so at 200% a heading grows only about 1.6 times; by 300% it is at least double (3 × 70%,
+// GR82). The --text-* sizes, the --text-type-*
 // shorthands and the .type-* classes all follow; data-type-scale="fixed" puts the fixed sizes back in a section.
 const rem = (v) => (/^[\d.]+rem$/.test(v) ? parseFloat(v) : null);
 const fluid = (v) => rem(v) != null && rem(v) >= 1.5;
