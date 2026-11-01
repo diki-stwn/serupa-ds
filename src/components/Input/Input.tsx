@@ -45,9 +45,10 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 /* mask: the value shown in the pattern, and each edit put back into it with the caret after the same character it
    was after (so typing in the middle, pasting or deleting doesn't throw it to the end). Backspace or Delete next to the
    pattern's own text (a space, a /) removes the typed character beyond it, not the text the pattern puts back. */
-function useMask(rest: InputProps, mask: string | undefined): void {
+function useMask<P extends InputProps>(input: P, mask: string | undefined): P {
   const slots = React.useMemo(() => (mask ? parseMask(mask) : null), [mask]);
-  if (!slots) return;
+  if (!slots) return input;
+  const rest: P = { ...input };   // a copy with the masked value and handlers, returned
   const show = (v: unknown) => applyMask(slots, unmask(slots, String(v))).text;
   if (rest.value != null && !Array.isArray(rest.value)) rest.value = show(rest.value);
   if (rest.defaultValue != null && !Array.isArray(rest.defaultValue)) rest.defaultValue = show(rest.defaultValue);
@@ -75,6 +76,7 @@ function useMask(rest: InputProps, mask: string | undefined): void {
       if (p !== at && (back ? p > 0 : p < el.value.length)) el.setSelectionRange(p, p);
     }
   };
+  return rest;
 }
 
 /* Input: a single-line text field. size "sm", "md" (default) or "lg" (24, 32, 44px: the control heights, like
@@ -87,7 +89,7 @@ function useMask(rest: InputProps, mask: string | undefined): void {
 export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("Input", function Input(props, ref) {
   const nameRef = useNameCheck("Input", NAME_HOW.field);   // warns when it has no accessible name
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, prefix: 1, suffix: 1, showCount: 1, mask: 1, className: 1, style: 1 } as const);
+  let rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, rightIcon: 1, prefix: 1, suffix: 1, showCount: 1, mask: 1, className: 1, style: 1 } as const);
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
   if (invalid) rest["aria-invalid"] = true;
@@ -98,9 +100,9 @@ export const Input = /* @__PURE__ */ component<HTMLInputElement, InputProps>("In
     if (rest.spellCheck === undefined) rest.spellCheck = false;
   }
   const own = React.useRef<HTMLInputElement | null>(null);
-  useMask(rest, props.mask);
-  const { length, max } = useTextLimit(rest, own, { announce: !!props.showCount });
-  useValidityMessages(rest, own);   // the browser's message for a failed constraint, in the provider's words
+  rest = useMask(rest, props.mask);
+  const limited = useTextLimit(rest, own, { announce: !!props.showCount }), { length, max } = limited;
+  rest = useValidityMessages(limited.props, own);   // the browser's message for a failed constraint, in the provider's words
   const countId = domId("dk-in", React.useId());
   const locale = useLocale();
   const num = (n: number) => displayNumber(n, locale, PLAIN);   // the locale's digits, as Textarea's
