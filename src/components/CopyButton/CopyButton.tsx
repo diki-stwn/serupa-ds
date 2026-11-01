@@ -4,6 +4,7 @@ import { cn } from "../../internal/cn";
 import { ButtonBase, type ButtonAsButtonProps } from "../Button/Button";
 import { Icon } from "../Icon/Icon";
 import { component } from "../../internal/component";
+import { deepActive } from "../../internal/root";
 import { useSettings } from "../../internal/provider";
 import { announce } from "../../internal/announce";
 import * as icons from "../../material/builtin";
@@ -53,7 +54,7 @@ function fallback(text: string, at: Element): boolean {
   if (typeof document === "undefined") return false;
   const ta = document.createElement("textarea");
   ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0"; ta.style.insetInlineStart = "-9999px";
-  const back = document.activeElement as HTMLElement | null;
+  const back = deepActive() as HTMLElement | null;   // read through shadow roots: inside one, the button, not the host (GR95)
   (at.closest("dialog") || document.body).appendChild(ta); ta.select();
   let ok = false;
   try { ok = document.execCommand("copy"); } catch { ok = false; }
