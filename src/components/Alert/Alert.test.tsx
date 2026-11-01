@@ -221,7 +221,7 @@ describe('Alert inside a shadow root (GR60)', () => {
     try {
       await render(<Own />, { container: inner });
       const root = host.shadowRoot!;
-      (root.querySelector('.dk-alert button') as HTMLElement).focus();
+      (root.querySelector('button') as HTMLElement).focus();   // the Alert's ×, the first button
       await userEvent.keyboard('{Enter}');
       await expect.poll(() => root.activeElement && root.activeElement.textContent).toBe('After');
     } finally { host.remove(); }
