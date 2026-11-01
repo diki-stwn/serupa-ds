@@ -851,3 +851,23 @@ describe('Menu: motion (DZ1)', () => {
     d.close();
   });
 });
+
+describe('Menu inside a shadow root (GR60)', () => {
+  test('ArrowDown and ArrowUp move from the item that has focus, not always to the first', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Menu trigger={<Button>Shadow</Button>}><MenuItem>One</MenuItem><MenuItem>Two</MenuItem><MenuItem>Three</MenuItem></Menu>, { container: inner });
+      const root = host.shadowRoot!;
+      root.querySelector<HTMLElement>('button')!.click();
+      await expect.poll(() => root.activeElement?.textContent).toBe('One');
+      await userEvent.keyboard('{ArrowDown}');
+      await userEvent.keyboard('{ArrowDown}');
+      expect(root.activeElement?.textContent).toBe('Three');
+      await userEvent.keyboard('{ArrowUp}');
+      expect(root.activeElement?.textContent).toBe('Two');
+    } finally { host.remove(); }
+  });
+});

@@ -313,7 +313,7 @@ describe('Table: stickyHeader and focus', () => {
       <TableHead><TableRow><TableHeaderCell>Name</TableHeaderCell><TableHeaderCell>Action</TableHeaderCell></TableRow></TableHead>
       <TableBody>{rows}</TableBody>
     </Table>);
-    const head = document.querySelector('.dk-table__head') as HTMLElement, frame = head.closest('.dk-table') as HTMLElement;
+    const head = document.querySelector('thead') as HTMLElement, frame = head.closest('[data-component="table"]') as HTMLElement;
     await expect.poll(() => frame.style.getPropertyValue('--dk-table-head')).toBe(head.getBoundingClientRect().height + 'px');
     el('e39').focus();
     const covered: number[] = [];
@@ -502,5 +502,13 @@ describe('TableRow href (TF3)', () => {
     expect(calls()).toHaveLength(1);
     expect(String(calls()[0][0])).toMatch(/give the row an href/);
     warn.mockRestore();
+  });
+});
+
+describe('Table: no negative zero (GR84)', () => {
+  test('a cell holding -0 shows 0, and a real negative keeps its minus', async () => {
+    await render(<Table id="tnz"><TableBody><TableRow><TableCell id="cz">{-0}</TableCell><TableCell id="cn">{-2}</TableCell></TableRow></TableBody></Table>);
+    expect(document.getElementById('cz')!.textContent).toBe('0');
+    expect(document.getElementById('cn')!.textContent).not.toBe('2');
   });
 });

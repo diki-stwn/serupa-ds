@@ -139,7 +139,15 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
       reported.current = d ? toE164(d.national, d.country) : "";
     }
     rerender((n) => n + 1);
+    // React can render that before the browser resets the fields (it runs right after this event), and the reset
+    // then puts the native country menu on its first option, which React, whose country didn't change, leaves
+    // there: it read Afghanistan beside a British number, and ArrowDown on it picked Åland (GR86). Once the
+    // browser is done, render again, and the effect below puts the menu back on the country.
+    setTimeout(() => rerender((n) => n + 1), 0);
   });
+  const select = React.useRef<HTMLSelectElement | null>(null);
+  // every render: the menu shows the country, whatever a form reset did to it (GR86).
+  React.useLayoutEffect(function () { if (select.current && select.current.value !== country.code) select.current.value = country.code; });
   const caret = React.useRef<number | null>(null);
   const text = lead != null && !shown ? lead : formatNational(shown, country);
   // every render: an edit that reformats the number asks for the caret back, and the new text is there only after the render.
@@ -226,7 +234,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
       <span className="dk-phone-input__country">
         <span className="dk-phone-input__dial" aria-hidden>+{country.dial}</span>
         <Icon icon={icons.ExpandMore} className="dk-phone-input__chevron" />
-        <select className="dk-phone-input__select" value={country.code} onChange={onCountry} disabled={rest.disabled || rest.readOnly}
+        <select ref={select} className="dk-phone-input__select" value={country.code} onChange={onCountry} disabled={rest.disabled || rest.readOnly}
           aria-label={props.countryLabel || sds.labels.country}>
           {options}
         </select>

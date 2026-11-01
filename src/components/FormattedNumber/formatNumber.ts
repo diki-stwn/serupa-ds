@@ -12,6 +12,7 @@ export interface FormatNumberOptions extends Intl.NumberFormatOptions {
 }
 
 import { pinCurrencyDigits } from "../../internal/currency";
+import { formatSign } from "../../internal/numbers";
 
 const BYTES = ["byte", "kilobyte", "megabyte", "gigabyte", "terabyte", "petabyte"];
 
@@ -67,5 +68,5 @@ function formatterFor(locale: string | undefined, o: Intl.NumberFormatOptions): 
 export function formatNumber(value: number | bigint, locale?: string, options?: FormatNumberOptions): string {
   if (typeof value === "number" && Number.isNaN(value)) return "";
   const [n, o] = resolve(value, options || {});
-  return formatterFor(locale ? canonicalLocale(locale) : undefined, o).format(n);
+  return formatSign(formatterFor(locale ? canonicalLocale(locale) : undefined, o), n);
 }

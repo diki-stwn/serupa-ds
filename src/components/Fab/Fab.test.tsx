@@ -49,7 +49,7 @@ describe('Fab', () => {
   test('extended: the label shows next to the icon (no aria-label needed), 56px tall, wider than square, 20px side padding, bottom-start', async () => {
     await render(<Fabs />);
     const e = el('fext'), [left, , w, h] = box('fext');
-    expect([e.querySelector('.dk-btn__label')!.textContent, e.getAttribute('aria-label'), h, left, css(e).paddingLeft]).toEqual(['Compose', null, 56, 24, '20px']);
+    expect([e.textContent, e.getAttribute('aria-label'), h, left, css(e).paddingLeft]).toEqual(['Compose', null, 56, 24, '20px']);
     expect(w).toBeGreaterThan(56);
   });
 
