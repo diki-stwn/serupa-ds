@@ -27,4 +27,6 @@
 .dk-command-palette__label { flex: auto; min-width: var(--spacing-0); overflow-wrap: anywhere; }
 .dk-command-palette__keys { flex: none; margin-inline-start: auto; }
 .dk-command-palette__empty { margin: var(--spacing-0); padding: var(--spacing-6) var(--spacing-2); text-align: center; color: var(--command-palette-muted, var(--text-muted)); }
+/* Forced colors drop the highlight and its bar: an outline in Highlight shows which command Enter runs (GR98). */
+@media (forced-colors: active) { .dk-command-palette__option--active { outline: var(--border-width-1) solid Highlight; } }
 }
