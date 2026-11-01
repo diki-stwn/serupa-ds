@@ -83,6 +83,7 @@ updates:
 // built-in Safari 17.5 lacks, and a README that names no baseline.
 expect('browser-baseline.mjs', run('browser-baseline.mjs', fixture({
   'dist/bundle.css': '.a { colr: red; }\n.b { anchor-name: --b; }\n@supports (display: grid) { .c { display: grid; } }\n',
+  'dist/utilities-extra.css': '',   // read with bundle.css (the masks and gradients)
   'dist/serupa.iife.js': 'Promise.try(() => 1);\n',
   'README.md': '# Fixture\n\n## Browser support\n\nAny.\n',
 }), { arg: true }), [
