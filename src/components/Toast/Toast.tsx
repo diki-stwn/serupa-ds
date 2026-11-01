@@ -501,7 +501,7 @@ function ToastView(props: { item: Item; leaving: false | "closed" | "queued"; in
         {t.description != null ? <p className="dk-toast__description" id={descId}>{t.description}</p> : null}
       </div>
       {t.action ? <Button className="dk-toast__action" size="sm" variant="secondary" onClick={() => { t.action!.onClick(); toast.dismiss(t.id); }}>{t.action.label}</Button> : null}
-      <IconButton className="dk-toast__close" icon={icons.Close} label={props.dismissLabel} size="sm" hideTitle onClick={() => toast.dismiss(t.id)} />
+      <IconButton className="dk-toast__close" icon={icons.Close} label={props.dismissLabel} aria-describedby={titleId} size="sm" hideTitle onClick={() => toast.dismiss(t.id)} />
     </li>
   );
 }
