@@ -1,17 +1,19 @@
+import { pageShared } from "./pageShared";
+
 // The open modal dialogs (Dialog and Drawer, shown with showModal()), innermost last. While one is open the
 // browser makes everything outside it inert: screen readers skip it and it can't be clicked. So what the whole
 // page shares (the live regions, the Toaster) moves into the innermost open modal, and back when it closes.
+// Kept once per page (pageShared), so a second copy of the package on the page sees the same modals.
 // module state: browser only: showModal() fills it, and a server never opens a dialog.
-const modals: HTMLElement[] = [];
-const listeners = new Set<() => void>();
+const page = /* @__PURE__ */ pageShared("layers@1", () => ({ modals: [] as HTMLElement[], listeners: new Set<() => void>() }));
 
 /** The innermost open modal, or null. */
-export const topModal = (): HTMLElement | null => modals[modals.length - 1] || null;
+export const topModal = (): HTMLElement | null => page.modals[page.modals.length - 1] || null;
 
 /** Called when the innermost modal changes; returns a function that stops it. */
 export function onModalChange(fn: () => void): () => void {
-  listeners.add(fn);
-  return () => { listeners.delete(fn); };
+  page.listeners.add(fn);
+  return () => { page.listeners.delete(fn); };
 }
 
 /** Dialog and Drawer call this right before showModal(). While a modal is open the page can't scroll (overflow:
@@ -19,7 +21,7 @@ export function onModalChange(fn: () => void): () => void {
  *  them) and would make the page behind 15px wider, shifting it sideways. So when the first modal opens, a page that
  *  shows a scrollbar keeps its space (scrollbar-gutter: stable, under data-dk-gutter); one that doesn't gets none. */
 export function modalOpening(): void {
-  if (modals.length || typeof document === "undefined") return;
+  if (page.modals.length || typeof document === "undefined") return;
   const root = document.documentElement;
   if (window.innerWidth - root.clientWidth > 0) root.setAttribute("data-dk-gutter", "");
   else root.removeAttribute("data-dk-gutter");
@@ -27,18 +29,18 @@ export function modalOpening(): void {
 
 /** Dialog and Drawer call this right after showModal(). */
 export function modalOpened(el: HTMLElement): void {
-  const at = modals.indexOf(el);
-  if (at >= 0) modals.splice(at, 1);
-  modals.push(el);
-  listeners.forEach((l) => l());
+  const at = page.modals.indexOf(el);
+  if (at >= 0) page.modals.splice(at, 1);
+  page.modals.push(el);
+  page.listeners.forEach((l) => l());
 }
 
 /** …and this when it closes or unmounts. */
 export function modalClosed(el: HTMLElement): void {
-  const at = modals.indexOf(el);
+  const at = page.modals.indexOf(el);
   if (at < 0) return;
-  modals.splice(at, 1);
-  listeners.forEach((l) => l());
+  page.modals.splice(at, 1);
+  page.listeners.forEach((l) => l());
 }
 
 // A press that closed an open popup (a Menu, a Popover) is used up by that: a modal under it doesn't also take it as

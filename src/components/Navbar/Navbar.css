@@ -12,7 +12,9 @@
 @supports (animation-timeline: scroll()) {
   .dk-navbar--sticky { animation: dk-navbar-lift var(--ease-linear) both; animation-timeline: scroll(); animation-range: var(--spacing-0) var(--navbar-height, var(--spacing-16)); }
 }
-@keyframes dk-navbar-lift { to { box-shadow: var(--navbar-shadow-scrolled, var(--shadow-md)); } }
+/* The lift: a shadow, and the raised surface. On the dark themes' near-black page a shadow barely shows, so there the
+   bar turns the lighter raised surface (as Card elevated does); in the light themes that's the same white (GR64). */
+@keyframes dk-navbar-lift { to { box-shadow: var(--navbar-shadow-scrolled, var(--shadow-md)); background-color: var(--navbar-bg-scrolled, var(--surface-raised)); } }
 /* What the keyboard focuses, or a #link jumps to, scrolls into view below a sticky bar, not under it (WCAG 2.4.11).
    Navbar measures the bar into --dk-navbar-offset; until then, the default bar height. */
 :root:has(.dk-navbar--sticky) { scroll-padding-top: var(--dk-navbar-offset, var(--navbar-height, var(--spacing-16))); }
