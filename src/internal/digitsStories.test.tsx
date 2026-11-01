@@ -33,12 +33,13 @@ const LATIN: Record<string, string> = {
   'Table/StickyHeader': 'invoice numbers (INV-1001) are codes, not amounts',
   VirtualList: "the story's generated people: their names, emails and years are numbered so 10,000 rows differ",
   'Checkbox/Group': "the story's hint, `${teams.length} picked`",
+  PhoneInput: 'the field and its value are ASCII digits, so the calling codes beside them (+20, Egypt (+20)) match what people type and dial (GR45)',
   // A label pack's text (the provider's labels, English and Indonesian) is the app's words: an app with an Arabic
   // pack writes its own digits there.
   ErrorSummary: 'the title is the label pack\'s errorSummaryTitle(n)', Stepper: "the compact summary is the label pack's stepOf(n, total)",
 };
-// What still writes ASCII digits, until its fix lands (PhoneInput's calling codes: GR45, to decide).
-const KNOWN = new Set<string>(['PhoneInput']);
+// What still writes ASCII digits, until its fix lands. None now.
+const KNOWN = new Set<string>([]);
 
 for (const [name, list] of storiesToRun()) {
   test(`${name} stories write their numbers in the locale's digits (ar-EG)`, async () => {
