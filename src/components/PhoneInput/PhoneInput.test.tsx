@@ -164,6 +164,17 @@ describe('PhoneInput', () => {
     expect([field('pr').value, sel.value]).toEqual([start, 'ID']);
   });
 
+  test('form reset with the country unchanged: the menu shows it, not the first option, and ArrowDown on it goes on from there (GR86)', async () => {
+    await render(<form id="pg"><PhoneInput id="pgb" aria-label="Phone" name="phone" defaultValue="+442079460958" /><button type="reset" id="pgr">Reset</button></form>);
+    const f = document.getElementById('pg') as HTMLFormElement;
+    await userEvent.click(document.getElementById('pgr')!);
+    await new Promise((r) => setTimeout(r, 100));
+    expect([menu('pgb').value, new FormData(f).get('phone')]).toEqual(['GB', '+442079460958']);
+    menu('pgb').focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(new FormData(f).get('phone')).not.toMatch(/^\+358/);
+  });
+
   test('controlled: value in E.164 is shown grouped and follows the parent; the default country comes from the locale\'s region', async () => {
     function Ctl() {
       const [v, setV] = React.useState('+819012345678');
