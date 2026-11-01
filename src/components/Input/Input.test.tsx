@@ -21,7 +21,7 @@ const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider lo
 
 const field = (id: string) => document.getElementById(id) as HTMLInputElement;
 const box = (id: string) => field(id).parentElement as HTMLElement;
-const count = (id: string) => box(id).querySelector('.dk-input__count') as HTMLElement;
+const count = (id: string) => box(id).querySelector(':scope > span[id]') as HTMLElement;
 const announcer = () => document.querySelector<HTMLElement>('[data-dk-announcer]');
 
 describe('Input', () => {
@@ -196,7 +196,7 @@ describe('Input', () => {
     expect(css(box('fdin')).getPropertyValue('--dk-input-bd')).toBe(border);
     const num = field('fdnum').parentElement as HTMLElement;
     expect(css(num).opacity).toBe('0.5');
-    expect([...num.querySelectorAll('.dk-number-input__step')].map((s) => css(s).opacity)).toEqual(['1', '1']);
+    expect([...num.querySelectorAll('button[aria-controls]')].map((s) => css(s).opacity)).toEqual(['1', '1']);
   });
 
   test('icons: decorative, 16px at md, before and after the field, and they don\'t take clicks', async () => {
