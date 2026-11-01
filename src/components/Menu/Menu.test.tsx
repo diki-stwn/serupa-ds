@@ -12,6 +12,9 @@ import { useShortcut } from '../KeyboardShortcuts/KeyboardShortcuts';
 
 const modded = (t: Element, key: string) => ['altKey', 'ctrlKey', 'metaKey'].map((m) => { const ev = new KeyboardEvent('keydown', { key, [m]: true, bubbles: true, cancelable: true }); t.dispatchEvent(ev); return ev.defaultPrevented; });
 const el = (id: string) => document.getElementById(id) as HTMLElement;
+const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
+  return <a {...p} ref={ref} href={'#router' + to} data-router="" />;
+});
 const menuOf = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '') as HTMLElement;
 const openMenu = () => [...document.querySelectorAll<HTMLElement>('[role="menu"]')].find((m) => !m.hidden);
 // The focused item's label, or the focused element's id.
@@ -47,6 +50,21 @@ function Nested({ chosen, dir }: { chosen: string[]; dir?: 'rtl' }) {
 const sub = (id: string) => document.getElementById(el(id).getAttribute('aria-controls') || '');
 
 describe('Menu', () => {
+  test('MenuItem: as is typed (G10), with the props of the element it names, an <a>\'s by default', async () => {
+    const r = React.createRef<HTMLElement>();
+    await render(<Menu defaultOpen trigger={<Button id="mt-t">More</Button>}>
+      <MenuItem id="mt-a" onSelect={() => {}}>Action</MenuItem>
+      <MenuItem id="mt-h" href="#h" target="_blank">Link</MenuItem>
+      <MenuItem id="mt-r" as={RouterLink} to="/settings" ref={r}>Settings</MenuItem>
+      {/* @ts-expect-error RouterLink needs to */}
+      <MenuItem id="mt-x" as={RouterLink}>No to</MenuItem>
+      {/* @ts-expect-error an <a> has no to */}
+      <MenuItem id="mt-y" to="/y">Stray to</MenuItem>
+    </Menu>);
+    expect([el('mt-a').tagName, el('mt-h').getAttribute('rel'), el('mt-r').getAttribute('href'), el('mt-r').getAttribute('role'), r.current === el('mt-r')])
+      .toEqual(['DIV', 'noopener noreferrer', '#router/settings', 'menuitem', true]);
+  });
+
   test('with Alt, Ctrl or ⌘ the arrows, Home and End are left to the browser, on the trigger and in the open menu (L8E36)', async () => {
     await render(<Menu trigger={<Button id="mmk">Actions</Button>}><MenuItem>Copy</MenuItem><MenuItem>Paste</MenuItem><MenuItem>Delete</MenuItem></Menu>);
     const t = el('mmk');

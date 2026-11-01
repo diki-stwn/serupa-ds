@@ -126,9 +126,9 @@ An id on the target stays on the target.
 | `shortcut` | string | | A hint at the end, such as `⌘K` (wire the shortcut yourself); also sets `aria-keyshortcuts` |
 | `destructive` | boolean | `false` | Danger colors |
 | `disabled` | boolean | `false` | Still reachable with the keys (so people learn it exists), but can't be chosen |
-| `href` | string | | Makes it a link (the `configure({ link })` component) |
-| `as` | component | | Makes it a link with this component instead, such as a router's Link (pass its props, like `to`, on the item) |
-| `target`, `rel` | string | | For a link item. `target="_blank"` without `rel` gets `rel="noopener noreferrer"` |
+| `as` | component | | Makes it a link with this component instead of the `configure({ link })` one, such as a router's Link. Typed: its props are those of the element `as` names, so `as={RouterLink} to="/settings"` checks `to`, and without `as` they're an `<a>`'s (`href`, `target`, `rel`) |
+
+`href` makes it a link (the `configure({ link })` component). `target` and `rel` go to a link item, and `target="_blank"` without `rel` gets `rel="noopener noreferrer"`. `className`, `ref` and the rest go to the item: the link, or a `<div>` for an action.
 
 ### MenuCheckboxItem
 
