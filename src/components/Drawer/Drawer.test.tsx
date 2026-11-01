@@ -714,3 +714,115 @@ describe('Drawer: motion (DZ1)', () => {
     });
   });
 });
+
+describe('Drawer: unsaved (13)', () => {
+  function Form(props: { why: string[]; unsaved?: boolean; modal?: boolean }) {
+    const [open, setOpen] = React.useState(true);
+    return <>
+      <button id="opener" onClick={() => setOpen(true)}>Open</button>
+      <Drawer id="form" open={open} modal={props.modal} unsaved={props.unsaved ?? true} onOpenChange={(v, d) => { props.why.push(d.reason); setOpen(v); }} title="Edit filter"
+        footer={<Button id="cancel" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>}>
+        <Input id="name" aria-label="Name" defaultValue="Atlas" />
+      </Drawer>
+    </>;
+  }
+  const form = () => el('form') as HTMLDialogElement;
+  const question = () => document.querySelector<HTMLDialogElement>('dialog[role="alertdialog"]');
+  const button = (name: string) => [...question()!.querySelectorAll('button')].find((b) => b.textContent === name)!;
+
+  test('the app closing it while the question shows takes the question away, and opening it again asks afresh (GR96)', async () => {
+    let set: (v: boolean) => void = () => {};
+    function App() {
+      const [open, setOpen] = React.useState(true); set = setOpen;
+      return <Drawer id="form" open={open} unsaved onOpenChange={setOpen} title="Edit filter"><Input id="name" aria-label="Name" /></Drawer>;
+    }
+    await render(<App />);
+    await expect.poll(() => form().open).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    set(false);
+    await expect.poll(() => [form().open, !!question()?.open]).toEqual([false, false]);
+    set(true);
+    await expect.poll(() => form().open).toBe(true);
+    expect(question()?.open ?? false).toBe(false);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Discard'));
+    await expect.poll(() => [form().open, !!question()?.open]).toEqual([false, false]);
+  });
+
+  test('Escape, the ×, the backdrop and a swipe ask "Discard changes?" first, with Keep editing focused; Keep editing goes back; Discard closes it with the first reason', async () => {
+    const why: string[] = [];
+    await render(<Form why={why} />);
+    await expect.poll(() => form().open).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    await expect.poll(() => document.activeElement?.textContent).toBe('Keep editing');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(false);
+    expect([why, form().open]).toEqual([[], true]);
+    await userEvent.click(page.getByRole('button', { name: 'Close' }));
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    // A swipe past a third: the panel comes back, and it asks.
+    const p = panel('form'), r = p.getBoundingClientRect(), x = r.left + 40, y = r.top + 40;
+    const ev = (name: string, cx: number) => p.dispatchEvent(new PointerEvent(name, { bubbles: true, cancelable: true, pointerId: 9, isPrimary: true, pointerType: 'touch', clientX: cx, clientY: y }));
+    ev('pointerdown', x);
+    for (let i = 1; i <= 4; i++) { await new Promise((f) => setTimeout(f, 100)); ev('pointermove', x + 300 * i / 4); }
+    ev('pointerup', x + 300);
+    await expect.poll(() => question()?.open).toBe(true);
+    expect([why, form().open, p.style.translate]).toEqual([[], true, '']);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    await userEvent.click(document.body, { position: { x: 4, y: 4 } });
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Discard'));
+    await expect.poll(() => form().open).toBe(false);
+    expect([why, (el('name') as HTMLInputElement | null)?.value]).toEqual([['outside'], 'Atlas']);
+  });
+
+  test('without changes it closes at once; Cancel closes without asking; a browser close asks and keeps it open; beforeunload is cancelled only while open with changes', async () => {
+    const why: string[] = [];
+    const screen = await render(<Form why={why} unsaved={false} />);
+    await expect.poll(() => form().open).toBe(true);
+    const leave = () => { const e = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; };
+    expect(leave()).toBe(false);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => form().open).toBe(false);
+    expect([why, question()]).toEqual([['escape'], null]);
+    await screen.rerender(<Form why={why} unsaved />);
+    await userEvent.click(el('opener'));
+    await expect.poll(() => form().open).toBe(true);
+    expect(leave()).toBe(true);
+    flushSync(() => form().close());
+    await expect.poll(() => question()?.open).toBe(true);
+    expect([why, form().open]).toEqual([['escape'], true]);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    await userEvent.click(el('cancel'));
+    await expect.poll(() => form().open).toBe(false);
+    expect([why, question()?.open ?? false, leave()]).toEqual([['escape'], false, false]);
+  });
+
+  test('a side panel (modal={false}) asks too: Escape inside it, and a browser close shows it again', async () => {
+    const why: string[] = [];
+    await render(<Form why={why} modal={false} />);
+    await expect.poll(() => form().open).toBe(true);
+    el('name').focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => question()?.open).toBe(true);
+    await userEvent.click(button('Keep editing'));
+    await expect.poll(() => question()?.open).toBe(false);
+    flushSync(() => form().close());
+    await expect.poll(() => question()?.open).toBe(true);
+    expect(form().open).toBe(true);
+    await userEvent.click(button('Discard'));
+    await expect.poll(() => form().open).toBe(false);
+    expect(why).toEqual(['api']);
+  });
+});

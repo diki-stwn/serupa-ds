@@ -160,6 +160,22 @@ describe('CopyButton', () => {
     vi.restoreAllMocks();
   });
 
+  test('inside a shadow root, the execCommand fallback keeps focus on the button too (GR95)', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    vi.spyOn(document, 'execCommand').mockReturnValue(true);
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<CopyButton id="sh" value="legacy" />, { container: inner });
+      const b = host.shadowRoot!.getElementById('sh')!;
+      await userEvent.click(b);
+      await expect.poll(() => b.hasAttribute('data-copied')).toBe(true);
+      expect([host.shadowRoot!.activeElement === b, document.querySelector('textarea')]).toEqual([true, null]);
+    } finally { host.remove(); vi.restoreAllMocks(); }
+  });
+
   test('L8E96 without the Clipboard API, in a modal <dialog> (the page behind it is inert), the fallback still copies the text; it selected nothing', async () => {
     Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
     let selected = '';

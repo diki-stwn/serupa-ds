@@ -110,9 +110,9 @@ describe('DateRangePicker', () => {
     const d = pop('trip'), vis = (sel: string) => [...d.querySelectorAll(sel)].map((x) => getComputedStyle(x).visibility).join();
     expect([d.getAttribute('role'), d.matches(':popover-open')]).toEqual(['dialog', true]);
     expect([...d.querySelectorAll('[role=grid]')].map((g) => document.getElementById(g.getAttribute('aria-labelledby')!)!.textContent).join()).toBe('March 2025,April 2025');
-    expect([d.querySelectorAll('.dk-calendar__blank').length > 0, !!d.querySelector('.dk-calendar__day--outside')]).toEqual([true, false]);
-    expect([vis('.dk-calendar__nav--prev'), vis('.dk-calendar__nav--next')]).toEqual(['visible,hidden', 'hidden,visible']);
-    expect([focused(), d.querySelector('.dk-date-range-picker__status')!.textContent]).toEqual(['2025-03-10', 'Choose the start date']);
+    expect([d.querySelectorAll('td[role=gridcell]:empty').length > 0, !!d.querySelector('.dk-calendar__day--outside')]).toEqual([true, false]);
+    expect([vis('[data-component=calendar] > div:first-child > button:first-child'), vis('[data-component=calendar] > div:first-child > button:last-child')]).toEqual(['visible,hidden', 'hidden,visible']);
+    expect([focused(), d.querySelector(':scope p[aria-live]')!.textContent]).toEqual(['2025-03-10', 'Choose the start date']);
     expect([...d.querySelectorAll<HTMLElement>('[aria-selected=true] button')].map((x) => x.dataset.date).join()).toBe('2025-03-10,2025-03-14');
     expect(inRange('trip')).toBe('03-11,03-12,03-13');
   });
@@ -121,7 +121,7 @@ describe('DateRangePicker', () => {
     await render(<Trip />);
     await userEvent.click(btn('trip'));
     await userEvent.click(day('trip', '2025-03-20'));
-    expect([vals('trip'), pop('trip').querySelector('.dk-date-range-picker__status')!.textContent, isOpen('trip')]).toEqual(['03/20/2025 – ', 'Choose the end date', true]);
+    expect([vals('trip'), pop('trip').querySelector('p[aria-live]')!.textContent, isOpen('trip')]).toEqual(['03/20/2025 – ', 'Choose the end date', true]);
     await userEvent.hover(day('trip', '2025-04-02'));
     expect(inRange('trip')).toBe('03-21,03-22,03-23,03-24,03-25,03-26,03-27,03-28,03-29,03-30,03-31,04-01');
     await userEvent.click(day('trip', '2025-03-18'));
@@ -243,7 +243,7 @@ describe('DateRangePicker', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const d = pop('trip'), bg = getComputedStyle(d).backgroundColor;
-      const r = getComputedStyle(d.querySelector('.dk-calendar__day--in-range')!), st = getComputedStyle(d.querySelector('.dk-date-range-picker__status')!), dash = getComputedStyle(box('trip').querySelector('.dk-date-range-picker__dash')!);
+      const r = getComputedStyle(d.querySelector('.dk-calendar__day--in-range')!), st = getComputedStyle(d.querySelector(':scope p[aria-live]')!), dash = getComputedStyle(box('trip').querySelector(':scope > span[aria-hidden]')!);
       const field = getComputedStyle(box('trip')).backgroundColor;
       const pairs: Array<[string, string, string, number]> = [['day in range', r.color, r.backgroundColor, 4.5], ['status', st.color, bg, 4.5], ['dash', dash.color, field, 4.5]];
       for (const [k, fg, on, min] of pairs) { const x = contrast(fg, on); n++; if (x < min) low.push(`${th} ${k} ${x.toFixed(2)}`); }

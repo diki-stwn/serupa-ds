@@ -179,6 +179,7 @@ node tools/tokens/build.mjs                          # tokens.css only (--check:
 node tools/tokens/export.mjs                         # design-tokens/ only (--check: exit 1 if it's out of date)
 node tools/tokens/readme-tables.mjs                 # each component README's token table, from its tokens.json (--check: exit 1 if one is out of date)
 node tools/tokens/figma-variables.mjs               # what the Figma variables workflow would send (--send with FIGMA_TOKEN and FIGMA_FILE)
+node tools/tokens/badge-palette.mjs                 # Badge.css's palette tones, from the palette in tokens.json (--check: exit 1 if out of date)
 node tools/tokens/style-dictionary.config.mjs out/   # build them into CSS with Style Dictionary (one file per theme)
 ```
 

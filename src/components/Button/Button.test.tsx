@@ -349,7 +349,7 @@ describe('Button', () => {
       });
       expect(geo).toEqual([{ n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }, { n: 1, dx: true, dy: true }]);
       const s = q('#sub .dk-btn__spinner');
-      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('.dk-loader__arc')!).animationName]).toEqual(['loader', 'ring', 'spin', 'none']);
+      expect([s.dataset.component, s.dataset.variant, getComputedStyle(s.querySelector('svg')!).animationName, getComputedStyle(s.querySelector('svg > circle:last-of-type')!).animationName]).toEqual(['loader', 'ring', 'spin', 'none']);
     });
   });
 
