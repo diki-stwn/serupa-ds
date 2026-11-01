@@ -27,14 +27,16 @@ const isSerupa = (file) => !!file && ours.has(real(file.split("?")[0]));
 // The classes the sources use and the component classes to drop, read once per build.
 function scan(options, root) {
   const content = (options.content || ["src", "index.html", "app", "pages", "components"]).map((c) => path.resolve(root, c));
-  const sources = options.content ? content : content.filter((c) => fs.existsSync(c));
-  const missing = sources.filter((c) => !fs.existsSync(c));
+  // Each looked at once: whether it is there, and whether it is a folder (for PostCSS's dependency messages).
+  const kind = new Map(content.map((c) => [c, fs.statSync(c, { throwIfNoEntry: false })]));
+  const sources = options.content ? content : content.filter((c) => kind.get(c));
+  const missing = sources.filter((c) => !kind.get(c));
   if (missing.length) throw new Error(`serupa-ds/purge: no such file or folder: ${missing.join(", ")}`);
   if (!sources.length) throw new Error(`serupa-ds/purge: found none of src/, index.html, app/, pages/ or components/ in ${root}. Name your sources with the content option.`);
   const manifest = JSON.parse(fs.readFileSync(path.join(DIST, "components.json"), "utf8"));
   const keep = (options.keep || []).map((k) => (k.startsWith("@") ? `@${path.resolve(root, k.slice(1))}` : k));
   const used = usedClasses(sources, [...keep, ...manifest.runtimeUtilities]);
-  return { sources, used, drop: options.components ? unusedComponentClasses(manifest, used) : new Set() };
+  return { sources, folders: new Set(sources.filter((c) => kind.get(c).isDirectory())), used, drop: options.components ? unusedComponentClasses(manifest, used) : new Set() };
 }
 
 /** The Vite plugin: trims Serupa's stylesheets in `vite build`. */
@@ -66,7 +68,7 @@ export function serupaPurgePostcss(options = {}) {
       const found = scan(options, root);
       // Rebuilt when a source changes, under a watcher that reads PostCSS's dependency messages.
       for (const s of found.sources) {
-        result.messages.push(fs.statSync(s).isDirectory()
+        result.messages.push(found.folders.has(s)
           ? { type: "dir-dependency", plugin: "serupa-purge", dir: s, glob: "**/*", parent: result.opts.from }
           : { type: "dependency", plugin: "serupa-purge", file: s, parent: result.opts.from });
       }
