@@ -100,7 +100,7 @@ describe('InlineEdit', () => {
     const i = input('v')!, err = root('v').querySelector('.dk-inline-edit__error')!;
     expect([i.getAttribute('aria-invalid'), i.getAttribute('aria-describedby') === err.id, err.textContent, document.activeElement === i, calls]).toEqual(['true', true, 'Use dashes instead of spaces.', true, []]);
     await userEvent.fill(i, 'apollo-plan');
-    expect([i.hasAttribute('aria-invalid'), root('v').querySelector('.dk-inline-edit__error')]).toEqual([false, null]);
+    expect([i.hasAttribute('aria-invalid'), root('v').querySelector('[data-icon="error"]')]).toEqual([false, null]);
     await userEvent.keyboard('{Enter}');
     expect([input('v'), calls]).toEqual([null, ['apollo-plan']]);
   });
