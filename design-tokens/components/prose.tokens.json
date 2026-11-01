@@ -1,0 +1,201 @@
+{
+  "prose": {
+    "$description": "Prose's component tokens. Each one is an optional override: set the CSS variable (--prose-<name>) on the page, a container or one Prose, and every Prose inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "The body text (4.5:1 on the page).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-text"
+          }
+        }
+      },
+      "heading": {
+        "$type": "color",
+        "$value": "{color.text}",
+        "$description": "Headings.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-heading"
+          }
+        }
+      },
+      "link-visited": {
+        "$type": "color",
+        "$value": "{color.link-visited}",
+        "$description": "A visited link: a shade apart from primary, 4.5:1 on the page in every theme.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-link-visited"
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "List bullets and numbers.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-marker"
+          }
+        }
+      },
+      "quote-text": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "A blockquote's text.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-quote-text"
+          }
+        }
+      },
+      "quote-border": {
+        "$type": "color",
+        "$value": "{color.border-strong}",
+        "$description": "The bar at a blockquote's start.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-quote-border"
+          }
+        }
+      },
+      "code-bg": {
+        "$type": "color",
+        "$value": "{color.surface-muted}",
+        "$description": "Behind inline code and code blocks.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-code-bg"
+          }
+        }
+      },
+      "table-border": {
+        "$type": "color",
+        "$value": "{color.border}",
+        "$description": "The line under each table row.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-table-border"
+          }
+        }
+      },
+      "caption": {
+        "$type": "color",
+        "$value": "{color.text-muted}",
+        "$description": "Figure captions, and the alt text of an image that failed to load.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-caption"
+          }
+        }
+      }
+    },
+    "border": {
+      "quote-border-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-4}",
+        "$description": "The width of a blockquote's bar (4px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-quote-border-width"
+          }
+        }
+      },
+      "code-radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-sm}",
+        "$description": "Inline code's corners.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-code-radius"
+          }
+        }
+      },
+      "pre-radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "A code block's corners (6px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-pre-radius"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "flow": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space before each block after the first (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-flow"
+          }
+        }
+      },
+      "flow-heading": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-8}",
+        "$description": "Space before a heading, and around a rule (32px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-flow-heading"
+          }
+        }
+      },
+      "flow-after-heading": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "Space between a heading and what follows it (12px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-flow-after-heading"
+          }
+        }
+      },
+      "flow-list": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space between list items (8px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-flow-list"
+          }
+        }
+      },
+      "list-indent": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-6}",
+        "$description": "The indent of lists and definitions (24px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-list-indent"
+          }
+        }
+      },
+      "quote-indent": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space between a blockquote's bar and its text (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-quote-indent"
+          }
+        }
+      },
+      "pre-padding": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space inside a code block (16px).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--prose-pre-padding"
+          }
+        }
+      }
+    }
+  }
+}
