@@ -453,7 +453,8 @@ describe('Dialog: motion (DZ1)', () => {
       expect([isOpen('dlg'), document.activeElement, getComputedStyle(d).display]).toEqual([false, el('opener'), holds ? 'flex' : 'none']);
       if (!holds) return;
       expect([getComputedStyle(d).pointerEvents, pn.getAnimations().map(ms), backdropOf(d).map(ms)]).toEqual(['none', [150, 150], [150]]);
-      await new Promise((ok) => setTimeout(ok, 60));
+      // 60ms into the 150ms fade, held there: a real 60ms wait on a busy runner could land at the end of the fade.
+      for (const a of pn.getAnimations()) { a.pause(); a.currentTime = 60; }
       const mid = Number(getComputedStyle(pn).opacity);
       expect(mid).toBeGreaterThan(0.05);
       flushSync(() => ctl.setOpen!(true));

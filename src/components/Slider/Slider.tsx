@@ -76,6 +76,9 @@ function markList(marks: SliderProps["marks"], min: number, max: number, step: n
    go to the ends. A press anywhere on the track moves the nearest thumb there; range thumbs can't cross.
    onValueChange fires as it moves, onValueCommit once when a drag or key press that changed it ends. */
 /** Picks a number, or a range with two thumbs, on a track. */
+// The text a slider nudges inward to keep inside its box (GM2).
+const FIT = ".dk-slider__mark-label > span, .dk-slider__value > span";
+
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
   // A surrounding Field's id, hint, error, required and disabled, at any depth: a Slider in a row with its unit
@@ -195,20 +198,28 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
   const fit = React.useCallback(() => {
     const el = root.current;
     if (!el) return;
-    const parts = Array.from(el.querySelectorAll<HTMLElement>(".dk-slider__mark-label > span, .dk-slider__value > span"));
+    const parts = Array.from(el.querySelectorAll<HTMLElement>(FIT));
     if (!parts.length) return;
     for (const p of parts) p.style.removeProperty("--dk-slider-nudge");
     const box = el.getBoundingClientRect();
     const by = parts.map((p) => { const r = p.getBoundingClientRect(); return r.width >= box.width ? 0 : Math.max(0, box.left - r.left) - Math.max(0, r.right - box.right); });
     parts.forEach((p, i) => { if (by[i]) p.style.setProperty("--dk-slider-nudge", by[i] + "px"); });
   }, []);
-  useIsoLayoutEffect(() => { fit(); });   // every render: the values, marks and their text may have moved them
-  React.useEffect(() => {
+  // Fitted again when the slider resizes, and when a label or the chip does on its own: a web font that loads after
+  // the first fit makes the text wider or narrower while the slider keeps its size, and the old nudge would be wrong.
+  // Each render picks up any new label (a new mark); one already watched isn't observed again, which would refit at once.
+  const ro = React.useRef<[ResizeObserver, WeakSet<Element>]>(undefined);
+  const watch = () => {
     const el = root.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
+    if (el && ro.current) for (const p of [el, ...el.querySelectorAll(FIT)]) if (!ro.current[1].has(p)) { ro.current[1].add(p); ro.current[0].observe(p); }
+  };
+  useIsoLayoutEffect(() => { fit(); watch(); });   // every render: the values, marks and their text may have moved them
+  React.useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const o = new ResizeObserver(fit);
+    ro.current = [o, new WeakSet()];
+    watch();
+    return () => o.disconnect();
   }, [fit]);
   return (
     <div {...rest} ref={(n) => { root.current = n; delegateFocus(n, first); restyle(n); }}
