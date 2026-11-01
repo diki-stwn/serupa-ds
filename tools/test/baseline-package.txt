@@ -31,6 +31,7 @@ dist/labels/id.d.ts
 dist/labels/it.d.ts
 dist/labels/ja.d.ts
 dist/labels/ko.d.ts
+dist/labels/ms.d.ts
 dist/labels/nl.d.ts
 dist/labels/pl.d.ts
 dist/labels/pt.d.ts

@@ -51,6 +51,7 @@ const SAME_OK = new Set(['menu', 'formatHint', 'hexCode', 'keyName', 'avatarStat
 const SAME_IN = {
   de: ['fieldOptional', 'optional', 'sliderMaximum', 'colorName'],
   es: ['generalShortcuts'],
+  ms: ['edit'],
   nl: ['sliderMaximum'],
   sv: ['sliderMaximum', 'colorName'],
   fr: ['colorName', 'notificationCenter', 'notifications', 'pagination', 'sliderMaximum', 'image', 'page'],
