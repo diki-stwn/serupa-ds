@@ -355,16 +355,25 @@ describe('Tabs on the server', () => {
     expect([fit.hasAttribute('data-fade-before'), fit.hasAttribute('data-fade-after'), css(fit).maskImage]).toEqual([false, false, 'none']);
   });
 
-  test('the fade grows in and shrinks away (177): its width is a typed property, so it transitions instead of jumping', async () => {
+  test('the fade grows in and shrinks away (177) once the list scrolls: its width is a typed property, so it transitions instead of jumping; on mount it is just there', async () => {
     await withMotion(async () => {
-      await render(<div style={{ width: '200px' }}><Tabs id="fd"><TabList aria-label="Fade">{['One', 'Two'].map((t) => <Tab key={t} value={t}>{t}</Tab>)}</TabList></Tabs></div>);
+      await render(<div style={{ width: '200px' }}><Tabs id="fd"><TabList aria-label="Fade">{['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'].map((t) => <Tab key={t} value={t}>{t}</Tab>)}</TabList></Tabs></div>);
       const list = el('fd').querySelector<HTMLElement>('[role="tablist"]')!;
-      list.setAttribute('data-fade-before', '');
+      // On mount the fade is just there; it eases once the list scrolls. (After the fonts: they scroll the selected tab back into view.)
+      expect([list.hasAttribute('data-fade-after'), list.getAnimations().length]).toEqual([true, 0]);
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(r));
+      // A first nudge, too small to fade anything, so the list counts as scrolled.
+      list.scrollTo({ left: 1, behavior: 'instant' });
+      await expect.poll(() => list.hasAttribute('data-scrolled')).toBe(true);
+      // Read the moment the start fade turns on, before the transition can end.
+      const on = new Promise<void>((r) => { const mo = new MutationObserver(() => { if (list.hasAttribute('data-fade-before')) { mo.disconnect(); r(); } }); mo.observe(list, { attributes: true }); });
+      list.scrollTo({ left: 60, behavior: 'instant' });
+      await on;
       const moving = list.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.transitionProperty);
       const mid = parseFloat(css(list).getPropertyValue('--dk-tabs-fade-a'));
       await Promise.all(list.getAnimations().map((a) => a.finished));
       expect([moving, mid >= 0 && mid < 32, css(list).getPropertyValue('--dk-tabs-fade-a')]).toEqual([['--dk-tabs-fade-a'], true, '32px']);
-      list.removeAttribute('data-fade-before');
     });
   });
 
