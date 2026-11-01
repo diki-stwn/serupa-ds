@@ -47,6 +47,14 @@ const SILENT_IN_ENGLISH = new Set(['invalidValue']);
 // Words that are often the same in another language (a brand, an abbreviation, a loanword).
 const SAME_OK = new Set(['menu', 'formatHint', 'hexCode', 'keyName', 'avatarStatus', 'carouselRole', 'slideRole', 'contrast', 'ratingValue', 'moreToasts', 'sliderMinimum']);
 
+// …and in one language only: words that language shares with English.
+const SAME_IN = {
+  de: ['fieldOptional', 'optional', 'sliderMaximum', 'colorName'],
+  es: ['generalShortcuts'],
+  fr: ['colorName', 'notificationCenter', 'notifications', 'pagination', 'sliderMaximum', 'image', 'page'],
+};
+const sameOk = (l, k) => SAME_OK.has(k) || (SAME_IN[l] || []).includes(k);
+
 const fnNoSample = Object.keys(en).filter((k) => typeof en[k] === 'function' && !SAMPLES[k]);
 t('every function label has samples here', !fnNoSample.length, fnNoSample.join(', '));
 for (const [l, mod] of Object.entries(packs)) {
@@ -58,14 +66,14 @@ for (const [l, mod] of Object.entries(packs)) {
     if (!(k in L) || typeof L[k] !== typeof en[k]) continue;
     if (typeof L[k] === 'string') {
       if (!L[k].trim()) empty.push(k);
-      if (l !== 'en' && L[k] === en[k] && !SAME_OK.has(k)) same.push(k);
+      if (l !== 'en' && L[k] === en[k] && !sameOk(l, k)) same.push(k);
       continue;
     }
     for (const args of SAMPLES[k] || []) {
       let out;
       try { out = L[k](...args); } catch (e) { empty.push(`${k}(${JSON.stringify(args)}) throws ${e.message}`); continue; }
       if (typeof out !== 'string' || (!out.trim() && !(l === 'en' && SILENT_IN_ENGLISH.has(k)))) empty.push(`${k}(${JSON.stringify(args)})`);
-      else if (l !== 'en' && out === en[k](...args) && !SAME_OK.has(k)) same.push(`${k}(${JSON.stringify(args)})`);
+      else if (l !== 'en' && out === en[k](...args) && !sameOk(l, k)) same.push(`${k}(${JSON.stringify(args)})`);
     }
   }
   t(`${l}: all ${Object.keys(en).length} words, each a text or a function as in English, under locale "${mod.locale}"`, !missing.length && !extra.length && !kind.length && typeof mod.locale === 'string' && new Intl.Locale(mod.locale).language === l.split('-')[0],
