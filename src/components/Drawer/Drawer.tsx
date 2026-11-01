@@ -231,7 +231,7 @@ export const Drawer = /* @__PURE__ */ component<HTMLDialogElement, DrawerProps>(
       aria-modal={modal ? "true" : undefined}
       aria-labelledby={rest["aria-labelledby"] || (has(props.title) ? base + "-title" : undefined)}
       aria-describedby={rest["aria-describedby"] || (has(props.description) ? base + "-desc" : undefined)}
-      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-side={side} data-size={size} data-instant={arrived.current ? "" : undefined}
+      className={cn("dk-drawer", "dk-drawer--" + side, "dk-drawer--" + size, !modal && "dk-drawer--nonmodal", props.className)} data-component="drawer" data-state={open ? "open" : "closed"} data-side={side} data-size={size} data-instant={arrived.current ? "" : undefined}
       onKeyDown={onKeyDown} onCancel={onCancel} onClose={onClose} onPointerDown={onPointerDown} onClick={onClick}>
       <div className="dk-drawer__panel" onPointerDown={onSwipeDown} onPointerMove={onSwipeMove} onPointerUp={onSwipeEnd} onPointerCancel={onSwipeEnd}>
         {has(props.title) || has(props.description) || showClose ? (

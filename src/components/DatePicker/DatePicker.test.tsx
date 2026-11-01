@@ -38,6 +38,16 @@ describe('DatePicker', () => {
     await expect.poll(() => el('dwb').value).toBe('05/12/2026');
   });
 
+  test('the box says data-state open while the calendar is open, closed otherwise (G11, ADR 0012)', async () => {
+    await render(<DatePicker id="ds" aria-label="Due" locale="en-US" />);
+    const box = () => el('ds').closest<HTMLElement>('[data-component="date-picker"]')!;
+    expect(box().dataset.state).toBe('closed');
+    await userEvent.click(button('ds'));
+    await expect.poll(() => box().dataset.state).toBe('open');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => box().dataset.state).toBe('closed');
+  });
+
   test('a press on the box (side padding, past the calendar button) focuses the field with the caret at the end; a press in the open calendar is not taken for one on the box; a disabled box stays put (GG2)', async () => {
     await render(<div style={{ width: '320px' }}>
       <DatePicker id="bx" size="lg" defaultValue={new Date(2026, 2, 14)} aria-label="Due" />
