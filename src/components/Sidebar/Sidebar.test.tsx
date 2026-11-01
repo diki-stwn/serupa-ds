@@ -37,7 +37,7 @@ function App(props: { sref?: React.Ref<HTMLElement>; iref?: React.Ref<HTMLAnchor
         <I icon="group" label="Team" id="gteam" defaultOpen={false}>
           <I href="#members" label="Members" active id="imembers" />
         </I>
-        <I as={RouterLink} {...{ to: '/reports' }} icon="bar_chart" label="Reports" id="irep" />
+        <I as={RouterLink} to="/reports" icon="bar_chart" label="Reports" id="irep" />
       </S>
     </Sidebar>
     <Sidebar id="sloose" aria-label="Docs"><I href="#x" label="Loose" icon="star" /><I href="#y" label="Item" /></Sidebar>
@@ -49,6 +49,22 @@ function App(props: { sref?: React.Ref<HTMLElement>; iref?: React.Ref<HTMLAnchor
 const listNamed = (name: string) => [...document.querySelectorAll<HTMLElement>('ul[aria-labelledby]')].find((u) => document.getElementById(u.getAttribute('aria-labelledby')!)?.textContent === name)!;
 
 describe('Sidebar', () => {
+  test('SidebarItem: as is typed (G10), with the props of the element it names, an <a>\'s by default; the ref is an HTMLElement', async () => {
+    const a = React.createRef<HTMLAnchorElement>(), r = React.createRef<HTMLAnchorElement>(), g = React.createRef<HTMLElement>();
+    await render(<Sidebar aria-label="Typed">
+      <I id="st-a" href="#a" label="A" ref={a} />
+      <I id="st-r" as={RouterLink} to="/r" label="Router" ref={r} active />
+      <I id="st-g" label="Group" ref={g}><I href="#g1" label="G1" /></I>
+      {/* @ts-expect-error RouterLink needs to */}
+      <I id="st-x" as={RouterLink} label="No to" />
+      {/* @ts-expect-error an <a> has no to */}
+      <I id="st-y" href="#y" to="/y" label="Stray to" />
+    </Sidebar>);
+    const el = (id: string) => document.getElementById(id);
+    expect([a.current === el('st-a'), r.current === el('st-r'), g.current === el('st-g'), el('st-r')?.getAttribute('href'), el('st-r')?.getAttribute('aria-current'), el('st-g')?.tagName])
+      .toEqual([true, true, true, '#router/r', 'page', 'BUTTON']);
+  });
+
   test('a <nav aria-label="Main">, 256px wide, the parent\'s height, a 1px inner edge; refs and props reach it', async () => {
     const sref = React.createRef<HTMLElement>(), iref = React.createRef<HTMLAnchorElement>();
     await render(<App sref={sref} iref={iref} />);
@@ -341,7 +357,7 @@ describe('Sidebar', () => {
     await render(<Sidebar id="snest" collapsed={false}>
       <I icon="folder" label="Docs" id="gdocs">
         <I label="Guides" id="gguides"><I href="#g1" label="Getting started" active id="ig1" /></I>
-        <I as={RouterLink} {...{ to: '/api' }} label="API" />
+        <I as={RouterLink} to="/api" label="API" />
       </I>
     </Sidebar>);
     // Expanded: Docs and Guides open, and both show as active, though only a grandchild is the current page.
@@ -352,7 +368,7 @@ describe('Sidebar', () => {
     await render(<Sidebar id="srail" collapsed>
       <I icon="folder" label="Docs" id="grail">
         <I href="#intro" label="Intro" active />
-        <I as={RouterLink} {...{ to: '/api' }} label="API" target="_self" />
+        <I as={RouterLink} to="/api" label="API" target="_self" />
       </I>
     </Sidebar>);
     await userEvent.click(el('grail'));
