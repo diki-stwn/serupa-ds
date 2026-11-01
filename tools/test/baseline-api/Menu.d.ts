@@ -29,6 +29,12 @@ interface MenuItemOwnProps {
     destructive?: boolean;
     disabled?: boolean;
 }
+interface ItemProps extends MenuItemOwnProps, Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
+    href?: string;
+    as?: React.ElementType;
+    target?: string;
+    rel?: string;
+}
 declare const MenuItem: {
     <C extends React.ElementType = "a">(props: MenuItemProps<C> & {
         ref?: React.Ref<HTMLElement>;
