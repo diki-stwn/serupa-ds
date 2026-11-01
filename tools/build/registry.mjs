@@ -4,6 +4,8 @@
 //   components.ts    export * from each src/components/<Name>/index.ts (src/index.ts re-exports it)
 //   globals.ts       ComponentGlobals: those values by name, for window.Serupa's type on plain pages
 //   components.css   @import of each <Name>.css, in the order of src/styles/cascade.txt, then the rest A to Z
+//   status.ts        each component that isn't stable (alpha, beta or deprecated, from the doc comment on its
+//                    export), for the docs pages
 //   labels.ts        each component's own words (src/components/<Name>/labels.ts: <Name>Labels, en, id), merged into one English and
 //                    one Indonesian set (src/internal/labels.ts adds the shared ones)
 // The build, Storybook, Vitest, typecheck and lint run it first: node tools/build/registry.mjs.
@@ -32,6 +34,25 @@ export function cascade(root = ROOT) {
   const unknown = listed.filter((n) => !styled.includes(n));
   if (unknown.length) throw new Error(`src/styles/cascade.txt lists ${unknown.join(', ')}, which has no src/components/<Name>/<Name>.css`);
   return [...listed, ...styled.filter((n) => !listed.includes(n))];
+}
+
+// A component's status, from the doc comment on its export in <Name>.tsx, so the types carry it to the editor:
+// @alpha (still taking shape, may change in any release), @beta (its API may still change in a minor release, said
+// in the changeset), @deprecated (going in the next major) or none (stable).
+export const STATUSES = ['alpha', 'beta', 'stable', 'deprecated'];
+export function status(n, root = ROOT) {
+  const file = path.join(root, 'src', 'components', n, `${n}.tsx`);
+  if (!fs.existsSync(file)) return 'stable';
+  const text = fs.readFileSync(file, 'utf8');
+  const at = new RegExp(`^export (?:const|function) ${n}\\b`, 'm').exec(text);
+  if (!at) return 'stable';
+  // The doc comment that ends on the line just before the export.
+  const before = text.slice(0, at.index).trimEnd();
+  if (!before.endsWith('*/')) return 'stable';
+  const doc = before.slice(before.lastIndexOf('/**'));
+  const tags = [...doc.matchAll(/@(alpha|beta|deprecated)\b/g)].map((m) => m[1]);
+  if (tags.length > 1) throw new Error(`src/components/${n}/${n}.tsx: its export says @${tags.join(' and @')}; give it one status`);
+  return tags[0] ?? 'stable';
 }
 
 const write = (file, text) => {
@@ -64,6 +85,11 @@ export function buildRegistry(root = ROOT) {
     // Indonesian words to every project that never imports idLabels.
     + `export const componentEn: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.en`).join(', ')});\n`
     + `export const componentId: ComponentLabels = /* @__PURE__ */ Object.assign({}, ${worded.map((n) => `${n}.id`).join(', ')});\n`);
+  // For the docs pages (docs/blocks.tsx), not the package: each component that isn't stable, and its status.
+  const unstable = all.map((n) => [n, status(n, root)]).filter(([, st]) => st !== 'stable');
+  write(path.join(out, 'status.ts'), BANNER
+    + '/** Each component that isn\'t stable, by name: alpha, beta or deprecated, from the doc comment on its export. */\n'
+    + `export const componentStatus: Record<string, 'alpha' | 'beta' | 'deprecated'> = {${unstable.map(([n, st]) => ` ${n}: '${st}'`).join(',')}${unstable.length ? ' ' : ''}};\n`);
 }
 
 const START = '<!-- components:start (written by tools/build/registry.mjs) -->';
@@ -82,7 +108,8 @@ export function componentIndex(root = ROOT, { plain = false } = {}) {
     const intro = (/^# .*\n+([^\n#`|<-][^\n]*)/m.exec(guide) || [])[1] ?? '';
     // Links between guides (../Combobox/README.md) point from the README instead.
     const sentence = (/^.*?[.!?](?=\s|$)/.exec(intro) || [intro])[0].replace(/[\\|]/g, '\\$&').replace(/\]\(\.\.\//g, '](src/components/');
-    (groups[group ?? 'Other'] ||= []).push(plain ? `- **${n}**: ${sentence.replace(/\\([\\|])/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')}` : `| [${n}](src/components/${n}/README.md) | ${sentence} |`);
+    const st = status(n, root), mark = st === 'stable' ? '' : ` (${st})`;
+    (groups[group ?? 'Other'] ||= []).push(plain ? `- **${n}**${mark}: ${sentence.replace(/\\([\\|])/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')}` : `| [${n}](src/components/${n}/README.md)${mark} | ${sentence} |`);
   }
   return Object.keys(groups).sort((a, b) => Number(a === 'Other') - Number(b === 'Other') || a.localeCompare(b))
     .map((g) => (plain ? `### ${g}\n\n${groups[g].join('\n')}\n` : `### ${g}\n\n| Component | What it's for |\n| --- | --- |\n${groups[g].join('\n')}\n`)).join('\n');

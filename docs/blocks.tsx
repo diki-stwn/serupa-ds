@@ -13,6 +13,7 @@ import { CopyButton } from '../src/components/CopyButton/CopyButton';
 import { customIcons, isIconData } from '../src/icons';
 import { DEFAULT_LABELS, idLabels, type SerupaLabels } from '../src/internal/labels';
 import labelsSource from '../src/internal/labels.ts?raw';
+import { componentStatus } from '../src/generated/status';
 // Each component's own words (src/components/<Name>/labels.ts), whose doc comments say where each is used too.
 const componentLabelSources = Object.values(import.meta.glob('../src/components/*/labels.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>);
 
@@ -38,7 +39,25 @@ function relink(md: string): string {
 
 /** A component's guidelines (its README.md), without the title the page already has. */
 export function Guide({ source }: { source: string }) {
-  return <Markdown>{relink(source.replace(/^# .*\n+/, ''))}</Markdown>;
+  const name = /^# (\w+)/.exec(source)?.[1];
+  return <>
+    {name && componentStatus[name] && <ComponentStatus status={componentStatus[name]} />}
+    <Markdown>{relink(source.replace(/^# .*\n+/, ''))}</Markdown>
+  </>;
+}
+
+// What each status means to someone choosing a component, as README.md's Versioning section says it.
+const STATUS_TEXT = {
+  alpha: 'Still taking shape. Its props and behaviour may change in any release; try it, but pin the version you ship.',
+  beta: 'Ready to use, but its API may still change in a minor release, and the changeset will say how.',
+  deprecated: 'It keeps working until the next major release removes it. Its guide says what to use instead.',
+} as const;
+/** A component's status above its guide, when it isn't stable. */
+export function ComponentStatus({ status }: { status: keyof typeof STATUS_TEXT }) {
+  return <p role="note" className="sb-unstyled" style={{ display: 'flex', gap: 8, alignItems: 'baseline', padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 6, font: '14px/20px var(--font-sans)' }}>
+    <strong style={{ textTransform: 'uppercase', fontSize: 12, letterSpacing: '0.04em' }}>{status}</strong>
+    <span>{STATUS_TEXT[status]}</span>
+  </p>;
 }
 
 const ROOT = readme;
