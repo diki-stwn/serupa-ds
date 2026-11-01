@@ -29,7 +29,7 @@ export interface NotificationItem {
   read?: boolean;
 }
 
-// DrawerProps with three of them closed off, not an Omit<>, which costs every project's type check more (types.mjs).
+// DrawerProps with four of them closed off, not an Omit<>, which costs every project's type check more (types.mjs).
 export interface NotificationCenterProps extends DrawerProps {
   /** The drawer's title. Default: "Notifications" (labels.notificationCenter). */
   title?: React.ReactNode;
@@ -39,6 +39,8 @@ export interface NotificationCenterProps extends DrawerProps {
   footer?: never;
   /** Not taken: the list is the drawer's content. */
   children?: never;
+  /** Not taken: there's nothing to edit, so nothing to lose. */
+  unsaved?: never;
   /** The notifications, newest first: useToastHistory().items, or your own. */
   items: NotificationItem[];
   /** Called with an unread one's id when its "Mark as read" is chosen. Without it, there's no button. */
@@ -96,7 +98,7 @@ export const NotificationCenter = /* @__PURE__ */ component<HTMLDialogElement, N
   const base = domId("dk-nc", React.useId());
   // The Drawer's own props are named below, so its other attributes (id, aria-*) pass through in rest.
   const rest = omit(props, { title: 1, description: 1, footer: 1, children: 1, items: 1, onMarkRead: 1, onMarkAllRead: 1, onClear: 1, empty: 1, className: 1, open: 1, defaultOpen: 1, onOpenChange: 1,
-    side: 1, size: 1, modal: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1 } as const);
+    side: 1, size: 1, modal: 1, closeButton: 1, closeLabel: 1, closeOnBackdrop: 1, swipeToClose: 1, initialFocus: 1, finalFocus: 1, unsaved: 1 } as const);
   const { items, onMarkRead, onMarkAllRead, onClear } = props;
   const footer = onMarkAllRead || onClear ? <>
     {onMarkAllRead ? <Button variant="ghost" size="sm" onClick={onMarkAllRead}>{labels.markAllRead}</Button> : null}

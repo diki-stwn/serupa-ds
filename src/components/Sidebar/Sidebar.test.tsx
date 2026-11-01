@@ -13,6 +13,13 @@ const EnUS = ({ children }: { children: React.ReactNode }) => <SerupaProvider lo
 
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const rect = (e: Element) => e.getBoundingClientRect();
+// An item (a link or button) holds its icon span (the icon, then the dot), the label, the badge and a group's
+// chevron icon. The label is its first span without an icon, and the badge the span after it.
+const labelOf = (item: Element) => [...item.children].find((c) => c.tagName === 'SPAN' && !c.matches('[data-icon]') && !c.querySelector('[data-icon]'))!;
+const badgeOf = (item: Element) => labelOf(item).nextElementSibling!;
+const DOT = ':scope > span > [data-icon] + span[aria-hidden]';
+// A section title is what names its list.
+const sectionTitle = (n: Element) => document.getElementById(n.querySelector('ul[aria-labelledby]')!.getAttribute('aria-labelledby')!)!;
 const pick = (e: Element, ks: Array<keyof CSSStyleDeclaration>) => { const s = css(e); return ks.map((k) => s[k]); };
 const away = () => userEvent.hover(document.body, { position: { x: 880, y: 680 } });
 
@@ -101,7 +108,7 @@ describe('Sidebar', () => {
 
   test('a badge sits at the end, 12px in', async () => {
     await render(<App />, { wrapper: EnUS });
-    const b = el('iinbox').querySelector('.dk-sidebar__badge')!;
+    const b = badgeOf(el('iinbox'));
     expect([b.textContent, Math.round(rect(el('iinbox')).right - rect(b).right)]).toEqual(['4', 12]);
   });
 
@@ -117,8 +124,8 @@ describe('Sidebar', () => {
     expect([b.tagName, b.getAttribute('aria-expanded'), list.hidden]).toEqual(['BUTTON', 'false', true]);
     await userEvent.click(b);
     expect([b.getAttribute('aria-expanded'), rect(el('iweb')).height > 0]).toEqual(['true', true]);
-    await expect.poll(() => css(b.querySelector('.dk-sidebar__chevron')).rotate).toBe('180deg');
-    expect(Math.round(rect(b.querySelector('.dk-sidebar__label')!).left - rect(el('iweb').querySelector('.dk-sidebar__label')!).left)).toBe(0);
+    await expect.poll(() => css(b.querySelector(':scope > [data-icon]')).rotate).toBe('180deg');
+    expect(Math.round(rect(labelOf(b)).left - rect(labelOf(el('iweb'))).left)).toBe(0);
   });
 
   test('a group\'s items unfold and fold as an Accordion panel does: a fade and a clip from the top, kept (inert) while they fold, then hidden (GM4)', async () => {
@@ -181,7 +188,7 @@ describe('Sidebar', () => {
   test('items placed directly in the Sidebar get a list; aria-label names it', async () => {
     await render(<App />);
     const n = el('sloose');
-    expect([n.getAttribute('aria-label'), n.querySelectorAll('ul > li').length, n.querySelector('.dk-sidebar__body > ul') !== null]).toEqual(['Docs', 2, true]);
+    expect([n.getAttribute('aria-label'), n.querySelectorAll('ul > li').length, n.querySelector(':scope > div > ul') !== null]).toEqual(['Docs', 2, true]);
   });
 
   test('Sidebar tokens (--sidebar-width, --sidebar-item-text) override one sidebar', async () => {
@@ -196,12 +203,12 @@ describe('Sidebar', () => {
     React.act(() => setCollapsed(true));
     await expect.poll(() => Math.round(rect(el('sb')).width)).toBe(64);
     const a = el('ihome'), r = rect(a), i = rect(a.querySelector('[data-icon]')!);
-    expect(rect(a.querySelector('.dk-sidebar__label')!).width).toBeLessThanOrEqual(1);
+    expect(rect(labelOf(a)).width).toBeLessThanOrEqual(1);
     expect(Math.abs(Math.round((i.left + i.right) / 2 - (r.left + r.right) / 2))).toBeLessThanOrEqual(1);
-    const badge = el('iinbox').querySelector('.dk-sidebar__badge')!, dot = el('iinbox').querySelector('.dk-sidebar__dot')!, icon = rect(el('iinbox').querySelector('[data-icon]')!), d = rect(dot);
-    expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector('.dk-sidebar__dot')]).toEqual([true, '4', 'true', 8, null]);
+    const badge = badgeOf(el('iinbox')), dot = el('iinbox').querySelector(DOT)!, icon = rect(el('iinbox').querySelector('[data-icon]')!), d = rect(dot);
+    expect([rect(badge).width <= 1, badge.textContent, dot.getAttribute('aria-hidden'), Math.round(d.width), el('ihome').querySelector(DOT)]).toEqual([true, '4', 'true', 8, null]);
     expect([Math.round(d.top - icon.top), Math.round(d.right - icon.right)]).toEqual([-2, 2]);   // on the icon's top end corner
-    expect(rect(el('sb').querySelector('.dk-sidebar__section-title')!).width).toBeLessThanOrEqual(1);
+    expect(rect(sectionTitle(el('sb'))).width).toBeLessThanOrEqual(1);
   });
 
   test('collapsed: a long header or footer stays in the rail and ends in an ellipsis, in both directions (GR51)', async () => {
@@ -422,7 +429,7 @@ describe('Sidebar', () => {
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
       const bg = css(el('sb')).backgroundColor, cur = css(el('ihome'));
-      const pairs: Array<[string, string, string]> = [['item', css(el('iinbox')).color, bg], ['current page and hovered items', cur.color, cur.backgroundColor], ['section title', css(el('sb').querySelector('.dk-sidebar__section-title')).color, bg]];
+      const pairs: Array<[string, string, string]> = [['item', css(el('iinbox')).color, bg], ['current page and hovered items', cur.color, cur.backgroundColor], ['section title', css(sectionTitle(el('sb'))).color, bg]];
       for (const [name, fg, on] of pairs) { const r = contrast(fg, on); n++; if (r < 4.5) low.push(`${th} ${name}: ${r.toFixed(2)}`); }
     }
     still.remove();
@@ -432,11 +439,11 @@ describe('Sidebar', () => {
   test('contrast: the collapsed rail\'s badge dot keeps 3:1 on the sidebar and on the current page\'s highlight in all six themes', async () => {
     await render(<App />);
     React.act(() => setCollapsed(true));
-    await expect.poll(() => el('iinbox').querySelector('.dk-sidebar__dot')).not.toBeNull();
+    await expect.poll(() => el('iinbox').querySelector(DOT)).not.toBeNull();
     const low: string[] = []; let n = 0;
     for (const th of THEMES) {
       document.documentElement.setAttribute('data-theme', th);
-      const dot = css(el('iinbox').querySelector('.dk-sidebar__dot')).backgroundColor;
+      const dot = css(el('iinbox').querySelector(DOT)).backgroundColor;
       for (const [name, on] of [['sidebar', css(el('sb')).backgroundColor], ['highlight', color('var(--sidebar-item-bg-active, var(--highlight))')]]) {
         const r = contrast(dot, on); n++; if (r < 3) low.push(`${th} on ${name}: ${r.toFixed(2)}`);
       }

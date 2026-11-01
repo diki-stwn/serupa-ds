@@ -172,7 +172,7 @@ describe('SegmentedControl', () => {
     await userEvent.click(seg('ctl', 'board'));
     await userEvent.click(seg('ctl', 'board'));
     const hidden = el('ctl').querySelector<HTMLInputElement>('input[type=hidden]')!;
-    expect([calls.join(), api.view, hidden.name + '=' + hidden.value, (seg('ctl', 'board').querySelector<HTMLElement>('.dk-segmented__icon .dk-icon'))?.dataset.icon])
+    expect([calls.join(), api.view, hidden.name + '=' + hidden.value, (seg('ctl', 'board').querySelector<HTMLElement>('[data-icon]'))?.dataset.icon])
       .toEqual(['board', 'board', 'view=board', 'view_kanban']);
     api.set!('list');
     await expect.poll(() => checked('ctl')).toBe('list');
