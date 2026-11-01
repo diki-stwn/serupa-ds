@@ -82,6 +82,7 @@ A month arrow that reaches the month holding `min` or `max` turns disabled, so f
 
 Each is an optional override: set it on the page, a container or one calendar. The list lives in `src/components/Calendar/calendar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from calendar.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--calendar-title-color` | `text` | The month and year. |
@@ -103,3 +104,4 @@ Each is an optional override: set it on the page, a container or one calendar. T
 | `--calendar-gap` | `spacing-2` | Space between the header and the days (8px). |
 | `--calendar-title-weight` | `font-semibold` | The month and year (600). |
 | `--calendar-today-weight` | `font-semibold` | Today's number (600). |
+<!-- token-table:end -->

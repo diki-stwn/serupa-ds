@@ -66,6 +66,7 @@ const { Link, Text } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one link. The list lives in `src/components/Link/link.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from link.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--link-text` | `primary` | tone="primary" text and underline (4.5:1 on surface). |
@@ -74,5 +75,6 @@ Each is an optional override: set it on the page, a container or one link. The l
 | `--link-thickness` | `decoration-1` | The underline's thickness (1px). |
 | `--link-thickness-hover` | `decoration-2` | The underline's thickness on hover (2px). |
 | `--link-offset` | `underline-offset-2` | The gap between the text and the underline (2px). |
-| `--link-icon-gap` | `spacing-0_5` | Space before the new-tab icon of an external link (2px). |
+| `--link-icon-gap` | `spacing-0.5` | Space before the new-tab icon of an external link (2px). |
 | `--link-focus-radius` | `rounded-sm` | The focus ring's corners (4px). |
+<!-- token-table:end -->

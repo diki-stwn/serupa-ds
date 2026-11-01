@@ -36,6 +36,7 @@ if (made.status === 0) {
 
   const code = read('DateBadge.tsx');
   t('the component goes through component() and is marked pure, so it tree-shakes', /\/\* @__PURE__ \*\/ component<[^>]+>\("DateBadge"/.test(code) && !/forwardRef|displayName/.test(code));
+  t('it starts as beta: @beta in the doc comment on its export (tools/build/registry.mjs reads it)', /@beta[^*]*\*\/\nexport const DateBadge\b/.test(code));
   t('its class and data-component are the kebab-case name', code.includes('"dk-date-badge"') && code.includes('data-component="date-badge"'));
   t('the stories sit in the group asked for', read('DateBadge.stories.tsx').includes("title: 'Components/Forms/DateBadge'"));
 

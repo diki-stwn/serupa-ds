@@ -7,6 +7,7 @@
 //   utilities.css          the utility classes, from src/styles/utilities.template.css (tools/utilities/build.mjs)
 //   bundle.css             both in one file, components first (what bundle.css has always been)
 //   base.css, theme.js     page defaults and automatic dark mode, from src/
+//   debug.js               the opt-in debug overlay (?serupa-debug), from src/
 //   vscode/                VS Code custom data for editor autocomplete: utility classes and tokens (editor-data.mjs)
 //   components.json        each component's exports, CSS classes and the components it needs (for serupa-purge --components)
 //   eslint.js, eslint.d.ts what each component renders, for eslint-plugin-jsx-a11y in a project's lint (serupa-ds/eslint)
@@ -23,6 +24,7 @@ import { buildRegistry, cascade } from './registry.mjs';
 import { editorData } from './editor-data.mjs';
 import { tokenDescriptions } from '../tokens/build.mjs';
 import { a11yComponents } from '../lint/a11y-components.mjs';
+import { PAIRS as CONTRAST_PAIRS } from '../tokens/contrast-pairs.mjs';
 
 const P = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const D = path.join(P, 'dist');
@@ -92,6 +94,9 @@ const utilityNames = new Set([...utilities.matchAll(/\.((?:[A-Za-z0-9_-]|\\.)+)/
 const runtimeUtilities = [...new Set(code.join('\n').match(/["'`][^"'`\n]*["'`]/g)?.flatMap((q) => q.slice(1, -1).split(/\s+/)) || [])].filter((w) => /^[a-z]/.test(w) && utilityNames.has(w)).sort();
 fs.writeFileSync(path.join(D, 'components.json'), JSON.stringify({ version, runtimeUtilities, components: manifest }, null, 1) + '\n');
 fs.writeFileSync(path.join(D, 'theme.js'), stamp(read('src/theme.js')));
+// debug.js (204): the opt-in overlay that names each component on a page, its classes, state and overridden tokens.
+// Its contrast guard (203) checks the pairs tools/test/foundation.mjs checks, written in at build.
+fs.writeFileSync(path.join(D, 'debug.js'), stamp(read('src/debug.js')).replace('/*__PAIRS__*/[]', JSON.stringify(CONTRAST_PAIRS)));
 // eslint.js (TF2): jsx-a11y skips a component it doesn't know, so a project's <Image src> with no alt or an
 // <IconButton> with no name passes its lint. This teaches it what each component renders, from the same map our own
 // lint uses (tools/lint/a11y-components.mjs), under both plugins' settings keys: eslint-plugin-jsx-a11y reads
@@ -121,6 +126,9 @@ export default config;
 // stylelint.js: the Stylelint config for an app's own CSS (serupa-ds/stylelint), shipped as written.
 fs.writeFileSync(path.join(D, 'stylelint.js'), stamp(read('src/stylelint.js')));
 fs.copyFileSync(path.join(P, 'src', 'stylelint.d.ts'), path.join(D, 'stylelint.d.ts'));
+// testing.js (184): forEachTheme() for screenshots of an app's own pages in each theme (serupa-ds/testing), as written.
+fs.writeFileSync(path.join(D, 'testing.js'), stamp(read('src/testing.js')));
+fs.copyFileSync(path.join(P, 'src', 'testing.d.ts'), path.join(D, 'testing.d.ts'));
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
 const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });
@@ -172,10 +180,13 @@ async function buildModules() {
     format: 'esm', target: 'es2022', platform: 'neutral', sourcemap: true, jsx: 'transform', logLevel: 'warning',
     define: { __VERSION__: JSON.stringify(version) },
   });
-  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none.
-  const table = path.join(D, 'js', 'material', 'icons.js');
-  fs.rmSync(table + '.map');
-  fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=icons\.js\.map\n?$/, ''));
+  // The generated icon table is data with nothing to step through, and its map was 3 MB of the package: none, for
+  // icons.js and each of its parts (material/part/NN.js).
+  const part = path.join(D, 'js', 'material', 'part');
+  for (const table of [path.join(D, 'js', 'material', 'icons.js'), ...fs.readdirSync(part).filter((f) => f.endsWith('.js')).map((f) => path.join(part, f))]) {
+    fs.rmSync(table + '.map');
+    fs.writeFileSync(table, fs.readFileSync(table, 'utf8').replace(/\/\/# sourceMappingURL=[\w.]+\.js\.map\n?$/, ''));
+  }
   fs.writeFileSync(path.join(D, 'index.js'), 'export * from "./js/index.js";\n');
   fs.writeFileSync(path.join(D, 'icons.js'), 'export * from "./js/material/index.js";\n');
 }

@@ -30,10 +30,6 @@ A date component got a date and time as a string (`"2026-10-24T00:00:00Z"`, as a
 
 A Field's label points at its control by id, and nothing on the page has that id, so the label names nothing. Put the control inside the Field, or pass the control's `id`.
 
-## icon-button-no-title
-
-IconButton was given `noTitle`, the old name of `hideTitle`. It still leaves out the title, the same as before; 12.0.0 takes it away. Rename it to `hideTitle`.
-
 ## icon-load
 
 The icons drawn by name come from a chunk loaded on demand (on a plain page, `serupa-icons.iife.js` from beside `serupa.iife.js`), and that load failed: a network error, a deploy that removed the chunk the page asked for, or `serupa.iife.js` copied without `serupa-icons.iife.js`. The box stays empty; the next Icon tries again, and each empty one tries again when the browser is back online. To draw an icon without loading anything, import it and pass `icon={…}`, or register the icons first.
@@ -86,9 +82,9 @@ useShortcut was given keys that aren't one key with its modifiers, such as `["G"
 
 Splitter needs exactly two children, its two panes.
 
-## table-caption-hidden
+## table-row-click
 
-Table was given `captionHidden`, the old name of `hideCaption`. It still hides the caption on screen and keeps it for screen readers, the same as before; 12.0.0 takes it away. Rename it to `hideCaption`.
+A TableRow got `onClick` without `href`. A click on a row reaches mouse users only: the keyboard and screen readers can't press a table row. To open something, give the row an `href` (the whole row becomes one link, from its first cell); for an action, put a button in a cell.
 
 ## tabs-removed
 

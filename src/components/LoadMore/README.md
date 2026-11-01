@@ -61,8 +61,10 @@ The words are the labels `loadMore`, `showingOf`, `loadedMore`, `moreLoaded` and
 
 Each is an optional override: set it on the page, a container or one LoadMore. The list lives in `src/components/LoadMore/load-more.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from load-more.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--load-more-text` | `text-muted` | "Showing 20 of 134" and the end text (4.5:1 on the page). |
 | `--load-more-gap` | `spacing-3` | Space between the summary and the button (12px). |
 | `--load-more-padding` | `spacing-4` | Space above and below (16px). |
+<!-- token-table:end -->

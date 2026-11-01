@@ -3,7 +3,7 @@
     "primary": {
       "$type": "color",
       "$value": "{color.blue-600}",
-      "$description": "Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text.",
+      "$description": "Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text. More contrast: brand 800 / brand 300, 7:1+ on `surface` and `primary-subtle`.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--primary"
@@ -13,7 +13,7 @@
     "primary-hover": {
       "$type": "color",
       "$value": "{color.blue-700}",
-      "$description": "Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark).",
+      "$description": "Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark). More contrast: brand 900 / brand 200.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--primary-hover"
@@ -272,7 +272,7 @@
     "focus-ring": {
       "$type": "color",
       "$value": "{color.blue-500}",
-      "$description": "Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme).",
+      "$description": "Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme). More contrast: brand 700 / brand 300.",
       "$extensions": {
         "com.serupa": {
           "cssVar": "--focus-ring"
@@ -436,6 +436,16 @@
       "$extensions": {
         "com.serupa": {
           "cssVar": "--info-text"
+        }
+      }
+    },
+    "link-visited": {
+      "$type": "color",
+      "$value": "{color.violet-700}",
+      "$description": "Alias. A visited link in reading content (Prose): a shade apart from primary, 4.5:1+ on `surface` and `surface-muted` in every theme.",
+      "$extensions": {
+        "com.serupa": {
+          "cssVar": "--link-visited"
         }
       }
     }

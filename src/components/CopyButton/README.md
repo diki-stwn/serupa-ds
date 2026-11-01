@@ -67,6 +67,8 @@ Every other [Button](../Button/README.md) prop and `ref` go to the `<button>`, w
 
 Each is an optional override: set it on the page, a container or one button. The list lives in `src/components/CopyButton/copy-button.tokens.json` (also in `design-tokens/components/`). Everything else is [Button](../Button/README.md)'s.
 
+<!-- token-table:start (made from copy-button.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--copy-button-done-color` | `success-text` | The check icon once it has copied (3:1 on the button). |
+<!-- token-table:end -->

@@ -285,4 +285,13 @@ describe('DateRangePicker popup on a phone (GR9)', () => {
       }
     } finally { await page.viewport(900, 700); }
   });
+  test('a narrow box (200px): the fields shrink so both and the calendar button stay inside it, nothing scrolls sideways (GR70)', async () => {
+    await render(<div style={{ width: '200px' }}><DateRangePicker data-testid="narrow" aria-label="Stay" locale="en-US" /></div>);
+    const b = box('narrow').getBoundingClientRect();
+    for (const e of [...fields('narrow'), btn('narrow')]) {
+      const r = e.getBoundingClientRect();
+      expect([r.left >= b.left - 1, r.right <= b.right + 1], e.tagName).toEqual([true, true]);
+    }
+    expect(box('narrow').scrollWidth).toBeLessThanOrEqual(box('narrow').clientWidth + 1);
+  });
 });

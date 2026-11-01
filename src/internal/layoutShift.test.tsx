@@ -26,6 +26,14 @@ const KNOWN = new Map<string, string>([
 ]);
 // About a fifth of what Core Web Vitals counts as a good page (CLS 0.1) for one story.
 const KNOWN_BUDGET = 0.03;
+// With no locale prop or provider, dates and numbers are en-US in server HTML and switch to the browser's language
+// right after hydration, on purpose (useLocale, internal/provider.tsx). So the promise of no movement at all holds
+// where the browser is in en-US, as on a page whose provider passes the request's locale. When CI runs these in
+// another language (run.mjs --locale), "Rabu" for "Wed" moves a line by a pixel, and a Calendar in Arabic digits
+// and day names moves 0.08: there every story is held to what Core Web Vitals counts as a good page, CLS 0.1, so a
+// real jump still fails.
+const sameLocale = new Intl.DateTimeFormat().resolvedOptions().locale === 'en-US';
+const SWITCH_BUDGET = 0.1;
 
 type Shift = PerformanceEntry & { value: number; hadRecentInput: boolean; sources?: Array<{ node?: Node | null }> };
 const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -74,8 +82,9 @@ describe.skipIf(!supported)('layout shift', () => {
           const serverHtml = html[key];
           if (/^Error: /.test(serverHtml)) return; // hydrateStories.test.tsx reports it
           const { total, what } = await shiftOf(ui, serverHtml);
-          if (!KNOWN.has(key)) expect(total, `moved: ${what}`).toBe(0);
-          else expect(total, `moved more than a known mover may (${KNOWN.get(key)}): ${what}`).toBeLessThanOrEqual(KNOWN_BUDGET);
+          if (!KNOWN.has(key) && sameLocale) expect(total, `moved: ${what}`).toBe(0);
+          else if (KNOWN.has(key) && sameLocale) expect(total, `moved more than a known mover may (${KNOWN.get(key)}): ${what}`).toBeLessThanOrEqual(KNOWN_BUDGET);
+          else expect(total, `moved more than the switch to the browser's language may: ${what}`).toBeLessThanOrEqual(SWITCH_BUDGET);
         });
       }
     });

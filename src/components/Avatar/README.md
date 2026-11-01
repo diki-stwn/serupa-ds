@@ -61,6 +61,7 @@ const { Avatar } = window.Serupa;
 
 Each is an optional override: set it on the page, a container or one avatar. The list lives in `src/components/Avatar/avatar.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from avatar.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--avatar-bg` | `secondary` | The background behind initials and the fallback icon. |
@@ -78,3 +79,4 @@ Each is an optional override: set it on the page, a container or one avatar. The
 | `--avatar-radius-square` | `rounded-lg` | The corners of shape="square" (8px). |
 | `--avatar-ring-width` | `border-width-2` | The ring around the status dot (2px). |
 | `--avatar-weight` | `font-medium` | The initials' weight (500). |
+<!-- token-table:end -->

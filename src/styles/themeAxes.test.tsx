@@ -2,7 +2,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, test } from 'vitest';
 import tokens from '../../tokens.json';
 import { render } from 'vitest-browser-react';
-import { commands } from 'vitest/browser';
+import { commands, page } from 'vitest/browser';
 import { Button } from '../components/Button/Button';
 import { Input } from '../components/Input/Input';
 import { contrast, lowContrast, THEMES } from '../../tools/test/vitest/helpers';
@@ -38,7 +38,7 @@ const axes = (brand?: string, mode?: string) => {
   if (mode) root.setAttribute('data-mode', mode); else root.removeAttribute('data-mode');
 };
 
-afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
+afterEach(() => { for (const a of ['data-brand', 'data-mode', 'data-contrast', 'data-density', 'data-shadow', 'data-type-scale']) root.removeAttribute(a); root.setAttribute('data-theme', 'blue-light'); });
 
 describe('Theme axes', () => {
   test('data-brand + data-mode give exactly the colors of each data-theme', () => {
@@ -130,6 +130,20 @@ describe('Contrast axis', () => {
     ['placeholder', 'var(--placeholder)', 'var(--field)', 7],
     ['border', 'var(--border)', 'var(--surface)', 3],
     ['field border', 'var(--field-border)', 'var(--field)', 4.5],
+    // Status text and icons (V6): on the page, on a raised card and on its own subtle fill (an Alert, a Badge).
+    ...['success', 'warning', 'danger', 'info'].flatMap((s): Array<[string, string, string, number]> => [
+      [`${s} text`, `var(--${s}-text)`, 'var(--surface)', 7],
+      [`${s} text on a raised surface`, `var(--${s}-text)`, 'var(--surface-raised)', 7],
+      [`${s} text on its subtle fill`, `var(--${s}-text)`, `var(--${s}-subtle)`, 7],
+    ]),
+    ...['success', 'warning', 'info'].map((s): [string, string, string, number] => [`${s} icon`, `var(--${s})`, 'var(--surface)', 4.5]),
+    // The brand (V6 phase 2): each brand's own stronger shade, for links, the secondary button and the focus ring.
+    ['brand text', 'var(--primary)', 'var(--surface)', 7],
+    ['brand text on its tint', 'var(--primary)', 'var(--primary-subtle)', 7],
+    ['brand text on hover', 'var(--primary-hover)', 'var(--primary-subtle)', 7],
+    ['primary button text', 'var(--on-primary)', 'var(--primary)', 7],
+    ['primary button text on hover', 'var(--on-primary)', 'var(--primary-hover)', 7],
+    ['focus ring', 'var(--focus-ring)', 'var(--surface)', 4.5],
   ];
 
   test('data-contrast="more": 7:1 text and stronger borders in all six themes', () => {
@@ -178,6 +192,34 @@ describe('Contrast axis', () => {
     }
   });
 
+  test('the brand keeps its hue: each brand gets its own stronger shade, from the axes and in a nested section', () => {
+    const hue = (host: HTMLElement) => { const p = document.createElement('span'); host.appendChild(p); p.style.color = 'var(--primary)'; const c = getComputedStyle(p).color; p.remove(); return c; };
+    const swatch = (name: string) => { const p = document.createElement('span'); document.body.appendChild(p); p.style.color = `var(--${name})`; const c = getComputedStyle(p).color; p.remove(); return c; };
+    for (const [brand, mode, shade] of [['violet', 'light', 'violet-800'], ['emerald', 'dark', 'emerald-300'], ['blue', 'dark', 'blue-300']]) {
+      axes(brand, mode);
+      root.setAttribute('data-contrast', 'more');
+      expect(hue(document.body), `${brand}-${mode}`).toBe(swatch(shade));
+      root.removeAttribute('data-contrast');
+    }
+    // A violet page asking for more contrast, with an emerald dark section and a flat blue-light one inside it.
+    axes('violet', 'light');
+    root.setAttribute('data-contrast', 'more');
+    const emerald = document.createElement('section');
+    emerald.setAttribute('data-brand', 'emerald');
+    emerald.setAttribute('data-mode', 'dark');
+    const blue = document.createElement('section');
+    blue.setAttribute('data-theme', 'blue-light');
+    document.body.append(emerald, blue);
+    expect(hue(emerald)).toBe(swatch('emerald-300'));
+    expect(hue(blue)).toBe(swatch('blue-800'));
+    // …and without it, the normal shades.
+    root.removeAttribute('data-contrast');
+    expect(hue(emerald)).toBe(swatch('emerald-400'));
+    expect(hue(blue)).toBe(swatch('blue-600'));
+    emerald.remove();
+    blue.remove();
+  });
+
   test('tokens.css follows prefers-contrast: more unless the page says data-contrast="normal"', async () => {
     const walk = (rules: CSSRuleList): CSSRule[] => [...rules].flatMap((r) => [r, ...('cssRules' in r ? walk((r as CSSGroupingRule).cssRules) : [])]);
     const all = [...document.styleSheets].flatMap((sh) => { try { return walk(sh.cssRules); } catch { return []; } });
@@ -198,6 +240,52 @@ describe('Density axis', () => {
     expect([h('b-sm'), h('b-md'), h('b-lg'), h('b-back')]).toEqual([24, 28, 36, 32]);
     expect(document.getElementById('i-md')!.closest('.dk-input')!.getBoundingClientRect().height).toBe(28);
   });
+  test('data-shadow="brand" (73): the box shadows take a deep shade of the brand color at the same opacity; a section with its own brand and data-shadow takes its own; neutral puts the black back', async () => {
+    root.setAttribute('data-shadow', 'brand');
+    const card = (id: string) => <div id={id} style={{ boxShadow: 'var(--shadow-md)' }}>Card</div>;
+    await render(<div>
+      {card('sh-page')}
+      <section data-brand="emerald" data-shadow="brand">{card('sh-em')}</section>
+      <section data-shadow="neutral">{card('sh-plain')}</section>
+    </div>);
+    // The first shadow's color as [r, g, b, alpha], 0 to 1.
+    const rgba = (id: string) => {
+      const s = getComputedStyle(document.getElementById(id)!).boxShadow;
+      const srgb = /color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+) \/ ([\d.]+)\)/.exec(s), plain = /rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/.exec(s);
+      if (srgb) return srgb.slice(1).map(Number);
+      return plain!.slice(1).map((v, i) => (i < 3 ? Number(v) / 255 : Number(v)));
+    };
+    const [pr, pg, pb, pa] = rgba('sh-page'), [er, eg, eb] = rgba('sh-em');
+    expect([pb > pr && pb > pg, eg > er && eg > eb, pa, rgba('sh-plain')]).toEqual([true, true, 0.1, [0, 0, 0, 0.1]]);
+    // A deep shade: dark enough to read as shadow.
+    expect(Math.max(pr, pg, pb, er, eg, eb)).toBeLessThan(0.35);
+  });
+
+  test('data-type-scale="fluid" (22): text-2xl and up shrink to 70% on a 320px viewport and reach full size at 1280px; body sizes and fixed sections stay put; zoom still doubles them', async () => {
+    root.setAttribute('data-type-scale', 'fluid');
+    await render(<div>
+      <h1 id="ft-h" className="type-heading-1">Title</h1>
+      <p id="ft-9" style={{ fontSize: 'var(--text-9xl)' }}>Big</p>
+      <p id="ft-b" className="type-body">Body</p>
+      <p id="ft-x" className="text-xl">Text</p>
+      <div data-type-scale="fixed"><h1 id="ft-f" className="type-heading-1">Title</h1></div>
+    </div>);
+    const px = (id: string) => parseFloat(getComputedStyle(document.getElementById(id)!).fontSize);
+    try {
+      await page.viewport(320, 700);
+      expect(['ft-h', 'ft-9', 'ft-b', 'ft-x', 'ft-f'].map(px)).toEqual([21, 89.6, 16, 20, 30]);
+      await page.viewport(1280, 700);
+      expect(['ft-h', 'ft-9', 'ft-b', 'ft-f'].map(px)).toEqual([30, 128, 16, 30]);
+      await page.viewport(800, 700);
+      const mid = px('ft-h');
+      expect(mid > 21 && mid < 30).toBe(true);
+      // WCAG 1.4.4: at 200% zoom (a 32px root on a 320px viewport) the size still doubles.
+      root.style.fontSize = '32px';
+      await page.viewport(320, 700);
+      expect(px('ft-h')).toBe(42);
+    } finally { root.style.fontSize = ''; await page.viewport(900, 700); }
+  });
+
   test('a nested data-mode section has its own text color and surface, not the page\'s; a class background still wins', async () => {
     axes('blue', 'light');
     await render(<div><p id="np-out">Outside</p><section id="np" data-mode="dark"><p id="np-in">Inside</p></section>

@@ -1,0 +1,14 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ControlSizes } from '../controlSizes';
+
+<Meta title="Foundations/Control sizes" />
+
+# Control sizes
+
+Every one-line control takes `size="sm"`, `"md"` (the default) or `"lg"`, and at each size they line up: the same height from `control-height-sm`, `-md` and `-lg` (24, 32 and 44px), the same corner radius and the same text size. A Button beside an Input in a toolbar, or a Select in a form row, needs no adjusting. `sm` is the WCAG 2.2 minimum target and `lg` the comfortable touch target.
+
+`data-density="compact"` on the page or a section makes `md` 28px and `lg` 36px for dashboards and data-heavy screens. `sm` stays 24px.
+
+`src/internal/controlSizes.test.tsx` checks the heights, radii and text sizes of 13 controls at each size and in both densities on every pull request, so a control that drifts by a pixel fails there.
+
+<ControlSizes />

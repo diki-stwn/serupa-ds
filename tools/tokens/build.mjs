@@ -11,6 +11,9 @@
 //                                         light or dark setting applies from the first paint, with no JavaScript
 //   :root                                 every other token, the font families, and the type-* shorthands
 //   contrast and density axes             data-contrast="more" (and prefers-contrast: more) and data-density="compact"
+//   shadow axis (73)                      data-shadow="brand": the box shadows in a deep shade of the brand color
+//   type scale axis (22)                  data-type-scale="fluid": sizes from 1.5rem up grow with the viewport
+//   :lang() per script (143)              taller lines for Arabic, Devanagari, Thai and CJK; CJK's font by language
 //   .type-*                               one class per complete text style
 //   @font-face                            the fonts in fonts/
 // Everything but the @font-face rules sits in the dk.tokens cascade layer, the first of the system's layers.
@@ -19,6 +22,8 @@ import path from 'node:path';
 
 const P = path.resolve(process.argv.slice(2).find((a) => !a.startsWith('--')) || path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..'));
 const OUT = path.join(P, 'tokens.css');
+// A contrastMore keyed by theme id ({ "blue-light": …, "violet-dark": … }) rather than { light, dark }.
+const perTheme = (x) => !!x.contrastMore && typeof x.contrastMore === 'object' && !('light' in x.contrastMore);
 
 /** Each token's description from tokens.json, by its property name (--primary → "Main action color…"). */
 export function tokenDescriptions(t) {
@@ -36,7 +41,11 @@ export function buildTokensCss(t) {
   // stay in tokens.json (tokenDescriptions below), design-tokens/ and the editor data.
   const line = (n, v) => `  --${name(n)}: ${ref(v)};\n`;
   const groups = Object.values(t).filter((g) => g && Array.isArray(g.tokens));
-  const all = groups.flatMap((g) => g.tokens);
+  const tokens = groups.flatMap((g) => g.tokens);
+  // A contrastMore with a value per theme (a brand color: violet's is violet) can't be one light-dark() pair, so it
+  // becomes an internal themed token, --dk-more-<name>, that every theme and brand rule below sets like any alias;
+  // the contrast rule then points the token at it (contrastAndDensity).
+  const all = [...tokens, ...tokens.filter(perTheme).map((x) => ({ name: `dk-more-${x.name}`, value: x.contrastMore }))];
 
   let css = '/* Serupa — generated from tokens.json */\n';
   css += '@layer dk.tokens, dk.base, dk.components, dk.utilities;\n@layer dk.tokens {\n';
@@ -58,8 +67,12 @@ export function buildTokensCss(t) {
   for (const s of styles) css += line(`text-${s.name}`, `${s.fontWeight} ${s.fontSize}/${s.lineHeight} var(--font-${s.family})`);
   css += '}\n';
   css += contrastAndDensity(all, line);   // after :root, so data-density on the root wins over it
+  css += tintedShadows(all, line);
+  css += fluidType(all, styles, line);
+  css += scripts(t, all);
   for (const s of styles) {
-    css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
+    const f = fluid(s.fontSize) && scaleOf(all, s.fontSize);
+    css += `.${s.name} {\n  font-family: var(--font-${s.family});\n  font-size: ${f ? `var(--text-${f})` : s.fontSize};\n  line-height: ${s.lineHeight};\n  font-weight: ${s.fontWeight};\n  letter-spacing: ${s.letterSpacing};\n`;
     if (s.fontStyle && s.fontStyle !== 'normal') css += `  font-style: ${s.fontStyle};\n`;
     if (s.textTransform) css += `  text-transform: ${s.textTransform};\n`;
     if (s.opticalSize != null) css += `  font-variation-settings: "opsz" ${s.opticalSize};\n`;
@@ -67,7 +80,34 @@ export function buildTokensCss(t) {
   }
   css += '}\n';
   for (const f of t.type.fonts || [])
-    css += `@font-face {\n  font-family: "${f.family}";\n  src: url("${f.file}") format("woff2");\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  font-display: swap;\n}\n`;
+    css += `@font-face {\n  font-family: "${f.family}";\n  src: url("${f.file}") format("woff2");\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  font-display: swap;\n${f.unicodeRange ? `  unicode-range: ${f.unicodeRange};\n` : ''}}\n`;
+  // "Inter Fallback" (144, tools/fonts/fallback.mjs): a font already on the device, sized like Inter, drawn until Inter
+  // arrives, so the text doesn't move when it swaps in.
+  for (const f of t.type.fallbacks || [])
+    css += `@font-face {\n  font-family: "${f.family}";\n  src: ${f.local.map((n) => `local("${n}")`).join(', ')};\n  font-weight: ${f.weight};\n  font-style: ${f.style};\n  size-adjust: ${f.sizeAdjust};\n  ascent-override: ${f.ascentOverride};\n  descent-override: ${f.descentOverride};\n  line-gap-override: ${f.lineGapOverride};\n  unicode-range: ${f.unicodeRange};\n}\n`;
+  return css;
+}
+
+// Fonts and line heights by script (143, tokens.json's type.scripts). The sans stack names Noto Sans Arabic, Hebrew,
+// Devanagari and Thai after Inter: each draws only its own script, so the browser picks the right one per character,
+// whatever the lang. Han characters are drawn differently in Japanese, Korean and Chinese, so the CJK font follows lang.
+// Marks above and below the letters need more room than Latin: under those langs every text-*--line-height is at least
+// the script's ratio of the font size (in em, so it holds at the size the component draws). :where() keeps it at no
+// specificity, so a component's or a page's own line height still wins; and it matches every element in that lang, so
+// a lang="th" section inside an English page gets it too.
+function scripts(t, all) {
+  const list = t.type.scripts || [];
+  const heights = all.filter((x) => /^text-[a-z0-9]+--line-height$/.test(x.name));
+  const sel = (langs) => `:where(${langs.map((l) => `:lang(${l})`).join(', ')})`;
+  let css = '';
+  for (const ratio of [...new Set(list.map((s) => s.lineHeight).filter(Boolean))]) {
+    css += `${sel(list.filter((s) => s.lineHeight === ratio).flatMap((s) => s.lang))} {\n`;
+    for (const x of heights) css += `  --${x.name}: max(${/^[\d.]+$/.test(x.value) ? x.value + 'em' : x.value}, ${ratio}em);\n`;
+    css += '}\n';
+  }
+  const sans = t.type.families.sans;
+  for (const s of list.filter((s) => s.families))
+    css += `${sel(s.lang)} {\n  --font-sans: ${sans.replace('"Inter Fallback", ', `"Inter Fallback", ${s.families.map((f) => `"${f}"`).join(', ')}, `)};\n}\n`;
   return css;
 }
 
@@ -111,15 +151,61 @@ function axes(t, varying, line) {
 // The pairs are light-dark(), so data-theme sets color-scheme here too, not only in base.css. A token's compact
 // value is its size under data-density="compact"; data-density="comfortable" puts the defaults back in a section.
 function contrastAndDensity(all, line) {
-  const more = all.filter((x) => x.contrastMore);
+  const more = all.filter((x) => x.contrastMore && !perTheme(x));
   const pairs = more.map((x) => line(x.name, typeof x.contrastMore === 'string' ? x.contrastMore : `light-dark(${x.contrastMore.light}, ${x.contrastMore.dark})`)).join('');
+  // A per-theme one reads its --dk-more-* token, set by whichever theme or brand rule applies to the element. The
+  // brand rules that set the normal value weigh up to three attributes (:root[data-brand]:not([data-theme])), so
+  // these carry :not(#dk-more), which matches every element and outweighs them: asking for more contrast beats the
+  // brand. They also go on nested data-brand and data-theme sections, which redeclare the brand's colors.
+  const brand = all.filter(perTheme).map((x) => `  --${x.name}: var(--dk-more-${x.name});\n`).join('');
+  const nested = ':is([data-mode], [data-brand], [data-theme])';
   let css = `[data-theme$="-light"] { color-scheme: light; }\n[data-theme$="-dark"] { color-scheme: dark; }\n`;
   // Also on nested data-mode elements, which redeclare the normal colors.
   css += `[data-contrast="more"], [data-contrast="more"] [data-mode] {\n${pairs}}\n`;
-  css += `@media (prefers-contrast: more) {\n:root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {\n${pairs}}\n}\n`;
+  if (brand) css += `[data-contrast="more"]:not(#dk-more), [data-contrast="more"] ${nested}:not(#dk-more) {\n${brand}}\n`;
+  css += `@media (prefers-contrast: more) {\n:root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {\n${pairs}}\n`;
+  if (brand) css += `:root:not([data-contrast="normal"]):not(#dk-more), :root:not([data-contrast="normal"]) ${nested}:not([data-contrast="normal"], [data-contrast="normal"] *, #dk-more) {\n${brand}}\n`;
+  css += '}\n';
   const compact = all.filter((x) => x.compact != null);
   css += `[data-density="compact"] {\n${compact.map((x) => line(x.name, x.compact)).join('')}}\n`;
   css += `[data-density="comfortable"] {\n${compact.map((x) => line(x.name, x.value)).join('')}}\n`;
+  return css;
+}
+
+// Shadows tinted with the brand (73): data-shadow="brand" swaps each box shadow's black for a deep shade of the
+// brand color (its red, green and blue at 30%), at the same opacity, so a raised card or a menu reads as part of
+// the brand rather than grey. data-shadow="neutral" puts the black back in a section. The shade is worked out where
+// the attribute is, from that element's --primary.
+const TINT = 'rgb(from var(--primary) calc(r * 0.3) calc(g * 0.3) calc(b * 0.3) / $1)';
+function tintedShadows(all, line) {
+  const box = all.filter((x) => /^shadow-(2xs|xs|sm|md|lg|xl|2xl)$/.test(x.name));
+  const at = (x) => (typeof x.value === 'object' ? Object.values(x.value)[0] : x.value);
+  let css = `[data-shadow="brand"] {\n${box.map((x) => line(x.name, at(x).replace(/rgb\(0 0 0 \/ ([\d.]+)\)/g, TINT))).join('')}}\n`;
+  css += `[data-shadow="neutral"] {\n${box.map((x) => line(x.name, at(x))).join('')}}\n`;
+  return css;
+}
+
+// Fluid type (22): data-type-scale="fluid" makes every size from 1.5rem (text-2xl) up a clamp() that is 70% of the
+// size on a 320px viewport and grows to the full size at 1280px. The body sizes stay put. The smallest size is never
+// under 1.25rem, and the largest is at most 1.43 times the smallest, well inside the 2.5 that WCAG 1.4.4 allows for
+// text to still double with browser zoom (the rem part grows with zoom). The --text-* sizes, the --text-type-*
+// shorthands and the .type-* classes all follow; data-type-scale="fixed" puts the fixed sizes back in a section.
+const rem = (v) => (/^[\d.]+rem$/.test(v) ? parseFloat(v) : null);
+const fluid = (v) => rem(v) != null && rem(v) >= 1.5;
+const r4 = (n) => +n.toFixed(4);
+export function fluidSize(v) {
+  const max = rem(v), min = Math.max(1.25, max * 0.7), slope = (max - min) / 60;   // 20rem to 80rem of viewport
+  return `clamp(${r4(min)}rem, ${r4(min - slope * 20)}rem + ${r4(slope * 100)}vw, ${v})`;
+}
+const sizesOf = (all) => all.filter((x) => /^text-[a-z0-9]+$/.test(x.name) && typeof x.value === 'string' && fluid(x.value));
+const scaleOf = (all, v) => sizesOf(all).find((x) => x.value === v)?.name.slice(5);
+function fluidType(all, styles, line) {
+  const sizes = sizesOf(all), big = styles.filter((s) => scaleOf(all, s.fontSize));
+  const short = (s) => line(`text-${s.name}`, `${s.fontWeight} var(--text-${scaleOf(all, s.fontSize)})/${s.lineHeight} var(--font-${s.family})`);
+  let css = `[data-type-scale="fluid"] {\n${sizes.map((x) => line(x.name, fluidSize(x.value))).join('')}`;
+  css += big.map(short).join('') + '}\n';
+  css += `[data-type-scale="fixed"] {\n${sizes.map((x) => line(x.name, x.value)).join('')}`;
+  css += big.map(short).join('') + '}\n';
   return css;
 }
 

@@ -8,6 +8,7 @@ import { component } from "../../internal/component";
 import { useSettings } from "../../internal/provider";
 import * as icons from "../../material/builtin";
 import type { IconData } from "../../material/types";
+import { rootOf } from "../../internal/root";
 
 export type AlertTone = 'info' | 'success' | 'warning' | 'danger' | 'neutral';
 
@@ -38,15 +39,17 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 // focusable element after the alert instead, else the one before it, in the Tab order (not a roving tab that isn't
 // the current one, tabindex -1: L8E23). A handler that moves focus, or keeps the alert, is left alone.
 function dismissAndRefocus(e: React.MouseEvent<HTMLElement>, onDismiss: () => void): void {
-  const me = e.currentTarget, box = me.closest(".dk-alert"), doc = me.ownerDocument;
-  const near = box && doc.activeElement === me ? Array.from(doc.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.tabIndex >= 0 && !box.contains(el)) : [];
+  // Inside a shadow root, what has focus and what can take it are the root's, not the page's (GR60).
+  const me = e.currentTarget, box = me.closest(".dk-alert"), doc = me.ownerDocument, r = rootOf(me);
+  const near = box && r.activeElement === me ? Array.from(r.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.tabIndex >= 0 && !box.contains(el)) : [];
   const next = near.filter((el) => box!.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
   const prev = near.filter((el) => !next.includes(el)).reverse();
   onDismiss();
   if (near.length) setTimeout(function () {
-    if (me.isConnected || (doc.activeElement && doc.activeElement !== doc.body)) return;
+    const a = r.activeElement;
+    if (me.isConnected || (a && a !== doc.body)) return;
     // The first that takes focus: a control in a disabled <fieldset> matches but doesn't (L8E75), as in Popover (L8E22).
-    next.concat(prev).some((el) => el.isConnected && el.getClientRects().length > 0 && (el.focus(), doc.activeElement === el));
+    next.concat(prev).some((el) => el.isConnected && el.getClientRects().length > 0 && (el.focus(), r.activeElement === el));
   }, 0);
 }
 
