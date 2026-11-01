@@ -339,3 +339,18 @@ describe('Popover: motion (DZ1)', () => {
     expect(calls).toEqual(['true:trigger', 'false:escape']);
   });
 });
+
+describe('Popover inside a shadow root (GR60)', () => {
+  test('opening it focuses its first control, not the panel', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Popover title="Filters" trigger={<Button>Filters</Button>}><input aria-label="Search filters" /></Popover>, { container: inner });
+      const root = host.shadowRoot!;
+      root.querySelector<HTMLElement>('button')!.click();
+      await expect.poll(() => root.activeElement?.getAttribute('aria-label')).toBe('Search filters');
+    } finally { host.remove(); }
+  });
+});
