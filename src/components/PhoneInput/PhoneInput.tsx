@@ -5,6 +5,7 @@ import { cn, isInvalid, omit, oneOf, SIZES } from "../../internal/cn";
 import { Icon } from "../Icon/Icon";
 import type { InputProps } from "../Input/Input";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { useFieldControl } from "../../internal/field";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { useLocale, useSettings } from "../../internal/provider";
@@ -152,7 +153,7 @@ export const PhoneInput = /* @__PURE__ */ component<HTMLInputElement, PhoneInput
   const text = lead != null && !shown ? lead : formatNational(shown, country);
   // every render: an edit that reformats the number asks for the caret back, and the new text is there only after the render.
   React.useLayoutEffect(function () {
-    if (caret.current == null || !input.current || document.activeElement !== input.current) return;
+    if (caret.current == null || !input.current || activeIn(input.current) !== input.current) return;   // its own root's focus, in a shadow root too (GR90)
     input.current.setSelectionRange(caret.current, caret.current);
     caret.current = null;
   });

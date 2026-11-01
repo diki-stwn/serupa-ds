@@ -125,6 +125,21 @@ describe('PhoneInput', () => {
     expect([i.value, seen]).toEqual(['(201) 555-0123', []]);
   });
 
+  test('inside a shadow root, typing in the middle keeps the caret after the new digit too, not at the end (GR90)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Wrap><PhoneInput id="sp" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>, { container: inner });
+      const i = host.shadowRoot!.getElementById('sp') as HTMLInputElement;
+      i.focus();
+      i.setSelectionRange(1, 1);     // after "("
+      await userEvent.keyboard('9');
+      expect([i.value, i.selectionStart]).toEqual(['(920) 155-5012', 2]);   // the 11th digit doesn't fit
+    } finally { host.remove(); }
+  });
+
   test('Backspace after a separator removes the digit before it; typing in the middle keeps the caret after the new digit', async () => {
     await render(<Wrap><PhoneInput id="p" aria-label="Phone" defaultCountry="US" defaultValue="+12015550123" /></Wrap>);
     const i = field('p');
