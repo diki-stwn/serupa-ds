@@ -26,7 +26,7 @@ describe('long words (R31)', () => {
     </div>);
     expect([...spills(q('.dk-alert'), 200), ...spills(q('.dk-alert__title'), 200)]).toEqual([false, false, false, false]);
     expect([...spills(q('.dk-card'), 200), ...spills(q('.dk-card__title'), 200)]).toEqual([false, false, false, false]);
-    const b = q('#b'), label = b.querySelector('.dk-btn__label') as HTMLElement;
+    const b = q('#b'), label = [...b.querySelectorAll('span')].find((s) => s.textContent === WORD) as HTMLElement;
     expect([Math.round(b.getBoundingClientRect().width) <= 200, getComputedStyle(label).textOverflow, b.textContent]).toEqual([true, 'ellipsis', WORD]);
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
   });
@@ -58,8 +58,8 @@ describe('long words (R31)', () => {
       <Toaster />
     </>);
     React.act(() => { toast({ title: WORD, description: WORD, duration: 0 }); });
-    await expect.poll(() => !!document.querySelector('.dk-menu__item')).toBe(true);
-    const item = q('.dk-menu__item'), t = q('.dk-toast');
+    await expect.poll(() => !!document.querySelector('[role="menuitem"]')).toBe(true);
+    const item = q('[role="menuitem"]'), t = q('.dk-toast');
     expect([item.scrollWidth <= item.clientWidth + 1, item.getBoundingClientRect().right <= 320, t.scrollWidth <= t.clientWidth + 1, t.getBoundingClientRect().right <= 320]).toEqual([true, true, true, true]);
     React.act(() => toast.dismiss());
   });
