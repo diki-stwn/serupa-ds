@@ -5,7 +5,8 @@ import { toast, Toaster } from './Toast';
 
 // A second copy of the package on the page (G2): Toast.tsx loaded again as a module of its own, as a second install's
 // would be, with a query Vite keeps apart. A file of its own, so the second copy's Toaster doesn't stay in the others.
-const copy = (): Promise<typeof import('./Toast')> => import(/* @vite-ignore */ './Toast.tsx?copy=2');
+const file = './Toast.tsx';
+const copy = (): Promise<typeof import('./Toast')> => import(/* @vite-ignore */ `${file}?copy=2`);
 const titles = () => [...document.querySelectorAll('.dk-toast__title')].map((t) => t.textContent);
 
 describe('Toast with two copies of the package on the page (G2)', () => {
