@@ -90,6 +90,13 @@ export const PinInput = /* @__PURE__ */ component<HTMLInputElement, PinInputProp
         // With Alt, Ctrl or ⌘ the keys are the browser's or the system's (Alt+← goes back a page): leave them (L8E29).
         onKeyDown={function (e) { if (rest.onKeyDown) rest.onKeyDown(e); if (e.defaultPrevented) return; if (!(e.altKey || e.ctrlKey || e.metaKey) && /^(Arrow(Left|Right|Up|Down)|Home|End|PageUp|PageDown)$/.test(e.key)) e.preventDefault(); else toEnd(e); }}
         onSelect={function (e) { toEnd(e); if (rest.onSelect) rest.onSelect(e); }}
+        // A whole code pasted over a part typed (two digits, then the code copied from a message) replaces it,
+        // instead of being added after them and cut off: "12" and a pasted 483 921 gave 124839 (L8E105).
+        onPaste={function (e) {
+          if (rest.onPaste) rest.onPaste(e);
+          const el = e.currentTarget;
+          if (!e.defaultPrevented && clean(e.clipboardData.getData("text")).length === length) el.setSelectionRange(0, el.value.length);
+        }}
         ref={function (n) { input.current = n; nameRef(n); setRef(ref, n); }} className="dk-pin-input__field" />
     </span>
   );

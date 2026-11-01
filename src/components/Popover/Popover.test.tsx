@@ -312,4 +312,17 @@ describe('Popover: motion (DZ1)', () => {
       expect([isOpen('tshare'), runs(p).length > 0]).toEqual([true, true]);
     });
   });
+
+  test('L8E104: the <dialog> it sits in closing closes it, so it is not open again when the dialog reopens', async () => {
+    await render(<dialog id="l8e104d"><Popover aria-label="Share" trigger={<Button id="l8e104t">Share</Button>}><p>Link</p></Popover></dialog>);
+    const d = el('l8e104d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.click(el('l8e104t'));
+    d.close();
+    // The close event comes in a task after close().
+    await new Promise((r) => setTimeout(r, 50));
+    d.showModal();
+    expect([el('l8e104t').getAttribute('aria-expanded'), panel('l8e104t').matches(':popover-open')]).toEqual(['false', false]);
+    d.close();
+  });
 });

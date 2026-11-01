@@ -55,7 +55,7 @@
       "popup-text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "Text in the calendar panel (the Calendar inside it has its own --calendar-* tokens).",
+        "$description": "Text in the calendar panel (the Calendar has its own `--calendar-*` tokens).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--date-picker-popup-text"

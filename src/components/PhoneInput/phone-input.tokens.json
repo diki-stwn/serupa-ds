@@ -5,7 +5,7 @@
       "dial": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The calling code (\"+62\"; 4.5:1 on the field and on the hover background).",
+        "$description": "The calling code (4.5:1 on the field).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--phone-input-dial"
@@ -15,7 +15,7 @@
       "chevron": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The chevron after the calling code (3:1 on the field).",
+        "$description": "The chevron (3:1 on the field).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--phone-input-chevron"
@@ -45,7 +45,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The country part's keyboard focus ring, drawn inside the box.",
+        "$description": "The menu's keyboard focus ring.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--phone-input-focus-ring"
@@ -57,7 +57,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Space between the calling code and the chevron, and after the chevron (4px).",
+        "$description": "Space around the chevron (4px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--phone-input-gap"

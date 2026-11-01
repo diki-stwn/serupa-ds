@@ -180,4 +180,21 @@ describe('Rating', () => {
     expect(low).toEqual([]);
     expect([idLabels.ratingStars(2.5), idLabels.ratingValue(4.5, 5), idLabels.ratingStars(1)]).toEqual(['2,5 bintang', '4,5 dari 5', '1 bintang']);
   });
+  test('L8E88 in a required Field (or with aria-required): the radiogroup says it is required', async () => {
+    await render(<><Field label="How was your stay?" required><Rating /></Field><Rating aria-label="Food" aria-required /></>);
+    expect([page.getByRole('radiogroup', { name: 'How was your stay?' }).element().getAttribute('aria-required'), page.getByRole('radiogroup', { name: 'Food' }).element().getAttribute('aria-required')]).toEqual(['true', 'true']);
+  });
+  test('L8E89 a click on a Field\'s label, or ref.current.focus() (a form library focusing the first invalid field), focuses the picked star, else the first', async () => {
+    const r = React.createRef<HTMLDivElement>();
+    await render(<><Field label="How was your stay?"><Rating defaultValue={3} /></Field><Rating ref={r} aria-label="Food" /></>);
+    const stay = page.getByRole('radiogroup', { name: 'How was your stay?' }).element();
+    await userEvent.click(document.querySelector('label')!);
+    expect(document.activeElement === stay.querySelectorAll('input')[2]).toBe(true);
+    r.current!.focus();
+    expect(document.activeElement === r.current!.querySelectorAll('input')[0]).toBe(true);
+  });
+  test('L8E92 autoFocus focuses the picked star (else the first), as it does on SegmentedControl and Slider', async () => {
+    await render(<><button>Before</button><Rating aria-label="Stay" defaultValue={2} autoFocus /></>);
+    await expect.poll(() => document.activeElement === page.getByRole('radiogroup', { name: 'Stay' }).element().querySelectorAll('input')[1]).toBe(true);
+  });
 });

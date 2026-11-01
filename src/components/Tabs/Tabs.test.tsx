@@ -78,6 +78,17 @@ describe('Tabs', () => {
     expect([state('un'), changes.join()]).toEqual(['One *Two0 Three | -input +Panel two -', 'two']);
   });
 
+  test('L8E107: the selected tab pressed again (a click, Enter, Space) calls no onValueChange, controlled or not', async () => {
+    await setup();
+    const tab = (id: string, n: number) => el(id).querySelector<HTMLElement>('[role="tab"]:nth-child(' + n + ')')!;
+    await userEvent.click(tab('un', 1));
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    await userEvent.click(tab('ctl', 2));
+    await userEvent.click(tab('ctl', 3));
+    expect(changes).toEqual(['ctl:three x']);
+  });
+
   test('keys: arrows move and select (wrapping), Home and End jump to the ends; Tab goes on to the selected panel\'s content', async () => {
     await setup();
     await userEvent.click(el('un').querySelector('[role="tab"]:nth-child(2)')!);
@@ -497,5 +508,20 @@ describe('Tabs inside a shadow root (GR60)', () => {
       await userEvent.keyboard('{Home}');
       expect(at()).toEqual([0, 0]);
     } finally { host.remove(); }
+  });
+});
+
+describe('Tabs and form validation (L8E100)', () => {
+  test('L8E100 a required field on a tab that is not selected: submitting the form selects its tab and focuses the field; the submit was stopped with nothing shown', async () => {
+    let sent = 0;
+    await render(<form onSubmit={(e) => { e.preventDefault(); sent++; }}>
+      <Tabs defaultValue="one"><TabList aria-label="Steps"><Tab value="one">One</Tab><Tab value="two">Two</Tab></TabList>
+        <TabPanel value="one">First</TabPanel><TabPanel value="two"><label htmlFor="l8e100-city">City</label><input id="l8e100-city" required /></TabPanel></Tabs>
+      <button id="l8e100-go">Send</button>
+    </form>);
+    await expect.poll(() => document.getElementById('l8e100-city')!.closest('[hidden]')?.getAttribute('hidden')).toBe('until-found');
+    await userEvent.click(document.getElementById('l8e100-go')!);
+    await expect.poll(() => document.activeElement?.id).toBe('l8e100-city');
+    expect([sent, document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')]).toEqual([0, 'true']);
   });
 });

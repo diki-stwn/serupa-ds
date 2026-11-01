@@ -28,18 +28,18 @@ export interface CopyButtonProps extends Omit<ButtonAsButtonProps, 'value' | 'on
 }
 
 // The clipboard API needs a secure page and focus; the old execCommand route covers the rest.
-async function write(text: string): Promise<void> {
+async function write(text: string, at: Element): Promise<void> {
   if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-    try { await navigator.clipboard.writeText(text); return; } catch (e) { if (!fallback(text)) throw e; return; }
+    try { await navigator.clipboard.writeText(text); return; } catch (e) { if (!fallback(text, at)) throw e; return; }
   }
-  if (!fallback(text)) throw new Error("Copying isn't available here.");
+  if (!fallback(text, at)) throw new Error("Copying isn't available here.");
 }
 // A value that's fetched goes to the clipboard as a promise, written within the press: Safari refuses a write once the
 // press's user activation has run out, as it may have by the time a fetch ends. Without ClipboardItem (or if the
 // browser turns the promise down), it's written once it's there, as before.
-function writeLater(text: Promise<string>): Promise<string> {
+function writeLater(text: Promise<string>, at: Element): Promise<string> {
   const clip = typeof navigator !== "undefined" ? navigator.clipboard : undefined;
-  const after = () => text.then((t) => write(t).then(() => t));
+  const after = () => text.then((t) => write(t, at).then(() => t));
   if (typeof ClipboardItem === "undefined" || !clip || !clip.write) return after();
   const blob = text.then((t) => new Blob([t], { type: "text/plain" }));
   blob.catch(() => {});   // a value that fails is reported through the write below, not again as unhandled
@@ -47,12 +47,14 @@ function writeLater(text: Promise<string>): Promise<string> {
   try { item = new ClipboardItem({ "text/plain": blob }); } catch { return after(); }
   return clip.write([item]).then(() => text, after);
 }
-function fallback(text: string): boolean {
+// The text goes in the button's modal <dialog> when it's in one: the page behind a modal is inert, and a textarea
+// there can't be selected, so nothing was copied while the button said "Copied" (L8E96).
+function fallback(text: string, at: Element): boolean {
   if (typeof document === "undefined") return false;
   const ta = document.createElement("textarea");
   ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0"; ta.style.insetInlineStart = "-9999px";
   const back = document.activeElement as HTMLElement | null;
-  document.body.appendChild(ta); ta.select();
+  (at.closest("dialog") || document.body).appendChild(ta); ta.select();
   let ok = false;
   try { ok = document.execCommand("copy"); } catch { ok = false; }
   ta.remove();
@@ -81,7 +83,8 @@ export const CopyButton = /* @__PURE__ */ component<HTMLButtonElement, CopyButto
       // Nothing awaited before the write starts, so it's still inside the press.
       const got = typeof value === "function" ? value() : value;
       let text: string;
-      if (typeof got === "string") { text = got; await write(text); } else text = await writeLater(Promise.resolve(got));
+      const at = e.currentTarget;
+      if (typeof got === "string") { text = got; await write(text, at); } else text = await writeLater(Promise.resolve(got), at);
       setCopied(true);
       announce(done);
       if (timer.current) clearTimeout(timer.current);

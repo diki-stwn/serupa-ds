@@ -60,6 +60,8 @@ A value that isn't on the list falls back to the default. `className`, `style`, 
 
 Each is an optional override: set it on the page, a container or one element. The list lives in `src/components/Stack/stack.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from stack.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--stack-gap` | `spacing-4` | The space between items when gap isn't given (16px). |
+<!-- token-table:end -->

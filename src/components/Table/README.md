@@ -79,7 +79,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 | `striped` | boolean | `false` | Shades every other body row (rows then don't change on hover) |
 | `stickyHeader` | boolean | `false` | Keeps the header in view; give the frame a height with `containerProps` |
 | `caption` | node | none | The table's title, as its `<caption>` |
-| `hideCaption` | boolean | `false` | Hides the caption on screen; screen readers still announce it. `captionHidden`, its old name, still works and warns |
+| `hideCaption` | boolean | `false` | Hides the caption on screen; screen readers still announce it. |
 | `containerProps` | div props | none | Go to the scrolling frame, which has `data-component="table"`. An `aria-label` or `aria-labelledby` here names the frame only while it scrolls (when it's a region); a caption takes precedence |
 
 `className`, `ref` and everything else go to the `<table>`.
@@ -99,6 +99,9 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 
 Each is an optional override: set it on the page, a container or one table's frame. The list lives in `src/components/Table/table.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from table.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--table-bg` | `surface` | The table's background. |
@@ -107,22 +110,43 @@ Each is an optional override: set it on the page, a container or one table's fra
 | `--table-header-bg` | `surface-muted` | The header row's background. |
 | `--table-header-text` | `text-muted` | Header text (4.5:1 on header-bg). |
 | `--table-row-bg-hover` | `surface-muted` | A body row on hover, and every other row when striped (muted text keeps 4.5:1). |
-| `--table-sort-bg-pressed` | `pressed` | A sortable header's fill while it's held down. |
 | `--table-row-bg-selected` | `surface-muted` | A selected row's background. |
 | `--table-row-indicator-selected` | `primary` | The bar at the start of a selected row. |
+| `--table-focus-ring` | `focus-ring` | The keyboard focus ring (sort buttons, a scrolling table). |
+| `--table-sort-bg-pressed` | `pressed` | A sortable header's fill while it's held down. |
 | `--table-action-bar-bg` | `primary-subtle` | TableActionBar's background. |
 | `--table-action-bar-text` | `text` | TableActionBar's count (4.5:1 on its background). |
-| `--table-focus-ring` | `focus-ring` | The keyboard focus ring (sort buttons, a scrolling table). |
+
+**Type**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--table-font-size` | `text-sm` | Cell text (14px). |
 | `--table-header-weight` | `font-medium` | Header text weight (500). |
 | `--table-action-bar-weight` | `font-semibold` | TableActionBar's count. |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--table-padding-x` | `spacing-3` | A cell's side padding (12px). |
 | `--table-padding-y` | `spacing-3` | A cell's top and bottom padding at size md (12px). |
 | `--table-padding-y-sm` | `spacing-2` | At size sm (8px). |
 | `--table-action-bar-padding` | `spacing-2` | Space inside TableActionBar (8px). |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--table-border-width` | `border-width-1` | The frame and row lines (1px). |
 | `--table-indicator-width` | `border-width-2` | The selected row's bar (2px). |
+
+**Radius**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--table-radius` | `rounded-lg` | The frame's corners (8px). |
+<!-- token-table:end -->
 
 ## Related
 

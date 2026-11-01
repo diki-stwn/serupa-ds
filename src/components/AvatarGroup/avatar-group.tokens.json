@@ -35,7 +35,7 @@
       "more-hover-bg": {
         "$type": "color",
         "$value": "{color.secondary-hover}",
-        "$description": "The \"+N\" button's background on hover, with showMore or onMore.",
+        "$description": "The \"+N\" button's background on hover, with `showMore` or `onMore`.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--avatar-group-more-hover-bg"
@@ -45,7 +45,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "The focus ring round the \"+N\" button, with showMore or onMore.",
+        "$description": "The focus ring round the \"+N\" button.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--avatar-group-focus-ring"

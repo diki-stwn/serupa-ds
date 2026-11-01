@@ -91,6 +91,7 @@ An arrow that takes you to the first or last page turns disabled, so focus moves
 
 Each is an optional override: set it on the page, a container or one pagination. The list lives in `src/components/Pagination/pagination.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from pagination.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--pagination-text` | `text` | A page number and the arrows. |
@@ -99,15 +100,16 @@ Each is an optional override: set it on the page, a container or one pagination.
 | `--pagination-current-bg` | `primary` | The current page's background. |
 | `--pagination-current-text` | `on-primary` | The current page's number (4.5:1 on current-bg). |
 | `--pagination-ellipsis` | `text-muted` | The … between page ranges (4.5:1 on surface). |
-| `--pagination-summary` | `text-muted` | The summary with total and pageSize, "21–30 of 245" (4.5:1 on surface). |
 | `--pagination-focus-ring` | `focus-ring` | The keyboard focus ring. |
+| `--pagination-summary` | `text-muted` | The summary with total and pageSize, "21–30 of 245" (4.5:1 on surface). |
 | `--pagination-font-size` | `text-sm` | Page numbers (14px). |
 | `--pagination-weight-current` | `font-semibold` | The current page's weight (600). |
 | `--pagination-size` | `control-height-md` | A page's width and height at size md (32px). |
 | `--pagination-size-sm` | `control-height-sm` | At size sm (24px). |
 | `--pagination-gap` | `spacing-1` | Space between pages (4px). |
-| `--pagination-summary-gap` | `spacing-4` | Space between the summary and the pages (16px). |
 | `--pagination-padding-x` | `spacing-2` | Side padding inside a page, for wide numbers (8px). |
 | `--pagination-padding-x-sm` | `spacing-0.5` | At size sm (2px), so two semibold digits fit in the 24px square. |
+| `--pagination-summary-gap` | `spacing-4` | Space between the summary and the pages (16px). |
 | `--pagination-radius` | `rounded-md` | A page's corners (6px). |
 | `--pagination-disabled` | `opacity-disabled` | Previous or next when there's no page that way. |
+<!-- token-table:end -->

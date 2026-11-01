@@ -48,7 +48,7 @@ const { Select, Field } = window.Serupa;
 | Hover | `field-border-hover` |
 | Focus | The border and a 1px ring hugging it in `focus-ring` (2px in all), like Input; a visible outline in forced-colors mode |
 | Invalid | `danger` border, and a `danger` focus ring |
-| Disabled | `surface-muted` background at 50%, `not-allowed` cursor |
+| Disabled | `field-readonly` background at 50%, `not-allowed` cursor |
 
 ## Accessibility
 
@@ -85,10 +85,13 @@ Everything else (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `requi
 
 Each is an optional override: set it on the page, a container or one select. The list lives in `src/components/Select/select.tokens.json` (also in `design-tokens/components/`). The defaults are the same shared tokens Input uses.
 
+<!-- token-table:start (made from select.tokens.json by npm run tokens: edit the descriptions there) -->
+**Colors**
+
 | Token | Default | Use |
 | --- | --- | --- |
 | `--select-bg` | `field` | Background, and the options where the browser draws them |
-| `--select-bg-disabled` | `surface-muted` | Background when disabled |
+| `--select-bg-disabled` | `field-readonly` | Background when disabled |
 | `--select-text` | `text` | The chosen value, and the options where the browser draws them |
 | `--select-border` | `field-border` | Border |
 | `--select-border-hover` | `field-border-hover` | Border on hover |
@@ -96,9 +99,31 @@ Each is an optional override: set it on the page, a container or one select. The
 | `--select-icon-color` | `text-muted` | Chevron and left icon |
 | `--select-focus-ring` | `focus-ring` | Border and ring while focused |
 | `--select-invalid` | `danger` | Border and ring when invalid |
-| `--select-height-sm` / `-md` / `-lg` | `control-height-sm` / `-md` / `-lg` | Heights (24, 32, 44px) |
-| `--select-icon-size-sm` / `-md` / `-lg` | `spacing-3.5` / `spacing-4` / `spacing-5` | Icon sizes (14, 16, 20px) |
-| `--select-padding-x-sm` / `-md` / `-lg` | `spacing-2` / `spacing-3` / `spacing-4` | Side padding (8, 12, 16px) |
+
+**Sizing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--select-height-sm` | `control-height-sm` | Height, sm (24px), like Input sm. |
+| `--select-height-md` | `control-height-md` | Height, md (32px, default). |
+| `--select-height-lg` | `control-height-lg` | Height, lg (44px). |
+| `--select-icon-size-sm` | `spacing-3.5` | Icon size, sm (14px). |
+| `--select-icon-size-md` | `spacing-4` | Icon size, md (16px). |
+| `--select-icon-size-lg` | `spacing-5` | Icon size, lg (20px). |
+
+**Spacing**
+
+| Token | Default | Use |
+| --- | --- | --- |
+| `--select-padding-x-sm` | `spacing-2` | Side padding, sm (8px). |
+| `--select-padding-x-md` | `spacing-3` | Side padding, md (12px). |
+| `--select-padding-x-lg` | `spacing-4` | Side padding, lg (16px). |
 | `--select-gap` | `spacing-2` | Gap between an icon and the text (8px) |
+
+**Border**
+
+| Token | Default | Use |
+| --- | --- | --- |
 | `--select-border-width` | `border-width-1` | Border width (1px) |
 | `--select-radius` | `rounded-md` | Corner radius (6px) |
+<!-- token-table:end -->

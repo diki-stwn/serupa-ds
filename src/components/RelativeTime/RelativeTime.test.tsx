@@ -127,4 +127,12 @@ describe('RelativeTime', () => {
     React.act(() => root!.unmount());
     host.remove();
   });
+  test('L8E97 a day on its own is cut off at absoluteAfter calendar days both ways: "7 days ago" and "in 7 days" stay words, 8 shows the date; 7 days ago showed the date, a day early', async () => {
+    const d = new Date(), day = (n: number) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+    const med = (n: number) => new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+    await render(<SerupaProvider locale="en-US">
+      {[-8, -7, 7, 8].map((n) => <RelativeTime key={n} id={'l8e97' + n} date={day(n)} />)}
+    </SerupaProvider>);
+    expect([-8, -7, 7, 8].map((n) => document.getElementById('l8e97' + n)!.textContent)).toEqual([med(-8), '7 days ago', 'in 7 days', med(8)]);
+  });
 });

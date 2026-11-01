@@ -375,4 +375,12 @@ describe('SegmentedControl', () => {
       expect([el('ssr').firstElementChild!.tagName, css(seg('ssr', 'b')).backgroundColor, css(seg('ssr', 'a')).backgroundColor]).toEqual(['BUTTON', color('var(--surface)'), 'rgba(0, 0, 0, 0)']);
     } finally { host.remove(); }
   });
+  test('L8E85 in a Field, a level down (a row with a note after it): the label, hint, error, required and disabled still reach it', async () => {
+    await render(<Field label="Period" hint="Shown on the chart" error="Pick one" required disabled><div><SegmentedControl data-testid="sd1" options={PERIODS} /><span>UTC</span></div></Field>);
+    const g = document.querySelector<HTMLElement>('[data-testid=sd1]')!;
+    const text = (ids: string | null) => (ids || '').split(' ').map((i) => document.getElementById(i)?.textContent).join(' / ');
+    expect([text(g.getAttribute('aria-labelledby')), text(g.getAttribute('aria-describedby')), g.getAttribute('aria-invalid'), g.getAttribute('aria-required'), g.getAttribute('aria-disabled')])
+      .toEqual(['Period*', 'Shown on the chart / Pick one', 'true', 'true', 'true']);   // the * is aria-hidden
+    expect([...g.querySelectorAll('button')].every((b) => b.disabled)).toBe(true);
+  });
 });
