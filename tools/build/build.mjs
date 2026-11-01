@@ -138,6 +138,9 @@ fs.copyFileSync(path.join(P, 'src', 'stylelint.d.ts'), path.join(D, 'stylelint.d
 // testing.js (184): forEachTheme() for screenshots of an app's own pages in each theme (serupa-ds/testing), as written.
 fs.writeFileSync(path.join(D, 'testing.js'), stamp(read('src/testing.js')));
 fs.copyFileSync(path.join(P, 'src', 'testing.d.ts'), path.join(D, 'testing.d.ts'));
+// purge.js (D11): serupa-purge as a Vite and a PostCSS plugin (serupa-ds/purge), as written; it imports bin/serupa-purge.mjs.
+fs.writeFileSync(path.join(D, 'purge.js'), stamp(read('src/purge.js')));
+fs.copyFileSync(path.join(P, 'src', 'purge.d.ts'), path.join(D, 'purge.d.ts'));
 // VS Code custom data: the utility classes and tokens, for editor autocomplete (tools/build/editor-data.mjs).
 const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.parse(read('tokens.json'))));
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });

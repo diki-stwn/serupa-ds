@@ -1,6 +1,7 @@
 // serupa-purge's command line, without a browser (page.mjs checks what it keeps): a mistake in the arguments ends
 // with a message and exit 2, not a stack trace; a linked source file is read and a linked folder or a link to a
-// folder is skipped without crashing; a CSS escape for no character reads as U+FFFD, as CSS says. Build first.
+// folder is skipped without crashing; a CSS escape for no character reads as U+FFFD, as CSS says; the rules inside
+// @starting-style are trimmed like those inside @media. Build first.
 //   node tools/test/purge-cli.mjs
 import fs from 'node:fs';
 import os from 'node:os';
@@ -52,6 +53,10 @@ try {
   let out = '', error = '';
   try { out = purge('.a\\110000 b { color: red } .\\31 0 { color: blue } .x\\D800 { color: green }', new Set(['10', 'a�b', 'x�'])); } catch (e) { error = String(e); }
   t('reads a CSS escape for no character as U+FFFD instead of throwing', !error && out.includes('color: red') && out.includes('color: blue') && out.includes('color: green'), error || out);
+
+  // @starting-style holds rules like @media does: a dropped component's or an unused class's go with it.
+  const start = purge('@starting-style { .dk-dialog { opacity: 0 } .dk-btn { opacity: 0 } .grid { opacity: 0 } }', new Set(), new Set(['dk-dialog']));
+  t('trims the rules inside @starting-style', start.includes('.dk-btn') && !start.includes('dk-dialog') && !start.includes('.grid'), start);
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
 }

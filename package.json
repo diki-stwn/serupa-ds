@@ -56,6 +56,11 @@
       "import": "./dist/testing.js",
       "default": "./dist/testing.js"
     },
+    "./purge": {
+      "types": "./dist/purge.d.ts",
+      "import": "./dist/purge.js",
+      "default": "./dist/purge.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./native/*": "./dist/native/*",

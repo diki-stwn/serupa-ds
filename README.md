@@ -94,15 +94,34 @@ Or set one theme directly on any element: `data-theme="violet-dark"`. A theme sw
 
 ### 4. Ship it
 
-`bundle.css` holds every utility class (nearly 2 MB). For production, trim it to the classes your code uses with `serupa-purge`, which comes with the package. From your project's folder:
+`bundle.css` holds every utility class (nearly 2 MB). For production, trim it to the classes your code uses. With Vite, add the plugin that comes with the package, and keep importing `bundle.css` as above:
+
+```js
+// vite.config.js
+import react from '@vitejs/plugin-react';
+import { serupaPurge } from 'serupa-ds/purge';
+
+export default { plugins: [react(), serupaPurge()] };
+```
+
+`vite build` then ships the component styles (about 220 KB) and only the utility classes your code uses; the dev server keeps every class, so a class you add shows at once. It reads whichever of `src/`, `index.html`, `app/`, `pages/` and `components/` your project has (or `content: ['src', 'docs']`), and trims only Serupa's stylesheets (`utilities-extra.css` too, if you import it), never your own CSS. With Next.js, webpack, or a stylesheet that `@import`s `bundle.css`, use the PostCSS plugin instead:
+
+```js
+// postcss.config.mjs
+import { serupaPurgePostcss } from 'serupa-ds/purge';
+
+export default { plugins: [serupaPurgePostcss()] };
+```
+
+Without a bundler, run `serupa-purge` from your project's folder; it reads the installed `bundle.css` (or `--css <file>`):
 
 ```sh
 npx serupa-purge src -o public/bundle.min.css
 ```
 
-It reads the installed `bundle.css` (or `--css <file>`); name classes your code builds at runtime with `--keep`.
+Class names must appear whole in your code: name the ones it builds at runtime (`"grid-cols-" + n`) with `keep: ['grid-cols-2', '@safelist.txt']` in either plugin, or `--keep` on the command line.
 
-That keeps the component styles (about 220 KB) and only the utility classes your code uses. Add `--components` to also drop the styles of components your code never names: an app that only uses Button gets about 48 KB instead of 189 KB. A component counts as used when its name appears in your sources (`<Button`, `import { Button }`, `Serupa.Button`), and the components it needs come along (IconButton brings Button and Icon).
+To also drop the styles of components your code never names, pass `components: true` (or `--components`): an app that only uses Button gets about 48 KB instead of 189 KB. A component counts as used when its name appears in your sources (`<Button`, `import { Button }`, `Serupa.Button`), and the components it needs come along (IconButton brings Button and Icon).
 
 ```sh
 npx serupa-purge src -o public/bundle.min.css --components
@@ -126,6 +145,7 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `dist/eslint.js` (`serupa-ds/eslint`) | Tells eslint-plugin-jsx-a11y what each component renders, so your lint checks `<Image>` and `<IconButton>` as it checks `img` and `button`. See Getting started in Storybook. |
 | `dist/stylelint.js` (`serupa-ds/stylelint`) | A Stylelint config for your own CSS: it flags a color, a spacing length or a radius written out where a token belongs. See Getting started in Storybook. |
 | `dist/testing.js` (`serupa-ds/testing`) | `forEachTheme(page, fn)` for your own CI: it draws a Playwright page in each of the six themes, with transitions off and the color scheme to match, and calls `fn` so you can take a screenshot in each. |
+| `dist/purge.js` (`serupa-ds/purge`) | `serupaPurge()` for Vite and `serupaPurgePostcss()` for PostCSS: they trim `bundle.css` in your build to the utility classes your code uses, as `serupa-purge` does. See Ship it above. |
 | `tokens.json`, `design-tokens/` | The tokens as data, and in the W3C format for Figma and Style Dictionary. |
 
 ### For your own components
