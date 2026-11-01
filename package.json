@@ -55,6 +55,11 @@
       "import": "./dist/testing.js",
       "default": "./dist/testing.js"
     },
+    "./labels/*": {
+      "types": "./dist/labels/*.d.ts",
+      "import": "./dist/js/labels/*.js",
+      "default": "./dist/js/labels/*.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
     "./fonts/*": "./fonts/*",

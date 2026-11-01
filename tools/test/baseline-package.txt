@@ -21,6 +21,8 @@ dist/icons.d.ts
 dist/icons.js
 dist/index.d.ts
 dist/index.js
+dist/labels/en.d.ts
+dist/labels/id.d.ts
 dist/lib/react-dom.production.min.js
 dist/lib/react.production.min.js
 dist/serupa-icons.iife.js
