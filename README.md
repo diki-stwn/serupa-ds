@@ -41,6 +41,7 @@ In a React app (Vite, Next.js, Remix):
 import 'serupa-ds/tokens.css';
 import 'serupa-ds/base.css';     // page defaults; leave out when adding the system to an existing app
 import 'serupa-ds/bundle.css';   // or components.css, plus utilities.css if you use the classes
+// import 'serupa-ds/utilities-extra.css';   // masks and gradients (mask-*, bg-linear-*, from-*…), if you use them
 import { Button, Field, Input } from 'serupa-ds';
 
 export function SignUp() {
@@ -114,7 +115,8 @@ npx serupa-purge src -o public/bundle.min.css --components
 | `tokens.css` | Every token as a CSS variable, the six themes, and the fonts. Load it first. |
 | `dist/base.css` | Page defaults (font, colors, focus style, reduced motion, print), all inside `:where()` so any class wins. When printing, filled controls (Button, Badge, Progress, checked boxes) keep their colors, toasts, tooltips and open menus and pickers are left out, and `data-print-urls` on a container prints each outside link's address after it. |
 | `dist/components.css` | The component styles (`dk-*`), about 205 KB (27 KB gzipped). |
-| `dist/utilities.css` | Every utility class. |
+| `dist/utilities.css` | The utility classes, apart from masks and gradients. |
+| `dist/utilities-extra.css` | The masks (`mask-*`) and gradients (`bg-linear-*`, `bg-radial`, `bg-conic`, and the `from-`, `via-` and `to-` stops): a quarter of the utility rules, which few pages use. Import it after `bundle.css` or `utilities.css`. |
 | `dist/bundle.css` | `components.css` + `utilities.css`. |
 | `dist/index.js`, `dist/index.d.ts` | The components as ES modules, with types. |
 | `dist/serupa.iife.js` | The components for a plain page (`window.Serupa`). |
