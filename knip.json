@@ -9,6 +9,7 @@
     "src/debug.js!",
     "src/stylelint.js!",
     "src/testing.js!",
+    "src/purge.js!",
     "bin/*.mjs!",
     "tools/**/*.mjs",
     "src/**/*.stories.tsx",

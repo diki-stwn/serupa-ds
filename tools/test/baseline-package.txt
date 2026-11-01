@@ -32,6 +32,8 @@ dist/native/android/res-violet/values-night/serupa_colors.xml
 dist/native/android/res-violet/values/serupa_colors.xml
 dist/native/android/res/values/serupa_tokens.xml
 dist/native/ios/SerupaTokens.swift
+dist/purge.d.ts
+dist/purge.js
 dist/serupa-icons.iife.js
 dist/serupa.iife.js
 dist/serupa.iife.js.map
