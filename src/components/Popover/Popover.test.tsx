@@ -325,4 +325,17 @@ describe('Popover: motion (DZ1)', () => {
     expect([el('l8e104t').getAttribute('aria-expanded'), panel('l8e104t').matches(':popover-open')]).toEqual(['false', false]);
     d.close();
   });
+
+  test('L8E113: a close() kept by the content and called after the popover closed calls no onOpenChange', async () => {
+    const calls: string[] = [];
+    let shut = () => {};
+    await render(<Popover title="Edit" trigger={<Button id="l8e113t">Edit</Button>} onOpenChange={(v, d) => calls.push(v + ':' + d.reason)}>
+      {(close) => { shut = close; return <input aria-label="Name" />; }}
+    </Popover>);
+    await userEvent.click(el('l8e113t'));
+    await userEvent.keyboard('{Escape}');
+    shut();   // a save that finished after Escape, say
+    await new Promise((r) => setTimeout(r, 50));
+    expect(calls).toEqual(['true:trigger', 'false:escape']);
+  });
 });
