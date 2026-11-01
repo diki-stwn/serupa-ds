@@ -97,7 +97,7 @@ Children come after the description.
 
 ### CardBody and CardFooter
 
-`CardBody` holds the main content. `CardFooter` lays its children out in a wrapping row: `justify` is `'end'` (default), `'start'` or `'between'`. When the footer is narrower than 20rem (a card on a phone, or in a narrow column), each child takes the full row, one under the other, so the actions are easy to tap.
+`CardBody` holds the main content. `CardFooter` lays its children out in a wrapping row: `justify` is `'end'` (default), `'start'` or `'between'`. When the footer is narrower than 20rem (a card on a phone, or in a narrow column), each child takes the full row, one under the other, so each action gets a full-width tap target.
 
 ## Component tokens
 
