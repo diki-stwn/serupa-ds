@@ -1,4 +1,4 @@
-// exports: Navbar, NavbarLink, type NavbarLinkProps, type NavbarProps
+// exports: Navbar, NavbarLink, type NavbarLinkOwnProps, type NavbarLinkProps, type NavbarProps
 interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
     brand?: React.ReactNode;
     children?: React.ReactNode;
@@ -8,9 +8,16 @@ interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
     "aria-label"?: string;
     menuLabel?: string;
 }
-interface NavbarLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+interface NavbarLinkOwnProps {
     active?: boolean;
-    as?: React.ElementType;
 }
+type NavbarLinkProps<C extends React.ElementType = "a"> = NavbarLinkOwnProps & {
+    as?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, "as" | keyof NavbarLinkOwnProps>;
 declare const Navbar: React.ForwardRefExoticComponent<NavbarProps & React.RefAttributes<HTMLElement>>;
-declare const NavbarLink: React.ForwardRefExoticComponent<NavbarLinkProps & React.RefAttributes<HTMLAnchorElement>>;
+declare const NavbarLink: {
+    <C extends React.ElementType = "a">(props: NavbarLinkProps<C> & {
+        ref?: React.Ref<React.ComponentRef<C>>;
+    }): null | React.ReactElement;
+    displayName?: string;
+};
