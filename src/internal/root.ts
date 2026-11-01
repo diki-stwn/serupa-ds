@@ -16,3 +16,6 @@ export function deepActive(): Element | null {
   while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement;
   return a;
 }
+
+/** The element with this id in node's document or shadow root. */
+export function byId(node: Node | null | undefined, id: string): HTMLElement | null { return rootOf(node).getElementById(id); }

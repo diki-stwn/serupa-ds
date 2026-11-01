@@ -139,7 +139,7 @@ describe('Card', () => {
       {/* @ts-expect-error: an unknown justify, as plain JavaScript could pass */}
       <Card id="jst"><CardFooter justify="start">a</CardFooter><CardFooter justify="between">b</CardFooter><CardFooter justify="up">c</CardFooter></Card>
     </Col>);
-    expect([...el('jst').querySelectorAll('.dk-card__footer')].map((f) => css(f).justifyContent)).toEqual(['flex-start', 'space-between', 'flex-end']);
+    expect([...el('jst').children].map((f) => css(f).justifyContent)).toEqual(['flex-start', 'space-between', 'flex-end']);
     expect(css(q('#def .dk-card__footer')).justifyContent).toBe('flex-end');
   });
 
