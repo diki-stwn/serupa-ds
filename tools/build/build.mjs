@@ -9,6 +9,7 @@
 //   base.css, theme.js     page defaults and automatic dark mode, from src/
 //   debug.js               the opt-in debug overlay (?serupa-debug), from src/
 //   vscode/                VS Code custom data for editor autocomplete: utility classes and tokens (editor-data.mjs)
+//   native/                the tokens for native apps: Swift, Kotlin and Android resources (native-tokens.mjs)
 //   components.json        each component's exports, CSS classes and the components it needs (for serupa-purge --components)
 //   eslint.js, eslint.d.ts what each component renders, for eslint-plugin-jsx-a11y in a project's lint (serupa-ds/eslint)
 //   lib/                   React for plain pages: react.production.min.js sets window.React, and
@@ -22,6 +23,7 @@ import { build } from 'esbuild';
 import { buildUtilities } from '../utilities/build.mjs';
 import { buildRegistry, cascade } from './registry.mjs';
 import { editorData } from './editor-data.mjs';
+import { nativeFiles } from './native-tokens.mjs';
 import { tokenDescriptions } from '../tokens/build.mjs';
 import { a11yComponents } from '../lint/a11y-components.mjs';
 import { PAIRS as CONTRAST_PAIRS } from '../tokens/contrast-pairs.mjs';
@@ -135,6 +137,11 @@ const editor = editorData(utilities, read('tokens.css'), tokenDescriptions(JSON.
 fs.mkdirSync(path.join(D, 'vscode'), { recursive: true });
 fs.writeFileSync(path.join(D, 'vscode', 'serupa.html-data.json'), JSON.stringify(editor.html) + '\n');
 fs.writeFileSync(path.join(D, 'vscode', 'serupa.css-data.json'), JSON.stringify(editor.css) + '\n');
+// Tokens for native apps (138): Swift, Kotlin and Android resources (tools/build/native-tokens.mjs).
+for (const [f, body] of Object.entries(nativeFiles(path.join(P, 'design-tokens'), version))) {
+  fs.mkdirSync(path.dirname(path.join(D, 'native', f)), { recursive: true });
+  fs.writeFileSync(path.join(D, 'native', f), body);
+}
 
 // React 19 ships no browser builds (React 18's umd/ folder), so they're built here, under the names and globals
 // React 18's had. react-dom takes React from window.React, so both use the one copy.
