@@ -103,6 +103,15 @@ describe('FileUpload', () => {
     expect([list(el).length, errs(el)]).toEqual([3, 'alert: b.jpg wasn\'t added: up to 3 files.']);
   });
 
+  test('L8E110: files that are all refused (a duplicate, a wrong type) call no onFilesChange; the list is as it was', async () => {
+    const changes: string[] = [];
+    await render(<FileUpload id="l8e110" multiple accept="image/*" onFilesChange={(f) => changes.push(f.map((x) => x.name).join('|'))} />);
+    const el = rootOf('l8e110');
+    await userEvent.upload(input(el), [file('photo.png', 'image/png', 20)]);
+    await userEvent.upload(input(el), [file('photo.png', 'image/png', 20), file('notes.txt', 'text/plain', 10)]);
+    expect([names(el), changes]).toEqual(['photo.png', ['photo.png']]);
+  });
+
   test('the remove button (named "Remove report.pdf") takes the file off the list, clears old messages and moves focus to the next file\'s remove button (FQ1)', async () => {
     await render(<Many />);
     const el = q(many);

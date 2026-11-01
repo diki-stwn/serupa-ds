@@ -25,7 +25,7 @@ export interface SliderProps<V extends SliderValue = SliderValue> extends Omit<R
   defaultValue?: V;
   /** Called with the new value as it moves (dragging, keys). */
   onValueChange?: (value: V) => void;
-  /** Called once when a drag or key press ends: for saving or fetching. */
+  /** Called once when a drag or key press that changed the value ends: for saving or fetching. */
   onValueCommit?: (value: V) => void;
   /** Default: 0. */
   min?: number;
@@ -74,7 +74,7 @@ function markList(marks: SliderProps["marks"], min: number, max: number, step: n
    is role="slider" with aria-valuenow, min, max and valuetext. Arrows change it by step (Right and Up raise it;
    Left and Right swap in right-to-left pages), PageUp, PageDown and Shift+arrows by largeStep steps, Home and End
    go to the ends. A press anywhere on the track moves the nearest thumb there; range thumbs can't cross.
-   onValueChange fires as it moves, onValueCommit once when a drag or key press ends. */
+   onValueChange fires as it moves, onValueCommit once when a drag or key press that changed it ends. */
 /** Picks a number, or a range with two thumbs, on a track. */
 export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Slider", function Slider(props, ref) {
   const nameRef = useNameCheck("Slider", NAME_HOW.field);   // warns when it has no accessible name
@@ -127,6 +127,9 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
     return vs;
   };
   const commit = () => { if (props.onValueCommit) props.onValueCommit(out(latest.current)); };
+  // The values a drag started from: a press on a thumb let go where it was, or a drag back to the start, changed
+  // nothing and calls no onValueCommit, as a key at the end doesn't (L8E109).
+  const from = React.useRef<number[]>([]);
   const fromPoint = (x: number) => {
     const r = root.current!.querySelector(".dk-slider__track")!.getBoundingClientRect();
     let share = r.width ? (x - r.left) / r.width : 0;
@@ -142,13 +145,13 @@ export const Slider = /* @__PURE__ */ component<HTMLDivElement, SliderProps>("Sl
     if (isRange) { const d0 = Math.abs(v - vs[0]), d1 = Math.abs(v - vs[1]); i = d1 < d0 || (d1 === d0 && v > vs[1]) ? 1 : 0; }
     // Read-only: a press focuses the nearest thumb, as it would a read-only input, and moves nothing.
     if (readOnly) { thumbs.current[i]?.focus({ preventScroll: true }); return; }
-    drag.current = i;
+    drag.current = i; from.current = vs.slice();
     e.currentTarget.setPointerCapture(e.pointerId);
     set(i, v);
     const t = thumbs.current[i]; if (t) t.focus({ preventScroll: true });
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => { if (rest.onPointerMove) rest.onPointerMove(e); if (drag.current != null) set(drag.current, fromPoint(e.clientX)); };
-  const end = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current == null) return; drag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); commit(); };
+  const end = (e: React.PointerEvent<HTMLDivElement>) => { if (drag.current == null) return; drag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); if (latest.current.some((v, k) => v !== from.current[k])) commit(); };
   // Your onKeyDown runs first, on the root as the key goes down to the focused part (the capture phase), so its
   // currentTarget is the root its type names, and preventDefault() in it keeps the control's own handling of that key
   // from running.
