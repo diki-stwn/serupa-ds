@@ -307,6 +307,9 @@
   --text-shadow-md: 0px 1px 1px rgb(0 0 0 / 0.1), 0px 1px 2px rgb(0 0 0 / 0.1), 0px 2px 4px rgb(0 0 0 / 0.1);
   --text-shadow-lg: 0px 1px 2px rgb(0 0 0 / 0.1), 0px 3px 2px rgb(0 0 0 / 0.1), 0px 4px 8px rgb(0 0 0 / 0.1);
   --text-shadow-none: none;
+  --dk-more-primary: var(--blue-800);
+  --dk-more-primary-hover: var(--blue-900);
+  --dk-more-focus-ring: var(--blue-700);
 }
 [data-theme="blue-dark"] {
   --primary: var(--blue-400);
@@ -352,6 +355,9 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --dk-more-primary: var(--blue-300);
+  --dk-more-primary-hover: var(--blue-200);
+  --dk-more-focus-ring: var(--blue-300);
 }
 [data-theme="violet-light"] {
   --primary: var(--violet-600);
@@ -397,6 +403,9 @@
   --info: var(--sky-700);
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
+  --dk-more-primary: var(--violet-800);
+  --dk-more-primary-hover: var(--violet-900);
+  --dk-more-focus-ring: var(--violet-700);
 }
 [data-theme="violet-dark"] {
   --primary: var(--violet-400);
@@ -442,6 +451,9 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --dk-more-primary: var(--violet-300);
+  --dk-more-primary-hover: var(--violet-200);
+  --dk-more-focus-ring: var(--violet-300);
 }
 [data-theme="emerald-light"] {
   --primary: var(--emerald-700);
@@ -487,6 +499,9 @@
   --info: var(--sky-700);
   --info-subtle: var(--sky-50);
   --info-text: var(--sky-700);
+  --dk-more-primary: var(--emerald-800);
+  --dk-more-primary-hover: var(--emerald-900);
+  --dk-more-focus-ring: var(--emerald-700);
 }
 [data-theme="emerald-dark"] {
   --primary: var(--emerald-400);
@@ -532,6 +547,9 @@
   --info: var(--sky-400);
   --info-subtle: var(--sky-950);
   --info-text: var(--sky-300);
+  --dk-more-primary: var(--emerald-300);
+  --dk-more-primary-hover: var(--emerald-200);
+  --dk-more-focus-ring: var(--emerald-300);
 }
 :where(:root:is([data-brand], [data-mode]), [data-mode]):not([data-theme]) {
   color-scheme: light dark;
@@ -575,6 +593,9 @@
   --info: light-dark(var(--sky-700), var(--sky-400));
   --info-subtle: light-dark(var(--sky-50), var(--sky-950));
   --info-text: light-dark(var(--sky-700), var(--sky-300));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :root[data-brand="blue"]:not([data-theme]), [data-brand="blue"]:not([data-theme]) {
   --primary: light-dark(var(--blue-600), var(--blue-400));
@@ -582,6 +603,9 @@
   --primary-subtle: light-dark(var(--blue-50), var(--blue-950));
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :root[data-brand="violet"]:not([data-theme]), [data-brand="violet"]:not([data-theme]) {
   --primary: light-dark(var(--violet-600), var(--violet-400));
@@ -589,6 +613,9 @@
   --primary-subtle: light-dark(var(--violet-50), var(--violet-950));
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
+  --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
+  --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
+  --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
 }
 :root[data-brand="emerald"]:not([data-theme]), [data-brand="emerald"]:not([data-theme]) {
   --primary: light-dark(var(--emerald-700), var(--emerald-400));
@@ -596,6 +623,9 @@
   --primary-subtle: light-dark(var(--emerald-50), var(--emerald-950));
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
+  --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
+  --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
+  --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));
 }
 :is([data-theme^="blue-"], [data-brand="blue"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--blue-600), var(--blue-400));
@@ -603,6 +633,9 @@
   --primary-subtle: light-dark(var(--blue-50), var(--blue-950));
   --on-primary: light-dark(var(--white), var(--blue-950));
   --focus-ring: light-dark(var(--blue-500), var(--blue-400));
+  --dk-more-primary: light-dark(var(--blue-800), var(--blue-300));
+  --dk-more-primary-hover: light-dark(var(--blue-900), var(--blue-200));
+  --dk-more-focus-ring: light-dark(var(--blue-700), var(--blue-300));
 }
 :is([data-theme^="violet-"], [data-brand="violet"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--violet-600), var(--violet-400));
@@ -610,6 +643,9 @@
   --primary-subtle: light-dark(var(--violet-50), var(--violet-950));
   --on-primary: light-dark(var(--white), var(--violet-950));
   --focus-ring: light-dark(var(--violet-500), var(--violet-400));
+  --dk-more-primary: light-dark(var(--violet-800), var(--violet-300));
+  --dk-more-primary-hover: light-dark(var(--violet-900), var(--violet-200));
+  --dk-more-focus-ring: light-dark(var(--violet-700), var(--violet-300));
 }
 :is([data-theme^="emerald-"], [data-brand="emerald"]) [data-mode]:not([data-theme], [data-brand]) {
   --primary: light-dark(var(--emerald-700), var(--emerald-400));
@@ -617,6 +653,9 @@
   --primary-subtle: light-dark(var(--emerald-50), var(--emerald-950));
   --on-primary: light-dark(var(--white), var(--emerald-950));
   --focus-ring: light-dark(var(--emerald-600), var(--emerald-400));
+  --dk-more-primary: light-dark(var(--emerald-800), var(--emerald-300));
+  --dk-more-primary-hover: light-dark(var(--emerald-900), var(--emerald-200));
+  --dk-more-focus-ring: light-dark(var(--emerald-700), var(--emerald-300));
 }
 :root[data-mode="auto"]:not([data-theme]), [data-mode="auto"]:not([data-theme]) { color-scheme: light dark; }
 :root[data-mode="light"]:not([data-theme]), [data-mode="light"]:not([data-theme]) { color-scheme: light; }
@@ -1107,7 +1146,19 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --success: light-dark(var(--green-700), var(--green-300));
+  --success-text: light-dark(var(--green-900), var(--green-200));
+  --warning: light-dark(var(--amber-700), var(--amber-300));
+  --warning-text: light-dark(var(--amber-900), var(--amber-200));
+  --danger-text: light-dark(var(--red-900), var(--red-200));
+  --info: light-dark(var(--sky-800), var(--sky-300));
+  --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
+}
+[data-contrast="more"]:not(#dk-more), [data-contrast="more"] :is([data-mode], [data-brand], [data-theme]):not(#dk-more) {
+  --primary: var(--dk-more-primary);
+  --primary-hover: var(--dk-more-primary-hover);
+  --focus-ring: var(--dk-more-focus-ring);
 }
 @media (prefers-contrast: more) {
 :root:not([data-contrast="normal"]), :root:not([data-contrast="normal"]) [data-mode]:not([data-contrast="normal"] *) {
@@ -1118,7 +1169,19 @@
   --text-muted: light-dark(var(--zinc-700), var(--zinc-300));
   --border: light-dark(var(--zinc-500), var(--zinc-400));
   --border-strong: light-dark(var(--zinc-600), var(--zinc-300));
+  --success: light-dark(var(--green-700), var(--green-300));
+  --success-text: light-dark(var(--green-900), var(--green-200));
+  --warning: light-dark(var(--amber-700), var(--amber-300));
+  --warning-text: light-dark(var(--amber-900), var(--amber-200));
+  --danger-text: light-dark(var(--red-900), var(--red-200));
+  --info: light-dark(var(--sky-800), var(--sky-300));
+  --info-text: light-dark(var(--sky-900), var(--sky-200));
   --focus-ring-width: calc(var(--outline-width-2) + var(--outline-width-1));
+}
+:root:not([data-contrast="normal"]):not(#dk-more), :root:not([data-contrast="normal"]) :is([data-mode], [data-brand], [data-theme]):not([data-contrast="normal"], [data-contrast="normal"] *, #dk-more) {
+  --primary: var(--dk-more-primary);
+  --primary-hover: var(--dk-more-primary-hover);
+  --focus-ring: var(--dk-more-focus-ring);
 }
 }
 [data-density="compact"] {
@@ -1310,15 +1373,129 @@
 }
 @font-face {
   font-family: "Inter";
-  src: url("fonts/InterVariable.woff2") format("woff2");
+  src: url("fonts/InterVariable-latin.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
   font-family: "Inter";
-  src: url("fonts/InterVariable-Italic.woff2") format("woff2");
+  src: url("fonts/InterVariable-latin-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-cyrillic-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-cyrillic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-greek-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-greek.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-vietnamese.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-symbols.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+02CD, U+02D8-02D9, U+02DB, U+0302, U+0306-0307, U+030A-031B, U+0326-0328, U+032C-036F, U+0E3F, U+1DC0-1DFF, U+2070-209C, U+20DB-2109, U+2117-2121, U+2126-2190, U+2192, U+2194-2211, U+221A-2298, U+2303-232B, U+2380-238B, U+23CE-23CF, U+2423-2468, U+24B6-24EA, U+25A0-26A0, U+2713-2788, U+27EF-27FA, U+2913, U+2A38, U+2B06-2B24, U+2E18, U+A92E, U+E000-E163, U+E1C3-E2DC, U+EE01-EEE1, U+F6C3, U+1F12F-1F16B, U+1F850-1F852;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-latin.woff2") format("woff2");
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-latin-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-cyrillic-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-cyrillic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-greek-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-greek.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-vietnamese.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/InterVariable-Italic-symbols.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+02CD, U+02D8-02D9, U+02DB, U+0302, U+0306-0307, U+030A-031B, U+0326-0328, U+032C-036F, U+0E3F, U+1DC0-1DFF, U+2070-209C, U+20DB-2109, U+2117-2121, U+2126-2190, U+2192, U+2194-2211, U+221A-2298, U+2303-232B, U+2380-238B, U+23CE-23CF, U+2423-2468, U+24B6-24EA, U+25A0-26A0, U+2713-2788, U+27EF-27FA, U+2913, U+2A38, U+2B06-2B24, U+2E18, U+A92E, U+E000-E163, U+E1C3-E2DC, U+EE01-EEE1, U+F6C3, U+1F12F-1F16B, U+1F850-1F852;
 }

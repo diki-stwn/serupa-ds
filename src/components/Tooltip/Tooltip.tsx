@@ -61,7 +61,16 @@ export const Tooltip = /* @__PURE__ */ named("Tooltip", function Tooltip(props: 
   const anchorRef = React.useRef<HTMLElement | null>(null);
   const timer = React.useRef<number | undefined>(undefined);
   const onOpenChange = React.useRef(props.onOpenChange); onOpenChange.current = props.onOpenChange;
-  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => { window.clearTimeout(timer.current); if (!controlled) setInner(v); if (onOpenChange.current) onOpenChange.current(v, { reason }); }, [controlled]);
+  // What it shows, and whether it may show: a press, a blur or the pointer leaving while it's hidden (or one of them
+  // while disabled) asked onOpenChange to hide it, or to show it, when nothing was to change (L8E106).
+  const shown = React.useRef(open); shown.current = open;
+  const off = React.useRef(props.disabled); off.current = props.disabled;
+  const set = React.useCallback((v: boolean, reason: OpenChangeReason) => {
+    window.clearTimeout(timer.current);
+    if (v === shown.current || (v && off.current)) return;
+    if (!controlled) { shown.current = v; setInner(v); }
+    if (onOpenChange.current) onOpenChange.current(v, { reason });
+  }, [controlled]);
   const later = (v: boolean, ms: number) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => set(v, "hover"), ms); };
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
   // The open tooltip is the warm one: opening another closes it, and closing it keeps others warm for hoverWarm.

@@ -312,4 +312,30 @@ describe('Popover: motion (DZ1)', () => {
       expect([isOpen('tshare'), runs(p).length > 0]).toEqual([true, true]);
     });
   });
+
+  test('L8E104: the <dialog> it sits in closing closes it, so it is not open again when the dialog reopens', async () => {
+    await render(<dialog id="l8e104d"><Popover aria-label="Share" trigger={<Button id="l8e104t">Share</Button>}><p>Link</p></Popover></dialog>);
+    const d = el('l8e104d') as HTMLDialogElement;
+    d.showModal();
+    await userEvent.click(el('l8e104t'));
+    d.close();
+    // The close event comes in a task after close().
+    await new Promise((r) => setTimeout(r, 50));
+    d.showModal();
+    expect([el('l8e104t').getAttribute('aria-expanded'), panel('l8e104t').matches(':popover-open')]).toEqual(['false', false]);
+    d.close();
+  });
+
+  test('L8E113: a close() kept by the content and called after the popover closed calls no onOpenChange', async () => {
+    const calls: string[] = [];
+    let shut = () => {};
+    await render(<Popover title="Edit" trigger={<Button id="l8e113t">Edit</Button>} onOpenChange={(v, d) => calls.push(v + ':' + d.reason)}>
+      {(close) => { shut = close; return <input aria-label="Name" />; }}
+    </Popover>);
+    await userEvent.click(el('l8e113t'));
+    await userEvent.keyboard('{Escape}');
+    shut();   // a save that finished after Escape, say
+    await new Promise((r) => setTimeout(r, 50));
+    expect(calls).toEqual(['true:trigger', 'false:escape']);
+  });
 });

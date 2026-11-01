@@ -74,7 +74,8 @@ export interface ${name}Props extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 }
 
-/** ${TODO}: one line on what ${name} is for. */
+/** ${TODO}: one line on what ${name} is for.
+ *  @beta New: its API may still change in a minor release. Take this tag off once it has shipped with its bug bash done (CONTRIBUTING.md). */
 export const ${name} = /* @__PURE__ */ component<HTMLDivElement, ${name}Props>("${name}", function ${name}(props, ref) {
   const { className, ...rest } = props;
   return <div {...rest} ref={ref} className={cn("dk-${kebab}", className)} data-component="${kebab}" />;
@@ -207,12 +208,14 @@ import { ${name} } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one ${name}. The list lives in \`src/components/${name}/${kebab}.tokens.json\` (also in \`design-tokens/components/\`).
 
+<!-- token-table:start (made from ${kebab}.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | \`--${kebab}-bg\` | \`surface\` | The background. |
 | \`--${kebab}-text\` | \`text\` | The text (4.5:1 on bg). |
 | \`--${kebab}-radius\` | \`rounded-md\` | The corners (6px). |
 | \`--${kebab}-padding\` | \`spacing-4\` | Space inside, on every side (16px). |
+<!-- token-table:end -->
 `,
   'preview.html': `<!doctype html>
 <html>
@@ -245,6 +248,7 @@ console.log(`Made src/components/${name}/ (${Object.keys(files).length} files) a
   1. Fill in every ${TODO} (contract.mjs fails while one is left), and build the component.
   2. npm run tokens (its tokens file in design-tokens/), npm run build, then node tools/test/api.mjs --update and
      node tools/test/size.mjs --update ${name}.
-  3. The motion review and the worst-case review (CONTRIBUTING.md, "Two reviews by eye").
+  3. The motion review and the worst-case review, and before its first release the bug bash (CONTRIBUTING.md,
+     "Reviews by eye"). A component that takes a name goes in src/internal/formContract.test.tsx.
   4. npx changeset (minor: "Added: ${name} …").
   5. Open the pull request and add the "update-visual-baselines" label for its pictures.`);

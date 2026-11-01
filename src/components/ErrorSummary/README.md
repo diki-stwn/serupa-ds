@@ -59,6 +59,7 @@ import { ErrorSummary } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one ErrorSummary. The list lives in `src/components/ErrorSummary/error-summary.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from error-summary.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--error-summary-bg` | `surface` | The background. |
@@ -71,3 +72,4 @@ Each is an optional override: set it on the page, a container or one ErrorSummar
 | `--error-summary-padding` | `spacing-4` | Space inside, on every side (16px). |
 | `--error-summary-gap` | `spacing-2` | Space between the heading, the description and the list (8px). |
 | `--error-summary-title-weight` | `font-semibold` | The heading's weight. |
+<!-- token-table:end -->

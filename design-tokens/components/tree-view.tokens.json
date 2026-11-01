@@ -35,7 +35,7 @@
       "item-bg-selected": {
         "$type": "color",
         "$value": "{color.highlight}",
-        "$description": "The picked row's background (the text reads 4.5:1 on it).",
+        "$description": "The picked row's background.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tree-view-item-bg-selected"
@@ -55,7 +55,7 @@
       "icon-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The chevrons and item icons (3:1 on bg).",
+        "$description": "The chevrons and item icons.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tree-view-icon-color"
@@ -87,7 +87,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "The corners (6px).",
+        "$description": "The tree's corners (6px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tree-view-radius"
@@ -109,7 +109,7 @@
       "padding": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Space inside, on every side (4px).",
+        "$description": "Space inside the tree (4px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--tree-view-padding"

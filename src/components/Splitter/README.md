@@ -83,9 +83,11 @@ import { Splitter } from "serupa-ds";
 
 Each is an optional override: set it on the page, a container or one Splitter. The list lives in `src/components/Splitter/splitter.tokens.json` (also in `design-tokens/components/`).
 
+<!-- token-table:start (made from splitter.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--splitter-line` | `field-border` | The handle's line (3:1 on the page). |
 | `--splitter-line-active` | `primary` | The line on hover, while dragged and on focus. |
 | `--splitter-focus-ring` | `focus-ring` | The handle's focus ring. |
 | `--splitter-handle-size` | `spacing-2` | How thick the handle is, the area a pointer can grab (8px). |
+<!-- token-table:end -->

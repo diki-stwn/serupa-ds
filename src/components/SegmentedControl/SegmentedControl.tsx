@@ -7,6 +7,7 @@ import { component } from "../../internal/component";
 import { useFormReset } from "../../internal/useFormReset";
 import { lastInputKeyboard, listenForInput } from "../../internal/lastInput";
 import { useFieldLabel } from "../../internal/fieldLabel";
+import { useFieldControl } from "../../internal/field";
 import { delegateFocus, useAutoFocus } from "../../internal/focus";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 
@@ -59,6 +60,9 @@ const OWN = { options: 1, value: 1, defaultValue: 1, onValueChange: 1, size: 1, 
 /** Picks one of a few options shown side by side: a radio group drawn as segments. */
 export const SegmentedControl = /* @__PURE__ */ component<HTMLDivElement, SegmentedControlProps>("SegmentedControl", function SegmentedControl(props, ref) {
   const nameRef = useNameCheck("SegmentedControl", NAME_HOW.group);   // warns when it has no accessible name
+  // A surrounding Field's id, hint, error, required and disabled, at any depth: one in a row with a note after it
+  // (<div><SegmentedControl /><span>UTC</span></div>) was left unnamed, undescribed and enabled (L8E85).
+  props = useFieldControl(props);
   const rest = omit(props, OWN);
   const options = props.options || [];
   const disabled = !!props.disabled;

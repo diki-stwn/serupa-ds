@@ -5,7 +5,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The text in the button (4.5:1 on the page and on the hover background).",
+        "$description": "The text in the button.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-text"
@@ -15,7 +15,7 @@
       "placeholder": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The placeholder when the text is empty (4.5:1 on the page).",
+        "$description": "The placeholder when the text is empty.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-placeholder"
@@ -25,7 +25,7 @@
       "text-disabled": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The text of a disabled InlineEdit (4.5:1 on the page).",
+        "$description": "The text of a disabled InlineEdit.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-text-disabled"
@@ -35,7 +35,7 @@
       "icon": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The pencil, on hover and focus (3:1).",
+        "$description": "The pencil.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-icon"
@@ -45,7 +45,7 @@
       "bg-hover": {
         "$type": "color",
         "$value": "{color.surface-muted}",
-        "$description": "The button's background on hover (surface-muted, so the muted placeholder keeps 4.5:1 on it).",
+        "$description": "The button's background on hover.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-bg-hover"
@@ -55,7 +55,7 @@
       "error": {
         "$type": "color",
         "$value": "{color.danger-text}",
-        "$description": "The error message under the field (4.5:1).",
+        "$description": "The validation message.",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-error"
@@ -77,7 +77,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "The button's corners, like Input's (6px).",
+        "$description": "The button's corners (6px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-radius"
@@ -89,7 +89,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-1}",
-        "$description": "Space between the field and its error message (4px).",
+        "$description": "Space between the field and its message (4px).",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--inline-edit-gap"

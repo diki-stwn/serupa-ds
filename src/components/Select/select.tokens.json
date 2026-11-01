@@ -5,7 +5,7 @@
       "bg": {
         "$type": "color",
         "$value": "{color.field}",
-        "$description": "Field background, and the options' background where the browser draws them.",
+        "$description": "Background, and the options where the browser draws them",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-bg"
@@ -15,7 +15,7 @@
       "bg-disabled": {
         "$type": "color",
         "$value": "{color.field-readonly}",
-        "$description": "Background when disabled.",
+        "$description": "Background when disabled",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-bg-disabled"
@@ -25,7 +25,7 @@
       "text": {
         "$type": "color",
         "$value": "{color.text}",
-        "$description": "The chosen value, and the options where the browser draws them.",
+        "$description": "The chosen value, and the options where the browser draws them",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-text"
@@ -35,7 +35,7 @@
       "border": {
         "$type": "color",
         "$value": "{color.field-border}",
-        "$description": "Border (3:1 on the field and the page in every theme).",
+        "$description": "Border",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-border"
@@ -45,7 +45,7 @@
       "border-hover": {
         "$type": "color",
         "$value": "{color.field-border-hover}",
-        "$description": "Border on hover.",
+        "$description": "Border on hover",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-border-hover"
@@ -55,7 +55,7 @@
       "placeholder": {
         "$type": "color",
         "$value": "{color.placeholder}",
-        "$description": "The placeholder, until something is picked (4.5:1 on the field).",
+        "$description": "The placeholder",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-placeholder"
@@ -65,7 +65,7 @@
       "icon-color": {
         "$type": "color",
         "$value": "{color.text-muted}",
-        "$description": "The chevron and the left icon.",
+        "$description": "Chevron and left icon",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-icon-color"
@@ -75,7 +75,7 @@
       "focus-ring": {
         "$type": "color",
         "$value": "{color.focus-ring}",
-        "$description": "Border and ring while focused.",
+        "$description": "Border and ring while focused",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-focus-ring"
@@ -85,7 +85,7 @@
       "invalid": {
         "$type": "color",
         "$value": "{color.danger}",
-        "$description": "Border and focus ring when invalid.",
+        "$description": "Border and ring when invalid",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-invalid"
@@ -189,7 +189,7 @@
       "gap": {
         "$type": "dimension",
         "$value": "{spacing.spacing-2}",
-        "$description": "Gap between an icon and the text (8px).",
+        "$description": "Gap between an icon and the text (8px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-gap"
@@ -201,7 +201,7 @@
       "border-width": {
         "$type": "dimension",
         "$value": "{borders.border-width-1}",
-        "$description": "Border width (1px); the focus ring adds as much again.",
+        "$description": "Border width (1px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-border-width"
@@ -211,7 +211,7 @@
       "radius": {
         "$type": "dimension",
         "$value": "{radius.rounded-md}",
-        "$description": "Corner radius (6px), like Input and Button.",
+        "$description": "Corner radius (6px)",
         "$extensions": {
           "com.serupa": {
             "cssVar": "--select-radius"

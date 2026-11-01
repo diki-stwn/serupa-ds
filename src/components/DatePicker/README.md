@@ -85,6 +85,7 @@ const [due, setDue] = React.useState<Date | null>(null);
 
 Each is an optional override: set it on the page, a container or one picker. The list lives in `src/components/DatePicker/date-picker.tokens.json` (also in `design-tokens/components/`). The calendar inside uses the `--calendar-*` tokens.
 
+<!-- token-table:start (made from date-picker.tokens.json by npm run tokens: edit the descriptions there) -->
 | Token | Default | Use |
 | --- | --- | --- |
 | `--date-picker-button` | `text-muted` | The calendar button's icon (3:1 on the field). |
@@ -99,6 +100,7 @@ Each is an optional override: set it on the page, a container or one picker. The
 | `--date-picker-popup-padding` | `spacing-3` | Space inside it (12px). |
 | `--date-picker-offset` | `spacing-1` | The gap between the field and the panel (4px). |
 | `--date-picker-z-index` | `z-popover` | The panel's stacking order, where the top layer isn't available. |
+<!-- token-table:end -->
 
 The field itself uses Input's box (the `dk-input` classes and `--input-*` tokens), so it lines up with other fields.
 
