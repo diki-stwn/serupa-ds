@@ -132,7 +132,9 @@ if (D) {
   // with a /* @__PURE__ */ mark and nothing else runs at the top of a module, so Divider alone is a few hundred bytes.
   const alone = (name) => zlib.gzipSync(esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, minify: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js', './material/parts.js'], logLevel: 'silent' }).outputFiles[0].contents).length;
   const shaken = { Divider: alone('Divider'), toast: alone('toast') };
-  t('a bundler drops the components a project doesn\'t import (Divider or toast alone: under 2 KB gzipped)', shaken.Divider < 2048 && shaken.toast < 2048, JSON.stringify(shaken));
+  // toast alone was 2.0 KB until 1 Nov 2026, when its queue moved onto the page (G2, pageShared): 2.5 KB still
+  // shows the rest of the package is dropped (all of it is over 100 KB).
+  t('a bundler drops the components a project doesn\'t import (Divider alone: under 2 KB gzipped, toast alone: under 2.5 KB)', shaken.Divider < 2048 && shaken.toast < 2560, JSON.stringify(shaken));
   // …and the icons they don't draw: Dialog keeps its close icon, Button keeps none.
   const code = (name) => esbuild.buildSync({ stdin: { contents: `import { ${name} } from './dist/index.js'; console.log(${name});`, resolveDir: PROJECT }, bundle: true, write: false, format: 'esm', external: ['react', 'react-dom', './material/icons.js', './material/named.js', './material/parts.js'], logLevel: 'silent' }).outputFiles[0].text;
   const drawn = (js) => [...js.matchAll(/name: "([a-z0-9_]+)",\s*d: "/g)].map((m) => m[1]);

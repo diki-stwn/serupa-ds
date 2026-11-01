@@ -29,7 +29,7 @@ describe('lang on text in a locale of its own', () => {
     </div></SerupaProvider>);
     expect([langOf(el('fn')), langOf(el('fn2')), langOf(el('fn3')), langOf(el('rt'))]).toEqual(['id-ID', null, null, 'id-ID']);
     const cal = el('cal');
-    expect([langOf(cal), langOf(cal.querySelector('.dk-calendar__title')), langOf(cal.querySelector('table')), langOf(cal.querySelector('.dk-calendar__nav'))]).toEqual([null, 'id-ID', 'id-ID', null]);
+    expect([langOf(cal), langOf(cal.querySelector('[aria-live]')), langOf(cal.querySelector('table')), langOf(cal.querySelector('button'))]).toEqual([null, 'id-ID', 'id-ID', null]);
     expect([langOf(el('dp')), langOf(el('tp')), langOf(el('ni')), langOf(el('ni2'))]).toEqual(['id-ID', 'id-ID', 'id-ID', 'ms']);   // your own lang wins
   });
 });

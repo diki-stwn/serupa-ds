@@ -79,6 +79,15 @@ export function formatNumber(n: number, locale?: string, options?: Intl.NumberFo
   return f.format(n);
 }
 
+/** f.format(n), except that a negative number that rounds to zero is written as zero: -0.004 in dollars is "$0.00",
+    not "-$0.00", and -0 is "0", as a minus says the shown value is below zero. A signDisplay of your own is kept.
+    (signDisplay "negative" does the same from ES2023; this works in every engine.) */
+export function formatSign(f: Intl.NumberFormat, n: number | bigint): string {
+  if (typeof n !== "number" || !(n < 0 || Object.is(n, -0)) || f.resolvedOptions().signDisplay !== "auto") return f.format(n);
+  const zero = f.format(0);
+  return f.format(-n) === zero ? zero : f.format(n);
+}
+
 // module state: a cache by locale and options.
 const shown = new Map<string, Intl.NumberFormat>();
 /** A number to show, not to type: in the locale's own digits and signs, as Calendar shows its days ("٤٥٪" in ar-EG,
@@ -87,5 +96,5 @@ export function displayNumber(n: number, locale?: string, options?: Intl.NumberF
   const key = (locale || "") + "|" + (options ? JSON.stringify(options) : "");
   let f = shown.get(key);
   if (!f) shown.set(key, f = new Intl.NumberFormat(locale, options));
-  return f.format(n);
+  return formatSign(f, n);
 }

@@ -1,0 +1,113 @@
+{
+  "skipLink": {
+    "$description": "SkipLink's component tokens. Each one is an optional override: set the CSS variable (--skip-link-<name>) on the page, a container or one SkipLink, and every SkipLink inside follows. Unset, it uses the shared token it references here; tools/test/foundation.mjs checks that bundle.css uses exactly these defaults.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.surface-raised}",
+        "$description": "The shown link's background.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-bg"
+          }
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "The link's text (4.5:1 on its background).",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-text"
+          }
+        }
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.border-raised}",
+        "$description": "The shown link's border.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-border"
+          }
+        }
+      },
+      "focus-ring": {
+        "$type": "color",
+        "$value": "{color.focus-ring}",
+        "$description": "The focus ring around it while it's shown.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-focus-ring"
+          }
+        }
+      }
+    },
+    "shadow": {
+      "shadow": {
+        "$type": "shadow",
+        "$value": "{shadow.shadow-lg}",
+        "$description": "Lifts it above the page and a sticky Navbar.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-shadow"
+          }
+        }
+      }
+    },
+    "border": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.rounded-md}",
+        "$description": "Its corners.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-radius"
+          }
+        }
+      },
+      "border-width": {
+        "$type": "dimension",
+        "$value": "{borders.border-width-1}",
+        "$description": "Its border's width.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-border-width"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "offset": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-3}",
+        "$description": "How far it sits from the viewport's top and start edges.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-offset"
+          }
+        }
+      },
+      "padding-x": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-4}",
+        "$description": "Space at its start and end.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-padding-x"
+          }
+        }
+      },
+      "padding-y": {
+        "$type": "dimension",
+        "$value": "{spacing.spacing-2}",
+        "$description": "Space above and below its text.",
+        "$extensions": {
+          "com.serupa": {
+            "cssVar": "--skip-link-padding-y"
+          }
+        }
+      }
+    }
+  }
+}

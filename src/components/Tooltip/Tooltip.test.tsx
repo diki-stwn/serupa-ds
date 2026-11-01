@@ -109,6 +109,21 @@ describe('Tooltip', () => {
     expect(isOpen('a')).toBe(false);
   });
 
+  test('Escape while the pointer waits out the delay cancels the show; leaving and coming back shows it again (GR89)', async () => {
+    const asks: string[] = [];
+    await render(<div style={{ padding: '120px 200px' }}><Tooltip content="Edit the file" delay={500} onOpenChange={(v, d) => asks.push(v + ' ' + d.reason)}><button id="a">Edit</button></Tooltip></div>);
+    await userEvent.hover(el('a'));
+    await settle(150);
+    await userEvent.keyboard('{Escape}');
+    await settle(700);
+    expect([isOpen('a'), asks]).toEqual([false, []]);
+    await away();
+    await settle(400);
+    await userEvent.hover(el('a'));
+    await expect.poll(() => isOpen('a')).toBe(true);
+    expect(asks).toEqual(['true hover']);
+  });
+
   test('keyboard focus shows it at once; moving on hides it; bottom puts it 6px below; right-start to the right, tops lined up; a press hides it', async () => {
     await render(<div style={{ padding: '120px 200px', display: 'flex', gap: '24px' }}>
       <Tooltip content="First"><button id="a">A</button></Tooltip>
