@@ -432,11 +432,11 @@ describe('Slider at 320px (GM2)', () => {
     await render(<div style={{ width: '200px' }}><Slider id="gm2-f" aria-label="Volume" defaultValue={50} marks={marks} /></div>);
     const inside = () => {
       const box = el('gm2-f').getBoundingClientRect();
-      return [...el('gm2-f').querySelectorAll<HTMLElement>('.dk-slider__mark-label > span')].every((p) => { const r = p.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5; });
+      return [...el('gm2-f').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')].every((p) => { const r = p.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5; });
     };
     expect(inside()).toBe(true);
     const size = el('gm2-f').getBoundingClientRect().width;
-    for (const p of el('gm2-f').querySelectorAll<HTMLElement>('.dk-slider__mark-label > span')) p.style.letterSpacing = '2px';
+    for (const p of el('gm2-f').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')) p.style.letterSpacing = '2px';
     await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
     expect([el('gm2-f').getBoundingClientRect().width, inside()]).toEqual([size, true]);
   });
