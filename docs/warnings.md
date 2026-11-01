@@ -32,7 +32,7 @@ A Field's label points at its control by id, and nothing on the page has that id
 
 ## icon-button-no-title
 
-IconButton was given `noTitle`, the old name of `hideTitle`. It still leaves out the title, the same as before; 12.0.0 takes it away. Rename it to `hideTitle`.
+IconButton was given `noTitle`, the old name of `hideTitle`. It still leaves out the title, the same as before; 13.0.0 takes it away. Rename it to `hideTitle`.
 
 ## icon-load
 
@@ -88,7 +88,7 @@ Splitter needs exactly two children, its two panes.
 
 ## table-caption-hidden
 
-Table was given `captionHidden`, the old name of `hideCaption`. It still hides the caption on screen and keeps it for screen readers, the same as before; 12.0.0 takes it away. Rename it to `hideCaption`.
+Table was given `captionHidden`, the old name of `hideCaption`. It still hides the caption on screen and keeps it for screen readers, the same as before; 13.0.0 takes it away. Rename it to `hideCaption`.
 
 ## tabs-removed
 
