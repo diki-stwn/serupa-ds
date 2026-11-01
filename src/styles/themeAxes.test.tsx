@@ -261,7 +261,7 @@ describe('Density axis', () => {
     expect(Math.max(pr, pg, pb, er, eg, eb)).toBeLessThan(0.35);
   });
 
-  test('data-type-scale="fluid" (22): text-2xl and up shrink to 70% on a 320px viewport and reach full size at 1280px; body sizes and fixed sections stay put; zoom still doubles them', async () => {
+  test('data-type-scale="fluid" (22): text-2xl and up shrink to 70% on a 320px viewport and reach full size at 1280px; body sizes and fixed sections stay put; browser zoom doubles them by 300% (GR82)', async () => {
     root.setAttribute('data-type-scale', 'fluid');
     await render(<div>
       <h1 id="ft-h" className="type-heading-1">Title</h1>
@@ -279,11 +279,17 @@ describe('Density axis', () => {
       await page.viewport(800, 700);
       const mid = px('ft-h');
       expect(mid > 21 && mid < 30).toBe(true);
-      // WCAG 1.4.4: at 200% zoom (a 32px root on a 320px viewport) the size still doubles.
-      root.style.fontSize = '32px';
-      await page.viewport(320, 700);
-      expect(px('ft-h')).toBe(42);
-    } finally { root.style.fontSize = ''; await page.viewport(900, 700); }
+      // WCAG 1.4.4 (GR82): browser zoom keeps 1rem at 16 CSS px and narrows the viewport, so Z% zoom in a W-wide
+      // window draws Z/100 × the size at W / (Z/100). At 200% a heading grows about 1.6 times; by 300% it is at least
+      // double in every window.
+      for (const w of [640, 1280, 1440, 1920]) {
+        await page.viewport(w, 700);
+        const full = ['ft-h', 'ft-9'].map(px);
+        await page.viewport(Math.round(w / 3), 700);
+        const zoomed = ['ft-h', 'ft-9'].map((id) => 3 * px(id));
+        zoomed.forEach((z, i) => expect(z / full[i], `${w}px window, 300% zoom`).toBeGreaterThanOrEqual(2));
+      }
+    } finally { await page.viewport(900, 700); }
   });
 
   test('a nested data-mode section has its own text color and surface, not the page\'s; a class background still wins', async () => {
