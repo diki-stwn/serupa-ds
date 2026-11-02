@@ -1,4 +1,4 @@
-// exports: type SortDirection, Table, TableActionBar, type TableActionBarProps, TableBody, type TableBodyProps, TableCell, type TableCellProps, TableFoot, type TableFootProps, TableHead, TableHeaderCell, type TableHeaderCellProps, type TableHeadProps, type TableProps, TableRow, type TableRowProps, TableSelectCell, type TableSelectCellProps
+// exports: type SortDirection, Table, TableActionBar, type TableActionBarProps, TableBody, type TableBodyProps, TableCell, type TableCellProps, TableFoot, type TableFootProps, TableHead, TableHeaderCell, type TableHeaderCellProps, type TableHeadProps, type TableProps, TableRow, type TableRowProps, TableSelectCell, type TableSelectCellProps, TableVirtualBody, type TableVirtualBodyProps
 interface TableLabels {
     table: string;
     tableSorted: (column: string, direction: "ascending" | "descending") => string;
@@ -46,6 +46,14 @@ type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
 type TableFootProps = React.HTMLAttributes<HTMLTableSectionElement>;
 declare const TableHead: React.ForwardRefExoticComponent<TableHeadProps & React.RefAttributes<HTMLTableSectionElement>>;
 declare const TableBody: React.ForwardRefExoticComponent<TableBodyProps & React.RefAttributes<HTMLTableSectionElement>>;
+interface TableVirtualBodyProps extends Omit<React.HTMLAttributes<HTMLTableSectionElement>, "children"> {
+    count: number;
+    renderRow: (index: number) => React.ReactElement;
+    itemKey?: (index: number) => React.Key;
+    estimatedRowHeight?: number;
+    overscan?: number;
+}
+declare const TableVirtualBody: React.ForwardRefExoticComponent<TableVirtualBodyProps & React.RefAttributes<HTMLTableSectionElement>>;
 declare const TableFoot: React.ForwardRefExoticComponent<TableFootProps & React.RefAttributes<HTMLTableSectionElement>>;
 declare const TableRow: React.ForwardRefExoticComponent<TableRowProps & React.RefAttributes<HTMLTableRowElement>>;
 declare const TableSelectCell: React.ForwardRefExoticComponent<TableSelectCellProps & React.RefAttributes<HTMLInputElement>>;
