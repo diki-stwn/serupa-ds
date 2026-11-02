@@ -111,6 +111,23 @@ describe('ErrorBoundary', () => {
     await expect.poll(() => document.activeElement?.id).toBe('widget');
   });
 
+  test('inside a shadow root, Try again moves focus to what came back too, not the page (GR95)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      broken = true;
+      await render(<div><input id="before" /><ErrorBoundary><Widget /></ErrorBoundary></div>, { container: inner });
+      const sr = host.shadowRoot!;
+      const again = [...sr.querySelectorAll('button')].find((b) => b.textContent === 'Try again')!;
+      again.focus();
+      broken = false;
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => sr.activeElement?.id).toBe('widget');
+    } finally { host.remove(); }
+  });
+
   test('focus after recovering goes to the first part in the Tab order and shown: past a hidden button and a tab that isn\'t the current one (L8E24)', async () => {
     broken = true;
     function Views(): React.ReactElement {

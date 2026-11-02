@@ -6,6 +6,7 @@ import { Icon } from "../Icon/Icon";
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox";
 import { Button } from "../Button/Button";
 import { component } from "../../internal/component";
+import { activeIn } from "../../internal/root";
 import { warnOnce } from "../../internal/warn";
 import { useLocale, useSettings } from "../../internal/provider";
 import { displayNumber } from "../../internal/numbers";
@@ -264,7 +265,7 @@ export const TableActionBar = /* @__PURE__ */ component<HTMLDivElement, TableAct
   // Hidden (not removed) at 0, so focus is still in it here and can go to the table's "Select all" before it's lost.
   useIsoLayoutEffect(() => {
     const bar = self.current;
-    if (count || !bar || !bar.contains(document.activeElement)) return;
+    if (count || !bar || !bar.contains(activeIn(bar))) return;   // its own root's focus, in a shadow root too (GR95)
     const box = bar.nextElementSibling && bar.nextElementSibling.querySelector<HTMLInputElement>('input[type="checkbox"]:not(:disabled)');
     if (box) box.focus();
   }, [count]);

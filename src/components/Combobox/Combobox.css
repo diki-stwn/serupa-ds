@@ -22,6 +22,8 @@
   /* At least as wide as the field (set by the script), at most 28rem, so one long label wraps instead of widening the list. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--combobox-listbox-max-width, var(--container-md)));
   max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
+  /* Its rows lay out and paint inside it (it scrolls, so it clips already): a row changing never relays out the page (I3). */
+  contain: layout paint;
   margin: var(--spacing-0); padding: var(--combobox-listbox-padding, var(--spacing-1));
   border: var(--border-width-1) solid var(--combobox-listbox-border, var(--border-overlay));
   border-radius: var(--combobox-listbox-radius, var(--rounded-lg)); background: var(--combobox-listbox-bg, var(--surface-overlay));

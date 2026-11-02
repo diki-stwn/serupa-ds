@@ -385,6 +385,23 @@ describe('TableActionBar (62)', () => {
     expect(document.activeElement).toBe(box('Select all rows'));
   });
 
+  test('inside a shadow root, Clear with focus in the bar moves focus to "Select all" too, not the page (GR95)', async () => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const inner = document.createElement('div');
+    host.attachShadow({ mode: 'open' }).append(inner);
+    try {
+      await render(<Picker log={[]} />, { container: inner });
+      const sr = host.shadowRoot!, cb = (name: string) => sr.querySelector<HTMLInputElement>(`input[aria-label="${name}"]`)!;
+      cb('Select Grace').click();
+      await expect.poll(() => sr.getElementById('bar')!.hidden).toBe(false);
+      [...sr.getElementById('bar')!.querySelectorAll('button')].find((b) => b.textContent === 'Clear selection')!.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect.poll(() => sr.getElementById('bar')!.hidden).toBe(true);
+      expect(sr.activeElement).toBe(cb('Select all rows'));
+    } finally { host.remove(); }
+  });
+
   test('a new count is read out ("3 selected"), not on the first render or at 0; Indonesian words', async () => {
     const said: string[] = [];
     const seen = new MutationObserver(() => { const t = document.querySelector('[data-dk-announcer]')?.textContent; if (t) said.push(t); });
@@ -508,7 +525,11 @@ describe('TableRow href (TF3)', () => {
 describe('Table: no negative zero (GR84)', () => {
   test('a cell holding -0 shows 0, and a real negative keeps its minus', async () => {
     await render(<Table id="tnz"><TableBody><TableRow><TableCell id="cz">{-0}</TableCell><TableCell id="cn">{-2}</TableCell></TableRow></TableBody></Table>);
-    expect(document.getElementById('cz')!.textContent).toBe('0');
-    expect(document.getElementById('cn')!.textContent).not.toBe('2');
+    // In the locale the tests run in: ar-EG writes 0 as ٠ and its minus with a direction mark.
+    const minus = /[-\u2212]/;
+    const zero = document.getElementById('cz')!.textContent;
+    expect(zero).not.toMatch(minus);
+    expect(Number(zero.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[^\d]/g, ''))).toBe(0);
+    expect(document.getElementById('cn')!.textContent).toMatch(minus);
   });
 });

@@ -20,6 +20,8 @@
   margin: var(--spacing-0);
   padding: var(--menu-padding, var(--spacing-1));
   overflow-y: auto; overscroll-behavior: contain;
+  /* Its rows lay out and paint inside it (it scrolls, so it clips already): a row changing never relays out the page (I3). */
+  contain: layout paint;
   border: var(--menu-border-width, var(--border-width-1)) solid var(--menu-border, var(--border-overlay));
   border-radius: var(--menu-radius, var(--rounded-lg));
   background: var(--menu-bg, var(--surface-overlay));

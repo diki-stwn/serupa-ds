@@ -11,7 +11,8 @@
   background: transparent; color: inherit; font: inherit; font-size: var(--text-base); outline: none;
 }
 .dk-command-palette__field::placeholder { color: var(--command-palette-muted, var(--text-muted)); }
-.dk-command-palette__list { max-height: var(--command-palette-list-height, var(--spacing-80)); overflow-y: auto; overscroll-behavior: contain; }
+/* Its rows lay out and paint inside it (it scrolls, so it clips already): a row changing never relays out the dialog (I3). */
+.dk-command-palette__list { max-height: var(--command-palette-list-height, var(--spacing-80)); overflow-y: auto; overscroll-behavior: contain; contain: layout paint; }
 .dk-command-palette__group + .dk-command-palette__group { margin-top: var(--spacing-2); }
 .dk-command-palette__heading { padding: var(--spacing-1) var(--spacing-2); font-size: var(--text-xs); font-weight: var(--font-semibold); color: var(--command-palette-heading, var(--text-muted)); }
 .dk-command-palette__option {

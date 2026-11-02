@@ -75,7 +75,7 @@ const EQUIV = [['none', undefined], ['normal', undefined], ['row', undefined], [
 const equiv = (a, b) => EQUIV.some(([x, y]) => (norm(a) === x && b === y) || (norm(b) === x && a === y)) || (a && b && norm(a).split(', ').every((x, i, arr) => x === arr[0]) && norm(b).split(', ').every((x, i, arr) => x === arr[0]) && norm(a).split(', ')[0] === norm(b).split(', ')[0]);
 
 // ---------- measurement (runs in both engines)
-const css = read('dist/bundle.css').replace(/\/\*[\s\S]*?\*\//g, '');
+const css = (read('dist/bundle.css') + read('dist/utilities-extra.css')).replace(/\/\*[\s\S]*?\*\//g, '');
 const unescape = (n) => n.replace(/\\([0-9a-f]{1,6}) ?/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/\\(.)/g, '$1');
 const classes = [...new Set([...css.matchAll(/(?:^|[\s,}(])\.((?:[a-z0-9-]|\\[0-9a-f]{1,6} ?|\\.)+)(?=[\s{,:)>])/gim)].map((m) => unescape(m[1])))].filter((c) => !c.startsWith('dk-')).sort();
 const internal = [...new Set([...css.matchAll(/--dk-[a-z0-9-]+/g)].map((m) => m[0]))];
@@ -90,7 +90,7 @@ const measure = ([list, internal]) => {
     props.forEach((p) => { const v = s.getPropertyValue(p); if (v !== bv[p]) o[p] = v; const v1 = s1.getPropertyValue(p); if (v1 !== b1[p]) o['child ' + p] = v1; }); return o; }) };
 };
 // Neutral page: the same font, line height and margins in every engine, so only the system's CSS is compared.
-const PAGE = () => writePage('compat.html', '<div id="host" style="position:relative;width:1000px;font-family:var(--font-sans);font-size:16px;line-height:20px"></div>', { extraHead: '<style>html,body{margin:0}</style>' });
+const PAGE = () => writePage('compat.html', '<div id="host" style="position:relative;width:1000px;font-family:var(--font-sans);font-size:16px;line-height:20px"></div>', { extraHead: '<style>html,body{margin:0}</style>', extra: true });
 async function measureAll(page) {
   await page.goto(PAGE());
   await page.evaluate(() => document.fonts.ready);
