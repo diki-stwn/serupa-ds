@@ -19,6 +19,7 @@ import { fold } from "../../internal/fold";
 import { announce } from "../../internal/announce";
 import { NAME_HOW, useNameCheck } from "../../internal/nameCheck";
 import { Badge } from "../Badge/Badge";
+import { Highlight } from "../Highlight/Highlight";
 import { en as words } from "./labels";
 import { windowBlur } from "../../internal/focus";
 import { announcePause, typingPause } from "../../internal/timing";
@@ -85,7 +86,7 @@ const CAP = 100;   // the most option rows the list puts in the page at once
 interface Opt { value: string; label: string; description?: React.ReactNode; disabled?: boolean; i: number; folded: string }
 
 /* One option row. Memoised, so moving the active option re-renders the two rows that change, not the whole list. */
-const Row = /* @__PURE__ */ React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; pos: number; size: number; onMove: (i: number) => void; onPick: (i: number) => void }) {
+const Row = /* @__PURE__ */ React.memo(function Row(p: { o: Opt; id: string; active: boolean; selected: boolean; pos: number; size: number; query: string; onMove: (i: number) => void; onPick: (i: number) => void }) {
   const o = p.o;
   return (
     <div id={p.id} role="option" aria-selected={p.selected} aria-posinset={p.pos} aria-setsize={p.size} aria-disabled={o.disabled || undefined}
@@ -93,7 +94,7 @@ const Row = /* @__PURE__ */ React.memo(function Row(p: { o: Opt; id: string; act
       className={cn("dk-combobox__option", p.active && "dk-combobox__option--active", p.selected && "dk-combobox__option--selected")}
       onMouseMove={() => { if (!o.disabled && !p.active) p.onMove(o.i); }} onClick={() => p.onPick(o.i)}>
       <span className="dk-combobox__text">
-        <span className="dk-combobox__label">{o.label}</span>
+        <span className="dk-combobox__label">{p.query ? <Highlight query={p.query}>{o.label}</Highlight> : o.label}</span>
         {o.description != null && o.description !== "" ? <span className="dk-combobox__description" aria-hidden={typeof o.description === "string" || undefined}>{o.description}</span> : null}
       </span>
       {p.selected ? <Icon icon={icons.Check} className="dk-combobox__check" /> : null}
@@ -353,6 +354,9 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const onPick = React.useCallback((i: number) => { const l = latest.current; const o = l.opts[i]; if (o) l.pick(o); }, []);
   const activeShown = active >= 0 && visible.some((o) => o.i === active);
   const pos = new Map(shown.map((o, n) => [o, n + 1]));
+  // The typed text, marked in each option's label as the list narrows (185): only with the default filter, which
+  // matches the same way (a custom filter or the server's results may match on something else).
+  const mark = typed && filter === undefined ? text.trim() : "";
   const field = (
       <input {...rest} ref={(n) => { input.current = n; nameRef(n); if (typeof ref === "function") ref(n); else if (ref) ref.current = n; }}
         type="text" role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="list" aria-haspopup="listbox"
@@ -388,7 +392,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
         {loading ? <div className="dk-combobox__message" role="status"><Loader size="sm" delay={0} label="" />{props.loadingText || sds.labels.loadingResults}</div> : null}
         <div id={listId} role="listbox" className="dk-combobox__listbox" aria-multiselectable={multi || undefined} aria-labelledby={rest["aria-labelledby"] || (rest["aria-label"] ? undefined : fieldLabel)} aria-label={rest["aria-labelledby"] ? undefined : rest["aria-label"]}>
           {/* Only while open (and fading out): a closed Combobox with thousands of options keeps none of them in the page. */}
-          {shownList ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} onMove={onMove} onPick={onPick} />) : null}
+          {shownList ? visible.map((o) => <Row key={o.value} o={o} id={base + "-opt-" + o.i} active={o.i === active} selected={multi ? chosen.has(o.value) : o.value === value} pos={pos.get(o) || 0} size={shown.length} query={mark} onMove={onMove} onPick={onPick} />) : null}
         </div>
         {shownList && more > 0 ? <div className="dk-combobox__message dk-combobox__more">{sds.labels.moreResults(more)}</div> : null}
         {!loading && failed ? <div className="dk-combobox__message">{sds.labels.loadFailed}</div> : null}

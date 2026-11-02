@@ -37,6 +37,25 @@ function Countries(props: { cref?: React.Ref<HTMLInputElement> }) {
 const open = async () => { el('before').focus(); await userEvent.keyboard('{Tab}{ArrowDown}'); };
 
 describe('Combobox', () => {
+  test('as the list narrows, the typed text is marked in each option, as it was matched: ignoring case and accents (185)', async () => {
+    await render(<>
+      <Combobox id="chl" aria-label="City" options={['Łódź', 'Kłodzko', 'Lodi', 'Paris']} />
+      <Combobox id="chf" aria-label="City" options={['Łódź', 'Lodi']} filter={(o, t) => o.label.length > t.length} />
+    </>);
+    const marks = (id: string) => [...el(id).parentElement!.querySelectorAll('[role=option]')].map((o) => [...o.querySelectorAll('mark')].map((m) => m.textContent).join('|'));
+    await userEvent.click(el('chl'));
+    expect(marks('chl')).toEqual(['', '', '', '']);   // just opened: every option, nothing typed
+    await userEvent.keyboard('LOD');
+    await expect.poll(() => marks('chl')).toEqual(['Łód', 'łod', 'Lod']);
+    expect(st('chl').opts).toEqual(['Łódź', 'Kłodzko', 'Lodi']);   // the label reads the same
+    // A filter of the app's own may match on something else: nothing is marked.
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(el('chf'));
+    await userEvent.keyboard('lo');
+    await expect.poll(() => st('chf').opts).toEqual(['Łódź', 'Lodi']);
+    expect(marks('chf')).toEqual(['', '']);
+  });
+
   test('with Ctrl or ⌘ the arrows and Page keys are left to the system and the browser: closed, nothing opens; open, nothing moves (L8E35)', async () => {
     await render(<Combobox id="cmk" aria-label="Country" options={COUNTRIES} />);
     const t = document.getElementById('cmk') as HTMLInputElement;
