@@ -22,6 +22,13 @@ const { PasswordInput, Field } = window.Serupa;
 
 - Text that isn't secret: use [Input](../Input/README.md).
 
+## Anatomy
+
+Drawn from the `CapsLockOn` story.
+
+1. **Field** (`.dk-input__field`): where the password is typed, hidden as dots.
+2. **Show password** (`.dk-password-input__toggle`): shows and hides what was typed.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md), and put the password rules in the hint ("At least 12 characters"), not only in an error.

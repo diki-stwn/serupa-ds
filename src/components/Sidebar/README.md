@@ -35,6 +35,19 @@ const { Sidebar, SidebarSection, SidebarItem, Badge } = window.Serupa;
 - Small screens: Sidebar doesn't hide on its own, so put the nav in a [Drawer](../Drawer/README.md) or use a [Navbar](../Navbar/README.md), whose links fold into a menu button.
 - Switching between views on one page: use [Tabs](../Tabs/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Playground` story.
+
+1. **Header** (`.dk-sidebar__header`): the product's name or a switcher, at the top.
+2. **Section title** (`.dk-sidebar__section-title`): names a group of links.
+3. **Link** (`.dk-sidebar__item`): a page to go to.
+4. **Current link** (`.dk-sidebar__item--active`): the page you're on.
+5. **Icon** (`.dk-sidebar__icon`): a picture of the page; it alone shows when the sidebar is collapsed, with the name as a tooltip.
+6. **Badge** (`.dk-sidebar__badge`): an optional count, such as unread items.
+7. **Nested links** (`.dk-sidebar__list--nested`): the pages under a link, shown when it's open.
+8. **Footer** (`.dk-sidebar__footer`): the account or settings, at the bottom.
+
 ## Usage
 
 It takes its parent's height and scrolls its items when they don't fit, so give the parent a height (a full-height flex row, as above).

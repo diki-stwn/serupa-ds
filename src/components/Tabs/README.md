@@ -33,6 +33,15 @@ const { Tabs, TabList, Tab, TabPanel } = window.Serupa;
 - Moving between pages that each have their own URL: use links, in a [Navbar](../Navbar/README.md) or a [Sidebar](../Sidebar/README.md).
 - Sections people may want open side by side, or read one after another: use [Accordion](../Accordion/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Pill` story.
+
+1. **Tab list** (`.dk-tabs__list`): the tabs, in one row that scrolls when they don't fit.
+2. **Tab** (`.dk-tabs__tab`): shows its panel; the arrow keys move between tabs.
+3. **Icon** (`.dk-tabs__icon`): an optional picture beside the tab's name.
+4. **Panel** (`.dk-tabs__panel`): the content of the chosen tab.
+
 ## Usage
 
 - Keep tab labels to a word or two. When the tabs don't fit, the row scrolls sideways: the edge with more tabs past it fades out, and the selected tab is always scrolled into view, but people can still miss the tabs out of view. It scrolls in a CSS grid track or a flex row too, without widening the page.

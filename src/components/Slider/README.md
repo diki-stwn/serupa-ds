@@ -21,6 +21,16 @@ const [price, setPrice] = React.useState<[number, number]>([20, 80]);
 - An exact number people type, such as a quantity: use [NumberInput](../NumberInput/README.md), or pair the two.
 - A few named options, such as Small, Medium, Large: use [SegmentedControl](../SegmentedControl/README.md) or [radios](../Radio/README.md).
 
+## Anatomy
+
+Drawn from the `Marks` story.
+
+1. **Track** (`.dk-slider__track`): the whole range.
+2. **Fill** (`.dk-slider__fill`): the part up to the value.
+3. **Thumb** (`.dk-slider__thumb`): drag it, or focus it and use the arrow keys, to set the value.
+4. **Mark** (`.dk-slider__mark-label`): a named value along the track.
+5. **Value** (`.dk-slider__value`): the value, in words or numbers.
+
 ## Usage
 
 - Show a visible label next to it and point `aria-labelledby` at it, or use `aria-label`.

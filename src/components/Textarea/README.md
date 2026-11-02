@@ -28,6 +28,13 @@ const { Textarea } = window.Serupa;
 
 - A name, an email or a search: use [Input](../Input/README.md), or [SearchInput](../SearchInput/README.md) for a search.
 
+## Anatomy
+
+Drawn from the `Count` story.
+
+1. **Field** (`.dk-textarea__field`): where the text is typed; it can grow with it.
+2. **Count** (`.dk-textarea__count`): how many characters are left, announced as the limit nears.
+
 ## Usage
 
 - Size `rows` to the answer you expect, so people see how much to write: 2 or 3 for a short note, 5 or more for a description.

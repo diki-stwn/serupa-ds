@@ -21,8 +21,10 @@
   box-sizing: border-box; position: fixed; inset: auto; z-index: var(--combobox-z-index, var(--z-popover));
   /* At least as wide as the field (set by the script), at most 28rem, so one long label wraps instead of widening the list. */
   max-width: min(calc(var(--sizing-full) - var(--spacing-4)), var(--combobox-listbox-max-width, var(--container-md)));
-  max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow-y: auto; overscroll-behavior: contain;
-  /* Its rows lay out and paint inside it (it scrolls, so it clips already): a row changing never relays out the page (I3). */
+  /* A column: the loading and empty lines stay put while the listbox in it scrolls. */
+  display: flex; flex-direction: column;
+  max-height: var(--combobox-listbox-max-height, var(--spacing-60)); overflow: hidden;
+  /* Its rows lay out and paint inside it (it clips already): a row changing never relays out the page (I3). */
   contain: layout paint;
   margin: var(--spacing-0); padding: var(--combobox-listbox-padding, var(--spacing-1));
   border: var(--border-width-1) solid var(--combobox-listbox-border, var(--border-overlay));
@@ -31,6 +33,11 @@
   color: var(--combobox-option-color, var(--text)); font-family: var(--font-sans); font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: start;
 }
 .dk-combobox__popup[hidden] { display: none; }
+/* The listbox scrolls, and only the rows in view are drawn (Combobox.tsx): an empty ::before and ::after, as tall as
+   the rows above and below, stand in for the rest, as in VirtualList. */
+.dk-combobox__listbox { position: relative; flex: auto; min-height: var(--spacing-0); overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; }
+.dk-combobox__listbox::before { content: ""; display: block; height: var(--dk-cbx-before, var(--spacing-0)); }
+.dk-combobox__listbox::after { content: ""; display: block; height: var(--dk-cbx-after, var(--spacing-0)); }
 /* Motion (EF1, GK1): the list fades in and grows from the edge facing the field, as Menu and Popover do, in
    motion-enter-sm, and fades and shrinks back out over motion-exit-sm. Transitions from @starting-style rather than
    keyframes, so a list closed mid-way turns back from where it is. On close it's kept shown and in the top layer

@@ -22,6 +22,18 @@ import { FileUpload } from "serupa-ds";
 - An empty area that only invites people to add content, with no file picker: use [EmptyState](../EmptyState/README.md) with `variant="dashed"` instead.
 - Showing how far an upload has got: FileUpload doesn't upload; show a [Progress](../Progress/README.md) bar while your upload runs.
 
+## Anatomy
+
+Drawn from the `ReadOnly` story.
+
+1. **Drop zone** (`.dk-file-upload__zone`): where files are dropped, with a button to choose them.
+2. **Title** (`.dk-file-upload__title`): what to add.
+3. **Hint** (`.dk-file-upload__hint`): which types and sizes are accepted.
+4. **File list** (`.dk-file-upload__list`): the files added so far.
+5. **File** (`.dk-file-upload__file`): one file: its type, name and size.
+6. **Name** (`.dk-file-upload__name`): the file name; a long one is cut in the middle so its ending stays.
+7. **Size** (`.dk-file-upload__size`): the file's size.
+
 ## Usage
 
 - Say the allowed types and the largest size in `hint` ("PNG or JPG, up to 5 MB"), and keep it in step with `accept` and `maxSize`.
