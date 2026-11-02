@@ -26,7 +26,6 @@ const ARGS: Record<string, unknown[]> = {
   showingOf: ['20', '134'],
   lowContrast: ['4.5'],
   meterZone: ['92%', 'high'],
-  moreResults: [1900],
   progressComplete: ['Upload'],
   reorderCancelled: ['Apollo', 2, 5],
   reorderDropped: ['Apollo', 2, 5],
