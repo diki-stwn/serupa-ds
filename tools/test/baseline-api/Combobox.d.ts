@@ -4,7 +4,6 @@ interface ComboboxLabels {
     loadFailed: string;
     noResults: string;
     resultsCount: (count: number) => string;
-    moreResults: (count: number) => string;
     showOptions: string;
     clearValue: (label: string) => string;
     valueAdded: (label: string) => string;

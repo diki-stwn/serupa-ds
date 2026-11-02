@@ -1,10 +1,12 @@
 // Checks design-tokens/ (the W3C Design Tokens export): in step with tokens.json, valid against the format
-// (DTCG 2025.10), every reference resolves, and every token in tokens.json is exported somewhere.
+// (DTCG 2025.10) and against design-tokens/tokens.schema.json, every reference resolves, and every token in
+// tokens.json is exported somewhere.
 //
 //   node tools/test/design-tokens.mjs [project dir]
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { Ajv2020 } from 'ajv/dist/2020.js';
 import { HERE, projectArg, report, done, fail } from './lib.mjs';
 
 const P = projectArg();
@@ -23,7 +25,8 @@ const base = load(path.join(D, BASE_FILE));
 const themes = Object.fromEntries(fs.readdirSync(path.join(D, 'themes')).sort().map((f) => [f.slice(0, -'.tokens.json'.length), load(path.join(D, 'themes', f))]));
 const cssOnly = load(path.join(D, 'css-values.json'));
 
-const TYPES = new Set(['color', 'dimension', 'fontFamily', 'fontWeight', 'duration', 'cubicBezier', 'number', 'strokeStyle', 'border', 'transition', 'shadow', 'gradient', 'typography']);
+const schema = load(path.join(D, 'tokens.schema.json'));
+const TYPES = new Set(schema.$defs.type.enum);   // the format's types, as the schema lists them
 function* tokens(tree, p = []) {
   for (const [k, v] of Object.entries(tree)) {
     if (k.startsWith('$') || !v || typeof v !== 'object') continue;
@@ -63,6 +66,23 @@ for (const [f, tree] of allFiles) {
 check('every token has a standard $type', !badType.length, badType.slice(0, 8).join('; '));
 check('every $value has the shape its type requires', !badValue.length, badValue.slice(0, 8).join('; '));
 check('token names avoid the reserved characters . { } and a leading $', !badName.length, badName.slice(0, 8).join('; '));
+
+// The JSON Schema shipped for editors and pipelines: it must accept every file, and turn down what the checks above do,
+// so the two can't drift apart.
+const validate = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true }).compile(schema);
+const schemaBad = allFiles.flatMap(([f, tree]) => validate(tree) ? [] : [`${f}: ${validate.errors.slice(0, 2).map((e) => `${e.instancePath} ${e.message}`).join(', ')}`]);
+check('every file is valid against tokens.schema.json', !schemaBad.length, schemaBad.slice(0, 4).join('; '));
+const WRONG = {
+  'a token without $type': { a: { $value: 1 } },
+  'an unknown $type': { a: { $type: 'colour', $value: '#fff' } },
+  'a color as a hex string': { a: { $type: 'color', $value: '#ffffff' } },
+  'a dimension in em': { a: { $type: 'dimension', $value: { value: 1, unit: 'em' } } },
+  'a shadow without spread': { a: { $type: 'shadow', $value: { color: '{c}', offsetX: '{d}', offsetY: '{d}', blur: '{d}' } } },
+  'a name with a dot': { 'a.b': { $type: 'number', $value: 1 } },
+  'an unknown key on a token': { a: { $type: 'number', $value: 1, value: 1 } },
+};
+const passed = Object.keys(WRONG).filter((k) => validate(WRONG[k]));
+check('tokens.schema.json turns down what the format does not allow', !passed.length, passed.join(', '));
 
 const index = new Set([...tokens(base)].map(([p]) => p.join('.')));
 for (const [p] of tokens(Object.values(themes)[0])) index.add(p.join('.'));   // component tokens may point at theme aliases

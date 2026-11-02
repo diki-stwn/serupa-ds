@@ -382,8 +382,17 @@ Names are never removed in a minor or patch release: they're marked deprecated i
 | `themes/<theme>.tokens.json` | The 33 alias colors for one theme, as references into the palette (`"{color.blue-600}"`). Load `serupa.tokens.json` plus one theme file |
 | `css-values.json` | Values the format has no type for yet (degrees, `em`, percentages of a box, viewport units, keywords, CSS shorthands, text shadows), as plain CSS |
 | `components/<component>.tokens.json` | A component's own tokens (Button's 44 `--button-*` tokens), as references to the shared ones. Copied from `src/components/<Name>/<name>.tokens.json` |
+| `tokens.schema.json` | A JSON Schema (2020-12) for the token files above, except `css-values.json`: the types and value shapes they use |
 
 Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The files are generated from `tokens.json` (`npm run tokens`) and the tests fail if they fall out of step. `tools/tokens/style-dictionary.config.mjs` builds them back into CSS, one file per theme, with the system's own variable names; the tests check that every one of its 3,500 values equals the token.
+
+To check a token file of your own (a theme you add, a component's overrides) as you write it, map the schema in the project's `.vscode/settings.json`:
+
+```json
+{
+  "json.schemas": [{ "fileMatch": ["*.tokens.json"], "url": "./node_modules/serupa-ds/design-tokens/tokens.schema.json" }]
+}
+```
 
 ### In Figma
 

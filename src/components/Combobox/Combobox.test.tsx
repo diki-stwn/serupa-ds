@@ -131,34 +131,43 @@ describe('Combobox', () => {
     expect(names).toEqual(['Hapus Negara', 'Tampilkan pilihan']);
   });
 
-  test('long lists: closed, 2,000 options keep no option nodes in the page; open, the first 100 show with a "more" line and full counts; typing narrows them', async () => {
+  test('long lists: closed, 2,000 options keep no option nodes in the page; open, only the rows in view are drawn, with full counts; the arrows reach every match (51)', async () => {
     const many = Array.from({ length: 2000 }, (_, i) => 'Option ' + i);
     await render(<div style={{ width: '320px' }}><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} /></div>);
     const list = () => el('cb').parentElement!.querySelector('[role=listbox]')!;
     expect(list().querySelectorAll('[role=option]').length).toBe(0);
     await open();
     const rows = () => [...list().querySelectorAll('[role=option]')];
-    // The "keep typing" line has no role, so it's found by its words.
-    const more = () => Array.from(el('cb').parentElement!.querySelectorAll('div')).find((d) => !d.children.length && /^Keep typing/.test(d.textContent || ''))?.textContent;
-    expect([rows().length, st('cb').active, more()]).toEqual([100, 'Option 0', 'Keep typing to narrow 1900 more']);
-    expect([rows()[99].getAttribute('aria-posinset'), rows()[99].getAttribute('aria-setsize')]).toEqual(['100', '2000']);
+    const drawn = rows().length;
+    expect(drawn).toBeGreaterThan(5);
+    expect(drawn).toBeLessThan(30);
+    expect([st('cb').active, rows()[0].getAttribute('aria-posinset'), rows()[0].getAttribute('aria-setsize')]).toEqual(['Option 0', '1', '2000']);
+    // No "keep typing" line: every match is in reach.
+    expect(popOf('cb').textContent).not.toMatch(/Keep typing/);
     await userEvent.keyboard('{ArrowDown}');
     expect(st('cb').active).toBe('Option 1');
     await userEvent.keyboard('{ArrowUp}{ArrowUp}');
-    expect(st('cb').active).toBe('Option 99');   // the arrows wrap through the rows that are there
+    expect(st('cb').active).toBe('Option 1999');   // the arrows wrap through every match, drawing the last one
+    const last = activeOf('cb');
+    expect([last.getAttribute('aria-posinset'), list().scrollTop > 1000]).toEqual(['2000', true]);
+    const lr = list().getBoundingClientRect(), r = last.getBoundingClientRect();
+    expect(r.top >= lr.top - 1 && r.bottom <= lr.bottom + 1).toBe(true);   // scrolled into view
+    expect(rows().length).toBeLessThan(30);
     await userEvent.keyboard('1999');
     await expect.poll(() => st('cb').opts).toEqual(['Option 1999']);
-    expect([more(), rows()[0].getAttribute('aria-setsize')]).toEqual([undefined, '1']);
+    expect(rows()[0].getAttribute('aria-setsize')).toBe('1');
     await userEvent.keyboard('{Escape}');
     expect(list().querySelectorAll('[role=option]').length).toBe(0);
   });
 
-  test('long lists: a picked option past the first 100 still shows, highlighted, when the list opens', async () => {
+  test('long lists: a picked option far down is drawn, highlighted and in view when the list opens', async () => {
     const many = Array.from({ length: 500 }, (_, i) => 'Option ' + i);
     await render(<div><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} defaultValue="Option 400" /></div>);
     await open();
-    const rows = [...el('cb').parentElement!.querySelectorAll('[role=option]')];
-    expect([rows.length, st('cb').active, rows[100].getAttribute('aria-posinset')]).toEqual([101, 'Option 400', '401']);
+    const a = activeOf('cb'), lb = el('cb').parentElement!.querySelector('[role=listbox]')!;
+    expect([st('cb').active, a.getAttribute('aria-posinset')]).toEqual(['Option 400', '401']);
+    await expect.poll(() => { const r = a.isConnected ? activeOf('cb').getBoundingClientRect() : null, l = lb.getBoundingClientRect(); return !!r && r.top >= l.top - 1 && r.bottom <= l.bottom + 1; }).toBe(true);
+    expect(lb.querySelectorAll('[role=option]').length).toBeLessThan(30);
   });
 
   test('ArrowDown opens the list in the top layer with every option, the first highlighted, focus staying in the field', async () => {
@@ -739,7 +748,7 @@ describe('Combobox loadOptions (DG1)', () => {
       expect([pop.hidden, toggleOf('cb').getAttribute('aria-expanded')]).toEqual([true, 'false']);
       // Kept in the top layer while it fades only where overlay can be held (Chromium); elsewhere it closes at once.
       if (CSS.supports('overlay', 'auto')) {
-        expect([css(pop).display, pop.inert, pop.querySelectorAll('[role=option]').length, runs(pop)]).toEqual(['block', true, 7, [['opacity', 100], ['scale', 100]]]);
+        expect([css(pop).display, pop.inert, pop.querySelectorAll('[role=option]').length, runs(pop)]).toEqual(['flex', true, 7, [['opacity', 100], ['scale', 100]]]);
         await settled(pop);
       }
       await expect.poll(() => pop.querySelectorAll('[role=option]').length).toBe(0);
