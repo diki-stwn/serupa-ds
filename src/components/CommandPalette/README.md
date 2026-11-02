@@ -64,7 +64,7 @@ Drawn from the `Default` story.
 - **Role and name:** a modal `<dialog>` named "Command palette" (`labels.commandPalette`, or your `aria-label`). The search field is a `role="combobox"` with `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` and `aria-activedescendant`, over a `role="listbox"` with one `role="group"` per group, named by its heading, of `role="option"` rows. A disabled command has `aria-disabled="true"`.
 - **Keyboard:** focus stays in the field, and goes back to where it was when the palette closes (table below).
 - **Screen readers:** once typing stops, the number of matches ("3 commands", `labels.commandsCount`) or "No matching commands" is said through the shared announcer.
-- **Contrast:** the field, headings, rows and active row read 4.5:1 in all six themes (`CommandPalette.test.tsx`).
+- **Contrast:** the field, headings, rows and active row read 4.5:1 in all six themes (`CommandPalette.test.tsx`). In forced colors (Windows high contrast) the active row has an outline in Highlight, since the highlight and its bar are dropped there.
 - **What's still yours:** labels people can guess, and a visible way to open it (a Button showing the keys) for people who don't know ⌘K.
 
 | Key | Does |

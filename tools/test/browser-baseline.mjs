@@ -1,4 +1,5 @@
-// Browser baseline: every property, value keyword, function, at-rule and pseudo-class in dist/bundle.css, and every
+// Browser baseline: every property, value keyword, function, at-rule and pseudo-class in dist/bundle.css (and in
+// dist/utilities-extra.css, its masks and gradients), and every
 // static built-in dist/serupa.iife.js reads, works in the oldest browsers the README's "Browser support" names
 // (BASELINE), going by MDN's browser-compat-data.
 //
@@ -110,7 +111,7 @@ const note = (key, compat, where, prefixes) => {
   if (g.length && !found.has(key)) found.set(key, `${key} (${g.join(', ')}; e.g. ${where})`);
 };
 const asksFirst = (node, prop) => { for (let n = node.parent; n; n = n.parent) if (n.type === 'atrule' && n.name === 'supports' && n.params.includes(prop)) return true; return false; };
-const css = postcss.parse(fs.readFileSync(file, 'utf8'));
+const css = postcss.parse(fs.readFileSync(file, 'utf8') + fs.readFileSync(path.join(P, 'dist', 'utilities-extra.css'), 'utf8'));
 const types = Object.entries(bcd.css.types);
 css.walkDecls((d) => {
   if (d.prop.startsWith('--') || d.prop.startsWith('-') || d.parent.type === 'atrule' || asksFirst(d, d.prop)) return;

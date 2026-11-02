@@ -92,7 +92,7 @@ describe('Loader', () => {
 
   test('ring: an arc on a faint track (20%), rounded ends, stroke-width-2 in its 24-unit drawing; a quarter of the ring when still', async () => {
     await render(<Loader id="ring" delay={0} />);
-    const tr = q('#ring .dk-loader__track'), arc = q('#ring .dk-loader__arc'), s = css(arc);
+    const tr = q('#ring svg > circle:first-of-type'), arc = q('#ring svg > circle:last-of-type'), s = css(arc);
     expect(css(tr).opacity).toBe('0.2');
     expect([s.opacity, s.strokeLinecap, s.fill, s.strokeWidth]).toEqual(['1', 'round', 'none', '2px']);
     expect([arc.getAttribute('pathLength'), arc.getAttribute('stroke-dasharray')]).toEqual(['100', '25 150']);
@@ -100,32 +100,32 @@ describe('Loader', () => {
 
   test('ring: the quarter arc stays as it is while the drawing turns steadily at motion-loop-spinner (0.7s a turn, KW22; the shared spin keyframes); nothing repaints on each frame (EE1)', async () => {
     await render(<Loader id="ring" delay={0} />);
-    const svg = css(q('#ring svg')), arc = css(q('#ring .dk-loader__arc'));
+    const svg = css(q('#ring svg')), arc = css(q('#ring svg > circle:last-of-type'));
     expect(`${svg.animationName} ${svg.animationDuration} ${svg.animationTimingFunction} ${svg.animationIterationCount}`).toBe('spin 0.7s linear infinite');
     expect([arc.animationName, q('#ring').getAnimations({ subtree: true }).filter((x) => (x as CSSAnimation).animationName !== 'dk-loader-in').map((x) => (x as CSSAnimation).animationName)]).toEqual(['none', ['spin']]);
   });
 
   test('dots: three dots pulsing (1s, forever), each 150ms after the one before', async () => {
     await render(<Loader id="dots" variant="dots" delay={0} />);
-    const dots = [...document.querySelectorAll('#dots .dk-loader__dot')].map((d) => { const s = getComputedStyle(d); return [s.animationName, s.animationDuration, s.animationDelay, s.animationIterationCount]; });
+    const dots = [...document.querySelectorAll('#dots svg circle')].map((d) => { const s = getComputedStyle(d); return [s.animationName, s.animationDuration, s.animationDelay, s.animationIterationCount]; });
     expect(dots).toEqual([['dk-loader-dot', '1s', '0s', 'infinite'], ['dk-loader-dot', '1s', '0.15s', 'infinite'], ['dk-loader-dot', '1s', '0.3s', 'infinite']]);
   });
 
   test('pixel: nine square pixels edge to edge in a 3×3 grid (no corners, no gaps), 24px (md) and 40px (lg), in one color (the text color, or the tone: primary)', async () => {
     await render(<><Loader id="px" variant="pixel" delay={0} /><Loader id="pxlg" variant="pixel" size="lg" tone="primary" delay={0} /></>);
-    const rs = [...el('px').querySelectorAll('rect.dk-loader__px')];
+    const rs = [...el('px').querySelectorAll('svg > g > rect')];
     expect(el('px').dataset.variant).toBe('pixel');
     expect(rs.map((r) => `${r.getAttribute('x')},${r.getAttribute('y')}`).join(' ')).toBe('0,0 8,0 16,0 0,8 8,8 16,8 0,16 8,16 16,16');
     expect(rs.every((r) => r.getAttribute('width') === '8' && r.getAttribute('height') === '8' && !r.getAttribute('rx'))).toBe(true);
     expect([box('px'), box('pxlg')]).toEqual([[24, 24], [40, 40]]);
     expect(css(rs[0]).fill).toBe(css(el('px')).color);
-    expect(css(q('#pxlg rect.dk-loader__px')).fill).toBe(color('var(--primary)'));
+    expect(css(q('#pxlg svg > g > rect')).fill).toBe(color('var(--primary)'));
   });
 
   test('pixel: subtle dividers between the squares, cut out of them (a mask per loader) and drawn on top in its color at 10%, half a grid unit wide', async () => {
     await render(<><Loader id="px" variant="pixel" delay={0} /><Loader id="px2" variant="pixel" delay={0} /><Loader id="px3" variant="pixel" delay={0} /></>);
-    const e = el('px'), m = e.querySelector('mask')!, cut = m.querySelector('.dk-loader__px-cut')!, pth = e.querySelector('svg > .dk-loader__px-divider')!, g = e.querySelector('svg > g')!;
-    const ps = css(pth), ids = [...document.querySelectorAll('.dk-loader--pixel mask')].map((x) => x.id);
+    const e = el('px'), m = e.querySelector('mask')!, cut = m.querySelector('path')!, pth = e.querySelector('svg > path')!, g = e.querySelector('svg > g')!;
+    const ps = css(pth), ids = [...document.querySelectorAll('[data-component=loader][data-variant=pixel] mask')].map((x) => x.id);
     expect([pth.getAttribute('d'), pth.getAttribute('transform')]).toEqual(['M16 0V48M32 0V48M0 16H48M0 32H48', 'scale(0.5)']);
     expect([css(cut).strokeOpacity, ps.strokeOpacity, ps.strokeWidth, ps.stroke]).toEqual(['1', '0.1', '1px', css(e).color]);
     expect(g.getAttribute('mask')).toBe(`url(#${m.id})`);
@@ -136,7 +136,7 @@ describe('Loader', () => {
 
   test('pixel: a wave along the diagonals, 75ms per step from the top-left, each square pulsing every 1.2s with ease-in-out', async () => {
     await render(<Loader id="px" variant="pixel" delay={0} />);
-    const rs = [...el('px').querySelectorAll('rect.dk-loader__px')], s = rs.map((r) => getComputedStyle(r));
+    const rs = [...el('px').querySelectorAll('svg > g > rect')], s = rs.map((r) => getComputedStyle(r));
     expect(rs.map((r) => r.getAttribute('class')!.match(/d(\d)/)![1]).join('')).toBe('012123234');
     expect(s.map((x) => x.animationDelay).join()).toBe('0s,0.075s,0.15s,0.075s,0.15s,0.225s,0.15s,0.225s,0.3s');
     expect(`${s[0].animationName} ${s[0].animationDuration} ${s[0].animationTimingFunction} ${s[0].animationIterationCount}`).toBe('dk-loader-pixel 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite');
@@ -153,7 +153,7 @@ describe('Loader', () => {
 
   test('pixel: a square rests at 15% (pixel-dim), is full at the crest and fades back', async () => {
     await render(<Loader id="px" variant="pixel" delay={0} />);
-    const [rest, crest, after] = at(q('#px rect.dk-loader__px'), 'dk-loader-pixel', [0, 480, 1140], opacity);
+    const [rest, crest, after] = at(q('#px svg > g > rect'), 'dk-loader-pixel', [0, 480, 1140], opacity);
     expect([rest, crest]).toEqual([0.15, 1]);
     expect(after).toBeLessThan(0.3);
   });
@@ -181,7 +181,7 @@ describe('Loader', () => {
 
   test('pixel pattern="random": each square rises and fades like the wave on its own clock (nine different durations, 1.5s to 2.2s) and start, ease-in-out', async () => {
     await render(<Loader id="pxr" variant="pixel" pattern="random" delay={0} />);
-    const e = el('pxr'), rs = [...e.querySelectorAll('rect.dk-loader__px')].map((r) => getComputedStyle(r)), durs = rs.map((s) => parseFloat(s.animationDuration));
+    const e = el('pxr'), rs = [...e.querySelectorAll('svg > g > rect')].map((r) => getComputedStyle(r)), durs = rs.map((s) => parseFloat(s.animationDuration));
     expect(e.dataset.pattern).toBe('random');
     expect(e.className).toMatch(/dk-loader--pattern-random/);
     expect([...new Set(rs.map((s) => s.animationName))]).toEqual(['dk-loader-pixel']);
@@ -200,13 +200,13 @@ describe('Loader', () => {
     </>);
     expect([el('px').dataset.pattern, el('pxbad').dataset.pattern]).toEqual(['wave', 'wave']);
     expect(el('px').className).not.toMatch(/pattern/);
-    expect([...new Set([...el('px').querySelectorAll('rect.dk-loader__px')].map((r) => getComputedStyle(r).animationName))]).toEqual(['dk-loader-pixel']);
+    expect([...new Set([...el('px').querySelectorAll('svg > g > rect')].map((r) => getComputedStyle(r).animationName))]).toEqual(['dk-loader-pixel']);
     expect(el('ringpat').className + '|' + (el('ringpat').dataset.pattern || '')).not.toMatch(/pattern/);
   });
 
   test('pixel pattern="random": the lit squares keep changing (many different combinations over 1.8s)', async () => {
     await render(<Loader id="pxr" variant="pixel" pattern="random" delay={0} />);
-    const rs = [...document.querySelectorAll('#pxr rect.dk-loader__px')], seen = new Set<string>();
+    const rs = [...document.querySelectorAll('#pxr svg > g > rect')], seen = new Set<string>();
     for (let i = 0; i < 12; i++) { seen.add(rs.map((r) => (+getComputedStyle(r).opacity > 0.6 ? 1 : 0)).join('')); await settle(150); }
     expect(seen.size, JSON.stringify([...seen])).toBeGreaterThanOrEqual(6);
   });
@@ -214,7 +214,7 @@ describe('Loader', () => {
   const WANT = { sweep: ['024024024', '1.2s'], fall: ['000222444', '1.2s'], rise: ['444222000', '1.2s'], snake: ['012543678', '1.5s'], spiral: ['012783654', '1.5s'], cross: ['070777070', '1s'], checker: ['070707070', '1s'] } as const;
   test.each(Object.entries(WANT))('pixel pattern="%s": its order (steps of 75ms) and loop, with the wave\'s smooth rise and fade, ease-in-out', async (pt, [steps, dur]) => {
     await render(<Loader id="pp" variant="pixel" pattern={pt as keyof typeof WANT} delay={0} label="" />);
-    const rs = [...el('pp').querySelectorAll('rect.dk-loader__px')].map((r) => getComputedStyle(r));
+    const rs = [...el('pp').querySelectorAll('svg > g > rect')].map((r) => getComputedStyle(r));
     expect(el('pp').dataset.pattern).toBe(pt);
     expect([...new Set(rs.map((s) => s.animationName))].join()).toBe('dk-loader-pixel');
     expect(rs.map((s) => Math.round(parseFloat(s.animationDelay) / 0.075)).join('')).toBe(steps);
@@ -224,7 +224,7 @@ describe('Loader', () => {
 
   test('pixel step patterns: a square rises gradually (still part-way at 15% of its cycle), holds, then fades back gradually', async () => {
     await render(<Loader id="snake" variant="pixel" pattern="snake" delay={0} />);
-    const o = at(q('#snake rect.dk-loader__px'), null, [0, 225, 450, 750, 1050, 1310], opacity);
+    const o = at(q('#snake svg > g > rect'), null, [0, 225, 450, 750, 1050, 1310], opacity);
     expect([o[0], o[2], o[3], o[5]], JSON.stringify(o)).toEqual([0.15, 1, 1, 0.15]);
     for (const v of [o[1], o[4]]) { expect(v).toBeGreaterThan(0.3); expect(v).toBeLessThan(0.9); }
   });
@@ -234,7 +234,7 @@ describe('Loader', () => {
     await render(<>{pats.map((p) => <Loader key={p} id={'s-' + p} variant="pixel" pattern={p} delay={0} label="" />)}</>);
     const smooth: Record<string, number> = {};
     for (const p of pats) {
-      const r = q(`#s-${p} rect.dk-loader__px`), a = r.getAnimations()[0];
+      const r = q(`#s-${p} svg > g > rect`), a = r.getAnimations()[0];
       const { duration, delay } = a.effect!.getComputedTiming();
       let max = 0, prev: number | null = null;
       a.pause();
@@ -269,7 +269,7 @@ describe('Loader', () => {
 
   test('spokes: eight rounded spokes round a circle, 24px (md) and 40px (lg), in the text color (or the tone)', async () => {
     await render(<><Loader id="spk" variant="spokes" delay={0} /><Loader id="spklg" variant="spokes" size="lg" tone="primary" delay={0} /></>);
-    const ls = [...el('spk').querySelectorAll('svg line.dk-loader__spoke')], s = css(ls[0]);
+    const ls = [...el('spk').querySelectorAll('svg line')], s = css(ls[0]);
     expect([ls.length, el('spk').dataset.variant, s.strokeLinecap, s.strokeWidth]).toEqual([8, 'spokes', 'round', '4px']);
     expect((ls[0].parentNode as Element).getAttribute('transform')).toBe('scale(0.625)');
     expect(['x1', 'y1', 'x2', 'y2'].map((k) => ls[0].getAttribute(k)).join()).toBe('19.2,4,19.2,9.6');
@@ -289,7 +289,7 @@ describe('Loader', () => {
 
   test('spokes: the lead spoke at full strength, the ones behind it (anticlockwise) fading to 25%', async () => {
     await render(<Loader id="spk" variant="spokes" delay={0} />);
-    const ls = [...el('spk').querySelectorAll('line.dk-loader__spoke')];
+    const ls = [...el('spk').querySelectorAll('svg line')];
     expect(ls.map((l) => l.getAttribute('transform')).join('|')).toBe([0, -45, -90, -135, -180, -225, -270, -315].map((d) => `rotate(${d} 19.2 19.2)`).join('|'));
     expect(ls.map((l) => +getComputedStyle(l).opacity).join()).toBe('1,0.85,0.7,0.55,0.45,0.35,0.3,0.25');
   });
@@ -319,7 +319,7 @@ describe('Loader', () => {
     expect(el('tneutral').className + el('tcurrent').className + el('ring').className).not.toMatch(/neutral|current/);
     expect(warn.mock.calls.filter((c) => /current/.test(String(c[0])))).toEqual([]);
     warn.mockRestore();
-    expect([css(el('inherit')).color, css(q('#inherit .dk-loader__arc')).stroke]).toEqual(['rgb(200, 30, 40)', 'rgb(200, 30, 40)']);
+    expect([css(el('inherit')).color, css(q('#inherit svg > circle:last-of-type')).stroke]).toEqual(['rgb(200, 30, 40)', 'rgb(200, 30, 40)']);
   });
 
   test('tone primary and muted color the ring or dots with the alias colors, and follow a nested theme', async () => {
@@ -329,9 +329,9 @@ describe('Loader', () => {
       <Loader id="muted" tone="muted" delay={0} />
       <div data-theme="violet-dark"><Loader id="nested" tone="primary" delay={0} /></div>
     </>);
-    const art = (id: string) => css(q(`#${id} .dk-loader__art`)).color;
+    const art = (id: string) => css(q(`#${id} > span`)).color;
     expect(art('primary')).toBe(color('var(--primary)'));
-    expect(css(q('#primary .dk-loader__arc')).stroke).toBe(color('var(--primary)'));
+    expect(css(q('#primary svg > circle:last-of-type')).stroke).toBe(color('var(--primary)'));
     expect(art('muted')).toBe(color('var(--text-muted)'));
     expect(art('primary')).not.toBe(css(el('ring')).color);
     const probe = document.createElement('div');
@@ -349,8 +349,8 @@ describe('Loader', () => {
       <Loader id="inversetext" variant="text" tone="inverse" label="Uploading" delay={0} />
     </div>);
     expect(css(el('inverse')).color).toBe('rgb(255, 255, 255)');
-    expect(css(q('#inverse .dk-loader__arc')).stroke).toBe('rgb(255, 255, 255)');
-    expect(css(q('#inversetext .dk-loader__label')).color).toBe('rgb(255, 255, 255)');
+    expect(css(q('#inverse svg > circle:last-of-type')).stroke).toBe('rgb(255, 255, 255)');
+    expect(css(q('#inversetext span:has(> [data-words])')).color).toBe('rgb(255, 255, 255)');
     el('scrim').setAttribute('data-theme', 'blue-dark');
     expect(css(el('inverse')).color).toBe('rgb(255, 255, 255)');
   });
@@ -358,7 +358,7 @@ describe('Loader', () => {
   test('component tokens: --loader-size-md and --loader-track-opacity on one loader', async () => {
     await render(<Loader id="tok" delay={0} style={vars({ '--loader-size-md': 'var(--spacing-8)', '--loader-track-opacity': '0' })} />);
     expect(box('tok')).toEqual([32, 32]);
-    expect(css(q('#tok .dk-loader__track')).opacity).toBe('0');
+    expect(css(q('#tok svg > circle:first-of-type')).opacity).toBe('0');
   });
 
   test('named: role="progressbar" (indeterminate: no value) with aria-label "Loading…"; label sets the name; label="" makes it decorative', async () => {
@@ -372,7 +372,7 @@ describe('Loader', () => {
 
   test('the drawing itself is hidden from assistive tech and not focusable', async () => {
     await render(<>{(['ring', 'spokes', 'dots', 'pixel'] as const).map((v) => <Loader key={v} variant={v} delay={0} />)}</>);
-    const svgs = [...document.querySelectorAll('.dk-loader svg')];
+    const svgs = [...document.querySelectorAll('[data-component=loader] svg')];
     expect(svgs.length).toBe(4);
     expect(svgs.every((s) => s.getAttribute('aria-hidden') === 'true' && s.getAttribute('focusable') === 'false')).toBe(true);
   });
@@ -394,15 +394,15 @@ describe('Loader', () => {
 
   test('variant="text": just the words, no ring or dots, in the text color around it, 14px/20px (md), as tall as the line; hidden from assistive tech (no double reading)', async () => {
     await render(<span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>);
-    const e = el('lab'), l = e.querySelector('.dk-loader__label')!, s = css(l);
-    expect([l.textContent, !!e.querySelector('.dk-loader__art, svg'), e.children.length, e.dataset.variant]).toEqual(['Loading projects', false, 1, 'text']);
+    const e = el('lab'), l = e.querySelector('span:has(> [data-words])')!, s = css(l);
+    expect([l.textContent, !!e.querySelector('svg'), e.children.length, e.dataset.variant]).toEqual(['Loading projects', false, 1, 'text']);
     expect([s.color, `${s.fontSize}/${s.lineHeight}`, Math.round(e.getBoundingClientRect().height)]).toEqual(['rgb(15, 23, 42)', '14px/20px', 20]);
     expect([l.getAttribute('aria-hidden'), e.getAttribute('role'), e.getAttribute('aria-label')]).toEqual(['true', 'progressbar', 'Loading projects']);
   });
 
   test('shine: the words rest at 65% of the text color (label-dim); a soft-edged window half the words wide holds a full-color copy (not read: the label is hidden, and the copy is generated content), sweeping every 2s with ease-in-out, forever, on translate (EE1)', async () => {
     await render(<span style={{ color: 'rgb(15, 23, 42)' }}><Loader id="lab" variant="text" label="Loading projects" delay={0} /></span>);
-    const l = q('#lab .dk-loader__label'), g = l.firstElementChild as HTMLElement, s = css(l), w = css(g), copy = getComputedStyle(g, '::after');
+    const l = q('#lab span:has(> [data-words])'), g = l.firstElementChild as HTMLElement, s = css(l), w = css(g), copy = getComputedStyle(g, '::after');
     expect(s.webkitTextFillColor).toMatch(/0\.65\)$/);
     expect([l.textContent, g.dataset.words, copy.content, copy.webkitTextFillColor, s.overflow]).toEqual(['Loading projects', 'Loading projects', '"Loading projects"', 'rgb(15, 23, 42)', 'hidden']);
     expect(w.maskImage || w.webkitMaskImage).toMatch(/linear-gradient/);
@@ -412,7 +412,7 @@ describe('Loader', () => {
 
   test('shine: the window starts off the left of the words and ends off the right (seamless loop), halfway at half time (ease-in-out is symmetric), while the copy moves back by as much so it stays on the words', async () => {
     await render(<Loader id="lab" variant="text" label="Loading projects" delay={0} />);
-    const l = q('#lab .dk-loader__label'), g = l.firstElementChild!, lw = l.getBoundingClientRect().width;
+    const l = q('#lab span:has(> [data-words])'), g = l.firstElementChild!, lw = l.getBoundingClientRect().width;
     const runs = g.getAnimations({ subtree: true }).filter((a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'dk-loader-glint');
     expect(runs.length).toBe(2);
     const left = (ms: number) => { runs.forEach((a) => { a.pause(); a.currentTime = ms; }); return (g.getBoundingClientRect().left - l.getBoundingClientRect().left) / lw; };
@@ -451,8 +451,8 @@ describe('Loader', () => {
       <Loader id="labsm" variant="text" size="sm" label="Saving" delay={0} />
       <Loader id="lablg" variant="text" size="lg" label="Preparing" delay={0} />
     </>);
-    expect(css(q('#labp .dk-loader__label')).color).toBe('rgb(15, 23, 42)');
-    expect([css(q('#labsm .dk-loader__label')).fontSize, css(q('#lablg .dk-loader__label')).fontSize]).toEqual(['12px', '16px']);
+    expect(css(q('#labp span:has(> [data-words])')).color).toBe('rgb(15, 23, 42)');
+    expect([css(q('#labsm span:has(> [data-words])')).fontSize, css(q('#lablg span:has(> [data-words])')).fontSize]).toEqual(['12px', '16px']);
   });
 
   test('text variant: with label="" it still shows "Loading…", decorative; without a label it shows and says "Loading…"; ring and dots have no words', async () => {
@@ -463,9 +463,9 @@ describe('Loader', () => {
       <Loader id="dots" variant="dots" delay={0} />
     </>);
     const e = el('labempty'), d = el('labdefault');
-    expect([e.querySelector('.dk-loader__label')!.textContent, e.getAttribute('aria-hidden'), e.getAttribute('role')]).toEqual(['Loading…', 'true', null]);
-    expect([d.querySelector('.dk-loader__label')!.textContent, d.getAttribute('aria-label')]).toEqual(['Loading…', 'Loading…']);
-    expect([!!q('#ring .dk-loader__label'), !!q('#dots .dk-loader__label')]).toEqual([false, false]);
+    expect([e.querySelector('span:has(> [data-words])')!.textContent, e.getAttribute('aria-hidden'), e.getAttribute('role')]).toEqual(['Loading…', 'true', null]);
+    expect([d.querySelector('span:has(> [data-words])')!.textContent, d.getAttribute('aria-label')]).toEqual(['Loading…', 'Loading…']);
+    expect([!!q('#ring span:has(> [data-words])'), !!q('#dots span:has(> [data-words])')]).toEqual([false, false]);
     expect(box('ring')).toEqual([24, 24]);
   });
 
@@ -473,8 +473,8 @@ describe('Loader', () => {
     await render(<div style={{ background: 'Canvas' }}><Loader id="fcs" variant="skeleton" lines={2} label="" delay={0} /></div>);
     const r = await forcedColors(async (active) => {
       if (!active) return null;
-      const bone = css(q('#fcs .dk-loader__bone')), page = css(q('#fcs').parentElement);
-      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', getComputedStyle(q('#fcs .dk-loader__bone'), '::after').display];
+      const bone = css(q('#fcs span:empty')), page = css(q('#fcs').parentElement);
+      return [bone.backgroundColor !== page.backgroundColor && bone.backgroundColor !== 'rgba(0, 0, 0, 0)', getComputedStyle(q('#fcs span:empty'), '::after').display];
     });
     if (r) expect(r).toEqual([true, 'none']);
   });
@@ -500,14 +500,14 @@ describe('Loader', () => {
       </div>
     </div>;
   }
-  const bones = (id: string) => [...el(id).querySelectorAll('.dk-loader__bone')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
-  const lines = (id: string) => el(id).querySelectorAll('.dk-loader__line').length;
-  const radius = (id: string) => css(el(id).querySelector('.dk-loader__bone')).borderRadius;
+  const bones = (id: string) => [...el(id).querySelectorAll('span:empty')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+  const lines = (id: string) => el(id).querySelectorAll(':scope > span:not(:empty)').length;
+  const radius = (id: string) => css(el(id).querySelector('span:empty')).borderRadius;
 
   test('skeleton: shape "text" by default, one line as tall as the text-sm line (20px) with a 14px bar, full width, 4px corners; lines={3} is a paragraph, the last 60% wide', async () => {
     await render(<Skeletons />);
     expect([el('sk1').dataset.variant, el('sk1').dataset.shape, lines('sk1'), box('sk1'), bones('sk1'), radius('sk1')]).toEqual(['skeleton', 'text', 1, [300, 20], [[300, 14]], '4px']);
-    expect(el('sk1').querySelectorAll('svg, .dk-loader__art, .dk-loader__label').length).toBe(0);
+    expect(el('sk1').querySelectorAll('svg, [data-words]').length).toBe(0);
     expect([lines('sk3'), box('sk3')[1], bones('sk3')]).toEqual([3, 60, [[300, 14], [300, 14], [180, 14]]]);
   });
 
@@ -543,7 +543,7 @@ describe('Loader', () => {
 
   test('skeleton fill: the text color at 10%, with a lighter band (5%) sweeping left to right every 2s, ease-in-out, on translate (EE1)', async () => {
     await render(<Skeletons />);
-    const b = q('#sk1 .dk-loader__bone'), s = getComputedStyle(b, '::after'), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
+    const b = q('#sk1 span:empty'), s = getComputedStyle(b, '::after'), stops = s.backgroundImage.match(/color\(srgb [^)]*\)|rgba?\([^)]*\)/g) || [];
     expect(stops.length).toBe(13);
     expect(stops[0]).toMatch(/15 23 42|0\.0588/);
     expect(stops[0]).toMatch(/\/ 0\.1\)|, 0\.1\)/);
@@ -613,13 +613,13 @@ describe('Loader', () => {
     </>);
     const restore = reduceMotion();
     try {
-      const l = css(q('#lab .dk-loader__label'));
-      expect([l.webkitTextFillColor, css(q('#lab .dk-loader__glint')).display]).toEqual([l.color, 'none']);
-      const arc = css(q('#ring .dk-loader__arc'));
+      const l = css(q('#lab span:has(> [data-words])'));
+      expect([l.webkitTextFillColor, css(q('#lab [data-words]')).display]).toEqual([l.color, 'none']);
+      const arc = css(q('#ring svg > circle:last-of-type'));
       const ring = css(q('#ring svg'));
       expect([`${ring.animationName} ${ring.animationDuration}`, arc.animationName]).toEqual(['dk-loader-breathe 1.4s', 'none']);
       expect(arc.strokeDasharray).toMatch(/^25(px)?,? 150/);
-      expect(css(q('#dots .dk-loader__dot')).animationName).toBe('dk-loader-dot-fade');
+      expect(css(q('#dots svg circle')).animationName).toBe('dk-loader-dot-fade');
       const spk = css(q('#spk svg'));
       expect(`${spk.animationName} ${spk.animationDuration}`).toBe('dk-loader-breathe 1.4s');
     } finally { restore(); }
@@ -630,10 +630,10 @@ describe('Loader', () => {
     await render(<>{pats.map((p) => <Loader key={p} id={'r-' + p} variant="pixel" pattern={p} delay={0} label="" />)}</>);
     const restore = reduceMotion();
     try {
-      const w = css(q('#r-wave rect.dk-loader__px'));
+      const w = css(q('#r-wave svg > g > rect'));
       expect([w.animationName, w.animationDuration]).toEqual(['dk-loader-pixel', '2.4s']);
-      expect(pats.map((p) => css(q(`#r-${p} rect.dk-loader__px`)).animationDuration).join()).toBe('2.4s,4s,2.4s,3s,3s,2s,2s');
-      const rs = [...document.querySelectorAll('#r-random rect.dk-loader__px')].map((r) => getComputedStyle(r));
+      expect(pats.map((p) => css(q(`#r-${p} svg > g > rect`)).animationDuration).join()).toBe('2.4s,4s,2.4s,3s,3s,2s,2s');
+      const rs = [...document.querySelectorAll('#r-random svg > g > rect')].map((r) => getComputedStyle(r));
       expect([new Set(rs.map((s) => s.animationDuration)).size, rs[0].animationDuration]).toEqual([1, '4s']);
       expect(new Set(rs.map((s) => s.animationDelay)).size).toBeGreaterThanOrEqual(8);
     } finally { restore(); }
@@ -643,9 +643,9 @@ describe('Loader', () => {
     await render(<div style={{ width: '300px', color: 'rgb(15, 23, 42)' }}><Loader id="sk1" variant="skeleton" delay={0} /></div>);
     const restore = reduceMotion();
     try {
-      const s = css(q('#sk1 .dk-loader__bone'));
+      const s = css(q('#sk1 span:empty'));
       expect([s.animationName, s.backgroundImage]).toEqual(['none', 'none']);
-      expect([s.backgroundColor, getComputedStyle(q('#sk1 .dk-loader__bone'), '::after').display]).toEqual([expect.stringMatching(/0\.1\)$/), 'none']);
+      expect([s.backgroundColor, getComputedStyle(q('#sk1 span:empty'), '::after').display]).toEqual([expect.stringMatching(/0\.1\)$/), 'none']);
     } finally { restore(); }
   });
 });

@@ -19,12 +19,13 @@ Pin a release tag, never `#main`. The tag is prebuilt, so nothing runs on instal
 import 'serupa-ds/tokens.css';   // every token, the themes, the fonts: always first
 import 'serupa-ds/base.css';     // page defaults; leave out when adding Serupa to an existing app
 import 'serupa-ds/bundle.css';   // components and utility classes (or components.css, plus utilities.css)
+// import 'serupa-ds/utilities-extra.css';   // only for masks and gradients: mask-*, bg-linear-*, from-*, via-*, to-*
 import { Button, Field, Input } from 'serupa-ds';
 ```
 
 The styles sit in cascade layers (`dk.tokens`, `dk.base`, `dk.components`, `dk.utilities`). The app's own unlayered CSS always wins over them, so an override never needs `!important`.
 
-For production, trim the CSS: `npx serupa-purge src -o public/bundle.min.css --components`. List any class the code builds at runtime with `--keep`.
+For production, trim the CSS in the build: `import { serupaPurge } from 'serupa-ds/purge'` and add `serupaPurge()` to Vite's `plugins` (or `serupaPurgePostcss()` to `postcss.config.mjs` for Next.js and webpack). Without a bundler: `npx serupa-purge src -o public/bundle.min.css --components`. List any class the code builds at runtime with `keep: [...]` (or `--keep`).
 
 ## Theme
 

@@ -37,7 +37,7 @@ Drawn from the `ByArea` story.
 
 - Label it with [Field](../Field/README.md). Say in the hint what the number is for ("We'll text you a code").
 - Store the E.164 value, not the text in the field. `onValueChange` gives it, and `name` submits it.
-- Digits typed on an Arabic, Persian or Bengali keyboard, or full width from a Japanese or Chinese IME (٠١٠, ０９０, ＋８１), are read as the same number, so the field and the value are always in ASCII digits.
+- Digits typed on an Arabic, Persian or Bengali keyboard, or full width from a Japanese or Chinese IME (٠١٠, ０９０, ＋８１), are read as the same number, so the field and the value are always in ASCII digits. The calling codes are written in ASCII digits too, in the prefix (+20) and the country list (Egypt (+20)), even where the locale has its own digits (`ar-EG`), so they match the number beside them and what people dial.
 - **Form reset** puts `defaultValue` and `defaultCountry` back, in the field and in what the form sends. A controlled field shows its `value` again.
 - `complete` says whether the number has a length the country uses. Use it to enable submit or to show an error after blur. It doesn't check that the number exists.
 - Set `defaultCountry` to where most of your users are. Without it, the country comes from the locale's region (`id-ID` gives Indonesia), else the US.

@@ -14,8 +14,8 @@ const group = () => document.querySelector('[role="radiogroup"]') as HTMLElement
 const radios = () => [...document.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
 const swatch = (name: string) => radios().find((r) => r.getAttribute('aria-label') === name)!;
 const el = (id: string) => document.getElementById(id) as HTMLElement;
-const hex = () => document.querySelector('.dk-color-picker__hex input') as HTMLInputElement;
-const line = () => document.querySelector('.dk-color-picker__contrast') as HTMLElement;
+const hex = () => document.querySelector('[data-component=color-picker] [data-component=input] input') as HTMLInputElement;
+const line = () => document.querySelector('[data-component=color-picker] div[aria-live]') as HTMLElement;
 
 function Controlled({ calls }: { calls: string[] }) {
   const [v, setV] = React.useState<string | null>('#1d4ed8');
@@ -47,7 +47,7 @@ describe('ColorPicker', () => {
 
   test('in a required Field with a hint: the control id once, the radiogroup named by the label, described by the hint and required; the hex field stays its own field', async () => {
     await render(<Field label="Accent" hint="Used for links" required><ColorPicker swatches={SW} /></Field>);
-    const g = group(), label = document.querySelector('.dk-field__label') as HTMLLabelElement, hint = document.querySelector('.dk-field__hint') as HTMLElement;
+    const g = group(), label = document.querySelector('[data-component=field] label') as HTMLLabelElement, hint = document.querySelector('[data-component=field] > div[id]') as HTMLElement;
     expect([document.querySelectorAll('#' + CSS.escape(label.htmlFor)).length, g.getAttribute('aria-labelledby') === label.id]).toEqual([1, true]);
     expect([g.getAttribute('aria-describedby')?.split(' ').includes(hint.id), g.getAttribute('aria-required')]).toEqual([true, 'true']);
     expect([hex().id === label.htmlFor, hex().getAttribute('aria-describedby'), hex().getAttribute('aria-label')]).toEqual([false, null, 'Hex code']);
@@ -72,7 +72,7 @@ describe('ColorPicker', () => {
 
   test('invalid marks the swatches invalid; in a Field with an error, the radiogroup points to it', async () => {
     await render(<Field label="Accent" error="Pick a brand color"><ColorPicker swatches={SW} /></Field>);
-    const err = document.querySelector('.dk-field__error span[id]') as HTMLElement;
+    const err = document.querySelector('[data-component=field] [data-icon] + span[id]') as HTMLElement;
     expect([group().getAttribute('aria-invalid'), group().getAttribute('aria-errormessage') === err.id]).toEqual(['true', true]);
   });
 
@@ -285,7 +285,7 @@ describe('ColorPicker', () => {
     await render(<Field label="Brand color"><ColorPicker swatches={SW} defaultValue="#fde047" /></Field>);
     const lbl = document.querySelector('label')!;
     expect(group().getAttribute('aria-labelledby')).toBe(lbl.id);
-    (document.querySelector('.dk-color-picker') as HTMLElement).focus();
+    (document.querySelector('[data-component=color-picker]') as HTMLElement).focus();
     expect(document.activeElement === swatch('Yellow')).toBe(true);
   });
 
@@ -374,7 +374,7 @@ describe('ColorPicker', () => {
   test('autoFocus focuses the checked swatch, not the wrapper', async () => {
     await render(<ColorPicker aria-label="C" swatches={SW} defaultValue="#fde047" autoFocus />);
     await expect.poll(() => document.activeElement).toBe(swatch('Yellow'));
-    expect(group().closest('.dk-color-picker')!.hasAttribute('autofocus')).toBe(false);
+    expect(group().closest('[data-component=color-picker]')!.hasAttribute('autofocus')).toBe(false);
   });
 
   test('L8E86 in a Field, a level down (a row with a note after it): the label, hint, error, required and disabled still reach it', async () => {

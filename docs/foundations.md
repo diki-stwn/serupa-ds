@@ -300,6 +300,8 @@ Background utilities, as classes in `bundle.css`. Backgrounds have no scale of t
 | background-color | `bg-<color>` for every palette color and alias (`bg-gray-100`, `bg-surface`, `bg-primary`), `bg-inherit`, `bg-current`, `bg-transparent` |
 | background-image | `bg-none`; linear gradients `bg-linear-to-t`, `-tr`, `-r`, `-br`, `-b`, `-bl`, `-l`, `-tl` and `bg-linear-45` (any of 0–315° in 45° steps, negatives too); `bg-radial`; `bg-conic`, `bg-conic-90`… |
 | gradient stops | `from-<color>`, `via-<color>`, `to-<color>`; positions `from-0%` … `to-100%` in 5% steps |
+
+The gradients (`bg-linear-*`, `bg-radial*`, `bg-conic*` and the stops) ship in `utilities-extra.css`, not in `bundle.css`: import `serupa-ds/utilities-extra.css` after it to use them.
 | background-origin | `bg-origin-border`, `bg-origin-padding`, `bg-origin-content` |
 | background-position | `bg-top-left`, `bg-top`, `bg-top-right`, `bg-left`, `bg-center`, `bg-right`, `bg-bottom-left`, `bg-bottom`, `bg-bottom-right` |
 | background-repeat | `bg-repeat`, `bg-repeat-x`, `bg-repeat-y`, `bg-repeat-space`, `bg-repeat-round`, `bg-no-repeat` |
@@ -388,7 +390,7 @@ Rules of thumb:
 
 ## Effects
 
-Effect utilities, as classes in `bundle.css`. Box, inner and text shadows are tokens in the `shadow` group; opacity uses the `opacity` group; blend modes and masks are keywords.
+Effect utilities, as classes in `bundle.css`. Box, inner and text shadows are tokens in the `shadow` group; opacity uses the `opacity` group; blend modes and masks are keywords. The masks (`mask-*`) ship in `utilities-extra.css`: import `serupa-ds/utilities-extra.css` after `bundle.css` to use them.
 
 **Shadow names.** `shadow-2xs` → `shadow-xs` → `shadow-sm` → `shadow-md` → `shadow-lg` → `shadow-xl` → `shadow-2xl`, all black at 5–25% opacity. Earlier versions of this system used other names: the old `shadow-sm` is now `shadow-xs` (Button uses it, so buttons look the same), the old bare `shadow` is now `shadow-sm`, and `shadow-inner` is now `inset-shadow-sm`. `shadow` and `shadow-inner` still work.
 

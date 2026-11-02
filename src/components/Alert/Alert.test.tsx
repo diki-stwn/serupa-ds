@@ -9,7 +9,7 @@ import { Alert, type AlertTone } from './Alert';
 const TONES: AlertTone[] = ['info', 'success', 'warning', 'danger', 'neutral'];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const tone = (t: string) => document.querySelector(`[data-t="${t}"]`) as HTMLElement;
-const iconName = (e: Element) => (e.querySelector<HTMLElement>('.dk-alert__icon .dk-icon'))?.dataset.icon;
+const iconName = (e: Element) => (e.querySelector<HTMLElement>(':scope > span[aria-hidden] [data-icon]'))?.dataset.icon;
 
 /** Applies the stylesheets' @media (forced-colors: active) rules, as Windows High Contrast would, until the returned function is called. */
 function forcedColors(): () => void {
@@ -42,7 +42,7 @@ describe('Alert', () => {
     await render(<Alert id="def" ref={r} className="extra" data-x="y">Plain message</Alert>);
     const e = el('def');
     expect([e.tagName, e.className, e.dataset.component, e.dataset.tone, e.getAttribute('role'), r.current === e, e.dataset.x]).toEqual(['DIV', 'dk-alert dk-alert--info extra', 'alert', 'info', 'status', true, 'y']);
-    expect([iconName(e), e.querySelector(':scope > span[aria-hidden]')!.getAttribute('aria-hidden'), !!e.querySelector('.dk-alert__title'), e.querySelector('.dk-alert__message')!.textContent, !!e.querySelector('button')])
+    expect([iconName(e), e.querySelector(':scope > span[aria-hidden]')!.getAttribute('aria-hidden'), !!e.querySelector(':scope > div > p'), e.querySelector('.dk-alert__message')!.textContent, !!e.querySelector('button')])
       .toEqual(['info', 'true', false, 'Plain message', false]);
   });
 
@@ -72,7 +72,7 @@ describe('Alert', () => {
 
   test('title: font-semibold, no margin; actions in a row under the message; backgrounds: each tone\'s -subtle color (neutral: surface-muted)', async () => {
     await render(<Box><Tones /></Box>);
-    const ti = css(tone('info').querySelector('.dk-alert__title'));
+    const ti = css(tone('info').querySelector(':scope > div > p'));
     expect([ti.fontWeight, ti.marginTop, css(tone('info').querySelector('.dk-alert__actions')).display]).toEqual(['600', '0px', 'flex']);
     for (const [t, bg] of [['info', 'info-subtle'], ['success', 'success-subtle'], ['warning', 'warning-subtle'], ['danger', 'danger-subtle'], ['neutral', 'surface-muted']]) {
       expect([t, css(tone(t)).backgroundColor]).toEqual([t, color(`var(--${bg})`)]);

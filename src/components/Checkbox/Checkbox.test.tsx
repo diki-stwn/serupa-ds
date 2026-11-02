@@ -228,7 +228,7 @@ describe('Checkbox', () => {
 
 describe('CheckboxGroup', () => {
   const box = (v: string) => document.querySelector<HTMLInputElement>(`#grp input[value="${v}"]`)!;
-  const all = () => document.querySelector<HTMLInputElement>('#grp .dk-checkbox:first-child input')!;
+  const all = () => document.querySelector<HTMLInputElement>('#grp [data-component=checkbox]:first-child input')!;
 
   test('a named group: one name for every box, values in the boxes\' order, numbers stay numbers, and size, invalid and disabled reach the boxes', async () => {
     const seen: unknown[] = [];
@@ -246,7 +246,7 @@ describe('CheckboxGroup', () => {
     const names = [...g.querySelectorAll('input')].map((i) => i.name);
     expect(new Set(names).size).toBe(1);
     expect(names[0]).not.toBe('');
-    expect([...g.querySelectorAll('.dk-checkbox')].map((l) => [l.getAttribute('data-size'), l.classList.contains('dk-checkbox--invalid')])).toEqual([['sm', true], ['sm', true], ['sm', true]]);
+    expect([...g.querySelectorAll('[data-component=checkbox]')].map((l) => [l.getAttribute('data-size'), l.classList.contains('dk-checkbox--invalid')])).toEqual([['sm', true], ['sm', true], ['sm', true]]);
     await userEvent.click(box('2'));
     await userEvent.click(box('1'));
     await userEvent.click(box('2'));
