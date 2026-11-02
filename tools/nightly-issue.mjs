@@ -2,6 +2,7 @@
 // opens the issue (or updates the open one) with the failing tests per browser; a green run closes it. Without it a
 // red night only wrote a job summary that nobody opens. The workflow's report job runs it on scheduled runs only.
 //   node tools/nightly-issue.mjs <folder the run's artifacts were downloaded to> <components job result>
+// JOBS lists the matrix's jobs as <group>-<engine>, so one that stopped before uploading anything still gets a line.
 // GH_TOKEN must allow writing issues (with issues turned off for the repository, the list goes on the run's summary); GITHUB_REPOSITORY, GITHUB_SERVER_URL and GITHUB_RUN_ID come from Actions.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -16,9 +17,12 @@ export const TITLE = 'Nightly cross-browser failing';
 export function failures(text) {
   const plain = stripVTControlCharacters(text);
   const out = [];
-  for (const m of plain.matchAll(/^\s*FAIL\s+\S+\s+\((\w+)\)\s+(\S+) > (.+)$/gm)) {
-    const line = `${m[2]} > ${m[3].trim()}`;
-    if (!out.includes(line)) out.push(line);
+  for (const raw of plain.split('\n')) {
+    // Vitest's line: " FAIL   components (webkit)  src/a.test.tsx > A > b", or "checks" with no engine. The Node
+    // suites' own (storybook.mjs, visual.mjs and the rest, through lib.mjs's report): "FAIL  <what failed>".
+    const m = raw.match(/^\s+FAIL\s+\S+(?:\s+\(\w+\))?\s+(\S+) > (.+)$/) || raw.match(/^FAIL {2}(.+)$/);
+    const line = m && (m.length === 3 ? `${m[1]} > ${m[2].trim()}` : m[1].trim());
+    if (line && !out.includes(line)) out.push(line);
   }
   return out;
 }
@@ -42,10 +46,15 @@ function main(dir, result) {
   const gh = (...args) => execFileSync('gh', args, { encoding: 'utf8' }).trim();
   const { GITHUB_SERVER_URL: server, GITHUB_REPOSITORY: repo, GITHUB_RUN_ID: id } = process.env;
   const runUrl = `${server}/${repo}/actions/runs/${id}`;
+  // One artifact per job, test-output-<engine> or test-output-<group>-<engine> (D6: every group in every engine).
+  // A job named in the workflow's list (JOBS, "components-firefox,storybook-webkit,…") that uploaded nothing stopped
+  // before its tests ran; without the list, the two components jobs.
+  const jobs = (process.env.JOBS || 'firefox,webkit').split(',').map((j) => j.trim()).filter(Boolean);
+  const found = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.startsWith('test-output-')).map((f) => f.slice('test-output-'.length)) : [];
   const results = {};
-  for (const browser of ['firefox', 'webkit']) {
-    const file = path.join(dir, `test-output-${browser}`, 'test-output.txt');
-    results[browser] = fs.existsSync(file) ? failures(fs.readFileSync(file, 'utf8')) : null;
+  for (const job of [...new Set([...jobs, ...found])]) {
+    const file = path.join(dir, `test-output-${job}`, 'test-output.txt');
+    results[job.replace(/^(.+)-(chromium|firefox|webkit)$/, '$2 ($1)')] = fs.existsSync(file) ? failures(fs.readFileSync(file, 'utf8')) : null;
   }
   // With issues turned off for the repository there's nowhere to keep the issue: the list goes on the run's summary
   // page instead, and the run stays red through its components job, not through this one.

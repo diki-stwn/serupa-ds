@@ -27,6 +27,14 @@ const [tasks, setTasks] = React.useState([{ id: "brief", title: "Write the brief
 - Moving items between groups or columns, such as a kanban board: that needs more than one list.
 - Very long lists where dragging far is the main job: dragging scrolls at the edges, but offer "Move to top" or a position field as well.
 
+## Anatomy
+
+Drawn from the `Horizontal` story.
+
+1. **Item** (`.dk-sortable-list__item`): one thing to put in order.
+2. **Handle** (`.dk-sortable-list__handle`): drag it, or press Space and use the arrow keys, to move the item.
+3. **Content** (`.dk-sortable-list__content`): what the item shows.
+
 ## Usage
 
 - Name the list with `aria-label` (or `aria-labelledby`), and give each item a short name with `getLabel`. The name goes on its handle ("Reorder Write the brief") and in every announcement.

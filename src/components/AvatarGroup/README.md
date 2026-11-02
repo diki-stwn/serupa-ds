@@ -28,6 +28,13 @@ import { Avatar, AvatarGroup } from "serupa-ds";
 - When people need to read, compare or act on the names (remove a member, change a role): use [List](../List/README.md) with an Avatar in each row instead.
 - A long, complete list of people, such as a team directory: use [Table](../Table/README.md) or List; "+N" hides who's there.
 
+## Anatomy
+
+Drawn from the `Overflow` story.
+
+1. **Avatar** (`.dk-avatar-group__item`): one person, overlapping the next.
+2. **More** (`.dk-avatar-group__more`): how many more there are, after the ones that fit.
+
 ## Usage
 
 - Give the group a `label` that says what the people are to the thing ("Assigned to", "Members"), so a screen reader hears more than a run of names.

@@ -27,6 +27,14 @@ import { Splitter } from "serupa-ds";
 - A fixed layout people don't need to change: use [Grid](../Grid/README.md) or [Stack](../Stack/README.md).
 - Switching between views rather than showing two at once: use [Tabs](../Tabs/README.md).
 
+## Anatomy
+
+Drawn from the `Playground` story.
+
+1. **First pane** (`.dk-splitter__pane--first`): one side.
+2. **Handle** (`.dk-splitter__handle`): drag it, or focus it and use the arrow keys, to share the space; Enter collapses a pane.
+3. **Second pane** (`.dk-splitter__pane--second`): the other side.
+
 ## Usage
 
 - Name the handle after the pane it resizes (`separatorLabel="Folders"`), so a screen reader says what moving it changes.

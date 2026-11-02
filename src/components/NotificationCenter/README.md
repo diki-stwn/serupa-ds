@@ -29,6 +29,18 @@ function Layout() {
 - Something people must act on now: use an [Alert](../Alert/README.md) on the page or a [Dialog](../Dialog/README.md).
 - A full activity feed with filters and paging: build a page with [List](../List/README.md) and [Pagination](../Pagination/README.md).
 
+## Anatomy
+
+Drawn from the `Open` story.
+
+1. **List** (`.dk-notification-center__list`): the notifications, newest first.
+2. **Notification** (`.dk-notification-center__item`): one notification.
+3. **Icon** (`.dk-notification-center__icon`): its tone: info, success, warning or danger.
+4. **Title** (`.dk-notification-center__title`): what happened.
+5. **Description** (`.dk-notification-center__description`): more about it.
+6. **Time** (`.dk-notification-center__time`): when it happened.
+7. **Unread** (`.dk-notification-center__dot`): marks one not read yet, also in words for screen readers.
+
 ## Usage
 
 - Call `useToastHistory()` once, in the layout that renders the `<Toaster>`, and pass its `items` to the NotificationCenter. It keeps up to `limit` (50) toasts shown while it's mounted.

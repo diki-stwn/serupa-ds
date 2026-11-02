@@ -22,11 +22,16 @@ interface ComboboxBaseProps<V extends string = string> extends Omit<InputProps, 
         signal: AbortSignal;
     }) => Promise<readonly ComboboxOption<V>[]>;
     debounce?: number;
+    inputValue?: string;
+    defaultInputValue?: string;
     onInputChange?: (text: string) => void;
     filter?: ((option: {
         value: V;
         label: string;
     }, text: string) => boolean) | false;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     clearable?: boolean;
     loading?: boolean;
     emptyText?: React.ReactNode;
