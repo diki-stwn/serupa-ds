@@ -10,7 +10,7 @@ Serupa is a React 19 component library with design tokens, six themes and utilit
 ## Install and load
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v13.0.0
+npm install github:diki-stwn/serupa-ds#v14.0.0
 ```
 
 Pin a release tag, never `#main`. The tag is prebuilt, so nothing runs on install. Then load the CSS once, in this order, before any of your own CSS:

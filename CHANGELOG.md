@@ -4,6 +4,26 @@ Every change to Serupa (called the Diki Design System up to 4.8.1), newest first
 
 ## [Unreleased]
 
+## [14.0.0] - 2026-11-02
+
+### Added
+
+- New `serupa-ds/purge`: `serupa-purge` inside the build. Add `serupaPurge()` to Vite's plugins (or `serupaPurgePostcss()` to `postcss.config.mjs` for Next.js and webpack) and keep importing `bundle.css`: the production build ships the component styles and only the utility classes your code uses, as the command does, and the dev server keeps every class. Both take `content`, `keep` and `components`, and trim only Serupa's stylesheets (`utilities-extra.css` too). Getting started now shows this as the way to ship. `serupa-purge` also trims the rules inside `@starting-style` now: with `--components`, the entry animations of components the sources never name were kept.
+- Combobox: as the list narrows, the typed text is marked in each option's label, the way it was matched (ignoring case, accents and width: "lod" marks "Łód" in "Łódź"), with Highlight's underline. Not with a `filter` function or `loadOptions`, whose matches may be on something else.
+- Combobox: `inputValue` and `defaultInputValue` let an app own or seed the text in the field, as `value` and `defaultValue` do for the pick. `onInputChange` now hears every change to the text, not only typing: Escape, leaving the field and a new `value` putting a label back call it too, so a controlled field stays in step.
+- Combobox: `open`, `defaultOpen` and `onOpenChange(open, { reason })`, as Menu, Popover and the other overlays have. The reason is `'trigger'` (typing, the arrow keys, a click or the chevron), `'escape'`, `'blur'`, `'select'` or `'api'` (a form reset), so an app can keep the list open, shut it, or open it from elsewhere.
+- Tokens for native apps in `dist/native/`: `SerupaTokens.swift` for SwiftUI, `SerupaTokens.kt` for Jetpack Compose, and Android resources with each brand's light and dark colors. They carry the colors, spacing, radii, border widths, sizes, font sizes, opacities and durations.
+
+### Changed
+
+- **Breaking.** Changed: masks and gradients move out of `bundle.css` and `utilities.css` into their own file, `serupa-ds/utilities-extra.css` (`dist/utilities-extra.css`). They were a quarter of the utility rules (about 530 KB of `bundle.css`'s 1.76 MB) and few pages use them, so a page that doesn't loads 30% less CSS before any trimming. The classes that moved: `mask-*`, `bg-linear-*`, `bg-radial*`, `bg-conic*`, and the gradient stops `from-*`, `via-*` and `to-*`, with their negative versions. Every class still does what it did. **Migration:** search your sources for `mask-`, `bg-linear`, `bg-radial`, `bg-conic`, `from-`, `via-` and `to-`. If any appear, import the extra file after the bundle: `import 'serupa-ds/bundle.css'` then `import 'serupa-ds/utilities-extra.css'` (on a plain page, `<link rel="stylesheet" href="dist/utilities-extra.css">` after `bundle.css`). To trim it, run `serupa-purge` a second time with `--css node_modules/serupa-ds/dist/utilities-extra.css`. If none appear, there is nothing to do.
+
+### Fixed
+
+- Button: the package loads under Preact (`preact/compat`). Button imported React 19's `useFormStatus` by name, which Preact doesn't have, so importing `serupa-ds` failed there; it now reads it if it's there, and a submit button there is only loading when you set `loading`.
+- Serupa-purge: `--components` (and `components: true` in the purge plugins) kept 45 components' styles whenever the sources had the word `id` or `en` in them (`id="save"`, `lang="en"`), because every component's label sets are named `en` and `id`. A name more than one component exports no longer marks any of them used, so a Button-only app is about 52 KB again instead of 237 KB.
+- TableActionBar: inside a shadow root, Clear (or an action that empties the selection) with focus in the bar moves focus to the table's "Select all", as on the page. Before, focus fell to the body, because the bar read `document.activeElement`, which is the shadow host there.
+
 ## [13.0.0] - 2026-11-01
 
 ### Added
@@ -1963,7 +1983,8 @@ These still work and will be removed in 2.0.0:
 - `<Button variant="destructive">`: use `<Button destructive>`.
 - `<Button size="icon">`: use `<Button icon="…" aria-label="…">`.
 
-[Unreleased]: https://github.com/diki-stwn/serupa-ds/compare/v13.0.0...HEAD
+[Unreleased]: https://github.com/diki-stwn/serupa-ds/compare/v14.0.0...HEAD
+[14.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v13.0.0...v14.0.0
 [13.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v12.0.0...v13.0.0
 [12.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v11.0.0...v12.0.0
 [11.0.0]: https://github.com/diki-stwn/serupa-ds/compare/v10.1.0...v11.0.0
