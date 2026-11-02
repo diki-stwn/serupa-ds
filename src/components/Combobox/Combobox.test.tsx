@@ -170,6 +170,39 @@ describe('Combobox', () => {
     expect(lb.querySelectorAll('[role=option]').length).toBeLessThan(30);
   });
 
+  test('long lists: with 5,000 options, a picked option far down opens in place, its neighbours drawn around it, and the arrows step from it (GR100)', async () => { await withMotion(async () => {
+    const many = Array.from({ length: 5000 }, (_, i) => ({ value: 'v' + i, label: 'Member number ' + (i + 1) }));
+    await render(<div><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} defaultValue="v3999" /></div>);
+    await userEvent.click(el('cb'));
+    const lb = el('cb').parentElement!.querySelector('[role=listbox]')!;
+    const inView = (label: string) => {
+      const r = [...lb.querySelectorAll('[role=option]')].find((o) => o.textContent === label);
+      if (!r) return false;
+      const a = r.getBoundingClientRect(), l = lb.getBoundingClientRect();
+      return a.top >= l.top - 1 && a.bottom <= l.bottom + 1;
+    };
+    expect(st('cb').active).toBe('Member number 4000');
+    await expect.poll(() => [inView('Member number 4000'), inView('Member number 3999')]).toEqual([true, true]);
+    await userEvent.keyboard('{ArrowDown}');
+    expect(st('cb').active).toBe('Member number 4001');
+    await expect.poll(() => [inView('Member number 4001'), inView('Member number 4000')]).toEqual([true, true]);
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    expect(st('cb').active).toBe('Member number 3999');
+    await expect.poll(() => inView('Member number 3999')).toBe(true);
+  }); });
+
+  test('long lists: labels of two heights, ArrowUp from the first option wraps to the last, drawn whole (GR100)', async () => { await withMotion(async () => {
+    const many = Array.from({ length: 5000 }, (_, i) => ({ value: 'v' + i, label: 'Member number ' + (i + 1) + (i % 7 === 6 ? ', with a label long enough to wrap onto a second line' : '') }));
+    await render(<div style={{ width: '240px' }}><button id="before">Before</button><Combobox id="cb" aria-label="Many" options={many} /></div>);
+    await userEvent.click(el('cb'));
+    const lb = el('cb').parentElement!.querySelector('[role=listbox]')!;
+    await userEvent.keyboard('{ArrowDown}');
+    expect(st('cb').active).toBe('Member number 1');
+    await userEvent.keyboard('{ArrowUp}');
+    expect(st('cb').active).toBe('Member number 5000');
+    await expect.poll(() => { const a = activeOf('cb').getBoundingClientRect(), l = lb.getBoundingClientRect(); return a.top >= l.top - 1 && a.bottom <= l.bottom + 1; }).toBe(true);
+  }); });
+
   test('ArrowDown opens the list in the top layer with every option, the first highlighted, focus staying in the field', async () => {
     await render(<Countries />);
     await open();

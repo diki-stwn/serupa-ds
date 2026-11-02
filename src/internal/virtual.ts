@@ -65,7 +65,9 @@ interface View { i: number; at: number; height: number; p: number }
 // position a move by the keys or the wheel set past CAP (and the row it put at the top, which measuring doesn't move),
 // and the position last read or set (a different one means the user has scrolled since, and the scroll event is on
 // its way).
-interface Live { offsets: Float64Array; top: number; pending: { i: number; at: number; p: number } | null; seen: number }
+// It also keeps the row scrollToIndex last brought into view, and at which edge, until the user scrolls: measuring the
+// rows around it moves it, and it's put back at that edge (GR100).
+interface Live { offsets: Float64Array; top: number; pending: { i: number; at: number; p: number } | null; seen: number; pin: { i: number; end: boolean } | null }
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
@@ -82,6 +84,7 @@ function topAt(L: Live, p: number, height: number): number {
 
 function viewAt(L: Live, el: HTMLElement): View {
   const p = el.scrollTop, height = el.clientHeight, v = topAt(L, p, height), i = find(L.offsets, v);
+  if (Math.abs(p - L.seen) >= 1) L.pin = null;   // the user scrolled
   L.seen = p;
   return { i, at: L.offsets[i] - v, height, p };
 }
@@ -114,7 +117,7 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
   const [store, remeasured] = React.useReducer((s: { sizes: Map<number, number> }) => ({ sizes: s.sizes }), null, () => ({ sizes: new Map<number, number>() }));
   const sizes = store.sizes;
   const [view, setView] = React.useState<View | null>(null);
-  const live = React.useRef<Live>({ offsets: new Float64Array(1), top: 0, pending: null, seen: 0 });
+  const live = React.useRef<Live>({ offsets: new Float64Array(1), top: 0, pending: null, seen: 0, pin: null });
 
   // Rows not measured yet count as the average of those that are (the guess until one is), so the scroll range
   // settles near the real one after the first screen.
@@ -170,8 +173,8 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
     return () => { scroller.removeEventListener("scroll", read); scroller.removeEventListener("keydown", onKey); scroller.removeEventListener("wheel", onWheel); if (ro) ro.disconnect(); };
   }, [scroller]);
 
-  // Forget sizes past the end when rows go away.
-  React.useEffect(() => { for (const i of sizes.keys()) if (i >= count) sizes.delete(i); }, [count, sizes]);
+  // Forget sizes past the end when rows go away, and the pinned row when the rows change.
+  React.useEffect(() => { for (const i of sizes.keys()) if (i >= count) sizes.delete(i); live.current.pin = null; }, [count, sizes]);
 
   // Keep the view's row where it was, then measure what was drawn.
   // every render: any render can draw other rows or change their heights, and only the drawn rows say how tall they are.
@@ -179,14 +182,25 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
     const el = node.current, L = live.current;
     L.offsets = offsets;
     L.top = top;
-    if (!el) return;
+    if (!el) return undefined;
     // Below CAP the scroll position is the rows' top: when measuring moved the view's row, scroll by as much. Only
     // while the scroll position is the one last read or set (else the user has scrolled, and that wins), and never
     // past either end (a scroll the browser clamps fires no scroll event, and setting it again each render looped
     // until React gave up, GR91).
-    if (view && !scaled && Math.abs(el.scrollTop - L.seen) < 1) {
-      const to = clamp(top, 0, el.scrollHeight - el.clientHeight);
+    // A pinned row is put back even when the browser has clamped the scroll position meanwhile (the rows below
+    // measured shorter): its scroll event comes after this, and finds the position set here.
+    const pin = L.pin && L.pin.i < count ? L.pin : null;
+    if (view && !scaled && (pin || Math.abs(el.scrollTop - L.seen) < 1)) {
+      const to = clamp(pin ? (pin.end ? offsets[pin.i + 1] - el.clientHeight : offsets[pin.i]) : top, 0, el.scrollHeight - el.clientHeight);
       if (Math.abs(to - el.scrollTop) >= 1) { el.scrollTop = to; L.seen = el.scrollTop; }
+    }
+    // Not while the list is drawn scaled (Combobox's popup grows in as it opens): rows measured then were a little
+    // short, every row not yet seen counted as short as them, and a row far down was drawn and scrolled to away from
+    // where it was (GR100). Measured again next frame, until the scale is gone.
+    const box = el.getBoundingClientRect();
+    if (Math.abs(box.width - el.offsetWidth) > 0.5 || Math.abs(box.height - el.offsetHeight) > 0.5) {
+      const f = requestAnimationFrame(() => remeasured());
+      return () => cancelAnimationFrame(f);
     }
     let changed = false;
     for (const r of el.querySelectorAll<HTMLElement>(":scope > [data-index]")) {
@@ -197,17 +211,22 @@ export function useVirtual(options: VirtualOptions): VirtualRange {
       changed = true;
     }
     if (changed) remeasured();
+    return undefined;
   });
 
   const scrollToIndex = (index: number) => {
     const el = node.current;
+    live.current.pin = null;
     if (!el || index < 0 || index >= count) return;
     const a = offsets[index], b = offsets[index + 1], h = el.clientHeight;
     // From where the rows' top is now, the nearest top that shows the row.
     const now = scaled ? top : el.scrollTop;
     const want = a < now ? a : b > now + h ? b - h : now;
     if (want === now) return;
-    if (scaled) go(live.current, el, want); else el.scrollTop = want;
+    if (scaled) { go(live.current, el, want); return; }
+    el.scrollTop = want;
+    live.current.seen = el.scrollTop;
+    live.current.pin = { i: index, end: want !== a };
   };
 
   const drawn = offsets[end] - offsets[start];
