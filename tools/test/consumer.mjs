@@ -7,6 +7,7 @@
 //   node tools/test/consumer.mjs
 //   node tools/test/consumer.mjs --release   the GitHub release of package.json's version instead (D5), by the URL the
 //                                             README's install line gives, after the Release workflow has made it
+//   node tools/test/consumer.mjs --react canary   with React's canary (or any version or tag npm knows) (J4)
 // Only Node's own modules here: on Node 22 the repository's dependencies aren't installed (npm ci asks for Node 26).
 import fs from 'node:fs';
 import os from 'node:os';
@@ -51,8 +52,12 @@ const app = path.join(tmp, 'app');
 fs.mkdirSync(app);
 fs.writeFileSync(path.join(app, 'package.json'), JSON.stringify({ name: 'consumer', private: true, type: 'module' }) + '\n');
 // A release's tag holds the package.json it ships, without devDependencies: then the React its peers allow.
+// --react canary (J4): React's next version instead, as the nightly runs it, so a change coming in React shows up here
+// before it ships. The Preact project is the same either way.
 const dep = (name) => pkg.devDependencies?.[name] ?? pkg.peerDependencies[name];
-run(['install', '--no-audit', '--no-fund', '--ignore-scripts', tarball, `react@${dep('react')}`, `react-dom@${dep('react-dom')}`], app);
+const reactArg = process.argv.indexOf('--react');
+const reactVersion = reactArg > 0 ? process.argv[reactArg + 1] : null;
+run(['install', '--no-audit', '--no-fund', '--ignore-scripts', ...(reactVersion ? ['--legacy-peer-deps'] : []), tarball, `react@${reactVersion ?? dep('react')}`, `react-dom@${reactVersion ?? dep('react-dom')}`], app);
 
 // Runs inside the project, so serupa-ds resolves from its node_modules as in any app.
 const SSR = path.join(HERE, 'ssr');
@@ -64,6 +69,7 @@ import { fileURLToPath } from 'node:url';
 const R = [], t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
 const React = (await import('react')).default;
 const { renderToString } = await import('react-dom/server');
+t('React ' + React.version + ' is installed', ${JSON.stringify(reactVersion ?? '')} !== 'canary' || React.version.includes('canary'), React.version);
 let D, icons;
 try { D = await import('serupa-ds'); t('import "serupa-ds"', Object.keys(D).length > 100, Object.keys(D).length + ' exports'); } catch (e) { t('import "serupa-ds"', false, e.stack); }
 try { icons = await import('serupa-ds/icons'); t('import "serupa-ds/icons"', Object.keys(icons).length > 100, Object.keys(icons).length + ' exports'); } catch (e) { t('import "serupa-ds/icons"', false, e.stack); }
@@ -129,5 +135,5 @@ results.push(...check(preact));
 fs.rmSync(tmp, { recursive: true, force: true });
 for (const x of results) console.log(`${x.ok ? 'PASS' : 'FAIL'}  ${x.name}${x.ok || !x.detail ? '' : '\n      ' + x.detail}`);
 const bad = results.filter((x) => !x.ok).length;
-console.log(`\nConsumer${release ? ` of the v${pkg.version} release` : ''} on Node ${process.versions.node}: ${results.length - bad}/${results.length} passed`);
+console.log(`\nConsumer${release ? ` of the v${pkg.version} release` : ''}${reactVersion ? ` with react@${reactVersion}` : ''} on Node ${process.versions.node}: ${results.length - bad}/${results.length} passed`);
 process.exit(bad ? 1 : 0);
