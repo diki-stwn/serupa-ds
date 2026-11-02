@@ -22,6 +22,14 @@ import { Image } from "serupa-ds";
 - A symbol for an action or a status: use [Icon](../Icon/README.md) instead.
 - A purely decorative background: use a CSS `background-image` instead.
 
+## Anatomy
+
+Drawn from the `Removable` story.
+
+1. **Picture** (`.dk-image__img`): the image, with its alternative text.
+2. **View** (`.dk-image__view`): opens it full size.
+3. **Remove** (`.dk-image__remove`): takes it away, when it can be removed.
+
 ## Usage
 
 - Write `alt` to say what the picture shows. Use `""` only for a picture that's there for decoration.

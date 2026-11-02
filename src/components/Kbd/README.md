@@ -21,6 +21,13 @@ import { Kbd } from "serupa-ds";
 - A shortcut hint at the end of a menu item: use [Menu](../Menu/README.md)'s `shortcut` prop instead.
 - A short label such as a status or a count: use [Badge](../Badge/README.md) instead.
 
+## Anatomy
+
+Drawn from the `InText` story.
+
+1. **Key** (`.dk-kbd__key`): one key, as it's printed on the keyboard.
+2. **Plus** (`.dk-kbd__plus`): between keys pressed together.
+
 ## Usage
 
 - Pass a combination as `keys`, one key each, and a single key as children.
