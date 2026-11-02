@@ -30,6 +30,17 @@ const files: TreeViewItem[] = [
 - Sections of content that open and close: use [Accordion](../Accordion/README.md).
 - Rows with columns: use a [Table](../Table/README.md).
 
+## Anatomy
+
+Drawn from the `Multiple` story.
+
+1. **Item** (`.dk-tree-view__item`): one node, with the nodes under it.
+2. **Toggle** (`.dk-tree-view__toggle`): opens and closes the nodes under it; the arrow keys do too.
+3. **Icon** (`.dk-tree-view__icon`): an optional picture, such as a folder or a file.
+4. **Label** (`.dk-tree-view__label`): the node's name.
+5. **Selected item** (`.dk-tree-view__item--selected`): a node chosen now.
+6. **Group** (`.dk-tree-view__group`): the nodes under an open one, set in.
+
 ## Usage
 
 - Pass `items`, each with a unique `id` and a `label`. An item with `children` opens and closes, even when its children are an empty array (a folder with nothing in it yet).

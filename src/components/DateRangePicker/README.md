@@ -23,6 +23,14 @@ const [stay, setStay] = React.useState<DateRange>({ start: null, end: null });
 - A fixed period such as "Last 7 days" or "This month": use a [Select](../Select/README.md) or a [SegmentedControl](../SegmentedControl/README.md) of presets instead.
 - A time of day as well as the dates: pair the fields with [TimePicker](../TimePicker/README.md); DateRangePicker holds days only.
 
+## Anatomy
+
+Drawn from the `Disabled` story.
+
+1. **Start date** (`.dk-date-range-picker__field`): the first day, typed or chosen.
+2. **Dash** (`.dk-date-range-picker__dash`): between the two dates.
+3. **Calendar button** (`.dk-date-range-picker__button`): opens two months to choose both days.
+
 ## Usage
 
 - Wrap it in [Field](../Field/README.md) with one label for the range, and put the expected format in the `hint`. Field's `id` goes to the start field.

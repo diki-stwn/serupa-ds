@@ -32,6 +32,13 @@ const { Popover, Button, Field, Input } = window.Serupa;
 - A list of actions: use [Menu](../Menu/README.md) instead.
 - Something people must finish or dismiss before going on: use [Dialog](../Dialog/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Bottom` story, opened.
+
+1. **Title** (`.dk-popover__title`): an optional heading that names the popover.
+2. **Body** (`.dk-popover__body`): its content.
+
 ## Usage
 
 - The trigger is one element that passes its ref and props on to a DOM element: a Button, IconButton or link, or your own component written with `React.forwardRef` (or the `ref` prop in React 19) that spreads what it gets. A text, several elements or a Fragment throws an error that names the component, and a trigger that drops its ref warns once in the console ("Serupa: Menu's trigger doesn't forward its ref to an element.").

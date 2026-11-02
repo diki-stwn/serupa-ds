@@ -22,6 +22,13 @@ highlightRanges("Łódź, Poland", "lodz")                        // [[0, 4]]
 - A label or count next to text: use a [Badge](../Badge/README.md).
 - Long rich content: Highlight takes plain text, not elements.
 
+## Anatomy
+
+Drawn from the `InOptions` story.
+
+1. **Text** (`.dk-highlight`): the whole text, read as one string.
+2. **Match** (`.dk-highlight__mark`): the part that matches what was typed.
+
 ## Usage
 
 - Pass the same query the list was filtered with, so what's marked is what matched.

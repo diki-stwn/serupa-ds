@@ -27,6 +27,15 @@ const { Navbar, NavbarLink, Button, Avatar } = window.Serupa;
 - Switching between views of the same thing on one page: use [Tabs](../Tabs/README.md) instead.
 - Showing where a page sits in a hierarchy: use a [Breadcrumb](../Breadcrumb/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Playground` story.
+
+1. **Brand** (`.dk-navbar__brand`): the product's name or logo, linking home.
+2. **Links** (`.dk-navbar__links`): the main sections of the site.
+3. **Current link** (`.dk-navbar__link--active`): the section you're in.
+4. **Actions** (`.dk-navbar__actions`): search, account or other actions at the end.
+
 ## Usage
 
 - Keep the links to the main pages, a few short words each; below 768px they fold into the menu button. More links than fit below the bar scroll inside the panel, and in the panel a long label wraps onto more lines.

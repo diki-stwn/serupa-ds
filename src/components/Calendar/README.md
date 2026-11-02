@@ -22,6 +22,17 @@ const [day, setDay] = React.useState<Date | null>(null);
 - A start and an end date: use [DateRangePicker](../DateRangePicker/README.md); Calendar picks one day.
 - A date people know by heart, such as a date of birth: use an [Input](../Input/README.md) with a format hint.
 
+## Anatomy
+
+Drawn from the `MonthYearPicker` story.
+
+1. **Header** (`.dk-calendar__header`): the month shown and the ways to change it.
+2. **Month and year** (`.dk-calendar__menus`): menus to jump to another month or year.
+3. **Previous and next** (`.dk-calendar__nav`): move one month back or forward.
+4. **Grid** (`.dk-calendar__grid`): the days of the month in weeks, with the weekday names above.
+5. **Selected day** (`.dk-calendar__day--selected`): the chosen date.
+6. **Day of another month** (`.dk-calendar__day--outside`): days before and after the month, to fill the weeks.
+
 ## Usage
 
 - Put a heading or a line of text near it saying what the day is for ("Pick a delivery day"): the grid is named by its month title only.
