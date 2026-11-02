@@ -14,6 +14,7 @@ import { customIcons, isIconData } from '../src/icons';
 import { DEFAULT_LABELS, idLabels, type SerupaLabels } from '../src/internal/labels';
 import labelsSource from '../src/internal/labels.ts?raw';
 import { componentStatus } from './generated/status';
+import { componentTests } from './generated/tested';
 import { AnatomyDiagram, parseAnatomy, type Anatomy } from './anatomy';
 // Each component's own words (src/components/<Name>/labels.ts), whose doc comments say where each is used too.
 const componentLabelSources = Object.values(import.meta.glob('../src/components/*/labels.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>);
@@ -56,7 +57,31 @@ export function Guide({ source }: { source: string }) {
     {anatomyAt(source.replace(/^# .*\n+/, '')).map((part, i) => (typeof part === 'string'
       ? <Markdown key={i}>{relink(part)}</Markdown>
       : <AnatomyDiagram key={i} {...part} />))}
+    {name && <TestedBehavior name={name} />}
   </>;
+}
+
+// A test name without the backlog ids it carries for the people working on the repository: "(GR44)", "(62)", "(FH1, 180)",
+// "GR55: ".
+const plainName = (t: string) => t.replace(/\s*\((?:[A-Z]{0,3}\d+[a-z]?(?:,\s*)?)+\)/g, '').replace(/^[A-Z]{1,3}\d+: /, '').trim();
+
+/** What a component's tests check (131), by their names, read from its <Name>.test.tsx when the docs are built, so
+ * the list is the suite and can't promise more than it runs. Closed by default: it's long, and for the curious. */
+export function TestedBehavior({ name }: { name: string }) {
+  const groups = componentTests[name] || [];
+  const count = groups.reduce((n, g) => n + g.tests.length, 0);
+  if (!count) return null;
+  return <section className="sb-tested" aria-labelledby={`tested-${name}`}>
+    <h2 id={`tested-${name}`}>What the tests check</h2>
+    <p>{count} {count === 1 ? 'test' : 'tests'} in <code>{name}.test.tsx</code> run in Chromium on every pull request that changes it, and in Firefox and WebKit every night. Besides these, every story is checked with axe in all six themes, at 200% text, with wider text spacing and at 320px wide, and compared with its screenshots.</p>
+    <details>
+      <summary>Every test, by name</summary>
+      {groups.map((g, i) => <React.Fragment key={i}>
+        {groups.length > 1 && <h3>{plainName(g.group)}</h3>}
+        <ul>{g.tests.map((t, j) => <li key={j}>{plainName(t)}</li>)}</ul>
+      </React.Fragment>)}
+    </details>
+  </section>;
 }
 
 // What each status means to someone choosing a component, as README.md's Versioning section says it.

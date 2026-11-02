@@ -41,6 +41,10 @@ html, body { background-color: var(--surface); }
    keep the page's width. */
 .sbdocs-content :is(p, ul, ol, blockquote):not(.docs-story *, .sb-unstyled *, td *, th *, li *) { max-inline-size: var(--container-prose); }
 
+/* What the tests check (docs/blocks.tsx TestedBehavior): the list of test names, closed until asked for. */
+.sbdocs-content .sb-tested summary { cursor: pointer; font-weight: 600; }
+.sbdocs-content .sb-tested li { margin-block: 4px; }
+
 /* Anatomy diagrams (docs/anatomy.tsx): the story with its parts outlined and numbered. An overlay is drawn from a
    still copy, open and in the page's flow (not fixed, not in the top layer, no motion). */
 .sb-anatomy { margin: 16px 0; padding: 32px 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
