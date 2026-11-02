@@ -46,6 +46,7 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 - A press anywhere on the box, on the left icon, the side padding or a tag, focuses the field with the caret at the end, as the text cursor over the box promises (the chevron and × keep their own presses).
 - Leaving the field closes the list and puts back the picked label. Leaving it empty clears the selection. Switching to another window or browser tab isn't leaving the field: the text waits until people come back.
 - With `multiple`, each picked option is a tag before the text, in the order it was picked, with a remove button. Picking an option toggles it and keeps the list open on it, and the text empties so the next search starts from every option. Backspace in the empty field removes the last tag. Leaving the field empties the text and picks nothing. The box grows a row at a time as tags wrap.
+- As the list narrows, the typed text is marked in each option's label (with Highlight), matched the way the filter matches: "lod" marks "Łód" in "Łódź". Not with a `filter` function or `loadOptions`, which may match on something else.
 - Text that is exactly one option's label ("brazil" for Brazil: any case, with or without accents) picks that option when focus leaves the field (Tab or a click elsewhere), as Enter would.
 - The list opens under the field in the top layer, at least as wide as the field and up to 240px tall, and flips above when there's no room. With no room above or below either, it takes the roomier side and gets shorter, scrolling inside.
 - It fades and grows in from the edge facing the field, and fades and shrinks back out a little faster on close, inert while it goes, as Menu, Popover and DatePicker do. Closed mid-way, it turns back from where it is. Under reduced motion it only fades. From the keyboard there is no motion: opened by typing or an arrow the list is there at once, and Escape takes it away at once.
@@ -85,7 +86,9 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `value` | `V \| null` (`V[]` with `multiple`) | | Controlled. `V` is the options' values, a `string` by default: it's inferred from `options`, or given as `Combobox<'red' \| 'green'>`, so `onValueChange` gets that union; given, a value outside it is a type error. |
 | `defaultValue` | `V \| null` (`V[]` with `multiple`) | | Uncontrolled. |
 | `onValueChange` | `(value: V \| null) => void` (`(value: V[]) => void` with `multiple`) | | When an option is picked, or `null` when the field is emptied or cleared. With `multiple`, every picked value in the order picked. |
-| `onInputChange` | `(text: string) => void` | | The text as it's typed, for loading options. |
+| `inputValue` | `string` | | The text in the field (controlled). Use with `onInputChange`. |
+| `defaultInputValue` | `string` | the picked label | The text in the field at first (uncontrolled). |
+| `onInputChange` | `(text: string) => void` | | Every change to the text: typing, and the label that picking, clearing, Escape or leaving the field puts back. |
 | `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo", "こーひー" finds "コーヒー") | `false` shows every option you pass. |
 | `clearable` | `boolean` | `false` | A × that clears the selection (every tag, with `multiple`). |
 | `loading` | `boolean` | `false` | A loading row in the list. |

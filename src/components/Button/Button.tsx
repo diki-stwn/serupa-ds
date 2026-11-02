@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useFormStatus } from "react-dom";
+import * as ReactDOM from "react-dom";
 import { cn, type DataAttributes, domId, omit, oneOf, setRef, SIZES, useIsoLayoutEffect } from "../../internal/cn";
 import { config } from "../../internal/config";
 import { useShowAfter } from "../../internal/showAfter";
@@ -14,6 +14,10 @@ import { Loader } from "../Loader/Loader";
 import { component } from "../../internal/component";
 import { BUTTON_VARIANTS, buttonClass } from "./buttonClass";
 import { feedbackHold, spinnerDelay } from "../../internal/timing";
+// React 19's form status, read off the namespace: Preact's compat layer has no useFormStatus (and no form actions), so
+// a named import would stop the whole package loading there. Without it a submit button is never pending on its own.
+const noFormStatus = (): { pending: boolean } => ({ pending: false });
+const useFormStatus: () => { pending: boolean } = (ReactDOM as Partial<typeof ReactDOM>).useFormStatus ?? noFormStatus;
 
 export { buttonClass };
 

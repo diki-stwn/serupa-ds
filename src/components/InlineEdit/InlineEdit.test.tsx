@@ -9,7 +9,9 @@ import { Dialog } from '../Dialog/Dialog';
 import { InlineEdit } from './InlineEdit';
 
 const root = (id: string) => document.getElementById(id) as HTMLDivElement;
-const view = (id: string) => root(id).querySelector('.dk-inline-edit__view') as HTMLElement;
+const view = (id: string) => root(id).querySelector(':scope > :is(button, span):first-child') as HTMLElement;
+// The words shown: the view's own span (the hidden words are VisuallyHidden, the pencil an Icon).
+const TEXT = ':scope > span:not([data-component]):not([data-icon])';
 const input = (id: string) => root(id).querySelector<HTMLInputElement>('input');
 const said = () => document.querySelector<HTMLElement>('[data-dk-announcer]')!.textContent;
 const Box = ({ children }: { children: React.ReactNode }) => <div style={{ width: '320px', display: 'grid', gap: '12px', background: 'var(--surface)' }}>{children}</div>;
@@ -67,7 +69,7 @@ describe('InlineEdit', () => {
     const b = view('a');
     expect([b.tagName, b.getAttribute('type'), b.textContent, root('a').dataset.state, root('a').dataset.component, ref.current === root('a'), root('a').className, root('a').dataset.x])
       .toEqual(['BUTTON', 'button', 'Project name: Apollo, Edit', 'viewing', 'inline-edit', true, 'dk-inline-edit dk-inline-edit--size-md extra', 'y']);
-    expect(css(b.querySelector('.dk-inline-edit__text')).position).not.toBe('absolute');
+    expect(css(b.querySelector(TEXT)).position).not.toBe('absolute');
     await userEvent.click(b);
     const i = input('a')!;
     expect([root('a').dataset.state, document.activeElement === i, i.getAttribute('aria-label'), i.value, i.selectionStart, i.selectionEnd]).toEqual(['editing', true, 'Project name', 'Apollo', 0, 6]);
@@ -122,7 +124,7 @@ describe('InlineEdit', () => {
     await userEvent.click(view('v'));
     await userEvent.fill(input('v')!, 'apollo plan');
     await userEvent.keyboard('{Enter}');
-    const i = input('v')!, err = root('v').querySelector('.dk-inline-edit__error')!;
+    const i = input('v')!, err = root('v').querySelector(':scope > div[id]')!;
     expect([i.getAttribute('aria-invalid'), i.getAttribute('aria-describedby') === err.id, err.textContent, document.activeElement === i, calls]).toEqual(['true', true, 'Use dashes instead of spaces.', true, []]);
     await userEvent.fill(i, 'apollo-plan');
     expect([i.hasAttribute('aria-invalid'), root('v').querySelector('[data-icon="error"]')]).toEqual([false, null]);
@@ -266,7 +268,7 @@ describe('InlineEdit', () => {
     const out: string[] = [];
     await render(<Box>{(['sm', 'md', 'lg'] as const).map((s) => <InlineEdit key={s} id={'s-' + s} size={s} label="Name" defaultValue="Apollo" />)}</Box>);
     for (const size of ['sm', 'md', 'lg'] as const) {
-      const b = view('s-' + size).getBoundingClientRect(), x = (view('s-' + size).querySelector('.dk-inline-edit__text') as HTMLElement).getBoundingClientRect().left;
+      const b = view('s-' + size).getBoundingClientRect(), x = (view('s-' + size).querySelector(TEXT) as HTMLElement).getBoundingClientRect().left;
       await userEvent.click(view('s-' + size));
       const box = input('s-' + size)!.parentElement!.getBoundingClientRect(), fx = input('s-' + size)!.getBoundingClientRect().left;
       out.push(`${size} ${Math.round(b.height)} ${Math.round(box.height)} ${Math.round(x - fx)}`);
@@ -283,7 +285,7 @@ describe('InlineEdit', () => {
       await Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined)));
       const page = css(root('c').parentElement).backgroundColor, hover = css(document.getElementById('hover-bg')).backgroundColor;
       for (const [id, need] of [['c', 4.5], ['cp', 4.5]] as const) {
-        const fg = css(view(id).querySelector('.dk-inline-edit__text')).color;
+        const fg = css(view(id).querySelector(TEXT)).color;
         for (const [where, bg] of [['page', page], ['hover', hover]]) { const r = contrast(fg, bg); if (r < need) low.push(`${th} ${id} on ${where} ${r.toFixed(2)}`); }
       }
     }
