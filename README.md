@@ -380,6 +380,10 @@ Names are never removed in a minor or patch release: they're marked deprecated i
 
 Each token keeps its CSS variable in `$extensions["com.serupa"].cssVar`. The files are generated from `tokens.json` (`npm run tokens`) and the tests fail if they fall out of step. `tools/tokens/style-dictionary.config.mjs` builds them back into CSS, one file per theme, with the system's own variable names; the tests check that every one of its 3,500 values equals the token.
 
+### In Figma
+
+The Figma variables workflow keeps a Figma file's variables in step with the tokens: three collections (Serupa palette, Serupa themes with a mode per theme, Serupa scales), each variable named by its path (`spacing/spacing-4`) with its description and its CSS variable as the code syntax Dev Mode shows. It runs on `main` when the tokens change, once the repository has a `FIGMA_TOKEN` (with the `file_variables:read` and `file_variables:write` scopes) and a `FIGMA_FILE` secret; Figma's Variables REST API needs an Enterprise plan. `node tools/tokens/figma-variables.mjs` shows what it would send.
+
 ## Tokens for native apps
 
 `dist/native/` (`serupa-ds/native/…`) holds the colors, spacing, radii, border widths, sizes, font sizes, opacities and durations for an iOS or Android app that sits beside a web app on Serupa, made from the same tokens by `npm run build`. A rem is 16 points (dp).
