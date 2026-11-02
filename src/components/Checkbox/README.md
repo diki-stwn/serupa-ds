@@ -43,6 +43,15 @@ const [tags, setTags] = React.useState(["news"]);
 - A setting that applies at once: use a [Switch](../Switch/README.md).
 - One choice from a list: use [radios](../Radio/README.md); checkboxes say "any number".
 
+## Anatomy
+
+Drawn from the `LongLabel` story.
+
+1. **Box** (`.dk-checkbox__control`): the square that shows checked, unchecked or mixed, over the native checkbox.
+2. **Check mark** (`.dk-checkbox__icon`): the mark inside the box when it's checked.
+3. **Label** (`.dk-checkbox__text`): what checking it means; clicking it checks the box too.
+4. **Description** (`.dk-checkbox__description`): optional detail under the label.
+
 ## Usage
 
 - Write the label as a statement that's true when checked ("Email me about replies"), not a question.

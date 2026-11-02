@@ -22,6 +22,14 @@ const [q, setQ] = React.useState("");
 - Picking one value from a known list: use [Combobox](../Combobox/README.md).
 - A one-line answer in a form that isn't a search: use [Input](../Input/README.md).
 
+## Anatomy
+
+Drawn from the `Invalid` story.
+
+1. **Search icon** (`.dk-search-input__icon`): says the field searches.
+2. **Field** (`.dk-input__field`): where the search is typed.
+3. **Clear** (`.dk-search-input__clear`): empties the field, as Escape does.
+
 ## Usage
 
 - Put it in a `<form role="search">` when it searches the whole site or app.

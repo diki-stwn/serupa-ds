@@ -29,6 +29,9 @@ interface ComboboxBaseProps<V extends string = string> extends Omit<InputProps, 
         value: V;
         label: string;
     }, text: string) => boolean) | false;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean, details: OpenChangeDetails) => void;
     clearable?: boolean;
     loading?: boolean;
     emptyText?: React.ReactNode;

@@ -33,6 +33,14 @@ const { Select, Field } = window.Serupa;
 - Picking more than one option: use [checkboxes](../Checkbox/README.md); Select doesn't support `multiple`.
 - A few options that change a view right away, such as Day, Week, Month: use [SegmentedControl](../SegmentedControl/README.md).
 
+## Anatomy
+
+Drawn from the `WithIcon` story.
+
+1. **Leading icon** (`.dk-select__icon--left`): an optional picture of what is chosen.
+2. **Field** (`.dk-select__field`): the native select, showing the chosen option.
+3. **Chevron** (`.dk-select__icon--chevron`): says it opens a list.
+
 ## Usage
 
 - Order options the way people expect: alphabetically, by frequency, or in their natural order (sizes, dates).

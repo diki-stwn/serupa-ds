@@ -33,6 +33,16 @@ const { List, ListItem, Avatar, Badge, IconButton } = window.Serupa;
 - Actions behind a button: use [Menu](../Menu/README.md) instead.
 - An app's main navigation: use [Sidebar](../Sidebar/README.md) instead.
 
+## Anatomy
+
+Drawn from the `Settings` story.
+
+1. **Item** (`.dk-list__item`): one row.
+2. **Leading** (`.dk-list__leading`): an optional icon, avatar or image before the text.
+3. **Title** (`.dk-list__title`): the row's main line.
+4. **Description** (`.dk-list__description`): a second line with more detail.
+5. **Trailing** (`.dk-list__trailing`): an optional value, badge, switch or action at the end.
+
 ## Usage
 
 - Put actions in `trailing`, never inside the row's link or button, and name them for their row ("More for Ada Lovelace").

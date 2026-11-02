@@ -31,6 +31,17 @@ import { Stepper } from "serupa-ds";
 - How far along one thing is, such as an upload: use [Progress](../Progress/README.md) instead.
 - Where a page sits in the site: use [Breadcrumb](../Breadcrumb/README.md) instead.
 
+## Anatomy
+
+Drawn from the `LongLabels` story.
+
+1. **Step** (`.dk-stepper__step`): one stage of the task.
+2. **Indicator** (`.dk-stepper__indicator`): its number, or a mark when it's done or has a problem.
+3. **Title** (`.dk-stepper__title`): the stage's name.
+4. **Description** (`.dk-stepper__description`): optional detail under the title.
+5. **Connector** (`.dk-stepper__connector`): the line to the next step, filled once this one is done.
+6. **Current step** (`.dk-stepper__step--current`): the stage you're on.
+
 ## Usage
 
 - Keep step titles to a word or two, and put any detail in `description`.

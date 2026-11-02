@@ -25,6 +25,17 @@ const SWATCHES = [{ value: "#1d4ed8", label: "Blue" }, { value: "#047857", label
 - Choosing between a few named options that happen to be colors ("Red", "Green" as statuses): use a [SegmentedControl](../SegmentedControl/README.md) or [Select](../Select/README.md) with the names.
 - Theming the whole product: use the themes and tokens.
 
+## Anatomy
+
+Drawn from the `ContrastCheck` story.
+
+1. **Swatches** (`.dk-color-picker__swatches`): the colors to choose from, each named for screen readers.
+2. **Chosen swatch** (`.dk-color-picker__swatch--checked`): the color chosen now, with a check.
+3. **Custom color** (`.dk-color-picker__custom`): any other color, from the system picker or as a hex code.
+4. **Hex code** (`.dk-color-picker__hex`): the chosen color as a hex code, to read or type.
+5. **Contrast** (`.dk-color-picker__contrast`): the contrast against the background it will sit on.
+6. **Warning** (`.dk-color-picker__warning`): says when that contrast is too low to read.
+
 ## Usage
 
 - Name every swatch in words with `label` ("Ocean", "Sunset"). Screen readers say the name. A bare hex string (or an empty `label`) gets a rough name from its color, such as "Dark blue" or "Light gray" (the `colorName` label, English and Indonesian built in), and its code as the tooltip; your own names are still better, since two blues both read as "Blue".
