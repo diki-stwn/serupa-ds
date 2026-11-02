@@ -10,7 +10,7 @@ Serupa is a React 19 component library with design tokens, six themes and utilit
 ## Install and load
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v12.0.0
+npm install github:diki-stwn/serupa-ds#v13.0.0
 ```
 
 Pin a release tag, never `#main`. The tag is prebuilt, so nothing runs on install. Then load the CSS once, in this order, before any of your own CSS:
@@ -97,6 +97,7 @@ Each component's guide covers when to use it, when not to, its props, its keyboa
 - **RelativeTime**: Says how long ago, or how far ahead, a moment is, in the reader's language: "3 minutes ago", "yesterday", "in 2 hours".
 - **SortableList**: A list people put in their own order: tasks by priority, steps in a flow, columns in a table.
 - **Table**: A data table built on native table markup: a header row, body rows and an optional footer, in a bordered frame that scrolls sideways when the table is too wide.
+- **VirtualList** (beta): A List of any length that draws only the rows in view, so ten thousand people, files or log lines scroll as smoothly as ten.
 
 ### Data display
 
@@ -152,6 +153,7 @@ Each component's guide covers when to use it, when not to, its props, its keyboa
 - **Divider**: A 1px line between content, horizontal or vertical, with an optional label in the middle such as "or".
 - **Grid**: Cells in equal columns, or as many columns as fit, with the same space between them from the spacing scale.
 - **Heading**: A heading, `h1` to `h6`, in the system's type.
+- **Prose**: Styles for content nobody wrote in components: HTML from Markdown, a CMS or a rich-text editor, such as a help article, a changelog or a blog post.
 - **Stack**: Lays its children out in a column, or a row, with the same space between each, taken from the spacing scale.
 - **Text**: Body text in the system's type: a paragraph, a caption, an error line.
 - **VisuallyHidden**: Content that screen readers announce but nobody sees: "(opens in a new tab)", the label of an icon-only control you build yourself, a heading for a section that's obvious by sight.
@@ -163,14 +165,17 @@ Each component's guide covers when to use it, when not to, its props, its keyboa
 - **Navbar**: The bar across the top of an app: the brand on the left, the main page links, and actions on the right (search, a user menu, sign in).
 - **Pagination**: Moves through pages of results: previous and next arrows around the page numbers, with … where pages are skipped.
 - **Sidebar**: A vertical nav for an app's pages: an optional header (a logo, a workspace switcher), sections of items with icons, badges and nested groups, and a footer pinned to the bottom (settings, the signed-in user).
+- **SkipLink**: The "Skip to content" link that keyboard and screen reader users need first on every page (WCAG 2.4.1 Bypass Blocks).
 - **Stepper**: Shows where people are in a task split into steps, such as sign-up, checkout or setup.
 - **Tabs**: Switches between related panels in one place, such as a project's Overview, Activity and Settings.
 - **TreeView**: Nested items that open and close, such as folders and files, a table of contents or categories.
 
 ### Overlays
 
+- **CommandPalette** (beta): A search over the app's commands and pages in a dialog, opened with ⌘K (Ctrl+K off Apple devices) from anywhere: type a few letters, move with the arrows, press Enter.
 - **Dialog**: A modal window over a dimmed page, for a task or a decision that needs attention before people go on: inviting someone, confirming a delete, editing a few fields.
 - **Drawer**: A modal panel that slides in from an edge of the screen: navigation on small screens, filters, or details and edits without leaving the page.
+- **HoverCard**: A preview of what a link points to: a person, a page, a repository.
 - **KeyboardShortcuts**: Keyboard shortcuts for an app, in one place: `useShortcut` sets one up where it's used, and `<KeyboardShortcuts>` is the help dialog that lists them all, opened with <kbd>?</kbd>.
 - **Menu**: A list of actions behind a button: a row's "More" menu, an "Actions" dropdown, a user menu.
 - **NotificationCenter**: A drawer of past notifications with read states: newest first, unread ones with a dot and a bolder title, and buttons to mark them read or clear the list.
