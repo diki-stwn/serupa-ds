@@ -56,6 +56,11 @@
       "import": "./dist/testing.js",
       "default": "./dist/testing.js"
     },
+    "./labels/*": {
+      "types": "./dist/labels/*.d.ts",
+      "import": "./dist/js/labels/*.js",
+      "default": "./dist/js/labels/*.js"
+    },
     "./purge": {
       "types": "./dist/purge.d.ts",
       "import": "./dist/purge.js",

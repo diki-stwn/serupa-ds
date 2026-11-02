@@ -138,6 +138,12 @@ fs.copyFileSync(path.join(P, 'src', 'stylelint.d.ts'), path.join(D, 'stylelint.d
 // testing.js (184): forEachTheme() for screenshots of an app's own pages in each theme (serupa-ds/testing), as written.
 fs.writeFileSync(path.join(D, 'testing.js'), stamp(read('src/testing.js')));
 fs.copyFileSync(path.join(P, 'src', 'testing.d.ts'), path.join(D, 'testing.d.ts'));
+// Language packs (I7): serupa-ds/labels/<language> is dist/js/labels/<language>.js, one module per src/labels/ file,
+// with these types beside it.
+fs.mkdirSync(path.join(D, 'labels'), { recursive: true });
+for (const f of fs.readdirSync(path.join(P, 'src', 'labels')).filter((x) => x.endsWith('.ts'))) {
+  fs.writeFileSync(path.join(D, 'labels', f.replace(/\.ts$/, '.d.ts')), `import type { SerupaLabels } from "../index.js";\n/** Every built-in word, in this language: <SerupaProvider locale={locale} labels={labels}>. */\nexport declare const labels: SerupaLabels;\n/** The locale the words are written for. */\nexport declare const locale: string;\n`);
+}
 // purge.js (D11): serupa-purge as a Vite and a PostCSS plugin (serupa-ds/purge), as written; it imports bin/serupa-purge.mjs.
 fs.writeFileSync(path.join(D, 'purge.js'), stamp(read('src/purge.js')));
 fs.copyFileSync(path.join(P, 'src', 'purge.d.ts'), path.join(D, 'purge.d.ts'));

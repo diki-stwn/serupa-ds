@@ -27,6 +27,19 @@ export default function RootLayout({ children }) {
 | `labels` | The built-in words: close and dismiss buttons, loading text, pagination, date and time buttons, file upload text and so on (the `SerupaLabels` type lists every key). Pass `idLabels` for Indonesian, or only the keys you want to change. |
 | `icons` | Icons that work by name inside it, in the shape `registerIcons` takes. |
 
+## Language packs
+
+Each language the package ships is an entry of its own, `serupa-ds/labels/<language>`, so an app loads only the languages it imports. A pack gives every built-in word (`labels`) and the locale it's written for (`locale`):
+
+```tsx
+import { SerupaProvider } from 'serupa-ds';
+import { labels, locale } from 'serupa-ds/labels/id';
+
+<SerupaProvider locale={locale} labels={labels}>{children}</SerupaProvider>
+```
+
+Packs ship for English (`en`, the default), Indonesian (`id`, the same words as `idLabels`), German (`de`), Spanish (`es`), French (`fr`), Portuguese (`pt`, Brazilian), Japanese (`ja`), Russian (`ru`), Chinese (`zh`, Simplified), Korean (`ko`), Italian (`it`), Arabic (`ar`, with `dir="rtl"` on the page), Turkish (`tr`), Hindi (`hi`), Vietnamese (`vi`), Dutch (`nl`), Polish (`pl`), Ukrainian (`uk`), Swedish (`sv`) and Malay (`ms`). `node tools/test/label-packs.mjs` checks each pack has every word, says something for each case (a count of one and of several, each reason a field can fail), and leaves nothing in English.
+
 What wins, in order: the component's own prop (`dismissLabel`, `locale`, …), the nearest provider, an outer provider, then the defaults. A nested provider changes only the keys it sets.
 
 ## Labels that count
