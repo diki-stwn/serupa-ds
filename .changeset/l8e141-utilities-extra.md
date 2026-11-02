@@ -1,5 +1,0 @@
----
-"serupa-ds": major
----
-
-- **Breaking.** Changed: masks and gradients move out of `bundle.css` and `utilities.css` into their own file, `serupa-ds/utilities-extra.css` (`dist/utilities-extra.css`). They were a quarter of the utility rules (about 530 KB of `bundle.css`'s 1.76 MB) and few pages use them, so a page that doesn't loads 30% less CSS before any trimming. The classes that moved: `mask-*`, `bg-linear-*`, `bg-radial*`, `bg-conic*`, and the gradient stops `from-*`, `via-*` and `to-*`, with their negative versions. Every class still does what it did. **Migration:** search your sources for `mask-`, `bg-linear`, `bg-radial`, `bg-conic`, `from-`, `via-` and `to-`. If any appear, import the extra file after the bundle: `import 'serupa-ds/bundle.css'` then `import 'serupa-ds/utilities-extra.css'` (on a plain page, `<link rel="stylesheet" href="dist/utilities-extra.css">` after `bundle.css`). To trim it, run `serupa-purge` a second time with `--css node_modules/serupa-ds/dist/utilities-extra.css`. If none appear, there is nothing to do.

@@ -14,22 +14,22 @@ The documentation is Storybook: run `npm run storybook` in this repo and open ht
 ### 1. Install a released version from GitHub
 
 ```sh
-npm install github:diki-stwn/serupa-ds#v13.0.0
+npm install github:diki-stwn/serupa-ds#v14.0.0
 ```
 
 Or install the same release from its file on the Releases page, which needs no git on the machine and puts the file's checksum in your lockfile:
 
 ```sh
-npm install https://github.com/diki-stwn/serupa-ds/releases/download/v13.0.0/serupa-ds-13.0.0.tgz
+npm install https://github.com/diki-stwn/serupa-ds/releases/download/v14.0.0/serupa-ds-14.0.0.tgz
 ```
 
 To check a downloaded file before you install it: the release notes give its SHA-256, and releases after 10.1.0 also carry a build attestation, GitHub's signed record that this repository's Release workflow built the file from the tagged commit. With the [GitHub CLI](https://cli.github.com):
 
 ```sh
-gh attestation verify ./serupa-ds-13.0.0.tgz --repo diki-stwn/serupa-ds
+gh attestation verify ./serupa-ds-14.0.0.tgz --repo diki-stwn/serupa-ds
 ```
 
-Always pin a tag (`#v13.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
+Always pin a tag (`#v14.0.0`), never `#main`, so an update only reaches your project when you choose it. Each release tag is prebuilt: it carries `dist/` and nothing runs on install, so npm only copies files. Released versions and what changed in each are in [CHANGELOG.md](CHANGELOG.md) and on the repository's Releases page.
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
