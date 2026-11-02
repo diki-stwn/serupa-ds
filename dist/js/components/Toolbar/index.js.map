@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Toolbar/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Toolbar } from \"./Toolbar\";\nexport type { ToolbarProps } from \"./Toolbar\";\n"],
+  "mappings": ";AACA,SAAS,eAAe;",
+  "names": []
+}

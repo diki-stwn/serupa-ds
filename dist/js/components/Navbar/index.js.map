@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Navbar/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Navbar, NavbarLink } from \"./Navbar\";\nexport type { NavbarLinkOwnProps, NavbarLinkProps, NavbarProps } from \"./Navbar\";\n"],
+  "mappings": ";AACA,SAAS,QAAQ,kBAAkB;",
+  "names": []
+}

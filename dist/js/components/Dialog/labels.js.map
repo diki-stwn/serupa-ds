@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Dialog/labels.ts"],
+  "sourcesContent": ["// Dialog's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface DialogLabels {\n  /** Dialog with unsaved: the question asked before it closes, the line under it, and its two buttons. */\n  discardTitle: string;\n  discardDescription: string;\n  discard: string;\n  keepEditing: string;\n}\nexport const en: DialogLabels = {\n  discardTitle: \"Discard changes?\",\n  discardDescription: \"What you changed here hasn't been saved.\",\n  discard: \"Discard\",\n  keepEditing: \"Keep editing\",\n};\nexport const id: DialogLabels = {\n  discardTitle: \"Buang perubahan?\",\n  discardDescription: \"Perubahan di sini belum disimpan.\",\n  discard: \"Buang\",\n  keepEditing: \"Lanjutkan mengedit\",\n};\n"],
+  "mappings": ";AASO,IAAM,KAAmB;AAAA,EAC9B,cAAc;AAAA,EACd,oBAAoB;AAAA,EACpB,SAAS;AAAA,EACT,aAAa;AACf;AACO,IAAM,KAAmB;AAAA,EAC9B,cAAc;AAAA,EACd,oBAAoB;AAAA,EACpB,SAAS;AAAA,EACT,aAAa;AACf;",
+  "names": []
+}

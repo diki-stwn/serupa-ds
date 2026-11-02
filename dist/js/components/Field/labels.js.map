@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Field/labels.ts"],
+  "sourcesContent": ["// Field's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface FieldLabels {\n  /** Field: after the label with optional. */\n  fieldOptional: string;\n}\nexport const en: FieldLabels = {\n  fieldOptional: \"(optional)\",\n};\nexport const id: FieldLabels = {\n  fieldOptional: \"(opsional)\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAkB;AAAA,EAC7B,eAAe;AACjB;AACO,IAAM,KAAkB;AAAA,EAC7B,eAAe;AACjB;",
+  "names": []
+}

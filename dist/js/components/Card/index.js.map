@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Card/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Card, CardBody, CardFooter, CardHeader } from \"./Card\";\nexport type { CardBodyProps, CardFooterProps, CardHeaderProps, CardPadding, CardProps, CardVariant } from \"./Card\";\n"],
+  "mappings": ";AACA,SAAS,MAAM,UAAU,YAAY,kBAAkB;",
+  "names": []
+}

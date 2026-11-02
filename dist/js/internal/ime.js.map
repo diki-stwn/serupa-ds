@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/ime.ts"],
+  "sourcesContent": ["// Typing with an input method (Japanese, Chinese, Korean): Enter confirms the composed text and Escape cancels it, and\n// Safari still sends those keydowns (isComposing true; keyCode 229 in older engines). Key handlers ignore them, so\n// they don't pick an option, clear a field, close a layer or read half-typed text.\n\n/** Whether a keydown (React or DOM) belongs to an input method's composition. */\nexport function isComposing(e: { nativeEvent?: Event; isComposing?: boolean; keyCode?: number }): boolean {\n  const n = (e.nativeEvent || e) as KeyboardEvent;\n  return !!n.isComposing || n.keyCode === 229;\n}\n"],
+  "mappings": ";AAKO,SAAS,YAAY,GAA8E;AACxG,QAAM,IAAK,EAAE,eAAe;AAC5B,SAAO,CAAC,CAAC,EAAE,eAAe,EAAE,YAAY;AAC1C;",
+  "names": []
+}

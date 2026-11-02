@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/TypeToConfirm/labels.ts"],
+  "sourcesContent": ["// TypeToConfirm's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface TypeToConfirmLabels {\n  /** TypeToConfirm: the words before the phrase in its label (\"To confirm, type\" acme/web). */\n  typeToConfirm: string;\n  /** TypeToConfirm: why the button can't be pressed yet, its description until the phrase is typed. */\n  typePhraseFirst: (phrase: string) => string;\n}\nexport const en: TypeToConfirmLabels = {\n  typeToConfirm: \"To confirm, type\",\n  typePhraseFirst: (phrase) => \"Type \u201C\" + phrase + \"\u201D first\",\n};\nexport const id: TypeToConfirmLabels = {\n  typeToConfirm: \"Untuk mengonfirmasi, ketik\",\n  typePhraseFirst: (phrase) => \"Ketik \u201C\" + phrase + \"\u201D dulu\",\n};\n"],
+  "mappings": ";AAQO,IAAM,KAA0B;AAAA,EACrC,eAAe;AAAA,EACf,iBAAiB,CAAC,WAAW,gBAAW,SAAS;AACnD;AACO,IAAM,KAA0B;AAAA,EACrC,eAAe;AAAA,EACf,iBAAiB,CAAC,WAAW,iBAAY,SAAS;AACpD;",
+  "names": []
+}

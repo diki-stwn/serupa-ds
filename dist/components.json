@@ -1,0 +1,1991 @@
+{
+ "version": "13.0.0",
+ "runtimeUtilities": [
+  "absolute",
+  "block",
+  "container",
+  "css",
+  "fixed",
+  "g",
+  "grid",
+  "hidden",
+  "inline",
+  "lowercase",
+  "outline",
+  "resize",
+  "ring",
+  "shadow",
+  "sr-only",
+  "static",
+  "table",
+  "transform",
+  "underline",
+  "uppercase",
+  "view-transition-match",
+  "visible"
+ ],
+ "components": {
+  "Icon": {
+   "exports": [
+    "Icon",
+    "asIcon"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-icon",
+    "dk-icon--fixed",
+    "dk-icon--mirror"
+   ]
+  },
+  "Heading": {
+   "exports": [
+    "Heading"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-heading",
+    "dk-heading--1",
+    "dk-heading--2",
+    "dk-heading--3",
+    "dk-heading--4",
+    "dk-heading--5",
+    "dk-heading--6",
+    "dk-heading--size-2xl",
+    "dk-heading--size-3xl",
+    "dk-heading--size-4xl",
+    "dk-heading--size-5xl",
+    "dk-heading--size-base",
+    "dk-heading--size-lg",
+    "dk-heading--size-sm",
+    "dk-heading--size-xl"
+   ]
+  },
+  "Text": {
+   "exports": [
+    "Text"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-text",
+    "dk-text--base",
+    "dk-text--bold",
+    "dk-text--danger",
+    "dk-text--default",
+    "dk-text--lg",
+    "dk-text--measure",
+    "dk-text--medium",
+    "dk-text--muted",
+    "dk-text--normal",
+    "dk-text--primary",
+    "dk-text--semibold",
+    "dk-text--sm",
+    "dk-text--truncate",
+    "dk-text--xl",
+    "dk-text--xs"
+   ]
+  },
+  "Button": {
+   "exports": [
+    "BUTTON_VARIANTS",
+    "Button",
+    "ButtonBase",
+    "buttonClass"
+   ],
+   "uses": [
+    "Icon",
+    "Loader"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-btn--destructive",
+    "dk-btn--ghost",
+    "dk-btn--icon-left",
+    "dk-btn--icon-only",
+    "dk-btn--icon-right",
+    "dk-btn--link",
+    "dk-btn--loading",
+    "dk-btn--loading-cover",
+    "dk-btn--outline",
+    "dk-btn--primary",
+    "dk-btn--secondary",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-btn--wrap",
+    "dk-btn__check",
+    "dk-btn__icon",
+    "dk-btn__icon--right",
+    "dk-btn__label",
+    "dk-btn__loader",
+    "dk-icon"
+   ]
+  },
+  "Loader": {
+   "exports": [
+    "Loader"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-btn",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-loader",
+    "dk-loader--glow",
+    "dk-loader--inverse",
+    "dk-loader--muted",
+    "dk-loader--pattern-checker",
+    "dk-loader--pattern-cross",
+    "dk-loader--pattern-random",
+    "dk-loader--pattern-snake",
+    "dk-loader--pattern-spiral",
+    "dk-loader--pixel",
+    "dk-loader--primary",
+    "dk-loader--ring",
+    "dk-loader--shape-circle",
+    "dk-loader--shape-rect",
+    "dk-loader--shape-text",
+    "dk-loader--size-lg",
+    "dk-loader--size-sm",
+    "dk-loader--skeleton",
+    "dk-loader--spokes",
+    "dk-loader--text",
+    "dk-loader--waiting",
+    "dk-loader__arc",
+    "dk-loader__art",
+    "dk-loader__bone",
+    "dk-loader__dot",
+    "dk-loader__glint",
+    "dk-loader__label",
+    "dk-loader__line",
+    "dk-loader__px",
+    "dk-loader__px--d1",
+    "dk-loader__px--d2",
+    "dk-loader__px--d3",
+    "dk-loader__px--d4",
+    "dk-loader__px--r0",
+    "dk-loader__px--r1",
+    "dk-loader__px--r2",
+    "dk-loader__px--r3",
+    "dk-loader__px--r4",
+    "dk-loader__px--r5",
+    "dk-loader__px--r6",
+    "dk-loader__px--r7",
+    "dk-loader__px--r8",
+    "dk-loader__px--s1",
+    "dk-loader__px--s2",
+    "dk-loader__px--s3",
+    "dk-loader__px--s4",
+    "dk-loader__px--s5",
+    "dk-loader__px--s6",
+    "dk-loader__px--s7",
+    "dk-loader__px--s8",
+    "dk-loader__px-cut",
+    "dk-loader__px-divider",
+    "dk-loader__spoke",
+    "dk-loader__track"
+   ]
+  },
+  "Badge": {
+   "exports": [
+    "Badge"
+   ],
+   "uses": [
+    "Icon",
+    "Loader",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-badge",
+    "dk-badge--count",
+    "dk-badge--indicator",
+    "dk-badge--interactive",
+    "dk-badge--lead",
+    "dk-badge--loading",
+    "dk-badge--outline",
+    "dk-badge--ping",
+    "dk-badge--removable",
+    "dk-badge--solid",
+    "dk-badge--subtle",
+    "dk-badge--tone-amber",
+    "dk-badge--tone-blue",
+    "dk-badge--tone-cyan",
+    "dk-badge--tone-danger",
+    "dk-badge--tone-emerald",
+    "dk-badge--tone-fuchsia",
+    "dk-badge--tone-green",
+    "dk-badge--tone-indigo",
+    "dk-badge--tone-info",
+    "dk-badge--tone-lime",
+    "dk-badge--tone-neutral",
+    "dk-badge--tone-orange",
+    "dk-badge--tone-pink",
+    "dk-badge--tone-primary",
+    "dk-badge--tone-purple",
+    "dk-badge--tone-red",
+    "dk-badge--tone-rose",
+    "dk-badge--tone-sky",
+    "dk-badge--tone-success",
+    "dk-badge--tone-teal",
+    "dk-badge--tone-violet",
+    "dk-badge--tone-warning",
+    "dk-badge--tone-yellow",
+    "dk-badge__dot",
+    "dk-badge__icon",
+    "dk-badge__icon--dot",
+    "dk-badge__label",
+    "dk-badge__loader",
+    "dk-badge__remove",
+    "dk-icon",
+    "dk-loader"
+   ]
+  },
+  "Input": {
+   "exports": [
+    "Input",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-input",
+    "dk-input--disabled",
+    "dk-input--invalid",
+    "dk-input--readonly",
+    "dk-input--size-lg",
+    "dk-input--size-sm",
+    "dk-input__affix",
+    "dk-input__count",
+    "dk-input__count--full",
+    "dk-input__field",
+    "dk-input__icon"
+   ]
+  },
+  "Textarea": {
+   "exports": [
+    "Textarea"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-textarea",
+    "dk-textarea--auto",
+    "dk-textarea--disabled",
+    "dk-textarea--invalid",
+    "dk-textarea--readonly",
+    "dk-textarea--resize-none",
+    "dk-textarea--size-lg",
+    "dk-textarea--size-sm",
+    "dk-textarea__count",
+    "dk-textarea__count--full",
+    "dk-textarea__field"
+   ]
+  },
+  "Field": {
+   "exports": [
+    "Field",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-field",
+    "dk-field--disabled",
+    "dk-field--group",
+    "dk-field--horizontal",
+    "dk-field__body",
+    "dk-field__control",
+    "dk-field__error",
+    "dk-field__error-icon",
+    "dk-field__hint",
+    "dk-field__label",
+    "dk-field__optional",
+    "dk-field__required"
+   ]
+  },
+  "Select": {
+   "exports": [
+    "Select"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-select",
+    "dk-select--disabled",
+    "dk-select--empty",
+    "dk-select--has-icon",
+    "dk-select--invalid",
+    "dk-select--size-lg",
+    "dk-select--size-sm",
+    "dk-select__field",
+    "dk-select__icon",
+    "dk-select__icon--chevron",
+    "dk-select__icon--left"
+   ]
+  },
+  "Checkbox": {
+   "exports": [
+    "Checkbox",
+    "CheckboxGroup",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-checkbox",
+    "dk-checkbox--bare",
+    "dk-checkbox--invalid",
+    "dk-checkbox--readonly",
+    "dk-checkbox--size-lg",
+    "dk-checkbox--size-sm",
+    "dk-checkbox-group",
+    "dk-checkbox-group--horizontal",
+    "dk-checkbox-group--vertical",
+    "dk-checkbox__control",
+    "dk-checkbox__description",
+    "dk-checkbox__icon",
+    "dk-checkbox__input",
+    "dk-checkbox__text",
+    "dk-icon"
+   ]
+  },
+  "ColorPicker": {
+   "exports": [
+    "ColorPicker",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-color-picker",
+    "dk-color-picker--disabled",
+    "dk-color-picker--size-sm",
+    "dk-color-picker__check",
+    "dk-color-picker__contrast",
+    "dk-color-picker__contrast--low",
+    "dk-color-picker__custom",
+    "dk-color-picker__hash",
+    "dk-color-picker__hex",
+    "dk-color-picker__native",
+    "dk-color-picker__swatch",
+    "dk-color-picker__swatch--checked",
+    "dk-color-picker__swatch--low",
+    "dk-color-picker__swatches",
+    "dk-color-picker__validity",
+    "dk-color-picker__warning"
+   ]
+  },
+  "Radio": {
+   "exports": [
+    "Radio",
+    "RadioGroup"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-radio",
+    "dk-radio--bare",
+    "dk-radio--invalid",
+    "dk-radio--size-lg",
+    "dk-radio--size-sm",
+    "dk-radio-group",
+    "dk-radio-group--horizontal",
+    "dk-radio-group--vertical",
+    "dk-radio__control",
+    "dk-radio__description",
+    "dk-radio__dot",
+    "dk-radio__input",
+    "dk-radio__text"
+   ]
+  },
+  "Switch": {
+   "exports": [
+    "Switch"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-switch",
+    "dk-switch--bare",
+    "dk-switch--invalid",
+    "dk-switch--label-start",
+    "dk-switch--pending",
+    "dk-switch--readonly",
+    "dk-switch--size-lg",
+    "dk-switch--size-sm",
+    "dk-switch__control",
+    "dk-switch__description",
+    "dk-switch__input",
+    "dk-switch__spinner",
+    "dk-switch__text",
+    "dk-switch__thumb"
+   ]
+  },
+  "Card": {
+   "exports": [
+    "Card",
+    "CardBody",
+    "CardFooter",
+    "CardHeader"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-card",
+    "dk-card--elevated",
+    "dk-card--filled",
+    "dk-card--link",
+    "dk-card--padding-lg",
+    "dk-card--padding-none",
+    "dk-card--padding-sm",
+    "dk-card__action",
+    "dk-card__body",
+    "dk-card__description",
+    "dk-card__footer",
+    "dk-card__footer--between",
+    "dk-card__footer--start",
+    "dk-card__header",
+    "dk-card__heading",
+    "dk-card__link",
+    "dk-card__link--cover",
+    "dk-card__title"
+   ]
+  },
+  "Alert": {
+   "exports": [
+    "Alert"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-alert",
+    "dk-alert--danger",
+    "dk-alert--neutral",
+    "dk-alert--success",
+    "dk-alert--warning",
+    "dk-alert__actions",
+    "dk-alert__content",
+    "dk-alert__dismiss",
+    "dk-alert__icon",
+    "dk-alert__message",
+    "dk-alert__title",
+    "dk-btn",
+    "dk-btn--icon-only",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-icon"
+   ]
+  },
+  "IconButton": {
+   "exports": [
+    "IconButton"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon-btn--round"
+   ]
+  },
+  "Fab": {
+   "exports": [
+    "Fab"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-fab",
+    "dk-fab--bottom-end",
+    "dk-fab--bottom-start",
+    "dk-fab--extended",
+    "dk-fab--sm",
+    "dk-fab--top-end",
+    "dk-fab--top-start",
+    "dk-icon",
+    "dk-navbar--sticky"
+   ]
+  },
+  "Avatar": {
+   "exports": [
+    "AVATAR_SIZES",
+    "Avatar",
+    "AvatarGroupSize",
+    "en",
+    "id",
+    "initials"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-avatar",
+    "dk-avatar--lg",
+    "dk-avatar--sm",
+    "dk-avatar--square",
+    "dk-avatar--xl",
+    "dk-avatar--xs",
+    "dk-avatar__frame",
+    "dk-avatar__icon",
+    "dk-avatar__img",
+    "dk-avatar__status",
+    "dk-avatar__status--away",
+    "dk-avatar__status--busy",
+    "dk-avatar__status--offline",
+    "dk-avatar__status--online"
+   ]
+  },
+  "AvatarGroup": {
+   "exports": [
+    "AvatarGroup",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Avatar",
+    "Popover"
+   ],
+   "classes": [
+    "dk-avatar-group",
+    "dk-avatar-group--sm",
+    "dk-avatar-group--xl",
+    "dk-avatar-group--xs",
+    "dk-avatar-group__item",
+    "dk-avatar-group__list",
+    "dk-avatar-group__more",
+    "dk-avatar__frame"
+   ]
+  },
+  "Tabs": {
+   "exports": [
+    "Tab",
+    "TabList",
+    "TabPanel",
+    "Tabs"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-tabs",
+    "dk-tabs--line",
+    "dk-tabs--pill",
+    "dk-tabs--sm",
+    "dk-tabs--vertical",
+    "dk-tabs__icon",
+    "dk-tabs__list",
+    "dk-tabs__panel",
+    "dk-tabs__tab"
+   ]
+  },
+  "Tooltip": {
+   "exports": [
+    "Tooltip",
+    "coolTooltips"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-tooltip"
+   ]
+  },
+  "Dialog": {
+   "exports": [
+    "Dialog",
+    "Discard",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "IconButton"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-btn--icon-only",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-dialog",
+    "dk-dialog--full",
+    "dk-dialog--full-mobile",
+    "dk-dialog--lg",
+    "dk-dialog--sm",
+    "dk-dialog__body",
+    "dk-dialog__close",
+    "dk-dialog__description",
+    "dk-dialog__footer",
+    "dk-dialog__header",
+    "dk-dialog__heading",
+    "dk-dialog__panel",
+    "dk-dialog__title"
+   ]
+  },
+  "Menu": {
+   "exports": [
+    "ContextMenu",
+    "Menu",
+    "MenuCheckboxItem",
+    "MenuGroup",
+    "MenuItem",
+    "MenuRadioGroup",
+    "MenuRadioItem",
+    "MenuSeparator",
+    "MenuSub",
+    "keyShortcuts"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-menu",
+    "dk-menu--sub",
+    "dk-menu__check",
+    "dk-menu__chevron",
+    "dk-menu__group-label",
+    "dk-menu__icon",
+    "dk-menu__item",
+    "dk-menu__item--destructive",
+    "dk-menu__item--sub",
+    "dk-menu__label",
+    "dk-menu__point",
+    "dk-menu__separator",
+    "dk-menu__shortcut"
+   ]
+  },
+  "Toast": {
+   "exports": [
+    "Toaster",
+    "en",
+    "id",
+    "toast",
+    "watchToasts"
+   ],
+   "uses": [
+    "Button",
+    "Icon",
+    "IconButton",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-toast",
+    "dk-toast--danger",
+    "dk-toast--info",
+    "dk-toast--success",
+    "dk-toast--warning",
+    "dk-toast__action",
+    "dk-toast__close",
+    "dk-toast__content",
+    "dk-toast__count",
+    "dk-toast__description",
+    "dk-toast__icon",
+    "dk-toast__title",
+    "dk-toaster",
+    "dk-toaster--bottom-center",
+    "dk-toaster--bottom-end",
+    "dk-toaster--bottom-start",
+    "dk-toaster--top-center",
+    "dk-toaster--top-end",
+    "dk-toaster--top-start",
+    "dk-toaster__list",
+    "dk-toaster__more"
+   ]
+  },
+  "Stack": {
+   "exports": [
+    "Stack"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-stack",
+    "dk-stack--align-baseline",
+    "dk-stack--align-center",
+    "dk-stack--align-end",
+    "dk-stack--align-start",
+    "dk-stack--align-stretch",
+    "dk-stack--justify-between",
+    "dk-stack--justify-center",
+    "dk-stack--justify-end",
+    "dk-stack--row",
+    "dk-stack--wrap"
+   ]
+  },
+  "Grid": {
+   "exports": [
+    "Grid"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-grid",
+    "dk-grid--auto",
+    "dk-grid--fill",
+    "dk-grid--fixed",
+    "dk-grid--upto"
+   ]
+  },
+  "Container": {
+   "exports": [
+    "Container"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-container",
+    "dk-container--2xl",
+    "dk-container--full",
+    "dk-container--lg",
+    "dk-container--md",
+    "dk-container--padded",
+    "dk-container--prose",
+    "dk-container--xl"
+   ]
+  },
+  "Divider": {
+   "exports": [
+    "Divider"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-divider",
+    "dk-divider--label",
+    "dk-divider--vertical",
+    "dk-divider__label"
+   ]
+  },
+  "VisuallyHidden": {
+   "exports": [
+    "VisuallyHidden"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-visually-hidden",
+    "dk-visually-hidden--focusable"
+   ]
+  },
+  "Link": {
+   "exports": [
+    "AutoFocusLink",
+    "Link",
+    "NewTabNote",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-link",
+    "dk-link--hover-underline",
+    "dk-link--neutral",
+    "dk-link__icon",
+    "dk-link__last"
+   ]
+  },
+  "Breadcrumb": {
+   "exports": [
+    "Breadcrumb",
+    "BreadcrumbItem",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "Menu"
+   ],
+   "classes": [
+    "dk-breadcrumb",
+    "dk-breadcrumb__icon",
+    "dk-breadcrumb__item",
+    "dk-breadcrumb__item--current",
+    "dk-breadcrumb__li",
+    "dk-breadcrumb__link",
+    "dk-breadcrumb__list",
+    "dk-breadcrumb__more",
+    "dk-breadcrumb__separator",
+    "dk-icon"
+   ]
+  },
+  "Pagination": {
+   "exports": [
+    "Pagination",
+    "en",
+    "id",
+    "paginationRange"
+   ],
+   "uses": [
+    "Icon",
+    "Select"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-pagination",
+    "dk-pagination--sm",
+    "dk-pagination--summary",
+    "dk-pagination__arrow",
+    "dk-pagination__ellipsis",
+    "dk-pagination__item",
+    "dk-pagination__item--current",
+    "dk-pagination__list",
+    "dk-pagination__page-size",
+    "dk-pagination__summary"
+   ]
+  },
+  "Table": {
+   "exports": [
+    "Table",
+    "TableActionBar",
+    "TableBody",
+    "TableCell",
+    "TableFoot",
+    "TableHead",
+    "TableHeaderCell",
+    "TableRow",
+    "TableSelectCell",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Checkbox",
+    "Icon",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-checkbox",
+    "dk-icon",
+    "dk-table",
+    "dk-table--sm",
+    "dk-table--sticky",
+    "dk-table--striped",
+    "dk-table-action-bar",
+    "dk-table-action-bar__actions",
+    "dk-table-action-bar__count",
+    "dk-table__body",
+    "dk-table__caption",
+    "dk-table__cell",
+    "dk-table__cell--center",
+    "dk-table__cell--end",
+    "dk-table__foot",
+    "dk-table__head",
+    "dk-table__header",
+    "dk-table__header--sortable",
+    "dk-table__row",
+    "dk-table__row--link",
+    "dk-table__row--selected",
+    "dk-table__row-link",
+    "dk-table__select",
+    "dk-table__sort",
+    "dk-table__sort-icon",
+    "dk-table__sort-icon--idle",
+    "dk-table__table"
+   ]
+  },
+  "Accordion": {
+   "exports": [
+    "Accordion",
+    "AccordionItem",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-accordion",
+    "dk-accordion--card",
+    "dk-accordion__clip",
+    "dk-accordion__content",
+    "dk-accordion__heading",
+    "dk-accordion__icon",
+    "dk-accordion__item",
+    "dk-accordion__item--open",
+    "dk-accordion__panel",
+    "dk-accordion__title",
+    "dk-accordion__toolbar",
+    "dk-accordion__trigger",
+    "dk-icon"
+   ]
+  },
+  "Navbar": {
+   "exports": [
+    "Navbar",
+    "NavbarLink"
+   ],
+   "uses": [
+    "Container",
+    "Fab",
+    "IconButton"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-navbar",
+    "dk-navbar--sticky",
+    "dk-navbar__actions",
+    "dk-navbar__brand",
+    "dk-navbar__inner",
+    "dk-navbar__link",
+    "dk-navbar__link--active",
+    "dk-navbar__links",
+    "dk-navbar__nav",
+    "dk-navbar__nav--leaving",
+    "dk-navbar__toggle"
+   ]
+  },
+  "Sidebar": {
+   "exports": [
+    "Sidebar",
+    "SidebarItem",
+    "SidebarSection"
+   ],
+   "uses": [
+    "Icon",
+    "Menu",
+    "Tooltip"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-sidebar",
+    "dk-sidebar--collapsed",
+    "dk-sidebar__badge",
+    "dk-sidebar__body",
+    "dk-sidebar__chevron",
+    "dk-sidebar__dot",
+    "dk-sidebar__footer",
+    "dk-sidebar__header",
+    "dk-sidebar__icon",
+    "dk-sidebar__item",
+    "dk-sidebar__item--active",
+    "dk-sidebar__item--nested",
+    "dk-sidebar__label",
+    "dk-sidebar__li",
+    "dk-sidebar__list",
+    "dk-sidebar__list--nested",
+    "dk-sidebar__menu-item",
+    "dk-sidebar__section-title"
+   ]
+  },
+  "ToggleButton": {
+   "exports": [
+    "ToggleButton"
+   ],
+   "uses": [
+    "Button"
+   ],
+   "classes": [
+    "dk-btn--outline",
+    "dk-toggle-button",
+    "dk-toggle-button--pressed"
+   ]
+  },
+  "ButtonGroup": {
+   "exports": [
+    "ButtonGroup"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-btn",
+    "dk-btn--icon-only",
+    "dk-btn--primary",
+    "dk-btn--size-sm",
+    "dk-button-group",
+    "dk-button-group--attached",
+    "dk-button-group--vertical"
+   ]
+  },
+  "PasswordInput": {
+   "exports": [
+    "PasswordInput",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-input__field",
+    "dk-password-input",
+    "dk-password-input__caps",
+    "dk-password-input__toggle"
+   ]
+  },
+  "PhoneInput": {
+   "exports": [
+    "PHONE_COUNTRIES",
+    "PhoneInput",
+    "en",
+    "formatNational",
+    "formatPhone",
+    "id",
+    "isPhoneComplete",
+    "parsePhone",
+    "phoneCountry",
+    "phonePattern",
+    "stripTrunk",
+    "toE164"
+   ],
+   "uses": [
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-phone-input",
+    "dk-phone-input__chevron",
+    "dk-phone-input__country",
+    "dk-phone-input__dial",
+    "dk-phone-input__select"
+   ]
+  },
+  "List": {
+   "exports": [
+    "List",
+    "ListItem"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-list",
+    "dk-list--card",
+    "dk-list--divided",
+    "dk-list__description",
+    "dk-list__item",
+    "dk-list__item--disabled",
+    "dk-list__item--interactive",
+    "dk-list__item--selected",
+    "dk-list__leading",
+    "dk-list__leading--icon",
+    "dk-list__main",
+    "dk-list__text",
+    "dk-list__title",
+    "dk-list__trailing"
+   ]
+  },
+  "EmptyState": {
+   "exports": [
+    "AnnounceText",
+    "ClearFilters",
+    "EmptyState",
+    "Suggestions",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-btn--icon-only",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-empty-state",
+    "dk-empty-state--dashed",
+    "dk-empty-state--sm",
+    "dk-empty-state__actions",
+    "dk-empty-state__description",
+    "dk-empty-state__icon",
+    "dk-empty-state__icon--custom",
+    "dk-empty-state__suggestion",
+    "dk-empty-state__suggestions",
+    "dk-empty-state__text",
+    "dk-empty-state__title",
+    "dk-icon"
+   ]
+  },
+  "Popover": {
+   "exports": [
+    "Popover"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-popover",
+    "dk-popover__title"
+   ]
+  },
+  "Drawer": {
+   "exports": [
+    "Drawer"
+   ],
+   "uses": [
+    "Dialog",
+    "IconButton"
+   ],
+   "classes": [
+    "dk-btn",
+    "dk-btn--icon-only",
+    "dk-btn--size-lg",
+    "dk-btn--size-sm",
+    "dk-dialog",
+    "dk-drawer",
+    "dk-drawer--bottom",
+    "dk-drawer--left",
+    "dk-drawer--lg",
+    "dk-drawer--nonmodal",
+    "dk-drawer--right",
+    "dk-drawer--sm",
+    "dk-drawer--top",
+    "dk-drawer__body",
+    "dk-drawer__close",
+    "dk-drawer__description",
+    "dk-drawer__footer",
+    "dk-drawer__header",
+    "dk-drawer__heading",
+    "dk-drawer__panel",
+    "dk-drawer__title"
+   ]
+  },
+  "Progress": {
+   "exports": [
+    "Progress",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-progress",
+    "dk-progress--bar",
+    "dk-progress--circle",
+    "dk-progress--danger",
+    "dk-progress--indeterminate",
+    "dk-progress--size-lg",
+    "dk-progress--size-sm",
+    "dk-progress--success",
+    "dk-progress--warning",
+    "dk-progress__arc",
+    "dk-progress__fill",
+    "dk-progress__header",
+    "dk-progress__label",
+    "dk-progress__ring",
+    "dk-progress__track",
+    "dk-progress__value"
+   ]
+  },
+  "RelativeTime": {
+   "exports": [
+    "RelativeTime",
+    "relativeTime"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-relative-time"
+   ]
+  },
+  "CopyButton": {
+   "exports": [
+    "CopyButton",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Icon"
+   ],
+   "classes": [
+    "dk-copy-btn",
+    "dk-copy-btn__icon--copy",
+    "dk-copy-btn__icon--done",
+    "dk-copy-btn__icons",
+    "dk-copy-btn__label",
+    "dk-copy-btn__label--off",
+    "dk-copy-btn__labels"
+   ]
+  },
+  "Meter": {
+   "exports": [
+    "Meter",
+    "en",
+    "id",
+    "meterState"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-meter",
+    "dk-meter--danger",
+    "dk-meter--size-lg",
+    "dk-meter--size-sm",
+    "dk-meter--success",
+    "dk-meter--warning",
+    "dk-meter__fill",
+    "dk-meter__header",
+    "dk-meter__label",
+    "dk-meter__track",
+    "dk-meter__value"
+   ]
+  },
+  "SearchInput": {
+   "exports": [
+    "SearchInput",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "Input",
+    "Loader"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-input__field",
+    "dk-loader",
+    "dk-search-input",
+    "dk-search-input__clear",
+    "dk-search-input__icon"
+   ]
+  },
+  "NumberInput": {
+   "exports": [
+    "NumberInput",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "DatePicker",
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-input",
+    "dk-input--disabled",
+    "dk-input__field",
+    "dk-number-input",
+    "dk-number-input--steppers",
+    "dk-number-input__step",
+    "dk-number-input__steppers"
+   ]
+  },
+  "Slider": {
+   "exports": [
+    "Slider",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-slider",
+    "dk-slider--disabled",
+    "dk-slider--invalid",
+    "dk-slider--mark-labels",
+    "dk-slider--readonly",
+    "dk-slider--size-sm",
+    "dk-slider__fill",
+    "dk-slider__mark",
+    "dk-slider__mark-label",
+    "dk-slider__thumb",
+    "dk-slider__tick",
+    "dk-slider__track",
+    "dk-slider__value"
+   ]
+  },
+  "SortableList": {
+   "exports": [
+    "SortableList",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-sortable-list",
+    "dk-sortable-list--disabled",
+    "dk-sortable-list--sorting",
+    "dk-sortable-list__content",
+    "dk-sortable-list__handle",
+    "dk-sortable-list__item",
+    "dk-sortable-list__item--dragging"
+   ]
+  },
+  "SegmentedControl": {
+   "exports": [
+    "SegmentedControl"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-segmented",
+    "dk-segmented--disabled",
+    "dk-segmented--fit",
+    "dk-segmented--full",
+    "dk-segmented--invalid",
+    "dk-segmented--readonly",
+    "dk-segmented--size-lg",
+    "dk-segmented--size-sm",
+    "dk-segmented__icon",
+    "dk-segmented__indicator",
+    "dk-segmented__item",
+    "dk-segmented__item--icon-only",
+    "dk-segmented__item--selected",
+    "dk-segmented__label"
+   ]
+  },
+  "Combobox": {
+   "exports": [
+    "Combobox",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Badge",
+    "Highlight",
+    "Icon",
+    "Input",
+    "Loader"
+   ],
+   "classes": [
+    "dk-combobox",
+    "dk-combobox--multiple",
+    "dk-combobox__button",
+    "dk-combobox__check",
+    "dk-combobox__description",
+    "dk-combobox__message",
+    "dk-combobox__option",
+    "dk-combobox__option--active",
+    "dk-combobox__popup",
+    "dk-combobox__tags",
+    "dk-combobox__text",
+    "dk-combobox__toggle",
+    "dk-combobox__values",
+    "dk-icon",
+    "dk-input__field"
+   ]
+  },
+  "Stepper": {
+   "exports": [
+    "Stepper",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-stepper",
+    "dk-stepper--compact",
+    "dk-stepper--horizontal",
+    "dk-stepper--measure",
+    "dk-stepper--size-sm",
+    "dk-stepper--tight",
+    "dk-stepper--vertical",
+    "dk-stepper__connector",
+    "dk-stepper__description",
+    "dk-stepper__head",
+    "dk-stepper__indicator",
+    "dk-stepper__list",
+    "dk-stepper__step",
+    "dk-stepper__step--complete",
+    "dk-stepper__step--current",
+    "dk-stepper__step--done",
+    "dk-stepper__step--error",
+    "dk-stepper__step--warning",
+    "dk-stepper__summary",
+    "dk-stepper__text",
+    "dk-stepper__title"
+   ]
+  },
+  "Kbd": {
+   "exports": [
+    "Kbd",
+    "en",
+    "id",
+    "isApple"
+   ],
+   "uses": [
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-kbd",
+    "dk-kbd--size-sm",
+    "dk-kbd__key",
+    "dk-kbd__plus"
+   ]
+  },
+  "FileUpload": {
+   "exports": [
+    "FileUpload",
+    "en",
+    "formatFileSize",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "FormattedNumber",
+    "Icon",
+    "IconButton",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-file-upload",
+    "dk-file-upload--disabled",
+    "dk-file-upload--invalid",
+    "dk-file-upload--readonly",
+    "dk-file-upload__error",
+    "dk-file-upload__errors",
+    "dk-file-upload__file",
+    "dk-file-upload__file-icon",
+    "dk-file-upload__hint",
+    "dk-file-upload__icon",
+    "dk-file-upload__input",
+    "dk-file-upload__item",
+    "dk-file-upload__list",
+    "dk-file-upload__name",
+    "dk-file-upload__name-end",
+    "dk-file-upload__name-start",
+    "dk-file-upload__required",
+    "dk-file-upload__size",
+    "dk-file-upload__title",
+    "dk-file-upload__zone",
+    "dk-file-upload__zone--over",
+    "dk-icon"
+   ]
+  },
+  "FormattedNumber": {
+   "exports": [
+    "FormattedNumber",
+    "formatNumber"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-formatted-number"
+   ]
+  },
+  "Calendar": {
+   "exports": [
+    "Calendar",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "DateRangePicker",
+    "IconButton",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-calendar",
+    "dk-calendar__day",
+    "dk-calendar__day--disabled",
+    "dk-calendar__day--in-range",
+    "dk-calendar__day--outside",
+    "dk-calendar__day--selected",
+    "dk-calendar__day--today",
+    "dk-calendar__grid",
+    "dk-calendar__header",
+    "dk-calendar__menu",
+    "dk-calendar__menus",
+    "dk-calendar__title"
+   ]
+  },
+  "DatePicker": {
+   "exports": [
+    "DatePicker",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Calendar",
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-date-picker",
+    "dk-date-picker__button",
+    "dk-date-picker__popup",
+    "dk-icon"
+   ]
+  },
+  "DateRangePicker": {
+   "exports": [
+    "DateRangePicker",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Calendar",
+    "DatePicker",
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-calendar__nav--next",
+    "dk-calendar__nav--prev",
+    "dk-date-range-picker",
+    "dk-date-range-picker__button",
+    "dk-date-range-picker__dash",
+    "dk-date-range-picker__field",
+    "dk-date-range-picker__months",
+    "dk-date-range-picker__popup",
+    "dk-date-range-picker__status",
+    "dk-input--size-sm"
+   ]
+  },
+  "Image": {
+   "exports": [
+    "Image",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Dialog",
+    "Icon",
+    "IconButton"
+   ],
+   "classes": [
+    "dk-dialog__body",
+    "dk-icon",
+    "dk-image",
+    "dk-image--contain",
+    "dk-image--cover",
+    "dk-image--dim",
+    "dk-image--error",
+    "dk-image--fades",
+    "dk-image--fill",
+    "dk-image--loaded",
+    "dk-image--loading",
+    "dk-image--ratio-4-3",
+    "dk-image--ratio-auto",
+    "dk-image--ratio-square",
+    "dk-image--ratio-video",
+    "dk-image--rounded",
+    "dk-image--sized",
+    "dk-image__fallback",
+    "dk-image__full",
+    "dk-image__img",
+    "dk-image__picture",
+    "dk-image__remove",
+    "dk-image__stage",
+    "dk-image__view",
+    "dk-image__viewer"
+   ]
+  },
+  "InlineEdit": {
+   "exports": [
+    "InlineEdit",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "Input",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-inline-edit",
+    "dk-inline-edit--disabled",
+    "dk-inline-edit--editing",
+    "dk-inline-edit--size-lg",
+    "dk-inline-edit--size-sm",
+    "dk-inline-edit__error",
+    "dk-inline-edit__error-icon",
+    "dk-inline-edit__icon",
+    "dk-inline-edit__text",
+    "dk-inline-edit__text--placeholder",
+    "dk-inline-edit__view",
+    "dk-inline-edit__view--blank",
+    "dk-inline-edit__view--static"
+   ]
+  },
+  "TimePicker": {
+   "exports": [
+    "TimePicker",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "DatePicker",
+    "Icon",
+    "Input"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-time-picker",
+    "dk-time-picker__button",
+    "dk-time-picker__check",
+    "dk-time-picker__list",
+    "dk-time-picker__option",
+    "dk-time-picker__option--active",
+    "dk-time-picker__option--selected"
+   ]
+  },
+  "Carousel": {
+   "exports": [
+    "Carousel",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Icon",
+    "IconButton"
+   ],
+   "classes": [
+    "dk-carousel",
+    "dk-carousel--multi",
+    "dk-carousel__arrow",
+    "dk-carousel__arrow--next",
+    "dk-carousel__arrow--prev",
+    "dk-carousel__dot",
+    "dk-carousel__dots",
+    "dk-carousel__ltr",
+    "dk-carousel__rtl",
+    "dk-carousel__slide",
+    "dk-carousel__track",
+    "dk-carousel__viewport"
+   ]
+  },
+  "CommandPalette": {
+   "exports": [
+    "CommandPalette",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Dialog",
+    "Highlight",
+    "Icon",
+    "Kbd",
+    "KeyboardShortcuts"
+   ],
+   "classes": [
+    "dk-command-palette__empty",
+    "dk-command-palette__field",
+    "dk-command-palette__group",
+    "dk-command-palette__heading",
+    "dk-command-palette__icon",
+    "dk-command-palette__keys",
+    "dk-command-palette__label",
+    "dk-command-palette__list",
+    "dk-command-palette__option",
+    "dk-command-palette__option--active",
+    "dk-command-palette__option--disabled"
+   ]
+  },
+  "ErrorBoundary": {
+   "exports": [
+    "ErrorBoundary",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Alert",
+    "Button"
+   ],
+   "classes": [
+    "dk-error-boundary"
+   ]
+  },
+  "ErrorSummary": {
+   "exports": [
+    "ErrorSummary",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-error-summary",
+    "dk-error-summary__description",
+    "dk-error-summary__link",
+    "dk-error-summary__list",
+    "dk-error-summary__title"
+   ]
+  },
+  "Highlight": {
+   "exports": [
+    "Highlight",
+    "highlightRanges"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-highlight",
+    "dk-highlight__mark"
+   ]
+  },
+  "HoverCard": {
+   "exports": [
+    "HoverCard"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-hover-card"
+   ]
+  },
+  "KeyboardShortcuts": {
+   "exports": [
+    "KeyboardShortcuts",
+    "en",
+    "id",
+    "useShortcut"
+   ],
+   "uses": [
+    "Dialog",
+    "Kbd"
+   ],
+   "classes": [
+    "dk-keyboard-shortcuts__description",
+    "dk-keyboard-shortcuts__group",
+    "dk-keyboard-shortcuts__heading",
+    "dk-keyboard-shortcuts__keys",
+    "dk-keyboard-shortcuts__list",
+    "dk-keyboard-shortcuts__row"
+   ]
+  },
+  "LoadMore": {
+   "exports": [
+    "LoadMore",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button"
+   ],
+   "classes": [
+    "dk-load-more",
+    "dk-load-more__end",
+    "dk-load-more__summary"
+   ]
+  },
+  "NotificationCenter": {
+   "exports": [
+    "NotificationCenter",
+    "en",
+    "id",
+    "useToastHistory"
+   ],
+   "uses": [
+    "Button",
+    "Drawer",
+    "Icon",
+    "IconButton",
+    "RelativeTime",
+    "Toast",
+    "VisuallyHidden"
+   ],
+   "classes": [
+    "dk-notification-center__content",
+    "dk-notification-center__description",
+    "dk-notification-center__dot",
+    "dk-notification-center__empty",
+    "dk-notification-center__icon",
+    "dk-notification-center__item",
+    "dk-notification-center__item--danger",
+    "dk-notification-center__item--info",
+    "dk-notification-center__item--success",
+    "dk-notification-center__item--warning",
+    "dk-notification-center__list",
+    "dk-notification-center__time",
+    "dk-notification-center__title"
+   ]
+  },
+  "PinInput": {
+   "exports": [
+    "PinInput"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-pin-input",
+    "dk-pin-input--disabled",
+    "dk-pin-input--invalid",
+    "dk-pin-input--readonly",
+    "dk-pin-input--size-lg",
+    "dk-pin-input--size-sm",
+    "dk-pin-input__box",
+    "dk-pin-input__box--active",
+    "dk-pin-input__box--caret",
+    "dk-pin-input__boxes",
+    "dk-pin-input__field"
+   ]
+  },
+  "Prose": {
+   "exports": [
+    "Prose"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-prose"
+   ]
+  },
+  "Rating": {
+   "exports": [
+    "Rating",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-rating",
+    "dk-rating--disabled",
+    "dk-rating--size-lg",
+    "dk-rating--size-sm",
+    "dk-rating__choice",
+    "dk-rating__empty",
+    "dk-rating__fill",
+    "dk-rating__star"
+   ]
+  },
+  "SaveStatus": {
+   "exports": [
+    "SaveStatus",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Icon",
+    "Loader",
+    "RelativeTime"
+   ],
+   "classes": [
+    "dk-save-status",
+    "dk-save-status__face",
+    "dk-save-status__face--error",
+    "dk-save-status__face--saved",
+    "dk-save-status__icon",
+    "dk-save-status__text"
+   ]
+  },
+  "SkipLink": {
+   "exports": [
+    "SkipLink",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-skip-link"
+   ]
+  },
+  "Splitter": {
+   "exports": [
+    "Splitter",
+    "en",
+    "id"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-splitter",
+    "dk-splitter--vertical",
+    "dk-splitter__handle",
+    "dk-splitter__pane",
+    "dk-splitter__pane--first",
+    "dk-splitter__pane--second"
+   ]
+  },
+  "Timeline": {
+   "exports": [
+    "Timeline",
+    "TimelineItem"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-timeline",
+    "dk-timeline--alternate",
+    "dk-timeline__body",
+    "dk-timeline__content",
+    "dk-timeline__item",
+    "dk-timeline__item--danger",
+    "dk-timeline__item--info",
+    "dk-timeline__item--primary",
+    "dk-timeline__item--success",
+    "dk-timeline__item--warning",
+    "dk-timeline__marker",
+    "dk-timeline__marker--icon",
+    "dk-timeline__rail",
+    "dk-timeline__time",
+    "dk-timeline__title"
+   ]
+  },
+  "ToggleGroup": {
+   "exports": [
+    "ToggleGroup"
+   ],
+   "uses": [
+    "ButtonGroup",
+    "ToggleButton"
+   ],
+   "classes": []
+  },
+  "Toolbar": {
+   "exports": [
+    "Toolbar"
+   ],
+   "uses": [],
+   "classes": [
+    "dk-toolbar",
+    "dk-toolbar--vertical"
+   ]
+  },
+  "TreeView": {
+   "exports": [
+    "TreeView"
+   ],
+   "uses": [
+    "Icon"
+   ],
+   "classes": [
+    "dk-icon",
+    "dk-tree-view",
+    "dk-tree-view__group",
+    "dk-tree-view__icon",
+    "dk-tree-view__item",
+    "dk-tree-view__item--disabled",
+    "dk-tree-view__item--selected",
+    "dk-tree-view__label",
+    "dk-tree-view__row",
+    "dk-tree-view__toggle"
+   ]
+  },
+  "TypeToConfirm": {
+   "exports": [
+    "TypeToConfirm",
+    "en",
+    "id"
+   ],
+   "uses": [
+    "Button",
+    "Field",
+    "Input"
+   ],
+   "classes": [
+    "dk-field",
+    "dk-type-to-confirm",
+    "dk-type-to-confirm__phrase"
+   ]
+  },
+  "VirtualList": {
+   "exports": [
+    "VirtualList"
+   ],
+   "uses": [
+    "List"
+   ],
+   "classes": [
+    "dk-list",
+    "dk-virtual-list"
+   ]
+  }
+ }
+}

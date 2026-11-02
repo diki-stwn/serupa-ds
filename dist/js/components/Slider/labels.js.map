@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Slider/labels.ts"],
+  "sourcesContent": ["// Slider's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface SliderLabels {\n  /** A range Slider's thumb names. */\n  sliderMinimum: string;\n  sliderMaximum: string;\n}\nexport const en: SliderLabels = {\n  sliderMinimum: \"Minimum\",\n  sliderMaximum: \"Maximum\",\n};\nexport const id: SliderLabels = {\n  sliderMinimum: \"Minimum\",\n  sliderMaximum: \"Maksimum\",\n};\n"],
+  "mappings": ";AAOO,IAAM,KAAmB;AAAA,EAC9B,eAAe;AAAA,EACf,eAAe;AACjB;AACO,IAAM,KAAmB;AAAA,EAC9B,eAAe;AAAA,EACf,eAAe;AACjB;",
+  "names": []
+}

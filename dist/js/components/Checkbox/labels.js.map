@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Checkbox/labels.ts"],
+  "sourcesContent": ["// Checkbox's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface CheckboxLabels {\n  /** CheckboxGroup with required: what the browser says when the form is sent with no box checked. */\n  selectAtLeastOne: string;\n}\nexport const en: CheckboxLabels = {\n  selectAtLeastOne: \"Select at least one option.\",\n};\nexport const id: CheckboxLabels = {\n  selectAtLeastOne: \"Pilih setidaknya satu opsi.\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAqB;AAAA,EAChC,kBAAkB;AACpB;AACO,IAAM,KAAqB;AAAA,EAChC,kBAAkB;AACpB;",
+  "names": []
+}

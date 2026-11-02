@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Switch/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Switch } from \"./Switch\";\nexport type { SwitchProps } from \"./Switch\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

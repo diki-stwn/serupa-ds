@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/EmptyState/labels.ts"],
+  "sourcesContent": ["// EmptyState's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface EmptyStateLabels {\n  /** EmptyState with suggestions: the words before the searches to try instead (\"Did you mean: mars\"). */\n  didYouMean: string;\n  /** EmptyState with onClearFilters: the button that clears the search and filters. */\n  clearFilters: string;\n}\nexport const en: EmptyStateLabels = {\n  didYouMean: \"Did you mean:\",\n  clearFilters: \"Clear filters\",\n};\nexport const id: EmptyStateLabels = {\n  didYouMean: \"Mungkin maksud Anda:\",\n  clearFilters: \"Hapus filter\",\n};\n"],
+  "mappings": ";AAQO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,cAAc;AAChB;AACO,IAAM,KAAuB;AAAA,EAClC,YAAY;AAAA,EACZ,cAAc;AAChB;",
+  "names": []
+}

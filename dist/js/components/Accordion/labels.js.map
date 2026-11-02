@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Accordion/labels.ts"],
+  "sourcesContent": ["// Accordion's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface AccordionLabels {\n  /** Accordion with showExpandAll: the button that opens every item, and the one that closes them all. */\n  expandAll: string;\n  collapseAll: string;\n}\nexport const en: AccordionLabels = {\n  expandAll: \"Expand all\",\n  collapseAll: \"Collapse all\",\n};\nexport const id: AccordionLabels = {\n  expandAll: \"Buka semua\",\n  collapseAll: \"Tutup semua\",\n};\n"],
+  "mappings": ";AAOO,IAAM,KAAsB;AAAA,EACjC,WAAW;AAAA,EACX,aAAa;AACf;AACO,IAAM,KAAsB;AAAA,EACjC,WAAW;AAAA,EACX,aAAa;AACf;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/VirtualList/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { VirtualList } from \"./VirtualList\";\nexport type { VirtualListProps } from \"./VirtualList\";\n"],
+  "mappings": ";AACA,SAAS,mBAAmB;",
+  "names": []
+}

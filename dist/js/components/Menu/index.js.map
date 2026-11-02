@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Menu/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSub } from \"./Menu\";\nexport type { ContextMenuProps, MenuCheckboxItemProps, MenuGroupProps, MenuItemOwnProps, MenuItemProps, MenuProps, MenuRadioGroupProps, MenuRadioItemProps, MenuSeparatorProps, MenuSubProps } from \"./Menu\";\n"],
+  "mappings": ";AACA,SAAS,aAAa,MAAM,kBAAkB,WAAW,UAAU,gBAAgB,eAAe,eAAe,eAAe;",
+  "names": []
+}

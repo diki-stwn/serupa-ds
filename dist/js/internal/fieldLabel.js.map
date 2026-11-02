@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/fieldLabel.ts"],
+  "sourcesContent": ["import * as React from \"react\";\n\n/* Field names its control with <label for>, which only reaches native inputs. A control drawn another way (Slider's\n   role=\"slider\" thumbs, SegmentedControl's radiogroup, FileUpload's button) reads Field's label id here and names\n   itself with aria-labelledby. Only the control Field wraps gets it: the one whose id Field set or read. */\nexport const FieldLabel = /* @__PURE__ */ React.createContext<{ control: string; label: string } | null>(null);\n\n/** The id of the Field label for the control with this id, or undefined outside a Field (or for another element). */\nexport function useFieldLabel(id: string | undefined): string | undefined {\n  const f = React.useContext(FieldLabel);\n  return f && id && f.control === id ? f.label : undefined;\n}\n"],
+  "mappings": ";AAAA,YAAY,WAAW;AAKhB,IAAM,aAA6B,gBAAM,oBAAyD,IAAI;AAGtG,SAAS,cAAc,IAA4C;AACxE,QAAM,IAAU,iBAAW,UAAU;AACrC,SAAO,KAAK,MAAM,EAAE,YAAY,KAAK,EAAE,QAAQ;AACjD;",
+  "names": []
+}

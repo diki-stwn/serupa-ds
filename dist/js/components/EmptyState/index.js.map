@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/EmptyState/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { EmptyState } from \"./EmptyState\";\nexport type { EmptyStateProps } from \"./EmptyState\";\n"],
+  "mappings": ";AACA,SAAS,kBAAkB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/SegmentedControl/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { SegmentedControl } from \"./SegmentedControl\";\nexport type { SegmentedControlOption, SegmentedControlProps } from \"./SegmentedControl\";\n"],
+  "mappings": ";AACA,SAAS,wBAAwB;",
+  "names": []
+}

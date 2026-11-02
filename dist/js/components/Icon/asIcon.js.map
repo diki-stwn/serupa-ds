@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Icon/asIcon.tsx"],
+  "sourcesContent": ["import * as React from \"react\";\nimport { isIconData } from \"../../icons\";\nimport type { IconData } from \"../../material/types\";\nimport { Icon } from \"./Icon\";\n\n// In its own module, without \"use client\", so components that render on the server (EmptyState, Input) can call it:\n// a function from a client module is only a reference there.\n/** An icon name or an icon from serupa-ds/icons becomes an <Icon>; elements pass through. */\nexport function asIcon(node: React.ReactNode | IconData): React.ReactNode {\n  if (typeof node === \"string\") return <Icon name={node} />;\n  if (isIconData(node)) return <Icon icon={node} />;\n  return node as React.ReactNode;\n}\n"],
+  "mappings": ";AAAA,YAAY,WAAW;AACvB,SAAS,kBAAkB;AAE3B,SAAS,YAAY;AAKd,SAAS,OAAO,MAAmD;AACxE,MAAI,OAAO,SAAS,SAAU,QAAO,oCAAC,QAAK,MAAM,MAAM;AACvD,MAAI,WAAW,IAAI,EAAG,QAAO,oCAAC,QAAK,MAAM,MAAM;AAC/C,SAAO;AACT;",
+  "names": []
+}

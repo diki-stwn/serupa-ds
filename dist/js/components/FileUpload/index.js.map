@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/FileUpload/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { FileUpload } from \"./FileUpload\";\nexport { formatFileSize } from \"./formatFileSize\";\nexport type { FileRejection, FileUploadProps } from \"./FileUpload\";\n"],
+  "mappings": ";AACA,SAAS,kBAAkB;AAC3B,SAAS,sBAAsB;",
+  "names": []
+}

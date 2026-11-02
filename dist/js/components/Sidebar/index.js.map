@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Sidebar/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Sidebar, SidebarItem, SidebarSection } from \"./Sidebar\";\nexport type { SidebarItemOwnProps, SidebarItemProps, SidebarProps, SidebarSectionProps } from \"./Sidebar\";\n"],
+  "mappings": ";AACA,SAAS,SAAS,aAAa,sBAAsB;",
+  "names": []
+}

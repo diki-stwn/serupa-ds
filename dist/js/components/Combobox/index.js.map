@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Combobox/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Combobox } from \"./Combobox\";\nexport type { ComboboxMultipleProps, ComboboxOption, ComboboxProps, ComboboxSingleProps } from \"./Combobox\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}

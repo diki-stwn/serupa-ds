@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Kbd/labels.ts"],
+  "sourcesContent": ["// Kbd's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface KbdLabels {\n  /** Kbd: what screen readers hear for a named key, from its English name (\"Up arrow\", \"Command\", \"Space\"). */\n  keyName: (name: string) => string;\n}\nexport const en: KbdLabels = {\n  keyName: (name) => name,\n};\nconst ID_KEYS: Record<string, string> = {\n  \"Up arrow\": \"Panah atas\", \"Down arrow\": \"Panah bawah\", \"Left arrow\": \"Panah kiri\", \"Right arrow\": \"Panah kanan\",\n  Space: \"Spasi\", Delete: \"Hapus\", Backspace: \"Hapus mundur\",\n  \"Page Up\": \"Halaman atas\", \"Page Down\": \"Halaman bawah\", Function: \"Fungsi\",\n};\nexport const id: KbdLabels = {\n  keyName: (name) => ID_KEYS[name] || name,\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAgB;AAAA,EAC3B,SAAS,CAAC,SAAS;AACrB;AACA,IAAM,UAAkC;AAAA,EACtC,YAAY;AAAA,EAAc,cAAc;AAAA,EAAe,cAAc;AAAA,EAAc,eAAe;AAAA,EAClG,OAAO;AAAA,EAAS,QAAQ;AAAA,EAAS,WAAW;AAAA,EAC5C,WAAW;AAAA,EAAgB,aAAa;AAAA,EAAiB,UAAU;AACrE;AACO,IAAM,KAAgB;AAAA,EAC3B,SAAS,CAAC,SAAS,QAAQ,IAAI,KAAK;AACtC;",
+  "names": []
+}

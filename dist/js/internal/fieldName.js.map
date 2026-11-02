@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/fieldName.ts"],
+  "sourcesContent": ["import { byId } from \"./root\";\n\n/* The name a field's own label gives it (aria-labelledby, aria-label or its <label>), for a button that acts on\n   the field: \"Clear Country\". Text hidden from screen readers (Field's *) and Field's \"(optional)\" are left out.\n   \"\" when the field has no label. */\nexport function fieldName(el: HTMLInputElement | null): string {\n  if (!el) return \"\";\n  const read = (n: Element | null) => {\n    if (!n) return \"\";\n    const copy = n.cloneNode(true) as Element;\n    copy.querySelectorAll(\"[aria-hidden=true], .dk-field__optional\").forEach((x) => x.remove());\n    return copy.textContent || \"\";\n  };\n  const by = el.getAttribute(\"aria-labelledby\");\n  const text = by ? by.split(/\\s+/).map((id) => read(byId(el, id))).join(\" \")\n    : el.getAttribute(\"aria-label\") || read(el.labels && el.labels[0]);\n  return text.replace(/\\s+/g, \" \").trim();\n}\n"],
+  "mappings": ";AAAA,SAAS,YAAY;AAKd,SAAS,UAAU,IAAqC;AAC7D,MAAI,CAAC,GAAI,QAAO;AAChB,QAAM,OAAO,CAAC,MAAsB;AAClC,QAAI,CAAC,EAAG,QAAO;AACf,UAAM,OAAO,EAAE,UAAU,IAAI;AAC7B,SAAK,iBAAiB,yCAAyC,EAAE,QAAQ,CAAC,MAAM,EAAE,OAAO,CAAC;AAC1F,WAAO,KAAK,eAAe;AAAA,EAC7B;AACA,QAAM,KAAK,GAAG,aAAa,iBAAiB;AAC5C,QAAM,OAAO,KAAK,GAAG,MAAM,KAAK,EAAE,IAAI,CAAC,OAAO,KAAK,KAAK,IAAI,EAAE,CAAC,CAAC,EAAE,KAAK,GAAG,IACtE,GAAG,aAAa,YAAY,KAAK,KAAK,GAAG,UAAU,GAAG,OAAO,CAAC,CAAC;AACnE,SAAO,KAAK,QAAQ,QAAQ,GAAG,EAAE,KAAK;AACxC;",
+  "names": []
+}

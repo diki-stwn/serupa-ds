@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Calendar/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Calendar } from \"./Calendar\";\nexport type { CalendarProps } from \"./Calendar\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}

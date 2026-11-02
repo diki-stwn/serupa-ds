@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Fab/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Fab } from \"./Fab\";\nexport type { FabPosition, FabProps } from \"./Fab\";\n"],
+  "mappings": ";AACA,SAAS,WAAW;",
+  "names": []
+}

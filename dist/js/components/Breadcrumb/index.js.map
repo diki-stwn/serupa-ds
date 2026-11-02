@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Breadcrumb/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Breadcrumb, BreadcrumbItem } from \"./Breadcrumb\";\nexport type { BreadcrumbItemOwnProps, BreadcrumbItemProps, BreadcrumbProps } from \"./Breadcrumb\";\n"],
+  "mappings": ";AACA,SAAS,YAAY,sBAAsB;",
+  "names": []
+}

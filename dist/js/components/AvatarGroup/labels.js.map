@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/AvatarGroup/labels.ts"],
+  "sourcesContent": ["// AvatarGroup's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface AvatarGroupLabels {\n  /** AvatarGroup: the name of the \"+N\" avatar. */\n  avatarMore: (count: number) => string;\n}\nexport const en: AvatarGroupLabels = {\n  avatarMore: (count) => count + \" more\",\n};\nexport const id: AvatarGroupLabels = {\n  avatarMore: (count) => count + \" lainnya\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAwB;AAAA,EACnC,YAAY,CAAC,UAAU,QAAQ;AACjC;AACO,IAAM,KAAwB;AAAA,EACnC,YAAY,CAAC,UAAU,QAAQ;AACjC;",
+  "names": []
+}

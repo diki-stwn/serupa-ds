@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Rating/labels.ts"],
+  "sourcesContent": ["// Rating's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface RatingLabels {\n  /** Each Rating choice's name, for a value: \"1 star\", \"3.5 stars\". */\n  ratingStars: (value: number) => string;\n  /** A read-only Rating's name: \"4.5 out of 5\". */\n  ratingValue: (value: number, max: number) => string;\n}\nexport const en: RatingLabels = {\n  ratingStars: (value) => (value === 1 ? \"1 star\" : value + \" stars\"),\n  ratingValue: (value, max) => value + \" out of \" + max,\n};\nexport const id: RatingLabels = {\n  ratingStars: (value) => String(value).replace(\".\", \",\") + \" bintang\",\n  ratingValue: (value, max) => String(value).replace(\".\", \",\") + \" dari \" + max,\n};\n"],
+  "mappings": ";AAQO,IAAM,KAAmB;AAAA,EAC9B,aAAa,CAAC,UAAW,UAAU,IAAI,WAAW,QAAQ;AAAA,EAC1D,aAAa,CAAC,OAAO,QAAQ,QAAQ,aAAa;AACpD;AACO,IAAM,KAAmB;AAAA,EAC9B,aAAa,CAAC,UAAU,OAAO,KAAK,EAAE,QAAQ,KAAK,GAAG,IAAI;AAAA,EAC1D,aAAa,CAAC,OAAO,QAAQ,OAAO,KAAK,EAAE,QAAQ,KAAK,GAAG,IAAI,WAAW;AAC5E;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/PhoneInput/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { PhoneInput } from \"./PhoneInput\";\nexport { formatPhone, parsePhone } from \"./phone\";\nexport type { PhoneInputProps, PhoneValueDetails } from \"./PhoneInput\";\nexport type { ParsedPhone, PhoneCountry } from \"./phone\";\n"],
+  "mappings": ";AACA,SAAS,kBAAkB;AAC3B,SAAS,aAAa,kBAAkB;",
+  "names": []
+}

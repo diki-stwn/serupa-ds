@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Divider/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Divider } from \"./Divider\";\nexport type { DividerProps } from \"./Divider\";\n"],
+  "mappings": ";AACA,SAAS,eAAe;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Meter/labels.ts"],
+  "sourcesContent": ["// Meter's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport type MeterZone = 'low' | 'medium' | 'high';\nexport interface MeterLabels {\n  /** Meter: read out after the value when it's outside the best zone, so the warning the color gives is heard too\n      (\"92%, high\"). zone is where the value falls: under low, between low and high, or over high. */\n  meterZone: (value: string, zone: MeterZone) => string;\n}\nconst EN: Record<MeterZone, string> = { low: \"low\", medium: \"medium\", high: \"high\" };\nconst ID: Record<MeterZone, string> = { low: \"rendah\", medium: \"sedang\", high: \"tinggi\" };\nexport const en: MeterLabels = {\n  meterZone: (value, zone) => value + \", \" + EN[zone],\n};\nexport const id: MeterLabels = {\n  meterZone: (value, zone) => value + \", \" + ID[zone],\n};\n"],
+  "mappings": ";AAQA,IAAM,KAAgC,EAAE,KAAK,OAAO,QAAQ,UAAU,MAAM,OAAO;AACnF,IAAM,KAAgC,EAAE,KAAK,UAAU,QAAQ,UAAU,MAAM,SAAS;AACjF,IAAM,KAAkB;AAAA,EAC7B,WAAW,CAAC,OAAO,SAAS,QAAQ,OAAO,GAAG,IAAI;AACpD;AACO,IAAM,KAAkB;AAAA,EAC7B,WAAW,CAAC,OAAO,SAAS,QAAQ,OAAO,GAAG,IAAI;AACpD;",
+  "names": []
+}

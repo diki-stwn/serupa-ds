@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Container/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Container } from \"./Container\";\nexport type { ContainerProps, ContainerSize } from \"./Container\";\n"],
+  "mappings": ";AACA,SAAS,iBAAiB;",
+  "names": []
+}

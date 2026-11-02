@@ -89,30 +89,6 @@
     "./dist/serupa.iife.js",
     "./dist/serupa-icons.iife.js"
   ],
-  "scripts": {
-    "build": "node tools/build/build.mjs",
-    "typecheck": "node tools/build/registry.mjs && node node_modules/typescript/bin/tsc -p . && node node_modules/typescript/bin/tsc -p tools",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build -o storybook-static",
-    "prepare": "node tools/build/build.mjs",
-    "pretest": "node tools/build/build.mjs",
-    "test": "node tools/test/run.mjs",
-    "tokens": "node tools/tokens/build.mjs && node tools/tokens/export.mjs && node tools/tokens/readme-tables.mjs && node tools/tokens/badge-palette.mjs",
-    "test:safari": "node tools/test/run.mjs --compat safari",
-    "test:firefox": "node tools/test/run.mjs --browser firefox",
-    "test:webkit": "node tools/test/run.mjs --browser webkit",
-    "changeset": "changeset",
-    "new-component": "node tools/new-component.mjs",
-    "version-packages": "node tools/version.mjs",
-    "release": "node tools/publish.mjs",
-    "lint": "node tools/utilities/build.mjs && node tools/build/registry.mjs && eslint . && stylelint \"src/**/*.css\" \".storybook/**/*.css\"",
-    "test:coverage": "vitest run --project components --coverage",
-    "test:unit": "vitest run --project components",
-    "test:aria:update": "SERUPA_UPDATE_ARIA=1 vitest run --project components src/internal/ariaStories.test.tsx",
-    "test:server-html:update": "SERUPA_UPDATE_SERVER_HTML=1 vitest run --project components src/internal/serverHtml.test.tsx",
-    "test:checks": "vitest run --project checks",
-    "test:watch": "vitest --project components"
-  },
   "peerDependencies": {
     "@types/react": "^19.0.0",
     "react": "^19.0.0",
@@ -127,57 +103,8 @@
       "optional": true
     }
   },
-  "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.5",
-    "@changesets/cli": "3.0.3",
-    "@eslint/js": "10.0.1",
-    "@mdn/browser-compat-data": "8.1.7",
-    "@storybook/addon-a11y": "10.6.5",
-    "@storybook/addon-docs": "10.6.5",
-    "@storybook/react-vite": "10.6.5",
-    "@types/node": "26.6.5",
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "@typescript/typescript6": "6.0.2",
-    "@vitest/browser-playwright": "5.0.5",
-    "@vitest/coverage-v8": "5.0.5",
-    "@vitest/eslint-plugin": "1.6.28",
-    "axe-core": "4.14.0",
-    "esbuild": "0.28.2",
-    "eslint": "10.13.0",
-    "eslint-plugin-jsx-a11y-x": "0.2.0",
-    "eslint-plugin-react-hooks": "7.1.1",
-    "globals": "17.13.0",
-    "knip": "6.43.0",
-    "lightningcss": "1.33.0",
-    "playwright": "1.64.1",
-    "postcss-value-parser": "4.2.0",
-    "publint": "0.3.25",
-    "react": "19.3.1",
-    "react-dom": "19.3.1",
-    "rolldown": "1.2.14",
-    "rollup": "4.64.10",
-    "storybook": "10.6.5",
-    "style-dictionary": "5.7.1",
-    "stylelint": "17.16.0",
-    "stylelint-config-recommended": "18.0.0",
-    "tsup": "9.0.0",
-    "typescript": "7.0.2",
-    "typescript-eslint": "8.72.1",
-    "vite": "8.3.5",
-    "vitest": "5.0.5",
-    "vitest-browser-react": "2.3.0",
-    "webpack": "5.112.2"
-  },
   "engines": {
     "node": ">=22"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": ">=26",
-      "onFail": "error"
-    }
   },
   "overrides": {
     "typescript-eslint": {

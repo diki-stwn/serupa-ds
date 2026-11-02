@@ -1,0 +1,70 @@
+/*! Serupa v13.0.0 by Diki · base.css */
+@layer dk.tokens, dk.base, dk.components, dk.utilities;
+@layer dk.base {
+:where(*, *::before, *::after) { box-sizing: border-box; }
+:where(:root:not([data-brand], [data-mode])), :where([data-theme$="-light"]) { color-scheme: light; }
+:where([data-theme$="-dark"]) { color-scheme: dark; }
+:where([data-mode], [data-brand], [data-theme]):where(:not(html, body)) { color: var(--text); background-color: var(--surface); }
+:where(html) {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+-webkit-tap-highlight-color: transparent;
+}
+:where(body) {
+margin: var(--spacing-0);
+background-color: var(--surface);
+color: var(--text);
+font-family: var(--font-sans);
+font-size: var(--text-base);
+line-height: var(--text-base--line-height);
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+text-rendering: optimizeLegibility;
+}
+:where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; }
+@supports (-webkit-touch-callout: none) { :where(input, select, textarea) { font-size: var(--text-base); } }
+:where(img, svg, video, canvas, picture) { display: block; max-width: var(--sizing-full); }
+:where(img, video) { height: var(--sizing-auto); }
+:where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd) { margin: var(--spacing-0); }
+:where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+:where(h1, h2, h3, h4, h5, h6):where(:lang(ja)) { word-break: auto-phrase; }
+:where(p) { text-wrap: pretty; }
+:where(a[href]) {
+color: var(--link-text, var(--primary));
+text-decoration-line: underline; text-decoration-thickness: var(--link-thickness, var(--decoration-1)); text-underline-offset: var(--link-offset, var(--underline-offset-2));
+-webkit-box-decoration-break: clone; box-decoration-break: clone;
+overflow-wrap: anywhere;
+}
+@media (hover: hover) { :where(a[href]:hover) { color: var(--link-text-hover, var(--primary-hover)); text-decoration-thickness: var(--link-thickness-hover, var(--decoration-2)); } }
+:where(a:not([href])) { color: inherit; text-decoration: none; }
+:where(hr) { border: var(--border-width-0); border-top: var(--border-width-1) solid var(--border); margin: var(--spacing-0); }
+:where(code, samp, pre) { font-family: var(--font-mono); }
+:where(kbd) { font-family: var(--font-sans); }
+::selection { background-color: var(--primary-subtle); color: var(--text); }
+::placeholder { color: var(--placeholder); opacity: var(--opacity-100); }
+:where(:root, [data-theme], [data-brand], [data-mode]) { accent-color: var(--primary); caret-color: var(--primary); }
+:where(:focus-visible) {
+outline: var(--focus-ring-width) solid var(--focus-ring);
+outline-offset: var(--focus-ring-offset);
+}
+:where([hidden]:not([hidden="until-found"])) { display: none !important; }
+@media print {
+:where(.dk-btn, .dk-badge, .dk-progress, .dk-switch, .dk-checkbox__input, .dk-radio__input, .dk-avatar, .dk-stepper__indicator, .dk-segmented, .dk-alert, .dk-slider, .dk-calendar, .dk-pagination, .dk-tabs) { print-color-adjust: exact; }
+:where(.dk-toaster, .dk-tooltip, .dk-menu, .dk-popover, .dk-combobox__popup, .dk-date-picker__popup, .dk-time-picker__list, .dk-fab) { display: none !important; }
+:where([data-print-urls] a[href^="http"])::after { content: " (" attr(href) ")"; font-size: var(--text-xs); overflow-wrap: anywhere; }
+:where(:root, [data-mode]) { color-scheme: light; }
+:where([data-theme$="-dark"]) { color-scheme: dark; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+::view-transition-group(*) { animation-duration: var(--motion-change-md); animation-timing-function: var(--ease-move); }
+@media (prefers-reduced-motion: reduce) {
+:where(html) { scroll-behavior: auto; }
+:where(*) { scroll-behavior: auto !important; }
+:where(:not([class^="dk-"], [class*=" dk-"])),
+:where(:not([class^="dk-"], [class*=" dk-"]))::before,
+:where(:not([class^="dk-"], [class*=" dk-"]))::after { transition-duration: var(--duration-0) !important; }
+:where([class^="dk-"], [class*=" dk-"]),
+:where([class^="dk-"], [class*=" dk-"])::before,
+:where([class^="dk-"], [class*=" dk-"])::after { transition-property: opacity, display, overlay, content-visibility !important; }
+::view-transition-group(*) { animation-name: none; }
+}
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Drawer/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Drawer } from \"./Drawer\";\nexport type { DrawerProps } from \"./Drawer\";\n"],
+  "mappings": ";AACA,SAAS,cAAc;",
+  "names": []
+}

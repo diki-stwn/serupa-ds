@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/component.ts"],
+  "sourcesContent": ["import * as React from \"react\";\n\n// Every component is made through these two, called with a /* @__PURE__ */ mark, so a bundler can drop the\n// components a project doesn't import. A bare `X.displayName = \"X\"` statement is a side effect that keeps\n// every component in the bundle.\n\n/** React.forwardRef with a displayName (the name React DevTools and warnings show). */\nexport function component<T, P = object>(name: string, render: React.ForwardRefRenderFunction<T, React.PropsWithoutRef<P>>): React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<T>> {\n  const c = React.forwardRef<T, P>(render);\n  c.displayName = name;\n  return c;\n}\n\n/** A function component with a displayName, kept when a minifier renames the function. */\nexport function named<C extends (props: never) => React.ReactNode>(name: string, c: C): C & { displayName: string } {\n  return Object.assign(c, { displayName: name });\n}\n"],
+  "mappings": ";AAAA,YAAY,WAAW;AAOhB,SAAS,UAAyB,MAAc,QAAyJ;AAC9M,QAAM,IAAU,iBAAiB,MAAM;AACvC,IAAE,cAAc;AAChB,SAAO;AACT;AAGO,SAAS,MAAmD,MAAc,GAAmC;AAClH,SAAO,OAAO,OAAO,GAAG,EAAE,aAAa,KAAK,CAAC;AAC/C;",
+  "names": []
+}

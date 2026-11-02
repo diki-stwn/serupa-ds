@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/summaryFocus.ts"],
+  "sourcesContent": ["/* An ErrorSummary that takes focus is read in full, so the Fields in its form don't also say their new errors, which\n   would read the same list again straight after (GR54). The summary marks its form as it takes focus; the mark lasts\n   until the commit's effects have run (a microtask), and a Field's error effect in that commit stays quiet. */\n\n// module state: only the element of the summary focused in this commit, cleared before any other task runs.\nlet quiet: Element | null = null;\n\n/** Called by ErrorSummary as it takes focus: its form (or the page) is quiet for this commit. */\nexport function summaryTookFocus(box: Element): void {\n  quiet = box.closest(\"form\") || box.ownerDocument.body;\n  queueMicrotask(() => { quiet = null; });\n}\n\n/** True when a summary around this element took focus in this commit, so its new error isn't said again. */\nexport const summarySaysIt = (el: Element | null): boolean => !!quiet && !!el && quiet.contains(el);\n"],
+  "mappings": ";AAKA,IAAI,QAAwB;AAGrB,SAAS,iBAAiB,KAAoB;AACnD,UAAQ,IAAI,QAAQ,MAAM,KAAK,IAAI,cAAc;AACjD,iBAAe,MAAM;AAAE,YAAQ;AAAA,EAAM,CAAC;AACxC;AAGO,IAAM,gBAAgB,CAAC,OAAgC,CAAC,CAAC,SAAS,CAAC,CAAC,MAAM,MAAM,SAAS,EAAE;",
+  "names": []
+}

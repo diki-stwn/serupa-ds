@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/ErrorBoundary/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { ErrorBoundary } from \"./ErrorBoundary\";\nexport type { ErrorBoundaryProps, ErrorBoundaryFallbackProps } from \"./ErrorBoundary\";\n"],
+  "mappings": ";AACA,SAAS,qBAAqB;",
+  "names": []
+}

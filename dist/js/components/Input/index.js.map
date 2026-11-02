@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Input/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Input } from \"./Input\";\nexport type { InputProps } from \"./Input\";\nexport type { ValidityProblem } from \"./labels\";\n"],
+  "mappings": ";AACA,SAAS,aAAa;",
+  "names": []
+}

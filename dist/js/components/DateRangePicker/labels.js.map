@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/DateRangePicker/labels.ts"],
+  "sourcesContent": ["// DateRangePicker's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface DateRangePickerLabels {\n  /** DatePicker, DateRangePicker and TimePicker. */\n  chooseDates: string;\n  startDate: string;\n  endDate: string;\n  chooseStartDate: string;\n  chooseEndDate: string;\n}\nexport const en: DateRangePickerLabels = {\n  chooseDates: \"Choose dates\",\n  startDate: \"Start date\",\n  endDate: \"End date\",\n  chooseStartDate: \"Choose the start date\",\n  chooseEndDate: \"Choose the end date\",\n};\nexport const id: DateRangePickerLabels = {\n  chooseDates: \"Pilih rentang tanggal\",\n  startDate: \"Tanggal mulai\",\n  endDate: \"Tanggal selesai\",\n  chooseStartDate: \"Pilih tanggal mulai\",\n  chooseEndDate: \"Pilih tanggal selesai\",\n};\n"],
+  "mappings": ";AAUO,IAAM,KAA4B;AAAA,EACvC,aAAa;AAAA,EACb,WAAW;AAAA,EACX,SAAS;AAAA,EACT,iBAAiB;AAAA,EACjB,eAAe;AACjB;AACO,IAAM,KAA4B;AAAA,EACvC,aAAa;AAAA,EACb,WAAW;AAAA,EACX,SAAS;AAAA,EACT,iBAAiB;AAAA,EACjB,eAAe;AACjB;",
+  "names": []
+}

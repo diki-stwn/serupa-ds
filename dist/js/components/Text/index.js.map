@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Text/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Text } from \"./Text\";\nexport type { TextProps, TextSize, TextTone, TextWeight } from \"./Text\";\n"],
+  "mappings": ";AACA,SAAS,YAAY;",
+  "names": []
+}

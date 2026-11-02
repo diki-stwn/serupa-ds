@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Progress/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Progress } from \"./Progress\";\nexport type { ProgressProps, ProgressTone } from \"./Progress\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}

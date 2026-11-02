@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Calendar/labels.ts"],
+  "sourcesContent": ["// Calendar's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface CalendarLabels {\n  /** Calendar month buttons. */\n  previousMonth: string;\n  nextMonth: string;\n  /** Calendar monthYearPicker menus. */\n  month: string;\n  year: string;\n}\nexport const en: CalendarLabels = {\n  previousMonth: \"Previous month\",\n  nextMonth: \"Next month\",\n  month: \"Month\",\n  year: \"Year\",\n};\nexport const id: CalendarLabels = {\n  previousMonth: \"Bulan sebelumnya\",\n  nextMonth: \"Bulan berikutnya\",\n  month: \"Bulan\",\n  year: \"Tahun\",\n};\n"],
+  "mappings": ";AAUO,IAAM,KAAqB;AAAA,EAChC,eAAe;AAAA,EACf,WAAW;AAAA,EACX,OAAO;AAAA,EACP,MAAM;AACR;AACO,IAAM,KAAqB;AAAA,EAChC,eAAe;AAAA,EACf,WAAW;AAAA,EACX,OAAO;AAAA,EACP,MAAM;AACR;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/SkipLink/labels.ts"],
+  "sourcesContent": ["// SkipLink's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface SkipLinkLabels {\n  /** SkipLink: the link's text when it has no children. */\n  skipToContent: string;\n}\nexport const en: SkipLinkLabels = {\n  skipToContent: \"Skip to content\",\n};\nexport const id: SkipLinkLabels = {\n  skipToContent: \"Langsung ke konten\",\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAqB;AAAA,EAChC,eAAe;AACjB;AACO,IAAM,KAAqB;AAAA,EAChC,eAAe;AACjB;",
+  "names": []
+}

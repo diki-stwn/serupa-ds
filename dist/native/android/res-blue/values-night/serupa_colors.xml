@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Serupa 13.0.0: design tokens for native apps, generated from design-tokens/ (tools/build/native-tokens.mjs). Don't edit. -->
+<resources>
+    <color name="serupa_primary">#FF60A5FA</color> <!-- Alias. Brand color: primary buttons, links, selected states. Light themes: brand 600 (emerald 700) with white text; dark themes: brand 400 with brand-950 text. More contrast: brand 800 / brand 300, 7:1+ on `surface` and `primary-subtle`. -->
+    <color name="serupa_primary_hover">#FF93C5FD</color> <!-- Alias. Hover / pressed state of `primary` (one step darker in light themes, lighter in dark). More contrast: brand 900 / brand 200. -->
+    <color name="serupa_primary_subtle">#FF172554</color> <!-- Alias. Brand tint for selected rows and badges (brand 50 light, brand 950 dark). -->
+    <color name="serupa_on_primary">#FF172554</color> <!-- Alias. Text and icons on `primary` fills (white in light themes, brand 950 in dark). -->
+    <color name="serupa_secondary">#FF3F3F46</color> <!-- Alias. Secondary button fill; hover fill for outline and ghost buttons. -->
+    <color name="serupa_secondary_hover">#FF52525B</color> <!-- Alias. Hover state of `secondary`. -->
+    <color name="serupa_highlight">#FF3F3F46</color> <!-- The keyboard-highlighted item in a list: Menu items, Combobox and TimePicker options, the Sidebar's current page. One step stronger than `secondary` in light (about 1.3:1 on `surface`); in dark it shares `secondary`'s zinc-700 (1.7:1 on `surface`, 1.4:1 on `surface-overlay`), so a `primary` bar keeps 3:1 on it in every brand, paired with a 2px `primary` bar at the item's start. Text on it keeps 4.5:1. -->
+    <color name="serupa_pressed">#FF52525B</color> <!-- Alias. The fill while a row, tab, day or page button is held down (`:active`): one step past its hover. `text` keeps 7:1+ on it. -->
+    <color name="serupa_surface">#FF18181B</color> <!-- Alias. Page and card background (white light, zinc-900 dark). -->
+    <color name="serupa_surface_muted">#FF27272A</color> <!-- Alias. Secondary panels, sidebars, table headers. -->
+    <color name="serupa_surface_raised">#FF27272A</color> <!-- Alias. A raised card (Card `elevated`). One step up from `surface` in dark, where a shadow doesn't show. -->
+    <color name="serupa_surface_overlay">#FF27272A</color> <!-- Alias. Anything in the top layer: Menu, Popover, Dialog, Drawer, Toast and the Combobox, DatePicker and TimePicker lists. -->
+    <color name="serupa_field">#FF27272A</color> <!-- Alias. Background of text inputs, selects and other form fields. -->
+    <color name="serupa_field_readonly">#FF18181B</color> <!-- Alias. Background of a read-only or disabled form field: a step flatter than `field` (zinc-50 in light, the page's zinc-900 in dark), so it reads as not editable while its `field-border` still outlines it. -->
+    <color name="serupa_field_border">#FFA1A1AA</color> <!-- Alias. Border of form fields. 3:1+ against `field` and `surface` in every theme, as WCAG 1.4.11 requires for a control's boundary. -->
+    <color name="serupa_field_border_hover">#FFD4D4D8</color> <!-- Alias. Field border on hover. -->
+    <color name="serupa_placeholder">#FFA1A1AA</color> <!-- Alias. Placeholder text in form fields (4.5:1+ on `field`). Placeholders are hints, never labels. -->
+    <color name="serupa_overlay">#B309090B</color> <!-- Alias. The dimmed backdrop behind dialogs and drawers (zinc-900 at 50% in light themes, zinc-950 at 70% in dark). -->
+    <color name="serupa_surface_inverse">#FFFAFAFA</color> <!-- Alias. Contrasting blocks: tooltips, inverse banners. -->
+    <color name="serupa_text">#FFFAFAFA</color> <!-- Alias. Body text and headings on `surface`. -->
+    <color name="serupa_text_muted">#FFA1A1AA</color> <!-- Alias. Secondary text, captions, placeholders (4.5:1+ on `surface` in every theme). -->
+    <color name="serupa_text_inverse">#FF18181B</color> <!-- Alias. Text on `surface-inverse`. -->
+    <color name="serupa_border">#FF3F3F46</color> <!-- Alias. Default borders and dividers. -->
+    <color name="serupa_border_strong">#FF52525B</color> <!-- Alias. Emphasised dividers and outlines. Form fields use `field-border`, which meets the 3:1 a control boundary needs. -->
+    <color name="serupa_border_raised">#FF3F3F46</color> <!-- Alias. A raised card's edge: invisible in light (white on white), a 1px lighter edge in dark. -->
+    <color name="serupa_border_overlay">#FF52525B</color> <!-- Alias. The edge of a top-layer surface. In dark it is one step stronger than `border`, so a menu stands off the page. -->
+    <color name="serupa_focus_ring">#FF60A5FA</color> <!-- Alias. Keyboard focus outline, in the brand hue (3:1+ on `surface` in every theme). More contrast: brand 700 / brand 300. -->
+    <color name="serupa_success">#FF22C55E</color> <!-- Alias. Success icons and fills (3:1). For success text use `success-text`. -->
+    <color name="serupa_success_subtle">#FF052E16</color> <!-- Alias. Success alert / badge background. -->
+    <color name="serupa_success_text">#FF86EFAC</color> <!-- Alias. Success text on `surface`, `surface-muted` and `success-subtle` (4.5:1+ in every theme). -->
+    <color name="serupa_warning">#FFF59E0B</color> <!-- Alias. Warning icons and fills; put dark text on it. For warning text use `warning-text`. -->
+    <color name="serupa_warning_subtle">#FF451A03</color> <!-- Alias. Warning alert / badge background. -->
+    <color name="serupa_warning_text">#FFFCD34D</color> <!-- Alias. Warning text on `surface`, `surface-muted` and `warning-subtle` (4.5:1+ in every theme). -->
+    <color name="serupa_danger">#FFDC2626</color> <!-- Alias. Errors, destructive buttons; white text on it (4.8:1). For error text on dark surfaces use `red-400`. -->
+    <color name="serupa_danger_hover">#FFB91C1C</color> <!-- Alias. Hover / pressed state of `danger`. -->
+    <color name="serupa_on_danger">#FFFFFFFF</color> <!-- Alias. Text and icons on `danger` fills. -->
+    <color name="serupa_danger_subtle">#FF450A0A</color> <!-- Alias. Error alert / badge background. -->
+    <color name="serupa_danger_text">#FFFCA5A5</color> <!-- Alias. Destructive text and icons on `surface`, `danger-subtle` and its hover (5.3:1+ in every theme). -->
+    <color name="serupa_danger_subtle_hover">#FF7F1D1D</color> <!-- Alias. Hover fill for destructive secondary, outline and ghost buttons. -->
+    <color name="serupa_danger_border">#FF991B1B</color> <!-- Alias. Border of a destructive outline button. -->
+    <color name="serupa_info">#FF38BDF8</color> <!-- Alias. Informational icons and text. -->
+    <color name="serupa_info_subtle">#FF082F49</color> <!-- Alias. Info alert / badge background. -->
+    <color name="serupa_info_text">#FF7DD3FC</color> <!-- Alias. Info text on `surface`, `surface-muted` and `info-subtle` (4.5:1+ in every theme). -->
+    <color name="serupa_link_visited">#FFC4B5FD</color> <!-- Alias. A visited link in reading content (Prose): a shade apart from primary, 4.5:1+ on `surface` and `surface-muted` in every theme. -->
+</resources>

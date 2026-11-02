@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/TreeView/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { TreeView } from \"./TreeView\";\nexport type { TreeViewItem, TreeViewProps } from \"./TreeView\";\n"],
+  "mappings": ";AACA,SAAS,gBAAgB;",
+  "names": []
+}

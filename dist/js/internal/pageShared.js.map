@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/internal/pageShared.ts"],
+  "sourcesContent": ["/* What the whole page shares, kept once per page even when it has two copies of serupa-ds: two versions installed\n   by different packages, or two apps built apart (micro frontends). Each copy has its own modules, so a list kept in\n   one module was two lists: a Dialog from one copy didn't move the other copy's live regions into it, and what that\n   copy announced went unheard behind the modal (the page behind one is inert). Kept on globalThis under a\n   Symbol.for key, which every copy reaches. The name carries the shape's version (\"layers@1\"): a release that\n   changes what's kept changes the name, so an older copy never reads a shape it doesn't know.\n   A server keeps one copy per module, as before: globalThis there outlives every request, and none of this is\n   used in a server render. */\nexport function pageShared<T extends object>(name: string, make: () => T): T {\n  if (typeof document === \"undefined\") return make();\n  const key = Symbol.for(\"serupa-ds/\" + name), page: Record<symbol, T | undefined> = globalThis;\n  return page[key] || (page[key] = make());\n}\n"],
+  "mappings": ";AAQO,SAAS,WAA6B,MAAc,MAAkB;AAC3E,MAAI,OAAO,aAAa,YAAa,QAAO,KAAK;AACjD,QAAM,MAAM,uBAAO,IAAI,eAAe,IAAI,GAAG,OAAsC;AACnF,SAAO,KAAK,GAAG,MAAM,KAAK,GAAG,IAAI,KAAK;AACxC;",
+  "names": []
+}

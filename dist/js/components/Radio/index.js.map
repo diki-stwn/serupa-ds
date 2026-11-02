@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Radio/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { Radio, RadioGroup } from \"./Radio\";\nexport type { RadioGroupProps, RadioProps } from \"./Radio\";\n"],
+  "mappings": ";AACA,SAAS,OAAO,kBAAkB;",
+  "names": []
+}

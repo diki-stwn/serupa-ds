@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/Progress/labels.ts"],
+  "sourcesContent": ["// Progress's own words, in English and Indonesian. tools/build/registry.mjs adds them to SerupaLabels,\n// enLabels and idLabels, so <SerupaProvider labels> changes them like any other label.\nexport interface ProgressLabels {\n  /** Progress with announceComplete: said when it reaches max. name is its label or aria-label, or \"\" without one. */\n  progressComplete: (name: string) => string;\n}\nexport const en: ProgressLabels = {\n  progressComplete: (name) => (name ? name + \": complete\" : \"Complete\"),\n};\nexport const id: ProgressLabels = {\n  progressComplete: (name) => (name ? name + \": selesai\" : \"Selesai\"),\n};\n"],
+  "mappings": ";AAMO,IAAM,KAAqB;AAAA,EAChC,kBAAkB,CAAC,SAAU,OAAO,OAAO,eAAe;AAC5D;AACO,IAAM,KAAqB;AAAA,EAChC,kBAAkB,CAAC,SAAU,OAAO,OAAO,cAAc;AAC3D;",
+  "names": []
+}

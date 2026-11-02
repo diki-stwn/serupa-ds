@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/components/FormattedNumber/index.ts"],
+  "sourcesContent": ["// The package exports what this file exports: tools/build/registry.mjs collects every component folder's index.ts.\nexport { FormattedNumber, formatNumber } from \"./FormattedNumber\";\nexport type { FormatNumberOptions, FormattedNumberProps, NumberFormat } from \"./FormattedNumber\";\n"],
+  "mappings": ";AACA,SAAS,iBAAiB,oBAAoB;",
+  "names": []
+}
