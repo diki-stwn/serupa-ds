@@ -37,7 +37,12 @@ interface ComboboxBaseProps<V extends string = string> extends Omit<InputProps, 
   loadOptions?: (text: string, context: { signal: AbortSignal }) => Promise<readonly ComboboxOption<V>[]>;
   /** With loadOptions, how long typing must pause before loading, in ms. Default: 250. */
   debounce?: number;
-  /** Called with the text as it's typed: for loading options from a server (with filter={false} and loading). */
+  /** The text in the field (controlled). Use with onInputChange, which is called with every change to it. */
+  inputValue?: string;
+  /** The text in the field at first (uncontrolled). Default: the picked option's label, or "". */
+  defaultInputValue?: string;
+  /** Called whenever the field's text changes: as it's typed, and when picking, clearing, Escape or leaving the
+      field puts a label back. For loading options from a server (with filter={false} and loading), or with inputValue. */
   onInputChange?: (text: string) => void;
   /** How typing narrows the list. Default: options whose label contains the text, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße"). false shows every option (filter them yourself). */
   filter?: false | ((option: { value: V; label: string }, text: string) => boolean);
@@ -118,7 +123,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   props = useFieldControl(props);   // the props a surrounding Field hands it, at any depth
   const fieldLabel = React.useContext(FieldContext)?.labelId;   // names the listbox when a Field's <label for> names the field
   const sds = useSettings(words);
-  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1, loadOptions: 1, debounce: 1 } as const);
+  const rest = omit(props, { size: 1, invalid: 1, leftIcon: 1, className: 1, style: 1, options: 1, value: 1, defaultValue: 1, onValueChange: 1, onInputChange: 1, inputValue: 1, defaultInputValue: 1, filter: 1, clearable: 1, loading: 1, emptyText: 1, loadingText: 1, toggleLabel: 1, clearLabel: 1, name: 1, multiple: 1, loadOptions: 1, debounce: 1 } as const);
   const multi = props.multiple === true;
   const size = oneOf(SIZES, props.size, "md");
   const invalid = isInvalid(props.invalid, rest["aria-invalid"]);
@@ -176,7 +181,27 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const chosen = new Set(values);
   const selected = multi ? null : opts.find((o) => o.value === value) || null;
   const pickedLabel = selected ? selected.label : value != null ? seen.current.get(value) ?? "" : "";
-  const [text, setText] = React.useState(pickedLabel);
+  // The field's text: inputValue when given (controlled), else its own. Every change goes through setText, which
+  // tells onInputChange, so a controlled field follows picks, Escape and clearing as well as typing.
+  const [ownText, setOwnText] = React.useState(() => props.defaultInputValue ?? pickedLabel);
+  const text = props.inputValue !== undefined ? props.inputValue : ownText;
+  const textNow = React.useRef(text);
+  textNow.current = text;
+  const told = React.useRef(props.onInputChange);
+  told.current = props.onInputChange;
+  const setText = (t: string) => {
+    setOwnText(t);
+    if (t === textNow.current) return;
+    textNow.current = t;
+    if (told.current) told.current(t);
+  };
+  // A new value's label replaces the text while rendering (below); onInputChange hears of it after the render.
+  const [synced, setSynced] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (synced === null) return;
+    setSynced(null);
+    if (told.current) told.current(synced);
+  }, [synced]);
   const [typed, setTyped] = React.useState(false);   // false: show every option (just opened); true: filter by the text
   const [open, setOpen] = React.useState(false);
   const [active, setActive] = React.useState(-1);    // index into opts
@@ -199,7 +224,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const [shownFor, setShownFor] = React.useState<[string | null, string]>([value, label]);
   if (shownFor[0] !== value || shownFor[1] !== label) {
     setShownFor([value, label]);
-    if (!open || !typed) setText(label);
+    if ((!open || !typed) && label !== text) { setOwnText(label); setSynced(label); }
   }
 
   const filter = props.loadOptions ? false : props.filter;
@@ -253,11 +278,10 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
       if (chosen.has(o.value)) remove(o.value);
       else commitMany(values.concat(o.value), sds.labels.valueAdded(o.label));
       setActive(o.i); setTyped(false);
-      if (text) { setText(""); if (props.onInputChange) props.onInputChange(""); load("", 0); }
+      if (text) { setText(""); load("", 0); }
       return;
     }
     commit(o.value); setText(o.label); setOpen(false); setActive(-1); setTyped(false);
-    if (props.onInputChange && o.label !== text) props.onInputChange(o.label);
   };
   // The one enabled option whose label is the typed text (any case and accents): leaving the field or Enter picks it.
   const exact = () => {
@@ -290,7 +314,6 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
     const q = fold(t.trim());
     const first = opts.find((o) => !o.disabled && (filter === false || (typeof filter === "function" ? filter({ value: o.value, label: o.label }, t) : o.folded.includes(q))));
     setActive(t.trim() && first ? first.i : -1);
-    if (props.onInputChange) props.onInputChange(t);
     load(t, pause);
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -309,7 +332,7 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (rest.onBlur) rest.onBlur(e);
     if (windowBlur(e)) return;   // switched windows: the typing goes on when they come back
-    if (multi) { hide(); if (text && props.onInputChange) props.onInputChange(""); return; }
+    if (multi) { hide(); return; }
     const x = exact();
     if (text.trim() === "" && value != null) { commit(null); setOpen(false); setActive(-1); setTyped(false); setText(""); }
     else if (x) pick(x);
@@ -318,7 +341,6 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const clear = () => {
     if (multi) commitMany([]); else commit(null);
     setText(""); setTyped(false); setActive(-1);
-    if (props.onInputChange) props.onInputChange("");
     if (input.current) input.current.focus();
   };
 

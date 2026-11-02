@@ -314,6 +314,34 @@ describe('Combobox', () => {
     expect([m.textContent, m.getAttribute('role'), !!m.querySelector('[data-component=loader]')]).toEqual(['Finding people…', 'status', true]);
   });
 
+  test('inputValue: the text is the app\'s, and onInputChange hears typing, picking, Escape, clearing and a new value; defaultInputValue starts it (AQ1)', async () => {
+    const heard: string[] = [];
+    let setValue: (v: string | null) => void = () => {};
+    function Owned() {
+      const [text, setText] = React.useState('Br'), [value, setV] = React.useState<string | null>(null);
+      setValue = setV;
+      return <Combobox id="own" aria-label="Country" options={COUNTRIES} clearable value={value} onValueChange={setV} inputValue={text} onInputChange={(t) => { heard.push(t); setText(t.toUpperCase() === 'XX' ? 'yy' : t); }} />;
+    }
+    await render(<>
+      <Owned />
+      <Combobox id="dflt" aria-label="Start" options={COUNTRIES} defaultValue="Canada" defaultInputValue="Can" />
+    </>);
+    expect([el('own').value, el('dflt').value]).toEqual(['Br', 'Can']);
+    await userEvent.click(el('own'));
+    await userEvent.keyboard('a');
+    expect([el('own').value, st('own').opts]).toEqual(['Bra', ['Brazil']]);
+    await userEvent.keyboard('{Enter}');
+    expect([el('own').value, heard]).toEqual(['Brazil', ['Bra', 'Brazil']]);
+    await selectAll(); await userEvent.keyboard('Fr{Escape}');
+    expect([el('own').value, heard.slice(2)]).toEqual(['Brazil', ['F', 'Fr', 'Brazil']]);
+    setValue('Egypt'); await settle();
+    expect([el('own').value, heard.at(-1)]).toEqual(['Egypt', 'Egypt']);
+    await userEvent.click(clearOf('own')!);
+    expect([el('own').value, heard.at(-1)]).toEqual(['', '']);
+    await userEvent.keyboard('xx');
+    expect(el('own').value).toBe('yy');   // the app's text wins over what was typed
+  });
+
   test('disabled: doesn\'t open, and the chevron is disabled; --combobox-chevron overrides one field', async () => {
     await render(<>
       <Combobox id="dis" aria-label="Dis" options={COUNTRIES} disabled />

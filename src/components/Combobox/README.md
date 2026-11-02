@@ -86,7 +86,9 @@ Every Input prop works (`size`, `invalid`, `leftIcon`, `placeholder`, `disabled`
 | `value` | `V \| null` (`V[]` with `multiple`) | | Controlled. `V` is the options' values, a `string` by default: it's inferred from `options`, or given as `Combobox<'red' \| 'green'>`, so `onValueChange` gets that union; given, a value outside it is a type error. |
 | `defaultValue` | `V \| null` (`V[]` with `multiple`) | | Uncontrolled. |
 | `onValueChange` | `(value: V \| null) => void` (`(value: V[]) => void` with `multiple`) | | When an option is picked, or `null` when the field is emptied or cleared. With `multiple`, every picked value in the order picked. |
-| `onInputChange` | `(text: string) => void` | | The text as it's typed, for loading options. |
+| `inputValue` | `string` | | The text in the field (controlled). Use with `onInputChange`. |
+| `defaultInputValue` | `string` | the picked label | The text in the field at first (uncontrolled). |
+| `onInputChange` | `(text: string) => void` | | Every change to the text: typing, and the label that picking, clearing, Escape or leaving the field puts back. |
 | `filter` | `false \| (option, text) => boolean` | contains, ignoring case, accents and width ("lodz" finds "Łódź", "strasse" finds "Straße", "ｔｏｋｙｏ" finds "Tokyo", "こーひー" finds "コーヒー") | `false` shows every option you pass. |
 | `clearable` | `boolean` | `false` | A × that clears the selection (every tag, with `multiple`). |
 | `loading` | `boolean` | `false` | A loading row in the list. |
