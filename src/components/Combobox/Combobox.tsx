@@ -375,9 +375,9 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   }, [open, typed, loading, said, text]);
 
   // Opened by the app (defaultOpen or the open prop) rather than show(): list what "" finds, as show() does.
-  const opened = React.useRef(() => {});
+  const opened = React.useRef<() => void>(undefined);
   opened.current = () => { if (!typed && loader.current.q !== "") load("", 0); };
-  React.useEffect(() => { if (open) opened.current(); }, [open]);
+  React.useEffect(() => { if (open) opened.current?.(); }, [open]);
 
   // Place the list under the field, in the top layer, as wide as the field at least.
   // Closing: the options stay (inert) while the list fades out, as Menu's and DatePicker's do (GK1).
@@ -390,9 +390,9 @@ export const Combobox = /* @__PURE__ */ component<HTMLInputElement, ComboboxProp
   const attach = win.ref;
   const setListbox = React.useCallback((n: HTMLDivElement | null) => { listbox.current = n; attach(n); }, [attach]);
   const at = active >= 0 ? shown.findIndex((o) => o.i === active) : -1;
-  const toActive = React.useRef(() => {});
+  const toActive = React.useRef<() => void>(undefined);
   toActive.current = () => { if (open && at >= 0) win.scrollToIndex(at); };
-  React.useEffect(() => toActive.current(), [active, open]);
+  React.useEffect(() => toActive.current?.(), [active, open]);
 
   const left = asIcon(props.leftIcon);
   const keep = (e: React.MouseEvent) => e.preventDefault();   // presses in the list and buttons keep focus in the field
