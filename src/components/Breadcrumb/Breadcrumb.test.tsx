@@ -8,7 +8,7 @@ import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 const el = (id: string) => document.getElementById(id) as HTMLElement;
 const q = (sel: string) => document.querySelector(sel) as HTMLElement;
 // The trail as written: each item's text, ">" for a separator.
-const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector(':scope > span[aria-hidden="true"]') ? '> ' : '') + li.querySelector('.dk-breadcrumb__item')!.textContent).join(' ');
+const trail = (id: string) => [...el(id).querySelectorAll('li')].map((li) => (li.querySelector(':scope > span[aria-hidden="true"]') ? '> ' : '') + li.querySelector(':scope > :not([aria-hidden])')!.textContent).join(' ');
 const shownIcons = (e: Element) => [...e.querySelectorAll<HTMLElement>('[data-icon]')].filter((i) => css(i).display !== 'none');
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, { to: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(function RouterLink({ to, ...p }, ref) {
@@ -39,7 +39,7 @@ describe('Breadcrumb', () => {
 
   test('items are links; the last is the current page: text with aria-current="page" and no href', async () => {
     await render(<Home />);
-    expect([...el('bdef').querySelectorAll('.dk-breadcrumb__item')].map((e) => [e.tagName, e.getAttribute('href'), e.getAttribute('aria-current')].join(' ')))
+    expect([...el('bdef').querySelectorAll('li > :not([aria-hidden])')].map((e) => [e.tagName, e.getAttribute('href'), e.getAttribute('aria-current')].join(' ')))
       .toEqual(['A #home ', 'A #projects ', 'SPAN  page']);
   });
 
@@ -106,7 +106,7 @@ describe('Breadcrumb', () => {
     await userEvent.click(b);
     const menu = await expect.poll(() => document.querySelector('[role="menu"]')).toBeTruthy().then(() => q('[role="menu"]'));
     const links = [...menu.querySelectorAll('[role="menuitem"]')];
-    expect([menu.getAttribute('aria-label'), links.map((l) => [l.tagName, l.getAttribute('href'), l.textContent].join(' ')), !!links[0].querySelector('.dk-menu__icon .dk-icon')])
+    expect([menu.getAttribute('aria-label'), links.map((l) => [l.tagName, l.getAttribute('href'), l.textContent].join(' ')), !!links[0].querySelector('[data-icon]')])
       .toEqual(['More pages', ['A #Org Org', 'A #Team Team', 'A #Projects Projects'], true]);
     await expect.poll(() => document.activeElement).toBe(links[0]);
     expect(trail('bmenu')).toBe('Home > … > Website > Settings');
@@ -141,7 +141,7 @@ describe('Breadcrumb', () => {
       <Breadcrumb id="bbad" separator="arrow" maxItems={1}><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem href="#b">B</BreadcrumbItem><BreadcrumbItem href="#c">C</BreadcrumbItem></Breadcrumb>
       <div dir="rtl"><Breadcrumb id="brtl"><BreadcrumbItem href="#a">A</BreadcrumbItem><BreadcrumbItem>B</BreadcrumbItem></Breadcrumb></div>
     </>);
-    expect([el('bbad').querySelectorAll('.dk-breadcrumb__item').length, (q('#bbad li > span[aria-hidden="true"] [data-icon]')).dataset.icon]).toEqual([3, 'chevron_right']);
+    expect([el('bbad').querySelectorAll('li > :not([aria-hidden])').length, (q('#bbad li > span[aria-hidden="true"] [data-icon]')).dataset.icon]).toEqual([3, 'chevron_right']);
     expect([...el('brtl').querySelectorAll('li > span[aria-hidden="true"] [data-icon]')].map(iconPoints).join()).toBe('left');
   });
 

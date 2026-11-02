@@ -1,6 +1,6 @@
 {
   "name": "serupa-ds",
-  "version": "12.0.0",
+  "version": "13.0.0",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -35,6 +35,7 @@
     "./bundle.css": "./dist/bundle.css",
     "./components.css": "./dist/components.css",
     "./utilities.css": "./dist/utilities.css",
+    "./utilities-extra.css": "./dist/utilities-extra.css",
     "./serupa.iife.js": "./dist/serupa.iife.js",
     "./serupa-icons.iife.js": "./dist/serupa-icons.iife.js",
     "./theme.js": "./dist/theme.js",
@@ -55,8 +56,14 @@
       "import": "./dist/testing.js",
       "default": "./dist/testing.js"
     },
+    "./purge": {
+      "types": "./dist/purge.d.ts",
+      "import": "./dist/purge.js",
+      "default": "./dist/purge.js"
+    },
     "./design-tokens/*": "./design-tokens/*",
     "./vscode/*": "./dist/vscode/*",
+    "./native/*": "./dist/native/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
   },
@@ -90,7 +97,7 @@
     "prepare": "node tools/build/build.mjs",
     "pretest": "node tools/build/build.mjs",
     "test": "node tools/test/run.mjs",
-    "tokens": "node tools/tokens/build.mjs && node tools/tokens/export.mjs && node tools/tokens/readme-tables.mjs",
+    "tokens": "node tools/tokens/build.mjs && node tools/tokens/export.mjs && node tools/tokens/readme-tables.mjs && node tools/tokens/badge-palette.mjs",
     "test:safari": "node tools/test/run.mjs --compat safari",
     "test:firefox": "node tools/test/run.mjs --browser firefox",
     "test:webkit": "node tools/test/run.mjs --browser webkit",

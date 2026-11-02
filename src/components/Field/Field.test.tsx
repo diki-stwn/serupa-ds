@@ -54,7 +54,7 @@ describe('Field', () => {
     expect(el('mail').getAttribute('aria-required')).toBe('true');
     expect(f.querySelector('label > span[aria-hidden]')?.getAttribute('aria-hidden')).toBe('true');
     expect([...f.children].map((c) => c.className.split(' ')[0])).toEqual(['dk-field__label', 'dk-field__hint', 'dk-field__control', 'dk-field__error']);
-    expect((f.querySelector<HTMLElement>('.dk-field__error .dk-icon'))?.dataset.icon).toBe('error');
+    expect((f.querySelector<HTMLElement>('[data-icon] + span[id]')?.previousElementSibling as HTMLElement | null)?.dataset.icon).toBe('error');
 
     await screen.getByRole('button', { name: 'Clear' }).click();
     expect(described('mail')).toHaveLength(2);
