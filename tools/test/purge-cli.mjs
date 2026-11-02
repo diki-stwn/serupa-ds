@@ -1,14 +1,15 @@
 // serupa-purge's command line, without a browser (page.mjs checks what it keeps): a mistake in the arguments ends
 // with a message and exit 2, not a stack trace; a linked source file is read and a linked folder or a link to a
 // folder is skipped without crashing; a CSS escape for no character reads as U+FFFD, as CSS says; the rules inside
-// @starting-style are trimmed like those inside @media. Build first.
+// @starting-style are trimmed like those inside @media; with --components, a word every component exports (their
+// label sets, en and id) marks none of them used. Build first.
 //   node tools/test/purge-cli.mjs
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { PROJECT, report, done, fail } from './lib.mjs';
-import { purge, usedClasses } from '../../bin/serupa-purge.mjs';
+import { purge, unusedComponentClasses, usedClasses } from '../../bin/serupa-purge.mjs';
 
 const R = [];
 const t = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
@@ -57,6 +58,12 @@ try {
   // @starting-style holds rules like @media does: a dropped component's or an unused class's go with it.
   const start = purge('@starting-style { .dk-dialog { opacity: 0 } .dk-btn { opacity: 0 } .grid { opacity: 0 } }', new Set(), new Set(['dk-dialog']));
   t('trims the rules inside @starting-style', start.includes('.dk-btn') && !start.includes('dk-dialog') && !start.includes('.grid'), start);
+
+  // --components: a word every component's label sets share (en, id) marks none of them used (GR99).
+  const manifest = JSON.parse(fs.readFileSync(path.join(PROJECT, 'dist', 'components.json'), 'utf8'));
+  const dropped = (words) => [...unusedComponentClasses(manifest, new Set(words))].sort();
+  const button = dropped(['Button', 'Save']);
+  t('--components: id="save" or lang="en" in the sources keeps no more components than without', JSON.stringify(dropped(['Button', 'Save', 'id', 'en', 'lang'])) === JSON.stringify(button) && !button.includes('dk-btn') && button.includes('dk-toast'), `${dropped(['Button', 'id', 'en']).length} classes dropped, ${button.length} without id and en`);
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
 }
