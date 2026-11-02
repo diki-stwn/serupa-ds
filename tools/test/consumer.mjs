@@ -2,7 +2,8 @@
 // repository builds on Node 26, so CI runs this on Node 22 and 24 too. It packs the built package as a release ships
 // it, installs the tarball with React into an empty project, then from that project imports serupa-ds and
 // serupa-ds/icons, finds each CSS file, theme.js and the browser script by its export, and server-renders every case
-// in tools/test/ssr/. Then it installs it with Preact and renders and mounts every case there. Needs the build
+// in tools/test/ssr/. Then it installs it with Preact and renders and mounts every case there, and makes the starter
+// app with serupa-create, installs it, and checks its types and its build. Needs the build
 // (npm run build) and the network (npm install), so the checks project skips it.
 //   node tools/test/consumer.mjs
 //   node tools/test/consumer.mjs --release   the GitHub release of package.json's version instead (D5), by the URL the
@@ -132,6 +133,31 @@ await win.happyDOM.close();
 process.stdout.write(JSON.stringify(R));
 `);
 results.push(...check(preact));
+
+// The starter app (135): serupa-create from the installed package, as `npx serupa-create` runs it, makes a Vite app
+// that installs this same package. Its own scripts must pass: the types check, and `vite build` puts theme.js in the
+// built page ahead of the app (so no flash of the wrong theme) and trims bundle.css with serupaPurge().
+const starter = path.join(tmp, 'starter');
+const made = spawnSync(process.execPath, [path.join(app, 'node_modules', 'serupa-ds', 'bin', 'serupa-create.mjs'), starter, '--serupa', /^https?:/.test(tarball) ? tarball : `file:${tarball}`], { encoding: 'utf8' });
+results.push({ name: 'Starter: serupa-create makes the app', ok: made.status === 0 && fs.existsSync(path.join(starter, 'src', 'App.tsx')), detail: made.stdout + made.stderr });
+if (made.status === 0) {
+  run(['install', '--no-audit', '--no-fund', '--ignore-scripts'], starter);
+  for (const script of ['typecheck', 'build']) {
+    const r = spawnSync(npm, ['run', script], { cwd: starter, encoding: 'utf8', shell: process.platform === 'win32' });
+    results.push({ name: `Starter: npm run ${script}`, ok: r.status === 0, detail: (r.stdout + r.stderr).slice(-2000) });
+  }
+  const out = path.join(starter, 'dist');
+  const html = fs.existsSync(path.join(out, 'index.html')) ? fs.readFileSync(path.join(out, 'index.html'), 'utf8') : '';
+  const themeAt = html.indexOf('<script src="/serupa-theme.js">');
+  results.push({ name: 'Starter: the built page loads theme.js as a plain script before the app', ok: themeAt >= 0 && themeAt < html.indexOf('type="module"'), detail: html });
+  const shipped = path.join(app, 'node_modules', 'serupa-ds', 'dist');
+  const same = fs.existsSync(path.join(out, 'serupa-theme.js')) && fs.readFileSync(path.join(out, 'serupa-theme.js'), 'utf8') === fs.readFileSync(path.join(shipped, 'theme.js'), 'utf8');
+  results.push({ name: 'Starter: the build copies the installed theme.js', ok: same });
+  const css = fs.existsSync(path.join(out, 'assets')) ? fs.readdirSync(path.join(out, 'assets')).filter((f) => f.endsWith('.css')) : [];
+  const size = css.reduce((n, f) => n + fs.statSync(path.join(out, 'assets', f)).size, 0);
+  const whole = fs.statSync(path.join(shipped, 'bundle.css')).size;
+  results.push({ name: 'Starter: its CSS is trimmed (serupaPurge), under half of bundle.css', ok: size > 0 && size < whole / 2, detail: `${size} of ${whole} bytes` });
+}
 fs.rmSync(tmp, { recursive: true, force: true });
 for (const x of results) console.log(`${x.ok ? 'PASS' : 'FAIL'}  ${x.name}${x.ok || !x.detail ? '' : '\n      ' + x.detail}`);
 const bad = results.filter((x) => !x.ok).length;
