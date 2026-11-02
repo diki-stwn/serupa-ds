@@ -35,6 +35,15 @@ import { <Name> } from "serupa-ds";
 - <Situation>: use [<Alternative>](../<Alternative>/README.md) instead.
 - <Situation>: use <native element or pattern> instead.
 
+## Anatomy
+
+<!-- Required when the component has parts (classes like dk-<name>__<part>). The Storybook page draws the story named here with each part outlined and numbered, and tools/test/anatomy.mjs checks that every class is in that story's markup. One line per part, numbered from 1, in reading order: **Name** (`.class`): what it is and does. For a menu or popover that has content only while open, write "Drawn from the `<Story>` story, opened.": the diagram opens it once and copies it. -->
+
+Drawn from the `<Story>` story.
+
+1. **<Part>** (`.dk-<name>__<part>`): <what it is and what it does.>
+2. **<Part>** (`.dk-<name>__<part>`): <…>
+
 ## Usage
 
 <!-- Required. How to use it well: content and writing guidance, layout, combining it with other components, common mistakes. Replaces the old "Guidelines", "Usage guidelines", "Writing it" and "Standards" sections. -->

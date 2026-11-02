@@ -10,6 +10,7 @@ design-tokens/themes/emerald-dark.tokens.json
 design-tokens/themes/emerald-light.tokens.json
 design-tokens/themes/violet-dark.tokens.json
 design-tokens/themes/violet-light.tokens.json
+design-tokens/tokens.schema.json
 dist/base.css
 dist/bundle.css
 dist/components.css

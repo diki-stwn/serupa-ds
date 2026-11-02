@@ -40,3 +40,16 @@ html, body { background-color: var(--surface); }
    a page is 1000px wide, about 120 characters of body text. Tables, code, story frames and the docs' own blocks
    keep the page's width. */
 .sbdocs-content :is(p, ul, ol, blockquote):not(.docs-story *, .sb-unstyled *, td *, th *, li *) { max-inline-size: var(--container-prose); }
+
+/* Anatomy diagrams (docs/anatomy.tsx): the story with its parts outlined and numbered. An overlay is drawn from a
+   still copy, open and in the page's flow (not fixed, not in the top layer, no motion). */
+.sb-anatomy { margin: 16px 0; padding: 32px 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.sb-anatomy__stage { position: relative; isolation: isolate; }
+.sb-anatomy__frozen:not(:empty) { display: flex; flex-wrap: wrap; gap: 24px; margin-block-start: 16px; }
+.sb-anatomy__frozen > * { z-index: auto; pointer-events: none; display: block; position: relative; inset: auto; margin: 0; max-block-size: none; translate: none; transform: none; }
+.sb-anatomy__frozen * { transition: none !important; animation: none !important; }
+.sb-anatomy__stage .docs-story, .sb-anatomy__stage .sbdocs-preview { margin: 0; border: 0; box-shadow: none; }
+.sb-anatomy__box, .sb-anatomy__n { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+.sb-anatomy__box { box-sizing: border-box; border: 2px solid var(--primary); border-radius: 4px; }
+.sb-anatomy__n { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 10px; background: var(--primary); color: var(--on-primary); font: 600 12px/1 var(--font-sans); }
+@media (forced-colors: active) { .sb-anatomy__box { border-color: Highlight; } .sb-anatomy__n { background: Highlight; color: HighlightText; forced-color-adjust: none; } }

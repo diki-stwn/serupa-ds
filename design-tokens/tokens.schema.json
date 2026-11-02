@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/diki-stwn/design-system/blob/main/design-tokens/tokens.schema.json",
+  "title": "Serupa design token file",
+  "description": "A token file in the W3C Design Tokens format (DTCG 2025.10), limited to what Serupa writes: serupa.tokens.json, themes/*.tokens.json and components/*.tokens.json. A group holds tokens and groups; a token has $type and $value. Any value can instead be a reference to another token, \"{group.name}\". css-values.json is not in the format and isn't covered.",
+  "$ref": "#/$defs/group",
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "pattern": "^\\{[^{}.][^{}]*\\}$",
+      "description": "A reference to another token by its path, e.g. {color.blue-600}."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[^.{}$][^.{}]*$"
+    },
+    "group": {
+      "type": "object",
+      "properties": {
+        "$description": {
+          "$ref": "#/$defs/description"
+        },
+        "$extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "$deprecated": {
+          "$ref": "#/$defs/deprecated"
+        }
+      },
+      "propertyNames": {
+        "anyOf": [
+          {
+            "enum": [
+              "$description",
+              "$extensions",
+              "$deprecated",
+              "$schema"
+            ]
+          },
+          {
+            "$ref": "#/$defs/name"
+          }
+        ]
+      },
+      "patternProperties": {
+        "^[^$]": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/token"
+            },
+            {
+              "$ref": "#/$defs/group"
+            }
+          ]
+        }
+      }
+    },
+    "type": {
+      "enum": [
+        "color",
+        "dimension",
+        "fontFamily",
+        "fontWeight",
+        "duration",
+        "cubicBezier",
+        "number",
+        "strokeStyle",
+        "border",
+        "transition",
+        "shadow",
+        "gradient",
+        "typography"
+      ]
+    },
+    "token": {
+      "type": "object",
+      "required": [
+        "$type",
+        "$value"
+      ],
+      "properties": {
+        "$type": {
+          "$ref": "#/$defs/type"
+        },
+        "$value": true,
+        "$description": {
+          "$ref": "#/$defs/description"
+        },
+        "$extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "$deprecated": {
+          "$ref": "#/$defs/deprecated"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "color"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/color"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "dimension"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/dimension"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "fontFamily"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/fontFamily"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "fontWeight"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/fontWeight"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "duration"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/duration"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "cubicBezier"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/cubicBezier"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "number"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/ref"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "shadow"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/shadow"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "$type": {
+                "const": "typography"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "$value": {
+                "$ref": "#/$defs/typography"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "color": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "object",
+          "required": [
+            "colorSpace",
+            "components"
+          ],
+          "properties": {
+            "colorSpace": {
+              "const": "srgb"
+            },
+            "components": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "alpha": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "hex": {
+              "type": "string",
+              "pattern": "^#[0-9a-f]{6}$"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "dimension": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "unit": {
+              "enum": [
+                "px",
+                "rem"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fontFamily": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "fontWeight": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      ]
+    },
+    "duration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit": {
+              "enum": [
+                "ms",
+                "s"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "cubicBezier": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    },
+    "shadowLayer": {
+      "type": "object",
+      "required": [
+        "color",
+        "offsetX",
+        "offsetY",
+        "blur",
+        "spread"
+      ],
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/color"
+        },
+        "offsetX": {
+          "$ref": "#/$defs/dimension"
+        },
+        "offsetY": {
+          "$ref": "#/$defs/dimension"
+        },
+        "blur": {
+          "$ref": "#/$defs/dimension"
+        },
+        "spread": {
+          "$ref": "#/$defs/dimension"
+        },
+        "inset": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "shadow": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "$ref": "#/$defs/shadowLayer"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/shadowLayer"
+          }
+        }
+      ]
+    },
+    "typography": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ref"
+        },
+        {
+          "type": "object",
+          "required": [
+            "fontFamily",
+            "fontSize",
+            "fontWeight",
+            "letterSpacing",
+            "lineHeight"
+          ],
+          "properties": {
+            "fontFamily": {
+              "$ref": "#/$defs/fontFamily"
+            },
+            "fontSize": {
+              "$ref": "#/$defs/dimension"
+            },
+            "fontWeight": {
+              "$ref": "#/$defs/fontWeight"
+            },
+            "letterSpacing": {
+              "$ref": "#/$defs/dimension"
+            },
+            "lineHeight": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ref"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "extensions": {
+      "type": "object",
+      "properties": {
+        "com.serupa": {
+          "type": "object",
+          "properties": {
+            "cssVar": {
+              "type": "string",
+              "pattern": "^--[a-z0-9][a-z0-9.-]*$",
+              "description": "The CSS variable this token sets."
+            },
+            "class": {
+              "type": "string",
+              "description": "The utility class of a type style."
+            }
+          }
+        }
+      }
+    },
+    "deprecated": {
+      "type": [
+        "boolean",
+        "string"
+      ]
+    }
+  }
+}

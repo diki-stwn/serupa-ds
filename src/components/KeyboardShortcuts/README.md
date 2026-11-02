@@ -25,6 +25,16 @@ function Inbox() {
 - Keys inside one widget, such as arrows in a list or Escape in a popup: the component handles those, on its own element.
 - Showing one shortcut in help text or a tooltip: use [Kbd](../Kbd/README.md).
 
+## Anatomy
+
+Drawn from the `LongText` story.
+
+1. **Group** (`.dk-keyboard-shortcuts__group`): the shortcuts for one part of the app.
+2. **Heading** (`.dk-keyboard-shortcuts__heading`): names the group.
+3. **Shortcut** (`.dk-keyboard-shortcuts__row`): one shortcut: what it does and its keys.
+4. **What it does** (`.dk-keyboard-shortcuts__description`): the action, in words.
+5. **Keys** (`.dk-keyboard-shortcuts__keys`): the keys to press.
+
 ## Usage
 
 - Call `useShortcut(keys, handler, { description, group })` in the component the shortcut belongs to. It works while that component is mounted, so a page's shortcuts come and go with the page.

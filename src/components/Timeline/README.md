@@ -25,6 +25,17 @@ import { Timeline, TimelineItem } from "serupa-ds";
 - Rows to sort, filter or compare: use [Table](../Table/README.md).
 - A plain list without times: use a list, or [Sidebar](../Sidebar/README.md) for navigation.
 
+## Anatomy
+
+Drawn from the `Alternate` story.
+
+1. **Rail** (`.dk-timeline__rail`): the line the events hang on, oldest to newest.
+2. **Event** (`.dk-timeline__item`): one thing that happened.
+3. **Marker** (`.dk-timeline__marker`): a dot or an icon on the rail, in the event's tone.
+4. **Time** (`.dk-timeline__time`): when it happened.
+5. **Title** (`.dk-timeline__title`): what happened.
+6. **Body** (`.dk-timeline__body`): more about it.
+
 ## Usage
 
 - Keep one order, oldest first or newest first, and say which if it isn't obvious.

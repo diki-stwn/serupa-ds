@@ -31,13 +31,22 @@ const [reviewers, setReviewers] = React.useState<string[]>([]);
 - An answer that may not be in the list: use [Input](../Input/README.md), since only listed options can be picked.
 - Picking more than one option from a short list (under about 10): use [checkboxes](../Checkbox/README.md), which show every choice at once.
 
+## Anatomy
+
+Drawn from the `Multiple` story.
+
+1. **Chosen values** (`.dk-combobox__values`): the values chosen so far, each with a way to remove it.
+2. **Value** (`.dk-combobox__tag`): one chosen value.
+3. **Toggle** (`.dk-combobox__toggle`): opens and closes the list.
+4. **Clear** (`.dk-combobox__clear`): removes every chosen value.
+
 ## Usage
 
 - Label it with [Field](../Field/README.md), a `<label htmlFor>` or `aria-label`; the placeholder isn't a label.
 - Add a `description` when options look alike, such as people with the same name (their email).
 - Set `clearable` when no selection is a valid answer, so people can clear it in one click.
 - Write an `emptyText` that says what to try next, and match the `size` to the fields beside it.
-- Long lists are fine: the options are in the page only while the list is open, each label is prepared for matching once per `options` array, and moving the highlight redraws two rows. At most 100 rows are drawn at once, with a muted "Keep typing to narrow N more" line under them (the `moreResults` label); each row's `aria-posinset` and `aria-setsize` still count every match, and the picked option is drawn even when it's further down. Keep `options` the same array between renders (state, a constant or `useMemo`), so that work isn't redone. For tens of thousands of options, load the matches as people type with `loadOptions`.
+- Long lists are fine: the options are in the page only while the list is open, each label is prepared for matching once per `options` array, and moving the highlight redraws two rows. Only the rows in view are drawn, plus a few either side, as in [VirtualList](../VirtualList/README.md): scrolling and the arrow and Page keys reach every match, each row's `aria-posinset` and `aria-setsize` count every match, and the highlighted option is always drawn, so screen readers can follow it. Keep `options` the same array between renders (state, a constant or `useMemo`), so that work isn't redone. For tens of thousands of options, load the matches as people type with `loadOptions`.
 - With `loadOptions`, Combobox runs the requests: it waits for typing to pause (`debounce`, 250ms), passes an `AbortSignal` that aborts when newer text is typed (hand it to `fetch`), drops any answer that isn't for the latest text, and shows the loading row while it waits and "Couldn't load options. Type to try again." (the `loadFailed` label) when the promise rejects. Opening the list loads what `""` finds. The picked option keeps its label when later answers leave it out. Filter on the server: `filter` is ignored. To run the requests yourself instead, use `filter={false}`, `onInputChange` and `loading`.
 
 ## Behavior

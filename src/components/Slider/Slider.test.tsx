@@ -413,6 +413,11 @@ describe('Slider', () => {
 });
 
 describe('Slider at 320px (GM2)', () => {
+  // The labels are measured once the page's fonts have loaded and the slider has refitted to them (a frame later, from
+  // its ResizeObserver). Under some locales (ja) a font is still arriving just after render, and the swap moves a label
+  // by a fraction of a pixel; the slider refits on its own, which the second test checks, but a measure taken before
+  // that frame saw the old nudge.
+  const fontsIn = async () => { await document.fonts.ready; await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))); };
   test('the value chip and the end labels stay inside the slider: nothing widens the page, in either direction, shown or hidden', async () => {
     const money = (v: number) => 'IDR ' + (v * 10000).toLocaleString('en-US') + ' per month';
     const marks = [{ value: 0, label: 'Nothing at all' }, { value: 50, label: 'Half' }, { value: 100, label: 'Everything there is' }];
@@ -420,6 +425,7 @@ describe('Slider at 320px (GM2)', () => {
       <Slider id="gm2-l" aria-label="Budget" defaultValue={100} showValue formatValue={money} marks={marks} />
       <div dir="rtl"><Slider id="gm2-r" aria-label="Budget" defaultValue={0} showValue formatValue={money} marks={marks} /></div>
     </div>);
+    await fontsIn();
     for (const id of ['gm2-l', 'gm2-r']) {
       const box = el(id).getBoundingClientRect();
       const parts = [...el(id).querySelectorAll<HTMLElement>('[role="slider"] > [aria-hidden] > span, [aria-hidden] > span > span')].map((p) => p.getBoundingClientRect());
@@ -433,6 +439,7 @@ describe('Slider at 320px (GM2)', () => {
   test('a label that changes width after the first fit (a web font arriving) is fitted again, with the slider the same size', async () => {
     const marks = [{ value: 0, label: 'Nothing at all' }, { value: 100, label: 'Everything there is' }];
     await render(<div style={{ width: '200px' }}><Slider id="gm2-f" aria-label="Volume" defaultValue={50} marks={marks} /></div>);
+    await fontsIn();
     const inside = () => {
       const box = el('gm2-f').getBoundingClientRect();
       return [...el('gm2-f').querySelectorAll<HTMLElement>('[aria-hidden] > span > span')].every((p) => { const r = p.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5; });

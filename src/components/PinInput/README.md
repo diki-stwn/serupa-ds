@@ -27,6 +27,14 @@ import { PinInput, Field } from "serupa-ds";
 - Long codes such as license keys or recovery codes, which people paste rather than type: use an Input, so they can read and fix the whole text.
 - A number people work out, such as an amount: use [NumberInput](../NumberInput/README.md).
 
+## Anatomy
+
+Drawn from the `Alphanumeric` story.
+
+1. **Boxes** (`.dk-pin-input__boxes`): one box per character, so you see how many are left.
+2. **Box** (`.dk-pin-input__box`): one character.
+3. **Filled box** (`.dk-pin-input__box--filled`): a character already typed.
+
 ## Usage
 
 - `length` (default 6) sets the boxes. Characters that don't fit `type` are dropped as people type or paste, so "123-456" and "123 456" both fill six boxes.

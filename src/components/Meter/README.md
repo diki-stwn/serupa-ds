@@ -24,6 +24,15 @@ import { Meter } from "serupa-ds";
 - A value people set themselves: use [Slider](../Slider/README.md) instead.
 - A count with no maximum, such as unread messages: use a [Badge](../Badge/README.md) or text.
 
+## Anatomy
+
+Drawn from the `CustomValue` story.
+
+1. **Label** (`.dk-meter__label`): what is measured.
+2. **Value** (`.dk-meter__value`): the amount, in words or numbers.
+3. **Track** (`.dk-meter__track`): the whole range.
+4. **Fill** (`.dk-meter__fill`): how much of it is used, in the color of its zone (low, medium, high).
+
 ## Usage
 
 - Give every meter a `label` that says what it measures ("Storage"), or an `aria-label`.
