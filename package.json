@@ -97,7 +97,7 @@
     "prepare": "node tools/build/build.mjs",
     "pretest": "node tools/build/build.mjs",
     "test": "node tools/test/run.mjs",
-    "tokens": "node tools/tokens/build.mjs && node tools/tokens/export.mjs && node tools/tokens/readme-tables.mjs && node tools/tokens/badge-palette.mjs",
+    "tokens": "node tools/tokens/source.mjs && node tools/tokens/build.mjs && node tools/tokens/export.mjs && node tools/tokens/readme-tables.mjs && node tools/tokens/badge-palette.mjs",
     "test:safari": "node tools/test/run.mjs --compat safari",
     "test:firefox": "node tools/test/run.mjs --browser firefox",
     "test:webkit": "node tools/test/run.mjs --browser webkit",

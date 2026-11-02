@@ -67,7 +67,7 @@ function shadow(s) {
 }
 
 /** [type, value] in the format, or null when it has no type for this value yet. */
-function typed(group, name, v) {
+export function typed(group, name, v) {
   v = String(v).trim();
   if (group === 'color') return /^(#|rgb)/.test(v) ? ['color', color(v)] : null;
   if (name.startsWith('text-shadow')) return null;   // CSS text-shadow has no spread; the format's shadow type always has one
@@ -91,7 +91,7 @@ function typed(group, name, v) {
   return null;
 }
 
-const pathName = (n) => n.replace(/\./g, '_');
+export const pathName = (n) => n.replace(/\./g, '_');
 const ext = (name) => ({ [NS]: { cssVar: '--' + name } });
 const setIn = (o, k) => (o[k] ||= {});
 

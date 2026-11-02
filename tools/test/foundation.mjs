@@ -12,7 +12,8 @@
 //   4. No utility class writes out a value that a token already holds (it should read the token).
 //   5. Component styles use no values except tokens and the few listed in ALLOWED_COMPONENT_LITERALS.
 //   6. Nothing loads from another server (no http(s) URLs or @import in the shipped CSS/JS).
-//   7. tokens.css is exactly what tools/tokens/build.mjs makes from tokens.json (npm run tokens if not).
+//   7. tokens.json is exactly what tools/tokens/source.mjs makes from the source, tokens/serupa.tokens.json (and the
+//      source turns back into itself), and tokens.css what tools/tokens/build.mjs makes from tokens.json (npm run tokens if not).
 //   8. Text, control and focus colors pass WCAG contrast in every theme.
 //   9. Responsive variants switch at the screen-* breakpoints.
 //  10. base.css reads tokens only.
@@ -28,6 +29,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { HERE, projectArg, report, done } from './lib.mjs';
 import { PAIRS } from '../tokens/contrast-pairs.mjs';
+import { toSource, fromSource } from '../tokens/source.mjs';
+import { isDeepStrictEqual } from 'node:util';
 
 const P = projectArg();
 const results = [];
@@ -213,6 +216,15 @@ check('version: package.json, file headers, the version export and CHANGELOG agr
 // 7. tokens.css is generated from tokens.json (tools/tokens/build.mjs --check compares it byte for byte)
 const tc = spawnSync(process.execPath, [path.join(HERE, '..', 'tokens', 'build.mjs'), '--check', P], { encoding: 'utf8' });
 check('tokens.css is exactly what tokens.json gives (npm run tokens if not)', tc.status === 0, ((tc.stdout || '') + (tc.stderr || '')).trim());
+
+// 7. tokens.json is generated from the DTCG source, and the source survives the round trip, so nothing in tokens.json
+// is lost in it (tools/tokens/source.mjs)
+const sc = spawnSync(process.execPath, [path.join(HERE, '..', 'tokens', 'source.mjs'), '--check', P], { encoding: 'utf8' });
+check('tokens.json is exactly what tokens/serupa.tokens.json gives (npm run tokens if not)', sc.status === 0, ((sc.stdout || '') + (sc.stderr || '')).trim());
+{
+  const src = JSON.parse(read('tokens/serupa.tokens.json'));
+  check('tokens/serupa.tokens.json turns into tokens.json and back without a change', isDeepStrictEqual(toSource(fromSource(src).tokens), src));
+}
 
 // 12. cascade layers: every shipped stylesheet declares the same layer order and keeps its rules inside its layer
 const ORDER = '@layer dk.tokens, dk.base, dk.components, dk.utilities;';
