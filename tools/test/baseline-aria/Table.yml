@@ -315,3 +315,55 @@
       - cell "Active"
       - cell "87"
 
+# Virtual
+- region "Ten thousand invoices, drawn a window at a time":
+  - table "Ten thousand invoices, drawn a window at a time":
+    - caption: Ten thousand invoices, drawn a window at a time
+    - rowgroup:
+      - row "Invoice Amount":
+        - columnheader "Invoice"
+        - columnheader "Amount"
+    - rowgroup:
+      - row "INV-1001 $120.00":
+        - cell "INV-1001"
+        - cell "$120.00"
+      - row "INV-1002 $157.00":
+        - cell "INV-1002"
+        - cell "$157.00"
+      - row "INV-1003 $194.00":
+        - cell "INV-1003"
+        - cell "$194.00"
+      - row "INV-1004 $231.00":
+        - cell "INV-1004"
+        - cell "$231.00"
+      - row "INV-1005 $268.00":
+        - cell "INV-1005"
+        - cell "$268.00"
+      - row "INV-1006 $305.00":
+        - cell "INV-1006"
+        - cell "$305.00"
+      - row "INV-1007 $342.00":
+        - cell "INV-1007"
+        - cell "$342.00"
+      - row "INV-1008 $379.00":
+        - cell "INV-1008"
+        - cell "$379.00"
+      - row "INV-1009 $416.00":
+        - cell "INV-1009"
+        - cell "$416.00"
+      - row "INV-1010 $453.00":
+        - cell "INV-1010"
+        - cell "$453.00"
+      - row "INV-1011 $490.00":
+        - cell "INV-1011"
+        - cell "$490.00"
+      - row "INV-1012 $527.00":
+        - cell "INV-1012"
+        - cell "$527.00"
+      - row "INV-1013 $564.00":
+        - cell "INV-1013"
+        - cell "$564.00"
+      - row "INV-1014 $601.00":
+        - cell "INV-1014"
+        - cell "$601.00"
+

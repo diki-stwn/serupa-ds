@@ -62,6 +62,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 - With selectable rows, put a `TableActionBar` just before the table: while rows are selected it shows "3 selected", your actions for them (Delete, Export) and "Clear selection" (`onClear`). Pass it the count; it's hidden at 0. It reads out each new count, including the first when you render it only while rows are selected, but keeping it mounted also moves focus to "Select all" when Clear empties the selection.
 - To make each row open a page, give the `TableRow` an `href` (with `target` and `rel` as on a link). The row gets one real link, in its first `TableCell` (or the one you mark `link`), stretched over the whole row: a click anywhere on it follows the link, Ctrl/Cmd-click and middle-click open a new tab, and the keyboard tabs to it. Buttons, checkboxes and links in other cells sit above it and work on their own. Don't use `onClick` on a row for this: it reaches the mouse only, and warns in development.
 - With `stickyHeader`, give the frame a height through `containerProps`. The frame measures the header and keeps that much scroll padding at the top, so a focused link or button in a row scrolls into view below the header, not under it (WCAG 2.4.11).
+- For thousands of rows, use `TableVirtualBody` in place of `TableBody`: it draws only the rows in view of the frame, plus a few either side, so 10,000 rows scroll as quickly as 20. Give the frame a height (`containerProps={{ style: { maxHeight: 480 } }}`, usually with `stickyHeader`), since without one every row is in view. Columns size to the rows drawn, so set widths (`table-layout: fixed` or a width per header cell) where a column mustn't shift while scrolling. Each drawn row gets `aria-rowindex` and the table `aria-rowcount`, a row with focus stays drawn when it scrolls away, and `striped` shades the same rows as a `TableBody` would. Sorting and filtering stay yours: sort the data, then draw row `index` from it.
 
 ## Accessibility
 
@@ -107,6 +108,7 @@ Table only lays out what you give it: sorting, filtering and selection state sta
 | `TableHeaderCell` | `<th scope="col">` | `align` (`'start'` \| `'center'` \| `'end'`); `sort` (`'ascending'` \| `'descending'` \| `'none'`) and `onSort` make it a sort button. Pass `scope="row"` for a row header |
 | `TableActionBar` | `<div role="group">`, before the Table | `count` (required: the bar shows while it's above 0); `onClear` adds "Clear selection"; `clearLabel` renames it; children are the actions; `className`, `ref` and the rest go to the `<div>` |
 | `TableCell` | `<td>` | `align`; `'end'` also gives tabular digits, for numbers; `link`: in a row with `href`, this cell holds the row's link (default: the first `TableCell`) |
+| `TableVirtualBody` (beta) | `<tbody>` drawing only the rows in view | `count` (required); `renderRow(index)` (required) returns a `TableRow`; `itemKey(index)`: a stable key per row (default the index); `estimatedRowHeight`: a guess for rows not drawn yet (default 41, 36 at `size="sm"`); `overscan`: rows drawn beyond each edge (default 6); the rest goes to the `<tbody>` |
 
 ## Component tokens
 

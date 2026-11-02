@@ -80,6 +80,10 @@
   .dk-table__row { break-inside: avoid; }
   .dk-table--sticky .dk-table__head .dk-table__cell { position: static; box-shadow: none; }
 }
+/* TableVirtualBody: the drawn rows sit between two empty rows as tall as the rows not drawn; a row kept drawn for its
+   focus while scrolled away is placed in this body, out of the flow. */
+.dk-table__body--virtual { position: relative; }
+.dk-table__spacer { border: var(--spacing-0); }
 /* TableActionBar: a tinted bar above the table while rows are selected: the count, the actions, then Clear at the end. */
 .dk-table-action-bar:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-3); margin-bottom: var(--spacing-2); padding: var(--table-action-bar-padding, var(--spacing-2)) var(--spacing-3); border-radius: var(--table-radius, var(--rounded-lg)); background: var(--table-action-bar-bg, var(--primary-subtle)); color: var(--table-action-bar-text, var(--text)); font-size: var(--text-sm); }
 .dk-table-action-bar__count { font-weight: var(--table-action-bar-weight, var(--font-semibold)); }

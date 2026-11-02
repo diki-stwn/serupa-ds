@@ -7,7 +7,7 @@ import { idLabels } from '../../internal/labels';
 import { Text } from '../Text/Text';
 import { Button } from '../Button/Button';
 import { SerupaProvider } from '../../internal/provider';
-import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
+import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, TableVirtualBody, type SortDirection } from './Table';
 
 const ROWS: Array<[string, string, number]> = [['Ada', 'Admin', 1200], ['Grace', 'Editor', 30], ['Linus', 'Viewer', 450]];
 const el = (id: string) => document.getElementById(id) as HTMLElement;
@@ -531,5 +531,60 @@ describe('Table: no negative zero (GR84)', () => {
     expect(zero).not.toMatch(minus);
     expect(Number(zero.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[^\d]/g, ''))).toBe(0);
     expect(document.getElementById('cn')!.textContent).toMatch(minus);
+  });
+});
+
+describe('TableVirtualBody (51)', () => {
+  const frames = () => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+  function Big(p: { striped?: boolean }) {
+    return <Table id="vt" caption="Orders" stickyHeader striped={p.striped} containerProps={{ id: 'vt-frame', style: { maxHeight: '300px' } }}>
+      <TableHead><TableRow><TableHeaderCell>Order</TableHeaderCell><TableHeaderCell>Total</TableHeaderCell></TableRow></TableHead>
+      <TableVirtualBody count={10000} renderRow={(i) => <TableRow><TableCell><a href={'#o' + i}>{'Order ' + i}</a></TableCell><TableCell>{i * 3}</TableCell></TableRow>} />
+    </Table>;
+  }
+  const drawn = () => [...el('vt').querySelectorAll<HTMLElement>('tbody > tr[data-index]')];
+  test('draws only the rows in view, with aria-rowindex under the header and aria-rowcount on the table; the frame scrolls through all 10,000', async () => {
+    await render(<Big />);
+    await frames();
+    const f = el('vt-frame');
+    expect([drawn().length < 40, drawn()[0].getAttribute('aria-rowindex'), el('vt').getAttribute('aria-rowcount'), f.scrollTop]).toEqual([true, '2', '10001', 0]);
+    expect(f.scrollHeight).toBeGreaterThan(10000 * 30);   // the spacer rows stand in for the rows not drawn
+    f.scrollTop = f.scrollHeight;
+    await expect.poll(() => drawn().at(-1)!.getAttribute('data-index')).toBe('9999');
+    const last = drawn().at(-1)!.getBoundingClientRect(), box = f.getBoundingClientRect();
+    expect([last.bottom <= box.bottom + 1, last.top >= box.top, drawn().length < 40, drawn().at(-1)!.getAttribute('aria-rowindex')]).toEqual([true, true, true, '10001']);
+    // Halfway: the rows drawn are the ones in view, under the sticky header.
+    f.scrollTop = f.scrollHeight / 2;
+    await frames(); await frames();
+    const head = el('vt').querySelector('thead')!.getBoundingClientRect();
+    const shown = drawn().filter((r) => { const b = r.getBoundingClientRect(); return b.bottom > head.bottom && b.top < box.bottom; });
+    expect(shown.length).toBeGreaterThan(4);
+    const idx = shown.map((r) => Number(r.dataset.index));
+    expect([idx[0] > 4000 && idx[0] < 6000, idx.every((n, k) => k === 0 || n === idx[k - 1] + 1)]).toEqual([true, true]);
+  });
+  test('at the top, measuring the rows never scrolls the header away; striped shades the same rows as a TableBody while scrolling', async () => {
+    await render(<Big striped />);
+    await frames(); await frames();
+    const f = el('vt-frame');
+    expect(f.scrollTop).toBe(0);
+    const shade = (i: number) => getComputedStyle(el('vt').querySelector<HTMLElement>(`tr[data-index="${i}"]`)!).backgroundColor;
+    expect([shade(0) === NONE, shade(1) !== NONE]).toEqual([true, true]);
+    for (const top of [4101, 4142, 8333]) {
+      f.scrollTop = top;
+      await frames(); await frames();
+      const r = drawn().filter((x) => x.style.position !== 'absolute');
+      const odd = r.filter((x) => Number(x.dataset.index) % 2 === 1);
+      expect([odd.every((x) => getComputedStyle(x).backgroundColor !== NONE), r.filter((x) => Number(x.dataset.index) % 2 === 0).every((x) => getComputedStyle(x).backgroundColor === NONE)]).toEqual([true, true]);
+    }
+  });
+  test('a row with focus stays in the page when it scrolls away, so focus is never lost', async () => {
+    await render(<Big />);
+    await frames();
+    const link = el('vt').querySelector<HTMLAnchorElement>('tr[data-index="2"] a')!;
+    link.focus();
+    const f = el('vt-frame');
+    f.scrollTop = 200000;
+    await frames(); await frames();
+    expect([document.activeElement === link, link.isConnected, drawn().length < 45]).toEqual([true, true, true]);
   });
 });

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Table, TableActionBar, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
+import { Table, TableActionBar, TableBody, TableVirtualBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow, TableSelectCell, type SortDirection } from './Table';
 import { Text } from '../Text/Text';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
@@ -137,6 +137,16 @@ export const StickyHeader: Story = {
     <Table {...args}>
       <TableHead><TableRow><TableHeaderCell>Invoice</TableHeaderCell><TableHeaderCell align="end">Amount</TableHeaderCell></TableRow></TableHead>
       <TableBody>{Array.from({ length: 12 }, (_, i) => <TableRow key={i}><TableCell>INV-{1001 + i}</TableCell><TableCell align="end"><FormattedNumber value={120 + i * 37} format="currency" currency="USD" /></TableCell></TableRow>)}</TableBody>
+    </Table>
+  ),
+};
+
+export const Virtual: Story = {
+  args: { stickyHeader: true, containerProps: { style: { maxHeight: 320 } } },
+  render: (args) => (
+    <Table {...args} caption="Ten thousand invoices, drawn a window at a time">
+      <TableHead><TableRow><TableHeaderCell>Invoice</TableHeaderCell><TableHeaderCell align="end">Amount</TableHeaderCell></TableRow></TableHead>
+      <TableVirtualBody count={10000} renderRow={(i) => <TableRow><TableCell>INV-{1001 + i}</TableCell><TableCell align="end"><FormattedNumber value={120 + (i % 97) * 37} format="currency" currency="USD" /></TableCell></TableRow>} />
     </Table>
   ),
 };
