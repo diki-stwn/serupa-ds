@@ -33,6 +33,17 @@ Always pin a tag (`#v13.0.0`), never `#main`, so an update only reaches your pro
 
 To update later, change the tag in `package.json` (or run the install again with the new tag) and read the changelog entries in between. Major versions come with migration notes.
 
+**Starting a new app?** `serupa-create` makes one with React, Vite and TypeScript, this release already installed, the stylesheets loaded in order, `theme.js` first in the page, a skip link and main landmark, a theme switch, and the CSS trimmed in `npm run build`:
+
+```sh
+npx --package=github:diki-stwn/serupa-ds#v13.0.0 serupa-create my-app
+cd my-app
+npm install
+npm run dev
+```
+
+Add `--brand violet` or `--brand emerald` for another brand. Then steps 2 and 3 below are done for you.
+
 ### 2. Load the styles and use the components
 
 In a React app (Vite, Next.js, Remix):
